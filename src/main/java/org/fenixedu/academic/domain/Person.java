@@ -119,6 +119,8 @@ import com.google.common.base.Strings;
 public class Person extends Person_Base {
 
     private static final Integer MAX_VALIDATION_REQUESTS = 5;
+    
+    public static final String PERSON_CREATE_SIGNAL = "PERSON_CREATE_SIGNAL";
 
     private IdDocument getIdDocument() {
         final Iterator<IdDocument> documentIterator = getIdDocumentsSet().iterator();
