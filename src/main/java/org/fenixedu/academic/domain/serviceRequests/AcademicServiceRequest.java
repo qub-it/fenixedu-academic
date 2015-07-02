@@ -138,6 +138,9 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         super.setExecutionYear(bean.getExecutionYear());
         super.setLanguage(bean.getLanguage());
 
+        /* TODO: Modify this setter when the AcademicServiceRequest creation gets refactored!*/
+        setServiceRequestType(ServiceRequestType.findUnique(this));
+
         final AcademicServiceRequestBean situationBean =
                 new AcademicServiceRequestBean(AcademicServiceRequestSituationType.NEW, AccessControl.getPerson());
         situationBean.setSituationDate(getRequestDate().toYearMonthDay());
@@ -188,6 +191,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         super.setRequestDate(requestDate);
     }
 
+    @Override
     final public boolean isUrgentRequest() {
         return getUrgentRequest().booleanValue();
     }
@@ -257,6 +261,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return getDescription(academicServiceRequestType, null);
     }
 
+    @Override
     public String getDescription() {
         return getDescription(getAcademicServiceRequestType());
     }
@@ -783,10 +788,12 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return false;
     }
 
+    @Override
     public boolean isRequestForPhd() {
         return false;
     }
 
+    @Override
     public boolean isRequestForRegistration() {
         return false;
     }
@@ -795,6 +802,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return getExecutionYear() != null && getExecutionYear().equals(executionYear);
     }
 
+    @Override
     abstract public Person getPerson();
 
     abstract public EventType getEventType();
@@ -867,12 +875,14 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return getRectorateSubmissionBatch() != null;
     }
 
+    @Override
     public abstract AcademicProgram getAcademicProgram();
 
     public boolean hasExecutionYear() {
         return getExecutionYear() != null;
     }
 
+    @Override
     public boolean hasRegistryCode() {
         return getRegistryCode() != null;
     }
