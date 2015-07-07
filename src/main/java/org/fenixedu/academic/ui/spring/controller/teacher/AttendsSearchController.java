@@ -113,7 +113,7 @@ public class AttendsSearchController extends ExecutionCourseController {
         model.addAttribute("shiftTypes", view(executionCourse.getShiftTypes()));
 
         model.addAttribute("workingStudentTypes", workingStudentSelectionType);
-        return new TeacherView("executionCourse/attendsSearch/viewStudentList");
+        return new TeacherView("executionCourse/attendsSearch/viewStudentList", executionCourse);
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
