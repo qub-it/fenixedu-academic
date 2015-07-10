@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -49,6 +50,8 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+
+import com.google.common.collect.Lists;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "courses", titleKey = "link.student.enrollment")
 @Mapping(module = "student", path = "/studentEnrollmentManagement")
@@ -112,7 +115,11 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
 
     // TODO: refactor this method
     private List<Registration> getRegistrationsToChooseSecondCycle(final Student student) {
-        final List<Registration> result = new ArrayList<Registration>();
+        final List<Registration> result = Lists.newArrayList();
+        
+        if (!FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+            return result;
+        }
 
         for (final Registration registration : student.getRegistrationsSet()) {
 
@@ -172,6 +179,12 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
                 return mapping.findForward("proceedToEnrolment");
 
             } else {
+                
+                if (!FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+                    request.setAttribute("registration", registration);
+                    return mapping.findForward("proceedToEnrolment");
+                }
+                
                 final CycleCurriculumGroup secondCycle = studentCurricularPlan.getSecondCycle();
                 if (secondCycle == null) {
                     return prepareSelectAffinityToEnrol(mapping, request, studentCurricularPlan, executionSemester);
