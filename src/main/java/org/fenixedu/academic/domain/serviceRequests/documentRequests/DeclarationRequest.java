@@ -37,12 +37,15 @@ abstract public class DeclarationRequest extends DeclarationRequest_Base {
         super.init(bean);
 
         super.checkParameters(bean);
-        super.setDocumentPurposeType(bean.getChosenDocumentPurposeType());
+        super.setDocumentPurposeTypeInstance(bean.getChosenDocumentPurposeType());
+        super.setDocumentPurposeType(getDocumentPurposeTypeInstance() != null ? getDocumentPurposeTypeInstance()
+                .getDocumentPurposeType() : null);
         super.setOtherDocumentPurposeTypeDescription(bean.getOtherPurpose());
     }
 
     static final public DeclarationRequest create(final DocumentRequestCreateBean bean) {
-        switch (bean.getChosenDocumentRequestType()) {
+        final DocumentRequestType requestType = bean.getChosenServiceRequestType().getDocumentRequestType();
+        switch (requestType) {
         case SCHOOL_REGISTRATION_DECLARATION:
             return new SchoolRegistrationDeclarationRequest(bean);
         case ENROLMENT_DECLARATION:
