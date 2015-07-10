@@ -109,6 +109,10 @@
 
 				<fr:property name="encodeGroupRules" value="true" />
 				<fr:property name="encodeCurricularRules" value="true" />
+				
+				<fr:property name="allowedToChooseAffinityCycle" value="<%= Registration.getEnrolmentsAllowStudentToChooseAffinityCycle().toString() %>"/>
+				<fr:property name="allowedToEnrolInAffinityCycle" value="<%= Registration.getEnrolmentsAllowStudentToEnrolInAffinityCycle().toString() %>"/>
+				
 			</fr:layout>
 		</fr:edit>
 		
