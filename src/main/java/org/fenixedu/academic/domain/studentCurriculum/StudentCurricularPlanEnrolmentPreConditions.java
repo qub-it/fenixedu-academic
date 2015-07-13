@@ -27,6 +27,8 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.joda.time.LocalDate;
 
 public class StudentCurricularPlanEnrolmentPreConditions {
 
@@ -110,12 +112,8 @@ public class StudentCurricularPlanEnrolmentPreConditions {
      */
     static EnrolmentPreConditionResult checkDebts(StudentCurricularPlan scp) {
 
-        if (scp.getRegistration().getStudent().isAnyGratuityOrAdministrativeOfficeFeeAndInsuranceInDebt()) {
+        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
             return createFalse("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-
-        if (scp.getPerson().hasAnyResidencePaymentsInDebtForPreviousYear()) {
-            return createFalse("error.StudentCurricularPlan.cannot.enrol.with.residence.debts");
         }
 
         return createTrue();
