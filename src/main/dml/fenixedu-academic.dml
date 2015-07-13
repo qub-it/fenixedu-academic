@@ -538,6 +538,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
 	}
 
 	public class degree.DegreeType {
+		public String code (REQUIRED);
 	    public LocalizedString name (REQUIRED);
 	    public boolean empty;
 	    public boolean bolonha;
@@ -668,6 +669,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
     }
 
 	class EvaluationSeason {
+		String code (REQUIRED);
         LocalizedString acronym (REQUIRED);
 	    LocalizedString name (REQUIRED);
 	    boolean normal;
@@ -2389,6 +2391,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
             }
 
     public class degreeStructure.ProgramConclusion {
+    	public String code;
         public LocalizedString name (REQUIRED);
         public LocalizedString description (REQUIRED);
         public LocalizedString graduationTitle (REQUIRED);
