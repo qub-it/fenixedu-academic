@@ -61,14 +61,12 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
 
         @Override
         public Object provide(Object source, Object currentValue) {
-            DocumentRequestCreateBean bean = (DocumentRequestCreateBean) source;
+            RegistrationAcademicServiceRequestCreateBean bean = (RegistrationAcademicServiceRequestCreateBean) source;
             return bean.getRegistration().getDegreeType().getCycleTypes();
         }
     }
 
     private static final long serialVersionUID = 1L;
-
-    private ServiceRequestType chosenServiceRequestType;
 
     private DocumentPurposeTypeInstance chosenDocumentPurposeType;
 
@@ -135,7 +133,7 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
     private LocalDate pastDispatchDate;
 
     private RegistrationProtocol registrationProtocol;
-
+    
     public DocumentRequestCreateBean(Registration registration) {
         super(registration);
         this.enrolments = new ArrayList<Enrolment>();
@@ -156,14 +154,6 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
 
     public void setRegistrationProtocol(final RegistrationProtocol registrationProtocol) {
         this.registrationProtocol = registrationProtocol;
-    }
-
-    public ServiceRequestType getChosenServiceRequestType() {
-        return chosenServiceRequestType;
-    }
-
-    public void setChosenServiceRequestType(ServiceRequestType chosenServiceRequestType) {
-        this.chosenServiceRequestType = chosenServiceRequestType;;
     }
 
     public DocumentPurposeTypeInstance getChosenDocumentPurposeType() {
@@ -493,6 +483,10 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
     }
 
     public boolean getHasPurposeNeed() {
+        if(!chosenServiceRequestType.isLegacy()) {
+            return false;
+        }
+        
         DocumentRequestType documentRequestType = chosenServiceRequestType.getDocumentRequestType();
         return !(documentRequestType.isDiploma() || documentRequestType.isRegistryDiploma()
                 || documentRequestType.isPastDiploma() || documentRequestType.isDiplomaSupplement());
@@ -550,5 +544,6 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
     public void setProgramConclusion(ProgramConclusion programConclusion) {
         this.programConclusion = programConclusion;
     }
+    
 
 }
