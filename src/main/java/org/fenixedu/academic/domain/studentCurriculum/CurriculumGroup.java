@@ -1008,19 +1008,30 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         return false;
     }
 
+    public boolean isInternalCreditsSourceGroup() {
+        return false;
+    }
+
+    public boolean isExternal() {
+        return false;
+    }
+
     public boolean canAdd(final CurriculumLine curriculumLine) {
-        if (!curriculumLine.hasCurricularCourse() || !curriculumLine.isBolonhaDegree()) {
+        
+        if (!curriculumLine.hasCurricularCourse()) {
             return true;
         }
 
-        if (curriculumLine.isEnrolment()) {
-            if (curriculumLine instanceof OptionalEnrolment) {
-                return getDegreeModule().hasDegreeModuleOnChilds(
-                        ((OptionalEnrolment) curriculumLine).getOptionalCurricularCourse());
-            }
+        final CurricularCourse curricularCourse =
+                curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine).getOptionalCurricularCourse() : curriculumLine
+                        .getCurricularCourse();
+
+        // might be null in case of an OptionalEnrolment
+        if (curricularCourse == null) {
+            return true;
         }
 
-        return getDegreeModule().hasDegreeModuleOnChilds(curriculumLine.getCurricularCourse());
+        return getDegreeModule().hasDegreeModuleOnChilds(curricularCourse);
     }
 
     public Collection<CurriculumGroup> getCurricularCoursePossibleGroups(final CurricularCourse curricularCourse) {

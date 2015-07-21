@@ -190,10 +190,6 @@ public class CycleCurriculumGroup extends CycleCurriculumGroup_Base {
         }
     }
 
-    public boolean isExternal() {
-        return false;
-    }
-
     @Override
     public YearMonthDay calculateConclusionDate() {
         YearMonthDay result = super.calculateConclusionDate();
