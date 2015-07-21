@@ -1017,16 +1017,11 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public boolean canAdd(final CurriculumLine curriculumLine) {
-        
-        if (!curriculumLine.hasCurricularCourse()) {
-            return true;
-        }
 
         final CurricularCourse curricularCourse =
                 curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine).getOptionalCurricularCourse() : curriculumLine
                         .getCurricularCourse();
 
-        // might be null in case of an OptionalEnrolment
         if (curricularCourse == null) {
             return true;
         }
