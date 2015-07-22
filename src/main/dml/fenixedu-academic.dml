@@ -8222,6 +8222,15 @@ relation RegistrationRegimeRegistration {
     student.Registration playsRole registration;
 }
 
+relation RegistrationSchoolClass {
+    SchoolClass playsRole schoolClasses {
+        multiplicity *;
+    }
+    student.Registration playsRole registrations {
+        multiplicity *;
+    }
+}
+
 relation RegistrationDataByExecutionYearRootDomainObject {
     student.RegistrationDataByExecutionYear playsRole registrationDataByExecutionYear {
         multiplicity *;
