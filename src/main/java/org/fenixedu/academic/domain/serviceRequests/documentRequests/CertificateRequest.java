@@ -42,15 +42,18 @@ abstract public class CertificateRequest extends CertificateRequest_Base {
         super.init(bean);
 
         super.checkParameters(bean);
-        super.setDocumentPurposeType(bean.getChosenDocumentPurposeType());
+        super.setDocumentPurposeTypeInstance(bean.getChosenDocumentPurposeType());
+        super.setDocumentPurposeType(getDocumentPurposeTypeInstance() != null ? getDocumentPurposeTypeInstance()
+                .getDocumentPurposeType() : null);
         super.setOtherDocumentPurposeTypeDescription(bean.getOtherPurpose());
     }
 
     static final public CertificateRequest create(final DocumentRequestCreateBean bean) {
 
         CertificateRequest certificateRequest = null;
+        final DocumentRequestType requestType = bean.getChosenServiceRequestType().getDocumentRequestType();
 
-        switch (bean.getChosenDocumentRequestType()) {
+        switch (requestType) {
         case SCHOOL_REGISTRATION_CERTIFICATE:
             certificateRequest = new SchoolRegistrationCertificateRequest(bean);
             break;
@@ -105,9 +108,6 @@ abstract public class CertificateRequest extends CertificateRequest_Base {
             throw new DomainException("error.CertificateRequest.unexpected.document.type");
         }
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(certificateRequest));
-
         return certificateRequest;
 
     }
@@ -141,7 +141,7 @@ abstract public class CertificateRequest extends CertificateRequest_Base {
 
         super.internalChangeState(academicServiceRequestBean);
 
-        if (academicServiceRequestBean.isToConclude()) {
+        if (academicServiceRequestBean.isToConclude() && getServiceRequestType().isPayable()) {
             tryConcludeServiceRequest(academicServiceRequestBean);
         }
     }

@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain.serviceRequests;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -18,23 +19,25 @@ public class ServiceRequestType extends ServiceRequestType_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    protected ServiceRequestType(final String code, final LocalizedString name, final boolean payed) {
+    protected ServiceRequestType(final String code, final LocalizedString name, final boolean active, final boolean payable,
+            final ServiceRequestCategory category) {
         this();
 
         super.setCode(code);
         super.setName(name);
-        setPayed(payed);
+        setActive(active);
+        setPayable(payable);
+        setServiceRequestCategory(category);
 
         checkRules();
     }
 
-    protected ServiceRequestType(final String code, final LocalizedString name,
+    protected ServiceRequestType(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payed) {
-        this(code, name, payed);
+            final boolean payable, final ServiceRequestCategory category) {
+        this(code, name, active, payable, category);
         setAcademicServiceRequestType(academicServiceRequestType);
         setDocumentRequestType(documentRequestType);
-        setPayed(payed);
 
         checkRules();
     }
@@ -43,19 +46,35 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     }
 
-    public boolean isPayed() {
-        return getPayed();
+    public boolean isActive() {
+        return getActive();
+    }
+
+    public boolean isPayable() {
+        return getPayable();
+    }
+    
+    public boolean isLegacy() {
+        return getAcademicServiceRequestType() != null;
     }
 
     public boolean hasOption(final ServiceRequestTypeOption option) {
-        return false;
+        return getServiceRequestTypeOptionsSet().contains(option);
     }
 
     @Atomic
-    public void edit(final String code, final LocalizedString name, final boolean payed) {
+    public void edit(final String code, final LocalizedString name, final boolean active, final boolean payable,
+            final ServiceRequestCategory category, final LocalizedString numberOfUnitsLabel) {
         setCode(code);
         setName(name);
-        setPayed(payed);
+        setActive(active);
+        setPayable(payable);
+        setServiceRequestCategory(category);
+        if(hasOption(ServiceRequestTypeOption.findNumberOfUnitsOption().get())) {
+            setNumberOfUnitsLabel(numberOfUnitsLabel);
+        } else {
+            setNumberOfUnitsLabel(null);            
+        }
 
         checkRules();
     }
@@ -105,7 +124,7 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     }
 
     public static ServiceRequestType findUnique(final AcademicServiceRequestType academicServiceRequestType) {
-        return findAll().filter(x -> x.getAcademicServiceRequestType().equals(academicServiceRequestType))
+        return findAll().filter(x -> x.getAcademicServiceRequestType() != null && x.getAcademicServiceRequestType().equals(academicServiceRequestType))
                 .filter(x -> x.getDocumentRequestType() == null).findFirst().orElse(null);
     }
 
@@ -129,17 +148,42 @@ public class ServiceRequestType extends ServiceRequestType_Base {
             return findUnique(academicServiceRequest.getAcademicServiceRequestType());
         }
     }
+    
+    public static Stream<ServiceRequestType> findByCode(final String code) {
+        return findAll().filter(l -> l.getCode().equalsIgnoreCase(code));
+    }
+    
+    public static Optional<ServiceRequestType> findUniqueByCode(final String code) {
+        return findByCode(code).findFirst();
+    }
 
-    @Atomic
-    public static ServiceRequestType create(final String code, final LocalizedString name, final boolean payed) {
-        return new ServiceRequestType(code, name, payed);
+    public static Stream<ServiceRequestType> findActive() {
+        return findAll().filter(ServiceRequestType::isActive);
+    }
+
+    public static Stream<ServiceRequestType> findDeclarations() {
+        return findAll().filter(srt -> srt.getServiceRequestCategory() == ServiceRequestCategory.DECLARATIONS);
+    }
+
+    public static Stream<ServiceRequestType> findCertificates() {
+        return findAll().filter(srt -> srt.getServiceRequestCategory() == ServiceRequestCategory.CERTIFICATES);
+    }
+
+    public static Stream<ServiceRequestType> findServices() {
+        return findAll().filter(srt -> srt.getServiceRequestCategory() == ServiceRequestCategory.SERVICES);
     }
 
     @Atomic
-    public static ServiceRequestType createLegacy(final String code, final LocalizedString name,
+    public static ServiceRequestType create(final String code, final LocalizedString name, final boolean active,
+            final boolean payable, final ServiceRequestCategory category) {
+        return new ServiceRequestType(code, name, active, payable, category);
+    }
+
+    @Atomic
+    public static ServiceRequestType createLegacy(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payed) {
-        return new ServiceRequestType(code, name, academicServiceRequestType, documentRequestType, payed);
+            final boolean payable, final ServiceRequestCategory category) {
+        return new ServiceRequestType(code, name, active, academicServiceRequestType, documentRequestType, payable, category);
     }
 
 }
