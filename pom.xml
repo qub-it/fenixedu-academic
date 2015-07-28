@@ -20,6 +20,7 @@
         <skipTests>true</skipTests>
 
         <version.org.fenixedu.bennu>3.4.0</version.org.fenixedu.bennu>
+		<version.pt.ist.standards>1.1.0-SNAPSHOT</version.pt.ist.standards>        
     </properties>
 
     <issueManagement>
@@ -165,7 +166,7 @@
         <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>standards</artifactId>
-            <version>1.0.3</version>
+			<version>${version.pt.ist.standards}</version>
         </dependency>
         <dependency>
             <groupId>org.mathjax</groupId>
