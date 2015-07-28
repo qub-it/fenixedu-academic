@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.ui.struts.action.student.enrollment;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -116,8 +114,8 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
     // TODO: refactor this method
     private List<Registration> getRegistrationsToChooseSecondCycle(final Student student) {
         final List<Registration> result = Lists.newArrayList();
-        
-        if (!FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+
+        if (!Registration.getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
             return result;
         }
 
@@ -179,12 +177,12 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
                 return mapping.findForward("proceedToEnrolment");
 
             } else {
-                
-                if (!FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+
+                if (!Registration.getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
                     request.setAttribute("registration", registration);
                     return mapping.findForward("proceedToEnrolment");
                 }
-                
+
                 final CycleCurriculumGroup secondCycle = studentCurricularPlan.getSecondCycle();
                 if (secondCycle == null) {
                     return prepareSelectAffinityToEnrol(mapping, request, studentCurricularPlan, executionSemester);
