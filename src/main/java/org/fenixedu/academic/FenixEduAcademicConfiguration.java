@@ -34,6 +34,12 @@ public class FenixEduAcademicConfiguration {
 
         @ConfigurationProperty(key = "ciist.sms.username")
         public String getCIISTSMSUsername();
+        
+        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToChooseAffinityCycle", defaultValue = "true")
+        public Boolean getEnrolmentsAllowStudentToChooseAffinityCycle();
+
+        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToEnrolInAffinityCycle", defaultValue = "true")
+        public Boolean getEnrolmentsAllowStudentToEnrolInAffinityCycle();
 
         @ConfigurationProperty(key = "generic.application.email.confirmation.link",
                 defaultValue = "http://localhost:8080/fenix/publico/genericApplications.do?method=confirmEmail&confirmationCode=")

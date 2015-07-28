@@ -516,6 +516,14 @@ public class Registration extends Registration_Base {
         }
         return null;
     }
+    
+    public static Boolean getEnrolmentsAllowStudentToChooseAffinityCycle() {
+        return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToChooseAffinityCycle();
+    }
+
+    public static Boolean getEnrolmentsAllowStudentToEnrolInAffinityCycle() {
+        return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToEnrolInAffinityCycle();
+    }
 
     final public ICurriculum getCurriculum() {
         return getCurriculum(new DateTime(), (ExecutionYear) null, (CycleType) null);
