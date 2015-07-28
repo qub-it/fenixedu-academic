@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.ui.struts.action.student.enrollment;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,6 +48,8 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+
+import com.google.common.collect.Lists;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "courses", titleKey = "link.student.enrollment")
 @Mapping(module = "student", path = "/studentEnrollmentManagement")
@@ -112,7 +113,11 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
 
     // TODO: refactor this method
     private List<Registration> getRegistrationsToChooseSecondCycle(final Student student) {
-        final List<Registration> result = new ArrayList<Registration>();
+        final List<Registration> result = Lists.newArrayList();
+
+        if (!Registration.getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+            return result;
+        }
 
         for (final Registration registration : student.getRegistrationsSet()) {
 
@@ -172,6 +177,12 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
                 return mapping.findForward("proceedToEnrolment");
 
             } else {
+
+                if (!Registration.getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle()) {
+                    request.setAttribute("registration", registration);
+                    return mapping.findForward("proceedToEnrolment");
+                }
+
                 final CycleCurriculumGroup secondCycle = studentCurricularPlan.getSecondCycle();
                 if (secondCycle == null) {
                     return prepareSelectAffinityToEnrol(mapping, request, studentCurricularPlan, executionSemester);
