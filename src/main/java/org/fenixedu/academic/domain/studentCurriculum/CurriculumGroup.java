@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -162,6 +163,18 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         check(this, RolePredicates.MANAGER_PREDICATE);
         for (final CurriculumModule child : getCurriculumModulesSet()) {
             child.deleteRecursive();
+        }
+
+        delete();
+    }
+
+    /**
+     * Before trying to delete, try to delete only empty child groups, leaving leafs untouched
+     */
+    protected void deleteRecursiveEmptyChildGroups() {
+
+        for (final Iterator<CurriculumGroup> iterator = getChildCurriculumGroups().iterator(); iterator.hasNext();) {
+            iterator.next().deleteRecursiveEmptyChildGroups();
         }
 
         delete();
