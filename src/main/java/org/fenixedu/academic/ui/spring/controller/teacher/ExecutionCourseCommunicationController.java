@@ -46,7 +46,7 @@ public class ExecutionCourseCommunicationController extends StrutsFunctionalityC
         check(getPerson(), person -> hasPermissions(person, executionCourse));
         model.addAttribute("professorship", executionCourse.getProfessorship(getPerson()));
         model.addAttribute("executionCourse", executionCourse);
-        return new TeacherView("communication");
+        return new TeacherView("communication", executionCourse);
     }
 
     @RequestMapping(value = "edit", method = RequestMethod.POST)
