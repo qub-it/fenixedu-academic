@@ -100,5 +100,6 @@ public interface ITreasuryBridgeAPI {
     
     public boolean isPersonAccountTreasuryManagementAvailable(final Person person);
     public String getPersonAccountTreasuryManagementURL(final Person person);
+    public String getRegistrationAccountTreasuryManagementURL(Registration registration);
     
 }
