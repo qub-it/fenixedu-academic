@@ -12413,6 +12413,16 @@ relation DocumentPurposeTypeInstanceCertificateRequest {
 	}
 }
 
+relation DocumentPurposeTypeInstanceServiceRequestType {
+	public serviceRequests.documentRequests.DocumentPurposeTypeInstance playsRole documentPurposeTypeInstances {
+		multiplicity *;
+	}
+	
+	public serviceRequests.ServiceRequestType playsRole serviceRequestTypes {
+		multiplicity *;
+	}
+}
+
 /* DocumentSigner */
 
 relation DocumentSignerBennu {
