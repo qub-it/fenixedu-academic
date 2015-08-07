@@ -42,7 +42,9 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.EnrolmentInstructions;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
 import org.fenixedu.academic.domain.EnrolmentPeriodInClasses;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCourses;
+import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesFlunkedSeason;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesSpecialSeason;
 import org.fenixedu.academic.domain.EnrolmentPeriodInImprovementOfApprovedEnrolment;
@@ -97,7 +99,11 @@ public class ManageEnrolementPeriodsDA extends FenixDispatchAction {
 
             EnrolmentPeriodInCurricularCoursesFlunkedSeason.class,
 
-            ReingressionPeriod.class);
+            ReingressionPeriod.class,
+
+            EnrolmentPeriodInCurricularCoursesCandidate.class,
+
+            EnrolmentPeriodInClassesCandidate.class);
 
     public static class EnrolmentPeriodBean implements Serializable {
         private ExecutionSemester semester;

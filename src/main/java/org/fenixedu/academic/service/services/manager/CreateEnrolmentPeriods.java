@@ -23,7 +23,9 @@ import java.util.List;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.EnrolmentPeriodInClasses;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCourses;
+import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesFlunkedSeason;
 import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesSpecialSeason;
 import org.fenixedu.academic.domain.EnrolmentPeriodInImprovementOfApprovedEnrolment;
@@ -110,6 +112,15 @@ public class CreateEnrolmentPeriods {
         } else if (enrolmentPeriodType.isReingressionPeriod()) {
 
             new ReingressionPeriod(degreeCurricularPlan, executionSemester, startDate, endDate);
+
+        }
+        if (EnrolmentPeriodType.ENROLMENT_PERIOD_IN_CLASSES_CANDIDATE.equals(enrolmentPeriodType)) {
+
+            new EnrolmentPeriodInClassesCandidate(degreeCurricularPlan, executionSemester, startDate, endDate);
+
+        } else if (EnrolmentPeriodType.ENROLMENT_PERIOD_IN_CURRICULAR_COURSES_CANDIDATE.equals(enrolmentPeriodType)) {
+
+            new EnrolmentPeriodInCurricularCoursesCandidate(degreeCurricularPlan, executionSemester, startDate, endDate);
 
         } else {
             throw new Error("error.invalid.enrolment.period.class.name");

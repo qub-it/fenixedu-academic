@@ -43,6 +43,9 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.accounting.events.EnrolmentOutOfPeriodEvent;
 import org.fenixedu.academic.domain.accounting.events.gratuity.GratuityEvent;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
+import org.fenixedu.academic.domain.candidacy.CandidacySituation;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -2686,4 +2689,12 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 Authenticate.getUser());
     }
 
+    public boolean isInCandidateEnrolmentProcess(ExecutionYear executionYear) {
+        //We are assuming a student can enrol if she has a student candidacy for the current year which is not yet completed
+        StudentCandidacy studentCandidacy = getRegistration().getStudentCandidacy();
+        return studentCandidacy != null
+                && studentCandidacy.getExecutionYear() == executionYear
+                && studentCandidacy.getCandidacySituationsSet().stream()
+                        .anyMatch(cs -> cs.getCandidacySituationType() == CandidacySituationType.STAND_BY);
+    }
 }
