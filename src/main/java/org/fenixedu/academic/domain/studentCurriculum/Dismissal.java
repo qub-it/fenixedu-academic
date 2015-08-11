@@ -197,6 +197,11 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     }
 
     @Override
+    public Double getEnroledEctsCredits(ExecutionYear executionYear) {
+        return Double.valueOf(0d);
+    }
+
+    @Override
     public void collectDismissals(final List<Dismissal> result) {
         result.add(this);
     }

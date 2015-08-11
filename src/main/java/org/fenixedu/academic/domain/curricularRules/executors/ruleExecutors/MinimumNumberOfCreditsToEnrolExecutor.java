@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.MinimumNumberOfCreditsToEnrol;
@@ -100,10 +99,9 @@ public class MinimumNumberOfCreditsToEnrolExecutor extends CurricularRuleExecuto
             return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
-        final ExecutionSemester previousExecutionPeriod = enrolmentContext.getExecutionPeriod().getPreviousExecutionPeriod();
         totalEctsCredits =
                 Double.valueOf(totalEctsCredits.doubleValue()
-                        + curriculumGroup.getEnroledEctsCredits(previousExecutionPeriod).doubleValue());
+                        + calculatePreviousPeriodEnroledEctsCredits(curriculumGroup, enrolmentContext).doubleValue());
 
         if (rule.allowCredits(totalEctsCredits)) {
             return RuleResult.createTrue(EnrolmentResultType.TEMPORARY, sourceDegreeModuleToEvaluate.getDegreeModule());
@@ -114,6 +112,13 @@ public class MinimumNumberOfCreditsToEnrolExecutor extends CurricularRuleExecuto
         } else {
             return createFalseRuleResult(rule, totalEctsCredits, sourceDegreeModuleToEvaluate);
         }
+    }
+
+    protected Double calculatePreviousPeriodEnroledEctsCredits(final CurriculumGroup curriculumGroup,
+            final EnrolmentContext enrolmentContext) {
+        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumGroup.getEnroledEctsCredits(enrolmentContext
+                .getExecutionYear().getPreviousExecutionYear()) : curriculumGroup.getEnroledEctsCredits(enrolmentContext
+                .getExecutionPeriod().getPreviousExecutionPeriod());
     }
 
     @Override
