@@ -113,8 +113,7 @@ public class CreateEnrolmentPeriods {
 
             new ReingressionPeriod(degreeCurricularPlan, executionSemester, startDate, endDate);
 
-        }
-        if (EnrolmentPeriodType.ENROLMENT_PERIOD_IN_CLASSES_CANDIDATE.equals(enrolmentPeriodType)) {
+        } else if (EnrolmentPeriodType.ENROLMENT_PERIOD_IN_CLASSES_CANDIDATE.equals(enrolmentPeriodType)) {
 
             new EnrolmentPeriodInClassesCandidate(degreeCurricularPlan, executionSemester, startDate, endDate);
 
