@@ -20,6 +20,7 @@ package org.fenixedu.academic.ui.struts.action.student.enrollment.bolonha;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrol
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions.EnrolmentPreConditionResult;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentEnrollmentBean;
 import org.fenixedu.academic.ui.struts.action.commons.student.enrollment.bolonha.AbstractBolonhaStudentEnrollmentDA;
+import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.StudentEnrollmentManagementDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
@@ -78,6 +80,12 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
             }
             if (openedEnrolmentPeriodsSemesters.size() > 1) {
                 request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
+            }
+            Optional<String> returnURL =
+                    EnrolmentContextHandler.getRegisteredEnrolmentContextHandler().getReturnURLForStudentInCurricularCourses(
+                            request, registration);
+            if (returnURL.isPresent()) {
+                request.setAttribute("returnURL", returnURL.get());
             }
         }
 
