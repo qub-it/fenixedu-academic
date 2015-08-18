@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.accounting.serviceAgreementTemplates.DegreeCurricularPlanServiceAgreementTemplate;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
+import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
@@ -142,6 +143,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super();
         super.setRootDomainObject(Bennu.getInstance());
         super.setApplyPreviousYearsEnrolmentRule(Boolean.TRUE);
+        super.setCurricularRuleValidationType(CurricularRuleValidationType.SEMESTER);
     }
 
     private DegreeCurricularPlan(Degree degree, String name, GradeScale gradeScale) {
@@ -797,9 +799,16 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return null;
     }
 
+    @Deprecated
     public Optional<EnrolmentPeriod> getClassesEnrollmentPeriod(ExecutionSemester executionSemester) {
         return getEnrolmentPeriodsSet().stream().filter(ep -> ep.isForClasses() && ep.getExecutionPeriod() == executionSemester)
                 .findAny();
+    }
+
+    public Optional<EnrolmentPeriod> getValidEnrolmentPeriod(java.util.function.Predicate<EnrolmentPeriod> predicate,
+            ExecutionSemester executionSemester) {
+        return getEnrolmentPeriodsSet().stream()
+                .filter(predicate.and(ep -> ep.getExecutionPeriod() == executionSemester && ep.isValid())).findAny();
     }
 
     public CandidacyPeriodInDegreeCurricularPlan getCurrentCandidacyPeriodInDCP() {

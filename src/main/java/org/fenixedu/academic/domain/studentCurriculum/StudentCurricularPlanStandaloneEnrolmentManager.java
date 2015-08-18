@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.accounting.events.AccountingEventsManager;
@@ -127,17 +128,21 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
     }
 
     private void addEnroledFromStudentCurricularPlan() {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan().getDegreeModulesToEvaluate(
-                getExecutionSemester())) {
-            enrolmentContext.addDegreeModuleToEvaluate(degreeModuleToEvaluate);
+        for (final ExecutionSemester semester : enrolmentContext.getExecutionSemestersToEvaluate()) {
+            for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan().getDegreeModulesToEvaluate(
+                    semester)) {
+                enrolmentContext.addDegreeModuleToEvaluate(degreeModuleToEvaluate);
+            }
         }
     }
 
     private void addEnroledFromStandaloneGroup() {
         final StandaloneCurriculumGroup group = getStudentCurricularPlan().getStandaloneCurriculumGroup();
         for (final CurriculumLine curriculumLine : group.getChildCurriculumLines()) {
-            for (final IDegreeModuleToEvaluate module : curriculumLine.getDegreeModulesToEvaluate(getExecutionSemester())) {
-                enrolmentContext.addDegreeModuleToEvaluate(module);
+            for (final ExecutionSemester semester : enrolmentContext.getExecutionSemestersToEvaluate()) {
+                for (final IDegreeModuleToEvaluate module : curriculumLine.getDegreeModulesToEvaluate(semester)) {
+                    enrolmentContext.addDegreeModuleToEvaluate(module);
+                }
             }
         }
     }
@@ -221,7 +226,7 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
         for (final CurriculumModule curriculumModule : enrolmentContext.getToRemove()) {
             if (curriculumModule.isLeaf()) {
                 TreasuryBridgeAPIFactory.implementation().standaloneUnenrolment((Enrolment) curriculumModule);
-                
+
                 //Signal.emit(ITreasuryBridgeAPI.STANDALONE_UNENROLMENT, new DomainObjectEvent<Enrolment>((Enrolment) curriculumModule));
                 curriculumModule.delete();
             }

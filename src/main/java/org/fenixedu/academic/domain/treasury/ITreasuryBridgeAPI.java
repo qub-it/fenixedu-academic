@@ -32,6 +32,7 @@ public interface ITreasuryBridgeAPI {
     public static String STANDALONE_ENROLMENT = "STANDALONE_ENROLMENT";
     public static String EXTRACURRICULAR_ENROLMENT = "EXTRACURRICULAR_ENROLMENT";
     public static String IMPROVEMENT_ENROLMENT = "IMPROVEMENT_ENROLMENT";
+    public static String NORMAL_ENROLMENT = "NORMAL_ENROLMENT";
 
     public void registerStandaloneEnrolmentHandler();
 
@@ -101,5 +102,7 @@ public interface ITreasuryBridgeAPI {
     public boolean isPersonAccountTreasuryManagementAvailable(final Person person);
     public String getPersonAccountTreasuryManagementURL(final Person person);
     public String getRegistrationAccountTreasuryManagementURL(Registration registration);
+    
+    public void createAcademicDebts(final Registration registration);
     
 }

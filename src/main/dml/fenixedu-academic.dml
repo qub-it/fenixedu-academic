@@ -71,6 +71,7 @@ enum org.fenixedu.academic.domain.candidacyProcess.CandidacyProcessState        
 enum org.fenixedu.academic.domain.candidacyProcess.IndividualCandidacyState                                            as IndividualCandidacyState;
 enum org.fenixedu.academic.domain.contacts.PartyContactType                                                            as PartyContactType;
 enum org.fenixedu.academic.domain.curricularRules.CurricularRuleType                                                   as CurricularRuleType;
+enum org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType                                         as CurricularRuleValidationType;
 enum org.fenixedu.academic.domain.curriculum.CurricularCourseType                                                      as CurricularCourseType;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentCondition                                                       as EnrollmentCondition;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentState                                                           as EnrollmentState;
@@ -597,6 +598,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
         Integer numerusClausus;
         DegreeCurricularPlanState state;
         Boolean applyPreviousYearsEnrolmentRule;
+        CurricularRuleValidationType curricularRuleValidationType;
     }
     
         class EmptyDegreeCurricularPlan extends DegreeCurricularPlan;
@@ -716,8 +718,14 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
 
         class EnrolmentPeriodInClasses extends EnrolmentPeriod {
         }
+        
+        class EnrolmentPeriodInClassesCandidate extends EnrolmentPeriod {
+        }
 
         class EnrolmentPeriodInCurricularCourses extends EnrolmentPeriod {
+        }
+        
+        class EnrolmentPeriodInCurricularCoursesCandidate extends EnrolmentPeriod {
         }
 
         class EnrolmentPeriodInCurricularCoursesSpecialSeason extends EnrolmentPeriod {
@@ -1167,6 +1175,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
     class Shift  {      
         Integer lotacao;
         String nome;
+        String customName;
         String comment;
     }
     
@@ -2205,6 +2214,9 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
                 Integer curricularPeriodOrder;
                 AcademicPeriod academicPeriod;
                 Boolean even;
+            }
+
+            class curricularRules.EnrolmentPeriodRestrictions extends curricularRules.Rule {
             }
 
             class curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod extends curricularRules.Rule {
@@ -4593,6 +4605,8 @@ class mobility.outbound.OutboundMobilityCandidacyContestGroup  {
 class Installation {
 	String instituitionURL;
 	String instituitionEmailDomain;
+	//Support e-mail for academic troubleshooting
+	String academicEmailAddress;
 }
 
 class accessControl.PersistentRoleGroup extends .org.fenixedu.bennu.core.domain.groups.PersistentGroup {

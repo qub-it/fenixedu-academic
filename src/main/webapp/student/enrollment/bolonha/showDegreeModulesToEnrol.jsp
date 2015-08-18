@@ -23,10 +23,10 @@
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@ page import="org.apache.struts.action.ActionMessages" %>
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
 <html:xhtml />
 
 	<h2><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h2>
-
 
 	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
 	<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
@@ -57,7 +57,9 @@
 			<html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId" styleClass="externallink" target="_blank"><bean:message bundle="STUDENT_RESOURCES"  key="label.viewStudentCurricularPlan"/></html:link>
 		</li>
 		<li>			
-			<html:link href="mailto:academica@tecnico.ulisboa.pt" styleClass="externallink">
+			
+			<% request.setAttribute("academicSupportAddress", org.fenixedu.academic.domain.Installation.getInstance().getAcademicEmailAddress()); %>
+			<html:link href="mailto:${academicSupportAddress}" styleClass="externallink">
 				<bean:message key="link.academicSupport" bundle="GLOBAL_RESOURCES"/>
 			</html:link>
 		</li>
@@ -76,12 +78,25 @@
 		</span>
 		</p>
 	</logic:messagesPresent>
+	
+	<logic:messagesPresent message="true" property="warning" >
+		<div class="warning0" style="padding: 0.5em;">
+		<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.warnings.in.enrolment" />:</strong></p>
+		<ul class="mvert05">
+			<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="warning">
+				<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
+				<li><span><bean:write name="messages" /></span></li>
+			</html:messages>
+		</ul>
+		</div>
+	</logic:messagesPresent>
 
 	<logic:messagesPresent message="true" property="error">
 		<div class="error0 mvert1" style="padding: 0.5em;">
 			<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.errors.in.enrolment" />:</strong></p>
 			<ul class="mvert05">
 				<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="error">
+					<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
 					<li><span><bean:write name="messages" /></span></li>
 				</html:messages>
 			</ul>
@@ -91,13 +106,7 @@
 	<fr:form action="/bolonhaStudentEnrollment.do">
 		<input type="hidden" name="method" />
 		
-		<p class="mtop15 mbottom025">
-			<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
-		</p>
-		<p class="mtop025 mbottom1">
-			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
-		</p>
-		
+		<%@include file="semesterPicker.jsp" %>
 		
 		<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
 			<fr:layout name="bolonha-student-enrolment">
@@ -110,17 +119,13 @@
 				<fr:property name="encodeGroupRules" value="true" />
 				<fr:property name="encodeCurricularRules" value="true" />
 				
-				<fr:property name="allowedToChooseAffinityCycle" value="<%= Registration.getEnrolmentsAllowStudentToChooseAffinityCycle().toString() %>"/>
-				<fr:property name="allowedToEnrolInAffinityCycle" value="<%= Registration.getEnrolmentsAllowStudentToEnrolInAffinityCycle().toString() %>"/>
+				<fr:property name="allowedToChooseAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToChooseAffinityCycle().toString() %>"/>
+				<fr:property name="allowedToEnrolInAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToEnrolInAffinityCycle().toString() %>"/>
 				
 			</fr:layout>
 		</fr:edit>
 		
-		
-		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
-		<p class="mtop05 mbottom1">
-			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
-		</p>
+		<%@include file="semesterPicker.jsp" %>
 	
 	</fr:form>
 
@@ -128,7 +133,7 @@
 
 <p class="mtop15">
 <em><bean:message bundle="STUDENT_RESOURCES"  key="message.enrollment.terminated"/> <html:link action="/viewStudentCurriculum.do?method=prepare" paramId="registrationOID" paramName="studentCurricularPlan" paramProperty="registration.externalId"><bean:message bundle="STUDENT_RESOURCES"  key="message.student.curriculum"/></html:link>.</em> <br/>
-<em><bean:message bundle="STUDENT_RESOURCES"  key="message.enrollment.terminated.shifts"/> <html:link page="/studentShiftEnrollmentManager.do?method=prepare" titleKey="link.title.shift.enrolment"><bean:message key="link.shift.enrolment"/></html:link>.</em>
+
 </p>
 
 

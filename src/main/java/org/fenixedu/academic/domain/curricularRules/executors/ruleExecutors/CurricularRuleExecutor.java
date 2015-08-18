@@ -23,6 +23,7 @@ import java.util.Collection;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -32,10 +33,39 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.commons.i18n.I18N;
 
 abstract public class CurricularRuleExecutor {
 
-    protected CurricularRuleExecutor() {
+    private CurricularRuleExecutorLogic logic;
+
+    protected CurricularRuleExecutorLogic getLogic() {
+        if (this.logic == null) {
+            throw new DomainException("curricularRules.ruleExecutors.logic.unavailable", BundleUtil.getString(Bundle.BOLONHA,
+                    I18N.getLocale(), "label.enrolmentPeriodRestrictions"));
+        }
+
+        return logic;
+    }
+
+    protected void setLogic(final CurricularRuleExecutorLogic input) {
+        if (input == null) {
+            throw new DomainException("curricularRules.ruleExecutors.logic.unavailable", BundleUtil.getString(Bundle.BOLONHA,
+                    I18N.getLocale(), "label.enrolmentPeriodRestrictions"));
+        }
+
+        this.logic = input;
+    }
+
+    /**
+     * Allows delegating execution logic to external class
+     */
+    public static interface CurricularRuleExecutorLogic {
+
+        public RuleResult executeEnrolmentVerificationWithRules(final ICurricularRule curricularRule,
+                final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext);
     }
 
     public RuleResult execute(final ICurricularRule curricularRule, final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
@@ -140,8 +170,13 @@ abstract public class CurricularRuleExecutor {
     }
 
     private boolean isEnroled(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse) {
-        final ExecutionSemester executionSemester = enrolmentContext.getExecutionPeriod();
-        return enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionSemester);
+        for (final ExecutionSemester executionSemester : enrolmentContext.getExecutionSemestersToEvaluate()) {
+            if (enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionSemester)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isEnroled(final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {
@@ -153,15 +188,46 @@ abstract public class CurricularRuleExecutor {
         return enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionSemester);
     }
 
+    protected boolean isEnroled(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse,
+            final ExecutionYear executionYear) {
+        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+            if (enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionSemester)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected boolean hasEnrolmentWithEnroledState(final EnrolmentContext enrolmentContext,
             final CurricularCourse curricularCourse, final ExecutionSemester executionSemester) {
         return enrolmentContext.getStudentCurricularPlan().getRoot()
                 .hasEnrolmentWithEnroledState(curricularCourse, executionSemester);
     }
 
+    protected boolean hasEnrolmentWithEnroledState(final EnrolmentContext enrolmentContext,
+            final CurricularCourse curricularCourse, final ExecutionYear executionYear) {
+
+        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+            if (enrolmentContext.getStudentCurricularPlan().getRoot()
+                    .hasEnrolmentWithEnroledState(curricularCourse, executionSemester)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected boolean isEnrolling(final EnrolmentContext enrolmentContext, final DegreeModule degreeModule) {
         final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, degreeModule);
         return degreeModuleToEvaluate != null && !degreeModuleToEvaluate.isEnroled();
+    }
+
+    protected boolean isEnrolling(final EnrolmentContext enrolmentContext, final DegreeModule degreeModule,
+            final ExecutionSemester executionPeriod) {
+        final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, degreeModule);
+        return degreeModuleToEvaluate != null && !degreeModuleToEvaluate.isEnroled()
+                && degreeModuleToEvaluate.getExecutionPeriod() == executionPeriod;
     }
 
     protected boolean isApproved(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse,

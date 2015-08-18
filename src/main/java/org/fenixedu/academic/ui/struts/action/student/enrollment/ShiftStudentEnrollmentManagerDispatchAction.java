@@ -21,6 +21,8 @@ package org.fenixedu.academic.ui.struts.action.student.enrollment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,8 +34,11 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DegreeCurricularPlanEquivalencePlan;
+import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -49,7 +54,6 @@ import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.exceptions.FenixActionException;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
-import org.fenixedu.academic.ui.struts.action.student.enrollment.bolonha.BolonhaStudentEnrollmentDispatchAction.ChooseEnrolmentSemester;
 import org.fenixedu.academic.ui.struts.config.FenixDomainExceptionHandler;
 import org.fenixedu.academic.ui.struts.config.FenixErrorExceptionHandler;
 import org.fenixedu.academic.util.ExecutionDegreesFormat;
@@ -72,7 +76,6 @@ import pt.ist.fenixframework.FenixFramework;
         @Forward(name = "showEnrollmentPage",
                 path = "/student/studentShiftEnrollmentManagerLookup.do?method=proceedToShiftEnrolment"),
         @Forward(name = "chooseRegistration", path = "/student/enrollment/shifts/chooseRegistration.jsp"),
-        @Forward(name = "chooseSemester", path = "/student/enrollment/shifts/chooseSemester.jsp"),
         @Forward(name = "showShiftsEnrollment", path = "/student/enrollment/showShiftsEnrollment.jsp"),
         @Forward(name = "prepareEnrollmentViewWarning", path = "/student/enrollment/prepareEnrollmentViewWarning.jsp"),
         @Forward(name = "selectCourses", path = "/student/enrollment/showCoursesByDegree.jsp"),
@@ -94,24 +97,6 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
         final Student student = getUserView(request).getPerson().getStudent();
 
-        ChooseEnrolmentSemester chooseSemester = new ChooseEnrolmentSemester();
-        List<ExecutionSemester> semesters = chooseSemester.getSemestersForClasses();
-        ExecutionSemester executionSemester = null;
-        if (semesters.size() == 1) {
-            executionSemester = semesters.get(0);
-        } else if (semesters.size() < 1) {
-            executionSemester = ExecutionSemester.readActualExecutionSemester();
-        } else {
-            request.setAttribute("chooseSemester", chooseSemester);
-            return mapping.findForward("chooseSemester");
-        }
-
-        request.setAttribute("executionSemesterID", executionSemester.getExternalId());
-        return chooseRegistration(mapping, form, request, response, student);
-    }
-
-    private ActionForward chooseRegistration(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-            HttpServletResponse response, final Student student) {
         final List<Registration> toEnrol = student.getRegistrationsToEnrolInShiftByStudent();
         if (toEnrol.size() == 1) {
             request.setAttribute("registrationOID", toEnrol.iterator().next().getExternalId());
@@ -120,14 +105,6 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
             request.setAttribute("toEnrol", toEnrol);
             return mapping.findForward("chooseRegistration");
         }
-    }
-
-    public ActionForward chooseExecutionPeriod(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-            HttpServletResponse response) {
-
-        ChooseEnrolmentSemester chooseSemester = getRenderedObject("chooseSemester");
-        request.setAttribute("executionSemesterID", chooseSemester.getChosenSemester().getExternalId());
-        return chooseRegistration(mapping, form, request, response, getLoggedPerson(request).getStudent());
     }
 
     private Registration getAndSetRegistration(final HttpServletRequest request) {
@@ -151,6 +128,8 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         String executionSemesterID = (String) getFromRequest(request, "executionSemesterID");
         if (!StringUtils.isEmpty(executionSemesterID)) {
             request.setAttribute("executionSemesterID", executionSemesterID);
+        } else {
+            request.setAttribute("executionSemesterID", ExecutionSemester.readActualExecutionSemester().getExternalId());
         }
         if (getAndSetRegistration(request) == null) {
             addActionMessage(request, "errors.impossible.operation");
@@ -185,6 +164,13 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
         request.setAttribute("executionSemesterID", executionSemester.getExternalId());
         if (readAndSetSelectCoursesParameter(request) == null) {
+            Optional<String> returnURL =
+                    EnrolmentContextHandler.getRegisteredEnrolmentContextHandler().getReturnURLForStudentInClasses(request,
+                            registration);
+            if (returnURL.isPresent()) {
+                request.setAttribute("returnURL", returnURL.get());
+            }
+
             return prepareShiftEnrolmentInformation(mapping, request, registration, executionSemester);
         } else {
             return prepareSelectCoursesInformation(mapping, actionForm, request, registration, executionSemester);
@@ -237,12 +223,12 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
         final List<ShiftToEnrol> shiftsToEnrol;
         try {
-            
-            if(TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
+
+            if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
                 addActionMessage(request, "error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
                 return mapping.getInputForward();
             }
-            
+
             shiftsToEnrol = ReadShiftsToEnroll.runReadShiftsToEnroll(registration, executionSemester);
         } catch (OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan exception) {
             addActionMessage(request, "error.enrollment.period.closed", exception.getArgs());
@@ -265,7 +251,24 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         request.setAttribute("studentShifts", studentShifts);
         sortStudentShifts(studentShifts);
 
+        addSelectableSemesters(request, registration);
         return mapping.findForward("showShiftsEnrollment");
+    }
+
+    private void addSelectableSemesters(HttpServletRequest request, Registration registration) {
+
+        DegreeCurricularPlan lastDegreeCurricularPlan = registration.getLastDegreeCurricularPlan();
+        StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(lastDegreeCurricularPlan);
+        ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+        List<ExecutionSemester> openedEnrolmentPeriodsSemesters =
+                lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
+                        .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
+                        .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
+                        .collect(Collectors.toList());
+        if (openedEnrolmentPeriodsSemesters.size() > 1) {
+            //We only add this collection to the request if more than one period (the currently being edited) has opened enrolments periods 
+            request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
+        }
     }
 
     private void sortStudentShifts(List<Shift> studentShifts) {
@@ -358,6 +361,25 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         }
 
         return start(mapping, form, request, response);
+    }
+
+    private boolean isValidPeriodForUser(EnrolmentPeriod ep, StudentCurricularPlan studentCurricularPlan,
+            ExecutionYear currentExecutionYear) {
+        // Coditions to be valid:
+        // 1 - period has to be valid
+        //     AND
+        //          a - Student is candidate AND period is for candidate
+        //            OR
+        //          b - Period is for curricular courses (implicitly assuming student is not candidate)
+
+        if (ep.isValid()) {
+            if (studentCurricularPlan.isInCandidateEnrolmentProcess(currentExecutionYear)) {
+                return ep instanceof EnrolmentPeriodInClassesCandidate;
+            } else {
+                return ep.isForClasses();
+            }
+        }
+        return false;
     }
 
 }

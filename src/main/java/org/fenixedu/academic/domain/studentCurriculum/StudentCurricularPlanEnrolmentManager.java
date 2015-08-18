@@ -27,7 +27,9 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.curricularRules.AssertUniqueApprovalInCurricularCourseContexts;
+import org.fenixedu.academic.domain.curricularRules.AssertUniqueCurricularCourseEnrolmentForPeriod;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.PreviousYearsEnrolmentCurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -41,6 +43,10 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.bennu.signals.DomainObjectEvent;
+import org.fenixedu.bennu.signals.Signal;
 
 public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlanEnrolment {
 
@@ -76,9 +82,11 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
 
     @Override
     protected void addEnroled() {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan().getDegreeModulesToEvaluate(
-                getExecutionSemester())) {
-            enrolmentContext.addDegreeModuleToEvaluate(degreeModuleToEvaluate);
+        for (final ExecutionSemester semester : enrolmentContext.getExecutionSemestersToEvaluate()) {
+            for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan().getDegreeModulesToEvaluate(
+                    semester)) {
+                enrolmentContext.addDegreeModuleToEvaluate(degreeModuleToEvaluate);
+            }
         }
     }
 
@@ -108,6 +116,7 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
 
     protected void addRuntimeRules(final Set<ICurricularRule> curricularRules, final CurricularCourse curricularCourse) {
         curricularRules.add(new AssertUniqueApprovalInCurricularCourseContexts(curricularCourse));
+        curricularRules.add(new AssertUniqueCurricularCourseEnrolmentForPeriod(curricularCourse));
     }
 
     @Override
@@ -154,6 +163,7 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
         }
 
         getRegistration().updateEnrolmentDate(getExecutionYear());
+        Signal.emit(ITreasuryBridgeAPI.NORMAL_ENROLMENT, new DomainObjectEvent<Registration>(enrolmentContext.getRegistration()));
     }
 
     protected EnrollmentCondition getEnrolmentCondition(final Enrolment enrolment, final EnrolmentResultType enrolmentResultType) {
