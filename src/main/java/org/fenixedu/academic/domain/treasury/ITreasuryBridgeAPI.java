@@ -103,4 +103,6 @@ public interface ITreasuryBridgeAPI {
     public String getPersonAccountTreasuryManagementURL(final Person person);
     public String getRegistrationAccountTreasuryManagementURL(Registration registration);
     
+    public void createAcademicDebts(final Registration registration);
+    
 }
