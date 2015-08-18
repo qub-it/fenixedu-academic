@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -260,11 +261,11 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         DegreeCurricularPlan lastDegreeCurricularPlan = registration.getLastDegreeCurricularPlan();
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(lastDegreeCurricularPlan);
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
-        List<ExecutionSemester> openedEnrolmentPeriodsSemesters =
+        Set<ExecutionSemester> openedEnrolmentPeriodsSemesters =
                 lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
                         .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
                         .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toSet());
         if (openedEnrolmentPeriodsSemesters.size() > 1) {
             //We only add this collection to the request if more than one period (the currently being edited) has opened enrolments periods 
             request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
