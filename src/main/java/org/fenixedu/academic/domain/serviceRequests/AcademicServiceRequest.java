@@ -300,12 +300,18 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void reject(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.REJECTED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
     final public void cancel(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CANCELLED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void concludeServiceRequest() {
@@ -626,7 +632,10 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         verifyIsToProcessAndHasPersonalInfo(academicServiceRequestBean);
 
         verifyIsToDeliveredAndIsPayed(academicServiceRequestBean);
-        assertPayedEvents();
+        
+        if(!academicServiceRequestBean.isToCancelOrReject()) {
+            assertPayedEvents();
+        }
     }
 
     protected void assertPayedEvents() {
