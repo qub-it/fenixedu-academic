@@ -6,8 +6,8 @@ package org.fenixedu.academic.ui.struts.action.student.enrollment;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +21,12 @@ import org.fenixedu.academic.domain.EnrolmentPeriod;
 import org.fenixedu.academic.domain.EnrolmentPeriodInClasses;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
+import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.dto.InfoLessonInstanceAggregation;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
 import org.fenixedu.bennu.struts.annotations.Forward;
@@ -33,6 +34,10 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+import org.joda.time.DateTime;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * @author shezad - Jul 9, 2015
@@ -63,7 +68,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             }
         }
 
-        enrollmentBeans.sort((eb1, eb2) -> eb1.compareTo(eb2));
+        enrollmentBeans.sort(Comparator.naturalOrder());
         request.setAttribute("enrollmentBeans", enrollmentBeans);
         return mapping.findForward("showSchoolClasses");
     }
@@ -92,6 +97,27 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             final String successMessage =
                     schoolClass != null ? "message.schoolClassStudentEnrollment.enrollInSchoolClass.success" : "message.schoolClassStudentEnrollment.unenrollInSchoolClass.success";
             addActionMessage("success", request, successMessage);
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getKey(), e.getArgs());
+        }
+
+        request.setAttribute("selectedSchoolClass", schoolClass);
+        request.setAttribute("selectedEnrolmentPeriod", enrolmentPeriod);
+
+        return prepare(mapping, form, request, response);
+    }
+
+    public ActionForward removeShift(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        final SchoolClass schoolClass = getDomainObject(request, "schoolClassID");
+        final Registration registration = getDomainObject(request, "registrationID");
+        final EnrolmentPeriod enrolmentPeriod = getDomainObject(request, "enrolmentPeriodID");
+        final Shift shift = getDomainObject(request, "shiftID");
+
+        try {
+            atomic(() -> registration.removeShifts(shift));
+            addActionMessage("success", request, "message.schoolClassStudentEnrollment.removeShift.success");
         } catch (DomainException e) {
             addActionMessage("error", request, e.getKey(), e.getArgs());
         }
@@ -148,28 +174,71 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             return false;
         }
 
-        public List<InfoLessonInstanceAggregation> getSchoolClassToDisplayLessons() {
+        public List<Shift> getSchoolClassToDisplayShifts() {
             final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
-            return schoolClassToDisplay != null ? getLessonsForRegistration(schoolClassToDisplay, registration) : Collections
-                    .emptyList();
+            final SchoolClass currentSchoolClass = getCurrentSchoolClass();
+
+            if (schoolClassToDisplay != null) {
+                final List<ExecutionCourse> attendingExecutionCourses =
+                        registration.getAttendingExecutionCoursesFor(schoolClassToDisplay.getExecutionPeriod());
+                List<Shift> shifts =
+                        schoolClassToDisplay.getAssociatedShiftsSet().stream()
+                                .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()))
+                                .collect(Collectors.toList());
+
+                // if displaying current schoolClass, show only shifts of class that are enrolled
+                if (schoolClassToDisplay == currentSchoolClass) {
+                    final List<Shift> enrolledShifts = registration.getShiftsFor(schoolClassToDisplay.getExecutionPeriod());
+                    shifts = shifts.stream().filter(s -> enrolledShifts.contains(s)).collect(Collectors.toList());
+                }
+                return shifts;
+            }
+            return Collections.emptyList();
         }
 
-        protected static List<InfoLessonInstanceAggregation> getLessonsForRegistration(final SchoolClass schoolClass,
-                final Registration registration) {
-            final List<ExecutionCourse> attendingExecutionCourses =
-                    registration.getAttendingExecutionCoursesFor(schoolClass.getExecutionPeriod());
-            return schoolClass.getAssociatedShiftsSet().stream()
-                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()))
-                    .flatMap(s -> InfoLessonInstanceAggregation.getAggregations(s).stream()).collect(Collectors.toList());
+        public String getSchoolClassToDisplayLessonsJson() {
+
+            final JsonArray result = new JsonArray();
+            for (Shift shift : getSchoolClassToDisplayShifts()) {
+                for (Lesson lesson : shift.getAssociatedLessonsSet()) {
+                    final DateTime now = new DateTime();
+                    final DateTime weekDay = now.withDayOfWeek(lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat());
+                    final DateTime startTime =
+                            weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(), lesson.getBeginHourMinuteSecond()
+                                    .getMinuteOfHour(), 0, 0);
+                    final DateTime endTime =
+                            weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(), lesson.getEndHourMinuteSecond()
+                                    .getMinuteOfHour(), 0, 0);
+
+                    final JsonObject event = new JsonObject();
+                    event.addProperty("id", lesson.getExternalId());
+                    event.addProperty("start", startTime.toString());
+                    event.addProperty("end", endTime.toString());
+                    event.addProperty("title", shift.getExecutionCourse().getName() + " (" + shift.getShiftTypesCodePrettyPrint()
+                            + ")");
+                    event.addProperty("shiftId", shift.getExternalId());
+                    event.addProperty("shiftLessons", shift.getLessonPresentationString());
+                    event.addProperty("shiftTypes", shift.getShiftTypesPrettyPrint());
+                    result.add(event);
+                }
+            }
+
+            return result.toString();
+
         }
 
-        public Set<SchoolClass> getSchoolClassesToEnrol() {
-            final ExecutionSemester executionSemester = getEnrolmentPeriod().getExecutionPeriod();
-            int curricularYear = getRegistration().getCurricularYear(executionSemester.getExecutionYear());
+        public List<SchoolClass> getSchoolClassesToEnrol() {
+            int curricularYear = getCurricularYear();
             return getRegistration()
-                    .getSchoolClassesToEnrolBy(getRegistration().getActiveDegreeCurricularPlan(), executionSemester).stream()
+                    .getSchoolClassesToEnrolBy(getRegistration().getActiveDegreeCurricularPlan(),
+                            getEnrolmentPeriod().getExecutionPeriod()).stream()
                     .filter(s -> s.getAnoCurricular().equals(curricularYear))
-                    .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toSet());
+                    .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
+        }
+
+        public int getCurricularYear() {
+            final ExecutionSemester executionSemester = getEnrolmentPeriod().getExecutionPeriod();
+            return getRegistration().getCurricularYear(executionSemester.getExecutionYear());
         }
 
         @Override
