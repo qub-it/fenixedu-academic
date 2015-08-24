@@ -19,8 +19,8 @@
 package org.fenixedu.academic.ui.struts.action.student.enrollment.bolonha;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -75,7 +75,7 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
         if (bolonhaStudentEnrollmentBean != null) {
             Registration registration = bolonhaStudentEnrollmentBean.getRegistration();
 
-            Set<ExecutionSemester> openedEnrolmentPeriodsSemesters = Collections.EMPTY_SET;
+            List<ExecutionSemester> openedEnrolmentPeriodsSemesters = Collections.EMPTY_LIST;
             if (registration != null) {
                 ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
                 DegreeCurricularPlan lastDegreeCurricularPlan = registration.getLastDegreeCurricularPlan();
@@ -84,7 +84,7 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
                         lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
                                 .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
                                 .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
-                                .collect(Collectors.toSet());
+                                .collect(Collectors.toList());
             }
             if (openedEnrolmentPeriodsSemesters.size() > 1) {
                 //We only add this collection to the request if more than one period (the currently being edited) has opened enrolments periods 
