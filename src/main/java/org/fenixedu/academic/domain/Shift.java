@@ -130,9 +130,6 @@ public class Shift extends Shift_Base {
 
         setComment(comment);
         
-        if (!getNome().equals(newName)) {
-            setCustomName(newName);
-        }
     }
     
     public boolean isCustomName() {
@@ -610,8 +607,4 @@ public class Shift extends Shift_Base {
         return false;
     }
 
-    @Override
-    public String getNome() {
-        return StringUtils.isBlank(getCustomName()) ? super.getNome() : getCustomName();
-    }
 }
