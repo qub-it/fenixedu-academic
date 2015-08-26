@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.PersonInformationLog;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactValidation;
+import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -366,13 +367,13 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
     }
 
     private boolean isToBeValidated(PartyContactBean contact) {
-        return !(contact instanceof WebAddressBean || ((contact instanceof MobilePhoneBean) && !PhoneValidationUtils
-                .getInstance().canRun()));
+        return !(contact instanceof WebAddressBean || ((contact instanceof MobilePhoneBean || contact instanceof PhoneBean) && !PhoneValidationUtils
+                .getInstance().shouldRun()));
     }
 
-    private boolean isToBeValidated(PartyContact contact) {
-        return !(contact instanceof WebAddress || ((contact instanceof MobilePhone) && !PhoneValidationUtils.getInstance()
-                .canRun()));
+    protected boolean isToBeValidated(PartyContact contact) {
+        return !(contact instanceof WebAddress || ((contact instanceof MobilePhone || contact instanceof Phone) && !PhoneValidationUtils
+                .getInstance().shouldRun()));
     }
 
 }
