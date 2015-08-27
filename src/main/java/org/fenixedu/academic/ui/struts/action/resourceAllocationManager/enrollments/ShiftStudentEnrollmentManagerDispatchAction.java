@@ -147,6 +147,7 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
         final ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         if (readAndSetSelectCoursesParameter(request) == null) {
+            request.setAttribute("executionSemesterID", executionSemester.getExternalId());
             return prepareShiftEnrolmentInformation(mapping, request, registration, executionSemester);
         } else {
             return prepareSelectCoursesInformation(mapping, actionForm, request, registration, executionSemester);
