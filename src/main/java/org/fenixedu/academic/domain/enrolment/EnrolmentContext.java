@@ -18,11 +18,12 @@
  */
 package org.fenixedu.academic.domain.enrolment;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -191,9 +192,12 @@ public class EnrolmentContext {
         return getExecutionPeriod().getExecutionYear();
     }
 
-    public Collection<ExecutionSemester> getExecutionSemestersToEvaluate() {
-        return isToEvaluateRulesByYear() ? getExecutionYear().getExecutionPeriodsSet() : Collections
-                .singleton(getExecutionPeriod());
+    public SortedSet<ExecutionSemester> getExecutionSemestersToEvaluate() {
+        final SortedSet<ExecutionSemester> result = new TreeSet<>(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        result.addAll(isToEvaluateRulesByYear() ? getExecutionYear().getExecutionPeriodsSet() : Collections
+                .singleton(getExecutionPeriod()));
+
+        return result;
     }
 
     @SuppressWarnings("unchecked")
