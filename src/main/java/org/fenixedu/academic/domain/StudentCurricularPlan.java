@@ -292,9 +292,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
         checkRulesToDelete();
 
-        setDegreeCurricularPlan(null);
-        setBranch(null);
-
         for (; !getEnrolmentsSet().isEmpty(); getEnrolmentsSet().iterator().next().delete()) {
             ;
         }
@@ -313,6 +310,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             ;
         }
 
+        setDegreeCurricularPlan(null);
+        setBranch(null);
         setStudent(null);
         setRootDomainObject(null);
 
