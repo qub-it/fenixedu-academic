@@ -250,11 +250,11 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
     protected String getDescription(final AcademicServiceRequestType academicServiceRequestType, final String specificServiceType) {
         final StringBuilder result = new StringBuilder();
-        
-        if(getServiceRequestType() != null && !getServiceRequestType().isLegacy()) {
+
+        if (getServiceRequestType() != null && !getServiceRequestType().isLegacy()) {
             return getServiceRequestType().getName().getContent();
         }
-        
+
         result.append(BundleUtil.getString(Bundle.ENUMERATION, academicServiceRequestType.getQualifiedName()));
         if (specificServiceType != null) {
             result.append(": ");
@@ -311,12 +311,18 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void reject(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.REJECTED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
     final public void cancel(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CANCELLED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void concludeServiceRequest() {
@@ -637,7 +643,10 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         verifyIsToProcessAndHasPersonalInfo(academicServiceRequestBean);
 
         verifyIsToDeliveredAndIsPayed(academicServiceRequestBean);
-        assertPayedEvents();
+
+        if (!academicServiceRequestBean.isToCancelOrReject()) {
+            assertPayedEvents();
+        }
     }
 
     protected void assertPayedEvents() {
@@ -812,7 +821,8 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     abstract public boolean hasPersonalInfo();
 
     protected boolean hasMissingPersonalInfo() {
-        return Strings.isNullOrEmpty(getPerson().getParishOfBirth()) || Strings.isNullOrEmpty(getPerson().getDistrictOfBirth());
+        return Strings.isNullOrEmpty(getPerson().getName()) || (getPerson().getDateOfBirthYearMonthDay() == null)
+                || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber()) || (getPerson().getIdDocumentType() == null);
     }
 
     public void revertToProcessingState() {

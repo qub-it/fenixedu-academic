@@ -263,7 +263,7 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         List<ExecutionSemester> openedEnrolmentPeriodsSemesters =
                 lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
                         .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
-                        .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
+                        .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR).distinct()
                         .collect(Collectors.toList());
         if (openedEnrolmentPeriodsSemesters.size() > 1) {
             //We only add this collection to the request if more than one period (the currently being edited) has opened enrolments periods 
