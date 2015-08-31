@@ -162,14 +162,20 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             return currentSchoolClass != null ? currentSchoolClass : getSchoolClassesToEnrol().stream().findFirst().orElse(null);
         }
 
+        public int getMatchedCoursesNumber() {
+            final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
+            if (schoolClassToDisplay != null) {
+                return getAttendingShifts(schoolClassToDisplay).stream().map(s -> s.getExecutionCourse())
+                        .collect(Collectors.toSet()).size();
+            }
+            return 0;
+        }
+
         public boolean isSchoolClassToDisplayFree() {
             final SchoolClass schoolClassToDisplay = getSchoolClassToDisplay();
             if (schoolClassToDisplay != null) {
-                final List<ExecutionCourse> attendingExecutionCourses =
-                        registration.getAttendingExecutionCoursesFor(schoolClassToDisplay.getExecutionPeriod());
-                return !schoolClassToDisplay.getAssociatedShiftsSet().stream()
-                        .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()))
-                        .anyMatch(s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
+                return !getAttendingShifts(schoolClassToDisplay).stream().anyMatch(
+                        s -> s.getLotacao().intValue() <= s.getStudentsSet().size());
             }
             return false;
         }
@@ -179,12 +185,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             final SchoolClass currentSchoolClass = getCurrentSchoolClass();
 
             if (schoolClassToDisplay != null) {
-                final List<ExecutionCourse> attendingExecutionCourses =
-                        registration.getAttendingExecutionCoursesFor(schoolClassToDisplay.getExecutionPeriod());
-                List<Shift> shifts =
-                        schoolClassToDisplay.getAssociatedShiftsSet().stream()
-                                .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse()))
-                                .collect(Collectors.toList());
+                List<Shift> shifts = getAttendingShifts(schoolClassToDisplay);
 
                 // if displaying current schoolClass, show only shifts of class that are enrolled
                 if (schoolClassToDisplay == currentSchoolClass) {
@@ -194,6 +195,13 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 return shifts;
             }
             return Collections.emptyList();
+        }
+
+        protected List<Shift> getAttendingShifts(final SchoolClass schoolClassToDisplay) {
+            final List<ExecutionCourse> attendingExecutionCourses =
+                    registration.getAttendingExecutionCoursesFor(schoolClassToDisplay.getExecutionPeriod());
+            return schoolClassToDisplay.getAssociatedShiftsSet().stream()
+                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse())).collect(Collectors.toList());
         }
 
         public String getSchoolClassToDisplayLessonsJson() {

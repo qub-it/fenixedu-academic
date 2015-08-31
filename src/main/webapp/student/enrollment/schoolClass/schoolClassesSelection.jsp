@@ -115,9 +115,11 @@
 						<html:link page="<%= selectSchoolClassLink %>" styleClass="<%= selectSchoolClassLinkCssClass %>">
 							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <bean:message bundle="STUDENT_RESOURCES" key="button.schoolClassStudentEnrollment.selectSchoolClass" />
 						</html:link>		    
-				    	<c:if test="${not enrollmentBean.schoolClassToDisplayFree}"><span class="text-warning"><bean:message bundle="STUDENT_RESOURCES" key="label.schoolClassStudentEnrollment.fullSchoolClass" /></span></c:if>
+				    	<c:if test="${not enrollmentBean.schoolClassToDisplayFree}">&nbsp;&nbsp;<span class="text-warning"><bean:message bundle="STUDENT_RESOURCES" key="label.schoolClassStudentEnrollment.fullSchoolClass" /></span></c:if>
 				    </c:otherwise>
 				</c:choose>
+				
+				<p class="text-muted mtop15 pull-right"><bean:message bundle="STUDENT_RESOURCES" key="label.shiftEnrolment.matchedCoursesNumber" />: <strong><c:out value="${enrollmentBean.matchedCoursesNumber}" /></strong></p><br/>
 		
 				<c:set value="${enrollmentBean.schoolClassToDisplayLessonsJson}" var="schoolClassToDisplayLessonsJson"/>
 				<c:if test="${not empty schoolClassToDisplayLessonsJson}">
