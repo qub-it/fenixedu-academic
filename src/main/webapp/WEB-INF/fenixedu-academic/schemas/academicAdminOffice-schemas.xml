@@ -1359,6 +1359,10 @@
 	<slot name="name" />
 </schema>
 
+<schema name="responsible.displayName" type="org.fenixedu.academic.domain.Person">
+	<slot name="profile.displayName" />
+</schema>
+
 <schema name="responsibleUser.name" type="org.fenixedu.bennu.core.domain.User">
 	<slot name="name" />
 </schema>
