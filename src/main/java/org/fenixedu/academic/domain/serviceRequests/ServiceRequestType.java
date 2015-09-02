@@ -20,13 +20,14 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     }
 
     protected ServiceRequestType(final String code, final LocalizedString name, final boolean active, final boolean payable,
-            final ServiceRequestCategory category) {
+            final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
         this();
 
         super.setCode(code);
         super.setName(name);
         setActive(active);
         setPayable(payable);
+        setNotifyUponConclusion(notifyUponConclusion);
         setServiceRequestCategory(category);
 
         checkRules();
@@ -34,8 +35,8 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     protected ServiceRequestType(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payable, final ServiceRequestCategory category) {
-        this(code, name, active, payable, category);
+            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
+        this(code, name, active, payable, notifyUponConclusion, category);
         setAcademicServiceRequestType(academicServiceRequestType);
         setDocumentRequestType(documentRequestType);
 
@@ -53,7 +54,11 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     public boolean isPayable() {
         return getPayable();
     }
-    
+
+    public boolean isToNotifyUponConclusion() {
+        return (getNotifyUponConclusion() == null) ? false : getNotifyUponConclusion();
+    }
+
     public boolean isLegacy() {
         return getAcademicServiceRequestType() != null;
     }
@@ -64,16 +69,17 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     @Atomic
     public void edit(final String code, final LocalizedString name, final boolean active, final boolean payable,
-            final ServiceRequestCategory category, final LocalizedString numberOfUnitsLabel) {
+            final Boolean notifyUponConclusion, final ServiceRequestCategory category, final LocalizedString numberOfUnitsLabel) {
         setCode(code);
         setName(name);
         setActive(active);
         setPayable(payable);
+        setNotifyUponConclusion(notifyUponConclusion);
         setServiceRequestCategory(category);
-        if(hasOption(ServiceRequestTypeOption.findNumberOfUnitsOption().get())) {
+        if (hasOption(ServiceRequestTypeOption.findNumberOfUnitsOption().get())) {
             setNumberOfUnitsLabel(numberOfUnitsLabel);
         } else {
-            setNumberOfUnitsLabel(null);            
+            setNumberOfUnitsLabel(null);
         }
 
         checkRules();
@@ -124,7 +130,9 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     }
 
     public static ServiceRequestType findUnique(final AcademicServiceRequestType academicServiceRequestType) {
-        return findAll().filter(x -> x.getAcademicServiceRequestType() != null && x.getAcademicServiceRequestType().equals(academicServiceRequestType))
+        return findAll()
+                .filter(x -> x.getAcademicServiceRequestType() != null
+                        && x.getAcademicServiceRequestType().equals(academicServiceRequestType))
                 .filter(x -> x.getDocumentRequestType() == null).findFirst().orElse(null);
     }
 
@@ -148,11 +156,11 @@ public class ServiceRequestType extends ServiceRequestType_Base {
             return findUnique(academicServiceRequest.getAcademicServiceRequestType());
         }
     }
-    
+
     public static Stream<ServiceRequestType> findByCode(final String code) {
         return findAll().filter(l -> l.getCode().equalsIgnoreCase(code));
     }
-    
+
     public static Optional<ServiceRequestType> findUniqueByCode(final String code) {
         return findByCode(code).findFirst();
     }
@@ -175,15 +183,16 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     @Atomic
     public static ServiceRequestType create(final String code, final LocalizedString name, final boolean active,
-            final boolean payable, final ServiceRequestCategory category) {
-        return new ServiceRequestType(code, name, active, payable, category);
+            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
+        return new ServiceRequestType(code, name, active, payable, notifyUponConclusion, category);
     }
 
     @Atomic
     public static ServiceRequestType createLegacy(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payable, final ServiceRequestCategory category) {
-        return new ServiceRequestType(code, name, active, academicServiceRequestType, documentRequestType, payable, category);
+            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
+        return new ServiceRequestType(code, name, active, academicServiceRequestType, documentRequestType, payable,
+                notifyUponConclusion, category);
     }
 
 }
