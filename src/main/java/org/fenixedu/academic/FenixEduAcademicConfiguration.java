@@ -116,6 +116,15 @@ public class FenixEduAcademicConfiguration {
                 description = "identifies the execution period after which mark sheet are to be managed in the fenix system.",
                 defaultValue = "2005/2006")
         public String getYearForFromMarkSheetManagment();
+
+        @ConfigurationProperty(key = "physicalAddress.requiresValidation")
+        public Boolean getPhysicalAddressRequiresValidation();
+
+        @ConfigurationProperty(
+                key = "default.social.security.number",
+                description = "Identifies the default social security number to be used in the country (e.g. for Portugal it is 999999990)")
+        public String getDefaultSocialSecurityNumber();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
