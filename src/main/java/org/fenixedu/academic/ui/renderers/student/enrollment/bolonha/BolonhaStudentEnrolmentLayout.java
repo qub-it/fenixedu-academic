@@ -250,7 +250,7 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
         checkBox.setUserValue(enrolmentMetaObject.getKey().toString());
         checkBoxCell.setBody(checkBox);
 
-        if (studentCurriculumGroupBean.isToBeDisabled()) {
+        if (isToDisableEnrolmentOption(studentCurriculumGroupBean)) {
             checkBox.setDisabled(true);
         } else {
             enrollmentsController.addCheckBox(checkBox);
@@ -390,6 +390,7 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
                 HtmlCheckBox checkBox = new HtmlCheckBox(false);
                 checkBox.setName("degreeModuleToEnrolCheckBox" + degreeModuleToEvaluate.getKey());
                 checkBox.setUserValue(degreeModuleToEvaluate.getKey());
+                checkBox.setVisible(!isToDisableEnrolmentOption(degreeModuleToEvaluate));
                 getDegreeModulesToEvaluateController().addCheckBox(checkBox);
                 checkBoxCell.setBody(checkBox);
             } else {
@@ -403,8 +404,13 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
                 final HtmlActionLink actionLink = new HtmlActionLink();
                 actionLink.setText(BundleUtil.getString(Bundle.STUDENT, "label.chooseOptionalCurricularCourse"));
                 actionLink.setController(new OptionalCurricularCourseLinkController(degreeModuleToEvaluate));
-                actionLink
-                        .setOnClick("$(this).closest('form').find('input[name=\\'method\\']').attr('value', 'prepareChooseOptionalCurricularCourseToEnrol');");
+                if (isToDisableEnrolmentOption(degreeModuleToEvaluate)) {
+                    actionLink.setOnClick("function(){return false;}");
+                    actionLink.setStyle("text-decoration: line-through; color: grey; border-bottom: none;");
+                } else {
+                    actionLink
+                            .setOnClick("$(this).closest('form').find('input[name=\\'method\\']').attr('value', 'prepareChooseOptionalCurricularCourseToEnrol');");
+                }
                 //actionLink.setOnClick("document.forms[2].method.value='prepareChooseOptionalCurricularCourseToEnrol';");
                 actionLink.setName("optionalCurricularCourseLink" + degreeModuleToEvaluate.getCurriculumGroup().getExternalId()
                         + "_" + degreeModuleToEvaluate.getContext().getExternalId());
@@ -415,6 +421,12 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
                 encodeCurricularRules(groupTable, degreeModuleToEvaluate);
             }
         }
+    }
+
+    private boolean isToDisableEnrolmentOption(final StudentCurriculumGroupBean input) {
+        return input.isToBeDisabled()
+                || (isStudentLogged() && appliesAnyRules(input.getCurriculumModule(),
+                        CurricularRuleType.ENROLMENT_TO_BE_APPROVED_BY_COORDINATOR));
     }
 
     private boolean isToDisableEnrolmentOption(final IDegreeModuleToEvaluate input) {
@@ -434,20 +446,48 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
 
             for (final CurricularRuleType curricularRuleType : curricularRuleTypes) {
 
-                final CourseGroup courseGroup = input.getCurriculumGroup().getDegreeModule();
+                final CourseGroup parentCourseGroup = input.getCurriculumGroup().getDegreeModule();
 
                 // check self rules
                 final ExecutionSemester executionInterval = this.bolonhaStudentEnrollmentBean.getExecutionPeriod();
                 List<? extends ICurricularRule> rules =
-                        input.getDegreeModule().getCurricularRules(curricularRuleType, courseGroup, executionInterval);
+                        input.getDegreeModule().getCurricularRules(curricularRuleType, parentCourseGroup, executionInterval);
 
                 if (!rules.isEmpty() && rules.iterator().next().appliesToContext(input.getContext())) {
                     return true;
                 }
 
                 // check parent group rules
-                rules = courseGroup.getCurricularRules(curricularRuleType, executionInterval);
+                rules = parentCourseGroup.getCurricularRules(curricularRuleType, executionInterval);
                 if (!rules.isEmpty() && rules.iterator().next().appliesToContext(input.getContext())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean appliesAnyRules(final CurriculumGroup input, final CurricularRuleType... curricularRuleTypes) {
+
+        if (input != null && curricularRuleTypes != null) {
+
+            for (final CurricularRuleType curricularRuleType : curricularRuleTypes) {
+
+                final CurriculumGroup parentCurriculumGroup = input.getCurriculumGroup();
+                final CourseGroup parentCourseGroup = parentCurriculumGroup.getDegreeModule();
+
+                // check self rules
+                final ExecutionSemester executionInterval = this.bolonhaStudentEnrollmentBean.getExecutionPeriod();
+                List<? extends ICurricularRule> rules =
+                        input.getDegreeModule().getCurricularRules(curricularRuleType, parentCourseGroup, executionInterval);
+
+                if (!rules.isEmpty()) {
+                    return true;
+                }
+
+                // check parent group rules, recursively until root
+                if (!parentCurriculumGroup.isRoot() && appliesAnyRules(parentCurriculumGroup, curricularRuleTypes)) {
                     return true;
                 }
             }
