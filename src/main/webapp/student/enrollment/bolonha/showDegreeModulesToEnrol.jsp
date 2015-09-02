@@ -109,12 +109,10 @@
 		</p>
 		<p class="mtop025 mbottom1">
 			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+			<logic:present name="returnURL">
+					<html:link styleClass="btn btn-default" href="${returnURL}"><strong><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></strong></html:link>
+			</logic:present>
 		</p>
-		<logic:present name="returnURL">
-			<li>
-				<html:link href="${returnURL}"><strong><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></strong></html:link>
-			</li>
-		</logic:present>
 		<logic:present name="openedEnrolmentPeriodsSemesters">		
 			<ul class="nav nav-tabs">
 				<logic:iterate id="period" name="openedEnrolmentPeriodsSemesters">				
