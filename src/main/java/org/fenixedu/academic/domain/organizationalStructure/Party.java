@@ -462,15 +462,17 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
                 return;
             }
 
-            final Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(socialSecurityNumber);
-            if (party != null && party != this) {
-                throw new DomainException("error.party.existing.contributor.number");
-            } else {
-                if (getPartySocialSecurityNumber() != null) {
-                    getPartySocialSecurityNumber().setSocialSecurityNumber(socialSecurityNumber);
-                } else {
-                    new PartySocialSecurityNumber(this, socialSecurityNumber);
+            if (!PartySocialSecurityNumber.DEFAULT_SOCIAL_SECURITY_NUMBER.equals(socialSecurityNumber)) {
+                final Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(socialSecurityNumber);
+                if (party != null && party != this) {
+                    throw new DomainException("error.party.existing.contributor.number");
                 }
+            }
+
+            if (getPartySocialSecurityNumber() != null) {
+                getPartySocialSecurityNumber().setSocialSecurityNumber(socialSecurityNumber);
+            } else {
+                new PartySocialSecurityNumber(this, socialSecurityNumber);
             }
         }
     }

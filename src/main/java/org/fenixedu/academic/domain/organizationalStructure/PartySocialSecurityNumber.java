@@ -23,6 +23,8 @@ import org.fenixedu.bennu.core.domain.Bennu;
 
 public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
 
+    public static final String DEFAULT_SOCIAL_SECURITY_NUMBER = "999999990";
+
     private PartySocialSecurityNumber() {
         super();
         setRootDomainObject(Bennu.getInstance());
@@ -43,9 +45,11 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
             throw new DomainException("error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
         }
 
-        for (final PartySocialSecurityNumber securityNumber : Bennu.getInstance().getPartySocialSecurityNumbersSet()) {
-            if (securityNumber != this && securityNumber.hasSocialSecurityNumber(socialSecurityNumber)) {
-                throw new DomainException("error.PartySocialSecurityNumber.number.already.exists");
+        if (!DEFAULT_SOCIAL_SECURITY_NUMBER.equals(socialSecurityNumber)) {
+            for (final PartySocialSecurityNumber securityNumber : Bennu.getInstance().getPartySocialSecurityNumbersSet()) {
+                if (securityNumber != this && securityNumber.hasSocialSecurityNumber(socialSecurityNumber)) {
+                    throw new DomainException("error.PartySocialSecurityNumber.number.already.exists");
+                }
             }
         }
     }
