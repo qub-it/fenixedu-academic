@@ -25,6 +25,7 @@
 <%@ page import="org.apache.struts.action.ActionMessages" %>
 
 <%@page import="org.fenixedu.academic.domain.CompetenceCourse"%>
+<%@page import="org.fenixedu.commons.i18n.I18N"%>
 <html:xhtml />
 
 <logic:present role="role(STUDENT)">
@@ -102,6 +103,7 @@
 		<div class="warning0" style="padding: 0.5em;">
 		<ul class="mvert05">
 			<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="warning">
+				<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
 				<li><span><bean:write name="messages" /></span></li>
 			</html:messages>
 		</ul>
@@ -113,6 +115,7 @@
 			<p class="mvert0"><strong><bean:message bundle="STUDENT_RESOURCES" key="label.enrollment.errors.in.enrolment" />:</strong></p>
 			<ul class="mvert05">
 				<html:messages id="messages" message="true" bundle="APPLICATION_RESOURCES" property="error">
+					<% pageContext.setAttribute("messages", ((String) pageContext.getAttribute("messages")).replaceAll("\\?\\?\\?" + I18N.getLocale().toString() + "\\.", "").replaceAll("\\?\\?\\?", ""));%>
 					<li><span><bean:write name="messages" /></span></li>
 				</html:messages>
 			</ul>
