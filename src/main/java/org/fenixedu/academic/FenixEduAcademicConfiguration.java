@@ -35,6 +35,11 @@ public class FenixEduAcademicConfiguration {
         @ConfigurationProperty(key = "ciist.sms.username")
         public String getCIISTSMSUsername();
 
+        @ConfigurationProperty(
+                key = "default.social.security.number",
+                description = "Identifies the default social security number to be used in the country (e.g. for Portugal it is 999999990)")
+        public String getDefaultSocialSecurityNumber();
+
         @ConfigurationProperty(key = "generic.application.email.confirmation.link",
                 defaultValue = "http://localhost:8080/fenix/publico/genericApplications.do?method=confirmEmail&confirmationCode=")
         public String getGenericApplicationEmailConfirmationLink();
@@ -116,6 +121,7 @@ public class FenixEduAcademicConfiguration {
                 description = "identifies the execution period after which mark sheet are to be managed in the fenix system.",
                 defaultValue = "2005/2006")
         public String getYearForFromMarkSheetManagment();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
