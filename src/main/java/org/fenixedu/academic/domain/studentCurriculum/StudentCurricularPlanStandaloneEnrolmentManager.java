@@ -217,6 +217,7 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
         for (final Enrolment enrolment : enrolmentsToNotify) {
             Signal.emit(ITreasuryBridgeAPI.STANDALONE_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
         }
+        getRegistration().updateEnrolmentDate(getExecutionYear());
     }
 
     @Override
