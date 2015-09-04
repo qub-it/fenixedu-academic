@@ -63,12 +63,13 @@
 		<tbody>
 			<tr>
 				<td align="center">
-					<div class="items-container" data-toggle="tooltip" data-placement="right" title="${fr:message('resources.ApplicationResources', 'link.operator.submitPhoto')}">
+					<%-- ATTENTION: Reactivate the link and the tooltip when the cropper is fixed. --%>
+					<div class="items-container" <%--data-toggle="tooltip" data-placement="right" title="${fr:message('resources.ApplicationResources', 'link.operator.submitPhoto')}"--%>>
 						<img src="${fr:checksum('/person/retrievePersonalPhoto.do?method=retrieveOwnPhoto')}" width="100" height="100" align="middle" style="border: 2px #eee solid"/>
-						<html:link page="/uploadPhoto.do?method=prepare" styleClass="play">
+						<%--html:link page="/uploadPhoto.do?method=prepare" styleClass="play">
 							<div class="play-bg"></div>
 							<span class="glyphicon glyphicon-camera"></span>
-						</html:link>
+						</html:link --%>
 					</div>
 					<span class="badge" style="margin-top: 5px" data-toggle="tooltip" data-placement="bottom" title="${fr:message('resources.ApplicationResources', 'label.available.for.'.concat(person.photoAvailable ? 'public' : 'user'))}">
 						${fr:message('resources.ApplicationResources', 'title.'.concat(person.photoAvailable ? 'public' : 'private'))}
