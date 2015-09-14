@@ -43,7 +43,6 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.accounting.events.EnrolmentOutOfPeriodEvent;
 import org.fenixedu.academic.domain.accounting.events.gratuity.GratuityEvent;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
-import org.fenixedu.academic.domain.candidacy.CandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -2676,6 +2675,11 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         } else {
             setWhenDateTime(new org.joda.time.DateTime(date.getTime()));
         }
+    }
+
+    public boolean isAllowedToDelete() {
+        final Set<StudentCurricularPlan> plans = getRegistration().getStudentCurricularPlansSet();
+        return isAllowedToManageEnrolments() && plans.size() > 1;
     }
 
     public boolean isAllowedToManageEnrolments() {
