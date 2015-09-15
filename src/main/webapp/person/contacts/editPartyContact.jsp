@@ -40,40 +40,7 @@ request.setAttribute("isPhysicalAddress", partyContact instanceof PhysicalAddres
     <p><span class="error0"><!-- Error messages go here --><bean:write name="message" /></span>
     </p>
 </html:messages>
-<table class="mvert1 tdtop">
-		<tbody>
-			<tr>
-				<td>
-				<!--   <div style="padding: 0 2em;">-->
-                    <div class="infoop2">
-                    	<logic:equal name="isPhone" value="true">
-                        	<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.Phone"/>
-						</logic:equal>
-						<logic:equal name="isEmail" value="true">
-							<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.EmailAddress"/>
-						</logic:equal>
-						<logic:equal name="isPhysicalAddress" value="true">
-							<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.PhysicalAddress"/>  
-						</logic:equal>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-</table>
 
-<logic:equal name="isPhone" value="true">
-	<bean:define id="confirm">
-		<bean:message  bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.confirm.Phone" />
-	</bean:define>
-	<script type="text/javascript">
-	 $(document).ready(function() {
-		 $('#edit-contact').submit(function() {
-					return confirm('<%= confirm %>');
-			})
-		 });
-	</script>
-</logic:equal>
-    
 <fr:edit id="edit-contact" name="partyContact" action="/partyContacts.do?method=editPartyContact"
     schema="<%= "contacts." + (contactType.equals("INSTITUTIONAL") ? "Institutional." : "") + partyContactClass + ".manage-student" %>">
     <fr:layout name="tabular-editable">

@@ -133,7 +133,7 @@
 
 <div class="row">
 	<div class="col-sm-10">
-<table class="tstyle2 thlight thleft table table-condensed">
+<table class="tstyle2 thlight thcenter table table-condensed">
     <tr>
         <th></th>
         <th></th>
@@ -186,7 +186,6 @@
                     <img src="<%=request.getContextPath()%>/images/accept.gif"/>
             </td>
 			<td class="tdclear">
-				<%-- 
 				<html:link action="/partyContacts.do?method=prepareCreatePhysicalAddress">
 					<bean:message key="label.add" />
 				</html:link>,
@@ -203,7 +202,6 @@
 						<bean:message key="label.validate" />
 					</html:link>
 				</logic:equal>
-				--%>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -217,11 +215,9 @@
         <td class="acenter">-</td>
         <td class="acenter">-</td>
 		<td class="tdclear">
-			<%-- 
 			<html:link action="/partyContacts.do?method=prepareCreatePhysicalAddress">
 				<bean:message key="label.add" />
 			</html:link>
-			--%>
 		</td>
 	</tr>
 </logic:empty>    
@@ -268,7 +264,6 @@
                     <img src="<%=request.getContextPath()%>/images/accept.gif"/>
             </td>
 			<td class="tdclear">
-				<%-- 
 				<logic:equal name="person" property="canValidateContacts" value="true">
 				<html:link action="/partyContacts.do?method=prepareCreatePhone">
 					<bean:message key="label.add" />
@@ -285,7 +280,6 @@
 						<bean:message key="label.validate" />
 					</html:link>
 				</logic:equal>
-				--%>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -299,13 +293,11 @@
         <td class="acenter">-</td>
         <td class="acenter">-</td>
 		<td class="tdclear">
-		<%--
 		<logic:equal name="person" property="canValidateContacts" value="true">
 			<html:link action="/partyContacts.do?method=prepareCreatePhone">
 				<bean:message key="label.add" />
 			</html:link>
 		</logic:equal>
-		--%>
 		</td>
 	</tr>
 </logic:empty>
@@ -352,7 +344,6 @@
                     <img src="<%=request.getContextPath()%>/images/accept.gif"/>
             </td>
 			<td class="tdclear">
-				<%--
 				<logic:equal name="person" property="canValidateContacts" value="true">
 				<html:link action="/partyContacts.do?method=prepareCreateMobilePhone">
 					<bean:message key="label.add" />
@@ -369,7 +360,6 @@
 						<bean:message key="label.validate" />
 					</html:link>
 				</logic:equal>
-				--%>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -383,13 +373,11 @@
         <td class="acenter">-</td>
         <td class="acenter">-</td>
 		<td class="tdclear">
-		<%--
 		<logic:equal name="person" property="canValidateContacts" value="true">
 			<html:link action="/partyContacts.do?method=prepareCreateMobilePhone">
 				<bean:message key="label.add" />
 			</html:link>
 		</logic:equal>
-		--%>
 		</td>
 	</tr>
 </logic:empty>
@@ -439,7 +427,6 @@
                     <img src="<%=request.getContextPath()%>/images/accept.gif"/>
             </td>
 			<td class="tdclear">
-				<%--
 				<logic:equal value="false" property="valid" name="contact">
 					<html:link action="/partyContacts.do?method=prepareCreateEmailAddress">
 						<bean:message key="Validar" />
@@ -460,7 +447,6 @@
 						<bean:message key="label.validate" />
 					</html:link>
 				</logic:equal>
-				--%>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -474,11 +460,9 @@
         <td class="acenter">-</td>
         <td class="acenter">-</td>
 		<td class="tdclear">
-			<%--
 			<html:link action="/partyContacts.do?method=prepareCreateEmailAddress">
 				<bean:message key="label.add" />
 			</html:link>
-			--%>
 		</td>
 	</tr>
 </logic:empty>
@@ -525,7 +509,6 @@
                     <img src="<%=request.getContextPath()%>/images/accept.gif"/>
             </td>
 			<td class="tdclear">
-				<%--
 				<html:link action="/partyContacts.do?method=prepareCreateWebAddress">
 					<bean:message key="label.add" />
 				</html:link>,
@@ -540,7 +523,6 @@
 						<bean:message key="label.validate" />
 					</html:link>
 				</logic:equal>
-				--%>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -554,11 +536,9 @@
         <td class="acenter">-</td>
         <td class="acenter">-</td>
 		<td class="tdclear">
-			<%--
 			<html:link action="/partyContacts.do?method=prepareCreateWebAddress">
 				<bean:message key="label.add" />
 			</html:link>
-			--%>
 		</td>
 	</tr>
 </logic:empty>
@@ -701,6 +681,10 @@
     z-index:110;
     top: 30%;
     opacity: 0.9;
+}
+
+table > tbody > tr > td.tdclear {
+	border-bottom: 1px solid #ccc;
 }
 </style>
 <script>

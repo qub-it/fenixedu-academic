@@ -36,9 +36,7 @@ public class EditPartyContact {
             if (toBeValidated) {
                 contact.triggerValidationProcessIfNeeded();
             } else {
-                if (contact instanceof PhysicalAddress || contact instanceof WebAddress) {
-                    contact.setValid();
-                }
+                contact.setValid();
             }
         }
         return wasChanged;
