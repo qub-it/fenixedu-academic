@@ -184,8 +184,6 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
                 if (newPartyContact == null) {
                     addActionMessage("contacts", request, "label.contact.validate.already", contact.getValue());
                     return backToShowInformation(mapping, actionForm, request, response);
-                } else {
-                    addWarningMessage(request, contact);
                 }
             } catch (DomainException e) {
                 addActionMessage("contacts", request, e.getMessage(), e.getArgs());
@@ -242,19 +240,14 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
             HttpServletResponse response) throws FenixServiceException {
         if (getRenderedObject("edit-contact") instanceof PartyContactBean) {
             PartyContactBean contact = getRenderedObject("edit-contact");
-            Boolean wasValidated = false;
             try {
                 if (contact.hasPartyContact()) {
                     addActionMessage("contacts", request, "label.contact.validate.already", contact.getValue());
                     return backToShowInformation(mapping, actionForm, request, response);
                 }
-                wasValidated = editContact(contact);
+                editContact(contact);
             } catch (DomainException e) {
                 addActionMessage("contacts", request, e.getMessage(), e.getArgs());
-            }
-            if (wasValidated) {
-                addWarningMessage(request, contact);
-                return forwardToInputValidationCode(mapping, actionForm, request, response, contact.getContact());
             }
             return backToShowInformation(mapping, actionForm, request, response);
         }
@@ -366,13 +359,10 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
     }
 
     private boolean isToBeValidated(PartyContactBean contact) {
-        return !(contact instanceof WebAddressBean || ((contact instanceof MobilePhoneBean) && !PhoneValidationUtils
-                .getInstance().canRun()));
+        return false;
     }
 
     private boolean isToBeValidated(PartyContact contact) {
-        return !(contact instanceof WebAddress || ((contact instanceof MobilePhone) && !PhoneValidationUtils.getInstance()
-                .canRun()));
+        return false;
     }
-
 }

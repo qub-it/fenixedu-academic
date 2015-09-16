@@ -37,9 +37,7 @@ public class CreatePartyContact {
         if (toBeValidated) {
             createNewContact.triggerValidationProcessIfNeeded();
         } else {
-            if (createNewContact instanceof PhysicalAddress || createNewContact instanceof MobilePhone) {
-                createNewContact.setValid();
-            }
+            createNewContact.setValid();
         }
         contactBean.setContact(createNewContact);
         return createNewContact;

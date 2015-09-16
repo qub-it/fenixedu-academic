@@ -137,3 +137,5 @@
 </table>
 
 <script>$(function(){$('table').removeClass('table')})</script>
+
+<!-- qubExtensions, check me pabrantes -->

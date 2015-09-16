@@ -32,9 +32,11 @@
 <h1><bean:message bundle="STUDENT_RESOURCES" key="title.student.shift.enrollment" /></h1>
 
 <c:if test="${not empty enrollmentBeans}">
-	<div class="alert alert-warning" role="alert"><bean:message bundle="STUDENT_RESOURCES" key="message.warning.student.enrolmentClasses" /> 
-		<html:link page="<%= "/studentEnrollmentManagement.do?method=prepare" %>" styleClass="alert-link" style="color: #7F3C00"><bean:message bundle="STUDENT_RESOURCES" key="message.warning.student.enrolmentClasses.Fenix" /></html:link>.
-	</div>
+		<c:if test="${empty workflowRegistrationOid}">		 
+			<div class="alert alert-warning" role="alert"><bean:message bundle="STUDENT_RESOURCES" key="message.warning.student.enrolmentClasses" />
+					<html:link page="<%= "/studentEnrollmentManagement.do?method=prepare" %>" styleClass="alert-link" style="color: #7F3C00"><bean:message bundle="STUDENT_RESOURCES" key="message.warning.student.enrolmentClasses.Fenix" /></html:link>.
+			</div>
+		</c:if>
 </c:if>
 <c:if test="${empty enrollmentBeans}">
 	<div class="alert alert-danger" role="alert"><bean:message bundle="STUDENT_RESOURCES" key="message.schoolClassStudentEnrollment.noOpenPeriods" /></div>
@@ -53,6 +55,12 @@
 	  <html:messages id="messages" message="true" bundle="STUDENT_RESOURCES" property="success"><bean:write name="messages" /></html:messages>
 	</div>
 </logic:messagesPresent>
+
+<logic:present name="returnURL">
+	<p>
+		<a href="${returnURL}" class="btn btn-default"><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></a>
+	</p>
+</logic:present>
 
 <c:forEach items="${enrollmentBeans}" var="enrollmentBean">
 	<c:set value="${enrollmentBean.currentSchoolClass}" var="currentSchoolClass"/>
@@ -86,7 +94,7 @@
 					<bean:define id="activeClass"><c:if test="${schoolClass eq schoolClassToDisplay}">active</c:if> q</bean:define>
 					<li class="<%= activeClass %>">
 					
-						<bean:define id="link">/schoolClassStudentEnrollment.do?method=viewSchoolClass&schoolClassID=<c:out value="${schoolClass.externalId}" />&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /></bean:define>
+						<bean:define id="link">/schoolClassStudentEnrollment.do?method=viewSchoolClass&schoolClassID=<c:out value="${schoolClass.externalId}" />&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
 						<html:link page="<%= link %>">
 							<c:out value="${schoolClass.editablePartOfName}" />
 							<c:if test="${(not empty currentSchoolClass) and (schoolClass eq currentSchoolClass)}">
@@ -104,15 +112,15 @@
 				<c:choose>
 				    <c:when test="${(not empty currentSchoolClass) and (schoolClassToDisplay eq currentSchoolClass)}">
 				    	<c:set value="true" var="renderingCurrentSchoolClass"/>
-						<bean:define id="removeSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /></bean:define>
-						<html:link page="<%= removeSchoolClassLink %>" styleClass="btn btn-warning btn-xs mtop15">
+						<bean:define id="removeSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
+						<html:link onclick="disabledOnClick(this);" page="<%= removeSchoolClassLink %>" styleClass="btn btn-warning btn-xs mtop15">
 							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <bean:message bundle="STUDENT_RESOURCES" key="button.schoolClassStudentEnrollment.unselectSchoolClass" />
 						</html:link>			
 				    </c:when>
 				    <c:otherwise>
-						<bean:define id="selectSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&schoolClassID=<c:out value="${schoolClassToDisplay.externalId}" />&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /></bean:define>
+						<bean:define id="selectSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&schoolClassID=<c:out value="${schoolClassToDisplay.externalId}" />&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
 						<bean:define id="selectSchoolClassLinkCssClass">btn btn-primary btn-xs mtop15 <c:if test="${not enrollmentBean.schoolClassToDisplayFree}">disabled</c:if></bean:define>
-						<html:link page="<%= selectSchoolClassLink %>" styleClass="<%= selectSchoolClassLinkCssClass %>">
+						<html:link onclick="disabledOnClick(this);" page="<%= selectSchoolClassLink %>" styleClass="<%= selectSchoolClassLinkCssClass %>">
 							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <bean:message bundle="STUDENT_RESOURCES" key="button.schoolClassStudentEnrollment.selectSchoolClass" />
 						</html:link>		    
 				    	<c:if test="${not enrollmentBean.schoolClassToDisplayFree}">&nbsp;&nbsp;<span class="text-warning"><bean:message bundle="STUDENT_RESOURCES" key="label.schoolClassStudentEnrollment.fullSchoolClass" /></span></c:if>
@@ -124,7 +132,7 @@
 				<c:set value="${enrollmentBean.schoolClassToDisplayLessonsJson}" var="schoolClassToDisplayLessonsJson"/>
 				<c:if test="${not empty schoolClassToDisplayLessonsJson}">
 					<c:forEach items="${enrollmentBean.schoolClassToDisplayShifts}" var="schoolClassShift">
-						<bean:define id="removeShiftLink">/schoolClassStudentEnrollment.do?method=removeShift&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" />&shiftID=<c:out value="${schoolClassShift.externalId}" /></bean:define>
+						<bean:define id="removeShiftLink">/schoolClassStudentEnrollment.do?method=removeShift&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" />&shiftID=<c:out value="${schoolClassShift.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
 						<html:link page="<%= removeShiftLink %>" styleClass="btn btn-danger removeShiftLink hidden" styleId="removeShiftLink-${schoolClassShift.externalId}">
 							<bean:message bundle="APPLICATION_RESOURCES" key="label.remove" />&nbsp;&nbsp;<span class="glyphicon glyphicon-remove" style="color: #FFF"></span>
 						</html:link>					 
@@ -206,3 +214,9 @@
 	</div>
 
 </c:forEach>
+
+<script>
+function disabledOnClick(btn) {
+	$(btn).addClass('disabled');
+}
+</script>

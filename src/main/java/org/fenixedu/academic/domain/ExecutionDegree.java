@@ -182,6 +182,8 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
             getGratuityValues().delete();
         }
 
+        getPublishedExamMapsSet().clear();
+
         setExecutionYear(null);
         setDegreeCurricularPlan(null);
         setCampus(null);
@@ -643,7 +645,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     public Set<StudentCandidacy> getFirstCycleCandidacies() {
         final Set<StudentCandidacy> result = new HashSet<StudentCandidacy>();
         for (final StudentCandidacy studentCandidacy : getStudentCandidaciesSet()) {
-            if (studentCandidacy instanceof DegreeCandidacy || studentCandidacy instanceof IMDCandidacy) {
+            if (studentCandidacy.isFirstCycleCandidacy()) {
                 result.add(studentCandidacy);
             }
         }
