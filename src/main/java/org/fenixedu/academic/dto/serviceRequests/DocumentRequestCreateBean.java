@@ -351,7 +351,8 @@ public class DocumentRequestCreateBean extends RegistrationAcademicServiceReques
     }
 
     final public boolean getHasAdditionalInformation() {
-        DocumentRequestType documentRequestType = chosenServiceRequestType.getDocumentRequestType();
+        DocumentRequestType documentRequestType =
+                chosenServiceRequestType != null ? chosenServiceRequestType.getDocumentRequestType() : null;
         return documentRequestType == null ? false : documentRequestType.getHasAdditionalInformation();
     }
 
