@@ -362,7 +362,7 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
         return false;
     }
 
-    private boolean isToBeValidated(PartyContact contact) {
+    protected boolean isToBeValidated(PartyContact contact) {
         return false;
     }
 }
