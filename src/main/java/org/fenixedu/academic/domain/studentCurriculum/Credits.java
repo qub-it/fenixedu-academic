@@ -312,14 +312,14 @@ public class Credits extends Credits_Base {
      * Standard behaviour, may be overriden
      */
     protected Curriculum getCurriculum(final Dismissal dismissal, final DateTime when, final ExecutionYear year) {
-        return new Curriculum(dismissal, year, Collections.<ICurriculumEntry> emptySet(), getAverageEntries(year),
+        return new Curriculum(dismissal, year, Collections.<ICurriculumEntry> emptySet(), getAverageEntries(dismissal, year),
                 Collections.<ICurriculumEntry> singleton(dismissal));
     }
 
     /**
      * Standard behaviour, may be overriden
      */
-    protected Collection<ICurriculumEntry> getAverageEntries(final ExecutionYear executionYear) {
+    protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
         return Collections.<ICurriculumEntry> emptyList();
     }
 

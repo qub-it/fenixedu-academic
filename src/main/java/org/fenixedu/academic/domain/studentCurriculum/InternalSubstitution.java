@@ -178,7 +178,7 @@ public class InternalSubstitution extends InternalSubstitution_Base {
             final Enrolment enrolment = (Enrolment) wrapper.getIEnrolment();
 
             if (enrolment.wasCreated(when)) {
-                curriculum.add(new Curriculum(dismissal, year, Collections.singleton((ICurriculumEntry) enrolment), Collections
+                curriculum.add(new Curriculum(dismissal, year, Collections.<ICurriculumEntry> singleton(enrolment), Collections
                         .<ICurriculumEntry> emptySet(), Collections.<ICurriculumEntry> singleton(enrolment)));
             }
         }

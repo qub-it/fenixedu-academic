@@ -120,7 +120,7 @@ public class Equivalence extends Equivalence_Base {
      */
     @Override
     protected Curriculum getCurriculum(final Dismissal dismissal, final DateTime when, final ExecutionYear year) {
-        final Collection<ICurriculumEntry> averageEntries = getAverageEntries(year);
+        final Collection<ICurriculumEntry> averageEntries = getAverageEntries(dismissal, year);
         return averageEntries.isEmpty() ? Curriculum.createEmpty(dismissal, year) : super.getCurriculum(dismissal, when, year);
     }
 
@@ -128,9 +128,9 @@ public class Equivalence extends Equivalence_Base {
      * Returns itself if all origins are before the given year
      */
     @Override
-    protected Collection<ICurriculumEntry> getAverageEntries(final ExecutionYear executionYear) {
+    protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
         final boolean allBefore = getEnrolmentsSetBefore(executionYear).size() == getEnrolmentsSet().size();
-        return allBefore ? Collections.singleton((ICurriculumEntry) this) : Collections.emptyList();
+        return allBefore ? Collections.<ICurriculumEntry> singleton(dismissal) : Collections.<ICurriculumEntry> emptyList();
     }
 
 }

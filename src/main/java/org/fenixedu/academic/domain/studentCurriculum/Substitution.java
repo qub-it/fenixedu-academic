@@ -120,7 +120,7 @@ public class Substitution extends Substitution_Base {
      * Returns origins before given year
      */
     @Override
-    protected Collection<ICurriculumEntry> getAverageEntries(final ExecutionYear executionYear) {
+    protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
         final Collection<ICurriculumEntry> result = new HashSet<ICurriculumEntry>();
 
         for (final EnrolmentWrapper enrolmentWrapper : getEnrolmentsSetBefore(executionYear)) {
