@@ -54,12 +54,12 @@
 	}
 	
 	.keyb-tag {
-		font-size: 12px;
-		font-family: Monospace;
-		background-color: #e7e7e7;
-		padding: 4px 8px;
-		border-radius: 4px;
-		color: #333;
-		font-weight: bold;
+	    font-size: 12px;
+	    font-family: Monospace;
+	    background-color: #787878;
+	    padding: 2px 4px;
+	    border-radius: 4px;
+	    color: #ffffff;
+	    font-weight: 100;
 	}
 </style>
