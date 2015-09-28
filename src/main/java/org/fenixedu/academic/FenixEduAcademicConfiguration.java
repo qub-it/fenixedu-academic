@@ -75,6 +75,9 @@ public class FenixEduAcademicConfiguration {
         @ConfigurationProperty(key = "phd.public.candidacy.submission.link")
         public String getPhdPublicCandidacySubmissionLink();
 
+        @ConfigurationProperty(key = "physicalAddress.requiresValidation")
+        public Boolean getPhysicalAddressRequiresValidation();
+
         @ConfigurationProperty(key = "raides.request.info", defaultValue = "false")
         public Boolean getRaidesRequestInfo();
 
@@ -140,6 +143,12 @@ public class FenixEduAcademicConfiguration {
 
     public static ConfigurationProperties getConfiguration() {
         return ConfigurationInvocationHandler.getConfiguration(ConfigurationProperties.class);
+    }
+
+    public static boolean getPhysicalAddressRequiresValidation() {
+        Boolean physicalAddressRequiresValidation = getConfiguration().getPhysicalAddressRequiresValidation();
+        //keep old behaviour if property is not configured
+        return physicalAddressRequiresValidation != null ? physicalAddressRequiresValidation : true;
     }
 
 }
