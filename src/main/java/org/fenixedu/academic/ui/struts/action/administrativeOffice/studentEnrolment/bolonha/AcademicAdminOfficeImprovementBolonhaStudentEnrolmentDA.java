@@ -142,11 +142,11 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends Aca
 
         final Set<EnrolmentEvaluation> toInspect = Sets.newHashSet();
         if (isEnrolmentByYear(plan)) {
-            toInspect.addAll(plan.getEnroledImprovements(semester));
-        } else {
             for (final ExecutionSemester iter : semester.getExecutionYear().getExecutionPeriodsSet()) {
                 toInspect.addAll(plan.getEnroledImprovements(iter));
             }
+        } else {
+            toInspect.addAll(plan.getEnroledImprovements(semester));
         }
 
         for (final EnrolmentEvaluation enrolmentEvaluation : toInspect) {
