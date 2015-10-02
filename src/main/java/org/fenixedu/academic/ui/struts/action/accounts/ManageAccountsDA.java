@@ -124,7 +124,7 @@ public class ManageAccountsDA extends FenixDispatchAction {
         if (person.getUser() == null) {
             person.setUser(new User(person.getProfile()));
         }
-        person.getPhysicalAddresses().forEach(a -> a.setValid());
+        person.getAllPendingPartyContacts().forEach(partyContact -> partyContact.setValid());
         return person;
     }
 
