@@ -145,11 +145,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         situationBean.setSituationDate(getRequestDate().toYearMonthDay());
         createAcademicServiceRequestSituations(situationBean);
 
-        if (isDetailed()) {
-            addServiceRequestTypeOptionBooleanValues(ServiceRequestTypeOptionBooleanValue.create(ServiceRequestTypeOption
-                    .findDetailedOption().get(), true));
-        }
-
     }
 
     private int getServiceRequestYear() {
