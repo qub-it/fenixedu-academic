@@ -21,11 +21,15 @@ package org.fenixedu.academic.ui.struts.action.academicAdministration.executionC
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.CurricularYear;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -33,9 +37,13 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.interfaces.HasExecutionDegree;
 import org.fenixedu.academic.domain.interfaces.HasExecutionSemester;
 
+import com.google.common.collect.Sets;
+
+@SuppressWarnings("serial")
 public class ExecutionCourseBean implements Serializable, HasExecutionSemester, HasExecutionDegree {
 
     private ExecutionDegree executionDegree;
+    private Degree degree;
     private CurricularYear curricularYear;
     private ExecutionCourse sourceExecutionCourse;
     private ExecutionCourse destinationExecutionCourse;
@@ -52,8 +60,24 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
         return executionDegree;
     }
 
-    public void setExecutionDegree(ExecutionDegree executionDegree) {
-        this.executionDegree = executionDegree;
+    public void setExecutionDegree(final ExecutionDegree input) {
+        if (input != null && getDegree() != null && getDegree() != input.getDegree()) {
+            throw new IllegalStateException();
+        }
+
+        this.executionDegree = input;
+    }
+
+    public Degree getDegree() {
+        return this.degree;
+    }
+
+    public void setDegree(final Degree input) {
+        if (input != null && getExecutionDegree() != null && getExecutionDegree().getDegree() != input) {
+            throw new IllegalStateException();
+        }
+
+        this.degree = input;
     }
 
     public CurricularYear getCurricularYear() {
@@ -96,6 +120,9 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
         this.chooseNotLinked = chooseNotLinked;
     }
 
+    public ExecutionCourseBean() {
+    }
+
     public ExecutionCourseBean(ExecutionCourse executionCourse) {
         setSourceExecutionCourse(executionCourse);
     }
@@ -122,7 +149,62 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
         return getExecutionDegree().getDegreeCurricularPlan();
     }
 
-    public ExecutionCourseBean() {
+    public String getSourcePresentationName() {
+        String result = StringUtils.EMPTY;
+
+        if (getSourceExecutionCourse() != null) {
+            result += getSourceExecutionCourse().getNameI18N().getContent();
+
+            final Set<DegreeCurricularPlan> plans;
+            if (getDegree() != null) {
+                plans =
+                        Sets.intersection(getDegree().getDegreeCurricularPlansSet(),
+                                Sets.newHashSet(getSourceExecutionCourse().getAssociatedDegreeCurricularPlans()));
+            } else {
+                plans = Sets.newHashSet(getSourceExecutionCourse().getAssociatedDegreeCurricularPlans());
+            }
+
+            result += getDegreeCurricularPlansPresentationString(plans);
+        }
+
+        return result;
+    }
+
+    public String getDestinationPresentationName() {
+        String result = StringUtils.EMPTY;
+
+        if (getDestinationExecutionCourse() != null) {
+            result += getDestinationExecutionCourse().getNameI18N().getContent();
+
+            final Set<DegreeCurricularPlan> plans;
+            if (getDegree() != null) {
+                plans =
+                        Sets.intersection(getDegree().getDegreeCurricularPlansSet(),
+                                Sets.newHashSet(getDestinationExecutionCourse().getAssociatedDegreeCurricularPlans()));
+            } else {
+                plans = Sets.newHashSet(getDestinationExecutionCourse().getAssociatedDegreeCurricularPlans());
+            }
+
+            result += getDegreeCurricularPlansPresentationString(plans);
+        }
+
+        return result;
+    }
+
+    static private String getDegreeCurricularPlansPresentationString(final Set<DegreeCurricularPlan> input) {
+        String result = " [ ";
+
+        for (Iterator<DegreeCurricularPlan> iterator = input.iterator(); iterator.hasNext();) {
+            final DegreeCurricularPlan iter = iterator.next();
+            result += iter.getName();
+            if (iterator.hasNext()) {
+                result += " , ";
+            }
+        }
+
+        result += " ]";
+
+        return result;
     }
 
 }
