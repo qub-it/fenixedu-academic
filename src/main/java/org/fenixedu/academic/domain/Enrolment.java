@@ -50,6 +50,7 @@ import org.fenixedu.academic.domain.log.EnrolmentEvaluationLog;
 import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CreditsDismissal;
@@ -465,6 +466,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         final EnrolmentEvaluation enrolmentEvaluation =
                 new EnrolmentEvaluation(this, evaluationSeason, EnrolmentEvaluationState.TEMPORARY_OBJ, person, executionSemester);
         createAttendForImprovement(executionSemester);
+        RegistrationDataByExecutionYear
+                .getOrCreateRegistrationDataByYear(getRegistration(), executionSemester.getExecutionYear());
 
         Signal.emit(ITreasuryBridgeAPI.IMPROVEMENT_ENROLMENT, new DomainObjectEvent<EnrolmentEvaluation>(enrolmentEvaluation));
 
