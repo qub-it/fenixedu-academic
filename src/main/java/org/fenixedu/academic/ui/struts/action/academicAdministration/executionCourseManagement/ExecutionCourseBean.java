@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.CurricularYear;
 import org.fenixedu.academic.domain.Degree;
@@ -150,10 +149,10 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
     }
 
     public String getSourcePresentationName() {
-        String result = StringUtils.EMPTY;
+        StringBuilder result = new StringBuilder();
 
         if (getSourceExecutionCourse() != null) {
-            result += getSourceExecutionCourse().getNameI18N().getContent();
+            result.append(getSourceExecutionCourse().getNameI18N().getContent());
 
             final Set<DegreeCurricularPlan> plans;
             if (getDegree() != null) {
@@ -164,17 +163,17 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
                 plans = Sets.newHashSet(getSourceExecutionCourse().getAssociatedDegreeCurricularPlans());
             }
 
-            result += getDegreeCurricularPlansPresentationString(plans);
+            result.append(getDegreeCurricularPlansPresentationString(plans));
         }
 
-        return result;
+        return result.toString();
     }
 
     public String getDestinationPresentationName() {
-        String result = StringUtils.EMPTY;
+        StringBuilder result = new StringBuilder();
 
         if (getDestinationExecutionCourse() != null) {
-            result += getDestinationExecutionCourse().getNameI18N().getContent();
+            result.append(getDestinationExecutionCourse().getNameI18N().getContent());
 
             final Set<DegreeCurricularPlan> plans;
             if (getDegree() != null) {
@@ -185,26 +184,26 @@ public class ExecutionCourseBean implements Serializable, HasExecutionSemester, 
                 plans = Sets.newHashSet(getDestinationExecutionCourse().getAssociatedDegreeCurricularPlans());
             }
 
-            result += getDegreeCurricularPlansPresentationString(plans);
+            result.append(getDegreeCurricularPlansPresentationString(plans));
         }
 
-        return result;
+        return result.toString();
     }
 
     static private String getDegreeCurricularPlansPresentationString(final Set<DegreeCurricularPlan> input) {
-        String result = " [ ";
+        StringBuilder result = new StringBuilder(" [ ");
 
         for (Iterator<DegreeCurricularPlan> iterator = input.iterator(); iterator.hasNext();) {
             final DegreeCurricularPlan iter = iterator.next();
-            result += iter.getName();
+            result.append(iter.getName());
             if (iterator.hasNext()) {
-                result += " , ";
+                result.append(" , ");
             }
         }
 
-        result += " ]";
+        result.append(" ]");
 
-        return result;
+        return result.toString();
     }
 
 }

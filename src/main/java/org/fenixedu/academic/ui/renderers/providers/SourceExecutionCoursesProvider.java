@@ -21,7 +21,6 @@ package org.fenixedu.academic.ui.renderers.providers;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -54,7 +53,7 @@ public class SourceExecutionCoursesProvider implements DataProvider {
 
             @Override
             public String deserialize(final Object object) {
-                String result = StringUtils.EMPTY;
+                String result = "";
 
                 if (object != null && object instanceof ExecutionCourseBean) {
                     final ExecutionCourseBean bean = (ExecutionCourseBean) object;
