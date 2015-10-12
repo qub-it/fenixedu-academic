@@ -20,7 +20,6 @@ package org.fenixedu.academic.ui.renderers.providers;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.ui.struts.action.academicAdministration.executionCourseManagement.ExecutionCourseBean;
@@ -51,7 +50,7 @@ public class DestinationExecutionCoursesProvider implements DataProvider {
 
             @Override
             public String deserialize(final Object object) {
-                String result = StringUtils.EMPTY;
+                String result = "";
 
                 if (object != null && object instanceof ExecutionCourseBean) {
                     final ExecutionCourseBean bean = (ExecutionCourseBean) object;
