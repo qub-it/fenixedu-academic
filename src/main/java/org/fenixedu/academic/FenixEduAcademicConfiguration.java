@@ -134,6 +134,11 @@ public class FenixEduAcademicConfiguration {
         @ConfigurationProperty(key = "physicalAddress.requiresValidation")
         public Boolean getPhysicalAddressRequiresValidation();
 
+        @ConfigurationProperty(
+                key = "default.social.security.number",
+                description = "Identifies the default social security number to be used in the country (e.g. for Portugal it is 999999990)")
+        public String getDefaultSocialSecurityNumber();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
