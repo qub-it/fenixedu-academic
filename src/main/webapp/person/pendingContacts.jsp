@@ -38,7 +38,7 @@
 	}
 </script>
 
-<table class="tstyle2 thlight thcenter">
+<table class="tstyle2 thlight thleft">
     <tr>
         <th></th>
         <th></th>

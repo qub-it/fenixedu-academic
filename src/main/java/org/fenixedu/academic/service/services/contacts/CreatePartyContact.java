@@ -18,9 +18,7 @@
  */
 package org.fenixedu.academic.service.services.contacts;
 
-import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
-import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.dto.contacts.PartyContactBean;
 
 import pt.ist.fenixframework.Atomic;

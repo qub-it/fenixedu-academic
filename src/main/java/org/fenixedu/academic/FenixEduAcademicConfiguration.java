@@ -23,7 +23,7 @@ import org.fenixedu.commons.configuration.ConfigurationManager;
 import org.fenixedu.commons.configuration.ConfigurationProperty;
 
 public class FenixEduAcademicConfiguration {
-    
+
     @ConfigurationManager(description = "FenixEdu Academic Configuration")
     public interface ConfigurationProperties {
 
@@ -35,15 +35,19 @@ public class FenixEduAcademicConfiguration {
 
         @ConfigurationProperty(key = "ciist.sms.username")
         public String getCIISTSMSUsername();
-        
+
         @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToChooseAffinityCycle", defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToChooseAffinityCycle();
 
         @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToEnrolInAffinityCycle", defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToEnrolInAffinityCycle();
 
-        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToCreateRegistrationForAffinityCycle", defaultValue = "true")
+        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToCreateRegistrationForAffinityCycle",
+                defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle();
+
+        @ConfigurationProperty(key = "ciist.sms.shouldRun")
+        public Boolean getCIISTSMSShouldRun();
 
         @ConfigurationProperty(key = "generic.application.email.confirmation.link",
                 defaultValue = "http://localhost:8080/fenix/publico/genericApplications.do?method=confirmEmail&confirmationCode=")
@@ -127,10 +131,19 @@ public class FenixEduAcademicConfiguration {
                 defaultValue = "2005/2006")
         public String getYearForFromMarkSheetManagment();
 
+        @ConfigurationProperty(key = "physicalAddress.requiresValidation")
+        public Boolean getPhysicalAddressRequiresValidation();
+
     }
 
     public static ConfigurationProperties getConfiguration() {
         return ConfigurationInvocationHandler.getConfiguration(ConfigurationProperties.class);
+    }
+
+    public static boolean getPhysicalAddressRequiresValidation() {
+        Boolean physicalAddressRequiresValidation = getConfiguration().getPhysicalAddressRequiresValidation();
+        //keep old behaviour if property is not configured
+        return physicalAddressRequiresValidation != null ? physicalAddressRequiresValidation : true;
     }
 
 }
