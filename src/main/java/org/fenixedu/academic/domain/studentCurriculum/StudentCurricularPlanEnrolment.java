@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -47,8 +48,12 @@ import org.fenixedu.academic.domain.phd.enrolments.PhdStudentCurricularPlanEnrol
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions.EnrolmentPreConditionResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract public class StudentCurricularPlanEnrolment {
+
+    private static Logger logger = LoggerFactory.getLogger(StudentCurricularPlanEnrolment.class);
 
     protected EnrolmentContext enrolmentContext;
 
@@ -365,31 +370,53 @@ abstract public class StudentCurricularPlanEnrolment {
     // -------------------
 
     static public StudentCurricularPlanEnrolment createManager(final EnrolmentContext enrolmentContext) {
+        return ENROLMENT_MANAGER_FACTORY.get().createManager(enrolmentContext);
+    }
 
-        if (enrolmentContext.isNormal()) {
+    public static void setEnrolmentManagerFactory(final Supplier<EnrolmentManagerFactory> input) {
+        if (input != null && input.get() != null) {
+            ENROLMENT_MANAGER_FACTORY = input;
+        } else {
+            logger.error("Could not set factory to null");
+        }
+    }
 
-            if (enrolmentContext.isPhdDegree()) {
-                return new PhdStudentCurricularPlanEnrolmentManager(enrolmentContext);
-            } else {
-                return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
+    static private Supplier<EnrolmentManagerFactory> ENROLMENT_MANAGER_FACTORY = () -> new EnrolmentManagerFactory() {
+
+        public StudentCurricularPlanEnrolment createManager(final EnrolmentContext enrolmentContext) {
+
+            if (enrolmentContext.isNormal()) {
+
+                if (enrolmentContext.isPhdDegree()) {
+                    return new PhdStudentCurricularPlanEnrolmentManager(enrolmentContext);
+                } else {
+                    return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
+                }
+
+            } else if (enrolmentContext.isImprovement()) {
+                return new StudentCurricularPlanImprovementOfApprovedEnrolmentManager(enrolmentContext);
+
+            } else if (enrolmentContext.isSpecialSeason()) {
+                return new StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager(enrolmentContext);
+
+            } else if (enrolmentContext.isExtra()) {
+                return new StudentCurricularPlanExtraEnrolmentManager(enrolmentContext);
+
+            } else if (enrolmentContext.isPropaeudeutics()) {
+                return new StudentCurricularPlanPropaeudeuticsEnrolmentManager(enrolmentContext);
+
+            } else if (enrolmentContext.isStandalone()) {
+                return new StudentCurricularPlanStandaloneEnrolmentManager(enrolmentContext);
             }
 
-        } else if (enrolmentContext.isImprovement()) {
-            return new StudentCurricularPlanImprovementOfApprovedEnrolmentManager(enrolmentContext);
-
-        } else if (enrolmentContext.isSpecialSeason()) {
-            return new StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager(enrolmentContext);
-
-        } else if (enrolmentContext.isExtra()) {
-            return new StudentCurricularPlanExtraEnrolmentManager(enrolmentContext);
-
-        } else if (enrolmentContext.isPropaeudeutics()) {
-            return new StudentCurricularPlanPropaeudeuticsEnrolmentManager(enrolmentContext);
-
-        } else if (enrolmentContext.isStandalone()) {
-            return new StudentCurricularPlanStandaloneEnrolmentManager(enrolmentContext);
+            throw new DomainException("StudentCurricularPlanEnrolment");
         }
 
-        throw new DomainException("StudentCurricularPlanEnrolment");
+    };
+
+    public static interface EnrolmentManagerFactory {
+
+        public StudentCurricularPlanEnrolment createManager(final EnrolmentContext enrolmentContext);
     }
+
 }
