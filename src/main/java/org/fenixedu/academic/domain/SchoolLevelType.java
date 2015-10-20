@@ -64,13 +64,6 @@ public enum SchoolLevelType implements IPresentableEnum {
         }
     },
 
-    POST_HIGH_SCHOOL_SPECIALIZATION(true, true, false) {
-        @Override
-        public boolean isHighSchoolOrEquivalent() {
-            return true;
-        }
-    },
-
     TECHNICAL_SPECIALIZATION(true, true, false) {
 
         @Override
