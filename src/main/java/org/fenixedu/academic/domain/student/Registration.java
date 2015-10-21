@@ -1431,14 +1431,6 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    final public Set<SchoolClass> getSchoolClassesToEnrolBy(final DegreeCurricularPlan degreeCurricularPlan,
-            final ExecutionSemester executionSemester) {
-
-        return getAssociatedAttendsSet().stream().filter(attends -> attends.getExecutionPeriod() == executionSemester)
-                .flatMap(attends -> attends.getExecutionCourse().getSchoolClassesBy(degreeCurricularPlan).stream())
-                .collect(Collectors.toSet());
-    }
-
     final public Set<SchoolClass> getSchoolClassesToEnrolBy(final ExecutionCourse executionCourse) {
         Set<SchoolClass> schoolClasses =
                 executionCourse.getSchoolClassesBy(getActiveStudentCurricularPlan().getDegreeCurricularPlan());
