@@ -158,7 +158,6 @@
 								columnFormat: { week: 'ddd' },			
 								minTime: '08:00',
 								maxTime: '24:00',
-								height: 'auto',
 								timeFormat: 'HH:mm',
 								axisFormat: 'HH:mm',
 								allDaySlot : false,
