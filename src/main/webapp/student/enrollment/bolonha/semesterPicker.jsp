@@ -16,7 +16,7 @@
 					<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
 				</p> 
 				<p class="mtop025 mbottom1">
-					<html:submit styleClass="enrollSaveButton" bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';$('.enrollSaveButton').attr('disabled', true);this.form.submit();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+					<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
 				</p>
 			</div>
 			 <logic:present name="openedEnrolmentPeriodsSemesters">
