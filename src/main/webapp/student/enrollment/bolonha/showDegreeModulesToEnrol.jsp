@@ -28,6 +28,7 @@
 
 	<h2><bean:message bundle="STUDENT_RESOURCES"  key="label.enrollment.courses" /></h2>
 
+
 	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
 	<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
 
@@ -106,7 +107,13 @@
 	<fr:form action="/bolonhaStudentEnrollment.do">
 		<input type="hidden" name="method" />
 		
-		<%@include file="semesterPicker.jsp" %>
+		<p class="mtop15 mbottom025">
+			<bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:
+		</p>
+		<p class="mtop025 mbottom1">
+			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+		</p>
+		
 		
 		<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
 			<fr:layout name="bolonha-student-enrolment">
@@ -125,7 +132,11 @@
 			</fr:layout>
 		</fr:edit>
 		
-		<%@include file="semesterPicker.jsp" %>
+		
+		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
+		<p class="mtop05 mbottom1">
+			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+		</p>
 	
 	</fr:form>
 
