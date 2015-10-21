@@ -5,10 +5,6 @@
 		.semesterPicker .semesters{
 			margin-left : 20px;
 		}
-		
-		.semesterPicker .finish{
-			margin-left : 20px;
-		}
 	</style>
 <div class="semesterPicker">
 			<div>
@@ -39,16 +35,6 @@
 					</p>
 				</div>
 			</logic:present>
-				<div class="finish">
-				<p class="mtop15 mbottom025">
-						
-					</p>
-					<p class="mtop025 mbottom1">
-						<logic:present name="returnURL">
-							<a onclick="return checkState()" href="${returnURL}" class="btn btn-default"><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></a>
-						</logic:present>
-					</p>
-					</div>
 		</div>
 		
 		
