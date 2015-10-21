@@ -85,7 +85,7 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
                         lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
                                 .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
                                 .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
-                                .collect(Collectors.toList());
+                                .distinct().collect(Collectors.toList());
             }
             if (openedEnrolmentPeriodsSemesters.size() > 1) {
                 request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);

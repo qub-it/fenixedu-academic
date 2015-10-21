@@ -223,12 +223,12 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
 
         final List<ShiftToEnrol> shiftsToEnrol;
         try {
-            
-            if(TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
+
+            if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
                 addActionMessage(request, "error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
                 return mapping.getInputForward();
             }
-            
+
             shiftsToEnrol = ReadShiftsToEnroll.runReadShiftsToEnroll(registration, executionSemester);
         } catch (OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan exception) {
             addActionMessage(request, "error.enrollment.period.closed", exception.getArgs());
@@ -263,7 +263,7 @@ public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAc
         List<ExecutionSemester> openedEnrolmentPeriodsSemesters =
                 lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
                         .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
-                        .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
+                        .map(ep -> ep.getExecutionPeriod()).sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR).distinct()
                         .collect(Collectors.toList());
         if (openedEnrolmentPeriodsSemesters.size() > 1) {
             request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
