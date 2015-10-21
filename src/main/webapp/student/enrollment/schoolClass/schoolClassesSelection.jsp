@@ -113,14 +113,14 @@
 				    <c:when test="${(not empty currentSchoolClass) and (schoolClassToDisplay eq currentSchoolClass)}">
 				    	<c:set value="true" var="renderingCurrentSchoolClass"/>
 						<bean:define id="removeSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
-						<html:link onclick="disabledOnClick(this);" page="<%= removeSchoolClassLink %>" styleClass="btn btn-warning btn-xs mtop15">
+						<html:link page="<%= removeSchoolClassLink %>" styleClass="btn btn-warning btn-xs mtop15">
 							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <bean:message bundle="STUDENT_RESOURCES" key="button.schoolClassStudentEnrollment.unselectSchoolClass" />
 						</html:link>			
 				    </c:when>
 				    <c:otherwise>
 						<bean:define id="selectSchoolClassLink">/schoolClassStudentEnrollment.do?method=enrollInSchoolClass&schoolClassID=<c:out value="${schoolClassToDisplay.externalId}" />&registrationID=<c:out value="${enrollmentBean.registration.externalId}" />&enrolmentPeriodID=<c:out value="${enrollmentBean.enrolmentPeriod.externalId}" /><c:if test="${not empty workflowRegistrationOid}">&workflowRegistrationOid=${workflowRegistrationOid}</c:if></bean:define>
 						<bean:define id="selectSchoolClassLinkCssClass">btn btn-primary btn-xs mtop15 <c:if test="${not enrollmentBean.schoolClassToDisplayFree}">disabled</c:if></bean:define>
-						<html:link onclick="disabledOnClick(this);" page="<%= selectSchoolClassLink %>" styleClass="<%= selectSchoolClassLinkCssClass %>">
+						<html:link page="<%= selectSchoolClassLink %>" styleClass="<%= selectSchoolClassLinkCssClass %>">
 							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <bean:message bundle="STUDENT_RESOURCES" key="button.schoolClassStudentEnrollment.selectSchoolClass" />
 						</html:link>		    
 				    	<c:if test="${not enrollmentBean.schoolClassToDisplayFree}">&nbsp;&nbsp;<span class="text-warning"><bean:message bundle="STUDENT_RESOURCES" key="label.schoolClassStudentEnrollment.fullSchoolClass" /></span></c:if>
@@ -212,10 +212,3 @@
 	  </div>
 	</div>
 
-</c:forEach>
-
-<script>
-function disabledOnClick(btn) {
-	$(btn).addClass('disabled');
-}
-</script>
