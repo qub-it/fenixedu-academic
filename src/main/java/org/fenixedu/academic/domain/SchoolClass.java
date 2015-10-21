@@ -91,6 +91,7 @@ public class SchoolClass extends SchoolClass_Base {
     public void delete() {
         check(this, ResourceAllocationRolePredicates.checkPermissionsToManageSchoolClass);
         getAssociatedShiftsSet().clear();
+        getRegistrationsSet().clear();
         super.setExecutionDegree(null);
         super.setExecutionPeriod(null);
         setRootDomainObject(null);
