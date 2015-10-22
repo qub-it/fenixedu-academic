@@ -1439,7 +1439,7 @@ public class Registration extends Registration_Base {
 
     public void addAttendsTo(final ExecutionCourse executionCourse) {
 
-    checkIfReachedAttendsLimit();
+        checkIfReachedAttendsLimit();
 
         if (getStudent().readAttendByExecutionCourse(executionCourse) == null) {
             final Enrolment enrolment =
