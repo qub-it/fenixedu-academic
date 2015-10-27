@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.PersonInformationLog;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactValidation;
+import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -184,6 +185,8 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
                 if (newPartyContact == null) {
                     addActionMessage("contacts", request, "label.contact.validate.already", contact.getValue());
                     return backToShowInformation(mapping, actionForm, request, response);
+                } else {
+                    addWarningMessage(request, contact);
                 }
             } catch (DomainException e) {
                 addActionMessage("contacts", request, e.getMessage(), e.getArgs());
@@ -240,14 +243,19 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
             HttpServletResponse response) throws FenixServiceException {
         if (getRenderedObject("edit-contact") instanceof PartyContactBean) {
             PartyContactBean contact = getRenderedObject("edit-contact");
+            Boolean wasValidated = false;
             try {
                 if (contact.hasPartyContact()) {
                     addActionMessage("contacts", request, "label.contact.validate.already", contact.getValue());
                     return backToShowInformation(mapping, actionForm, request, response);
                 }
-                editContact(contact);
+                wasValidated = editContact(contact);
             } catch (DomainException e) {
                 addActionMessage("contacts", request, e.getMessage(), e.getArgs());
+            }
+            if (wasValidated) {
+                addWarningMessage(request, contact);
+                return forwardToInputValidationCode(mapping, actionForm, request, response, contact.getContact());
             }
             return backToShowInformation(mapping, actionForm, request, response);
         }
@@ -359,10 +367,13 @@ public class PartyContactsManagementDispatchAction extends FenixDispatchAction {
     }
 
     private boolean isToBeValidated(PartyContactBean contact) {
-        return false;
+        return !(contact instanceof WebAddressBean || ((contact instanceof MobilePhoneBean || contact instanceof PhoneBean) && !PhoneValidationUtils
+                .getInstance().shouldRun()));
     }
 
-    private boolean isToBeValidated(PartyContact contact) {
-        return false;
+    protected boolean isToBeValidated(PartyContact contact) {
+        return !(contact instanceof WebAddress || ((contact instanceof MobilePhone || contact instanceof Phone) && !PhoneValidationUtils
+                .getInstance().shouldRun()));
     }
+
 }

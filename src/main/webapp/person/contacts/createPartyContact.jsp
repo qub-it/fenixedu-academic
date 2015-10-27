@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.ui.struts.action.externalServices.PhoneValidationUtils"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%>
@@ -30,17 +31,57 @@
 
 <%
 PartyContactBean partyContact = (PartyContactBean) request.getAttribute("partyContact");
-request.setAttribute("isPhone", partyContact instanceof PhoneBean || partyContact instanceof MobilePhoneBean);
+request.setAttribute("isPhone", (partyContact instanceof PhoneBean || partyContact instanceof MobilePhoneBean) && PhoneValidationUtils.getInstance().shouldRun());
+request.setAttribute("hideValidationWarning", (partyContact instanceof PhoneBean || partyContact instanceof MobilePhoneBean) && !PhoneValidationUtils.getInstance().shouldRun());
 request.setAttribute("isEmail", partyContact instanceof EmailAddressBean);
 request.setAttribute("isPhysicalAddress", partyContact instanceof PhysicalAddressBean);
 %>
-
 
 
 <html:messages id="message" message="true" bundle="ACADEMIC_OFFICE_RESOURCES">
     <p><span class="error0"><!-- Error messages go here --><bean:write name="message" /></span>
     </p>
 </html:messages>
+
+
+<logic:notEqual name="hideValidationWarning" value="true">
+<table class="mvert1 tdtop">
+		<tbody>
+			<tr>
+				<td>
+				<!--   <div style="padding: 0 2em;">-->
+                    <div class="infoop2">
+                        <logic:equal name="isPhone" value="true">
+                        	<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.Phone"/>
+						</logic:equal>
+						<logic:equal name="isPhoneNoValidation" value="true">
+                        	<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.Phone"/>
+						</logic:equal>
+						<logic:equal name="isEmail" value="true">
+							<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.EmailAddress"/>
+						</logic:equal>
+						<logic:equal name="isPhysicalAddress" value="true">
+							<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.info.PhysicalAddress"/>  
+						</logic:equal>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+</table>
+</logic:notEqual>
+
+<logic:equal name="isPhone" value="true">
+	<bean:define id="confirm">
+		<bean:message  bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.confirm.Phone" />
+	</bean:define>
+	<script type="text/javascript">
+	 $(document).ready(function() {
+		 $('#edit-contact').submit(function() {
+					return confirm('<%= confirm %>');
+			})
+		 });
+	</script>
+</logic:equal>
 
 <fr:edit id="edit-contact" name="partyContact" action="/partyContacts.do?method=createPartyContact"
     schema="<%= "contacts." + partyContactClass + ".manage-student" %>">
