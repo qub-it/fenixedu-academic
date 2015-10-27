@@ -36,6 +36,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions.EnrolmentPreConditionResult;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.CycleEnrolmentBean;
 import org.fenixedu.academic.predicate.IllegalDataAccessException;
@@ -74,7 +75,6 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
             request.setAttribute("student", student);
             return mapping.findForward("choosePersonalDataAuthorizationChoice");
         }
-
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         request.setAttribute("executionSemester", executionSemester);
         final List<Registration> registrationsToEnrol = getRegistrationsToEnrolByStudent(request);
