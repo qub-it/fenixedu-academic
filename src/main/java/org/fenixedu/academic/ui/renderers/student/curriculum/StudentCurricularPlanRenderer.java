@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.ui.renderers.student.curriculum;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +46,6 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.ConclusionValue;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
@@ -1005,14 +1003,7 @@ public class StudentCurricularPlanRenderer extends InputRenderer {
                     - (isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan) ? LATEST_ENROLMENT_EVALUATION_COLUMNS : 0);
         }
 
-        //TODO: move this logic to specific render when trunk supports extension
         private void generateSemesterCell(final HtmlTableRow row, final ICurriculumEntry entry) {
-
-            final Integer curricularYear = getCurricularYearFor(entry);
-            final String yearPart =
-                    curricularYear != null ? curricularYear + " "
-                            + BundleUtil.getString(Bundle.APPLICATION, "label.curricular.year") + " " : "";
-
             final String semester;
             if (entry.hasExecutionPeriod()) {
                 semester =
@@ -1022,27 +1013,7 @@ public class StudentCurricularPlanRenderer extends InputRenderer {
                 semester = EMPTY_INFO;
             }
 
-            generateCellWithText(row, yearPart + semester, getEnrolmentSemesterCellClass());
-
-        }
-
-        //TODO: move this logic to specific render when trunk supports extension
-        private Integer getCurricularYearFor(final ICurriculumEntry entry) {
-
-            if (!(entry instanceof CurriculumLine)) {
-                return null;
-            }
-
-            try {
-                final Class<?> type =
-                        Class.forName("org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices");
-                return (Integer) type.getMethod("getCurricularYear", new Class[] { CurriculumLine.class }).invoke(null,
-                        new Object[] { entry });
-
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                    | SecurityException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+            generateCellWithText(row, semester, getEnrolmentSemesterCellClass());
         }
 
         private void generateStatisticsLinkCell(final HtmlTableRow row, final Enrolment enrolment) {
