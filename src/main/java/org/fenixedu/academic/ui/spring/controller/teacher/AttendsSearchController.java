@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -171,15 +172,22 @@ public class AttendsSearchController extends ExecutionCourseController {
                         addCell(getLabel("label.Degree"), attends.getStudentCurricularPlanFromAttends().getDegreeCurricularPlan()
                                 .getPresentationName());
 
-                        if (attends.getRegistration().getStudent().hasWorkingStudentStatuteInPeriod(attends.getExecutionPeriod())) {
-                            addCell(getLabel("label.workingStudents"),
-                                    BundleUtil.getString(Bundle.ENUMERATION,
-                                            WorkingStudentSelectionType.WORKING_STUDENT.getQualifiedName()));
-                        } else {
-                            addCell(getLabel("label.workingStudents"),
-                                    BundleUtil.getString(Bundle.ENUMERATION,
-                                            WorkingStudentSelectionType.NOT_WORKING_STUDENT.getQualifiedName()));
-                        }
+                        /*
+                         * Ignoring 'workingStudentTypes'
+                         */
+//                        if (attends.getRegistration().getStudent().hasWorkingStudentStatuteInPeriod(attends.getExecutionPeriod())) {
+//                            addCell(getLabel("label.workingStudents"),
+//                                    BundleUtil.getString(Bundle.ENUMERATION,
+//                                            WorkingStudentSelectionType.WORKING_STUDENT.getQualifiedName()));
+//                        } else {
+//                            addCell(getLabel("label.workingStudents"),
+//                                    BundleUtil.getString(Bundle.ENUMERATION,
+//                                            WorkingStudentSelectionType.NOT_WORKING_STUDENT.getQualifiedName()));
+//                        }
+
+                        addCell(getLabel("label.students.statutes"),
+                                attends.getRegistration().getStudent().getStatutes(attends.getExecutionPeriod()).stream()
+                                        .map(statute -> statute.getDescription()).collect(Collectors.joining("; ")));
                     }
                 });
 
