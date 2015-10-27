@@ -114,21 +114,22 @@
 									</label>
 								</div>
 							</div>
-							<div class="col-sm-3">
+<!-- Rewiring filter criteria to ignore 'workingStudentTypes' -->
+<!-- 							<div class="col-sm-3"> -->
 
-								<h3>${fr:message('resources.ApplicationResources', 'label.workingStudents')}</h3>
-								<div class="checkbox">
-									<label> <input type="checkbox" ng-model="allCheck.workingStTypes" ng-change="changeAllWorkingStudentTypes()">
-										${fr:message('resources.ApplicationResources', 'label.all')}
-									</label>
-								</div>
-								<div class="checkbox"
-									ng-repeat="state in filters.workingStudentTypes">
-									<label> <input type="checkbox" ng-model="state.value" ng-change="genFilteredAttends()">
-										{{state.name }}
-									</label>
-								</div>
-							</div>
+<%-- 								<h3>${fr:message('resources.ApplicationResources', 'label.workingStudents')}</h3> --%>
+<!-- 								<div class="checkbox"> -->
+<!-- 									<label> <input type="checkbox" ng-model="allCheck.workingStTypes" ng-change="changeAllWorkingStudentTypes()"> -->
+<%-- 										${fr:message('resources.ApplicationResources', 'label.all')} --%>
+<!-- 									</label> -->
+<!-- 								</div> -->
+<!-- 								<div class="checkbox" -->
+<!-- 									ng-repeat="state in filters.workingStudentTypes"> -->
+<!-- 									<label> <input type="checkbox" ng-model="state.value" ng-change="genFilteredAttends()"> -->
+<!-- 										{{state.name }} -->
+<!-- 									</label> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
 						</form>
 					</div>
 				</div>
@@ -188,7 +189,7 @@
 						<th rowspan="{{rowspan}}">${fr:message('resources.ApplicationResources', 'label.attends.enrollmentState')}</th>
 						<th rowspan="{{rowspan}}">${fr:message('resources.ApplicationResources', 'label.registration.state')}</th>
 						<th rowspan="{{rowspan}}">${fr:message('resources.ApplicationResources', 'label.Degree')}</th>
-						<th rowspan="{{rowspan}}">${fr:message('resources.ApplicationResources', 'label.workingStudents')}</th>
+						<th rowspan="{{rowspan}}">${fr:message('resources.ApplicationResources', 'label.students.statutes')}</th>
 					</tr>
 					<tr>
 						<th ng-repeat="grouping in groupings">{{grouping.name}}</th>
@@ -217,7 +218,10 @@
 						<td>{{ attendee.enrolmentType}}</td>
 						<td>{{ attendee.registrationState}}</td>
 						<td>{{ attendee.curricularPlan.name}}</td>
-						<td><span class="glyphicon glyphicon-ok" ng-if="attendee.workingStudent"></span></td>
+<!-- 						<td><span class="glyphicon glyphicon-ok" ng-if="attendee.workingStudent"></span></td> -->
+						<td>
+							<span ng-repeat="statute in attendee.studentStatutes" class="badge">{{statute}}</span>
+						</td>
 					</tr>
 					<tr ng-if="!attends">
 						<td colspan="{{9 + groupings.length + shiftTypes.length}}"

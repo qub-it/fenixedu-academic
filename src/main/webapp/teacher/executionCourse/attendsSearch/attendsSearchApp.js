@@ -6,13 +6,18 @@ var app = angular.module("AttendsSearchApp",  [ 'ui.bootstrap']);
 app.filter('attendsFilter', function() {
     return function(attends, filters) {
     	var workingStudentCheck = function(attendee){
-            for (var i = 0; i < filters.workingStudentTypes.length; i++) {
-                if (filters.workingStudentTypes[i].value
-                		&& attendee.workingStudent == filters.workingStudentTypes[i].working) {
-                    return true;
-                }
-            }
-        	return false;
+            /*
+             * Rewiring filter criteria to ignore 'workingStudentTypes'
+             */ 
+//    		for (var i = 0; i < filters.workingStudentTypes.length; i++) {
+//                if (filters.workingStudentTypes[i].value
+//                		&& attendee.workingStudent == filters.workingStudentTypes[i].working) {
+//                    return true;
+//                }
+//            }
+//        	return false;
+
+    		return true;
     	}
 
     	var enrolmentTypeCheck = function(attendee){
