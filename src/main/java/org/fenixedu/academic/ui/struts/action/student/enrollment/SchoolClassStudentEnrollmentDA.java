@@ -5,11 +5,9 @@ package org.fenixedu.academic.ui.struts.action.student.enrollment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,13 +18,12 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
-import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClasses;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -38,8 +35,6 @@ import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 import org.joda.time.DateTime;
-
-import pt.ist.fenixframework.FenixFramework;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -64,34 +59,9 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
         final List<SchoolClassStudentEnrollmentDTO> enrollmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
-        Collection<Registration> registrationsToShow = null;
-
-        //This variable will be present if we are in the middle of a workflow. The registrations being listed should be limited to this registration
-        String workflowRegistrationOid = request.getParameter("workflowRegistrationOid");
-
-        if (workflowRegistrationOid != null) {
-            Registration workflowRegistation = FenixFramework.getDomainObject(workflowRegistrationOid);
-            registrationsToShow = Collections.singleton(workflowRegistation);
-            request.setAttribute("workflowRegistrationOid", workflowRegistrationOid);
-            Optional<String> returnURLForStudentInClasses =
-                    EnrolmentContextHandler.getRegisteredEnrolmentContextHandler().getReturnURLForStudentInFullClasses(request,
-                            workflowRegistation);
-            if (returnURLForStudentInClasses.isPresent()) {
-                request.setAttribute("returnURL", returnURLForStudentInClasses.get());
-            }
-        } else {
-            registrationsToShow = student.getRegistrationsToEnrolInShiftByStudent();
-        }
-
-        for (Registration registration : registrationsToShow) {
-            if (EnrolmentContextHandler.getRegisteredEnrolmentContextHandler()
-                    .getReturnURLForStudentInFullClasses(request, registration).isPresent()
-                    && !registration.getExternalId().equals(workflowRegistrationOid)) {
-                //Skip workflow based functionalities when we are not on that workflow
-                continue;
-            }
+        for (Registration registration : student.getRegistrationsToEnrolInShiftByStudent()) {
             for (EnrolmentPeriod enrolmentPeriod : registration.getActiveDegreeCurricularPlan().getEnrolmentPeriodsSet()) {
-                if (isValidPeriodForUser(enrolmentPeriod, registration.getActiveStudentCurricularPlan())) {
+                if (enrolmentPeriod instanceof EnrolmentPeriodInClasses && enrolmentPeriod.isValid()) {
                     enrollmentBeans.add(new SchoolClassStudentEnrollmentDTO(registration, enrolmentPeriod,
                             selectedEnrolmentPeriod == enrolmentPeriod ? selectedSchoolClass : null));
                 }
@@ -158,29 +128,11 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         return prepare(mapping, form, request, response);
     }
 
-    private boolean isValidPeriodForUser(EnrolmentPeriod ep, StudentCurricularPlan studentCurricularPlan) {
-        // Coditions to be valid:
-        // 1 - period has to be valid
-        //     AND
-        //          a - Student is candidate AND period is for candidate
-        //            OR
-        //          b - Period is for curricular courses (implicitly assuming student is not candidate)
-
-        if (ep.isValid()) {
-            if (studentCurricularPlan.isInCandidateEnrolmentProcess(ep.getExecutionPeriod().getExecutionYear())) {
-                return ep instanceof EnrolmentPeriodInClassesCandidate;
-            } else {
-                return ep.isForClasses();
-            }
-        }
-        return false;
-    }
-
     public static class SchoolClassStudentEnrollmentDTO implements Serializable, Comparable<SchoolClassStudentEnrollmentDTO> {
 
-        private final Registration registration;
-        private final EnrolmentPeriod enrolmentPeriod;
-        private final SchoolClass schoolClassToDisplay;
+        private Registration registration;
+        private EnrolmentPeriod enrolmentPeriod;
+        private SchoolClass schoolClassToDisplay;
 
         public SchoolClassStudentEnrollmentDTO(Registration registration, EnrolmentPeriod enrolmentPeriod,
                 SchoolClass schoolClassToDisplay) {
