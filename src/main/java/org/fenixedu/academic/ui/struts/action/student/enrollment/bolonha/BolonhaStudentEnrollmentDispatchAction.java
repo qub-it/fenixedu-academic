@@ -60,6 +60,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
         @Forward(name = "showEnrollmentInstructions", path = "/student/enrollment/bolonha/showEnrollmentInstructions.jsp"),
         @Forward(name = "chooseCycleCourseGroupToEnrol", path = "/student/enrollment/bolonha/chooseCycleCourseGroupToEnrol.jsp"),
         @Forward(name = "welcome", path = "/student/enrollment/welcome.jsp"),
+        @Forward(name = "chooseSemester", path = "/student/enrollment/chooseSemester.jsp"),
         @Forward(name = "enrollmentCannotProceed", path = "/student/enrollment/bolonha/enrollmentCannotProceed.jsp"),
         @Forward(name = "welcome-dea-degree", path = "/student/phdStudentEnrolment.do?method=showWelcome"),
         @Forward(name = "showEnrollmentInstructions", path = "/student/enrollment/bolonha/showEnrollmentInstructions.jsp"),
@@ -87,7 +88,6 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
                                 .distinct().collect(Collectors.toList());
             }
             if (openedEnrolmentPeriodsSemesters.size() > 1) {
-                //We only add this collection to the request if more than one period (the currently being edited) has opened enrolments periods 
                 request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
             }
             Optional<String> returnURL =
