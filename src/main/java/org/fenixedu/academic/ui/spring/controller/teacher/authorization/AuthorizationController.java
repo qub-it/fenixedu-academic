@@ -247,9 +247,9 @@ public class AuthorizationController {
      * @return
      */
     @RequestMapping(method = POST, value = "create")
-    public String create(Model model, @ModelAttribute FormBean form, final RedirectAttributes attrs) {
-        service.createTeacherAuthorization(form);
-        return redirectHome(form, attrs);
+    public String create(Model model, @ModelAttribute FormBean formBean, final RedirectAttributes attrs) {
+        service.createTeacherAuthorization(formBean);
+        return redirectHome(formBean, attrs);
     }
 
     /***
