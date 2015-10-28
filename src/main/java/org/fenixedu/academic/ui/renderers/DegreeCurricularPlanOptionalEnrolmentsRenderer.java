@@ -20,23 +20,13 @@ package org.fenixedu.academic.ui.renderers;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
-import org.apache.commons.beanutils.BeanComparator;
-import org.fenixedu.academic.domain.Branch;
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.CurricularCourseScope;
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.DegreeModuleScope;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.dto.administrativeOffice.studentEnrolment.StudentOptionalEnrolmentBean;
+import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentInputRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
@@ -51,7 +41,6 @@ import pt.ist.fenixWebFramework.renderers.components.HtmlText;
 import pt.ist.fenixWebFramework.renderers.components.controllers.HtmlActionLinkController;
 import pt.ist.fenixWebFramework.renderers.components.state.IViewState;
 import pt.ist.fenixWebFramework.renderers.layouts.Layout;
-import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
 
 public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRenderer {
 
@@ -190,20 +179,21 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
         }
 
         private void generateCurricularCourses(HtmlBlockContainer blockContainer, List<Context> contexts, int depth) {
+
             final HtmlTable table = new HtmlTable();
             blockContainer.addChild(table);
             table.setClasses(getTablesClasses());
             table.setStyle("width: " + (getInitialWidth() - depth) + "em; margin-left: " + depth + "em;");
 
-            for (Context context : contexts) {
+            for (final Context context : contexts) {
                 final CurricularCourse curricularCourse = (CurricularCourse) context.getChildDegreeModule();
-
                 if (!curricularCourse.isOptionalCurricularCourse()) {
 
                     final HtmlTableRow htmlTableRow = table.createRow();
                     HtmlTableCell cellName = htmlTableRow.createCell();
                     cellName.setClasses(getCurricularCourseNameClasses());
-                    cellName.setBody(new HtmlText(curricularCourse.getName(getExecutionSemester())));
+                    cellName.setBody(BolonhaStudentOptionalEnrollmentInputRenderer.generateCurricularCourseNameComponent(
+                            curricularCourse, this.studentOptionalEnrolmentBean.getExecutionPeriod()));
 
                     // Year
                     final HtmlTableCell yearCell = htmlTableRow.createCell();
@@ -235,98 +225,6 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
             }
         }
 
-        private void generateDCP(HtmlBlockContainer container, int depth) {
-            Map<Branch, SortedSet<DegreeModuleScope>> branchMap =
-                    getBranchMap(studentOptionalEnrolmentBean.getDegreeCurricularPlan(), getExecutionSemester());
-            for (Entry<Branch, SortedSet<DegreeModuleScope>> entry : branchMap.entrySet()) {
-                generateBranch(container, entry.getKey(), entry.getValue(), depth + getWidthDecreasePerLevel());
-            }
-        }
-
-        private void generateBranch(HtmlBlockContainer container, final Branch branch, final Set<DegreeModuleScope> scopes,
-                int depth) {
-            final HtmlTable groupTable = new HtmlTable();
-            container.addChild(groupTable);
-            groupTable.setClasses(getTablesClasses());
-            groupTable.setStyle("width: " + (getInitialWidth() - depth) + "em; margin-left: " + depth + "em;");
-
-            final HtmlTableRow htmlTableRow = groupTable.createRow();
-            htmlTableRow.setClasses(getGroupRowClasses());
-            String name = branch.getName().trim();
-            if (name.length() == 0) {
-                name = "Tronco Comum";
-            }
-            htmlTableRow.createCell().setBody(new HtmlText(name));
-
-            generateBranchScopes(container, scopes, depth + getWidthDecreasePerLevel());
-        }
-
-        private void generateBranchScopes(HtmlBlockContainer container, final Set<DegreeModuleScope> scopes, int depth) {
-            final HtmlTable table = new HtmlTable();
-            container.addChild(table);
-            table.setClasses(getTablesClasses());
-            table.setStyle("width: " + (getInitialWidth() - depth) + "em; margin-left: " + depth + "em;");
-
-            for (DegreeModuleScope scope : scopes) {
-                final HtmlTableRow htmlTableRow = table.createRow();
-                HtmlTableCell cellName = htmlTableRow.createCell();
-                cellName.setClasses(getCurricularCourseNameClasses());
-                cellName.setBody(new HtmlText(scope.getCurricularCourse().getName(getExecutionSemester())));
-
-                // Year
-                final HtmlTableCell yearCell = htmlTableRow.createCell();
-                yearCell.setClasses(getCurricularCourseYearClasses());
-                yearCell.setBody(new HtmlText(RenderUtils.getResourceString("ACADEMIC_OFFICE_RESOURCES",
-                        "label.scope.curricular.semester",
-                        new Object[] { scope.getCurricularYear(), scope.getCurricularSemester() })));
-
-                // Ects
-                final HtmlTableCell ectsCell = htmlTableRow.createCell();
-                ectsCell.setClasses(getCurricularCourseEctsClasses());
-                final StringBuilder ects = new StringBuilder();
-                ects.append(scope.getCurricularCourse().getEctsCredits(getExecutionSemester())).append(" ")
-                        .append(BundleUtil.getString(Bundle.ACADEMIC, "credits.abbreviation"));
-                ectsCell.setBody(new HtmlText(ects.toString()));
-
-                // enrolment link
-                final HtmlTableCell linkTableCell = htmlTableRow.createCell();
-                linkTableCell.setClasses(getCurricularCourseLinkClasses());
-
-                final HtmlActionLink actionLink = new HtmlActionLink();
-                actionLink.setText(BundleUtil.getString(Bundle.ACADEMIC, "link.option.enrol.curricular.course"));
-                actionLink.setName("curricularCourseEnrolLink" + scope.getCurricularCourse().getExternalId());
-                actionLink.setOnClick(String.format(
-                        "$(this).closest('form').find('input[name=\\'method\\']').attr('value', '%s');", getMethodName()));
-                //actionLink.setOnClick(String.format("document.forms[0].method.value='%s';", getMethodName()));
-                actionLink.setController(new UpdateSelectedCurricularCourseController(scope.getCurricularCourse()));
-                linkTableCell.setBody(actionLink);
-            }
-        }
-
-        private Map<Branch, SortedSet<DegreeModuleScope>> getBranchMap(final DegreeCurricularPlan degreeCurricularPlan,
-                final ExecutionSemester executionSemester) {
-            final Map<Branch, SortedSet<DegreeModuleScope>> branchMap =
-                    new TreeMap<Branch, SortedSet<DegreeModuleScope>>(new BeanComparator("name"));
-            for (final CurricularCourse curricularCourse : degreeCurricularPlan.getCurricularCoursesSet()) {
-                for (final CurricularCourseScope scope : curricularCourse.getScopesSet()) {
-                    if (scope.isActiveForExecutionPeriod(executionSemester)) {
-                        addToMap(branchMap, scope);
-                    }
-                }
-            }
-            return branchMap;
-        }
-
-        private void addToMap(Map<Branch, SortedSet<DegreeModuleScope>> branchMap, CurricularCourseScope scope) {
-            SortedSet<DegreeModuleScope> list = branchMap.get(scope.getBranch());
-            if (list == null) {
-                list =
-                        new TreeSet<DegreeModuleScope>(
-                                DegreeModuleScope.COMPARATOR_BY_CURRICULAR_YEAR_AND_SEMESTER_AND_CURRICULAR_COURSE_NAME);
-                branchMap.put(scope.getBranch(), list);
-            }
-            list.add(scope.getDegreeModuleScopeCurricularCourseScope());
-        }
     }
 
     static private class UpdateSelectedCurricularCourseController extends HtmlActionLinkController {
