@@ -2680,6 +2680,11 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         }
     }
 
+    public boolean isAllowedToDelete() {
+        final Set<StudentCurricularPlan> plans = getRegistration().getStudentCurricularPlansSet();
+        return isAllowedToManageEnrolments() && plans.size() > 1;
+    }
+
     public boolean isAllowedToManageEnrolments() {
         return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS, getDegree(),
                 Authenticate.getUser());
