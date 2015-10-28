@@ -32,8 +32,6 @@ public abstract class EnrolmentContextHandler {
 
     public abstract Optional<String> getReturnURLForStudentInClasses(HttpServletRequest request, Registration registration);
 
-    public abstract Optional<String> getReturnURLForStudentInFullClasses(HttpServletRequest request, Registration registration);
-
     public static class DefaultEnrolmentContextHandler extends EnrolmentContextHandler {
 
         @Override
@@ -48,11 +46,6 @@ public abstract class EnrolmentContextHandler {
                     GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), link, request.getSession());
             return Optional.of(injectedLink);
 
-        }
-
-        @Override
-        public Optional<String> getReturnURLForStudentInFullClasses(HttpServletRequest request, Registration registration) {
-            return Optional.empty();
         }
 
     }
