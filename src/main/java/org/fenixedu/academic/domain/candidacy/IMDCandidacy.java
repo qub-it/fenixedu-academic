@@ -114,4 +114,8 @@ public class IMDCandidacy extends IMDCandidacy_Base {
         return null;
     }
 
+    @Override
+    public boolean isFirstCycleCandidacy() {
+        return true;
+    }
 }
