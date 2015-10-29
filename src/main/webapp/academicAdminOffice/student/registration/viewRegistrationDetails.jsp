@@ -273,7 +273,7 @@
 			<fr:property name="key(edit)" value="label.edit"/>
 			<fr:property name="bundle(edit)" value="ACADEMIC_OFFICE_RESOURCES"/>
 			<fr:property name="contextRelative(edit)" value="true"/>      	
-			<fr:property name="visibleIf(enrol)" value="allowedToManageEnrolments" />
+			<fr:property name="visibleIf(edit)" value="allowedToManageEnrolments" />
 			<fr:property name="order(edit)" value="4"/>
 			
 			<fr:property name="linkFormat(delete)" value="/manageStudentCurricularPlans.do?method=delete&amp;studentCurricularPlanId=${externalId}" />
@@ -282,7 +282,7 @@
 			<fr:property name="confirmationKey(delete)" value="message.manageStudentCurricularPlans.delete.confirmation"/>
 			<fr:property name="confirmationBundle(delete)" value="ACADEMIC_OFFICE_RESOURCES"/>
 			<fr:property name="contextRelative(delete)" value="true"/>      	
-			<fr:property name="visibleIf(enrol)" value="allowedToManageEnrolments" />
+			<fr:property name="visibleIf(delete)" value="allowedToDelete" />
 			<fr:property name="order(delete)" value="5"/>
 			
 		</fr:layout>
