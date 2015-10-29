@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -1430,43 +1429,12 @@ public class Registration extends Registration_Base {
         }
         return result;
     }
-    
-    final public Set<SchoolClass> getSchoolClassesToEnrolBy(final DegreeCurricularPlan degreeCurricularPlan,
-            final ExecutionSemester executionSemester) {
-
-        return getAssociatedAttendsSet().stream().filter(attends -> attends.getExecutionPeriod() == executionSemester)
-                .flatMap(attends -> attends.getExecutionCourse().getSchoolClassesBy(degreeCurricularPlan).stream())
-                .collect(Collectors.toSet());
-    }
 
     final public Set<SchoolClass> getSchoolClassesToEnrolBy(final ExecutionCourse executionCourse) {
         Set<SchoolClass> schoolClasses =
                 executionCourse.getSchoolClassesBy(getActiveStudentCurricularPlan().getDegreeCurricularPlan());
         return schoolClasses.isEmpty() ? executionCourse.getSchoolClasses() : schoolClasses;
     }
-
-    public Optional<SchoolClass> getSchoolClassBy(final ExecutionSemester executionSemester) {
-        return super.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester).findFirst();
-    }
-
-    public void replaceSchoolClass(final SchoolClass schoolClass, final ExecutionSemester executionSemester) {
-        final Optional<SchoolClass> currentSchoolClass = getSchoolClassBy(executionSemester);
-        if (currentSchoolClass.isPresent()) {
-            currentSchoolClass.get().getAssociatedShiftsSet().forEach(s -> s.removeStudents(this));
-            super.getSchoolClassesSet().remove(currentSchoolClass.get());
-        }
-        if (schoolClass != null) {
-            final List<ExecutionCourse> attendingExecutionCourses = getAttendingExecutionCoursesFor(executionSemester);
-            for (Shift shift : schoolClass.getAssociatedShiftsSet().stream()
-                    .filter(s -> attendingExecutionCourses.contains(s.getExecutionCourse())).collect(Collectors.toSet())) {
-                if (!shift.reserveForStudent(this)) {
-                    throw new DomainException("error.registration.replaceSchoolClass.shiftFull", shift.getNome(),
-                            shift.getShiftTypesPrettyPrint(), shift.getExecutionCourse().getName());
-                }
-            }
-            super.getSchoolClassesSet().add(schoolClass);
-        }
-    }    
 
     public void addAttendsTo(final ExecutionCourse executionCourse) {
 
