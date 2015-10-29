@@ -201,6 +201,7 @@ public class ShiftStudentEnrollmentManagerLookupDispatchAction extends FenixDisp
         request.setAttribute("person", registration.getPerson());
         request.setAttribute("infoLessons", infoLessons);
         request.setAttribute("infoLessonsEndTime", Integer.valueOf(getEndTime(infoLessons)));
+        request.setAttribute("executionSemesterID", executionCourse.getExecutionPeriod().getExternalId());
 
         return mapping.findForward("showShiftsToEnroll");
     }
