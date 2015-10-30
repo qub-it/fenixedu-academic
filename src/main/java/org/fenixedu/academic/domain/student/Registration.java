@@ -530,7 +530,7 @@ public class Registration extends Registration_Base {
         }
         return null;
     }
-    
+
     public static Boolean getEnrolmentsAllowStudentToChooseAffinityCycle() {
         return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToChooseAffinityCycle();
     }
@@ -2485,7 +2485,8 @@ public class Registration extends Registration_Base {
     }
 
     final public ExecutionYear getStartExecutionYear() {
-        return ExecutionYear.readByDateTime(getStartDate().toDateTimeAtMidnight());
+        final ExecutionYear registrationYear = getRegistrationYear();
+        return registrationYear != null ? registrationYear : ExecutionYear.readByDateTime(getStartDate().toDateTimeAtMidnight());
     }
 
     final public boolean hasStartedBeforeFirstBolonhaExecutionYear() {
@@ -3065,13 +3066,28 @@ public class Registration extends Registration_Base {
     }
 
     public void editStartDates(final LocalDate startDate, final LocalDate homologationDate, final LocalDate studiesStartDate) {
+
         editStartDates(new YearMonthDay(startDate), new YearMonthDay(homologationDate), new YearMonthDay(studiesStartDate));
     }
 
     public void editStartDates(final YearMonthDay startDate, final YearMonthDay homologationDate,
             final YearMonthDay studiesStartDate) {
 
+        editStartDates((ExecutionYear) null, startDate, homologationDate, studiesStartDate);
+    }
+
+    public void editStartDates(final ExecutionYear registrationYear, final YearMonthDay startDate,
+            final YearMonthDay homologationDate, final YearMonthDay studiesStartDate) {
+
         setStartDate(startDate);
+
+        // registration year
+        if (registrationYear != null) {
+            if (getStartDate().isAfter(registrationYear.getEndLocalDate())) {
+                throw new DomainException("error.Registration.startDate.after.registrationYear");
+            }
+            setRegistrationYear(registrationYear);
+        }
 
         // edit RegistrationState start date
         final RegistrationState firstRegistrationState = getFirstRegistrationState();
@@ -3092,21 +3108,17 @@ public class Registration extends Registration_Base {
     }
 
     @Override
-    public void setStartDate(YearMonthDay startDate) {
-
-        String[] args = {};
+    public void setStartDate(final YearMonthDay startDate) {
         if (startDate == null) {
-            throw new DomainException("error.Registration.null.startDate", args);
+            throw new DomainException("error.Registration.null.startDate");
         }
         super.setStartDate(startDate);
 
         final ExecutionYear year = ExecutionYear.readByDateTime(startDate.toLocalDate());
-        String[] args1 = {};
         if (year == null) {
-            throw new DomainException("error.Registration.invalid.execution.year", args1);
+            throw new DomainException("error.Registration.invalid.execution.year");
         }
         setRegistrationYear(year);
-
     }
 
     @Atomic
