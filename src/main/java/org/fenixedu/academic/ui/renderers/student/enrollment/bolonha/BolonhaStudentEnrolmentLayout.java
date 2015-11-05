@@ -128,6 +128,14 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
     protected void generateGroup(final HtmlBlockContainer blockContainer, final StudentCurricularPlan studentCurricularPlan,
             final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester,
             final int depth) {
+        
+        if (isCycleExternal(studentCurriculumGroupBean)) {
+
+            if (!getRenderer().isAllowedToEnrolInAffinityCycle()) {
+                return;
+            }
+
+        }
 
         final HtmlTable groupTable = createGroupTable(blockContainer, depth);
         addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionSemester);
@@ -148,6 +156,11 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
         if (studentCurriculumGroupBean.isRoot()) {
             generateCycleCourseGroupsToEnrol(blockContainer, executionSemester, studentCurricularPlan, depth);
         }
+    }
+    
+    static private boolean isCycleExternal(final StudentCurriculumGroupBean studentCurriculumGroupBean) {
+        final CurriculumGroup curriculumModule = studentCurriculumGroupBean.getCurriculumModule();
+        return curriculumModule.isCycleCurriculumGroup() && ((CycleCurriculumGroup) curriculumModule).isExternal();
     }
 
     protected boolean groupIsConcluded(final StudentCurriculumGroupBean bean) {
@@ -612,9 +625,14 @@ public class BolonhaStudentEnrolmentLayout extends Layout {
             }
         }
 
-        for (final CycleType cycleType : studentCurricularPlan.getSupportedCycleTypesToEnrol()) {
-            generateCycleCourseGroupToEnrol(container, cycleType, depth + getRenderer().getWidthDecreasePerLevel());
+        if (getRenderer().isAllowedToChooseAffinityCycle()) {
+            
+            for (final CycleType cycleType : studentCurricularPlan.getSupportedCycleTypesToEnrol()) {
+                generateCycleCourseGroupToEnrol(container, cycleType, depth + getRenderer().getWidthDecreasePerLevel());
+            }
+            
         }
+        
     }
 
     protected IDegreeModuleToEvaluate buildDegreeModuleToEnrolForCycle(StudentCurricularPlan scp, CycleType cycleType,
