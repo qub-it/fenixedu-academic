@@ -120,4 +120,8 @@ public class DegreeCandidacy extends DegreeCandidacy_Base {
         return null;
     }
 
+    @Override
+    public boolean isFirstCycleCandidacy() {
+        return true;
+    }
 }
