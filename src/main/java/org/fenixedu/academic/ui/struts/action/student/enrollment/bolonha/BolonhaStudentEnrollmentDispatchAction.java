@@ -18,10 +18,10 @@
  */
 package org.fenixedu.academic.ui.struts.action.student.enrollment.bolonha;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +29,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInCurricularCoursesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -36,7 +39,9 @@ import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.Curr
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions.EnrolmentPreConditionResult;
+import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentEnrollmentBean;
 import org.fenixedu.academic.ui.struts.action.commons.student.enrollment.bolonha.AbstractBolonhaStudentEnrollmentDA;
+import org.fenixedu.academic.ui.struts.action.student.enrollment.EnrolmentContextHandler;
 import org.fenixedu.academic.ui.struts.action.student.enrollment.StudentEnrollmentManagementDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
@@ -56,11 +61,44 @@ import org.joda.time.format.PeriodFormatterBuilder;
         @Forward(name = "chooseCycleCourseGroupToEnrol", path = "/student/enrollment/bolonha/chooseCycleCourseGroupToEnrol.jsp"),
         @Forward(name = "welcome", path = "/student/enrollment/welcome.jsp"),
         @Forward(name = "chooseSemester", path = "/student/enrollment/chooseSemester.jsp"),
-        @Forward(name = "enrollmentCannotProceed", path = "/student/enrollment/bolonha/enrollmentCannotProceed.jsp"),
         @Forward(name = "welcome-dea-degree", path = "/student/phdStudentEnrolment.do?method=showWelcome"),
         @Forward(name = "showEnrollmentInstructions", path = "/student/enrollment/bolonha/showEnrollmentInstructions.jsp"),
         @Forward(name = "enrollmentCannotProceed", path = "/student/enrollment/bolonha/enrollmentCannotProceed.jsp") })
 public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStudentEnrollmentDA {
+
+    @Override
+    public ActionForward execute(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        ActionForward result = super.execute(mapping, actionForm, request, response);
+        final BolonhaStudentEnrollmentBean bolonhaStudentEnrollmentBean =
+                (BolonhaStudentEnrollmentBean) request.getAttribute("bolonhaStudentEnrollmentBean");
+        if (bolonhaStudentEnrollmentBean != null) {
+            Registration registration = bolonhaStudentEnrollmentBean.getRegistration();
+
+            List<ExecutionSemester> openedEnrolmentPeriodsSemesters = Collections.EMPTY_LIST;
+            if (registration != null) {
+                ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+                DegreeCurricularPlan lastDegreeCurricularPlan = registration.getLastDegreeCurricularPlan();
+                StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(lastDegreeCurricularPlan);
+                openedEnrolmentPeriodsSemesters =
+                        lastDegreeCurricularPlan.getEnrolmentPeriodsSet().stream()
+                                .filter(ep -> isValidPeriodForUser(ep, studentCurricularPlan, currentExecutionYear))
+                                .map(ep -> ep.getExecutionPeriod()).distinct().sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR)
+                                .collect(Collectors.toList());
+            }
+            if (openedEnrolmentPeriodsSemesters.size() > 1) {
+                request.setAttribute("openedEnrolmentPeriodsSemesters", openedEnrolmentPeriodsSemesters);
+            }
+            Optional<String> returnURL =
+                    EnrolmentContextHandler.getRegisteredEnrolmentContextHandler().getReturnURLForStudentInCurricularCourses(
+                            request, registration);
+            if (returnURL.isPresent()) {
+                request.setAttribute("returnURL", returnURL.get());
+            }
+        }
+
+        return result;
+    }
 
     public ActionForward showWelcome(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
@@ -139,41 +177,22 @@ public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStude
         return "";
     }
 
-    public static class ChooseEnrolmentSemester implements Serializable {
-        private ExecutionSemester chosenSemester;
+    private boolean isValidPeriodForUser(EnrolmentPeriod ep, StudentCurricularPlan studentCurricularPlan,
+            ExecutionYear currentExecutionYear) {
+        // Coditions to be valid:
+        // 1 - period has to be valid
+        //     AND
+        //          a - Student is candidate AND period is for candidate
+        //            OR
+        //          b - Period is for curricular courses (implicitly assuming student is not candidate)
 
-        public ChooseEnrolmentSemester() {
-        }
-
-        public List<ExecutionSemester> getSemestersForCourses() {
-            List<ExecutionSemester> semesters = new ArrayList<ExecutionSemester>();
-            for (ExecutionSemester executionSemester : ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet()) {
-                if (executionSemester.getEnrolmentPeriodSet().stream()
-                        .anyMatch(ep -> ep.isValid() && ep.isForCurricularCourses())) {
-                    semesters.add(executionSemester);
-                }
+        if (ep.isValid()) {
+            if (studentCurricularPlan.isInCandidateEnrolmentProcess(currentExecutionYear)) {
+                return ep instanceof EnrolmentPeriodInCurricularCoursesCandidate;
+            } else {
+                return ep.isForCurricularCourses();
             }
-            Collections.sort(semesters);
-            return semesters;
         }
-
-        public List<ExecutionSemester> getSemestersForClasses() {
-            List<ExecutionSemester> semesters = new ArrayList<ExecutionSemester>();
-            for (ExecutionSemester executionSemester : ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet()) {
-                if (executionSemester.getEnrolmentPeriodSet().stream().anyMatch(ep -> ep.isValid() && ep.isForClasses())) {
-                    semesters.add(executionSemester);
-                }
-            }
-            Collections.sort(semesters);
-            return semesters;
-        }
-
-        public void setChosenSemester(ExecutionSemester chosenSemester) {
-            this.chosenSemester = chosenSemester;
-        }
-
-        public ExecutionSemester getChosenSemester() {
-            return chosenSemester;
-        }
+        return false;
     }
 }

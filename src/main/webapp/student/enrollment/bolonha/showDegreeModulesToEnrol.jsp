@@ -112,9 +112,27 @@
 		</p>
 		<p class="mtop025 mbottom1">
 			<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" onclick="this.form.method.value='enrolInDegreeModules';"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></html:submit>
+			<logic:present name="returnURL">
+					<html:link styleClass="btn btn-default" href="${returnURL}"><strong><bean:message bundle="STUDENT_RESOURCES" key="link.shift.enrollment.item3" /></strong></html:link>
+			</logic:present>
 		</p>
-		
-		
+		<logic:present name="openedEnrolmentPeriodsSemesters">		
+			<ul class="nav nav-tabs">
+				<logic:iterate id="period" name="openedEnrolmentPeriodsSemesters">				
+					<logic:equal name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.externalId}">
+						<li role="presentation" class="active"><a href="#">${period.qualifiedName}</a></li>
+					</logic:equal>
+					<logic:notEqual name="bolonhaStudentEnrollmentBean" property="executionPeriod.externalId" value="${period.externalId}">
+						<li role="presentation">							
+							<html:link onclick="return checkState()" action="/bolonhaStudentEnrollment.do?method=prepare&registrationOid=${bolonhaStudentEnrollmentBean.registration.externalId}&executionSemesterID=${period.externalId}">
+								${period.qualifiedName}
+							</html:link>
+						</li>
+					</logic:notEqual>
+				</logic:iterate>	
+			</ul>			
+		</logic:present>
+
 		<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
 			<fr:layout name="bolonha-student-enrolment">
 				<fr:property name="enrolmentClasses" value="se_enrolled smalltxt,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled aright" />
@@ -169,4 +187,23 @@
 </tr>
 </table>
 
-<script>$(function(){$('table').removeClass('table')})</script>
+<script>
+function submitForm(btn) {
+	btn.form.method.value = 'enrolInDegreeModules';
+	$(btn).addClass('disabled');
+	$(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}');
+}
+(function () {
+	$('table').removeClass('table');
+})();
+
+function checkState(){
+	if($.grep($("input[type=checkbox]"), function (item) { return $(item).is("[checked]") != item.checked; }).length > 0){
+		result = window.confirm("<bean:message bundle="STUDENT_RESOURCES"  key="label.changeSemesterWithoutSave"/>");
+		if(!result){
+			return false;
+		}
+	}
+	return true;
+}
+</script>
