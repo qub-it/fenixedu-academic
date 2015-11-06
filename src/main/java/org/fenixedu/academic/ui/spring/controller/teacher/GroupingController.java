@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExportGrouping;
 import org.fenixedu.academic.domain.Grouping;
 import org.fenixedu.academic.domain.Professorship;
@@ -68,24 +67,24 @@ public class GroupingController extends ExecutionCourseController {
 
     @RequestMapping(value = "/show", method = RequestMethod.GET)
     public TeacherView showStudentGroups(Model model) {
-        return new TeacherView("executionCourse/groupings/viewProjectsAndLink");
+        return new TeacherView("executionCourse/groupings/viewProjectsAndLink", executionCourse);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.GET)
     public TeacherView create(Model model) {
         model.addAttribute("projectGroup", new ProjectGroupBean(this.executionCourse));
-        return new TeacherView("executionCourse/groupings/insertGroupProperties");
+        return new TeacherView("executionCourse/groupings/insertGroupProperties", executionCourse);
     }
 
     @RequestMapping(value = "/edit/{grouping}", method = RequestMethod.GET)
     public TeacherView edit(Model model, Grouping grouping) {
         model.addAttribute("projectGroup", new ProjectGroupBean(grouping, this.executionCourse));
-        return new TeacherView("executionCourse/groupings/insertGroupProperties");
+        return new TeacherView("executionCourse/groupings/insertGroupProperties", executionCourse);
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public AbstractUrlBasedView create(Model model, @ModelAttribute("projectGroup") ProjectGroupBean projectGroup,
-            @PathVariable ExecutionCourse executionCourse, BindingResult bindingResult) {
+            BindingResult bindingResult) {
 
         ArrayList<String> errors = new ArrayList<>();
 
@@ -165,7 +164,7 @@ public class GroupingController extends ExecutionCourseController {
 
         if (!errors.isEmpty()) {
             model.addAttribute("errors", errors);
-            return new TeacherView("executionCourse/groupings/insertGroupProperties");
+            return new TeacherView("executionCourse/groupings/insertGroupProperties", executionCourse);
         }
 
         Grouping grouping = studentGroupService.createOrEditGrouping(projectGroup, executionCourse);
@@ -205,7 +204,7 @@ public class GroupingController extends ExecutionCourseController {
         model.addAttribute("studentGroupsByShift", studentGroupsByShift);
         model.addAttribute("grouping", grouping);
         model.addAttribute("shifts", shiftList);
-        return new TeacherView("executionCourse/groupings/viewShiftsAndGroups");
+        return new TeacherView("executionCourse/groupings/viewShiftsAndGroups", executionCourse);
     }
 
     @RequestMapping(value = "/viewAttends/{grouping}", method = RequestMethod.GET)
@@ -224,14 +223,13 @@ public class GroupingController extends ExecutionCourseController {
         }
 
         model.addAttribute("studentsNotAttending", studentsNotAttending);
-        return new TeacherView("executionCourse/groupings/viewAttendsSet");
+        return new TeacherView("executionCourse/groupings/viewAttendsSet", executionCourse);
 
     }
 
     @RequestMapping(value = "/editAttends/{grouping}", method = RequestMethod.POST)
     public TeacherView editAttends(Model model, @PathVariable Grouping grouping,
-            @ModelAttribute("attends") @Validated AttendsBean attendsBean, @PathVariable ExecutionCourse executionCourse,
-            BindingResult bindingResult) {
+            @ModelAttribute("attends") @Validated AttendsBean attendsBean, BindingResult bindingResult) {
 
         Map<String, Boolean> studentsToRemove = attendsBean.getRemoveStudent();
         Map<String, Boolean> studentsToAdd = attendsBean.getAddStudent();
@@ -253,7 +251,7 @@ public class GroupingController extends ExecutionCourseController {
         model.addAttribute("grouping", grouping);
         model.addAttribute("studentsInStudentGroupsSize",
                 grouping.getStudentGroupsSet().stream().mapToInt(sg -> sg.getAttendsSet().size()).sum());
-        return new TeacherView("executionCourse/groupings/viewAllStudentsAndGroups");
+        return new TeacherView("executionCourse/groupings/viewAllStudentsAndGroups", executionCourse);
 
     }
 
@@ -261,7 +259,7 @@ public class GroupingController extends ExecutionCourseController {
     public TeacherView viewStudentsAndGroupsByShift(Model model, @PathVariable Grouping grouping) {
         model.addAttribute("grouping", grouping);
 
-        return new TeacherView("executionCourse/groupings/viewStudentsAndGroupsByShift");
+        return new TeacherView("executionCourse/groupings/viewStudentsAndGroupsByShift", executionCourse);
     }
 
     @RequestMapping(value = "/viewStudentsAndGroupsByShift/{grouping}/shift/{shift}", method = RequestMethod.GET)
@@ -272,7 +270,7 @@ public class GroupingController extends ExecutionCourseController {
         studentsByGroup.addAll(shift.getAssociatedStudentGroups(grouping));
         model.addAttribute("studentsByGroup", studentsByGroup);
 
-        return new TeacherView("executionCourse/groupings/viewStudentsAndGroupsByShift");
+        return new TeacherView("executionCourse/groupings/viewStudentsAndGroupsByShift", executionCourse);
     }
 
     @RequestMapping(value = "/deleteGrouping/{grouping}", method = RequestMethod.POST)
