@@ -24,6 +24,7 @@ package org.fenixedu.academic.ui.faces.bean.bolonhaManager.curricularRules;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.beanutils.BeanComparator;
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -69,7 +71,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import pt.ist.fenixframework.FenixFramework;
 
 public class CurricularRulesManagementBackingBean extends FenixBackingBean {
-    protected final String NO_SELECTION_STRING = "-1";
+    static protected final String NO_SELECTION_STRING = "-1";
 
     private String degreeModuleID = null;
     private DegreeModule degreeModule = null;
@@ -80,6 +82,7 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
     private UISelectItems curricularRuleTypeItems;
     private UISelectItems degreeModuleItems;
     private UISelectItems courseGroupItems;
+    private UISelectItems degreeTypeItems;
     private UISelectItems degreeItems;
     private UISelectItems departmentUnitItems;
     private UISelectItems beginExecutionPeriodItemsForRule;
@@ -470,6 +473,11 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
         }
     }
 
+    static private DegreeType getDegreeType(final String input) {
+        return StringUtils.isBlank(input) || input.equals(NO_SELECTION_STRING) ? null : FenixFramework
+                .<DegreeType> getDomainObject(input);
+    }
+
     public String getSelectedDegreeType() {
         if (getViewState().getAttribute("selectedDegreeType") == null) {
             if (getCurricularRule() != null && getCurricularRule() instanceof AnyCurricularCourse) {
@@ -519,6 +527,27 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
         getViewState().setAttribute("selectedDepartmentUnitID", selectedDepartmentUnitID);
     }
 
+    public UISelectItems getDegreeTypeItems() {
+        if (degreeTypeItems == null) {
+            degreeTypeItems = new UISelectItems();
+
+            final List<SelectItem> value = new ArrayList<SelectItem>();
+            value.add(new SelectItem(NO_SELECTION_STRING, getSchoolAcronym()));
+            for (Iterator<DegreeType> iterator = DegreeType.all().sorted().iterator(); iterator.hasNext();) {
+                final DegreeType degreeType = iterator.next();
+                value.add(new SelectItem(degreeType.getExternalId(), degreeType.getName().getContent()));
+            }
+
+            degreeTypeItems.setValue(value);
+        }
+        
+        return degreeTypeItems;
+    }
+    
+    public void setDegreeTypeItems(final UISelectItems input) {
+        this.degreeTypeItems = input;
+    }
+
     public UISelectItems getDegreeItems() {
         if (degreeItems == null) {
             degreeItems = new UISelectItems();
@@ -538,9 +567,7 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
                 && selectedCurricularRuleType.equals(CurricularRuleType.ANY_CURRICULAR_COURSE.name())) {
 
             final List<Degree> allDegrees = Degree.readNotEmptyDegrees();
-            final DegreeType bolonhaDegreeType =
-                    (selectedDegreeType == null || selectedDegreeType.equals(NO_SELECTION_STRING)) ? null : FenixFramework
-                            .getDomainObject(selectedDegreeType);
+            final DegreeType bolonhaDegreeType = getDegreeType(selectedDegreeType);
             for (final Degree degree : allDegrees) {
                 if (degree.isBolonhaDegree() && (bolonhaDegreeType == null || degree.getDegreeType() == bolonhaDegreeType)) {
                     result.add(new SelectItem(degree.getExternalId(), "[" + degree.getDegreeType().getName().getContent() + "] "
@@ -784,9 +811,7 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
                 .setSelectedDegreeID((getSelectedDegreeID() == null || getSelectedDegreeID().equals(NO_SELECTION_STRING)) ? null : getSelectedDegreeID());
         parametersDTO.setSelectedDepartmentUnitID((getSelectedDepartmentUnitID() == null || getSelectedDepartmentUnitID().equals(
                 NO_SELECTION_STRING)) ? null : getSelectedDepartmentUnitID());
-        parametersDTO
-                .setDegreeType((getSelectedDegreeType() == null || getSelectedDegreeType().equals(NO_SELECTION_STRING)) ? null : FenixFramework
-                        .getDomainObject(getSelectedDegreeType()));
+        parametersDTO.setDegreeType(getDegreeType(getSelectedDegreeType()));
         // must get these values like this to prevent override values
         parametersDTO.setMinimumYear((Integer) getViewState().getAttribute("minimumYear"));
         parametersDTO.setMaximumYear((Integer) getViewState().getAttribute("maximumYear"));
