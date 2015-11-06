@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.bootstrap.FenixBootstrapper.CreateOrganizationalStructure;
 import org.fenixedu.academic.bootstrap.FenixBootstrapper.SchoolSetupSection;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.CurricularYear;
@@ -54,6 +55,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UniversityUnit;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.serviceRequests.InstitutionRegistryCodeGenerator;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestTypeOption;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
@@ -440,24 +442,59 @@ public class FenixBootstrapper {
     }
 
     private static void createDefaultServiceRequestTypes() {
-        ServiceRequestTypeOption.create("DETAILED",
-                BundleUtil.getLocalizedString("resources.AcademicOfficeResources", ServiceRequestTypeOption.class.getSimpleName() + ".detailed"), true);
+        ServiceRequestTypeOption.create(
+                "DETAILED",
+                BundleUtil.getLocalizedString("resources.AcademicAdminOffice", ServiceRequestTypeOption.class.getSimpleName()
+                        + ".detailed"), true, false);
+
+        ServiceRequestTypeOption.create(
+                "NUMBER_OF_UNITS",
+                BundleUtil.getLocalizedString("resources.AcademicAdminOffice", ServiceRequestTypeOption.class.getSimpleName()
+                        + ".numberOfUnitsOption"), false, true);
+
+        // By default create all legacy ServiceRequestTypes as Inactive and as Services -> Then configurate accordingly
 
         for (final AcademicServiceRequestType academicServiceRequestType : AcademicServiceRequestType.values()) {
             if (academicServiceRequestType == AcademicServiceRequestType.DOCUMENT) {
                 continue;
+            } else if (academicServiceRequestType == AcademicServiceRequestType.DIPLOMA_REQUEST) {
+                ServiceRequestType.createLegacy(academicServiceRequestType.name(), new LocalizedString(new Locale("PT", "pt"),
+                        academicServiceRequestType.getLocalizedName()), false, academicServiceRequestType,
+                        DocumentRequestType.DIPLOMA_REQUEST, true, Boolean.FALSE, ServiceRequestCategory.SERVICES);
+                continue;
+            } else if (academicServiceRequestType == AcademicServiceRequestType.DIPLOMA_SUPPLEMENT_REQUEST) {
+                ServiceRequestType.createLegacy(academicServiceRequestType.name(), new LocalizedString(new Locale("PT", "pt"),
+                        academicServiceRequestType.getLocalizedName()), false, academicServiceRequestType,
+                        DocumentRequestType.DIPLOMA_SUPPLEMENT_REQUEST, true, Boolean.FALSE, ServiceRequestCategory.SERVICES);
+                continue;
+            } else if (academicServiceRequestType == AcademicServiceRequestType.REGISTRY_DIPLOMA_REQUEST) {
+                ServiceRequestType.createLegacy(academicServiceRequestType.name(), new LocalizedString(new Locale("PT", "pt"),
+                        academicServiceRequestType.getLocalizedName()), false, academicServiceRequestType,
+                        DocumentRequestType.REGISTRY_DIPLOMA_REQUEST, true, Boolean.FALSE, ServiceRequestCategory.SERVICES);
+                continue;
             }
 
             ServiceRequestType.createLegacy(academicServiceRequestType.name(), new LocalizedString(new Locale("PT", "pt"),
-                    academicServiceRequestType.getLocalizedName()), academicServiceRequestType, null, true);
+                    academicServiceRequestType.getLocalizedName()), false, academicServiceRequestType, null, true, Boolean.FALSE,
+                    ServiceRequestCategory.SERVICES);
         }
 
         for (final DocumentRequestType documentRequestType : DocumentRequestType.values()) {
+
+            if (documentRequestType == DocumentRequestType.DIPLOMA_REQUEST) {
+                continue;
+            } else if (documentRequestType == DocumentRequestType.DIPLOMA_SUPPLEMENT_REQUEST) {
+                continue;
+            } else if (documentRequestType == DocumentRequestType.REGISTRY_DIPLOMA_REQUEST) {
+                continue;
+            }
+
+            // By default create all legacy ServiceRequestTypes as Services -> Then configurate accordingly
             ServiceRequestType.createLegacy(
                     documentRequestType.name(),
                     BundleUtil.getLocalizedString("resources.EnumerationResources",
-                            "DocumentRequestType." + documentRequestType.name()), AcademicServiceRequestType.DOCUMENT,
-                    documentRequestType, true);
+                            "DocumentRequestType." + documentRequestType.name()), false, AcademicServiceRequestType.DOCUMENT,
+                    documentRequestType, true, Boolean.FALSE, ServiceRequestCategory.SERVICES);
         }
     }
 

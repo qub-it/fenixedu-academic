@@ -79,7 +79,11 @@
 		
 		<p class="mbottom025"><strong><bean:message key="message.document.to.request" bundle="ACADEMIC_OFFICE_RESOURCES"/>:</strong></p>
 		
-		<p class="mbottom025 warning0"><bean:message key="message.warning.urgent.request" bundle="ACADEMIC_OFFICE_RESOURCES"/></p>
+		<p class="mbottom025 warning0">
+			<bean:message key="label.student.serviceRequests.info1" bundle="STUDENT_RESOURCES"/><br/>
+			<bean:message key="label.student.serviceRequests.info2" bundle="STUDENT_RESOURCES"/><br/>
+			<bean:message key="label.student.serviceRequests.info3" bundle="STUDENT_RESOURCES"/>
+		</p>
 		
 		<fr:edit id="documentRequestTypeEdit" name="documentRequestCreateBean" schema="DocumentRequestCreateBean.chooseDocumentRequestType-for-given-registration" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean">
 			<fr:destination name="documentRequestTypeChosenPostBack" path="/documentRequest.do?method=documentRequestTypeChosenPostBack"/>
@@ -101,8 +105,27 @@
 			</fr:edit>			
 		</logic:present>
 		
-		<logic:notEmpty name="documentRequestCreateBean" property="chosenDocumentRequestType">
+		<logic:notEmpty name="documentRequestCreateBean" property="chosenServiceRequestType">
 		
+			<!-- Internationalization -->
+			<fr:edit id="languageEdit" name="documentRequestCreateBean" schema="DocumentRequestCreateBean.language" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean">
+				<fr:layout name="tabular">
+					<fr:property name="classes" value="tstyle5 thright thlight mvert0 thmiddle"/>
+					<fr:property name="columnClasses" value="width14em,width40em,tdclear tderror1"/>
+				</fr:layout>
+			</fr:edit>
+		
+			<!-- Requested Cycle -->
+			<logic:equal name="documentRequestCreateBean" property="hasCycleTypeDependency" value="true">
+				<fr:edit id="requestedCycleEdit" name="documentRequestCreateBean" schema="DocumentRequestCreateBean.requestedCycle" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean">
+					<fr:layout name="tabular">
+						<fr:property name="classes" value="tstyle5 thright thlight mvert0 thmiddle"/>
+						<fr:property name="columnClasses" value="width14em,width40em,tdclear tderror1"/>
+					</fr:layout>	
+				</fr:edit>
+			</logic:equal>
+		
+			<!-- Purposes -->
 			<fr:edit id="purposesEdit" name="documentRequestCreateBean" schema="DocumentRequestCreateBean.purposes" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean">
 				<fr:layout name="tabular">
 					<fr:property name="classes" value="tstyle5 thright thlight mvert0 thmiddle"/>
