@@ -23,7 +23,7 @@ import org.fenixedu.commons.configuration.ConfigurationManager;
 import org.fenixedu.commons.configuration.ConfigurationProperty;
 
 public class FenixEduAcademicConfiguration {
-    
+
     @ConfigurationManager(description = "FenixEdu Academic Configuration")
     public interface ConfigurationProperties {
 
@@ -33,16 +33,20 @@ public class FenixEduAcademicConfiguration {
         @ConfigurationProperty(key = "ciist.sms.password")
         public String getCIISTSMSPassword();
 
+        @ConfigurationProperty(key = "ciist.sms.shouldRun")
+        public Boolean getCIISTSMSShouldRun();
+
         @ConfigurationProperty(key = "ciist.sms.username")
         public String getCIISTSMSUsername();
-        
+
         @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToChooseAffinityCycle", defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToChooseAffinityCycle();
 
         @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToEnrolInAffinityCycle", defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToEnrolInAffinityCycle();
 
-        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToCreateRegistrationForAffinityCycle", defaultValue = "true")
+        @ConfigurationProperty(key = "domain.academic.enrolments.AllowStudentToCreateRegistrationForAffinityCycle",
+                defaultValue = "true")
         public Boolean getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle();
 
         @ConfigurationProperty(
