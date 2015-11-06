@@ -37,10 +37,15 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.accounting.events.serviceRequests.AcademicServiceRequestEvent;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
+import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequest;
+import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
+import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.domain.util.email.Message;
 import org.fenixedu.academic.domain.util.email.Recipient;
 import org.fenixedu.academic.domain.util.email.Sender;
@@ -52,15 +57,18 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.UserGroup;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.signals.DomainObjectEvent;
+import org.fenixedu.bennu.signals.Signal;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.Atomic;
 
 import com.google.common.base.Strings;
 
-abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base {
+abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base implements IAcademicServiceRequest {
 
     private static final String SERVICE_REQUEST_NUMBER_YEAR_SEPARATOR = "/";
 
@@ -111,6 +119,20 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         super.setServiceRequestNumber(getAcademicServiceRequestYear().generateServiceRequestNumber());
         super.setRequestDate(bean.getRequestDate());
 
+        super.setRequestedCycle(bean.getRequestedCycle());
+        super.setDetailed(bean.getDetailed());
+
+        if (bean.getHasCycleTypeDependency()) {
+            if (bean.getRequestedCycle() == null) {
+                throw new DomainException("error.registryDiploma.requestedCycleMustBeGiven");
+            } else if (!bean.getRegistration().getDegreeType().getCycleTypes().contains(bean.getRequestedCycle())) {
+                throw new DomainException("error.registryDiploma.requestedCycleTypeIsNotAllowedForGivenStudentCurricularPlan");
+            }
+            super.setRequestedCycle(bean.getRequestedCycle());
+        } else if (bean.getRegistration().getDegreeType().hasExactlyOneCycleType()) {
+            super.setRequestedCycle(bean.getRegistration().getDegreeType().getCycleType());
+        }
+
         super.setUrgentRequest(bean.getUrgentRequest());
         super.setFreeProcessed(bean.getFreeProcessed());
         super.setExecutionYear(bean.getExecutionYear());
@@ -120,6 +142,11 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
                 new AcademicServiceRequestBean(AcademicServiceRequestSituationType.NEW, AccessControl.getPerson());
         situationBean.setSituationDate(getRequestDate().toYearMonthDay());
         createAcademicServiceRequestSituations(situationBean);
+
+        if (isDetailed()) {
+            addServiceRequestTypeOptionBooleanValues(ServiceRequestTypeOptionBooleanValue.create(ServiceRequestTypeOption
+                    .findDetailedOption().get(), true));
+        }
     }
 
     private int getServiceRequestYear() {
@@ -174,11 +201,18 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     }
 
     final protected boolean isPayable() {
-        return getEventType() != null;
+        return ServiceRequestType.findUnique(this) != null && ServiceRequestType.findUnique(this).isPayed();
     }
 
     protected boolean isPayed() {
-        return getEvent() == null || getEvent().isPayed();
+        if (!isPayable()) {
+            return true;
+        }
+
+        final IAcademicTreasuryEvent event =
+                TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
+
+        return event != null && event.isPayed();
     }
 
     final public boolean getIsPayed() {
@@ -190,7 +224,17 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     public boolean isPaymentsAccessible() {
         return AcademicAccessRule
                 .getProgramsAccessibleToFunction(AcademicOperationType.MANAGE_STUDENT_PAYMENTS, Authenticate.getUser())
-                .collect(Collectors.toSet()).contains(getAcademicProgram());
+                .collect(Collectors.toSet()).contains(getAcademicProgram())
+                && TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this) != null;
+    }
+
+    /**
+     * Return the URL for debt account of this student
+     * 
+     */
+    public String getPaymentURL() {
+        final IAcademicServiceRequestAndAcademicTaxTreasuryEvent event = TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
+        return  event != null ? event.getDebtAccountURL() : null;
     }
 
     public boolean isRegistrationAccessible() {
@@ -220,6 +264,9 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     @Atomic
     final public void process() throws DomainException {
         process(AccessControl.getPerson());
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void process(final Person responsible) throws DomainException {
@@ -244,47 +291,90 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void receivedFromExternalEntity(final YearMonthDay receivedDate, final String description) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.RECEIVED_FROM_EXTERNAL_ENTITY,
                 AccessControl.getPerson(), receivedDate, description));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
     final public void reject(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.REJECTED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
     final public void cancel(final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CANCELLED, AccessControl.getPerson(),
                 justification));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
+    final public void concludeServiceRequest() {
+        conclude(AccessControl.getPerson());
+    }
+
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude() {
         conclude(AccessControl.getPerson());
     }
 
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude(final Person responsible) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible));
     }
 
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude(final YearMonthDay situationDate, final String justification) {
         conclude(AccessControl.getPerson(), situationDate, justification);
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude(final Person responsible, final YearMonthDay situationDate) {
         conclude(responsible, situationDate, "");
     }
 
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude(final Person responsible, final YearMonthDay situationDate, final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible, situationDate,
                 justification));
     }
 
     @Atomic
+    @Deprecated
+    /**
+     * There are many conclude methods. It should be simplified
+     */
     final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
         conclude(AccessControl.getPerson(), situationDate, justification);
         if (sendEmail) {
             sendConcludeEmail();
         }
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     private void sendConcludeEmail() {
@@ -318,14 +408,20 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     @Atomic
     final public void delivered() {
         delivered(AccessControl.getPerson());
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
-    final public void delivered(final Person responsible) {
+    final private void delivered(final Person responsible) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.DELIVERED, responsible));
     }
 
     final public void delivered(final Person responsible, final YearMonthDay situationDate) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.DELIVERED, responsible, situationDate, ""));
+
+        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
+                new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void delete() {
@@ -340,9 +436,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
             ;
         }
         super.setAdministrativeOffice(null);
-        if (getEvent() != null) {
-            getEvent().delete();
-        }
         super.setExecutionYear(null);
         super.setRootDomainObject(null);
         super.setAcademicServiceRequestYear(null);
@@ -536,21 +629,23 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
     /** This method is overwritten in the subclasses */
     protected void internalChangeState(final AcademicServiceRequestBean academicServiceRequestBean) {
-
-        if (academicServiceRequestBean.isToCancelOrReject() && getEvent() != null) {
-            getEvent().cancel(academicServiceRequestBean.getResponsible());
-        }
-
         verifyIsToProcessAndHasPersonalInfo(academicServiceRequestBean);
 
         verifyIsToDeliveredAndIsPayed(academicServiceRequestBean);
+        
+        if(!academicServiceRequestBean.isToCancelOrReject()) {
+            assertPayedEvents();
+        }
+    }
+
+    protected void assertPayedEvents() {
+        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
+            throw new DomainException("DocumentRequest.student.has.not.payed.debts");
+        }
     }
 
     protected void verifyIsToDeliveredAndIsPayed(final AcademicServiceRequestBean academicServiceRequestBean) {
         if (academicServiceRequestBean.isToDeliver()) {
-            if (isPayable() && !isPayed()) {
-                throw new DomainException("AcademicServiceRequest.hasnt.been.payed");
-            }
         }
     }
 
@@ -666,7 +761,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     @Deprecated
     final public boolean getLoggedPersonCanCancel() {
         return isCancelledSituationAccepted()
-                && (!isPayable() || getEvent() == null || !isPayed())
                 && (createdByStudent() && !isConcluded() || AcademicAccessRule.isProgramAccessibleToFunction(
                         AcademicOperationType.SERVICE_REQUESTS, this.getAcademicProgram(), Authenticate.getUser()));
     }
@@ -783,6 +877,11 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return getRegistryCode() != null;
     }
 
+    @Override
+    public boolean isRequestedWithCycle() {
+        return getRequestedCycle() != null;
+    }
+
     public static Set<AcademicServiceRequest> getAcademicServiceRequests(Person person, Integer year,
             AcademicServiceRequestSituationType situation, Interval interval) {
         Set<AcademicServiceRequest> serviceRequests = new HashSet<AcademicServiceRequest>();
@@ -808,6 +907,11 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
             serviceRequests.add(request);
         }
         return serviceRequests;
+    }
+
+    @Override
+    public boolean isDetailed() {
+        return getDetailed();
     }
 
 }
