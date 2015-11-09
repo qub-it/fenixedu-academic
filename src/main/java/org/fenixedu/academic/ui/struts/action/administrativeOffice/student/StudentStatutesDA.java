@@ -59,9 +59,12 @@ public class StudentStatutesDA extends FenixDispatchAction {
             if (getStatuteType().isSeniorStatute()) {
                 return new SeniorStatute(getStudent(), getRegistration(), getStatuteType(), getBeginExecutionPeriod(),
                         getEndExecutionPeriod(), getBeginDate(), getEndDate());
+            } else if(getStatuteType().isAppliedOnRegistration()) {
+                return new StudentStatute(getStudent(), getStatuteType(), getBeginExecutionPeriod(), getEndExecutionPeriod(),
+                        getBeginDate(), getEndDate(), getRegistration());
             } else {
                 return new StudentStatute(getStudent(), getStatuteType(), getBeginExecutionPeriod(), getEndExecutionPeriod(),
-                        getBeginDate(), getEndDate());
+                        getBeginDate(), getEndDate(), null);                
             }
         }
     }
@@ -117,7 +120,9 @@ public class StudentStatutesDA extends FenixDispatchAction {
         request.setAttribute("student", student);
         request.setAttribute("manageStatuteBean", manageStatuteBean);
 
-        if (manageStatuteBean.getStatuteType().isSeniorStatute()) {
+        if (manageStatuteBean.getStatuteType() != null && (
+                manageStatuteBean.getStatuteType().isSeniorStatute() || 
+                manageStatuteBean.getStatuteType().isAppliedOnRegistration())) {
             request.setAttribute("schemaName", "student.createSeniorStatute");
         } else {
             request.setAttribute("schemaName", "student.createStatutes");
