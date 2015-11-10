@@ -29,8 +29,6 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
-
 /**
  * 
  * @author - Shezad Anavarali (shezad@ist.utl.pt)
@@ -44,12 +42,19 @@ public class StudentStatute extends StudentStatute_Base {
         setCreationDate(new DateTime());
     }
 
+    @Deprecated
     public StudentStatute(Student student, StatuteType statuteType, ExecutionSemester beginExecutionPeriod,
             ExecutionSemester endExecutionPeriod) {
         this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginExecutionPeriod.getBeginLocalDate(),
                 endExecutionPeriod.getEndLocalDate(), null);
     }
-
+    
+    @Deprecated
+    public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
+            final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate) {
+        this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginDate, endDate, null);
+    }
+    
     public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
             final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate,
             final Registration registration) {
@@ -100,10 +105,6 @@ public class StudentStatute extends StudentStatute_Base {
 
     /*
      * Validation at Student Level
-     */
-
-    /*
-     * Validation at Registration Level
      */
 
     public boolean isValidInExecutionPeriod(final ExecutionSemester executionSemester) {
@@ -183,7 +184,7 @@ public class StudentStatute extends StudentStatute_Base {
         super.deleteDomainObject();
     }
 
-    boolean overlapsWith(StudentStatute statute) {
+    public boolean overlapsWith(StudentStatute statute) {
         ExecutionSemester statuteBegin =
                 statute.getBeginExecutionPeriod() != null ? statute.getBeginExecutionPeriod() : ExecutionSemester
                         .readFirstExecutionSemester();
@@ -195,7 +196,7 @@ public class StudentStatute extends StudentStatute_Base {
 
     }
 
-    private boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd, final Registration registration) {
+    public boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd, final Registration registration) {
 
         if (statuteType != getType()) {
             return false;
