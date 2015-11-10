@@ -187,7 +187,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     }
 
     @Override
-    final public boolean isUrgentRequest() {
+    public boolean isUrgentRequest() {
         return getUrgentRequest().booleanValue();
     }
 
