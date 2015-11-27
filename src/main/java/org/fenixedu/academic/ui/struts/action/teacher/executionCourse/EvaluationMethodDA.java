@@ -36,12 +36,17 @@ import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.service.services.teacher.EditEvaluation;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.academic.util.MultiLanguageString;
+import org.fenixedu.bennu.struts.annotations.Forward;
+import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Input;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 @Mapping(path = "/manageEvaluationMethod", module = "teacher", functionality = ManageExecutionCourseDA.class,
         formBean = "evaluationMethodForm")
+@Forwards({ @Forward(name = "evaluationMethod", path = "/teacher/executionCourse/evaluationMethod.jsp"),
+        @Forward(name = "editEvaluationMethod", path = "/teacher/executionCourse/editEvaluationMethod.jsp"),
+        @Forward(name = "importEvaluationMethod", path = "/teacher/executionCourse/importEvaluationMethod.jsp") })
 public class EvaluationMethodDA extends ManageExecutionCourseDA {
 
     // EVALUATION METHOD
@@ -51,7 +56,7 @@ public class EvaluationMethodDA extends ManageExecutionCourseDA {
             HttpServletResponse response) throws Exception {
         final ExecutionCourse executionCourse = getExecutionCourse(request);
         request.setAttribute("evaluationMethods", getEvaluationMethod(executionCourse));
-        return forward(request, "/teacher/executionCourse/evaluationMethod.jsp");
+        return mapping.findForward("evaluationMethod");
     }
 
     private LocalizedString getEvaluationMethod(ExecutionCourse executionCourse) {
@@ -85,42 +90,42 @@ public class EvaluationMethodDA extends ManageExecutionCourseDA {
             EditEvaluation.runEditEvaluation(executionCourse, evaluationMethodMls);
             evaluationMethod = executionCourse.getEvaluationMethod();
         }
-        return forward(request, "/teacher/executionCourse/editEvaluationMethod.jsp");
+        return mapping.findForward("editEvaluationMethod");
     }
 
     public ActionForward prepareImportEvaluationMethod(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
 
         request.setAttribute("importContentBean", new ImportContentBean());
-        return forward(request, "/teacher/executionCourse/importEvaluationMethod.jsp");
+        return mapping.findForward("importEvaluationMethod");
     }
 
     public ActionForward prepareImportEvaluationMethodPostBack(ActionMapping mapping, ActionForm actionForm,
             HttpServletRequest request, HttpServletResponse response) {
 
         prepareImportContentPostBack(request);
-        return forward(request, "/teacher/executionCourse/importEvaluationMethod.jsp");
+        return mapping.findForward("importEvaluationMethod");
     }
 
     public ActionForward prepareImportEvaluationMethodInvalid(ActionMapping mapping, ActionForm actionForm,
             HttpServletRequest request, HttpServletResponse response) {
 
         prepareImportContentInvalid(request);
-        return forward(request, "/teacher/executionCourse/importEvaluationMethod.jsp");
+        return mapping.findForward("importEvaluationMethod");
     }
 
     public ActionForward listExecutionCoursesToImportEvaluationMethod(ActionMapping mapping, ActionForm actionForm,
             HttpServletRequest request, HttpServletResponse response) {
 
         listExecutionCoursesToImportContent(request);
-        return forward(request, "/teacher/executionCourse/importEvaluationMethod.jsp");
+        return mapping.findForward("importEvaluationMethod");
     }
 
     public ActionForward importEvaluationMethod(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) throws FenixServiceException {
 
         importContent(request, "ImportEvaluationMethod");
-        return forward(request, "/teacher/executionCourse/evaluationMethod.jsp");
+        return mapping.findForward("evaluationMethod");
     }
 
 }
