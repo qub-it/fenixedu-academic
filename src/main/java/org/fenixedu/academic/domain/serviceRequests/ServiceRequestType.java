@@ -1,5 +1,7 @@
 package org.fenixedu.academic.domain.serviceRequests;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -16,13 +18,30 @@ import pt.ist.fenixframework.Atomic;
 
 public class ServiceRequestType extends ServiceRequestType_Base {
 
+    static final public Comparator<ServiceRequestType> COMPARE_BY_CATEGORY_THEN_BY_NAME = new Comparator<ServiceRequestType>() {
+
+        @Override
+        public int compare(ServiceRequestType o1, ServiceRequestType o2) {
+            if (o1.getServiceRequestCategory() == null) {
+                return -1;
+            }
+            if (o2.getServiceRequestCategory() == null) {
+                return 1;
+            }
+            final int c = o1.getServiceRequestCategory().compareTo(o2.getServiceRequestCategory());
+            return c == 0 ? o1.getName().getContent().compareTo(o2.getName().getContent()) : c;
+        }
+
+    };
+
     protected ServiceRequestType() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
 
     protected ServiceRequestType(final String code, final LocalizedString name, final boolean active, final boolean payable,
-            final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
+            final Boolean notifyUponConclusion, final Boolean printable, final Boolean requestedOnline,
+            final ServiceRequestCategory category) {
         this();
 
         super.setCode(code);
@@ -30,6 +49,8 @@ public class ServiceRequestType extends ServiceRequestType_Base {
         setActive(active);
         setPayable(payable);
         setNotifyUponConclusion(notifyUponConclusion);
+        setPrintable(printable);
+        setRequestedOnline(requestedOnline);
         setServiceRequestCategory(category);
 
         checkRules();
@@ -37,8 +58,9 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     protected ServiceRequestType(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
-        this(code, name, active, payable, notifyUponConclusion, category);
+            final boolean payable, final Boolean notifyUponConclusion, final Boolean printable, final Boolean requestedOnline,
+            final ServiceRequestCategory category) {
+        this(code, name, active, payable, notifyUponConclusion, printable, requestedOnline, category);
         setAcademicServiceRequestType(academicServiceRequestType);
         setDocumentRequestType(documentRequestType);
 
@@ -46,7 +68,18 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     }
 
     private void checkRules() {
-
+        if (getCode().trim().isEmpty()) {
+            throw new DomainException("error.ServiceRequestType.code.empty");
+        }
+        if (getName().isEmpty()) {
+            throw new DomainException("error.ServiceRequestType.name.empty");
+        }
+        if (getServiceRequestCategory() == null) {
+            throw new DomainException("error.ServiceRequestType.category.empty");
+        }
+        if (findByCode(getCode()).count() > 1) {
+            throw new DomainException("error.ServiceRequestType.code.duplicated");
+        }
     }
 
     public boolean isActive() {
@@ -58,64 +91,50 @@ public class ServiceRequestType extends ServiceRequestType_Base {
     }
 
     public boolean isToNotifyUponConclusion() {
-        return (getNotifyUponConclusion() == null) ? false : getNotifyUponConclusion();
+        return getNotifyUponConclusion() == null ? false : getNotifyUponConclusion();
+    }
+
+    public boolean isPrintable() {
+        return getPrintable() == null ? false : getPrintable();
+    }
+
+    public boolean isRequestedOnline() {
+        return getRequestedOnline() == null ? false : getRequestedOnline();
     }
 
     public boolean isLegacy() {
         return getAcademicServiceRequestType() != null;
     }
 
-    public boolean hasOption(final ServiceRequestTypeOption option) {
-        return getServiceRequestTypeOptionsSet().contains(option);
-    }
-
     @Atomic
     public void edit(final String code, final LocalizedString name, final boolean active, final boolean payable,
-            final Boolean notifyUponConclusion, final ServiceRequestCategory category, final LocalizedString numberOfUnitsLabel) {
+            final Boolean notifyUponConclusion, final Boolean printable, final Boolean requestedOnline,
+            final ServiceRequestCategory category, final LocalizedString numberOfUnitsLabel) {
         setCode(code);
         setName(name);
         setActive(active);
         setPayable(payable);
         setNotifyUponConclusion(notifyUponConclusion);
+        setPrintable(printable);
+        setRequestedOnline(requestedOnline);
         setServiceRequestCategory(category);
-        if (hasOption(ServiceRequestTypeOption.findNumberOfUnitsOption().get())) {
-            setNumberOfUnitsLabel(numberOfUnitsLabel);
-        } else {
-            setNumberOfUnitsLabel(null);
+        setNumberOfUnitsLabel(null);
+
+        checkRules();
+    }
+
+    @Override
+    protected void checkForDeletionBlockers(Collection<String> blockers) {
+        if (getAcademicServiceRequestsSet().size() != 1) {
+            blockers.add(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.ServiceRequestType.academicServiceRequestsSet.not.empty"));
         }
-
-        checkRules();
-    }
-
-    public boolean isOptionAssociated(final ServiceRequestTypeOption option) {
-        return getServiceRequestTypeOptionsSet().contains(option);
-    }
-
-    @Atomic
-    public void associateOption(ServiceRequestTypeOption serviceRequestTypeOption) {
-        addServiceRequestTypeOptions(serviceRequestTypeOption);
-
-        checkRules();
-    }
-
-    @Atomic
-    public void removeOption(final ServiceRequestTypeOption option) {
-        removeServiceRequestTypeOptions(option);
-
-        checkRules();
-    }
-
-    public boolean isDeletable() {
-        return true;
+        super.checkForDeletionBlockers(blockers);
     }
 
     @Atomic
     public void delete() {
-        if (!isDeletable()) {
-            throw new DomainException("error.ServiceRequestType.delete.not.possible");
-        }
-
-        getServiceRequestTypeOptionsSet().clear();
+        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         setRootDomainObject(null);
 
@@ -140,9 +159,8 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     public static ServiceRequestType findUnique(final AcademicServiceRequestType academicServiceRequestType,
             final DocumentRequestType documentRequestType) {
-        return findAll()
-                .filter(s -> s.getAcademicServiceRequestType() == academicServiceRequestType
-                        && s.getDocumentRequestType() == documentRequestType).findFirst().orElse(null);
+        return findAll().filter(s -> s.getAcademicServiceRequestType() == academicServiceRequestType
+                && s.getDocumentRequestType() == documentRequestType).findFirst().orElse(null);
     }
 
     public static ServiceRequestType findUnique(final AcademicServiceRequest academicServiceRequest) {
@@ -185,25 +203,24 @@ public class ServiceRequestType extends ServiceRequestType_Base {
 
     @Atomic
     public static ServiceRequestType create(final String code, final LocalizedString name, final boolean active,
-            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
-        return new ServiceRequestType(code, name, active, payable, notifyUponConclusion, category);
+            final boolean payable, final Boolean notifyUponConclusion, final Boolean printable, final Boolean requestedOnline,
+            final ServiceRequestCategory category) {
+        return new ServiceRequestType(code, name, active, payable, notifyUponConclusion, printable, requestedOnline, category);
     }
 
     @Atomic
     public static ServiceRequestType createLegacy(final String code, final LocalizedString name, final boolean active,
             final AcademicServiceRequestType academicServiceRequestType, final DocumentRequestType documentRequestType,
-            final boolean payable, final Boolean notifyUponConclusion, final ServiceRequestCategory category) {
+            final boolean payable, final Boolean notifyUponConclusion, final Boolean printable, final Boolean requestedOnline,
+            final ServiceRequestCategory category) {
         return new ServiceRequestType(code, name, active, academicServiceRequestType, documentRequestType, payable,
-                notifyUponConclusion, category);
+                notifyUponConclusion, printable, requestedOnline, category);
     }
 
     public String getRichName() {
-        return getName().getContent()
-                + " ("
-                + BundleUtil
-                        .getString(
-                                Bundle.STUDENT,
-                                (isPayable() ? "label.student.serviceRequestTypes.withFees" : "label.student.serviceRequestTypes.noFees"))
+        return getName().getContent() + " ("
+                + BundleUtil.getString(Bundle.STUDENT,
+                        isPayable() ? "label.student.serviceRequestTypes.withFees" : "label.student.serviceRequestTypes.noFees")
                 + ")";
     }
 

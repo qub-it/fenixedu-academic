@@ -145,11 +145,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         situationBean.setSituationDate(getRequestDate().toYearMonthDay());
         createAcademicServiceRequestSituations(situationBean);
 
-        if (isDetailed()) {
-            addServiceRequestTypeOptionBooleanValues(ServiceRequestTypeOptionBooleanValue.create(ServiceRequestTypeOption
-                    .findDetailedOption().get(), true));
-        }
-
     }
 
     private int getServiceRequestYear() {
@@ -192,7 +187,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     }
 
     @Override
-    final public boolean isUrgentRequest() {
+    public boolean isUrgentRequest() {
         return getUrgentRequest().booleanValue();
     }
 
@@ -455,6 +450,14 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     protected void checkRulesToDelete() {
     }
 
+    public void cloneAttributes(AcademicServiceRequest original) {
+        setRootDomainObject(original.getRootDomainObject());
+        super.setAdministrativeOffice(original.getAdministrativeOffice());
+        setAcademicServiceRequestYear(original.getAcademicServiceRequestYear());
+        super.setServiceRequestNumber(original.getServiceRequestNumber());
+        setRequestDate(original.getRequestDate());
+    }
+
     @Override
     public void setAdministrativeOffice(AdministrativeOffice administrativeOffice) {
         throw new DomainException("error.serviceRequests.RegistrationAcademicServiceRequest.cannot.modify.administrativeOffice");
@@ -502,7 +505,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         return getSituationByType(AcademicServiceRequestSituationType.CONCLUDED);
     }
 
-    final public AcademicServiceRequestSituation getSituationByType(final AcademicServiceRequestSituationType type) {
+    public AcademicServiceRequestSituation getSituationByType(final AcademicServiceRequestSituationType type) {
         for (final AcademicServiceRequestSituation situation : getAcademicServiceRequestSituationsSet()) {
             if (situation.getAcademicServiceRequestSituationType().equals(type)) {
                 return situation;
