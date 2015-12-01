@@ -799,6 +799,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return null;
     }
 
+    @Deprecated
     public Optional<EnrolmentPeriod> getClassesEnrollmentPeriod(ExecutionSemester executionSemester) {
         return getEnrolmentPeriodsSet().stream()
                 .filter(ep -> ep instanceof EnrolmentPeriodInClasses && ep.getExecutionPeriod() == executionSemester).findAny();
@@ -808,6 +809,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return getEnrolmentPeriodsSet().stream()
                 .filter(ep -> ep instanceof EnrolmentPeriodInClassesMobility && ep.getExecutionPeriod() == executionSemester)
                 .findAny();
+    }
+
+    public Optional<EnrolmentPeriod> getValidEnrolmentPeriod(java.util.function.Predicate<EnrolmentPeriod> predicate,
+            ExecutionSemester executionSemester) {
+        return getEnrolmentPeriodsSet().stream()
+                .filter(predicate.and(ep -> ep.getExecutionPeriod() == executionSemester && ep.isValid())).findAny();
     }
 
     public CandidacyPeriodInDegreeCurricularPlan getCurrentCandidacyPeriodInDCP() {
