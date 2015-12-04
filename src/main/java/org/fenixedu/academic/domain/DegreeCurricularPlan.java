@@ -261,8 +261,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         this.setState(state);
     }
 
-    public void edit(String name, CurricularStage curricularStage, DegreeCurricularPlanState state, GradeScale gradeScale,
-            ExecutionYear beginExecutionYear) {
+    public void edit(final String name, final CurricularStage stage, final DegreeCurricularPlanState state,
+            final GradeScale gradeScale, final ExecutionYear beginExecutionInterval) {
 
         if (isApproved()
                 && (name != null && !getName().equals(name) || gradeScale != null && !getGradeScale().equals(gradeScale))) {
@@ -271,7 +271,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             commonFieldsChange(name, gradeScale);
         }
 
-        newStructureFieldsChange(curricularStage, beginExecutionYear);
+        newStructureFieldsChange(stage, beginExecutionInterval);
 
         this.setState(state);
         this.getRoot().setName(name);
@@ -1184,6 +1184,18 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super.setRoot(courseGroup);
     }
 
+    @Atomic
+    public void editDuration(final AcademicPeriod duration) {
+
+        if (duration == null) {
+            throw new DomainException("error.degreeCurricularPlan.duration.cannot.be.null");
+        }
+
+        if (!getDegreeStructure().getAcademicPeriod().equals(duration)) {
+            setDegreeStructure(new CurricularPeriod(duration));
+        }
+    }
+
     @Override
     public void setDegreeStructure(CurricularPeriod degreeStructure) {
         check(this, DegreeCurricularPlanPredicates.scientificCouncilWritePredicate);
@@ -1711,6 +1723,13 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
+    @Atomic
+    public void editApplyPreviousYearsEnrolment(final Boolean input) {
+        if (input != null) {
+            setApplyPreviousYearsEnrolmentRule(input);
+        }
+    }
+
     public boolean isToApplyPreviousYearsEnrolmentRule() {
         return getApplyPreviousYearsEnrolmentRule();
     }
@@ -1922,18 +1941,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 .flatMap(cg -> cg.getChildContextsSet().stream()).filter(ctx -> ctx.getChildDegreeModule().isLeaf())
                 .map(curricularPeriodCollector).filter(curricularPeriodFilter).collect(Collectors.toSet()).size();
 
-    }
-
-    @Atomic
-    public void editDuration(AcademicPeriod duration) {
-
-        if (duration == null) {
-            throw new DomainException("error.degreeCurricularPlan.duration.cannot.be.null");
-        }
-
-        if (!getDegreeStructure().getAcademicPeriod().equals(duration)) {
-            setDegreeStructure(new CurricularPeriod(duration));
-        }
     }
 
 }
