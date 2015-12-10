@@ -42,14 +42,22 @@ public class StudentStatute extends StudentStatute_Base {
         setCreationDate(new DateTime());
     }
 
+    @Deprecated
     public StudentStatute(Student student, StatuteType statuteType, ExecutionSemester beginExecutionPeriod,
             ExecutionSemester endExecutionPeriod) {
         this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginExecutionPeriod.getBeginLocalDate(),
-                endExecutionPeriod.getEndLocalDate());
+                endExecutionPeriod.getEndLocalDate(), null);
     }
-
-    public StudentStatute(Student student, StatuteType statuteType, ExecutionSemester beginExecutionPeriod,
-            ExecutionSemester endExecutionPeriod, LocalDate beginDate, LocalDate endDate) {
+    
+    @Deprecated
+    public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
+            final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate) {
+        this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginDate, endDate, null);
+    }
+    
+    public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
+            final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate,
+            final Registration registration) {
         this();
         setBeginDate(beginDate);
         setEndDate(endDate);
@@ -57,14 +65,15 @@ public class StudentStatute extends StudentStatute_Base {
         setEndExecutionPeriod(endExecutionPeriod);
         setType(statuteType);
 
+        setStudent(student);
+        setRegistration(registration);
+
         for (StudentStatute statute : student.getStudentStatutesSet()) {
-            if (statute.overlapsWith(this)) {
+            if (statute != this && statute.overlapsWith(this)) {
                 throw new DomainException("error.studentStatute.alreadyExistsOneOverlapingStatute");
             }
         }
-
-        setStudent(student);
-
+        
         checkRules();
     }
 
@@ -83,7 +92,20 @@ public class StudentStatute extends StudentStatute_Base {
         if (getType() == null) {
             throw new DomainException("error.studentStatute.missing.StatuteType");
         }
+        
+        if(getType().isAppliedOnRegistration() && getRegistration() == null) {
+            throw new DomainException("error.studentStatute.registration.required");
+        }
+        
+        if(!getType().isAppliedOnRegistration() && getRegistration() != null) {
+            throw new DomainException("error.studentStatute.not.applied.for.registration");
+        }
+        
     }
+
+    /*
+     * Validation at Student Level
+     */
 
     public boolean isValidInExecutionPeriod(final ExecutionSemester executionSemester) {
         if (getBeginExecutionPeriod() != null && getBeginExecutionPeriod().isAfter(executionSemester)) {
@@ -131,12 +153,33 @@ public class StudentStatute extends StudentStatute_Base {
         return this.isValidInExecutionPeriod(ExecutionSemester.readActualExecutionSemester());
     }
 
+    /*
+     * Validation at Registration Level
+     */
+
+    public boolean isValidInExecutionInterval(final Registration registration, final ExecutionInterval interval) {
+         return isValidInExecutionInterval(interval) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+    }
+    
+    public boolean isValidOn(final Registration registration, final ExecutionYear executionYear) {
+        return isValidOn(executionYear) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+    }
+    
+    public boolean isValidOnAnyExecutionPeriodFor(final Registration registration, final ExecutionYear executionYear) {
+        return isValidOnAnyExecutionPeriodFor(executionYear) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+    }    
+    
+    public boolean isValidInCurrentExecutionPeriod(final Registration registration) {
+        return isValidInCurrentExecutionPeriod() && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+    }
+   
     public void delete() {
         checkRulesToDelete();
         setBeginExecutionPeriod(null);
         setEndExecutionPeriod(null);
         setStudent(null);
         setType(null);
+        setRegistration(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
@@ -149,13 +192,17 @@ public class StudentStatute extends StudentStatute_Base {
                 statute.getEndExecutionPeriod() != null ? statute.getEndExecutionPeriod() : ExecutionSemester
                         .readLastExecutionSemester();
 
-        return overlapsWith(statute.getType(), statuteBegin, statuteEnd);
+        return overlapsWith(statute.getType(), statuteBegin, statuteEnd, statute.getRegistration());
 
     }
 
-    public boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd) {
+    public boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd, final Registration registration) {
 
         if (statuteType != getType()) {
+            return false;
+        }
+        
+        if(getType().isAppliedOnRegistration() && getRegistration() != registration) {
             return false;
         }
 

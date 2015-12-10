@@ -653,6 +653,9 @@
 	<slot name="studentStatute.beginDate" key="label.beginDate" />
 	<slot name="endPeriodFormatted" key="label.endExecutionPeriod" />
 	<slot name="studentStatute.endDate" key="label.endDate" />
+	<slot name="studentStatute.registration" key="label.registration" >
+		<property name="format" value="${degree.presentationNameI18N.content}" /> 
+	</slot>
 </schema>
 
 <schema name="student.createStatutes" bundle="ACADEMIC_OFFICE_RESOURCES" 
