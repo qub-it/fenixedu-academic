@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.ui.struts.action.student.administrativeOfficeServices;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,7 +27,11 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
+import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequest;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean;
 import org.fenixedu.academic.service.factoryExecutors.DocumentRequestCreator;
@@ -38,6 +44,7 @@ import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
 
 import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
+import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
 @StrutsFunctionality(app = StudentAcademicOfficeServices.class, path = "create-document-request",
@@ -47,6 +54,7 @@ import pt.ist.fenixframework.FenixFramework;
         @Forward(name = "createDocumentRequests",
                 path = "/student/administrativeOfficeServices/documentRequest/createDocumentRequests.jsp"),
         @Forward(name = "createSuccess", path = "/student/administrativeOfficeServices/documentRequest/createSuccess.jsp"),
+        @Forward(name = "printDocument", path = "/student/administrativeOfficeServices/documentRequest/printDocument.jsp"),
         @Forward(name = "viewDocumentRequestsToCreate",
                 path = "/student/administrativeOfficeServices/documentRequest/viewDocumentRequestsToCreate.jsp"),
         @Forward(name = "chooseRegistration",
@@ -110,8 +118,9 @@ public class DocumentRequestDispatchAction extends FenixDispatchAction {
 
     private void setAdditionalInformationSchemaName(HttpServletRequest request, final DocumentRequestCreateBean requestCreateBean) {
         if (requestCreateBean.getHasAdditionalInformation()) {
-            request.setAttribute("additionalInformationSchemaName", "DocumentRequestCreateBean."
-                    + requestCreateBean.getChosenDocumentRequestType().name() + ".AdditionalInformation");
+            ServiceRequestType serviceRequestType = requestCreateBean.getChosenServiceRequestType();
+            request.setAttribute("additionalInformationSchemaName", "DocumentRequestCreateBean." + serviceRequestType.getCode()
+                    + ".AdditionalInformation");
         }
     }
 
@@ -128,16 +137,45 @@ public class DocumentRequestDispatchAction extends FenixDispatchAction {
 
     public ActionForward create(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
             HttpServletResponse response) throws FenixServiceException {
+
+        AcademicServiceRequest documentRequest = null;
+
         try {
-            executeFactoryMethod();
+            documentRequest = (AcademicServiceRequest) executeFactoryMethod();
         } catch (DomainException e) {
             addActionMessage(request, e.getMessage());
             return viewDocumentRequestToCreate(mapping, actionForm, request, response);
         }
 
-        request.setAttribute("documentRequestCreateBean", ((DocumentRequestCreateBean) getRenderedObject()).getRegistration());
+        if (documentRequest.getServiceRequestType().isPayable()) {
+            return mapping.findForward("createSuccess");
+        }
 
-        return mapping.findForward("createSuccess");
+        request.setAttribute("documentRequest", documentRequest);
+        processConcludeAndDeliver(documentRequest);
+
+        return mapping.findForward("printDocument");
+    }
+
+    public ActionForward printDocument(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) throws IOException, FenixServiceException {
+
+        final DocumentRequest documentRequest = FenixFramework.getDomainObject(request.getParameter("documentRequestId"));
+        GeneratedDocument doc = documentRequest.getLastGeneratedDocument();
+        if (doc != null) {
+            writeFile(response, doc.getFilename(), "application/pdf", doc.getContent());
+        }
+        return null;
+    }
+
+    @Atomic
+    private void processConcludeAndDeliver(AcademicServiceRequest documentRequest) {
+        documentRequest.process();
+        if (documentRequest instanceof DocumentRequest) {
+            ((DocumentRequest) documentRequest).generateDocument();
+        }
+        documentRequest.concludeServiceRequest();
+        documentRequest.delivered();
     }
 
 }

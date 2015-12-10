@@ -24,12 +24,11 @@
 	<slot name="urgentRequest" key="label.org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequest.urgentRequest"/>	
 	<slot name="serviceRequestNumberYear"  />
 	<slot name="description" read-only="true" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.description"/>
-	<slot name="executionYear" layout="null-as-label">
+ 	<slot name="executionYear" layout="null-as-label">
         <property name="label" value="-"/>
         <property name="subLayout" value="values"/>
         <property name="subSchema" value="org.fenixedu.academic.domain.ExecutionYear.view"/>
 	</slot>
-	<slot name="freeProcessed" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.freeProcessed" />
 	<slot name="language.displayName" key="language" />
 </schema>
 
@@ -63,7 +62,7 @@
 	<slot name="creator" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.employee.person.name" layout="null-as-label">
 		<property name="label" value=" - "/>
 		<property name="subLayout" value="values"/>
-		<property name="subSchema" value="responsible.name"/>
+		<property name="subSchema" value="responsible.displayName"/>
 	</slot>
 	<slot name="justification" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.justification" />
 </schema>
@@ -74,7 +73,7 @@
 	<slot name="creator" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.employee.person.name" layout="null-as-label">
 		<property name="label" value=" - "/>
 		<property name="subLayout" value="values"/>
-		<property name="subSchema" value="responsible.name"/>
+		<property name="subSchema" value="responsible.displayName"/>
 	</slot>
 	<slot name="justification" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.justification" />
 </schema>
@@ -85,13 +84,15 @@
 	<slot name="creator" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.employee.person.name" layout="null-as-label">
 		<property name="label" value=" - "/>
 		<property name="subLayout" value="values"/>
-		<property name="subSchema" value="responsible.name"/>
+		<property name="subSchema" value="responsible.displayName"/>
 	</slot>
 	<slot name="justification" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.justification" />
 </schema>
 
 <schema name="DocumentRequest.view" type="org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentRequest" bundle="ACADEMIC_OFFICE_RESOURCES" extends="AcademicServiceRequest.view">
-	<slot name="documentPurposeType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose" />
+	<slot name="documentPurposeType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose" >
+		<property name="format" value="${name.content}" />
+	</slot>
 	<slot name="otherDocumentPurposeTypeDescription" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.otherPurpose" />
 	<slot name="numberOfPages" key="label.documentRequests.DocumentRequest.numberOfPages" />
 </schema>
@@ -244,6 +245,7 @@
 </schema>
 
 <schema name="EnrolmentDeclarationRequest.view" type="org.fenixedu.academic.domain.serviceRequests.documentRequests.EnrolmentDeclarationRequest"  extends="DeclarationRequest.view" bundle="ACADEMIC_OFFICE_RESOURCES">
+	<slot name="detailed" key="label.documentRequestsManagement.searchDocumentRequests.detailed" />
 </schema>
 
 <schema name="GenericDeclarationRequest.view" type="org.fenixedu.academic.domain.serviceRequests.documentRequests.GenericDeclarationRequest"  extends="DeclarationRequest.view" bundle="ACADEMIC_OFFICE_RESOURCES">
@@ -260,8 +262,9 @@
 
 <schema name="DocumentRequestCreateBean.chooseDocumentRequestType"
 	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DocumentRequestTypeProvider" />
+	<slot name="chosenServiceRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ServiceRequestTypeProvider$CertificatesProvider" />
+		<property name="format" value="${name.content}" />
 		<property name="eachLayout" value=""/>
 		<property name="destination" value="documentRequestTypeChosenPostBack"/>
 	</slot>
@@ -269,8 +272,9 @@
 
 <schema name="DocumentRequestCreateBean.chooseDocumentRequestType_preBolonha"
 	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DocumentRequestTypeProvider$PreBolonhaTypes" />
+	<slot name="chosenServiceRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ServiceRequestTypeProvider$PreBolognaCertificatesProvider" />
+		<property name="format" value="${name.content}" />
 		<property name="eachLayout" value=""/>
 		<property name="destination" value="documentRequestTypeChosenPostBack"/>
 	</slot>
@@ -278,8 +282,9 @@
 
 <schema name="DocumentRequestCreateBean.chooseDocumentRequestQuickType"
 	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DocumentRequestTypeProvider$QuickDeliveryTypes" />
+	<slot name="chosenServiceRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ServiceRequestTypeProvider$DeclarationsProvider" />
+		<property name="format" value="${name.content}" />
 		<property name="eachLayout" value=""/>
 		<property name="destination" value="documentRequestTypeChosenPostBack"/>
 	</slot>
@@ -682,6 +687,16 @@
 	<slot name="year" key="label.year"/>
 </schema>
 
+<schema name="DocumentRequestCreateBean.ENROLMENT_DECLARATION.AdditionalInformation"
+	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
+    <slot name="detailed" key="label.documentRequestsManagement.searchDocumentRequests.detailed" />
+</schema>
+
+<schema name="DocumentRequestCreateBean.ENROLMENT_DECLARATION.AdditionalInformation.view"
+	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
+	<slot name="detailed" key="label.documentRequestsManagement.searchDocumentRequests.detailed" />
+</schema>
+
 <schema name="DocumentRequestCreateBean.GENERIC_DECLARATION.AdditionalInformation" 
 	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
 	<slot name="executionYear" layout="menu-select" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
@@ -733,7 +748,10 @@
 </schema>
 
 <schema name="DocumentRequestCreateBean.purposes" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentPurposeType" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose"/>
+	<slot name="chosenDocumentPurposeType" layout="menu-select" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DocumentPurposeTypeProvider" />
+		<property name="format" value="${name.content}" />
+	</slot>
 	<slot name="otherPurpose" key="label.documentRequestsManagement.searchDocumentRequests.otherPurpose">
 		<property name="size" value="50"/>
 	</slot>
@@ -745,8 +763,10 @@
 </schema>
 
 <schema name="DocumentRequestCreateBean.viewToConfirmCreation" type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentRequestType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType"/>
-	<slot name="chosenDocumentPurposeType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose"/>
+	<slot name="chosenServiceRequestType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType"/>
+	<slot name="chosenDocumentPurposeType" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.document.purpose" >
+		<property name="format" value="${name.content}" />
+	</slot>
 	<slot name="otherPurpose" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.otherPurpose"/>	
 	<slot name="urgentRequest" read-only="true" key="urgency.charge.view"/>		
 	<slot name="detailed" read-only="true" key="label.documentRequestsManagement.searchDocumentRequests.detailed"/>			
@@ -785,8 +805,9 @@
 
 <schema name="DocumentRequestCreateBean.chooseDocumentRequestType-for-given-registration"
 	type="org.fenixedu.academic.dto.serviceRequests.DocumentRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="chosenDocumentRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DocumentRequestTypeForStudentTypeProvider" />
+	<slot name="chosenServiceRequestType" key="label.documentRequestsManagement.searchDocumentRequests.documentRequestType" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ServiceRequestTypeProvider$StudentIssuedProvider" />
+		<property name="format" value="${richName}" />
 		<property name="eachLayout" value=""/>
 		<property name="destination" value="documentRequestTypeChosenPostBack"/>
 	</slot>
@@ -794,8 +815,9 @@
 
 <schema name="RegistrationAcademicServiceRequestCreateBean.choose.type"
 	type="org.fenixedu.academic.dto.serviceRequests.RegistrationAcademicServiceRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-	<slot name="academicServiceRequestType" key="label.type" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.AcademicRequestTypeForServicesRequestCreation" />
+	<slot name="chosenServiceRequestType" key="label.type" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ServiceRequestTypeProvider$ServicesProvider" />
+		<property name="format" value="${name.content}" />
 		<property name="eachLayout" value=""/>
 		<property name="destination" value="academicServiceRequestTypeChoosedPostBack"/>
 	</slot>
@@ -818,7 +840,6 @@
 <schema name="RegistrationAcademicServiceRequestCreateBean.EQUIVALENCE_PLAN"
 	type="org.fenixedu.academic.dto.serviceRequests.RegistrationAcademicServiceRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES"
 	extends="RegistrationAcademicServiceRequestCreateBean.choose.type">
-	<slot name="freeProcessed" key="label.org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest.freeProcessed" />
 	<slot name="numberOfEquivalences">
 		<validator class="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
 		<validator class="pt.ist.fenixWebFramework.renderers.validators.RegexpValidator">
@@ -990,4 +1011,12 @@
 	<remove name="documentPurposeType" />
 	<remove name="otherDocumentPurposeTypeDescription" />
 	<remove name="numberOfPages" />
+</schema>
+
+<schema name="CustomServiceRequestRequest.view" type="org.fenixedu.academic.domain.serviceRequests.CustomServiceRequestRequest" bundle="ACADEMIC_OFFICE_RESOURCES" extends="AcademicServiceRequest.view">
+</schema>
+
+<schema name="RegistrationAcademicServiceRequestCreateBean.CUSTOM_SERVICE_REQUEST"
+	type="org.fenixedu.academic.dto.serviceRequests.RegistrationAcademicServiceRequestCreateBean" bundle="ACADEMIC_OFFICE_RESOURCES"
+	extends="RegistrationAcademicServiceRequestCreateBean.choose.type">
 </schema>
