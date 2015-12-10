@@ -40,7 +40,7 @@ public class CreateExecutionDegreesForExecutionYear {
     public static List<DegreeCurricularPlan> run(final String[] degreeCurricularPlansIDs,
             final String[] bolonhaDegreeCurricularPlansIDs, final String executionYearID, final String campusName,
             final Boolean publishedExamMap) {
-        check(RolePredicates.MANAGER_OR_OPERATOR_PREDICATE);
+        check(RolePredicates.RESOURCE_ALLOCATION_MANAGER_PREDICATE);
 
         final ExecutionYear executionYear = FenixFramework.getDomainObject(executionYearID);
         final Space campus = readCampusByName(campusName);
