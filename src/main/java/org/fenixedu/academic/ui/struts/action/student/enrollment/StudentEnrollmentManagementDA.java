@@ -33,6 +33,8 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.CycleEnrolmentBean;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
@@ -41,6 +43,7 @@ import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.bennu.struts.portal.EntryPoint;
 import org.fenixedu.bennu.struts.portal.StrutsFunctionality;
+import org.joda.time.LocalDate;
 
 @StrutsFunctionality(app = StudentEnrollApp.class, path = "courses", titleKey = "link.student.enrollment")
 @Mapping(module = "student", path = "/studentEnrollmentManagement")
@@ -107,13 +110,9 @@ public class StudentEnrollmentManagementDA extends FenixDispatchAction {
         final StudentCurricularPlan studentCurricularPlan = registration.getLastStudentCurricularPlan();
         request.setAttribute("executionSemesterID", executionSemester.getExternalId());
 
-        if (studentCurricularPlan.getRegistration().getStudent().isAnyGratuityOrAdministrativeOfficeFeeAndInsuranceInDebt()) {
+        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(studentCurricularPlan.getPerson(), new LocalDate())) {
             request.setAttribute("debtsMessage",
                     "error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-
-        if (studentCurricularPlan.getPerson().hasAnyResidencePaymentsInDebtForPreviousYear()) {
-            request.setAttribute("debtsMessage", "error.StudentCurricularPlan.cannot.enrol.with.residence.debts");
         }
 
         if (!studentCurricularPlan.isActive() && !studentCurricularPlan.getRegistration().isConcluded()) {

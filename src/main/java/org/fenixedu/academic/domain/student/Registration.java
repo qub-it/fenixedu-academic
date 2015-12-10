@@ -121,6 +121,8 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.signals.DomainObjectEvent;
+import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
@@ -135,6 +137,7 @@ import pt.ist.fenixframework.Atomic;
 import com.google.common.base.Strings;
 
 public class Registration extends Registration_Base {
+    public static final String REGISTRATION_CREATE_SIGNAL = "academic.registration.create";
 
     private static final Logger logger = LoggerFactory.getLogger(Registration.class);
 
@@ -177,6 +180,9 @@ public class Registration extends Registration_Base {
         setStartDate(start.toYearMonthDay());
         setDegree(degree);
         RegistrationState.createRegistrationState(this, AccessControl.getPerson(), start, RegistrationStateType.REGISTERED);
+
+        //Emit the Signal
+        Signal.emit(REGISTRATION_CREATE_SIGNAL, new DomainObjectEvent<Registration>(this));
     }
 
     public Registration(final Person person, final StudentCandidacy studentCandidacy) {
@@ -627,7 +633,7 @@ public class Registration extends Registration_Base {
 
     final public boolean isQualifiedForSeniority() {
         return isDegreeOrBolonhaDegreeOrBolonhaIntegratedMasterDegree()
-                && (isConcluded() || (isActive() && isInFinalDegreeForSeniority()));
+                && (isConcluded() || isActive() && isInFinalDegreeForSeniority());
     }
 
     public boolean isInFinalDegreeForSeniority() {
@@ -749,7 +755,7 @@ public class Registration extends Registration_Base {
         final Collection<CurriculumLine> result = new HashSet<CurriculumLine>();
 
         final Collection<StudentCurricularPlan> toInspect =
-                (isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet());
+                isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet();
         for (final StudentCurricularPlan studentCurricularPlan : toInspect) {
             result.addAll(studentCurricularPlan.getExtraCurricularCurriculumLines());
         }
@@ -761,7 +767,7 @@ public class Registration extends Registration_Base {
         final Collection<CurriculumLine> result = new HashSet<CurriculumLine>();
 
         final Collection<StudentCurricularPlan> toInspect =
-                (isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet());
+                isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet();
         for (final StudentCurricularPlan studentCurricularPlan : toInspect) {
             result.addAll(studentCurricularPlan.getStandaloneCurriculumLines());
         }
@@ -781,7 +787,7 @@ public class Registration extends Registration_Base {
         final Collection<Enrolment> result = new HashSet<Enrolment>();
 
         final Collection<StudentCurricularPlan> toInspect =
-                (isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet());
+                isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet();
         for (final StudentCurricularPlan studentCurricularPlan : toInspect) {
             result.addAll(studentCurricularPlan.getPropaedeuticEnrolments());
         }
@@ -793,7 +799,7 @@ public class Registration extends Registration_Base {
         final Collection<CurriculumLine> result = new HashSet<CurriculumLine>();
 
         final Collection<StudentCurricularPlan> toInspect =
-                (isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet());
+                isBolonha() ? Collections.singleton(getLastStudentCurricularPlan()) : getStudentCurricularPlansSet();
         for (final StudentCurricularPlan studentCurricularPlan : toInspect) {
             result.addAll(studentCurricularPlan.getPropaedeuticCurriculumLines());
         }
@@ -900,7 +906,7 @@ public class Registration extends Registration_Base {
     final public boolean hasAnyStandaloneEnrolmentsIn(final ExecutionYear executionYear) {
         for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
             StandaloneCurriculumGroup standaloneCurriculumGroup = studentCurricularPlan.getStandaloneCurriculumGroup();
-            if ((standaloneCurriculumGroup != null) && (standaloneCurriculumGroup.hasEnrolment(executionYear))) {
+            if (standaloneCurriculumGroup != null && standaloneCurriculumGroup.hasEnrolment(executionYear)) {
                 return true;
             }
         }
@@ -1200,7 +1206,7 @@ public class Registration extends Registration_Base {
         for (RegistrationNumber registrationNumber : Bennu.getInstance().getRegistrationNumbersSet()) {
             if (registrationNumber.getNumber().intValue() == number.intValue()
                     && registrationNumber.getRegistration().getDegreeType() == degreeType
-                    && (registrationNumber.getRegistration().getRegistrationProtocol() == RegistrationProtocol.getDefault()) == normalAgreement) {
+                    && registrationNumber.getRegistration().getRegistrationProtocol() == RegistrationProtocol.getDefault() == normalAgreement) {
                 registrations.add(registrationNumber.getRegistration());
             }
         }
@@ -1511,7 +1517,7 @@ public class Registration extends Registration_Base {
 
     @Override
     final public Integer getNumber() {
-        return (super.getNumber() != null) ? super.getNumber() : getStudent().getNumber();
+        return super.getNumber() != null ? super.getNumber() : getStudent().getNumber();
     }
 
     final public Person getPerson() {
@@ -1547,8 +1553,8 @@ public class Registration extends Registration_Base {
     }
 
     public PrecedentDegreeInformation getPrecedentDegreeInformation(final SchoolLevelType levelType) {
-        return (super.getPrecedentDegreeInformation() != null && super.getPrecedentDegreeInformation().getSchoolLevel() == levelType) ? super
-                .getPrecedentDegreeInformation() : null;
+        return super.getPrecedentDegreeInformation() != null
+                && super.getPrecedentDegreeInformation().getSchoolLevel() == levelType ? super.getPrecedentDegreeInformation() : null;
     }
 
     public boolean isFirstCycleAtributionIngression() {
@@ -1703,8 +1709,8 @@ public class Registration extends Registration_Base {
 
     @Override
     final public Degree getDegree() {
-        return super.getDegree() != null ? super.getDegree() : (!getStudentCurricularPlansSet().isEmpty() ? getLastStudentCurricularPlan()
-                .getDegree() : null);
+        return super.getDegree() != null ? super.getDegree() : !getStudentCurricularPlansSet().isEmpty() ? getLastStudentCurricularPlan()
+                .getDegree() : null;
     }
 
     final public DegreeType getDegreeType() {
@@ -1769,7 +1775,7 @@ public class Registration extends Registration_Base {
 
     public boolean isRegistered(final DateTime when) {
         final RegistrationState stateInDate = getStateInDate(when);
-        return (stateInDate != null && stateInDate.isActive()) || hasAnyEnrolmentsIn(ExecutionSemester.readByDateTime(when));
+        return stateInDate != null && stateInDate.isActive() || hasAnyEnrolmentsIn(ExecutionSemester.readByDateTime(when));
     }
 
     public boolean isRegistered(final ExecutionSemester executionSemester) {
@@ -2318,7 +2324,7 @@ public class Registration extends Registration_Base {
     }
 
     private boolean isEmptyDegree() {
-        return (getLastStudentCurricularPlan() != null ? getLastStudentCurricularPlan().isEmpty() : true);
+        return getLastStudentCurricularPlan() != null ? getLastStudentCurricularPlan().isEmpty() : true;
     }
 
     final public CycleType getLastConcludedCycleType() {
@@ -2367,7 +2373,7 @@ public class Registration extends Registration_Base {
 
     final public boolean isMasterDegreeOrBolonhaMasterDegree() {
         final DegreeType degreeType = getDegreeType();
-        return (degreeType.isPreBolonhaMasterDegree() || degreeType.isBolonhaMasterDegree());
+        return degreeType.isPreBolonhaMasterDegree() || degreeType.isBolonhaMasterDegree();
     }
 
     final public boolean isDEA() {
@@ -2505,11 +2511,11 @@ public class Registration extends Registration_Base {
     }
 
     final public DegreeCurricularPlan getActiveDegreeCurricularPlan() {
-        return (getActiveStudentCurricularPlan() != null ? getActiveStudentCurricularPlan().getDegreeCurricularPlan() : null);
+        return getActiveStudentCurricularPlan() != null ? getActiveStudentCurricularPlan().getDegreeCurricularPlan() : null;
     }
 
     final public DegreeCurricularPlan getLastDegreeCurricularPlan() {
-        return (getLastStudentCurricularPlan() != null ? getLastStudentCurricularPlan().getDegreeCurricularPlan() : null);
+        return getLastStudentCurricularPlan() != null ? getLastStudentCurricularPlan().getDegreeCurricularPlan() : null;
     }
 
     public Degree getLastDegree() {
@@ -2739,7 +2745,7 @@ public class Registration extends Registration_Base {
         final Set<AcademicServiceRequest> result = new HashSet<AcademicServiceRequest>();
 
         for (final AcademicServiceRequest academicServiceRequest : getAcademicServiceRequestsSet()) {
-            if ((academicServiceRequestSituationType == null && academicServiceRequest.isNewRequest())
+            if (academicServiceRequestSituationType == null && academicServiceRequest.isNewRequest()
                     || academicServiceRequest.getAcademicServiceRequestSituationType() == academicServiceRequestSituationType) {
 
                 result.add(academicServiceRequest);
@@ -3150,7 +3156,7 @@ public class Registration extends Registration_Base {
 
     public boolean hasStartedBetween(final ExecutionYear firstExecutionYear, final ExecutionYear finalExecutionYear) {
         return getStartExecutionYear().isAfterOrEquals(firstExecutionYear)
-                && getStartExecutionYear().isBeforeOrEquals((finalExecutionYear));
+                && getStartExecutionYear().isBeforeOrEquals(finalExecutionYear);
     }
 
     public boolean hasRegistrationRegime(final ExecutionYear executionYear, final RegistrationRegimeType type) {
@@ -3250,7 +3256,7 @@ public class Registration extends Registration_Base {
     public void deleteReingression(ExecutionYear executionYear) {
         RegistrationDataByExecutionYear dataByExecutionYear = getRegistrationDataByExecutionYear(executionYear);
 
-        if ((dataByExecutionYear == null) || (dataByExecutionYear.getExecutionYear() != executionYear)) {
+        if (dataByExecutionYear == null || dataByExecutionYear.getExecutionYear() != executionYear) {
             throw new DomainException("error.Registration.reingression.not.marked.in.execution.year");
         }
 
