@@ -25,10 +25,12 @@ package org.fenixedu.academic.service.filter.enrollment;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DegreeCurricularPlanEquivalencePlan;
 import org.fenixedu.academic.domain.EnrolmentPeriod;
+import org.fenixedu.academic.domain.EnrolmentPeriodInClassesCandidate;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -132,13 +134,19 @@ public class ClassEnrollmentAuthorizationFilter {
 
     private FenixServiceException verify(StudentCurricularPlan studentCurricularPlan, ExecutionSemester executionSemester) {
         final DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
-        FenixServiceException result = verifyEnrolmentPeriod(degreeCurricularPlan, executionSemester, studentCurricularPlan);
+        Predicate<EnrolmentPeriod> predicate = null;
+        if (!studentCurricularPlan.isInCandidateEnrolmentProcess(executionSemester.getExecutionYear())) {
+            predicate = ep -> ep.isForClasses();
+        } else {
+            predicate = ep -> ep instanceof EnrolmentPeriodInClassesCandidate;
+        }
+        FenixServiceException result = verifyEnrolmentPeriod(predicate, degreeCurricularPlan, executionSemester, studentCurricularPlan);
         if (result == null) {
             return null;
         }
         for (final DegreeCurricularPlanEquivalencePlan equivalencePlan : degreeCurricularPlan.getTargetEquivalencePlansSet()) {
             final DegreeCurricularPlan otherDegreeCurricularPlan = equivalencePlan.getDegreeCurricularPlan();
-            result = verifyEnrolmentPeriod(degreeCurricularPlan, executionSemester, studentCurricularPlan);
+            result = verifyEnrolmentPeriod(predicate, degreeCurricularPlan, executionSemester, studentCurricularPlan);
             if (result == null) {
                 return null;
             }
@@ -146,13 +154,13 @@ public class ClassEnrollmentAuthorizationFilter {
         return result;
     }
 
-    private FenixServiceException verifyEnrolmentPeriod(DegreeCurricularPlan dcp, ExecutionSemester executionSemester,
-            StudentCurricularPlan scp) {
+    private FenixServiceException verifyEnrolmentPeriod(Predicate<EnrolmentPeriod> enrolmentTypePredicate,
+            DegreeCurricularPlan dcp, ExecutionSemester executionSemester, StudentCurricularPlan scp) {
         Optional<EnrolmentPeriod> enrolmentPeriodInClasses = null;
         if (scp.getRegistration().getRegistrationProtocol().isMobilityAgreement()) {
             enrolmentPeriodInClasses = dcp.getClassesEnrollmentPeriodMobility(executionSemester);
         } else {
-            enrolmentPeriodInClasses = dcp.getClassesEnrollmentPeriod(executionSemester);
+            enrolmentPeriodInClasses = dcp.getValidEnrolmentPeriod(enrolmentTypePredicate, executionSemester);
         }
         if (!enrolmentPeriodInClasses.isPresent() || enrolmentPeriodInClasses.get().getStartDateDateTime() == null
                 || enrolmentPeriodInClasses.get().getEndDateDateTime() == null) {
