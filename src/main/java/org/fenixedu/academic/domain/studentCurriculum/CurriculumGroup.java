@@ -914,24 +914,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     @Override
-    public Collection<Enrolment> getSpecialSeasonEnrolments(final ExecutionYear executionYear) {
-        final Collection<Enrolment> result = new HashSet<Enrolment>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getSpecialSeasonEnrolments(executionYear));
-        }
-        return result;
-    }
-
-    @Override
-    public Collection<Enrolment> getSpecialSeasonEnrolments(final ExecutionSemester executionSemester) {
-        final Collection<Enrolment> result = new HashSet<Enrolment>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getSpecialSeasonEnrolments(executionSemester));
-        }
-        return result;
-    }
-
-    @Override
     final public void getAllDegreeModules(final Collection<DegreeModule> degreeModules) {
         degreeModules.add(getDegreeModule());
         for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
@@ -1003,8 +985,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     @SuppressWarnings("unchecked")
     private boolean checkDegreeModulesSelectionLimit(ExecutionYear executionYear) {
         final DegreeModulesSelectionLimit degreeModulesSelectionLimit =
-                (DegreeModulesSelectionLimit) getMostRecentActiveCurricularRule(
-                        CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionYear);
+                (DegreeModulesSelectionLimit) getMostRecentActiveCurricularRule(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT,
+                        executionYear);
 
         if (degreeModulesSelectionLimit == null) {
             return false;
@@ -1044,7 +1026,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
             if (curriculumModule.isConcluded(getApprovedCurriculumLinesLastExecutionYear()).isValid()
                     && curriculumModule.hasAnyApprovedCurriculumLines()) {
                 final YearMonthDay curriculumModuleConclusionDate = curriculumModule.calculateConclusionDate();
-                if (curriculumModuleConclusionDate != null && (result == null || curriculumModuleConclusionDate.isAfter(result))) {
+                if (curriculumModuleConclusionDate != null
+                        && (result == null || curriculumModuleConclusionDate.isAfter(result))) {
                     result = curriculumModuleConclusionDate;
                 }
             }
@@ -1103,8 +1086,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     public boolean canAdd(final CurriculumLine curriculumLine) {
 
         final CurricularCourse curricularCourse =
-                curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine).getOptionalCurricularCourse() : curriculumLine
-                        .getCurricularCourse();
+                curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine)
+                        .getOptionalCurricularCourse() : curriculumLine.getCurricularCourse();
 
         if (curricularCourse == null) {
             return true;
@@ -1134,7 +1117,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         }
 
         for (CurriculumGroup curriculumGroup : this.getCurriculumGroups()) {
-            result.addAll(curriculumGroup.getCurricularCoursePossibleGroupsWithoutNoCourseGroupCurriculumGroups(curricularCourse));
+            result.addAll(
+                    curriculumGroup.getCurricularCoursePossibleGroupsWithoutNoCourseGroupCurriculumGroups(curricularCourse));
         }
 
         return result;
@@ -1255,8 +1239,7 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
             if (curriculumModule.isEnrolment()) {
                 final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (!enrolment.isAnnulled()
-                        && enrolment.getExecutionPeriod().isBefore(executionSemester)
+                if (!enrolment.isAnnulled() && enrolment.getExecutionPeriod().isBefore(executionSemester)
                         && enrolment.getCurricularCourse().getCurricularCourseUniqueKeyForEnrollment()
                                 .equalsIgnoreCase(curricularCourse.getCurricularCourseUniqueKeyForEnrollment())) {
                     result++;
