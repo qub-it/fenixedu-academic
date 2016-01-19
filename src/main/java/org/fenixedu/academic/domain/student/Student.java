@@ -262,16 +262,6 @@ public class Student extends Student_Base {
         return false;
     }
 
-    public boolean hasSpecialSeasonEnrolments(ExecutionYear executionYear) {
-        for (Registration registration : getRegistrationsSet()) {
-            if ((executionYear.isAfter(registration.getStartExecutionYear()))
-                    && (registration.getStudentCurricularPlan(executionYear).isEnroledInSpecialSeason(executionYear))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean hasSpecialSeasonEnrolments(ExecutionSemester executionSemester) {
         for (Registration registration : getRegistrationsSet()) {
             if ((executionSemester.getExecutionYear().isAfter(registration.getStartExecutionYear()))
