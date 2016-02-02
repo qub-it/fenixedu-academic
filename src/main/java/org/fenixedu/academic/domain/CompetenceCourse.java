@@ -1035,7 +1035,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     @Override
     public void setCurricularStage(CurricularStage curricularStage) {
-        check(this, CompetenceCoursePredicates.editCurricularStagePredicate);
         if (!this.getAssociatedCurricularCoursesSet().isEmpty() && curricularStage.equals(CurricularStage.DRAFT)) {
             throw new DomainException("competenceCourse.has.already.associated.curricular.courses");
         }
