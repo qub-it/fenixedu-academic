@@ -264,6 +264,10 @@ public class Student extends Student_Base {
 
     public boolean hasSpecialSeasonEnrolments(ExecutionSemester executionSemester) {
         for (Registration registration : getRegistrationsSet()) {
+            if(registration.getStudentCurricularPlan(executionSemester) == null) {
+                continue;
+            }
+            
             if ((executionSemester.getExecutionYear().isAfter(registration.getStartExecutionYear()))
                     && (registration.getStudentCurricularPlan(executionSemester).isEnroledInSpecialSeason(executionSemester))) {
                 return true;
