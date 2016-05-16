@@ -190,8 +190,10 @@ function submitForm(btn) {
 	$(btn).addClass('disabled');
 	$(btn).html('${portal.message('resources.ApplicationResources', 'label.saving')}');
 }
+
 (function () {
-	$('table').removeClass('table');
+    $('.showinfo3.mvert0').removeClass('table');
+	$('.smalltxt.noborder.table').removeClass('table');
 })();
 
 function checkState(){
