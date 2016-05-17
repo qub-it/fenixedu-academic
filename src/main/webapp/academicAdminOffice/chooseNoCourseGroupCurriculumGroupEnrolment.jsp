@@ -75,3 +75,10 @@
 	<html:submit><bean:message key="back" bundle="ACADEMIC_OFFICE_RESOURCES"/></html:submit>
 
 </fr:form>
+
+
+<script type="text/javascript">//<![CDATA[
+    $(function() {
+		$('.showinfo3.mvert0').removeClass('table');
+    });
+//]]></script>

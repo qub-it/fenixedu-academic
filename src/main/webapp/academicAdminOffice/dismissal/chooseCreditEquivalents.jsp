@@ -89,3 +89,9 @@
 	<p class="color888 mtop025 smalltxt"><em><bean:message key="label.studentDismissal.max.message" bundle="ACADEMIC_OFFICE_RESOURCES"/></em></p>
 
 </fr:form>
+
+<script type="text/javascript">//<![CDATA[
+    $(function() {
+		$('.showinfo3.mvert0').removeClass('table');
+    });
+//]]></script>
