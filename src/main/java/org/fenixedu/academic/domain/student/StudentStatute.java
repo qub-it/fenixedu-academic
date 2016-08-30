@@ -48,13 +48,13 @@ public class StudentStatute extends StudentStatute_Base {
         this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginExecutionPeriod.getBeginLocalDate(),
                 endExecutionPeriod.getEndLocalDate(), null);
     }
-    
+
     @Deprecated
     public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
             final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate) {
         this(student, statuteType, beginExecutionPeriod, endExecutionPeriod, beginDate, endDate, null);
     }
-    
+
     public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionSemester beginExecutionPeriod,
             final ExecutionSemester endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate,
             final Registration registration) {
@@ -73,7 +73,7 @@ public class StudentStatute extends StudentStatute_Base {
                 throw new DomainException("error.studentStatute.alreadyExistsOneOverlapingStatute");
             }
         }
-        
+
         checkRules();
     }
 
@@ -92,15 +92,15 @@ public class StudentStatute extends StudentStatute_Base {
         if (getType() == null) {
             throw new DomainException("error.studentStatute.missing.StatuteType");
         }
-        
-        if(getType().isAppliedOnRegistration() && getRegistration() == null) {
+
+        if (getType().isAppliedOnRegistration() && getRegistration() == null) {
             throw new DomainException("error.studentStatute.registration.required");
         }
-        
-        if(!getType().isAppliedOnRegistration() && getRegistration() != null) {
+
+        if (!getType().isAppliedOnRegistration() && getRegistration() != null) {
             throw new DomainException("error.studentStatute.not.applied.for.registration");
         }
-        
+
     }
 
     /*
@@ -158,21 +158,23 @@ public class StudentStatute extends StudentStatute_Base {
      */
 
     public boolean isValidInExecutionInterval(final Registration registration, final ExecutionInterval interval) {
-         return isValidInExecutionInterval(interval) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+        return isValidInExecutionInterval(interval)
+                && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
-    
+
     public boolean isValidOn(final Registration registration, final ExecutionYear executionYear) {
         return isValidOn(executionYear) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
-    
+
     public boolean isValidOnAnyExecutionPeriodFor(final Registration registration, final ExecutionYear executionYear) {
-        return isValidOnAnyExecutionPeriodFor(executionYear) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
-    }    
-    
+        return isValidOnAnyExecutionPeriodFor(executionYear)
+                && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
+    }
+
     public boolean isValidInCurrentExecutionPeriod(final Registration registration) {
         return isValidInCurrentExecutionPeriod() && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
-   
+
     public void delete() {
         checkRulesToDelete();
         setBeginExecutionPeriod(null);
@@ -185,24 +187,23 @@ public class StudentStatute extends StudentStatute_Base {
     }
 
     public boolean overlapsWith(StudentStatute statute) {
-        ExecutionSemester statuteBegin =
-                statute.getBeginExecutionPeriod() != null ? statute.getBeginExecutionPeriod() : ExecutionSemester
-                        .readFirstExecutionSemester();
-        ExecutionSemester statuteEnd =
-                statute.getEndExecutionPeriod() != null ? statute.getEndExecutionPeriod() : ExecutionSemester
-                        .readLastExecutionSemester();
+        ExecutionSemester statuteBegin = statute.getBeginExecutionPeriod() != null ? statute
+                .getBeginExecutionPeriod() : ExecutionSemester.readFirstExecutionSemester();
+        ExecutionSemester statuteEnd = statute.getEndExecutionPeriod() != null ? statute
+                .getEndExecutionPeriod() : ExecutionSemester.readLastExecutionSemester();
 
         return overlapsWith(statute.getType(), statuteBegin, statuteEnd, statute.getRegistration());
 
     }
 
-    public boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd, final Registration registration) {
+    public boolean overlapsWith(StatuteType statuteType, ExecutionSemester statuteBegin, ExecutionSemester statuteEnd,
+            final Registration registration) {
 
         if (statuteType != getType()) {
             return false;
         }
-        
-        if(getType().isAppliedOnRegistration() && getRegistration() != registration) {
+
+        if (getType().isAppliedOnRegistration() && getRegistration() != registration) {
             return false;
         }
 
@@ -218,9 +219,8 @@ public class StudentStatute extends StudentStatute_Base {
 
     public void add(StudentStatute statute) {
         if (this.overlapsWith(statute)) {
-            if (statute.getBeginExecutionPeriod() == null
-                    || (getBeginExecutionPeriod() != null && statute.getBeginExecutionPeriod()
-                            .isBefore(getBeginExecutionPeriod()))) {
+            if (statute.getBeginExecutionPeriod() == null || (getBeginExecutionPeriod() != null
+                    && statute.getBeginExecutionPeriod().isBefore(getBeginExecutionPeriod()))) {
                 setBeginExecutionPeriod(statute.getBeginExecutionPeriod());
             }
 
@@ -241,9 +241,6 @@ public class StudentStatute extends StudentStatute_Base {
     }
 
     public void checkRulesToDelete() {
-        if (hasSpecialSeasonEnrolments()) {
-            throw new DomainException("error.student.StudentStatute.has.special.season.enrolment");
-        }
     }
 
     public boolean hasSpecialSeasonEnrolments() {
