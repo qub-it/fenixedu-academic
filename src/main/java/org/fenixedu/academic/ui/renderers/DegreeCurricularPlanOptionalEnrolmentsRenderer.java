@@ -169,8 +169,8 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
             generateCurricularCourses(blockContainer, childCurricularCourseContexts, depth + getWidthDecreasePerLevel());
 
             for (Context context : childCourseGroupContexts) {
-                generateCourseGroup(blockContainer, (CourseGroup) context.getChildDegreeModule(), depth
-                        + getWidthDecreasePerLevel());
+                generateCourseGroup(blockContainer, (CourseGroup) context.getChildDegreeModule(),
+                        depth + getWidthDecreasePerLevel());
             }
         }
 
@@ -215,11 +215,11 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
 
                     final HtmlActionLink actionLink = new HtmlActionLink();
                     actionLink.setText(BundleUtil.getString(Bundle.ACADEMIC, "link.option.enrol.curricular.course"));
-                    actionLink.setName("curricularCourseEnrolLink" + curricularCourse.getExternalId());
+                    actionLink.setName("contextEnrolLink" + context.getExternalId());
                     actionLink.setOnClick(String.format(
                             "$(this).closest('form').find('input[name=\\'method\\']').attr('value', '%s');", getMethodName()));
                     //actionLink.setOnClick(String.format("document.forms[0].method.value='%s';", getMethodName()));
-                    actionLink.setController(new UpdateSelectedCurricularCourseController(curricularCourse));
+                    actionLink.setController(new UpdateSelectedCurricularCourseController(context));
                     linkTableCell.setBody(actionLink);
                 }
             }
@@ -230,10 +230,10 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
     static private class UpdateSelectedCurricularCourseController extends HtmlActionLinkController {
 
         static private final long serialVersionUID = 1L;
-        private final CurricularCourse curricularCourse;
+        private final Context context;
 
-        public UpdateSelectedCurricularCourseController(final CurricularCourse curricularCourse) {
-            this.curricularCourse = curricularCourse;
+        public UpdateSelectedCurricularCourseController(final Context context) {
+            this.context = context;
         }
 
         @Override
@@ -244,7 +244,7 @@ public class DegreeCurricularPlanOptionalEnrolmentsRenderer extends InputRendere
         @Override
         public void linkPressed(IViewState viewState, HtmlActionLink link) {
             ((StudentOptionalEnrolmentBean) viewState.getMetaObject().getObject())
-                    .setSelectedCurricularCourse(this.curricularCourse);
+                    .setSelectedCurricularCourse((CurricularCourse) this.context.getChildDegreeModule());
         }
 
     }
