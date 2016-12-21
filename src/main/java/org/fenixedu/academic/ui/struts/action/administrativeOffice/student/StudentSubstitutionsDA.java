@@ -57,4 +57,9 @@ public class StudentSubstitutionsDA extends StudentDismissalsDA {
         CreateNewSubstitutionDismissal.run(dismissalBean);
     }
 
+    @Override
+    public boolean isAllowedEnrolmentsFromSameCurricularPlan() {
+        return true;
+    }
+
 }
