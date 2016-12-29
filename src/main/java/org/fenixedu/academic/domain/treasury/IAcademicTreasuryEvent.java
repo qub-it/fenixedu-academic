@@ -3,7 +3,6 @@ package org.fenixedu.academic.domain.treasury;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.LocalDate;
 
@@ -31,16 +30,16 @@ public interface IAcademicTreasuryEvent {
      * ---------------------
      */
 
-    public boolean isWithDebitEntry();
+    public boolean isCharged();
 
     public boolean isExempted();
 
     default boolean isPayed() {
-        return getRemainingAmountToPay().compareTo(BigDecimal.ZERO) <= 0;
+        return isCharged() && getRemainingAmountToPay().compareTo(BigDecimal.ZERO) <= 0;
     }
 
     default boolean isInDebt() {
-        return getRemainingAmountToPay().compareTo(BigDecimal.ZERO) > 0;
+        return isCharged() && getRemainingAmountToPay().compareTo(BigDecimal.ZERO) > 0;
     }
 
     public boolean isDueDateExpired(final LocalDate when);
@@ -48,7 +47,7 @@ public interface IAcademicTreasuryEvent {
     public boolean isBlockingAcademicalActs(final LocalDate when);
 
     public BigDecimal getAmountToPay();
-    
+
     public BigDecimal getInterestsAmountToPay();
 
     public BigDecimal getRemainingAmountToPay();
@@ -62,5 +61,9 @@ public interface IAcademicTreasuryEvent {
     public List<IAcademicTreasuryEventPayment> getPaymentsList();
 
     public String formatMoney(BigDecimal moneyValue);
+
+    public List<IPaymentReferenceCode> getPaymentReferenceCodesList();
+
+    public boolean isOnlinePaymentsActive();
 
 }
