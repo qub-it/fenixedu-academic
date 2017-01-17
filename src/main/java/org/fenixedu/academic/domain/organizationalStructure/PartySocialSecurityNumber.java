@@ -19,38 +19,70 @@
 package org.fenixedu.academic.domain.organizationalStructure;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
+import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.bennu.core.domain.Bennu;
+
+import com.google.common.base.Strings;
 
 public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
 
-    private PartySocialSecurityNumber() {
+    public PartySocialSecurityNumber() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public PartySocialSecurityNumber(final Party party, final String socialSecurityNumber) {
+    private PartySocialSecurityNumber(final Party party, final Country fiscalCountry, final String socialSecurityNumber) {
         this();
-        checkParameters(party, socialSecurityNumber);
         super.setParty(party);
+        super.setFiscalCountry(fiscalCountry);
         super.setSocialSecurityNumber(socialSecurityNumber);
+
+        checkRules();
     }
 
-    private void checkParameters(final Party party, final String socialSecurityNumber) {
-        if (party == null) {
+    private void checkRules() {
+        if (getParty() == null) {
             throw new DomainException("error.PartySocialSecurityNumber.invalid.party");
         }
-        if (socialSecurityNumber == null || socialSecurityNumber.length() == 0) {
+        if (Strings.isNullOrEmpty(getSocialSecurityNumber())) {
             throw new DomainException("error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
         }
 
-        String defaultSocialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
-        if (defaultSocialSecurityNumber == null || !defaultSocialSecurityNumber.equals(socialSecurityNumber)) {
-            for (final PartySocialSecurityNumber securityNumber : Bennu.getInstance().getPartySocialSecurityNumbersSet()) {
-                if (securityNumber != this && securityNumber.hasSocialSecurityNumber(socialSecurityNumber)) {
-                    throw new DomainException("error.PartySocialSecurityNumber.number.already.exists");
+        final String defaultSocialSecurityNumber =
+                FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+        if (!Strings.isNullOrEmpty(defaultSocialSecurityNumber)
+                && defaultSocialSecurityNumber.equals(getSocialSecurityNumber())) {
+            if (Country.readDefault() != getFiscalCountry()) {
+                throw new DomainException("error.PartySocialSecurityNumber.invalid.country.for.default.social.security.number");
+            }
+        }
+
+        if (Strings.isNullOrEmpty(defaultSocialSecurityNumber)
+                || !defaultSocialSecurityNumber.equals(getSocialSecurityNumber())) {
+            for (final PartySocialSecurityNumber otherPartySecurityNumber : Bennu.getInstance()
+                    .getPartySocialSecurityNumbersSet()) {
+                if (otherPartySecurityNumber == this) {
+                    continue;
+                }
+
+                if (otherPartySecurityNumber.getSocialSecurityNumber().equals(getSocialSecurityNumber())) {
+                    throw new DomainException("error.PartySocialSecurityNumber.number.already.exists",
+                            otherPartySecurityNumber.getParty().getName());
                 }
             }
+        }
+
+        if (!TreasuryBridgeAPIFactory.implementation().isValidFiscalNumber(getFiscalCountry().getCode(),
+                getSocialSecurityNumber())) {
+            throw new DomainException("error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
+        }
+
+        if (getParty().isPerson()) {
+            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
+                    getSocialSecurityNumber());
         }
     }
 
@@ -59,9 +91,37 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
     }
 
     public void delete() {
+        setFiscalCountry(null);
         setParty(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
+    }
+
+    public void edit(final Country fiscalCountry, final String socialSecurityNumber) {
+        setFiscalCountry(fiscalCountry);
+        setSocialSecurityNumber(socialSecurityNumber);
+
+        checkRules();
+    }
+
+    // @formatter:off
+    /* ********
+     * SERVICES
+     * ********
+     */
+    // @formatter:on
+
+    public static PartySocialSecurityNumber editFiscalInformation(final Party party, final Country fiscalCountry,
+            final String socialSecurityNumber) {
+        final PartySocialSecurityNumber partySocialSecurityNumber = party.getPartySocialSecurityNumber();
+
+        if (partySocialSecurityNumber == null) {
+            return new PartySocialSecurityNumber(party, fiscalCountry, socialSecurityNumber);
+        }
+
+        partySocialSecurityNumber.edit(fiscalCountry, socialSecurityNumber);
+
+        return partySocialSecurityNumber;
     }
 
     public static Party readPartyBySocialSecurityNumber(final String socialSecurityNumber) {

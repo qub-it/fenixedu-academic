@@ -168,7 +168,16 @@ public class IndividualCandidacyInternalPersonDetails extends IndividualCandidac
     public void setMaritalStatus(MaritalStatus status) {
         getPerson().setMaritalStatus(status);
     }
-
+    
+    @Override
+    public Country getFiscalCountry() {
+        return getPerson().getFiscalCountry();
+    }
+    
+    public void setFiscalCountry(final Country fiscalCountry) {
+        throw new RuntimeException("not implemented");
+    }
+    
     @Override
     public String getSocialSecurityNumber() {
         return getPerson().getSocialSecurityNumber();
@@ -176,7 +185,7 @@ public class IndividualCandidacyInternalPersonDetails extends IndividualCandidac
 
     @Override
     public void setSocialSecurityNumber(String number) {
-        getPerson().setSocialSecurityNumber(number);
+        throw new RuntimeException("not implemented");
     }
 
     @Override
@@ -240,7 +249,7 @@ public class IndividualCandidacyInternalPersonDetails extends IndividualCandidac
     @Override
     @Deprecated
     public void setFiscalCode(String value) {
-        this.getPerson().setSocialSecurityNumber(value);
+        throw new RuntimeException("not implemented");
     }
 
     @Override
