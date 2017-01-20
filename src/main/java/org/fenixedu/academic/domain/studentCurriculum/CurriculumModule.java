@@ -286,7 +286,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     final public ExecutionYear getLastApprovementExecutionYear() {
-        return getLastApprovement().getExecutionYear();
+        return getApprovedCurriculumLinesLastExecutionYear();
     }
 
     final public boolean wasCreated(final DateTime when) {
