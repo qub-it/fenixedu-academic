@@ -133,6 +133,17 @@ public class ManageAccountsDA extends FenixDispatchAction {
             HttpServletResponse response) throws Exception {
         PersonBean bean = getRenderedObject();
         request.setAttribute("personBean", bean);
+        
+        return mapping.findForward("createPersonFillInfo");
+    }
+    
+    public ActionForward createNewPersonPostback(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        PersonBean bean = getRenderedObject();
+        request.setAttribute("personBean", bean);
+        
+        RenderUtils.invalidateViewState();
+        
         return mapping.findForward("createPersonFillInfo");
     }
 
@@ -144,8 +155,23 @@ public class ManageAccountsDA extends FenixDispatchAction {
 
     public ActionForward viewPerson(final Person person, final ActionMapping mapping, final HttpServletRequest request)
             throws Exception {
+        final PersonBean personBean = new PersonBean(person);
+
+        request.setAttribute("editPersonalInfo", false);
         request.setAttribute("person", person);
-        request.setAttribute("personBean", new PersonBean(person));
+        request.setAttribute("personBean", personBean);
+        
+        return mapping.findForward("viewPerson");
+    }
+    
+    public ActionForward prepareEditPersonalData(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) {
+        final Person person = getDomainObject(request, "personId");
+        final PersonBean personBean = new PersonBean(person);
+        
+        request.setAttribute("editPersonalInfo", true);
+        request.setAttribute("person", person);
+        request.setAttribute("personBean", personBean);
         
         return mapping.findForward("viewPerson");
     }
@@ -158,8 +184,6 @@ public class ManageAccountsDA extends FenixDispatchAction {
         request.setAttribute("editPersonalInfo", true);
         request.setAttribute("person", person);
         request.setAttribute("personBean", personBean);
-        
-        RenderUtils.invalidateViewState();
         
         return mapping.findForward("viewPerson");
     }
