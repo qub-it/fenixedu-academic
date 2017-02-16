@@ -48,6 +48,13 @@ public class Curriculum implements Serializable, ICurriculum {
 
     static private final long serialVersionUID = -8365985725904139675L;
 
+    /* ======================================================================================================
+     * 
+     * CurricularYearCalculator
+     * 
+     * ======================================================================================================
+     */
+
     public static interface CurricularYearCalculator {
         Integer curricularYear(Curriculum curriculum);
 
@@ -56,6 +63,18 @@ public class Curriculum implements Serializable, ICurriculum {
         BigDecimal approvedCredits(Curriculum curriculum);
 
         BigDecimal remainingCredits(Curriculum curriculum);
+    }
+
+    static public CurricularYearCalculator getCurricularYearCalculator() {
+        return CURRICULAR_YEAR_CALCULATOR.get();
+    }
+
+    static public void setCurricularYearCalculator(final Supplier<CurricularYearCalculator> input) {
+        if (input != null && input.get() != null) {
+            CURRICULAR_YEAR_CALCULATOR = input;
+        } else {
+            logger.error("Could not set CURRICULAR_YEAR_CALCULATOR to null");
+        }
     }
 
     private static Supplier<CurricularYearCalculator> CURRICULAR_YEAR_CALCULATOR = () -> new CurricularYearCalculator() {
@@ -162,9 +181,12 @@ public class Curriculum implements Serializable, ICurriculum {
 
     };
 
-    public static void setCurricularYearCalculator(Supplier<CurricularYearCalculator> calculator) {
-        CURRICULAR_YEAR_CALCULATOR = calculator;
-    }
+    /* ======================================================================================================
+     * 
+     * CurriculumGradeCalculator
+     * 
+     * ======================================================================================================
+     */
 
     public static interface CurriculumGradeCalculator {
         Grade rawGrade(Curriculum curriculum);
@@ -173,6 +195,18 @@ public class Curriculum implements Serializable, ICurriculum {
 
         @Deprecated
         BigDecimal weigthedGradeSum(Curriculum curriculum);
+    }
+
+    static public CurriculumGradeCalculator getCurriculumGradeCalculator() {
+        return CURRICULUM_GRADE_CALCULATOR.get();
+    }
+
+    static public void setCurriculumGradeCalculator(Supplier<CurriculumGradeCalculator> input) {
+        if (input != null && input.get() != null) {
+            CURRICULUM_GRADE_CALCULATOR = input;
+        } else {
+            logger.error("Could not set CURRICULUM_GRADE_CALCULATOR to null");
+        }
     }
 
     private static Supplier<CurriculumGradeCalculator> CURRICULUM_GRADE_CALCULATOR = () -> new CurriculumGradeCalculator() {
@@ -242,9 +276,12 @@ public class Curriculum implements Serializable, ICurriculum {
         }
     };
 
-    public static void setCurriculumGradeCalculator(Supplier<CurriculumGradeCalculator> calculator) {
-        CURRICULUM_GRADE_CALCULATOR = calculator;
-    }
+    /* ======================================================================================================
+     * 
+     * CurriculumEntryPredicate
+     * 
+     * ======================================================================================================
+     */
 
     static abstract public class CurriculumEntryPredicate implements Predicate<ICurriculumEntry> {
     }
@@ -288,8 +325,6 @@ public class Curriculum implements Serializable, ICurriculum {
 
     private CurriculumGradeCalculator gradeCalculator = CURRICULUM_GRADE_CALCULATOR.get();
 
-    private CurriculumEntryPredicate curriculumEntryPredicate = CURRICULUM_ENTRY_PREDICATE.get();
-
     static public Curriculum createEmpty(final ExecutionYear executionYear) {
         return Curriculum.createEmpty(null, executionYear);
     }
@@ -325,9 +360,8 @@ public class Curriculum implements Serializable, ICurriculum {
         addAverageEntries(averageDismissalRelatedEntries, curriculum.getDismissalRelatedEntries());
         addCurricularYearEntries(curricularYearEntries, curriculum.getCurricularYearEntries());
 
-        curricularYearCalculator = CURRICULAR_YEAR_CALCULATOR.get();
-        gradeCalculator = CURRICULUM_GRADE_CALCULATOR.get();
-        curriculumEntryPredicate = CURRICULUM_ENTRY_PREDICATE.get();
+        curricularYearCalculator = getCurricularYearCalculator();
+        gradeCalculator = getCurriculumGradeCalculator();
     }
 
     private void addAverageEntries(final Set<ICurriculumEntry> entries, final Collection<ICurriculumEntry> newEntries) {
@@ -486,7 +520,7 @@ public class Curriculum implements Serializable, ICurriculum {
     @Override
     public void setAverageType(AverageType averageType) {
         this.averageType = averageType;
-        gradeCalculator = CURRICULUM_GRADE_CALCULATOR.get();
+        gradeCalculator = getCurriculumGradeCalculator();
     }
 
     @Deprecated
