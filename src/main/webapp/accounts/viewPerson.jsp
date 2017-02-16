@@ -18,12 +18,14 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ page language="java"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/enum" prefix="e"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
+<%@ page isELIgnored="true"%>
 
 <logic:present name="person">
 	<bean:define id="person" name="person" type="org.fenixedu.academic.domain.Person"/>
@@ -459,39 +461,138 @@
 		</tr>
 	</table>
 
-	<logic:present parameter="editPersonalInfo">
-		<fr:edit name="person"
-			action="<%="/accounts/manageAccounts.do?method=viewPerson&personId=" + personID %>"
-			schema="org.fenixedu.academic.domain.Person.personal.info">
-			<fr:layout name="tabular">
-				<fr:property name="classes"
-					value="tstyle2 thleft thlight mtop15 thwhite" />
-				<fr:property name="columnClasses" value=",,tdclear tderror1"/>
-			</fr:layout>
-		</fr:edit>
+	<logic:equal name="editPersonalInfo" value="true">
+		<bean:define id="personID" name="person" property="externalId" />
+		
+		<form id="backToViewForm" action="<%="/accounts/manageAccounts.do?method=viewPerson&personId=" + personID %>" method="post">
+		</form>
+		
+		<fr:form action="<%="/accounts/manageAccounts.do?method=editPersonalData&personId=" + personID %>">
+			<bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean" />
+			<% 
+				if(personBean.getFiscalCountry() != null) {
+				    pageContext.setAttribute("countryCode", personBean.getFiscalCountry().getCode());
+				} else {
+				    pageContext.setAttribute("countryCode", Country.readDefault().getCode());
+				}
+			%>
+	
+			<fr:edit id="personBean" name="personBean" visible="false" />
+			<fr:edit id="personBean-edit" name="personBean">
+				<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="APPLICATION_RESOURCES">
+				    <fr:slot name="givenNames" key="label.givenNames">
+				        <fr:property name="size" value="50" />
+				    </fr:slot>
+				    <fr:slot name="familyNames" key="label.familyNames">
+				        <fr:property name="size" value="50" />
+				    </fr:slot>
+				    <fr:slot name="gender" key="label.person.sex" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator"/>
+				    <fr:slot name="idDocumentType" key="label.person.identificationDocumentType">
+				        <fr:property name="excludedValues" value="CITIZEN_CARD" />
+				    </fr:slot>
+				    <fr:slot name="documentIdNumber" key="label.person.identificationDocumentNumber"/>
+				    <fr:slot name="documentIdEmissionLocation" key="label.person.identificationDocumentIssuePlace"/> 
+				    <fr:slot name="documentIdEmissionDate" key="label.person.identificationDocumentIssueDate">
+				        <fr:validator name="pt.ist.fenixWebFramework.renderers.validators.DateValidator" />
+				    </fr:slot>  
+				    <fr:slot name="documentIdExpirationDate" key="label.person.identificationDocumentExpirationDate">
+				        <fr:validator name="pt.ist.fenixWebFramework.renderers.validators.DateValidator" />
+				    </fr:slot>
+					<fr:slot name="fiscalCountry" key="label.fiscalCountry" layout="menu-select-postback">
+							<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.CountryProvider" />
+							<fr:property name="format" value="${name} (${code})"/>
+							<fr:property name="sortBy" value="name"/>
+							<fr:property name="destination" value="fiscalCountryPostback" />
+					</fr:slot>
+				    <fr:slot name="socialSecurityNumber" key="label.person.contributorNumber" >
+						<fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator" >
+							<fr:property name="countryCode" value="<%= (String) pageContext.getAttribute("countryCode") %>" />
+						</fr:validator>
+				    </fr:slot>
+				    <fr:slot name="profession" key="label.person.occupation"/>
+				    <fr:slot name="maritalStatus" key="label.person.maritalStatus"/>
+				    <fr:slot name="dateOfBirth" key="label.person.birth"/>
+				    <fr:slot name="nationality" layout="menu-select" key="label.person.country" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" > 
+				        <fr:property name="format" value="${countryNationality}"/>
+				        <fr:property name="sortBy" value="name=asc" />
+				        <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DistinctCountriesProvider" />
+				    </fr:slot> 
+				    <fr:slot name="countryOfBirth" layout="menu-select" key="label.person.countryOfBirth" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator"> 
+				        <fr:property name="format" value="${name}"/>
+				        <fr:property name="sortBy" value="name=asc" />
+				        <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DistinctCountriesProvider" />
+				    </fr:slot>
+				    <fr:slot name="parishOfBirth" key="label.person.birthPlaceParish"/>
+				    <fr:slot name="districtSubdivisionOfBirth" key="label.person.birthPlaceMunicipality"/>
+				    <fr:slot name="districtOfBirth" key="label.person.birthPlaceDistrict"/>
+				</fr:schema>
+				<fr:layout name="tabular">
+					<fr:property name="classes"
+						value="tstyle2 thleft thlight mtop15 thwhite" />
+					<fr:property name="columnClasses" value=",,tdclear tderror1"/>
+				</fr:layout>
+	
+				<fr:destination name="invalid" path='<%="/accounts/manageAccounts.do?method=editPersonalDataInvalid&personId=" + personID %>'/>
+				<fr:destination name="fiscalCountryPostback" path='<%="/accounts/manageAccounts.do?method=editPersonalDataPostback&personId=" + personID %>' />
+			</fr:edit>
 
-	</logic:present>
+			<p>
+				<html:submit><bean:message key="button.submit" bundle="APPLICATION_RESOURCES" /></html:submit>
+				<html:cancel onclick="jQuery('#backToViewForm').submit(); return false;" ><bean:message key="button.cancel" bundle="APPLICATION_RESOURCES" /></html:cancel>
+			</p>
+		</fr:form>
 
-	<logic:notPresent parameter="editPersonalInfo">
 
-		<fr:view name="person"
-			schema="org.fenixedu.academic.domain.Person.personal.info">
+	</logic:equal>
+
+	<logic:equal name="editPersonalInfo" value="false">
+
+		<fr:view name="person">
+			<fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES">
+			    <fr:slot name="givenNames" key="label.givenNames">
+			        <fr:property name="size" value="50" />
+			    </fr:slot>
+			    <fr:slot name="familyNames" key="label.familyNames">
+			        <fr:property name="size" value="50" />
+			    </fr:slot>
+			    <fr:slot name="gender" key="label.person.sex" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator"/>
+			    <fr:slot name="idDocumentType" key="label.person.identificationDocumentType" />
+			    <fr:slot name="documentIdNumber" key="label.person.identificationDocumentNumber"/>
+			    <fr:slot name="emissionLocationOfDocumentId" key="label.person.identificationDocumentIssuePlace"/> 
+			    <fr:slot name="emissionDateOfDocumentIdYearMonthDay" key="label.person.identificationDocumentIssueDate" />
+			    <fr:slot name="expirationDateOfDocumentIdYearMonthDay" key="label.person.identificationDocumentExpirationDate" />
+			    <fr:slot name="fiscalCountry" key="label.fiscalCountry" >
+			        <fr:property name="format" value="${name}"/>
+			    </fr:slot>
+			    <fr:slot name="socialSecurityNumber" key="label.person.contributorNumber"/>
+			    <fr:slot name="profession" key="label.person.occupation"/>
+			    <fr:slot name="maritalStatus" key="label.person.maritalStatus"/>
+			    <fr:slot name="dateOfBirthYearMonthDay" key="label.person.birth"/>
+			    <fr:slot name="country" layout="menu-select" key="label.person.country" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" > 
+			        <fr:property name="format" value="${countryNationality}"/>
+			    </fr:slot> 
+			    <fr:slot name="countryOfBirth" layout="menu-select" key="label.person.countryOfBirth" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator"> 
+			        <fr:property name="format" value="${name}"/>
+			    </fr:slot>
+			    <fr:slot name="parishOfBirth" key="label.person.birthPlaceParish"/>
+			    <fr:slot name="districtSubdivisionOfBirth" key="label.person.birthPlaceMunicipality"/>
+			    <fr:slot name="districtOfBirth" key="label.person.birthPlaceDistrict"/>
+			</fr:schema>
 			<fr:layout name="tabular">
 				<fr:property name="classes"
 					value="tstyle2 thleft thlight mtop15 thwhite" />
 			</fr:layout>
 		</fr:view>
 
-		<html:link
-			action="<%="/accounts/manageAccounts.do?method=viewPerson&personId=" + personID +"&editPersonalInfo=1" %>">
+		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">
 			<bean:message key="label.edit" bundle="APPLICATION_RESOURCES"/>
 		</html:link>
 
-	</logic:notPresent>
+	</logic:equal>
 
 
 
-	<!-- Informa��o de Utilizador -->
+	<!-- Informacao de Utilizador -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
 		<tr>
 			<td class="infoop" width="25"><span class="emphasis-box">4</span></td>
@@ -508,7 +609,7 @@
 
 
 
-	<!-- Filia��o -->
+	<!-- Filiacao -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
 		<tr>
 			<td class="infoop" width="25"><span class="emphasis-box">5</span></td>
