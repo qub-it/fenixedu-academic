@@ -18,8 +18,6 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import static org.fenixedu.academic.predicate.AccessControl.check;
-
 import java.util.Comparator;
 import java.util.Set;
 
