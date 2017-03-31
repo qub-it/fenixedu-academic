@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -509,6 +510,11 @@ public class Student extends Student_Base {
         }
 
         return result;
+    }
+
+    public Collection<StatuteType> getStatutesTypesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
+        return getStatutesValidOnAnyExecutionSemesterFor(executionYear).stream().map(bean -> bean.getStatuteType())
+                .collect(Collectors.toList());
     }
 
     public Collection<StudentStatuteBean> getStatutesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
