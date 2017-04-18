@@ -1299,6 +1299,10 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         }
         return null;
     }
+    
+    public ConclusionProcess readConclusionProcessEvenIfInactive() {
+        return super.getConclusionProcess();
+    }
 
     // Stuff moved from CycleCurriculumGroup
 
