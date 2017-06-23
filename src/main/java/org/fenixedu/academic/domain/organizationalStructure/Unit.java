@@ -49,6 +49,7 @@ import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.spaces.domain.Space;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.Atomic;
@@ -102,9 +103,8 @@ public class Unit extends Unit_Base {
 
         MultiLanguageString partyName = getPartyName();
 
-        partyName =
-                partyName == null ? new MultiLanguageString(Locale.getDefault(), name) : partyName
-                        .with(Locale.getDefault(), name);
+        partyName = partyName == null ? new MultiLanguageString(Locale.getDefault(), name) : partyName.with(Locale.getDefault(),
+                name);
 
         super.setPartyName(partyName);
 
@@ -246,8 +246,8 @@ public class Unit extends Unit_Base {
     }
 
     public boolean isActive(YearMonthDay currentDate) {
-        return (!this.getBeginDateYearMonthDay().isAfter(currentDate) && (this.getEndDateYearMonthDay() == null || !this
-                .getEndDateYearMonthDay().isBefore(currentDate)));
+        return (!this.getBeginDateYearMonthDay().isAfter(currentDate)
+                && (this.getEndDateYearMonthDay() == null || !this.getEndDateYearMonthDay().isBefore(currentDate)));
     }
 
     @Override
@@ -346,7 +346,8 @@ public class Unit extends Unit_Base {
         return getSubUnitsByState(currentDate, accountabilityTypeEnum, true);
     }
 
-    private List<Unit> getSubUnitsByState(YearMonthDay currentDate, AccountabilityTypeEnum accountabilityTypeEnum, boolean state) {
+    private List<Unit> getSubUnitsByState(YearMonthDay currentDate, AccountabilityTypeEnum accountabilityTypeEnum,
+            boolean state) {
         List<Unit> allSubUnits = new ArrayList<Unit>();
         for (Unit subUnit : getSubUnits(accountabilityTypeEnum)) {
             if (subUnit.isActive(currentDate) == state) {
@@ -419,7 +420,7 @@ public class Unit extends Unit_Base {
         }
         return new ArrayList<Unit>(allActiveSubUnits);
     }
-    
+
     public List<Unit> getAllActiveSubUnitsWithAllowedChildParties(final YearMonthDay currentDate, final PartyType childType) {
         final Set<Unit> allActiveSubUnits = new HashSet<Unit>();
         allActiveSubUnits.addAll(getActiveSubUnitsWithAllowedChildParties(currentDate, childType));
@@ -439,10 +440,32 @@ public class Unit extends Unit_Base {
         return allSubUnits;
     }
 
+    protected Collection<AccountabilityType> getAllowedAccountabilityTypes(final PartyType partyType) {
+        return getPartyType().getAllowedAccountabilityTypesFor(partyType);
+    }
+
+    public AccountabilityType getAllowedAccountabilityType(final PartyType partyType) {
+        AccountabilityType result = null;
+        final Collection<AccountabilityType> allowed = getAllowedAccountabilityTypes(partyType);
+        if (allowed.size() == 1) {
+            result = allowed.iterator().next();
+        }
+        if (result == null) {
+            throw new DomainException("error.Unit.not.found.AccountabilityType.unique", getPartyType().getExternalId(),
+                    partyType.getExternalId());
+        }
+        return result;
+    }
+
+    public AccountabilityType getAllowedAccountabilityType(final Unit unit) {
+        final PartyType partyType = unit.getPartyType();
+        return getAllowedAccountabilityType(partyType);
+    }
+
     public Collection<PartyType> getAllowedChildPartyTypes(final Boolean managedByUser) {
         return getPartyType().getAllowedChildPartyTypes(managedByUser);
     }
-    
+
     public Accountability getMostRecentParentUnitAccountability() {
         return getParentUnitAccountabilities().isEmpty() ? null : Collections.max(getParentUnitAccountabilities(),
                 Accountability.getComparatorByBeginDate());
@@ -571,6 +594,38 @@ public class Unit extends Unit_Base {
         return depth;
     }
 
+    public Accountability addParentUnit(final Unit parentUnit, final LocalDate begin, final LocalDate end) {
+        final Accountability accountability = addParentUnit(parentUnit, parentUnit.getAllowedAccountabilityType(this));
+        accountability.setBeginLocalDate(begin);
+        accountability.setEndLocalDate(end);
+        return accountability;
+    }
+
+    protected void updateParentUnits(final Collection<Unit> newParentUnits, final LocalDate begin, final LocalDate end) {
+
+        final Collection<Unit> currentParentUnits = getParentUnits();
+        final Collection<Accountability> currentParentsAccountabilitiesToRemove = new HashSet<Accountability>();
+
+        for (final Accountability currentParentAccountability : getParentsSet()) {
+            if (!newParentUnits.contains(currentParentAccountability.getParentParty())) {
+                currentParentsAccountabilitiesToRemove.add(currentParentAccountability);
+            } else {
+                currentParentAccountability.setBeginLocalDate(begin);
+                currentParentAccountability.setEndLocalDate(end);
+            }
+        }
+
+        for (final Unit parentUnit : newParentUnits) {
+            if (!currentParentUnits.contains(parentUnit)) {
+                addParentUnit(parentUnit, begin, end);
+            }
+        }
+
+        for (final Accountability accountability : currentParentsAccountabilitiesToRemove) {
+            accountability.delete();
+        }
+    }
+
     public Accountability addParentUnit(Unit parentUnit, AccountabilityType accountabilityType) {
         if (this.equals(parentUnit)) {
             throw new DomainException("error.unit.equals.parentUnit");
@@ -621,9 +676,7 @@ public class Unit extends Unit_Base {
      * This method should be used only for Unit types where acronyms are unique.
      */
     public static Unit readUnitByAcronymAndType(String acronym, PartyTypeEnum partyTypeEnum) {
-        if (acronym != null
-                && !acronym.equals("")
-                && partyTypeEnum != null
+        if (acronym != null && !acronym.equals("") && partyTypeEnum != null
                 && (partyTypeEnum.equals(PartyTypeEnum.DEGREE_UNIT) || partyTypeEnum.equals(PartyTypeEnum.DEPARTMENT)
                         || partyTypeEnum.equals(PartyTypeEnum.PLANET) || partyTypeEnum.equals(PartyTypeEnum.COUNTRY)
                         || partyTypeEnum.equals(PartyTypeEnum.DEPARTMENT) || partyTypeEnum.equals(PartyTypeEnum.UNIVERSITY)
@@ -740,7 +793,8 @@ public class Unit extends Unit_Base {
     public String getPresentationNameWithParentsAndBreakLine() {
         String parentUnits = getParentUnitsPresentationNameWithBreakLine();
         return (!StringUtils.isEmpty(parentUnits.trim())) ? parentUnits
-                + BundleUtil.getString(Bundle.APPLICATION, "label.html.breakLine") + getPresentationName() : getPresentationName();
+                + BundleUtil.getString(Bundle.APPLICATION, "label.html.breakLine")
+                + getPresentationName() : getPresentationName();
     }
 
     public String getParentUnitsPresentationNameWithBreakLine() {
@@ -897,12 +951,9 @@ public class Unit extends Unit_Base {
     }
 
     static public MultiLanguageString getInstitutionName() {
-        return Optional
-                .ofNullable(Bennu.getInstance().getInstitutionUnit())
-                .map(Unit::getNameI18n)
-                .orElseGet(
-                        () -> MultiLanguageString.fromLocalizedString(BundleUtil.getLocalizedString(Bundle.GLOBAL,
-                                "error.institutionUnit.notconfigured")));
+        return Optional.ofNullable(Bennu.getInstance().getInstitutionUnit()).map(Unit::getNameI18n)
+                .orElseGet(() -> MultiLanguageString.fromLocalizedString(
+                        BundleUtil.getLocalizedString(Bundle.GLOBAL, "error.institutionUnit.notconfigured")));
     }
 
     static public String getInstitutionAcronym() {
