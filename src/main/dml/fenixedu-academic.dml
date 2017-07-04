@@ -2330,6 +2330,7 @@ valueType org.fenixedu.academic.domain.accounting.EventTypes as EventTypes {
         Double theoreticalHours;
         Double trainingPeriodHours;
         Double tutorialOrientationHours;
+        Double otherHours;
     }
 
 	class degreeStructure.EctsTableIndex  {
