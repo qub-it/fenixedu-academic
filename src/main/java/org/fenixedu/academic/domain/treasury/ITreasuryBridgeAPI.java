@@ -154,4 +154,17 @@ public interface ITreasuryBridgeAPI {
 
     public boolean updateCustomer(final Person person, final String fiscalCountryCode, final String fiscalNumber);
     
+
+    // @formatter:off
+    /* ----------------------
+     * TREASURY CUSTOMER INFO
+     * ----------------------
+     */
+    // @formatter:on
+
+    
+    public ITreasuryCustomer getActiveCustomer(final Person person);
+    public List<ITreasuryCustomer> getCustomersForFiscalNumber(final Person person, final String fiscalCountry, final String fiscalNumber);
+    public ITreasuryDebtAccount getActiveDebtAccountForRegistration(final Registration registration);
+
 }
