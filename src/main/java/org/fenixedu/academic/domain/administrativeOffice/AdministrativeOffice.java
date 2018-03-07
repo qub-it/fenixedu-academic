@@ -22,9 +22,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -168,4 +171,8 @@ public class AdministrativeOffice extends AdministrativeOffice_Base {
         return false;
     }
 
+    public static Stream<AdministrativeOffice> findByPredicate(Predicate<AdministrativeOffice> predicate) {
+        return Bennu.getInstance().getAdministrativeOfficesSet().stream().filter(predicate);
+    }
+    
 }
