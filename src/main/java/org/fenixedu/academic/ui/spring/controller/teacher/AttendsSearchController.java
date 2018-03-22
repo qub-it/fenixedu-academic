@@ -21,7 +21,6 @@ package org.fenixedu.academic.ui.spring.controller.teacher;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -36,8 +35,8 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.UriBuilder;
 
 import org.fenixedu.academic.domain.Attends;
-import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Attends.StudentAttendsStateType;
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Mark;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
@@ -46,7 +45,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
 import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.dto.student.StudentStatuteBean;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.User;
@@ -69,7 +67,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -87,7 +84,7 @@ public class AttendsSearchController extends ExecutionCourseController {
     CSRFTokenBean csrfTokenBean;
 
     @ModelAttribute("csrf")
-    public CSRFTokenBean getCSRF(){
+    public CSRFTokenBean getCSRF() {
         return csrfTokenBean;
     }
 
@@ -100,12 +97,12 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @Override
-    Boolean getPermission(Professorship prof) {
+    Boolean getPermission(final Professorship prof) {
         return prof.getPermissions().getStudents();
     }
 
     @RequestMapping(value = "/show", method = RequestMethod.GET)
-    public TeacherView searchAttends(Model model) {
+    public TeacherView searchAttends(final Model model) {
 
         JsonArray studentAttendsStateTypes = new JsonArray();
         for (StudentAttendsStateType type : StudentAttendsStateType.values()) {
@@ -127,9 +124,11 @@ public class AttendsSearchController extends ExecutionCourseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> listAttends() {
+//        return new ResponseEntity<>(view(executionCourse.getAttendsSet().stream()
+//                .filter(attendee -> attendee.getRegistration() != null)).toString(), HttpStatus.OK);
         return new ResponseEntity<String>(
                 view(executionCourse.getAttendsSet().stream().filter(attendee -> attendee.getRegistration() != null
-                        && !hasEnrolmentAnnuled(attendee.getRegistration(), executionCourse))),
+                        && !hasEnrolmentAnnuled(attendee.getRegistration(), executionCourse))).toString(),
                 HttpStatus.OK);
     }
 
@@ -140,7 +139,8 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/studentSpreadsheet", method = RequestMethod.POST)
-    public void generateSpreadsheet(@RequestParam String filteredAttendsJson, HttpServletResponse response) throws IOException {
+    public void generateSpreadsheet(@RequestParam final String filteredAttendsJson, final HttpServletResponse response)
+            throws IOException {
         Set<Attends> attends = new TreeSet<Attends>(Attends.COMPARATOR_BY_STUDENT_NUMBER);
         for (JsonElement elem : new JsonParser().parse(filteredAttendsJson).getAsJsonArray()) {
             JsonObject object = elem.getAsJsonObject();
@@ -221,7 +221,7 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/studentEvaluationsSpreadsheet", method = RequestMethod.POST)
-    public void generateSpreadsheet(HttpServletResponse response) throws IOException {
+    public void generateSpreadsheet(final HttpServletResponse response) throws IOException {
 
         Set<Attends> attends = executionCourse.getAttendsSet();
 
@@ -258,8 +258,9 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
-    public RedirectView sendEmail(Model model, HttpServletRequest request, HttpSession session,
-            @RequestParam("filteredAttendsJson") String filteredAttendsJson, @RequestParam("filtersJson") String filtersJson) {
+    public RedirectView sendEmail(final Model model, final HttpServletRequest request, final HttpSession session,
+            @RequestParam("filteredAttendsJson") final String filteredAttendsJson,
+            @RequestParam("filtersJson") final String filtersJson) {
         String attendTypeValues = "", degreeNameValues = "", shiftsValues = "", studentStatuteTypesValues = "";
 
         JsonObject filters = new JsonParser().parse(filtersJson).getAsJsonObject();
@@ -310,8 +311,7 @@ public class AttendsSearchController extends ExecutionCourseController {
         String label = String.format("%s : %s \n%s : %s \n%s : %s \n%s",
                 BundleUtil.getString(Bundle.APPLICATION, "label.selectStudents"), attendTypeValues,
                 BundleUtil.getString(Bundle.APPLICATION, "label.attends.courses"), degreeNameValues,
-                BundleUtil.getString(Bundle.APPLICATION, "label.selectShift"), shiftsValues, workingStudentsValues);
-
+                BundleUtil.getString(Bundle.APPLICATION, "label.selectShift"), shiftsValues, studentStatuteTypesValues);
 
         Builder<Attends> builder = Stream.builder();
         for (JsonElement elem : new JsonParser().parse(filteredAttendsJson).getAsJsonArray()) {
@@ -319,11 +319,10 @@ public class AttendsSearchController extends ExecutionCourseController {
             builder.accept(FenixFramework.getDomainObject(object.get("id").getAsString()));
         }
 
-        Group users =
-                Group.users(builder.build().map(a -> a.getRegistration().getPerson().getUser()).filter(Objects::nonNull)
-                        .sorted(User.COMPARATOR_BY_NAME));
+        Group users = Group.users(builder.build().map(a -> a.getRegistration().getPerson().getUser()).filter(Objects::nonNull)
+                .sorted(User.COMPARATOR_BY_NAME));
         ArrayList<Recipient> recipients = new ArrayList<Recipient>();
-        recipients.add(Recipient.newInstance(label, UserGroup.of(users)));
+        recipients.add(Recipient.newInstance(label, users));
         String sendEmailUrl = UriBuilder.fromUri("/messaging/emails.do").queryParam("method", "newEmail")
                 .queryParam("sender", ExecutionCourseSender.newInstance(executionCourse).getExternalId())
                 .queryParam("recipient", recipients.stream().filter(r -> r != null).map(r -> r.getExternalId()).toArray()).build()
