@@ -21,6 +21,7 @@ package org.fenixedu.academic.ui.spring.controller.teacher;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
 import org.fenixedu.academic.domain.util.email.Recipient;
+import org.fenixedu.academic.dto.student.StudentStatuteBean;
 import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.User;
@@ -67,6 +69,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -97,12 +100,12 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @Override
-    Boolean getPermission(final Professorship prof) {
+    Boolean getPermission(Professorship prof) {
         return prof.getPermissions().getStudents();
     }
 
     @RequestMapping(value = "/show", method = RequestMethod.GET)
-    public TeacherView searchAttends(final Model model) {
+    public TeacherView searchAttends(Model model) {
 
         JsonArray studentAttendsStateTypes = new JsonArray();
         for (StudentAttendsStateType type : StudentAttendsStateType.values()) {
@@ -124,9 +127,7 @@ public class AttendsSearchController extends ExecutionCourseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> listAttends() {
-//        return new ResponseEntity<>(view(executionCourse.getAttendsSet().stream()
-//                .filter(attendee -> attendee.getRegistration() != null)).toString(), HttpStatus.OK);
-        return new ResponseEntity<String>(
+        return new ResponseEntity<>(
                 view(executionCourse.getAttendsSet().stream().filter(attendee -> attendee.getRegistration() != null
                         && !hasEnrolmentAnnuled(attendee.getRegistration(), executionCourse))).toString(),
                 HttpStatus.OK);
@@ -139,8 +140,7 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/studentSpreadsheet", method = RequestMethod.POST)
-    public void generateSpreadsheet(@RequestParam final String filteredAttendsJson, final HttpServletResponse response)
-            throws IOException {
+    public void generateSpreadsheet(@RequestParam String filteredAttendsJson, HttpServletResponse response) throws IOException {
         Set<Attends> attends = new TreeSet<Attends>(Attends.COMPARATOR_BY_STUDENT_NUMBER);
         for (JsonElement elem : new JsonParser().parse(filteredAttendsJson).getAsJsonArray()) {
             JsonObject object = elem.getAsJsonObject();
@@ -188,22 +188,16 @@ public class AttendsSearchController extends ExecutionCourseController {
                         addCell(getLabel("label.Degree"),
                                 attends.getStudentCurricularPlanFromAttends().getDegreeCurricularPlan().getPresentationName());
 
-                        /*
-                         * Ignoring 'workingStudentTypes'
-                         */
-                        //                        if (attends.getRegistration().getStudent().hasWorkingStudentStatuteInPeriod(attends.getExecutionPeriod())) {
-                        //                            addCell(getLabel("label.workingStudents"),
-                        //                                    BundleUtil.getString(Bundle.ENUMERATION,
-                        //                                            WorkingStudentSelectionType.WORKING_STUDENT.getQualifiedName()));
-                        //                        } else {
-                        //                            addCell(getLabel("label.workingStudents"),
-                        //                                    BundleUtil.getString(Bundle.ENUMERATION,
-                        //                                            WorkingStudentSelectionType.NOT_WORKING_STUDENT.getQualifiedName()));
-                        //                        }
-
-                        addCell(getLabel("label.students.statutes"),
-                                attends.getRegistration().getStudent().getStatutes(attends.getExecutionPeriod()).stream()
-                                        .map(statute -> statute.getDescription()).collect(Collectors.joining("; ")));
+                        Collection<StudentStatuteBean> studentStatutes =
+                                attends.getRegistration().getStudent().getStatutes(executionCourse.getExecutionPeriod());
+                        if (studentStatutes.size() > 0) {
+                            addCell(getLabel("label.studentStatutes"),
+                                    studentStatutes.stream()
+                                            .map(st -> st.getStatuteType().getName().getContent()
+                                                    + (Strings.isNullOrEmpty(st.getStudentStatute().getComment()) ? "" : " ("
+                                                            + st.getStudentStatute().getComment() + ")"))
+                                            .collect(Collectors.joining(" | ")));
+                        }
                     }
                 });
 
@@ -221,7 +215,7 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/studentEvaluationsSpreadsheet", method = RequestMethod.POST)
-    public void generateSpreadsheet(final HttpServletResponse response) throws IOException {
+    public void generateSpreadsheet(HttpServletResponse response) throws IOException {
 
         Set<Attends> attends = executionCourse.getAttendsSet();
 
@@ -258,9 +252,8 @@ public class AttendsSearchController extends ExecutionCourseController {
     }
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
-    public RedirectView sendEmail(final Model model, final HttpServletRequest request, final HttpSession session,
-            @RequestParam("filteredAttendsJson") final String filteredAttendsJson,
-            @RequestParam("filtersJson") final String filtersJson) {
+    public RedirectView sendEmail(Model model, HttpServletRequest request, HttpSession session,
+            @RequestParam("filteredAttendsJson") String filteredAttendsJson, @RequestParam("filtersJson") String filtersJson) {
         String attendTypeValues = "", degreeNameValues = "", shiftsValues = "", studentStatuteTypesValues = "";
 
         JsonObject filters = new JsonParser().parse(filtersJson).getAsJsonObject();
@@ -308,10 +301,11 @@ public class AttendsSearchController extends ExecutionCourseController {
             }
         }
 
-        String label = String.format("%s : %s \n%s : %s \n%s : %s \n%s",
+        String label = String.format("%s : %s \n%s : %s \n%s : %s \n%s : %s",
                 BundleUtil.getString(Bundle.APPLICATION, "label.selectStudents"), attendTypeValues,
                 BundleUtil.getString(Bundle.APPLICATION, "label.attends.courses"), degreeNameValues,
-                BundleUtil.getString(Bundle.APPLICATION, "label.selectShift"), shiftsValues, studentStatuteTypesValues);
+                BundleUtil.getString(Bundle.APPLICATION, "label.selectShift"), shiftsValues,
+                BundleUtil.getString(Bundle.APPLICATION, "label.studentStatutes"), studentStatuteTypesValues);
 
         Builder<Attends> builder = Stream.builder();
         for (JsonElement elem : new JsonParser().parse(filteredAttendsJson).getAsJsonArray()) {
