@@ -107,11 +107,11 @@ public class FenixBootstrapper {
         createDistrictAndDistrictSubdivision();
         createOrganizationalStructure();
 
-        EvaluationSeason normalSeason = createEvaluationSeason("EN", "RS", "NORMAL", true, false, false, false);
-        EvaluationConfiguration.getInstance().setDefaultEvaluationSeason(normalSeason);
-        createEvaluationSeason("MN", "GI", "IMPROVEMENT", false, true, false, false);
-        createEvaluationSeason("AE", "SA", "SPECIAL_AUTHORIZATION", false, false, true, false);
-        createEvaluationSeason("EE", "SS", "SPECIAL_SEASON", false, false, false, true);
+//        EvaluationSeason normalSeason = createEvaluationSeason("EN", "RS", "NORMAL", true, false, false, false);
+//        EvaluationConfiguration.getInstance().setDefaultEvaluationSeason(normalSeason);
+//        createEvaluationSeason("MN", "GI", "IMPROVEMENT", false, true, false, false);
+//        createEvaluationSeason("AE", "SA", "SPECIAL_AUTHORIZATION", false, false, true, false);
+//        createEvaluationSeason("EE", "SS", "SPECIAL_SEASON", false, false, false, true);
         //new CreateExecutionYears().doIt();
         //new CreateResources().doIt();
 
