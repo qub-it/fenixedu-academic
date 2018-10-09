@@ -128,3 +128,48 @@
 		</logic:iterate>
 	</logic:notEmpty>
 </logic:present>
+
+
+<br/>
+
+<h3><bean:message key="title.manage.schedule.teachers" bundle="APPLICATION_RESOURCES" /></h3>
+
+<fr:form id="teacherSelectionForm" action="/chooseExecutionPeriod.do?method=chooseTeacher">
+	
+	<fr:edit id="teacherSelectionFormEdit" name="teacherContextSelectionBean">
+		
+		<fr:schema bundle="APPLICATION_RESOURCES" type="org.fenixedu.academic.dto.resourceAllocationManager.TeacherContextSelectionBean">
+			<fr:slot name="username" key="label.teacher.id"/>
+		</fr:schema>
+		<fr:layout name="tabular">
+			<fr:property name="classes" value="tstyle5 thlight thright mtop05" />
+			<fr:property name="columnClasses" value=",,tdclear tderror1" />
+		</fr:layout>
+	</fr:edit>
+
+	<html:submit bundle="HTMLALT_RESOURCES" altKey="submit.submit" styleClass="inputbutton">
+		<bean:message key="label.choose"/>
+	</html:submit>
+</fr:form>
+
+<br/>
+
+<logic:present name="teachers">
+	<bean:define name="timeTableExecutionSemester" id="timeTableExecutionSemester" type="org.fenixedu.academic.domain.ExecutionSemester"/> 
+	<logic:empty name="teachers">
+		<p><span class="error">
+			<bean:message key="message.no.teacher.found" bundle="APPLICATION_RESOURCES"/>
+		</span></p>
+	</logic:empty>
+	<logic:notEmpty name="teachers">
+		<logic:iterate id="teacher" name="teachers">
+			<bean:define id="teacher" name="teacher" type="org.fenixedu.academic.domain.Teacher"/>
+			<bean:define id="teacherID" name="teacher" property="externalId" />	
+			<bean:define id="timeTableExecutionSemesterID" name="timeTableExecutionSemester" property="externalId" />	
+			<a href="${pageContext.request.contextPath}/fenixedu-ulisboa-applications/management/teacher/teacherlessoncalendar/${teacherID}/${timeTableExecutionSemesterID}" target="_blank">
+				<bean:write name="teacher" property="person.name"/>
+			</a>
+			<br/>
+		</logic:iterate>
+	</logic:notEmpty>
+</logic:present>

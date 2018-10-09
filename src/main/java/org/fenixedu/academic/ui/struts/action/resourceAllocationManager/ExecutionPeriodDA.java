@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.Teacher;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.log.FirstYearShiftsCapacityToggleLog;
 import org.fenixedu.academic.domain.student.Registration;
@@ -53,6 +54,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.dto.resourceAllocationManager.ContextSelectionBean;
 import org.fenixedu.academic.dto.resourceAllocationManager.StudentContextSelectionBean;
+import org.fenixedu.academic.dto.resourceAllocationManager.TeacherContextSelectionBean;
 import org.fenixedu.academic.service.services.person.SearchPerson;
 import org.fenixedu.academic.service.services.person.SearchPerson.SearchParameters;
 import org.fenixedu.academic.ui.struts.action.base.FenixContextDispatchAction;
@@ -76,7 +78,8 @@ import pt.ist.fenixframework.Atomic;
 @StrutsFunctionality(app = RAMSchedulesApp.class, path = "manage", titleKey = "link.schedules.chooseContext")
 @Mapping(path = "/chooseExecutionPeriod", module = "resourceAllocationManager")
 @Forwards({
-        @Forward(name = "toggleFirstYearShiftsCapacity", path = "/resourceAllocationManager/toggleFirstYearShiftsCapacity_bd.jsp"),
+        @Forward(name = "toggleFirstYearShiftsCapacity",
+                path = "/resourceAllocationManager/toggleFirstYearShiftsCapacity_bd.jsp"),
         @Forward(name = "showForm", path = "/resourceAllocationManager/chooseExecutionPeriod_bd.jsp"),
         @Forward(name = "showTimeTable", path = "/resourceAllocationManager/showTimetable.jsp") })
 public class ExecutionPeriodDA extends FenixContextDispatchAction {
@@ -89,7 +92,7 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
             final Degree degree1 = executionDegree1.getDegreeCurricularPlan().getDegree();
             final Degree degree2 = executionDegree2.getDegreeCurricularPlan().getDegree();
 
-            int degreeTypeComparison = degree1.getDegreeType().compareTo(degree2.getDegreeType());
+            final int degreeTypeComparison = degree1.getDegreeType().compareTo(degree2.getDegreeType());
             return (degreeTypeComparison != 0) ? degreeTypeComparison : degree1.getNome().compareTo(degree2.getNome());
         }
     };
@@ -102,26 +105,29 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
     @EntryPoint
     public ActionForward prepare(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        ContextSelectionBean contextSelectionBean =
+        final ContextSelectionBean contextSelectionBean =
                 (ContextSelectionBean) request.getAttribute(PresentationConstants.CONTEXT_SELECTION_BEAN);
 
         final StudentContextSelectionBean studentContextSelectionBean =
                 new StudentContextSelectionBean(contextSelectionBean.getAcademicInterval());
         request.setAttribute("studentContextSelectionBean", studentContextSelectionBean);
 
-        final List<ExecutionDegree> executionDegrees =
-                new ArrayList<ExecutionDegree>(ExecutionDegree.filterByAcademicInterval(contextSelectionBean
-                        .getAcademicInterval()));
+        final TeacherContextSelectionBean teacherContextSelectionBean =
+                new TeacherContextSelectionBean(contextSelectionBean.getAcademicInterval());
+        request.setAttribute("teacherContextSelectionBean", teacherContextSelectionBean);
+
+        final List<ExecutionDegree> executionDegrees = new ArrayList<ExecutionDegree>(
+                ExecutionDegree.filterByAcademicInterval(contextSelectionBean.getAcademicInterval()));
         Collections.sort(executionDegrees, executionDegreeComparator);
         request.setAttribute("executionDegrees", executionDegrees);
-        ExecutionSemester executionSemester =
+        final ExecutionSemester executionSemester =
                 (ExecutionSemester) ExecutionInterval.getExecutionInterval(contextSelectionBean.getAcademicInterval());
         request.setAttribute("executionSemester", executionSemester);
 
         AcademicCalendarEntry academicCalendarEntry = contextSelectionBean.getAcademicInterval().getAcademicCalendarEntry();
         while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {
             if (academicCalendarEntry instanceof AcademicYearCE) {
-                ExecutionYear year = ExecutionYear.getExecutionYear((AcademicYearCE) academicCalendarEntry);
+                final ExecutionYear year = ExecutionYear.getExecutionYear((AcademicYearCE) academicCalendarEntry);
                 request.setAttribute("executionYear", year);
                 break;
             } else {
@@ -186,6 +192,35 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
         return new ShowStudentTimeTable().forwardToShowTimeTable(registration, mapping, request, executionSemester);
     }
 
+    public ActionForward chooseTeacher(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        final TeacherContextSelectionBean teacherContextSelectionBean = getRenderedObject();
+
+        final String username = teacherContextSelectionBean.getUsername();
+        if (username != null && !username.isEmpty()) {
+            final AcademicInterval academicInterval = teacherContextSelectionBean.getAcademicInterval();
+            final ExecutionInterval executionInterval = ExecutionInterval.getExecutionInterval(academicInterval);
+
+            final SearchParameters searchParameters = new SearchParameters();
+            searchParameters.setUsername(username);
+
+            final CollectionPager<Person> people =
+                    new SearchPerson().run(searchParameters, new SearchPerson.SearchPersonPredicate(searchParameters));
+            final Collection<Teacher> teachers = new ArrayList<>();
+            for (final Person person : people.getCollection()) {
+                if (person.getTeacher() != null) {
+                    teachers.add(person.getTeacher());
+                }
+            }
+
+            request.setAttribute("teachers", teachers);
+            request.setAttribute("timeTableExecutionSemester", executionInterval);
+
+        }
+
+        return prepare(mapping, form, request, response);
+    }
+
     public ActionForward toggleFirstYearShiftsCapacity(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         request.setAttribute("executionYear", getDomainObject(request, "executionYearId"));
@@ -195,7 +230,7 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
     public ActionForward blockFirstYearShiftsCapacity(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         final ExecutionYear executionYear = getDomainObject(request, "executionYearId");
-        Map<ExecutionDegree, Integer> modified = setFirstYearShiftsCapacity(true, executionYear);
+        final Map<ExecutionDegree, Integer> modified = setFirstYearShiftsCapacity(true, executionYear);
 
         request.setAttribute("affectedDegrees", getAffectedDegreesInfo(modified));
         request.setAttribute("executionYear", executionYear);
@@ -205,16 +240,16 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
     public ActionForward unblockFirstYearShiftsCapacity(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         final ExecutionYear executionYear = getDomainObject(request, "executionYearId");
-        Map<ExecutionDegree, Integer> modified = setFirstYearShiftsCapacity(false, executionYear);
+        final Map<ExecutionDegree, Integer> modified = setFirstYearShiftsCapacity(false, executionYear);
         request.setAttribute("affectedDegrees", getAffectedDegreesInfo(modified));
         request.setAttribute("executionYear", executionYear);
         return mapping.findForward("toggleFirstYearShiftsCapacity");
     }
 
     private List<String> getAffectedDegreesInfo(Map<ExecutionDegree, Integer> modified) {
-        List<String> modifiedDescription = new ArrayList<String>();
+        final List<String> modifiedDescription = new ArrayList<String>();
 
-        for (Map.Entry<ExecutionDegree, Integer> entry : modified.entrySet()) {
+        for (final Map.Entry<ExecutionDegree, Integer> entry : modified.entrySet()) {
             modifiedDescription.add(new String(entry.getKey().getPresentationName() + " :  " + entry.getValue()));
         }
         Collections.sort(modifiedDescription);
@@ -230,12 +265,11 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
         final Set<Shift> shifts = new HashSet<Shift>();
         final Map<ExecutionDegree, Integer> modified = new HashMap<ExecutionDegree, Integer>();
 
-        for (final Degree degree : Degree.readAllMatching(DegreeType.oneOf(DegreeType::isBolonhaDegree,
-                DegreeType::isIntegratedMasterDegree))) {
+        for (final Degree degree : Degree
+                .readAllMatching(DegreeType.oneOf(DegreeType::isBolonhaDegree, DegreeType::isIntegratedMasterDegree))) {
             for (final DegreeCurricularPlan degreeCurricularPlan : degree.getActiveDegreeCurricularPlans()) {
-                final ExecutionDegree executionDegree =
-                        degreeCurricularPlan.getExecutionDegreeByAcademicInterval(executionSemester.getExecutionYear()
-                                .getAcademicInterval());
+                final ExecutionDegree executionDegree = degreeCurricularPlan
+                        .getExecutionDegreeByAcademicInterval(executionSemester.getExecutionYear().getAcademicInterval());
 
                 if (executionDegree != null) {
                     for (final SchoolClass schoolClass : executionDegree.getSchoolClassesSet()) {
@@ -257,7 +291,7 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
         }
 
         for (final Shift shift : shifts) {
-            int capacity = shift.getLotacao().intValue();
+            final int capacity = shift.getLotacao().intValue();
 
             if (toBlock && capacity > 0) {
                 shift.setLotacao(capacity * -1);
@@ -267,7 +301,7 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
                 continue;
             }
 
-            for (ExecutionDegree executionDegree : shiftsDegrees.get(shift)) {
+            for (final ExecutionDegree executionDegree : shiftsDegrees.get(shift)) {
                 if (modified.containsKey(executionDegree)) {
                     modified.put(executionDegree, modified.get(executionDegree) + 1);
                 } else {
@@ -277,8 +311,8 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
         }
 
         if (modified.size() > 0) {
-            new FirstYearShiftsCapacityToggleLog(executionYear.getFirstExecutionPeriod(), Authenticate.getUser().getPerson()
-                    .getUser());
+            new FirstYearShiftsCapacityToggleLog(executionYear.getFirstExecutionPeriod(),
+                    Authenticate.getUser().getPerson().getUser());
         }
 
         return modified;
