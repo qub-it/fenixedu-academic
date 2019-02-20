@@ -915,6 +915,7 @@ public class StudentLine implements java.io.Serializable {
         return "Não especificado";
     }
 
+  //PERIOD_REFACTOR: REMOVE and UTL Scholarships
     public String getLastEnrolledExecutionYear() {
         if (getStudent() == null) {
             return "";

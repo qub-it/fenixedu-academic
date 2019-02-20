@@ -905,6 +905,7 @@ public class CourseGroup extends CourseGroup_Base {
         return getDegree().getFilteredName(executionYear, locale);
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with DegreeInfo.executionYear.isCurrent
     final public String getGraduateTitle() {
         return getGraduateTitle(ExecutionYear.readCurrentExecutionYear(), I18N.getLocale());
     }

@@ -43,6 +43,7 @@ import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
 public class ExecutionPeriodsForStudentCurricularPlanProvider implements DataProvider {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     @Override
     public Object provide(Object source, Object currentValue) {
         // final List<ExecutionSemester> result = new
@@ -79,6 +80,7 @@ public class ExecutionPeriodsForStudentCurricularPlanProvider implements DataPro
         return executionPeriodsInTimePeriod;
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     private Date getEndDate() {
         return ExecutionYear.readCurrentExecutionYear().getLastExecutionPeriod().getEndDate();
     }

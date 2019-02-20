@@ -1209,6 +1209,7 @@ public class CompetenceCourseManagementBackingBean extends FenixBackingBean {
         return FenixFramework.getDomainObject(getExecutionYearID());
     }
 
+  //PERIOD_REFACTOR: Choose current of executionYear.readCurrentExecution(default calendar)
     public String getExecutionYearID() {
         if (executionYearID == null) {
             executionYearID = getAndHoldStringParameter("executionYearID");

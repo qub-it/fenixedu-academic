@@ -248,6 +248,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         return isConcluded(getApprovedCurriculumLinesLastExecutionYear()).value();
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ExecutionYear getApprovedCurriculumLinesLastExecutionYear() {
         final SortedSet<ExecutionYear> executionYears = new TreeSet<ExecutionYear>(ExecutionYear.COMPARATOR_BY_YEAR);
 

@@ -67,6 +67,7 @@ public class AcademicCalendarsManagementDA extends FenixDispatchAction {
     public ActionForward prepareCreateAcademicCalendar(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
 
+      //PERIOD_REFACTOR: TMP HACK (until functionality is replaced)
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         Partial begin;
         Partial end;
@@ -98,6 +99,7 @@ public class AcademicCalendarsManagementDA extends FenixDispatchAction {
             HttpServletResponse response) throws Exception {
 
         AcademicCalendarEntry academicCalendar = getAcademicCalendarEntryFromParameter(request);
+      //PERIOD_REFACTOR: TMP HACK (until functionality is replaced)
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
 
         Partial begin;
@@ -127,6 +129,7 @@ public class AcademicCalendarsManagementDA extends FenixDispatchAction {
 
         if (beginDate.isAfter(endDate)) {
             addActionMessage(request, "error.begin.after.end");
+          //PERIOD_REFACTOR: TMP HACK (until functionality is replaced)
             ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
             Partial begin = CalendarEntryBean.getPartialFromYearMonthDay(currentExecutionYear.getBeginDateYearMonthDay());
             Partial end = CalendarEntryBean.getPartialFromYearMonthDay(currentExecutionYear.getEndDateYearMonthDay());

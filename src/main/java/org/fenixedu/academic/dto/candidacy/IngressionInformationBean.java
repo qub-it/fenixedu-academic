@@ -74,6 +74,7 @@ public class IngressionInformationBean implements Serializable {
         this.registration = registration;
     }
 
+   //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public Collection<ExecutionYear> getExecutionYearsSinceRegistrationStart() {
         return ExecutionYear.readExecutionYears(getRegistration().getStartExecutionYear(),
                 ExecutionYear.readCurrentExecutionYear());

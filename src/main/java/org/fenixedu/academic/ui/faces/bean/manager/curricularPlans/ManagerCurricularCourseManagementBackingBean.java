@@ -277,6 +277,7 @@ public class ManagerCurricularCourseManagementBackingBean extends CurricularCour
         return result;
     }
 
+  //PERIOD_REFACTOR: Delete if this backing bean is not used
     private void readBolonhaExecutionYears(final List<SelectItem> result) {
         final Collection<ExecutionDegree> executionDegrees = getDegreeCurricularPlan().getExecutionDegreesSet();
         if (executionDegrees.isEmpty()) {
@@ -297,6 +298,7 @@ public class ManagerCurricularCourseManagementBackingBean extends CurricularCour
         }
     }
 
+  //PERIOD_REFACTOR: Delete if this backing bean is not used
     private void readPreBolonhaExecutionYears(final List<SelectItem> result) {
         for (final ExecutionYear executionYear : rootDomainObject.getExecutionYearsSet()) {
             result.add(new SelectItem(executionYear.getExternalId(), executionYear.getYear()));

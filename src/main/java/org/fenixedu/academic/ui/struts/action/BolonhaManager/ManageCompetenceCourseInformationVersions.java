@@ -82,6 +82,7 @@ import pt.ist.fenixframework.Atomic;
                 path = "/bolonhaManager/competenceCourseVersions/viewCompetenceCourseInformation.jsp") })
 public class ManageCompetenceCourseInformationVersions extends FenixDispatchAction {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @EntryPoint
     public ActionForward prepare(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {

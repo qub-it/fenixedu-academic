@@ -1389,6 +1389,7 @@ public class CurricularCourse extends CurricularCourse_Base {
         return new ArrayList<ExecutionCourse>();
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public boolean isActive(final ExecutionYear executionYear) {
         final ExecutionYear executionYearToCheck =
                 executionYear == null ? ExecutionYear.readCurrentExecutionYear() : executionYear;

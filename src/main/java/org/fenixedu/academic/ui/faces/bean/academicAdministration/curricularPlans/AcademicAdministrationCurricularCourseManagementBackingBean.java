@@ -292,6 +292,8 @@ public class AcademicAdministrationCurricularCourseManagementBackingBean extends
         return result;
     }
 
+  //PERIOD_REFACTOR: Choose current of executionYear.readCurrentExecution(default calendar)
+  //PERIOD_REFACTOR: Delete if this backing bean is not used
     private void readBolonhaExecutionYears(final List<SelectItem> result) {
         for (final ExecutionYear executionYear : ExecutionYear.readNotClosedExecutionYears()) {
             result.add(new SelectItem(executionYear.getExternalId(), executionYear.getYear()));
@@ -302,7 +304,9 @@ public class AcademicAdministrationCurricularCourseManagementBackingBean extends
                     .readCurrentExecutionYear().getExternalId());
         }
     }
-
+    
+  //PERIOD_REFACTOR: Choose current of executionYear.readCurrentExecution(default calendar)
+  //PERIOD_REFACTOR: Delete if this backing bean is not used
     private void readPreBolonhaExecutionYears(final List<SelectItem> result) {
         for (final ExecutionYear executionYear : rootDomainObject.getExecutionYearsSet()) {
             result.add(new SelectItem(executionYear.getExternalId(), executionYear.getYear()));

@@ -333,6 +333,7 @@ public class DegreeCurricularPlanManagementBackingBean extends FenixBackingBean 
         getViewState().setAttribute("executionYearID", executionYearID);
     }
 
+    //PERIOD_REFACTOR: Choose current of executionYear.readCurrentExecution(default calendar)
     public List<SelectItem> getExecutionYearItems() throws FenixServiceException {
         final List<SelectItem> result = new ArrayList<SelectItem>();
 

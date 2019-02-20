@@ -46,6 +46,7 @@ import com.google.common.collect.Lists;
         path = "/academicAdministration/bolonha/curricularCourses/search/searchCurricularCourses.jsp") })
 public class SearchCurricularCoursesInDegreeCurricularPlan extends FenixDispatchAction {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ActionForward prepareSearch(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
         DegreeCurricularPlan degreeCurricularPlan = getDomainObject(request, "dcpId");
@@ -60,6 +61,7 @@ public class SearchCurricularCoursesInDegreeCurricularPlan extends FenixDispatch
         return mapping.findForward("searchCurricularCourses");
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ActionForward search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         DegreeCurricularPlan degreeCurricularPlan = getDomainObject(request, "dcpId");
         SearchCurricularCourseBean searchBean = getRenderedObject("searchBean");
@@ -75,6 +77,7 @@ public class SearchCurricularCoursesInDegreeCurricularPlan extends FenixDispatch
         return mapping.findForward("searchCurricularCourses");
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ActionForward searchInvalid(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
         DegreeCurricularPlan degreeCurricularPlan = getDomainObject(request, "dcpId");

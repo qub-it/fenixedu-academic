@@ -28,6 +28,7 @@ import org.joda.time.Partial;
 import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
+//PERIOD_REFACTOR: REMOVE
 public class YearsPartialProvider implements DataProvider {
 
     @Override

@@ -79,6 +79,7 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
  * @author - Shezad Anavarali (shezad@ist.utl.pt)
  * 
  */
+//PERIOD_REFACTOR: Move to RegistrationHistoryReport
 @StrutsFunctionality(app = AcademicAdminListingsApp.class, path = "students-by-curricular-course",
         titleKey = "link.studentsListByCurricularCourse", accessGroup = "academic(STUDENT_LISTINGS)")
 @Mapping(path = "/studentsListByCurricularCourse", module = "academicAdministration")

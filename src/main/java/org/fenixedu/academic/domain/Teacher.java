@@ -323,6 +323,7 @@ public class Teacher extends Teacher_Base {
         deleteDomainObject();
     }
 
+    //PERIOD_REFACTOR: Remove
     public boolean hasLessons(DateTime begin, DateTime end) {
         return hasLessons(begin, end, ExecutionYear.readCurrentExecutionYear());
     }

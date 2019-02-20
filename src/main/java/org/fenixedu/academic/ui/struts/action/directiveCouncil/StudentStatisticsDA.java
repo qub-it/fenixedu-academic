@@ -45,6 +45,7 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
 @StrutsFunctionality(app = DirectiveCouncilApplication.class, path = "student-statistics", titleKey = "link.statistics.students")
 @Mapping(path = "/studentStatistics", module = "directiveCouncil")
 @Forwards(@Forward(name = "show.student.statistics", path = "/directiveCouncil/showStudentStatistics.jsp"))
+//PERIOD_REFACTOR: REMOVE
 public class StudentStatisticsDA extends FenixDispatchAction {
 
     public static class ContextBean implements Serializable, HasExecutionYear, HasDegreeType {

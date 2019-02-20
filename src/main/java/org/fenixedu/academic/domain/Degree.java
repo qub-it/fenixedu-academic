@@ -149,6 +149,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         setRootDomainObject(Bennu.getInstance());
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Degree(final String name, final String nameEn, final String code, final DegreeType degreeType,
             final GradeScale gradeScale) {
         this(name, nameEn, code, degreeType, gradeScale, ExecutionYear.readCurrentExecutionYear());
@@ -165,6 +166,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         this.setDegreeType(degreeType);
     }
 
+    //PERIOD_REFACTOR: ExecutionYear as argument
     public Degree(final String name, final String nameEn, final String acronym, final DegreeType degreeType,
             final Double ectsCredits, final GradeScale gradeScale, final String prevailingScientificArea,
             final AdministrativeOffice administrativeOffice) {
@@ -598,6 +600,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
                 .getContent(org.fenixedu.academic.util.LocaleUtils.EN);
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     final public LocalizedString getNameI18N() {
         return getNameFor(ExecutionYear.readCurrentExecutionYear());
     }
@@ -606,6 +609,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return getNameFor(executionYear);
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     public LocalizedString getPresentationNameI18N() {
         return getPresentationNameI18N(ExecutionYear.readCurrentExecutionYear());
     }
@@ -631,6 +635,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return getPresentationNameI18N(executionYear).getContent(locale);
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     final public String getFilteredName() {
         return getFilteredName(ExecutionYear.readCurrentExecutionYear(), I18N.getLocale());
     }
@@ -863,6 +868,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return getMostRecentDegreeInfo(executionYear).getProfessionalExits();
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     public DegreeInfo getMostRecentDegreeInfo() {
         return getMostRecentDegreeInfo(ExecutionYear.readCurrentExecutionYear());
     }
@@ -933,6 +939,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
                 executionYear);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public DegreeInfo createCurrentDegreeInfo() {
         return createCurrentDegreeInfo(ExecutionYear.readCurrentExecutionYear());
     }
@@ -1013,6 +1020,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return result;
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionDegree.executionYear.isCurrent
     final private Collection<Coordinator> getCurrentCoordinators(final boolean responsible) {
         SortedSet<ExecutionYear> years = new TreeSet<ExecutionYear>(new ReverseComparator(ExecutionYear.COMPARATOR_BY_YEAR));
         years.addAll(getDegreeCurricularPlansExecutionYears());
@@ -1080,6 +1088,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return new ArrayList<>(result);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Collection<Space> getCurrentCampus() {
         ExecutionYear executionYear = ExecutionYear.readCurrentExecutionYear();
         Collection<Space> result = this.getCampus(executionYear);
@@ -1247,6 +1256,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         setIdCardName(nome);
     }
 
+   //PERIOD_REFACTOR: Remove
     public boolean isActive() {
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         for (DegreeCurricularPlan curricularPlan : getDegreeCurricularPlansSet()) {

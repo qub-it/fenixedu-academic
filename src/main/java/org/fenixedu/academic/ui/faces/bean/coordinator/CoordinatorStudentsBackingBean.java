@@ -275,6 +275,7 @@ public class CoordinatorStudentsBackingBean extends FenixBackingBean {
 
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ExecutionYear getExecutionYear() {
         if (executionDegreeId != null) {
             ExecutionDegree executionDegree = FenixFramework.getDomainObject(executionDegreeId);

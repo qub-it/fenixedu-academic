@@ -30,6 +30,7 @@ import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
 public class OpenExecutionYearsProvider implements DataProvider {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @Override
     public Object provide(Object source, Object currentValue) {
 

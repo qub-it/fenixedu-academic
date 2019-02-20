@@ -44,6 +44,7 @@ import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
 public class CurriculumGroupsProviderForEnrolmentsLocationManagement implements DataProvider {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     @Override
     public Object provide(Object source, Object currentValue) {
 

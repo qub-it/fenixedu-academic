@@ -236,6 +236,7 @@ public class AcademicInterval extends AbstractInterval implements Serializable {
         return closest;
     }
 
+    //PERIOD_REFACTOR: To review
     public static AcademicInterval readDefaultAcademicInterval(AcademicPeriod academicPeriod) {
         if (academicPeriod.equals(AcademicPeriod.SEMESTER)) {
             return ExecutionSemester.readActualExecutionSemester().getAcademicInterval();

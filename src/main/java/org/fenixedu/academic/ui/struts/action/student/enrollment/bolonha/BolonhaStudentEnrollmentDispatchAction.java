@@ -59,6 +59,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
         @Forward(name = "welcome-dea-degree", path = "/student/phdStudentEnrolment.do?method=showWelcome"),
         @Forward(name = "showEnrollmentInstructions", path = "/student/enrollment/bolonha/showEnrollmentInstructions.jsp"),
         @Forward(name = "enrollmentCannotProceed", path = "/student/enrollment/bolonha/enrollmentCannotProceed.jsp") })
+//PERIOD_REFACTOR: REMOVE
 public class BolonhaStudentEnrollmentDispatchAction extends AbstractBolonhaStudentEnrollmentDA {
 
     @Override

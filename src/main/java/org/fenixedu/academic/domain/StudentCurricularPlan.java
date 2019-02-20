@@ -640,6 +640,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return false;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     final public boolean hasAnyEnrolmentForCurrentExecutionYear() {
         return hasAnyEnrolmentForExecutionYear(ExecutionYear.readCurrentExecutionYear());
     }
@@ -1466,6 +1467,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getDegreeCurricularPlan().getName();
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     final public String getPresentationName() {
         return getPresentationName(ExecutionYear.readCurrentExecutionYear());
     }

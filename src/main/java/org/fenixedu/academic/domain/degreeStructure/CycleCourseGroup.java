@@ -77,6 +77,7 @@ public class CycleCourseGroup extends CycleCourseGroup_Base {
         return Collections.singletonList(this);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Double getCurrentDefaultEcts() {
         return getDefaultEcts(ExecutionYear.readCurrentExecutionYear());
     }

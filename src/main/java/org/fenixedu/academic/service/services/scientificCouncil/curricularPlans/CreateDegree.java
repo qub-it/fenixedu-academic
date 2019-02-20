@@ -34,6 +34,7 @@ import pt.ist.fenixframework.Atomic;
 
 public class CreateDegree {
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @Atomic
     public static void run(String name, String nameEn, String acronym, DegreeType degreeType, Double ectsCredits,
             GradeScale gradeScale, String prevailingScientificArea, AdministrativeOffice administrativeOffice)

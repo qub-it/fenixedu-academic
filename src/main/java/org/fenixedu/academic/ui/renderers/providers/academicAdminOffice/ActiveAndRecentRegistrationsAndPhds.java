@@ -32,6 +32,7 @@ import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.EditC
 import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
+//PERIOD_REFACTOR: REMOVE
 public class ActiveAndRecentRegistrationsAndPhds implements DataProvider {
 
     @Override

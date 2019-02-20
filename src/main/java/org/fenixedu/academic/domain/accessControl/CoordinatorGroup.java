@@ -103,6 +103,7 @@ public class CoordinatorGroup extends FenixGroup {
         return new String[] { connector, Joiner.on(", ").join(parts) };
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @Override
     public Stream<User> getMembers() {
         Set<User> users = new HashSet<>();

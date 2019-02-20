@@ -807,6 +807,7 @@ public class PersonalInformationBean implements Serializable {
         this.mobilityProgramDuration = mobilityProgramDuration;
     }
 
+    //PERIOD_REFACTOR: Remove? Check usage
     private PrecedentDegreeInformation getPrecedentDegreeInformation() {
         return getRegistration().getPrecedentDegreeInformation(ExecutionYear.readCurrentExecutionYear());
     }
@@ -815,6 +816,7 @@ public class PersonalInformationBean implements Serializable {
         return getRegistration().getStudent();
     }
 
+    //PERIOD_REFACTOR: Remove? Check usage
     @Atomic
     public void updatePersonalInformation(boolean isStudentEditing) {
         PrecedentDegreeInformation precedentInfo = getPrecedentDegreeInformation();

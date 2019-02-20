@@ -83,6 +83,7 @@ public class ExecutionYearViewDA extends FenixDispatchAction {
         return executionYearJson;
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ActionForward showHome(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         User userView = Authenticate.getUser();
 

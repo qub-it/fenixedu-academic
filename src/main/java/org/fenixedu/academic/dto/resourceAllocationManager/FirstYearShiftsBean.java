@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 
+//PERIOD_REFACTOR: Remove? Check usage and action
 public class FirstYearShiftsBean implements Serializable {
     private ExecutionYear executionYear;
     private EntryPhase phase;

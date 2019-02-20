@@ -58,6 +58,7 @@ import com.google.gson.JsonParser;
         @Forward(name = "viewHistoric", path = "/coordinator/degreeSite/viewHistoric.jsp"),
         @Forward(name = "viewInformation", path = "/coordinator/degreeSite/viewDegreeInfo.jsp"),
         @Forward(name = "viewDescriptionCurricularPlan", path = "/coordinator/degreeSite/viewDescriptionCurricularPlan.jsp") })
+//PERIOD_REFACTOR: REMOVE
 public class DegreeSiteManagementDispatchAction extends FenixDispatchAction {
 
     @Override
@@ -208,6 +209,7 @@ public class DegreeSiteManagementDispatchAction extends FenixDispatchAction {
         return mapping.findForward("viewHistoric");
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public static class CreateCurrentDegreeInfo {
         @Atomic
         public static DegreeInfo run(Degree degree) {

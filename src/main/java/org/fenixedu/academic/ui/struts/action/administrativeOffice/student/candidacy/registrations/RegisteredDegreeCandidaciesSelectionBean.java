@@ -193,6 +193,7 @@ public class RegisteredDegreeCandidaciesSelectionBean implements Serializable {
         spreadsheet.setHeader("Turnos");
     }
 
+  //PERIOD_REFACTOR: REMOVE bean and action
     private void addRow(final Spreadsheet spreadsheet, final StudentCandidacy candidacy) {
         final Row row = spreadsheet.addRow();
         final Person person = candidacy.getPerson();

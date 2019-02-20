@@ -48,6 +48,7 @@ public class ResponsibleForExecutionCourseGroup extends FenixGroup {
         return INSTANCE;
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS (remove break)
     @Override
     public Stream<User> getMembers() {
         Set<User> users = new HashSet<>();
@@ -76,6 +77,7 @@ public class ResponsibleForExecutionCourseGroup extends FenixGroup {
         return getMembers();
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @Override
     public boolean isMember(User user) {
         if (user != null && user.getPerson().getTeacher() != null) {

@@ -99,6 +99,7 @@ public class TeacherGroup extends FenixGroup {
         return new TeacherGroup(degree, executionCourse, campus, department, executionYear);
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     private ExecutionYear getExecutionYear() {
         return executionYear != null ? executionYear : ExecutionYear.readCurrentExecutionYear();
     }

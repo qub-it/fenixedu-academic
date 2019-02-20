@@ -447,6 +447,7 @@ public class CurricularCourseManagementBackingBean extends FenixBackingBean {
         getViewState().setAttribute("executionYearID", executionYearID);
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public ExecutionYear getExecutionYear() {
         String executionYearId = getExecutionYearID();
 
@@ -465,6 +466,7 @@ public class CurricularCourseManagementBackingBean extends FenixBackingBean {
         return currentExecutionYear;
     }
 
+  //PERIOD_REFACTOR: REMOVE
     protected InfoExecutionYear getCurrentExecutionYear() {
         return InfoExecutionYear.newInfoFromDomain(ExecutionYear.readCurrentExecutionYear());
     }

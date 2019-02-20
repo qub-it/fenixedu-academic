@@ -29,6 +29,7 @@ import pt.ist.fenixWebFramework.rendererExtensions.converters.DomainObjectKeyCon
 import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
+//PERIOD_REFACTOR: REMOVE (check academic office functionality)
 public class ExecutionSemestersForSpecialSeasonProvider implements DataProvider {
 
     @Override

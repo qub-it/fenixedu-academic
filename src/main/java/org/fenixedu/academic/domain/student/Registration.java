@@ -160,14 +160,17 @@ public class Registration extends Registration_Base {
         this(person, null, RegistrationProtocol.getDefault(), null, studentCandidacy);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Registration(final Person person, final Integer studentNumber, final Degree degree) {
         this(person, studentNumber, RegistrationProtocol.getDefault(), null, degree);
     }
 
+  //PERIOD_REFACTOR: REMOVE
     public Registration(final Person person, final DegreeCurricularPlan degreeCurricularPlan) {
         this(person, degreeCurricularPlan, RegistrationProtocol.getDefault(), null, null);
     }
 
+  //PERIOD_REFACTOR: REMOVE
     public Registration(final Person person, final DegreeCurricularPlan degreeCurricularPlan, final CycleType cycleType) {
         this(person, degreeCurricularPlan, RegistrationProtocol.getDefault(), cycleType, null);
     }
@@ -178,6 +181,7 @@ public class Registration extends Registration_Base {
         createStudentCurricularPlan(degreeCurricularPlan, executionYear, cycleType);
     }
 
+    //PERIOD_REFACTOR: Throw error if execution year is null
     public static Registration createRegistrationWithCustomStudentNumber(final Person person,
             final DegreeCurricularPlan degreeCurricularPlan, final StudentCandidacy studentCandidacy,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear,
@@ -218,6 +222,7 @@ public class Registration extends Registration_Base {
         return studentCandidacy == null ? null : studentCandidacy.getExecutionDegree().getDegree();
     }
 
+  //PERIOD_REFACTOR: Throw error if execution year is null (check references delete or refactor)
     private Registration(final Person person, final Integer registrationNumber, final RegistrationProtocol protocol,
             final ExecutionYear executionYear, final Degree degree) {
 
@@ -1843,6 +1848,7 @@ public class Registration extends Registration_Base {
         return getLastStudentCurricularPlan().getEnrolmentsEctsCredits(executionYear);
     }
 
+    //PERIOD_REFACTOR: Replace by readCurrentExecutionYear(ExecutionYearType)
     final public int getCurricularYear() {
         return getCurricularYear(ExecutionYear.readCurrentExecutionYear());
     }
@@ -2013,6 +2019,7 @@ public class Registration extends Registration_Base {
         return result;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     final public CycleType getCurrentCycleType() {
         return getCycleType(ExecutionYear.readCurrentExecutionYear());
     }
@@ -2119,6 +2126,7 @@ public class Registration extends Registration_Base {
         return getRegistrationYear() == executionYear;
     }
 
+    //TODO: REMOVE + UTL scholarship references
     final public boolean isFirstTime() {
         return isFirstTime(ExecutionYear.readCurrentExecutionYear());
     }
@@ -2128,6 +2136,7 @@ public class Registration extends Registration_Base {
                 executionYear.getEndDateYearMonthDay());
     }
 
+    //PERIOD_REFACTOR: REMOVE
     final public StudentCurricularPlan getStudentCurricularPlanForCurrentExecutionYear() {
         return getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear());
     }
@@ -2536,6 +2545,7 @@ public class Registration extends Registration_Base {
         return null;
     }
 
+    //PERIOD_REFACTOR: Analyse to remove
     public PrecedentDegreeInformation getLatestPrecedentDegreeInformation() {
         TreeSet<PrecedentDegreeInformation> degreeInformations =
                 new TreeSet<>(Collections.reverseOrder(PrecedentDegreeInformation.COMPARATOR_BY_EXECUTION_YEAR));
@@ -2552,6 +2562,7 @@ public class Registration extends Registration_Base {
         return degreeInformations.iterator().next();
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public int getNumberEnroledCurricularCoursesInCurrentYear() {
         return getLastStudentCurricularPlan() == null ? 0 : getLastStudentCurricularPlan()
                 .countEnrolments(ExecutionYear.readCurrentExecutionYear());

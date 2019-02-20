@@ -58,6 +58,7 @@ public class EditCandidacyInformationDA extends FenixDispatchAction {
         return mapping.findForward("editCandidacyInformation");
     }
 
+  //PERIOD_REFACTOR: Remove? Check usage and replacement by blue record
     private PersonalInformationBean getPersonalInformationBean(HttpServletRequest request) {
         ChooseRegistrationOrPhd chooseRegistrationOrPhd = getRenderedObject("choosePhdOrRegistration");
         if (chooseRegistrationOrPhd.getPhdRegistrationWrapper() == null) {

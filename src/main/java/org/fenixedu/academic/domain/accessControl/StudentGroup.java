@@ -166,6 +166,7 @@ public class StudentGroup extends FenixGroup {
         return new String[] { connector, Joiner.on(", ").join(parts) };
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     private ExecutionYear getExecutionYear() {
         return executionYear != null ? executionYear : ExecutionYear.readCurrentExecutionYear();
     }
@@ -293,6 +294,7 @@ public class StudentGroup extends FenixGroup {
         return registrations;
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     private Stream<Registration> getCampusBasedRegistrations() {
         Set<Registration> registrations = new HashSet<>();
         for (final ExecutionDegree executionDegree : ExecutionYear.readCurrentExecutionYear().getExecutionDegreesSet()) {

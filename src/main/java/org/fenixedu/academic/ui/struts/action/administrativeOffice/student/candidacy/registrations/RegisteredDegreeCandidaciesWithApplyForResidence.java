@@ -92,6 +92,7 @@ public class RegisteredDegreeCandidaciesWithApplyForResidence {
         spreadsheet.setHeader("Nota sobre Candidatura");
     }
 
+  //PERIOD_REFACTOR: REMOVE action
     private void addRow(Spreadsheet spreadsheet, StudentCandidacy candidacy) {
 
         final Person person = candidacy.getPerson();

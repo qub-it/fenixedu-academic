@@ -35,6 +35,7 @@ import pt.ist.fenixWebFramework.rendererExtensions.converters.DomainObjectKeyCon
 import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
+//PERIOD_REFACTOR: REMOVE provider and schema
 public class ExecutionPeriodsForCandidacyRegistrationProvider implements DataProvider {
 
     @Override

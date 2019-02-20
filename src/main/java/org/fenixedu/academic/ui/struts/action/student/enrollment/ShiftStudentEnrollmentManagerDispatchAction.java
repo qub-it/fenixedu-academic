@@ -87,6 +87,7 @@ import pt.ist.fenixframework.FenixFramework;
                 type = ClassEnrollmentAuthorizationFilter.OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan.class,
                 key = "error.message.OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan",
                 handler = FenixErrorExceptionHandler.class, scope = "request") })
+//PERIOD_REFACTOR: REMOVE
 public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAction {
 
     @EntryPoint

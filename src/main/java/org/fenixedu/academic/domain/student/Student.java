@@ -366,6 +366,7 @@ public class Student extends Student_Base {
         return result;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Collection<StudentStatuteBean> getCurrentStatutes() {
         return getStatutesValidOnAnyExecutionSemesterFor(ExecutionYear.readCurrentExecutionYear());
     }
@@ -435,6 +436,7 @@ public class Student extends Student_Base {
         return false;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public boolean isSeniorForCurrentExecutionYear() {
         return isSenior(ExecutionYear.readCurrentExecutionYear());
     }
@@ -644,6 +646,7 @@ public class Student extends Student_Base {
         return result;
     }
 
+    //PERIOD_REFACTOR: REMOVE and action
     public List<Registration> getTransitionRegistrationsForDegreeCurricularPlansManagedByCoordinator(final Person coordinator) {
         final List<Registration> result = new ArrayList<>();
         for (final Registration registration : super.getRegistrationsSet()) {
@@ -851,6 +854,7 @@ public class Student extends Student_Base {
         return getRegistrationStream().flatMap(r -> r.getAssociatedAttendsSet().stream()).anyMatch(a -> a.isFor(executionCourse));
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public boolean hasAnyMissingPersonalInformation() {
         final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         if (getRegistrationStream()
@@ -861,6 +865,7 @@ public class Student extends Student_Base {
         return false;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public List<PersonalInformationBean> getPersonalInformationsWithMissingInformation() {
         final List<PersonalInformationBean> result = new ArrayList<>();
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
@@ -915,6 +920,7 @@ public class Student extends Student_Base {
         return false;
     }
 
+    //PERIOD_REFACTOR: REMOVE check usage
     public PersonalIngressionData getLatestPersonalIngressionData() {
         final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
         final Comparator<PersonalIngressionData> comparator =

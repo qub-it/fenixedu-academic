@@ -451,6 +451,7 @@ public class StudentCurricularPlanRenderer extends InputRenderer {
 
         protected ExecutionYear initializeExecutionYear() {
 
+          //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
             if (!studentCurricularPlan.getRegistration().hasConcluded()) {
                 return ExecutionYear.readCurrentExecutionYear();
             }
@@ -465,6 +466,7 @@ public class StudentCurricularPlanRenderer extends InputRenderer {
                 return lastSCPExecutionYear;
             }
 
+          //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
             return ExecutionYear.readCurrentExecutionYear();
         }
 

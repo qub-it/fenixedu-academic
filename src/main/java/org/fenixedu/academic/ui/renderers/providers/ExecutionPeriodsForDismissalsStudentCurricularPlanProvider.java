@@ -34,6 +34,7 @@ import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
 public class ExecutionPeriodsForDismissalsStudentCurricularPlanProvider implements DataProvider {
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     @Override
     public Object provide(Object source, Object currentValue) {
         final List<ExecutionSemester> result = new ArrayList<ExecutionSemester>();

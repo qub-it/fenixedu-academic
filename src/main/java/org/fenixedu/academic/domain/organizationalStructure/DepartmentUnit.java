@@ -221,6 +221,7 @@ public class DepartmentUnit extends DepartmentUnit_Base {
         }
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with executionYear.readCurrentExecutionYEARS
     @Override
     public List<Group> getDefaultGroups() {
         List<Group> groups = super.getDefaultGroups();

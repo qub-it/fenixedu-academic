@@ -65,6 +65,7 @@ public class PeriodsManagementBean implements Serializable {
 
     // Typical bean methods
 
+    //PERIOD_REFACTOR: Choose any of executionYear.readCurrentExecutionYEARS (check usage or delete this bean)
     public PeriodsManagementBean() {
         setExecutionYear(ExecutionYear.readCurrentExecutionYear());
         this.availablePeriodTypes = computeAvailablePeriodTypes();

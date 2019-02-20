@@ -156,6 +156,7 @@ public class CreateExecutionDegreesForExecutionYearBean extends FenixBackingBean
         return FenixFramework.getDomainObject(chosenDegreeType);
     }
 
+  //PERIOD_REFACTOR: Delete if this backing bean is not used (TMP HACK until functionality is replaced)
     public List getExecutionYears() {
         final List<SelectItem> result = new ArrayList<SelectItem>();
         for (final ExecutionYear executionYear : ExecutionYear.readNotClosedExecutionYears()) {

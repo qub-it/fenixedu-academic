@@ -52,6 +52,7 @@ import pt.ist.fenixframework.FenixFramework;
 @StrutsFunctionality(app = ExternalSupervisionConsultApp.class, path = "degree", titleKey = "label.selectDegree.executionDegree")
 @Mapping(path = "/viewDegree", module = "externalSupervision")
 @Forwards({ @Forward(name = "selectDegree", path = "/externalSupervision/consult/selectDegree.jsp") })
+//PERIOD_REFACTOR: REMOVE
 public class ExternalSupervisorViewDegreeDA extends FenixDispatchAction {
 
     @EntryPoint

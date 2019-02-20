@@ -398,6 +398,7 @@ public class DegreeManagementBackingBean extends FenixBackingBean {
         }
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public String getSelectedExecutionYearId() {
         if (selectedExecutionYearID == null) {
             selectedExecutionYearID = getAndHoldStringParameter("selectedExecutionYearId");
@@ -437,6 +438,7 @@ public class DegreeManagementBackingBean extends FenixBackingBean {
         this.nameInputComponent = nameInputComponent;
     }
 
+  //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with ExecutionYear.readCurrentExecutionYear(ExecutionYearType)
     public HtmlInputText getNameEnInputComponent() {
         if (this.nameEnInputComponent == null) {
             this.nameEnInputComponent = new HtmlInputText();

@@ -203,6 +203,7 @@ public class CycleCurriculumGroup extends CycleCurriculumGroup_Base {
         return result;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Double getCurrentDefaultEcts() {
         return getDegreeModule().getCurrentDefaultEcts();
     }

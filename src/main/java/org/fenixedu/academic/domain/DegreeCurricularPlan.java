@@ -459,7 +459,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     public boolean hasExecutionDegreeFor(final ExecutionYear executionYear) {
         return getExecutionDegreeByYear(executionYear) != null;
     }
-
+    
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     public ExecutionDegree getMostRecentExecutionDegree() {
         if (getExecutionDegreesSet().isEmpty()) {
             return null;
@@ -877,6 +878,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super.setDegreeStructure(degreeStructure);
     }
 
+   //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     public String getPresentationName() {
         return getPresentationName(ExecutionYear.readCurrentExecutionYear(), I18N.getLocale());
     }
@@ -1025,6 +1027,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
     }
 
+    //PERIOD_REFACTOR: REMOVE
     @Override
     public YearMonthDay getEndDateYearMonthDay() {
         if (isBolonhaDegree() && !getExecutionDegreesSet().isEmpty()) {
@@ -1154,6 +1157,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return programConclusion.groupFor(this).map(cg -> cg.getGraduateTitle(executionYear, locale)).orElse(null);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public List<CurricularCourse> getDissertationCurricularCourses(ExecutionYear year) {
         List<CurricularCourse> result = new ArrayList<>();
 
@@ -1180,6 +1184,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public Set<Enrolment> getDissertationEnrolments(final ExecutionYear executionYear) {
         final Set<Enrolment> enrolments = new HashSet<>();
         for (CurricularCourse curricularCourse : getDissertationCurricularCourses(executionYear)) {
@@ -1190,6 +1195,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return enrolments;
     }
 
+    //PERIOD_REFACTOR: REMOVE
     public List<CurricularCourse> getDissertationCurricularCourses() {
         return getDissertationCurricularCourses(ExecutionYear.readCurrentExecutionYear());
     }
@@ -1284,6 +1290,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return degreeCurricularPlans;
     }
 
+    //PERIOD_REFACTOR: Replaced readCurrentExecutionYear with degreeInfo.executionYear.isCurrent
     public List<StudentCurricularPlan> getStudentsCurricularPlanGivenEntryYear(final ExecutionYear entryYear) {
         List<StudentCurricularPlan> studentsGivenEntryYear = new ArrayList<>();
         ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
@@ -1447,6 +1454,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 .map(ExecutionDegree::getExecutionYear).orElse(null);
     }
 
+    //PERIOD_REFACTOR: REMOVE
     @Deprecated
     public java.util.Date getEndDate() {
         org.joda.time.YearMonthDay ymd = getEndDateYearMonthDay();

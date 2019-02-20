@@ -36,6 +36,7 @@ import org.fenixedu.academic.dto.InfoExecutionPeriod;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
+//PERIOD_REFACTOR: REMOVE
 public class ReadExecutionPeriodsByDegreeCurricularPlan {
 
     @Atomic
