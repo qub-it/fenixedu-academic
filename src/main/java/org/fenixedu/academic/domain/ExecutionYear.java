@@ -53,6 +53,8 @@ import pt.ist.fenixframework.dml.runtime.RelationAdapter;
  * @author Jo�o Mota ciapl Dominio
  * 
  */
+//PERIOD_REFACTOR: clean read notopen notclosed methods
+//PERIOD_REFACTOR: check references to readNotClosed vs ExecutionYear.readBy(calendar)
 public class ExecutionYear extends ExecutionYear_Base implements Comparable<ExecutionYear> {
 
     static {
