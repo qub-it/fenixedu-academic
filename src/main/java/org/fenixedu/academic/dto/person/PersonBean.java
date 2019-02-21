@@ -674,7 +674,6 @@ public class PersonBean implements Serializable {
         person.setEmissionLocationOfDocumentId(this.getDocumentIdEmissionLocation());
         person.setEmissionDateOfDocumentIdYearMonthDay(this.getDocumentIdEmissionDate());
         person.setExpirationDateOfDocumentIdYearMonthDay(this.getDocumentIdExpirationDate());
-        person.editSocialSecurityNumber(getFiscalCountry(), this.getSocialSecurityNumber());
         person.setEidentifier(this.getEidentifier());
 
         // filiation

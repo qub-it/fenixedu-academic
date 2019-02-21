@@ -88,7 +88,12 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         if (data == null) {
             return;
         }
+        
         if (!data.equals(new PhysicalAddressData(this))) {
+            if(isFiscalAddress() && getCountryOfResidence() != data.getCountryOfResidence()) {
+                throw new DomainException("error.PhysicalAddress.cannot.change.countryOfResidence.in.fiscal.address");
+            }
+            
             super.setAddress(data.getAddress());
             super.setAreaCode(data.getAreaCode());
             super.setAreaOfAreaCode(data.getAreaOfAreaCode());
@@ -97,6 +102,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
             super.setDistrictSubdivisionOfResidence(data.getDistrictSubdivisionOfResidence());
             super.setDistrictOfResidence(data.getDistrictOfResidence());
             super.setCountryOfResidence(data.getCountryOfResidence());
+
             if (!waitsValidation()) {
                 new PhysicalAddressValidation(this);
             }
@@ -196,6 +202,10 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     @Override
     public boolean isToBeValidated() {
         return requiresValidation();
+    }
+    
+    public boolean isFiscalAddress() {
+        return Boolean.TRUE.equals(super.getFiscalAddress());
     }
 
     public static boolean requiresValidation() {

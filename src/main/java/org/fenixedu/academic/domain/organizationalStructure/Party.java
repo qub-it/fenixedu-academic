@@ -416,6 +416,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return PartySocialSecurityNumber.readPartyBySocialSecurityNumber(contributorNumber);
     }
 
+    @Deprecated
     public Country getFiscalCountry() {
         return getPartySocialSecurityNumber() != null ? getPartySocialSecurityNumber().getFiscalCountry() : null;
     }
@@ -432,8 +433,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         throw new RuntimeException("use editSocialSecurityNumber");
     }
 
-    public void editSocialSecurityNumber(final Country fiscalCountry, String socialSecurityNumber) {
-        PartySocialSecurityNumber.editFiscalInformation(this, fiscalCountry, socialSecurityNumber);
+    public void editSocialSecurityNumber(final String socialSecurityNumber, final PhysicalAddress fiscalAddress) {
+        PartySocialSecurityNumber.editFiscalInformation(this, socialSecurityNumber, fiscalAddress);
     }
 
     public boolean isPerson() {
@@ -1081,7 +1082,33 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public void setCountryOfResidence(Country countryOfResidence) {
-        getOrCreateDefaultPhysicalAddress().setCountryOfResidence(countryOfResidence);
+        PhysicalAddress defaultPhysicalAddress = getOrCreateDefaultPhysicalAddress();
+
+        if(defaultPhysicalAddress.isFiscalAddress() && defaultPhysicalAddress.getCountryOfResidence() != countryOfResidence) {
+            throw new DomainException("error.PhysicalAddress.cannot.change.countryOfResidence.in.fiscal.address");
+        }
+        
+        defaultPhysicalAddress.setCountryOfResidence(countryOfResidence);
+    }
+    
+    public PhysicalAddress getFiscalAddress() {
+        return getAllPartyContacts(PhysicalAddress.class).stream()
+                .map(PhysicalAddress.class::cast)
+                .filter(address -> Boolean.TRUE.equals(address.getActive()))
+                .filter(address -> address.isFiscalAddress())
+                .findFirst().orElse(null);
+    }
+    
+    public void markAsFiscalAddress(final PhysicalAddress fiscalAddress) {
+        if(fiscalAddress.isFiscalAddress()) {
+            return;
+        }
+        
+        getAllPartyContacts(PhysicalAddress.class).stream().forEach(address -> {
+            ((PhysicalAddress) address).setFiscalAddress(false);
+        });
+        
+        fiscalAddress.setFiscalAddress(true);
     }
 
     @Override
