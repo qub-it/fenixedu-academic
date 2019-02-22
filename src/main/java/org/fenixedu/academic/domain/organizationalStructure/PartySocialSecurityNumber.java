@@ -148,7 +148,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
 
     public static PartySocialSecurityNumber editFiscalInformation(final Party party, final String socialSecurityNumber, final PhysicalAddress fiscalAddress) {
         if(party.isPerson()) {
-            TreasuryBridgeAPIFactory.implementation().saveFiscalAddressFieldsFromPersonInCustomer((Person) party);
+            TreasuryBridgeAPIFactory.implementation().saveFiscalAddressFieldsFromPersonInActiveCustomer((Person) party);
         }
         
         if(!fiscalAddress.isFiscalAddress()) {

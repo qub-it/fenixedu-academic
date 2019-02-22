@@ -145,7 +145,9 @@ public class PersonBean implements Serializable {
     private String emailConfirmation;
 
     private String eidentifier;
-
+    
+    private PhysicalAddress fiscalAddress;
+    
     public PersonBean() {
         super();
     }
@@ -226,6 +228,8 @@ public class PersonBean implements Serializable {
         if (Strings.isNullOrEmpty(getIdentificationDocumentSeriesNumber())) {
             setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentExtraDigitValue());
         }
+        
+        setFiscalAddress(person.getFiscalAddress());
     }
 
     public String getAddress() {
@@ -654,6 +658,14 @@ public class PersonBean implements Serializable {
 
     public void setNickname(final String nickname) {
         this.nickname = nickname;
+    }
+    
+    public PhysicalAddress getFiscalAddress() {
+        return fiscalAddress;
+    }
+    
+    public void setFiscalAddress(PhysicalAddress fiscalAddress) {
+        this.fiscalAddress = fiscalAddress;
     }
 
     public Person save() {

@@ -498,6 +498,7 @@
 				    <fr:slot name="documentIdExpirationDate" key="label.person.identificationDocumentExpirationDate">
 				        <fr:validator name="pt.ist.fenixWebFramework.renderers.validators.DateValidator" />
 				    </fr:slot>
+<%--
 					<fr:slot name="fiscalCountry" key="label.fiscalCountry" layout="menu-select-postback">
 							<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.CountryProvider" />
 							<fr:property name="format" value="${name} (${code})"/>
@@ -509,6 +510,7 @@
 							<fr:property name="countryCode" value="<%= (String) pageContext.getAttribute("countryCode") %>" />
 						</fr:validator>
 				    </fr:slot>
+--%>				    
 				    <fr:slot name="profession" key="label.person.occupation"/>
 				    <fr:slot name="maritalStatus" key="label.person.maritalStatus"/>
 				    <fr:slot name="dateOfBirth" key="label.person.birth"/>
@@ -573,10 +575,12 @@
 			    <fr:slot name="expirationDateOfDocumentIdYearMonthDay" key="label.person.identificationDocumentExpirationDate">
 					<validator class="pt.ist.fenixWebFramework.renderers.validators.DateValidator" />
 			    </fr:slot>
+<%--
 			    <fr:slot name="fiscalCountry" key="label.fiscalCountry" >
 			        <fr:property name="format" value="${name}"/>
 			    </fr:slot>
 			    <fr:slot name="socialSecurityNumber" key="label.person.contributorNumber"/>
+--%>			    
 			    <fr:slot name="profession" key="label.person.occupation"/>
 			    <fr:slot name="maritalStatus" key="label.person.maritalStatus"/>
 			    <fr:slot name="dateOfBirthYearMonthDay" key="label.person.birth"/>
@@ -606,7 +610,36 @@
 
 	</logic:equal>
 
+    <h3 class="mtop2 mbottom025"><bean:message key="label.person.title.fiscalInformation" /></h3>
+    <fr:view name="person">
+        <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
+        	<logic:notEmpty name="person" property="fiscalAddress">
+			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
+				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code}  ${socialSecurityNumber}" />
+			</fr:slot>
+        	</logic:notEmpty>
+        	
+        	<logic:empty name="person" property="fiscalAddress">
+			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
+				<fr:property name="format" value="${socialSecurityNumber}" />
+			</fr:slot>
+        	</logic:empty>
 
+        	<fr:slot name="fiscalAddress">
+				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
+        	</fr:slot>
+        </fr:schema>
+	    <fr:layout name="tabular" >
+	        <fr:property name="classes" value="tstyle1 thright thlight mtop0"/>
+	        <fr:property name="columnClasses" value="width14em,"/>
+	    </fr:layout>
+    </fr:view>
+
+    <div class="mbottom2">
+		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">
+			<bean:message key="label.edit" bundle="APPLICATION_RESOURCES" />
+		</html:link>
+    </div>
 
 	<!-- Informacao de Utilizador -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">

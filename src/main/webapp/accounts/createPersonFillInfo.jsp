@@ -75,6 +75,7 @@
 			<fr:slot name="givenNames" required="true" />
 			<fr:slot name="familyNames" />
 			<fr:slot name="gender" required="true" />
+<%-- 
 			<fr:slot name="fiscalCountry" key="label.fiscalCountry" bundle="MANAGER_RESOURCES" required="true" layout="menu-select-postback">
 				<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.CountryProvider" />
 				<fr:property name="format" value="${name} (${code})"/>
@@ -86,6 +87,7 @@
 					<fr:property name="countryCode" value="<%= (String) pageContext.getAttribute("countryCode") %>" />
 				</fr:validator>
 			</fr:slot>
+--%>			
 			<fr:slot name="profession"/>
 			<fr:slot name="maritalStatus"/>
 		</fr:schema>

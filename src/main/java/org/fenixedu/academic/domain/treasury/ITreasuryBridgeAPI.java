@@ -154,6 +154,6 @@ public interface ITreasuryBridgeAPI {
 
     public boolean updateCustomer(final Person person, final String fiscalAddressCountryCode, final String fiscalNumber);
     
-    public void saveFiscalAddressFieldsFromPersonInCustomer(final Person person);
+    public void saveFiscalAddressFieldsFromPersonInActiveCustomer(final Person person);
     
 }
