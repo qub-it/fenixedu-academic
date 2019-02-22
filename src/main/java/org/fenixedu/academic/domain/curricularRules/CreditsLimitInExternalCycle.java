@@ -83,6 +83,7 @@ public class CreditsLimitInExternalCycle extends CurricularRuleNotPersistent {
         return CurricularRuleType.CREDITS_LIMIT_IN_EXTERNAL_CYCLE;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

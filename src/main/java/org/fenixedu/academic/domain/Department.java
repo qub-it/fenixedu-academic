@@ -70,6 +70,7 @@ public class Department extends Department_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSEMESTERS
     public List<Teacher> getAllCurrentTeachers() {
         return getAllTeachers(ExecutionSemester.readActualExecutionSemester());
     }

@@ -46,6 +46,7 @@ import org.fenixedu.bennu.struts.portal.StrutsApplication;
 @Forwards(value = { @Forward(name = "studentPortal", path = "/student/main_bd.jsp") })
 public class ShowStudentPortalDA extends Action {
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(registration, ExecutionSemesterType)
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
             throws Exception {

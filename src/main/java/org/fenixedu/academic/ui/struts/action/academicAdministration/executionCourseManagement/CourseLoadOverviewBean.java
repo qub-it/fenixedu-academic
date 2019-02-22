@@ -42,6 +42,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.spreadsheet.StyledExcelSpreadsheet;
 import org.joda.time.Interval;
 
+//PERIOD_REFACTOR_SEMESTER: REMOVE and action
 public class CourseLoadOverviewBean implements Serializable {
 
     private ExecutionSemester executionSemester;

@@ -58,8 +58,10 @@ import org.joda.time.DateTimeFieldType;
 
 import pt.ist.fenixframework.FenixFramework;
 
+
 @Mapping(path = "/viewRoom", module = "publico", formBean = "indexForm", functionality = FindSpacesDA.class, validate = false)
 @Forwards(@Forward(name = "roomViewer", path = "/publico/viewRoom_bd.jsp"))
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class RoomSiteViewerDispatchAction extends FenixContextDispatchAction {
 
     public ActionForward roomViewer(ActionMapping mapping, ActionForm form, HttpServletRequest request,

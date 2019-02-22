@@ -34,6 +34,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 import com.google.common.base.Strings;
 
+//PERIOD_REFACTOR_SEMESTER: REMOVE (references will also be removed)
 public class WriteStudentAttendingCourse {
 
     protected void run(Registration registration, String executionCourseId) throws FenixServiceException {

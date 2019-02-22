@@ -46,6 +46,7 @@ public class RootCourseGroup extends RootCourseGroup_Base {
         createCycleCourseGroups(degreeCurricularPlan.getDegreeType());
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(ExecutionYearType)
     private void createCycleCourseGroups(DegreeType degreeType) {
         ExecutionSemester executionSemester = ExecutionSemester.readActualExecutionSemester();
         for (final CycleType cycleType : degreeType.getCycleTypes()) {

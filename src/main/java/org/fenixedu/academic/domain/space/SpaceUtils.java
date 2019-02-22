@@ -449,6 +449,7 @@ public class SpaceUtils {
         return identificationWords;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE and references
     private static Set<ExecutionCourse> searchExecutionCoursesByName(SpacesSearchCriteriaType searchType, String[] labelWords) {
         Set<ExecutionCourse> executionCoursesToTest = null;
         if (labelWords != null && (searchType.equals(SpacesSearchCriteriaType.EXECUTION_COURSE)

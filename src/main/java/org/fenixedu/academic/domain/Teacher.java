@@ -278,6 +278,7 @@ public class Teacher extends Teacher_Base {
         return getPerson().getProfessorships(executionYear);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSEMESTERS
     public SortedSet<ExecutionCourse> getCurrentExecutionCourses() {
         final SortedSet<ExecutionCourse> executionCourses =
                 new TreeSet<ExecutionCourse>(ExecutionCourse.EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME);

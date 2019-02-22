@@ -113,6 +113,7 @@ public class CreateCurricularCourse {
         return curricularPeriod;
     }
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     private static ExecutionSemester readBeginExecutionPeriod(CurricularCourseArgs curricularCourseArgs) {
         ExecutionSemester beginExecutionPeriod;
         if (curricularCourseArgs.getBeginExecutionPeriodID() == null) {

@@ -248,6 +248,8 @@ public class Registration extends Registration_Base {
         return createStudentCurricularPlan(degreeCurricularPlan, executionYear, (CycleType) null);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(ExecutionYearType)
+    //PERIOD_REFACTOR_SEMESTER: execution year should be mandatory
     private StudentCurricularPlan createStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan,
             final ExecutionYear executionYear, final CycleType cycleType) {
 

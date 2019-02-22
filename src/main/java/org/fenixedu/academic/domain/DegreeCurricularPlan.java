@@ -207,6 +207,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         RootCourseGroup.createRoot(this, getName(), getName());
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE this method (rule should not be created automatically)
     private void createDefaultCurricularRules() {
         new MaximumNumberOfCreditsForEnrolmentPeriod(getRoot(), ExecutionSemester.readActualExecutionSemester());
     }
@@ -712,6 +713,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public Set<CurricularCourse> getActiveCurricularCourses() {
         final Set<CurricularCourse> result = new HashSet<>();
         for (final CurricularCourse curricularCourse : getCurricularCoursesSet()) {

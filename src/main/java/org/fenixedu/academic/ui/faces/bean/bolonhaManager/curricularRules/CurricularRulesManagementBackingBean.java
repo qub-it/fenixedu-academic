@@ -674,6 +674,7 @@ public class CurricularRulesManagementBackingBean extends FenixBackingBean {
 
     private List<SelectItem> executionPeriodItems;
 
+    //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(default calendar)
     protected List<SelectItem> readExecutionPeriodItems() {
         if (executionPeriodItems != null) {
             return executionPeriodItems;

@@ -97,6 +97,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         }
     }
 
+    //PERIOD_REFACTOR_SEMESTER: REMOVE
     public CompetenceCourse(String name, String nameEn, Boolean basic, RegimeType regimeType,
             CompetenceCourseLevel competenceCourseLevel, CompetenceCourseType type, CurricularStage curricularStage,
             CompetenceCourseGroupUnit unit) {
@@ -297,6 +298,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return informations;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent
     private CompetenceCourseInformation getMostRecentCompetenceCourseInformation() {
         return getMostRecentCompetenceCourseInformationUntil(ExecutionSemester.readActualExecutionSemester());
     }
@@ -854,6 +856,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return firstInformation != null ? firstInformation.getExecutionInterval() : null;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public CompetenceCourseInformation getActiveCompetenceCourseInformation() {
         return getMostRecentCompetenceCourseInformationUntil(ExecutionSemester.readActualExecutionSemester());
     }
@@ -890,6 +893,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     /**
      * @see #getDepartmentUnit(ExecutionYear)
      */
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent
     public DepartmentUnit getDepartmentUnit() {
         return getDepartmentUnit(ExecutionSemester.readActualExecutionSemester());
     }
@@ -928,6 +932,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     /**
      * @see #getDepartmentUnit(ExecutionSemester)
      */
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent
     public CompetenceCourseGroupUnit getCompetenceCourseGroupUnit() {
         return getCompetenceCourseGroupUnit(ExecutionSemester.readActualExecutionSemester());
     }
@@ -936,6 +941,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
      * @see #getDepartmentUnit(ExecutionSemester)
      * @return
      */
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public CompetenceCourseGroupUnit getCompetenceCourseGroupUnit(ExecutionYear executionYear) {
         ExecutionSemester semester = ExecutionSemester.readBySemesterAndExecutionYear(2, executionYear.getYear());
         return getCompetenceCourseGroupUnit(semester);
@@ -945,6 +951,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return getMostRecentCompetenceCourseInformationUntil(semester).getCompetenceCourseGroupUnit();
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent (check removal of getOldCompetenceCourses)
     public CompetenceCourseGroupUnit getMostRecentGroupInDepartment(DepartmentUnit departmentUnit) {
         ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
         while (semester != null) {
@@ -989,6 +996,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         super.setCurricularStage(curricularStage);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent
     public ScientificAreaUnit getScientificAreaUnit() {
         return getScientificAreaUnit(ExecutionSemester.readActualExecutionSemester());
     }
@@ -1284,6 +1292,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
      * 
      * @param input the interval to find this competence coure information
      */
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with versions.executionSemester.isCurrent
     public CompetenceCourseInformation findInformationMostRecentUntil(final ExecutionInterval input) {
         CompetenceCourseInformation result = null;
 

@@ -81,6 +81,7 @@ import pt.ist.fenixframework.FenixFramework;
                 type = ClassEnrollmentAuthorizationFilter.OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan.class,
                 key = "error.message.OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan",
                 handler = FenixErrorExceptionHandler.class, scope = "request") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class ShiftStudentEnrollmentManagerLookupDispatchAction extends FenixDispatchAction {
 
     private Registration getAndSetRegistration(final HttpServletRequest request) {

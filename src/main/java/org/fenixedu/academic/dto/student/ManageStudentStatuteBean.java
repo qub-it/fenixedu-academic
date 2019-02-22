@@ -54,6 +54,8 @@ public class ManageStudentStatuteBean implements Serializable {
 
     private String comment;
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType)
+    //Registration should be mandatory and change ui to ask periods for selected registrations
     public ManageStudentStatuteBean(Student student) {
         super();
         this.student = student;

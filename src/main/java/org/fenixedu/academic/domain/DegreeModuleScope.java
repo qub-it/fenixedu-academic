@@ -139,6 +139,7 @@ public abstract class DegreeModuleScope {
         return false;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public boolean isActive() {
         return isActiveForExecutionPeriod(ExecutionSemester.readActualExecutionSemester());
     }

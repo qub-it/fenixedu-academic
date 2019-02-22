@@ -191,6 +191,7 @@ public final class SummariesControlAction extends FenixDispatchAction {
 
         List<Pair<ExecutionSemester, List<DetailSummaryElement>>> last4SemestersSummaryControl =
                 new ArrayList<Pair<ExecutionSemester, List<DetailSummaryElement>>>();
+        //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.readActualExecutionSemester(default calendar)
         ExecutionSemester executionSemesterToPresent = ExecutionSemester.readActualExecutionSemester();
 
         List<DetailSummaryElement> executionCoursesResume =

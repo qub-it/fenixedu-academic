@@ -278,6 +278,7 @@ public class CurricularCourse extends CurricularCourse_Base {
         return false;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public boolean hasAnyActiveDegreModuleScope() {
         for (final DegreeModuleScope degreeModuleScope : getDegreeModuleScopes()) {
             if (degreeModuleScope.isActive()) {
@@ -345,7 +346,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     // -------------------------------------------------------------
     // BEGIN: Only for enrollment purposes
     // -------------------------------------------------------------
-
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public boolean hasRestrictionDone(final CurricularCourse precedence) {
         if (!isBolonhaDegree()) {
             throw new DomainException("CurricularCourse.method.only.appliable.to.bolonha.structure");
@@ -1374,6 +1375,7 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getTotalEnrolmentStudentNumber(executionSemester) - getFirstTimeEnrolmentStudentNumber(executionSemester);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public List<ExecutionCourse> getMostRecentExecutionCourses() {
         ExecutionSemester period = ExecutionSemester.readActualExecutionSemester();
 

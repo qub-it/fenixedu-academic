@@ -24,6 +24,7 @@ import org.fenixedu.academic.dto.InfoExecutionPeriod;
 import pt.ist.fenixframework.Atomic;
 
 public class ReadCurrentExecutionPeriod {
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     @Atomic
     public static InfoExecutionPeriod run() {
         return InfoExecutionPeriod.newInfoFromDomain(ExecutionSemester.readActualExecutionSemester());

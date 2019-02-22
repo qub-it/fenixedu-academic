@@ -78,6 +78,7 @@ public class MergeExecutionCourseDA extends FenixDispatchAction {
         RenderUtils.invalidateViewState();
 
         AcademicInterval choosedSemester = degreeBean.getAcademicInterval();
+      //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(default calendar)
         AcademicInterval actualSemester = ExecutionSemester.readActualExecutionSemester().getAcademicInterval();
 
         previousOrEqualSemester = choosedSemester.isBefore(actualSemester) || choosedSemester.isEqualOrEquivalent(actualSemester);

@@ -1186,6 +1186,7 @@ public class CompetenceCourseManagementBackingBean extends FenixBackingBean {
         if (executionSemesterID == null) {
             executionSemesterID = (String) getViewState().getAttribute("executionSemesterID");
         }
+      //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.getFirstExecutionPeriod(default calendar)
         ExecutionSemester currentSemester = ExecutionSemester.readActualExecutionSemester();
         if ((executionSemesterID == null) && (getCompetenceCourse() != null)) {
             if (getCompetenceCourse().getCompetenceCourseInformationsSet().size() == 1) {
@@ -1257,6 +1258,7 @@ public class CompetenceCourseManagementBackingBean extends FenixBackingBean {
         this.futureExecutionSemesterItems = futureExecutionSemesterItems;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(default calendar)
     private List<SelectItem> readFutureExecutionSemesterLabels() {
         final List<SelectItem> result = new ArrayList<SelectItem>();
         ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();

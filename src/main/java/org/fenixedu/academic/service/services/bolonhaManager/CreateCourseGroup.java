@@ -31,6 +31,7 @@ import com.google.common.base.Strings;
 
 public class CreateCourseGroup {
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     @Atomic
     public static void run(final String degreeCurricularPlanID, final String parentCourseGroupID, final String name,
             final String nameEn, final String beginExecutionPeriodID, final String endExecutionPeriodID,

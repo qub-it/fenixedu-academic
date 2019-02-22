@@ -77,6 +77,7 @@ public class ImprovementOfApprovedEnrolment extends CurricularRuleNotPersistent 
         return CurricularRuleType.IMPROVEMENT_OF_APPROVED_ENROLMENT;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

@@ -79,6 +79,7 @@ import pt.ist.fenixframework.FenixFramework;
         @ExceptionHandling(type = OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan.class,
                 key = "error.message.OutsideOfCurrentClassesEnrolmentPeriodForDegreeCurricularPlan",
                 handler = FenixErrorExceptionHandler.class, scope = "request") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE check usage
 public class ShiftStudentEnrollmentManagerDispatchAction extends FenixDispatchAction {
 
     public ActionForward prepare(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)

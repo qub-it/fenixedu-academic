@@ -1126,6 +1126,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return result.contains(curricularCourse);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     final public boolean isEnroledInExecutionPeriod(final CurricularCourse curricularCourse) {
         return isEnroledInExecutionPeriod(curricularCourse, ExecutionSemester.readActualExecutionSemester());
     }
@@ -1156,6 +1157,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return curricularCourseAcumulatedEnrolments;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     final public Integer getCurricularCourseAcumulatedEnrollments(CurricularCourse curricularCourse) {
         return getCurricularCourseAcumulatedEnrollments(curricularCourse, ExecutionSemester.readActualExecutionSemester());
     }
@@ -1892,6 +1894,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return hasRegistration() && getRegistration().getLastStudentCurricularPlan() == this;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType)
     public void moveCurriculumLines(final MoveCurriculumLinesBean moveCurriculumLinesBean) {
         boolean runRules = false;
         Person responsible = AccessControl.getPerson();

@@ -824,6 +824,7 @@ public class CourseGroup extends CourseGroup_Base {
         return getAllCurricularCourses(null);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public Set<CurricularCourse> getAllOpenCurricularCourses() {
         return getAllCurricularCourses(ExecutionSemester.readActualExecutionSemester());
     }

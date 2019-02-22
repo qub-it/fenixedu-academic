@@ -88,7 +88,7 @@ public class ContextUtils {
         if (executionPeriodOID != null) {
             infoExecutionPeriod = ReadExecutionPeriodByOID.run(executionPeriodOID);
         } else {
-            infoExecutionPeriod = ReadCurrentExecutionPeriod.run();
+            infoExecutionPeriod = ReadCurrentExecutionPeriod.run(); //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(ExecutionYearType)
         }
         if (infoExecutionPeriod != null) {
             // Place it in request

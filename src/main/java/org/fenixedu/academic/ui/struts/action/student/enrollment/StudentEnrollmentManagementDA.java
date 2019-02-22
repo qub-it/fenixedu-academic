@@ -61,6 +61,7 @@ import com.google.common.collect.Lists;
         @Forward(name = "chooseSemester", path = "/student/enrollment/chooseSemester.jsp"),
         @Forward(name = "selectAffinityToEnrol", path = "/student/enrollment/bolonha/selectAffinityToEnrol.jsp"),
         @Forward(name = "enrollmentCannotProceed", path = "/student/enrollment/bolonha/enrollmentCannotProceed.jsp") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class StudentEnrollmentManagementDA extends FenixDispatchAction {
 
     @EntryPoint

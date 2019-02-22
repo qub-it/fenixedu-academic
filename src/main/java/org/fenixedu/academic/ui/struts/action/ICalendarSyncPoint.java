@@ -68,6 +68,7 @@ public class ICalendarSyncPoint extends FenixDispatchAction {
 
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(default calendar)
     public List<EventBean> getClasses(User user) {
 
         List<EventBean> allEvents = new ArrayList<EventBean>();

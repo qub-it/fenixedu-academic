@@ -33,6 +33,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 public class CreateRule {
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     @Atomic
     public static void run(String degreeModuleToApplyRuleID, CurricularRuleType selectedCurricularRuleType,
             CurricularRuleParametersDTO parametersDTO, String beginExecutionPeriodID, String endExecutionPeriodID)

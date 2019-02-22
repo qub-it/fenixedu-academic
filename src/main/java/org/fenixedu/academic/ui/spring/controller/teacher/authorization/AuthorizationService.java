@@ -124,6 +124,7 @@ public class AuthorizationService {
      * 
      * @return
      */
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType)
     public ExecutionSemester getCurrentPeriod() {
         return ExecutionSemester.readActualExecutionSemester();
     }

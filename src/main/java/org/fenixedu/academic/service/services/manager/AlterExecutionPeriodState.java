@@ -27,6 +27,7 @@ import pt.ist.fenixframework.Atomic;
 
 public class AlterExecutionPeriodState {
 
+  //PERIOD_REFACTOR_SEMESTER: Find current inside calendar to deactivate
     @Atomic
     public static void run(final String year, final Integer semester, final PeriodState periodState) throws FenixServiceException {
         final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName(year);

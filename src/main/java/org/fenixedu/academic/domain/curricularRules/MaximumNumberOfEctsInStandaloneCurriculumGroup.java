@@ -64,6 +64,7 @@ public class MaximumNumberOfEctsInStandaloneCurriculumGroup extends CurricularRu
         return standaloneCurriculumGroup;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

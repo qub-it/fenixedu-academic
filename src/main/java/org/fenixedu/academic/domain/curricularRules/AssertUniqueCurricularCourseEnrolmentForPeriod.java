@@ -50,6 +50,7 @@ public class AssertUniqueCurricularCourseEnrolmentForPeriod extends CurricularRu
         return CurricularRuleType.ASSERT_UNIQUE_CURRICULAR_COURSE_ENROLMENT_FOR_PERIOD;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType)
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

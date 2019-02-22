@@ -54,7 +54,7 @@ public class FenixInitializer implements ServletContextListener {
     @Override
     @Atomic(mode = TxMode.READ)
     public void contextInitialized(ServletContextEvent event) {
-        ReadCurrentExecutionPeriod.run();
+        ReadCurrentExecutionPeriod.run(); //PERIOD_REFACTOR_SEMESTER: REMOVE
 
         Installation.ensureInstallation();
         loadUnitNames();

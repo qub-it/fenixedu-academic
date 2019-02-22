@@ -386,6 +386,7 @@ public class ExecutionYear extends ExecutionYear_Base implements Comparable<Exec
         return null;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: DEPRECATE do REMOVE
     static public ExecutionYear readCurrentExecutionYear() {
         ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
         if (semester != null) {

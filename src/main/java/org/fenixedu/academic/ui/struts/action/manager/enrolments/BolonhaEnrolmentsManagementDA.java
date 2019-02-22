@@ -59,6 +59,7 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
                 path = "/manager/bolonha/enrolments/chooseOptionalCurricularCourseToEnrol.jsp"),
         @Forward(name = "chooseCycleCourseGroupToEnrol", path = "/manager/bolonha/enrolments/chooseCycleCourseGroupToEnrol.jsp"),
         @Forward(name = "showRegistrationStatesLog", path = "/manager/bolonha/enrolments/showRegistrationStatesLog.jsp") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class BolonhaEnrolmentsManagementDA extends AbstractBolonhaStudentEnrollmentDA {
 
     @EntryPoint

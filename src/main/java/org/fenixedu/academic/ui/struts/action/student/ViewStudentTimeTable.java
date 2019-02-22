@@ -64,6 +64,7 @@ public class ViewStudentTimeTable extends FenixDispatchAction {
 
         List<Registration> registrations = getUserView(request).getPerson().getStudent().getActiveRegistrationStream().collect(Collectors.toList());
         if (registrations.size() == 1) {
+          //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(registration,ExecutionSemesterType)
             return forwardToShowTimeTable(registrations.get(0), mapping, request, ExecutionSemester.readActualExecutionSemester());
         } else {
             request.setAttribute("registrations", registrations);
@@ -76,6 +77,7 @@ public class ViewStudentTimeTable extends FenixDispatchAction {
 
         ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
         if (executionSemester == null) {
+          //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(registration, ExecutionSemesterType)
             executionSemester = ExecutionSemester.readActualExecutionSemester();
         }
         return forwardToShowTimeTable(getRegistration(actionForm, request), mapping, request, executionSemester);
@@ -83,6 +85,8 @@ public class ViewStudentTimeTable extends FenixDispatchAction {
 
     protected ActionForward forwardToShowTimeTableForSupervisor(Registration registration, ActionMapping mapping,
             HttpServletRequest request) throws FenixActionException, FenixServiceException {
+        
+      //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(registration, ExecutionSemesterType)
 
         return forwardToShowTimeTable(registration, mapping, request, ExecutionSemester.readActualExecutionSemester());
     }

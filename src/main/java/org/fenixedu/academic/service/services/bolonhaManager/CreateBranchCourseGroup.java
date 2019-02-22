@@ -29,6 +29,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 public class CreateBranchCourseGroup {
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     @Atomic
     public static void run(final String degreeCurricularPlanID, final String parentCourseGroupID, final String name,
             final String nameEn, final BranchType branchType, final String beginExecutionPeriodID,

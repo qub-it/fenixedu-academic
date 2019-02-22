@@ -156,6 +156,7 @@ public class ReadShiftsToEnroll {
 
     private static final ReadShiftsToEnroll serviceInstance = new ReadShiftsToEnroll();
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE and references
     @Atomic
     public static List runReadShiftsToEnroll(Registration registration) throws FenixServiceException, NotAuthorizedException {
         ClassEnrollmentAuthorizationFilter.instance.execute(registration);

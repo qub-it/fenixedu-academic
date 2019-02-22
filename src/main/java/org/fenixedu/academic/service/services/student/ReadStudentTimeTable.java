@@ -39,6 +39,8 @@ public class ReadStudentTimeTable {
         if (registration == null) {
             throw new FenixServiceException("error.service.readStudentTimeTable.noStudent");
         }
+        
+      //PERIOD_REFACTOR_SEMESTER: executionSemester is mandatory
         if (executionSemester == null) {
             executionSemester = ExecutionSemester.readActualExecutionSemester();
         }

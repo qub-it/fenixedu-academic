@@ -128,6 +128,7 @@ public class ManageCompetenceCourseInformationVersions extends FenixDispatchActi
         return mapping.findForward("createVersions");
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionYear.getFirstExecutionPeriod(default calendar)
     public ActionForward prepareCreateVersion(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
 

@@ -61,6 +61,7 @@ import com.google.gson.JsonPrimitive;
 @Mapping(module = "student", path = "/showStudentStatistics", scope = "request", parameter = "method")
 @Forwards({ @Forward(name = "showStudentStatisticsHome", path = "/student/statistics/home.jsp"),
         @Forward(name = "showExecutionCourseStatistics", path = "/student/statistics/executionCourse.jsp") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class ShowStudentStatisticsDispatchAction extends FenixDispatchAction {
 
     @EntryPoint

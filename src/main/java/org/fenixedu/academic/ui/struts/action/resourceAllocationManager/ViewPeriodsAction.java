@@ -44,8 +44,10 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
 @StrutsFunctionality(app = RAMPeriodsApp.class, path = "show", titleKey = "link.periods")
 @Mapping(path = "/showPeriods", module = "resourceAllocationManager")
 @Forwards(@Forward(name = "firstPage", path = "/resourceAllocationManager/periods/firstPage.jsp"))
+//PERIOD_REFACTOR_SEMESTER: REMOVE check usage
 public class ViewPeriodsAction extends FenixDispatchAction {
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     public static class ContextBean implements Serializable, HasExecutionSemester {
 
         private static final long serialVersionUID = 1L;

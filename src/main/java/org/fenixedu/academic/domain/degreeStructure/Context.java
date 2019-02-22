@@ -294,6 +294,8 @@ public class Context extends Context_Base implements Comparable<Context> {
         return false;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType) - check curricular period type (only leafs)
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     public boolean isOpen() {
         return isOpen(ExecutionSemester.readActualExecutionSemester());
     }

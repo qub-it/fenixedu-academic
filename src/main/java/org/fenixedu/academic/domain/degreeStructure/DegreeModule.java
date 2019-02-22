@@ -541,10 +541,12 @@ abstract public class DegreeModule extends DegreeModule_Base {
         return result;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replaced with getMaxEctsCredits(executionSemester)
     public Double getMaxEctsCredits() {
         return getMaxEctsCredits(ExecutionSemester.readActualExecutionSemester());
     }
 
+    //PERIOD_REFACTOR_SEMESTER: Replaced with getMinEctsCredits(executionSemester)
     public Double getMinEctsCredits() {
         return getMinEctsCredits(ExecutionSemester.readActualExecutionSemester());
     }

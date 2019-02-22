@@ -244,6 +244,7 @@ public class RegistrationDA extends StudentRegistrationDA {
         return mapping.findForward("registrationConclusionDocument");
     }
 
+    //PERIOD_REFACTOR_SEMESTER: REMOVE this method
     public ActionForward viewAttends(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
             HttpServletResponse response) {
         RenderUtils.invalidateViewState();
@@ -269,6 +270,7 @@ public class RegistrationDA extends StudentRegistrationDA {
         return mapping.findForward("viewAttends");
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE this method
     public ActionForward prepareAddAttends(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
             HttpServletResponse response) {
         final Registration registration = getAndSetRegistration(request);
@@ -304,6 +306,7 @@ public class RegistrationDA extends StudentRegistrationDA {
         return null;
     }
 
+    //PERIOD_REFACTOR_SEMESTER: REMOVE this method
     public ActionForward addAttends(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         final Registration registration = getAndSetRegistration(request);

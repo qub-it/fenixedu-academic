@@ -72,6 +72,7 @@ public class CourseStatisticsBean implements Serializable {
 
     public ExecutionSemester getExecutionSemester() {
         if (executionSemester == null) {
+          //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(default calendar)
             executionSemester = ExecutionSemester.readActualExecutionSemester();
         }
         return executionSemester;

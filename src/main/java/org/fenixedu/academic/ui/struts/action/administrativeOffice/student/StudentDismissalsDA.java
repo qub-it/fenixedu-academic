@@ -159,6 +159,7 @@ public class StudentDismissalsDA extends FenixDispatchAction {
         dismissalBean.setDismissalType(DismissalType.CURRICULAR_COURSE_CREDITS);
 
         final DegreeCurricularPlan dcp = dismissalBean.getStudentCurricularPlan().getDegreeCurricularPlan();
+      //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(registration, ExecutionSemesterType)
         final ExecutionSemester actualEP = ExecutionSemester.readActualExecutionSemester();
 
         dismissalBean.setExecutionPeriod(dcp.hasExecutionDegreeFor(actualEP.getExecutionYear()) ? actualEP : dcp

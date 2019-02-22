@@ -57,6 +57,7 @@ public class EditCourseGroup {
                 getEndExecutionPeriod(endExecutionPeriodID), isOptional, programConclusion);
     }
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     private static ExecutionSemester getBeginExecutionPeriod(final String beginExecutionPeriodID) {
         if (beginExecutionPeriodID == null) {
             return ExecutionSemester.readActualExecutionSemester();

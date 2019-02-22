@@ -58,6 +58,7 @@ public class MaximumNumberOfECTSInSpecialSeasonEvaluation extends CurricularRule
         return CurricularRuleType.MAXIMUM_NUMBER_OF_ECTS_IN_SPECIAL_SEASON_EVALUATION;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

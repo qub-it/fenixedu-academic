@@ -78,6 +78,7 @@ public class SeniorStatuteSpecialSeasonEnrolmentScope extends CurricularRuleNotP
         return CurricularRuleType.SENIOR_STATUTE_SCOPE;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

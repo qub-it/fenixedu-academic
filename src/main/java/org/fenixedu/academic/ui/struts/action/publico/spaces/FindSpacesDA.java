@@ -61,6 +61,7 @@ import pt.ist.fenixframework.FenixFramework;
 @Mapping(module = "publico", path = "/findSpaces")
 @Forwards({ @Forward(name = "listFoundSpaces", path = "/publico/spaces/findSpaces.jsp"),
         @Forward(name = "viewSelectedSpace", path = "/publico/spaces/viewSelectedSpace.jsp") })
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class FindSpacesDA extends FenixDispatchAction {
 
     @EntryPoint

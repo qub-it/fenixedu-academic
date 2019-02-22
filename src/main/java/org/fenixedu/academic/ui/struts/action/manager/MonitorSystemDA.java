@@ -78,6 +78,7 @@ import pt.ist.fenixframework.core.SharedIdentityMap;
 @StrutsFunctionality(app = ManagerSystemManagementApp.class, path = "system-info", titleKey = "title.system.information")
 @Mapping(module = "manager", path = "/monitorSystem")
 @Forwards(@Forward(name = "Show", path = "/manager/monitorSystem_bd.jsp"))
+//PERIOD_REFACTOR_SEMESTER: REMOVE
 public class MonitorSystemDA extends FenixDispatchAction {
 
     private static final Logger logger = LoggerFactory.getLogger(MonitorSystemDA.class);

@@ -56,6 +56,7 @@ public class ShowProfessorshipsDA extends FenixAction {
 
         final ExecutionSemester selectedExecutionPeriod;
         if (executionPeriodIDString == null) {
+          //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSEMESTERS / findfirst
             selectedExecutionPeriod = ExecutionSemester.readActualExecutionSemester();
         } else if (executionPeriodIDString.isEmpty()) {
             selectedExecutionPeriod = null;
@@ -82,6 +83,8 @@ public class ShowProfessorshipsDA extends FenixAction {
                 }
             }
         }
+        
+        //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSEMESTERS / findfirst
         executionSemesters.add(ExecutionSemester.readActualExecutionSemester());
 
         request.setAttribute("semesters", executionSemesters);

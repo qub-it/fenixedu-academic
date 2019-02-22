@@ -77,6 +77,7 @@ public class EnrolmentInSpecialSeasonEvaluation extends CurricularRuleNotPersist
         return CurricularRuleType.ENROLMENT_IN_SPECIAL_SEASON_EVALUATION;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE check usage
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

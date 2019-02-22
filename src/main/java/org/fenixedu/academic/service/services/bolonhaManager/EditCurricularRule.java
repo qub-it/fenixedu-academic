@@ -31,6 +31,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 public class EditCurricularRule {
 
+    //PERIOD_REFACTOR_SEMESTER: beginExecutionPeriod should be mandatory
     @Atomic
     public static void run(String curricularRuleID, String beginExecutionPeriodID, String endExecutionPeriodID)
             throws FenixServiceException {

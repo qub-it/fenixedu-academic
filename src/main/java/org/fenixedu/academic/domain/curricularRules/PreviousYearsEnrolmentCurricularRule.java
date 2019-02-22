@@ -39,6 +39,7 @@ public class PreviousYearsEnrolmentCurricularRule extends CurricularRuleNotPersi
         this.courseGroup = courseGroup;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: Replace readActualExecutionSemester with ExecutionSemester.readActualExecutionSemester(ExecutionSemesterType)
     @Override
     public ExecutionSemester getBegin() {
         return ExecutionSemester.readActualExecutionSemester();

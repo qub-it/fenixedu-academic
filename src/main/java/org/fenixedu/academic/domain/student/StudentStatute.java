@@ -129,6 +129,7 @@ public class StudentStatute extends StudentStatute_Base {
         return false;
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public boolean isValidInCurrentExecutionPeriod() {
         return this.isValidInExecutionPeriod(ExecutionSemester.readActualExecutionSemester());
     }
@@ -172,6 +173,7 @@ public class StudentStatute extends StudentStatute_Base {
                 && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
 
+  //PERIOD_REFACTOR_SEMESTER: REMOVE
     public boolean isValidInCurrentExecutionPeriod(final Registration registration) {
         return isValidInCurrentExecutionPeriod() && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
