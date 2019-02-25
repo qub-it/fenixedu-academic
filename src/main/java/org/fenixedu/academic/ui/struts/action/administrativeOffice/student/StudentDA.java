@@ -145,23 +145,17 @@ public class StudentDA extends StudentRegistrationDA {
         
         request.setAttribute("personBean", personBean);
 
-        RenderUtils.invalidateViewState();
         return mapping.findForward("editFiscalData");
     }
     
     public ActionForward editFiscalData(final ActionMapping mapping, final ActionForm actionForm, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
         getAndSetStudent(request);
         
+        final PersonBean personBean = getRenderedObject();
         try {
-            final PersonBean personBean = getRenderedObject();
             
-            FenixFramework.atomic(new Callable<Void>() {
-
-                @Override
-                public Void call() throws Exception {
-                    personBean.getPerson().editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddress());
-                    return null;
-                }
+            FenixFramework.atomic(() -> {
+                personBean.getPerson().editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddress());
             });
             
             addActionMessage(request, "message.student.personDataEditedWithSuccess");
@@ -170,15 +164,16 @@ public class StudentDA extends StudentRegistrationDA {
         } catch (DomainException ex) {
             addActionMessage(request, ex.getKey(), ex.getArgs());
 
-            request.setAttribute("personBean", getRenderedObject());
+            request.setAttribute("personBean", personBean);
             return mapping.findForward("editFiscalData");
         }
     }
     
     public ActionForward editFiscalDataInvalid(final ActionMapping mapping, final ActionForm actionForm, final HttpServletRequest request, final HttpServletResponse response) {
         getAndSetStudent(request);
+        final PersonBean personBean = getRenderedObject();
         
-        request.setAttribute("personBean", getRenderedObject());
+        request.setAttribute("personBean", personBean);
         return mapping.findForward("editFiscalData");
     }
     

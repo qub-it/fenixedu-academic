@@ -25,6 +25,7 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/enum" prefix="e"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page isELIgnored="true"%>
 
 <html:xhtml/>
 
@@ -626,13 +627,50 @@
 	</div>
 </div>
 
+<div class="row">
+	<div class="col-sm-12">
+<table class="mtop15" width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td class="infoop" width="25"><span class="emphasis-box">4</span></td>
+		<td class="infoop"><strong><bean:message key="label.person.title.fiscalInformation" /></strong></td>
+	</tr>
+</table>
+</div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+	   <fr:view name="person">
+	       <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
+	       	<logic:notEmpty name="person" property="fiscalAddress">
+			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
+				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code}  ${socialSecurityNumber}" />
+			</fr:slot>
+	       	</logic:notEmpty>
+	       	
+	       	<logic:empty name="person" property="fiscalAddress">
+			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
+				<fr:property name="format" value="${socialSecurityNumber}" />
+			</fr:slot>
+	       	</logic:empty>
+	
+	       	<fr:slot name="fiscalAddress">
+				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
+	       	</fr:slot>
+	       </fr:schema>
+	       
+			<fr:layout name="tabular" >
+					<fr:property name="classes" value="tstyle2 thleft thlight mtop15"/>
+			</fr:layout>
+	   </fr:view>
+   </div>
+</div>
 
 <!-- Informação de Utilizador -->
 <div class="row">
 	<div class="col-sm-6">
 		<table class="mtop15" width="100%" cellpadding="0" cellspacing="0">
 			<tr>
-				<td class="infoop" width="25"><span class="emphasis-box">4</span></td>
+				<td class="infoop" width="25"><span class="emphasis-box">5</span></td>
 				<td class="infoop"><strong><bean:message key="label.person.title.filiation" /></strong></td>
 			</tr>
 		</table>

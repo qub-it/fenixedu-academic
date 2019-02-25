@@ -604,13 +604,20 @@
 			</fr:layout>
 		</fr:view>
 
-		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">
+		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">r
 			<bean:message key="label.edit" bundle="APPLICATION_RESOURCES"/>
 		</html:link>
 
 	</logic:equal>
 
-    <h3 class="mtop2 mbottom025"><bean:message key="label.person.title.fiscalInformation" /></h3>
+	<!-- Dados Fiscais -->
+	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
+		<tr>
+			<td class="infoop" width="25"><span class="emphasis-box">3</span></td>
+			<td class="infoop"><strong><bean:message key="label.person.title.fiscalInformation" bundle="APPLICATION_RESOURCES"/></strong></td>
+		</tr>
+	</table>
+
     <fr:view name="person">
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
         	<logic:notEmpty name="person" property="fiscalAddress">
@@ -630,13 +637,12 @@
         	</fr:slot>
         </fr:schema>
 	    <fr:layout name="tabular" >
-	        <fr:property name="classes" value="tstyle1 thright thlight mtop0"/>
-	        <fr:property name="columnClasses" value="width14em,"/>
+			<fr:property name="classes" value="tstyle2 thleft thlight mtop15 thwhite" />
 	    </fr:layout>
     </fr:view>
 
     <div class="mbottom2">
-		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">
+		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditFiscalData&personId=" + personID %>">
 			<bean:message key="label.edit" bundle="APPLICATION_RESOURCES" />
 		</html:link>
     </div>

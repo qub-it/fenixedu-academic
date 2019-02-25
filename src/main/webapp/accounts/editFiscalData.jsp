@@ -26,14 +26,13 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr" %>
 <html:xhtml/>
 
-<h2><bean:message key="link.student.editFiscalData" bundle="ACADEMIC_OFFICE_RESOURCES"/></h2>
+<h2><bean:message key="label.person.title.editFiscalData" bundle="APPLICATION_RESOURCES"/></h2>
 
-<bean:define id="studentID" type="java.lang.String" name="student" property="externalId"/>
+<bean:define id="personID" name="person" property="externalId" />
 <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean" />
-<bean:define id="person" name="personBean" property="person" />
 
-<fr:view name="person">
-	<fr:schema type="org.fenixedu.academic.domain.Person" bundle="ACADEMIC_OFFICE_RESOURCES">
+<fr:view name="personBean">
+	<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="APPLICATION_RESOURCES">
 		<fr:slot name="givenNames" >
 			<fr:property name="size" value="50" />
 		</fr:slot>
@@ -41,19 +40,9 @@
 			<fr:property name="size" value="50" />
 		</fr:slot>
 		<fr:slot name="gender" />
-
-       	<logic:notEmpty name="person" property="fiscalAddress">
-		<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="ACADEMIC_OFFICE_RESOURCES">
+		<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
 			<fr:property name="format" value="${fiscalAddress.countryOfResidence.code} ${socialSecurityNumber}" />
 		</fr:slot>
-		</logic:notEmpty>
-		
-       	<logic:empty name="person" property="fiscalAddress">
-		<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="ACADEMIC_OFFICE_RESOURCES">
-			<fr:property name="format" value="${socialSecurityNumber}" />
-		</fr:slot>
-		</logic:empty>
-				
        	<fr:slot name="fiscalAddress">
 			<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
        	</fr:slot>
@@ -75,14 +64,13 @@
 
 <p><strong>Atenção:</strong> Indique uma morada cujo o país corresponde ao país do nº de contribuinte. Caso as moradas apresentadas não sejam as pretendidas, deverá criar a morada ou completar uma existente.</p>
 
-<fr:form action="/student.do">
+<fr:form action="<%= "/accounts/manageAccounts.do?method=editFiscalData&personId=" + personID %>">
     <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="method" value="editFiscalData"/>
-    <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="studentID" value="<%= studentID.toString() %>"/>
 
 	<fr:edit name="personBean" visible="false" />
 
     <fr:edit id="editPersonBean" name="personBean">
-        <fr:schema type="org.fenixedu.academic.domain.Person" bundle="ACADEMIC_OFFICE_RESOURCES" >
+        <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
 			<fr:slot name="socialSecurityNumber" required="true" />
         	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
                 <fr:property name="from" value="sortedPhysicalAdresses" />
@@ -94,12 +82,12 @@
             <fr:property name="columnClasses" value="width14em,,tdclear tderror1"/>
 	    </fr:layout>
 	    
-		<fr:destination name="invalid" path='<%= "/student.do?method=editFiscalDataInvalid&studentID=" + studentID %>'/>
+		<fr:destination name="invalid" path='<%= "/accounts/manageAccounts.do?method=editFiscalDataInvalid&personId=" + personID %>'/>
     </fr:edit>
 	
     <p>
-        <html:submit><bean:message key="button.submit" bundle="ACADEMIC_OFFICE_RESOURCES" /></html:submit>
-        <html:cancel onclick="this.form.method.value='prepareEditPersonalData';" ><bean:message key="button.back" bundle="ACADEMIC_OFFICE_RESOURCES" /></html:cancel>
+        <html:submit><bean:message key="button.submit" bundle="APPLICATION_RESOURCES" /></html:submit>
+        <html:cancel onclick="this.form.method.value='prepareEditPersonalData';" ><bean:message key="button.back" bundle="APPLICATION_RESOURCES" /></html:cancel>
     </p>    
 	
 </fr:form>

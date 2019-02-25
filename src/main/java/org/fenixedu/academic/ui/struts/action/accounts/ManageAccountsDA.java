@@ -65,6 +65,7 @@ import pt.ist.fenixframework.FenixFramework;
 @Forward(name = "createPerson", path = "/accounts/createPerson.jsp")
 @Forward(name = "createPersonFillInfo", path = "/accounts/createPersonFillInfo.jsp")
 @Forward(name = "viewPerson", path = "/accounts/viewPerson.jsp")
+@Forward(name = "editFiscalData", path = "/accounts/editFiscalData.jsp")
 public class ManageAccountsDA extends FenixDispatchAction {
 
     @EntryPoint
@@ -166,8 +167,7 @@ public class ManageAccountsDA extends FenixDispatchAction {
         return viewPerson(person, mapping, request);
     }
 
-    public ActionForward viewPerson(final Person person, final ActionMapping mapping, final HttpServletRequest request)
-            throws Exception {
+    public ActionForward viewPerson(final Person person, final ActionMapping mapping, final HttpServletRequest request) {
         final PersonBean personBean = new PersonBean(person);
 
         request.setAttribute("editPersonalInfo", false);
@@ -255,6 +255,49 @@ public class ManageAccountsDA extends FenixDispatchAction {
 
             return manageAccounts(mapping, form, request, response);
         }
+    }
+
+    public ActionForward prepareEditFiscalData(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response) {
+        final Person person = getDomainObject(request, "personId");
+
+        final PersonBean personBean = new PersonBean(person);
+        
+        request.setAttribute("person", person);
+        request.setAttribute("personBean", personBean);
+
+        return mapping.findForward("editFiscalData");
+    }
+
+    public ActionForward editFiscalData(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
+            final HttpServletResponse response) {
+        final Person person = getDomainObject(request, "personId");
+        final PersonBean personBean = getRenderedObject();
+
+        try {
+            FenixFramework.atomic(() -> {
+                person.editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddress());
+            });
+            
+            return viewPerson(person, mapping, request);
+        } catch (DomainException e) {
+            addActionMessage("error", request, e.getLocalizedMessage(), e.getArgs());
+
+            request.setAttribute("person", person);
+            request.setAttribute("personBean", personBean);
+            
+            return mapping.findForward("editFiscalData");
+        }
+    }
+
+    public ActionForward editFiscalDataInvalid(final ActionMapping mapping, final ActionForm form,
+            final HttpServletRequest request, final HttpServletResponse response) {
+        final Person person = getDomainObject(request, "personId");
+        final PersonBean personBean = getRenderedObject();
+
+        request.setAttribute("person", person);
+        request.setAttribute("personBean", personBean);
+        return mapping.findForward("editFiscalData");
     }
 
     private String getSendingEmailAddress(Person person) {

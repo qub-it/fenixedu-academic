@@ -131,12 +131,20 @@ public class PhysicalAddress extends PhysicalAddress_Base {
 
     @Override
     public void deleteWithoutCheckRules() {
+        if(getParty().getFiscalAddress() == this) {
+            throw new DomainException("error.domain.contacts.PhysicalAddress.cannot.remove.fiscal.address");
+        }
+        
         setCountryOfResidence(null);
         super.deleteWithoutCheckRules();
     }
 
     @Override
     public void delete() {
+        if(getParty().getFiscalAddress() == this) {
+            throw new DomainException("error.domain.contacts.PhysicalAddress.cannot.remove.fiscal.address");
+        }
+        
         setCountryOfResidence(null);
         super.delete();
     }
