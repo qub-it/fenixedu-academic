@@ -158,9 +158,7 @@ public class StudentDA extends StudentRegistrationDA {
                 personBean.getPerson().editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddress());
             });
             
-            addActionMessage(request, "message.student.personDataEditedWithSuccess");
-
-            return mapping.findForward("viewStudentDetails");
+            return prepareEditPersonalData(mapping, actionForm, request, response);
         } catch (DomainException ex) {
             addActionMessage(request, ex.getKey(), ex.getArgs());
 

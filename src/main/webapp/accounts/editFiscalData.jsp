@@ -62,7 +62,7 @@
     </ul>
 </logic:messagesPresent>
 
-<p><strong>Atenção:</strong> Indique uma morada cujo o país corresponde ao país do nº de contribuinte. Caso as moradas apresentadas não sejam as pretendidas, deverá criar a morada ou completar uma existente.</p>
+<p><em class="infoop2"><bean:message key="message.warning.editFiscalData.select.address.equal.fiscalNumber.country" bundle="ACADEMIC_ADMIN_OFFICE" /></em></p>
 
 <fr:form action="<%= "/accounts/manageAccounts.do?method=editFiscalData&personId=" + personID %>">
     <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="method" value="editFiscalData"/>
@@ -73,7 +73,7 @@
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
 			<fr:slot name="socialSecurityNumber" required="true" />
         	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
-                <fr:property name="from" value="sortedPhysicalAdresses" />
+                <fr:property name="from" value="sortedActiveAndValidPhysicalAddresses" />
 				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name} (${countryOfResidence.code})" />
         	</fr:slot>
         </fr:schema>

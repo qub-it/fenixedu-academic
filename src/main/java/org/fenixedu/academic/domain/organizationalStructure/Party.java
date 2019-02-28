@@ -1094,14 +1094,14 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     public PhysicalAddress getFiscalAddress() {
         return getAllPartyContacts(PhysicalAddress.class).stream()
                 .map(PhysicalAddress.class::cast)
-                .filter(address -> Boolean.TRUE.equals(address.getActive()))
+                .filter(address -> address.isActiveAndValid())
                 .filter(address -> address.isFiscalAddress())
                 .findFirst().orElse(null);
     }
     
     public void markAsFiscalAddress(final PhysicalAddress fiscalAddress) {
-        if(fiscalAddress.isFiscalAddress()) {
-            return;
+        if(!fiscalAddress.isActiveAndValid()) {
+            throw new DomainException("error.Party.markAsFiscalAddress.fiscalAddress.must.be.active.and.valid");
         }
         
         getAllPartyContacts(PhysicalAddress.class).stream().forEach(address -> {

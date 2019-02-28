@@ -151,12 +151,16 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
             TreasuryBridgeAPIFactory.implementation().saveFiscalAddressFieldsFromPersonInActiveCustomer((Person) party);
         }
         
-        if(!fiscalAddress.isFiscalAddress()) {
-            party.markAsFiscalAddress(fiscalAddress);
-        }
-        
         if(fiscalAddress == null || fiscalAddress.getCountryOfResidence() == null) {
             throw new DomainException("error.PartySocialSecurityNumber.fiscalAddress.country.required");
+        }
+        
+        if(fiscalAddress != null && !fiscalAddress.isActiveAndValid()) {
+            throw new DomainException("error.PartySocialSecurityNumber.fiscalAddress.must.be.active.and.valid");
+        }
+        
+        if(!fiscalAddress.isFiscalAddress()) {
+            party.markAsFiscalAddress(fiscalAddress);
         }
         
         final PartySocialSecurityNumber partySocialSecurityNumber = party.getPartySocialSecurityNumber();

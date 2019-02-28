@@ -21,6 +21,7 @@ package org.fenixedu.academic.dto.person;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.DistrictSubdivision;
@@ -587,6 +588,15 @@ public class PersonBean implements Serializable {
 
     public List<PhysicalAddress> getSortedPhysicalAdresses() {
         final List<PhysicalAddress> result = getPerson().getPendingOrValidPhysicalAddresses();
+        Collections.sort(result, PhysicalAddress.COMPARATOR_BY_ADDRESS);
+        return result;
+    }
+    
+    public List<PhysicalAddress> getSortedActiveAndValidPhysicalAddresses() {
+        final List<PhysicalAddress> result = getPerson().getPendingOrValidPhysicalAddresses()
+                .stream().filter(pa -> pa.isActiveAndValid())
+                .collect(Collectors.toList());
+        
         Collections.sort(result, PhysicalAddress.COMPARATOR_BY_ADDRESS);
         return result;
     }

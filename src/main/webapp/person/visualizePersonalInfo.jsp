@@ -25,7 +25,6 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/enum" prefix="e"%>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page isELIgnored="true"%>
 
 <html:xhtml/>
 
@@ -157,11 +156,22 @@
 			<td><bean:message key="label.address" /> (<bean:message name="contact" property="type.qualifiedName" bundle="ENUMERATION_RESOURCES" />):</td>
 			<td>
 				<bean:write name="contact" property="presentationValue" />
+				<logic:notEmpty name="contact" property="areaCode">
+					<bean:write name="contact" property="areaCode" />
+				</logic:notEmpty>				
+				<logic:notEmpty name="contact" property="districtSubdivisionOfResidence">
+					<bean:write name="contact" property="districtSubdivisionOfResidence" />
+				</logic:notEmpty>
+				<logic:notEmpty name="contact" property="countryOfResidence">
+					<bean:write name="contact" property="countryOfResidence.localizedName.content" />
+				</logic:notEmpty>
 				<logic:equal name="contact" property="defaultContact" value="true">
 					<logic:notEqual name="size" value="1">
 						 (<bean:message key="label.partyContacts.defaultContact" />)
 					</logic:notEqual>
-					
+				</logic:equal>
+				<logic:equal name="contact" property="fiscalAddress" value="true">
+						 <em class="highlight1"><bean:message key="label.fiscalAddress" /></em>
 				</logic:equal>
 			</td>
             <td class="acenter">
@@ -194,9 +204,11 @@
 						<bean:message key="label.edit" />
 					</html:link>,
 				</logic:equal>
+				<logic:notEqual name="contact" property="fiscalAddress" value="true">
 				<html:link action="/partyContacts.do?method=deletePartyContact" paramId="contactId" paramName="contact" paramProperty="externalId">
 					<bean:message key="label.clear" />
 				</html:link>
+				</logic:notEqual>
 				<logic:equal name="contact" property="valid" value="false" >
 					,<html:link action="/partyContacts.do?method=prepareValidate" paramId="partyContact" paramName="contact" paramProperty="externalId">
 						<bean:message key="label.validate" />
@@ -639,29 +651,38 @@
 </div>
 <div class="row">
 	<div class="col-sm-12">
-	   <fr:view name="person">
-	       <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
-	       	<logic:notEmpty name="person" property="fiscalAddress">
-			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
-				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code}  ${socialSecurityNumber}" />
-			</fr:slot>
-	       	</logic:notEmpty>
-	       	
-	       	<logic:empty name="person" property="fiscalAddress">
-			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
-				<fr:property name="format" value="${socialSecurityNumber}" />
-			</fr:slot>
-	       	</logic:empty>
 	
-	       	<fr:slot name="fiscalAddress">
-				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
-	       	</fr:slot>
-	       </fr:schema>
-	       
-			<fr:layout name="tabular" >
-					<fr:property name="classes" value="tstyle2 thleft thlight mtop15"/>
-			</fr:layout>
-	   </fr:view>
+		<table class="tstyle2 thleft thlight mtop15 table">
+		  <tbody>
+		    <tr>
+		      <th scope="row">
+			      	<bean:message key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES" />
+		      </th>
+		      <td>
+
+		       	<logic:notEmpty name="person" property="fiscalAddress">
+		       		<bean:write name="person" property="fiscalAddress.countryOfResidence.code"/>
+		       		<bean:write name="person" property="socialSecurityNumber"/>
+		       	</logic:notEmpty>
+
+		       	<logic:empty name="person" property="fiscalAddress">
+		       		<bean:write name="person" property="socialSecurityNumber"/>
+		       	</logic:empty>
+		      </td>
+		    </tr>
+		    <tr>
+		      <th scope="row">
+			      	<bean:message key="label.fiscalAddress" bundle="APPLICATION_RESOURCES" />
+		      </th>
+		      <td>
+		      	<bean:write name="person" property="address" />
+		      	<bean:write name="person" property="areaCode" />
+		      	<bean:write name="person" property="countryOfResidence.localizedName.content" />
+		      </td>
+		    </tr>
+		  </tbody>
+		</table>
+	
    </div>
 </div>
 

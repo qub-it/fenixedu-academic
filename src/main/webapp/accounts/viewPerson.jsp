@@ -111,11 +111,23 @@
 			<td><bean:message key="label.address" bundle="APPLICATION_RESOURCES"/> (<bean:message name="contact" property="type.qualifiedName" bundle="ENUMERATION_RESOURCES" />):</td>
 			<td>
 				<bean:write name="contact" property="presentationValue" />
+				<logic:notEmpty name="contact" property="areaCode">
+					<bean:write name="contact" property="areaCode" />
+				</logic:notEmpty>				
+				<logic:notEmpty name="contact" property="districtSubdivisionOfResidence">
+					<bean:write name="contact" property="districtSubdivisionOfResidence" />
+				</logic:notEmpty>
+				<logic:notEmpty name="contact" property="countryOfResidence">
+					<bean:write name="contact" property="countryOfResidence.localizedName.content" />
+				</logic:notEmpty>
+				
 				<logic:equal name="contact" property="defaultContact" value="true">
 					<logic:notEqual name="size" value="1">
 						 (<bean:message key="label.partyContacts.defaultContact" bundle="APPLICATION_RESOURCES"/>)
 					</logic:notEqual>
-					
+				</logic:equal>
+				<logic:equal name="contact" property="fiscalAddress" value="true">
+						 <em class="highlight1"><bean:message key="label.fiscalAddress" /></em>
 				</logic:equal>
 			</td>
             <td class="acenter">
@@ -148,14 +160,11 @@
 						<bean:message key="label.edit" bundle="APPLICATION_RESOURCES"/>
 					</html:link>,
 				</logic:equal>
+				<logic:notEqual name="contact" property="fiscalAddress" value="true">
 				<html:link action="<%="/accounts/partyContacts.do?method=deletePartyContact&personID=" + personID%>" paramId="contactId" paramName="contact" paramProperty="externalId">
 					<bean:message key="label.clear" bundle="APPLICATION_RESOURCES"/>
 				</html:link>
-				<logic:equal name="contact" property="valid" value="false" >
-					,<html:link action="<%="/accounts/partyContacts.do?method=prepareValidate&personID=" + personID%>" paramId="partyContact" paramName="contact" paramProperty="externalId">
-						<bean:message key="label.validate" bundle="APPLICATION_RESOURCES"/>
-					</html:link>
-				</logic:equal>
+				</logic:notEqual>
 			</td>
 		</tr>
 	</logic:iterate>
@@ -575,12 +584,6 @@
 			    <fr:slot name="expirationDateOfDocumentIdYearMonthDay" key="label.person.identificationDocumentExpirationDate">
 					<validator class="pt.ist.fenixWebFramework.renderers.validators.DateValidator" />
 			    </fr:slot>
-<%--
-			    <fr:slot name="fiscalCountry" key="label.fiscalCountry" >
-			        <fr:property name="format" value="${name}"/>
-			    </fr:slot>
-			    <fr:slot name="socialSecurityNumber" key="label.person.contributorNumber"/>
---%>			    
 			    <fr:slot name="profession" key="label.person.occupation"/>
 			    <fr:slot name="maritalStatus" key="label.person.maritalStatus"/>
 			    <fr:slot name="dateOfBirthYearMonthDay" key="label.person.birth"/>
@@ -604,7 +607,7 @@
 			</fr:layout>
 		</fr:view>
 
-		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">r
+		<html:link action="<%="/accounts/manageAccounts.do?method=prepareEditPersonalData&personId=" + personID %>">
 			<bean:message key="label.edit" bundle="APPLICATION_RESOURCES"/>
 		</html:link>
 
@@ -613,7 +616,7 @@
 	<!-- Dados Fiscais -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
 		<tr>
-			<td class="infoop" width="25"><span class="emphasis-box">3</span></td>
+			<td class="infoop" width="25"><span class="emphasis-box">4</span></td>
 			<td class="infoop"><strong><bean:message key="label.person.title.fiscalInformation" bundle="APPLICATION_RESOURCES"/></strong></td>
 		</tr>
 	</table>
@@ -650,7 +653,7 @@
 	<!-- Informacao de Utilizador -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
 		<tr>
-			<td class="infoop" width="25"><span class="emphasis-box">4</span></td>
+			<td class="infoop" width="25"><span class="emphasis-box">5</span></td>
 			<td class="infoop"><strong><bean:message
 				key="label.person.login.info" bundle="APPLICATION_RESOURCES"/></strong></td>
 		</tr>
@@ -667,7 +670,7 @@
 	<!-- Filiacao -->
 	<table class="mtop15" width="98%" cellpadding="0" cellspacing="0">
 		<tr>
-			<td class="infoop" width="25"><span class="emphasis-box">5</span></td>
+			<td class="infoop" width="25"><span class="emphasis-box">6</span></td>
 			<td class="infoop"><strong><bean:message
 				key="label.person.title.filiation" bundle="APPLICATION_RESOURCES"/></strong></td>
 		</tr>

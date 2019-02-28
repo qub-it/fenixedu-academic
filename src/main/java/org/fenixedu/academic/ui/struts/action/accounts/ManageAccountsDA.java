@@ -58,8 +58,7 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 
-@StrutsFunctionality(app = AccountManagementApp.class, path = "manage-accounts",
-        titleKey = "link.accountmanagement.manageaccounts")
+@StrutsFunctionality(app = AccountManagementApp.class, path = "manage-accounts", titleKey = "link.accountmanagement.manageaccounts")
 @Mapping(path = "/accounts/manageAccounts")
 @Forward(name = "manageAccounts", path = "/accounts/manageAccounts.jsp")
 @Forward(name = "createPerson", path = "/accounts/createPerson.jsp")
