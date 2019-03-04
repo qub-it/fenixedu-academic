@@ -83,11 +83,12 @@
 	    </fr:layout>
 	    
 		<fr:destination name="invalid" path='<%= "/accounts/manageAccounts.do?method=editFiscalDataInvalid&personId=" + personID %>'/>
+		<fr:destination name="cancel" path='<%= "/accounts/manageAccounts.do?method=viewPerson&personId=" + personID %>'/>
     </fr:edit>
 	
     <p>
         <html:submit><bean:message key="button.submit" bundle="APPLICATION_RESOURCES" /></html:submit>
-        <html:cancel onclick="this.form.method.value='prepareEditPersonalData';" ><bean:message key="button.back" bundle="APPLICATION_RESOURCES" /></html:cancel>
+        <html:cancel><bean:message key="button.back" bundle="APPLICATION_RESOURCES" /></html:cancel>
     </p>    
 	
 </fr:form>

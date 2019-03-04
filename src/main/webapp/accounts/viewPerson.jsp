@@ -624,17 +624,22 @@
     <fr:view name="person">
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
         	<logic:notEmpty name="person" property="fiscalAddress">
+        	<logic:notEmpty name="person" property="socialSecurityNumber">
 			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
 				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code}  ${socialSecurityNumber}" />
 			</fr:slot>
         	</logic:notEmpty>
+        	</logic:notEmpty>
         	
         	<logic:empty name="person" property="fiscalAddress">
+        	<logic:notEmpty name="person" property="socialSecurityNumber">
 			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="APPLICATION_RESOURCES">
 				<fr:property name="format" value="${socialSecurityNumber}" />
 			</fr:slot>
+        	</logic:notEmpty>
         	</logic:empty>
 
+			
         	<fr:slot name="fiscalAddress">
 				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
         	</fr:slot>
