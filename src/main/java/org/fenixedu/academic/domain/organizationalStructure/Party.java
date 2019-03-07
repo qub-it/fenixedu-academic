@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
@@ -984,6 +985,14 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public List<PhysicalAddress> getPendingOrValidPhysicalAddresses() {
         return (List<PhysicalAddress>) getPendingOrValidPartyContacts(PhysicalAddress.class);
+    }
+    
+    public List<PhysicalAddress> getValidAddressesForFiscalData() {
+        return getPendingOrValidPartyContacts(PhysicalAddress.class).stream()
+            .map(PhysicalAddress.class::cast)
+            .filter(pa -> pa.isActiveAndValid())
+            .filter(pa -> pa.getCountryOfResidence() != null)
+            .collect(Collectors.toList());
     }
 
     public boolean hasDefaultPhysicalAddress() {

@@ -73,7 +73,7 @@
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
 			<fr:slot name="socialSecurityNumber" required="true" />
         	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
-                <fr:property name="from" value="sortedActiveAndValidPhysicalAddresses" />
+                <fr:property name="from" value="sortedValidAddressesForFiscalData" />
 				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name} (${countryOfResidence.code})" />
         	</fr:slot>
         </fr:schema>
