@@ -130,12 +130,6 @@ request.setAttribute("hideValidationWarning", !partyContact.isToBeValidated());
 					<% } %>
 				</fr:slot>
 
-				<fr:slot name="areaOfAreaCode">
-					<% if(physicalAddressBean.getCountryOfResidence() != null && physicalAddressBean.getCountryOfResidence().isDefaultCountry()) { %>
-					<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
-					<% } %>
-				</fr:slot>
-
 				<% if(physicalAddressBean.getCountryOfResidence() != null && physicalAddressBean.getCountryOfResidence().isDefaultCountry()) { %>
 				<fr:slot name="parishOfResidence" required="true" />
 				<% } %>

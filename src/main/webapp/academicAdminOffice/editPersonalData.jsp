@@ -149,6 +149,11 @@
 				<fr:property name="falseLabel" value="label.no.capitalized"/>
 				<fr:property name="bundle" value="APPLICATION_RESOURCES" />
 			</fr:slot>
+			<fr:slot name="fiscalAddress">
+				<fr:property name="trueLabel" value="label.partyContacts.view.trueLabel" />
+				<fr:property name="falseLabel" value="label.partyContacts.view.falseLabel" />
+				<fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
+			</fr:slot>
 			<fr:slot name="address" layout="null-as-label">
 				<fr:property name="label" value="-" />
 			</fr:slot>

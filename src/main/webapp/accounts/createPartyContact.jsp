@@ -75,12 +75,6 @@
 					<% } %>
 				</fr:slot>
 				
-				<fr:slot name="areaOfAreaCode">
-					<% if(partyContact.getCountryOfResidence() != null && partyContact.getCountryOfResidence().isDefaultCountry()) { %>
-					<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
-					<% } %>
-				</fr:slot>
-				
 				<% if(partyContact.getCountryOfResidence() != null && partyContact.getCountryOfResidence().isDefaultCountry()) { %>
 				<fr:slot name="parishOfResidence">
 					<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />

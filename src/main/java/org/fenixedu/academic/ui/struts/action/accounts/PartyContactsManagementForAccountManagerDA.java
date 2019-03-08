@@ -43,7 +43,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 @Mapping(path = "/accounts/partyContacts", functionality = ManageAccountsDA.class)
 @Forward(name = "visualizePersonalInformation", path = "/accounts/viewPerson.jsp")
-@Forward(name = "editPartyContact", path = "/accounts/ editPartyContact.jsp")
+@Forward(name = "editPartyContact", path = "/accounts/editPartyContact.jsp")
 @Forward(name = "createPartyContact", path = "/accounts/createPartyContact.jsp")
 public class PartyContactsManagementForAccountManagerDA extends PartyContactsManagementDispatchAction {
 
