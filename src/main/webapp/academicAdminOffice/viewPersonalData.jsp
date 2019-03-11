@@ -78,16 +78,16 @@
 </fr:view>
 
 <h3 class="mbottom025"><bean:message key="label.person.title.fiscalInformation" /></h3>
-<fr:view name="personBean">
-	<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES">
+<fr:view name="person">
+	<fr:schema type="org.fenixedu.academic.domain.Person" bundle="ACADEMIC_OFFICE_RESOURCES" >
 	
-		<logic:notEmpty name="personBean" property="fiscalAddress">
+		<logic:notEmpty name="person" property="fiscalAddress">
 			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="ACADEMIC_OFFICE_RESOURCES">
 				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code} ${socialSecurityNumber}" />
 			</fr:slot>
 		</logic:notEmpty>
 		
-		<logic:empty name="personBean" property="fiscalAddress">
+		<logic:empty name="person" property="fiscalAddress">
 			<fr:slot name="this" key="label.socialSecurityNumber" bundle="ACADEMIC_OFFICE_RESOURCES">
 				<fr:property name="format" value="${socialSecurityNumber}" />
 			</fr:slot>
@@ -97,7 +97,6 @@
 				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
 			</fr:slot>
 	</fr:schema>
-
 	<fr:layout name="tabular" >
 		<fr:property name="classes" value="tstyle1 thright thlight mtop0"/>
 		<fr:property name="columnClasses" value="width14em,"/>
