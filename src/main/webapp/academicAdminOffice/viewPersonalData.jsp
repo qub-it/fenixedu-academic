@@ -94,7 +94,7 @@
 		</logic:empty>
 		
 			<fr:slot name="fiscalAddress">
-				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
+				<fr:property name="format" value="${uiFiscalPresentationValue}" />
 			</fr:slot>
 	</fr:schema>
 	<fr:layout name="tabular" >

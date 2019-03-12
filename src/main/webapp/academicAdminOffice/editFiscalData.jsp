@@ -55,7 +55,7 @@
 		</logic:empty>
 				
        	<fr:slot name="fiscalAddress">
-			<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
+			<fr:property name="format" value="${uiFiscalPresentationValue}" />
        	</fr:slot>
 	</fr:schema>
 	
@@ -86,7 +86,7 @@
 			<fr:slot name="socialSecurityNumber" required="true" />
         	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
                 <fr:property name="from" value="sortedValidAddressesForFiscalData" />
-				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name} (${countryOfResidence.code})" />
+				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
         	</fr:slot>
         </fr:schema>
 	    <fr:layout name="tabular" >

@@ -18,7 +18,9 @@
  */
 package org.fenixedu.academic.domain.contacts;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
@@ -218,5 +220,27 @@ public class PhysicalAddress extends PhysicalAddress_Base {
 
     public static boolean requiresValidation() {
         return FenixEduAcademicConfiguration.getPhysicalAddressRequiresValidation();
+    }
+    
+    public String getUiFiscalPresentationValue() {
+        final List<String> compounds = new ArrayList<>();
+        
+        if(StringUtils.isNotEmpty(getAddress())) {
+            compounds.add(getAddress());
+        }
+        
+        if(StringUtils.isNotEmpty(getAreaCode())) {
+            compounds.add(getAreaCode());
+        }
+        
+        if(StringUtils.isNotEmpty(getDistrictSubdivisionOfResidence())) {
+            compounds.add(getDistrictSubdivisionOfResidence());
+        }
+        
+        if(getCountryOfResidence() != null) {
+            compounds.add(getCountryOfResidence().getLocalizedName().getContent());
+        }
+        
+        return String.join(" ", compounds);
     }
 }
