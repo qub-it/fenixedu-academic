@@ -82,7 +82,7 @@
 						<fr:property name="regexp" value="\d{4}-\d{3}" />
 						<fr:property name="message" value="error.areaCode.invalidFormat" />
 						<fr:property name="key" value="true" />
-						<fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
+						<fr:property name="bundle" value="ACADEMIC_ADMIN_OFFICE" />
 					</fr:validator>
 					<% } %>
 				</fr:slot>

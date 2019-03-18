@@ -992,6 +992,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
             .map(PhysicalAddress.class::cast)
             .filter(pa -> pa.isActiveAndValid())
             .filter(pa -> pa.getCountryOfResidence() != null)
+            .filter(pa -> pa.getCurrentPartyContact() == null || !pa.getCurrentPartyContact().isToBeValidated())
             .collect(Collectors.toList());
     }
 

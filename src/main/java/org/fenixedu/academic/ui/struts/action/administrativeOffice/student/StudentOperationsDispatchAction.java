@@ -67,7 +67,10 @@ import pt.ist.fenixWebFramework.renderers.utils.RenderUtils;
         @Forward(name = "fillNewPersonData", path = "/academicAdminOffice/fillNewPersonData.jsp"),
         @Forward(name = "fillOriginInformation", path = "/academicAdminOffice/fillOriginInformation.jsp"),
         @Forward(name = "createStudentSuccess", path = "/academicAdminOffice/createStudentSuccess.jsp"),
-        @Forward(name = "showCreateStudentConfirmation", path = "/academicAdminOffice/showCreateStudentConfirmation.jsp") })
+        @Forward(name = "showCreateStudentConfirmation", path = "/academicAdminOffice/showCreateStudentConfirmation.jsp"),
+        @Forward(name = "fillFiscalInformation", path = "/academicAdminOffice/fillFiscalInformation.jsp")
+})
+
 public class StudentOperationsDispatchAction extends FenixDispatchAction {
 
     @EntryPoint
@@ -307,6 +310,30 @@ public class StudentOperationsDispatchAction extends FenixDispatchAction {
         }
 
         return mapping.findForward("fillOriginInformation");
+    }
+    
+    public ActionForward prepareFillFiscalInformation(ActionMapping mapping, ActionForm actionForm,
+            HttpServletRequest request, HttpServletResponse response) {
+        
+        request.setAttribute("executionDegreeBean", getRenderedObject("executionDegree"));
+        request.setAttribute("ingressionInformationBean", getRenderedObject("chooseIngression"));
+        request.setAttribute("personBean", getRenderedObject("person"));
+        request.setAttribute("precedentDegreeInformationBean", getRenderedObject("precedentDegreeInformation"));
+        request.setAttribute("originInformationBean", getRenderedObject("originInformation"));
+        
+        return mapping.findForward("fillFiscalInformation");
+    }
+    
+    public ActionForward fillFiscalInformationInvalid(ActionMapping mapping, ActionForm actionForm,
+            HttpServletRequest request, HttpServletResponse response) {
+
+        request.setAttribute("executionDegreeBean", getRenderedObject("executionDegree"));
+        request.setAttribute("ingressionInformationBean", getRenderedObject("chooseIngression"));
+        request.setAttribute("personBean", getRenderedObject("person"));
+        request.setAttribute("precedentDegreeInformationBean", getRenderedObject("precedentDegreeInformation"));
+        request.setAttribute("originInformationBean", getRenderedObject("originInformation"));
+        
+        return mapping.findForward("fillFiscalInformation");
     }
 
     public ActionForward prepareShowCreateStudentConfirmation(ActionMapping mapping, ActionForm actionForm,

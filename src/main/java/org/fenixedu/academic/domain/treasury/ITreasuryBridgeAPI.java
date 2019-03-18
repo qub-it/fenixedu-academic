@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
 import org.fenixedu.academic.domain.student.Registration;
 import org.joda.time.LocalDate;
@@ -155,5 +156,7 @@ public interface ITreasuryBridgeAPI {
     public boolean updateCustomer(final Person person, final String fiscalAddressCountryCode, final String fiscalNumber);
     
     public void saveFiscalAddressFieldsFromPersonInActiveCustomer(final Person person);
+    
+    public PhysicalAddress createSaftDefaultPhysicalAddress(final Person person);
     
 }
