@@ -27,12 +27,12 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr" %>
 <html:xhtml/>
 
-<h2><bean:message key="link.student.editFiscalData" bundle="ACADEMIC_OFFICE_RESOURCES"/></h2>
+<h2><bean:message key="link.student.editFiscalData" bundle="ACADEMIC_ADMIN_OFFICE"/></h2>
 
 <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean" />
 
 <fr:view name="personBean">
-	<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES">
+	<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_ADMIN_OFFICE">
 		<fr:slot name="givenNames" >
 			<fr:property name="size" value="50" />
 		</fr:slot>
@@ -59,37 +59,26 @@
 <p><em class="infoop2">
 	<bean:message 
 		key="message.warning.fillFiscalInformation.select.address.equal.fiscalNumber.country" 
-		bundle="ACADEMIC_OFFICE_RESOURCES" 
+		bundle="ACADEMIC_ADMIN_OFFICE" 
 		arg0="<%= FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber() %>" />
 </em></p>
 
-<fr:form action="/createStudent.do">
-    <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="method" value="validateFiscalInformation"/>
+<fr:form action="/accounts/manageAccounts.do?method=validateFiscalInformation">
 
-	<fr:edit id="executionDegree" name="executionDegreeBean" visible="false" />
-	<fr:edit id="person" name="personBean" visible="false" />	
-	<fr:edit id="chooseIngression" name="ingressionInformationBean" visible="false" />	
-	<fr:edit id="precedentDegreeInformation" name="precedentDegreeInformationBean" visible="false" />
+	<fr:edit id="personBean" name="personBean" visible="false" />	
 
     <fr:edit id="editPersonBean" name="personBean">
-		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES">
+		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_ADMIN_OFFICE">
 			<fr:slot name="socialSecurityNumber" required="true" />
 			
-			<fr:slot name="usePhysicalAddress" bundle="ACADEMIC_OFFICE_RESOURCES" layout="radio-postback" 
+			<fr:slot name="usePhysicalAddress" bundle="ACADEMIC_ADMIN_OFFICE" layout="radio-postback" 
 				key="label.createStudent.fillFiscalInformation.usePhysicalAddress">
 				<fr:property name="classes" value="liinline nobullet" />
 				<fr:property name="destination" value="postback" />
 			</fr:slot>
 			
-			<% if(personBean.getPerson() == null && personBean.isUsePhysicalAddress()) { %>
+			<% if(personBean.isUsePhysicalAddress()) { %>
         	<fr:slot name="uiResidenceAddressForFiscalPresentationValue" readOnly="true" key="label.address" />
-			<% } %>
-
-			<% if(personBean.getPerson() != null  && personBean.isUsePhysicalAddress()) { %>
-        	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
-                <fr:property name="from" value="sortedValidAddressesForFiscalData" />
-				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
-        	</fr:slot>
 			<% } %>
 
 			<% if(!personBean.isUsePhysicalAddress()) { %>
@@ -113,7 +102,7 @@
 		        	<fr:property name="regexp" value="(\d{4}-\d{3})?"/>
 		        	<fr:property name="message" value="error.areaCode.invalidFormat"/>
 		           	<fr:property name="key" value="true"/>
-		           	<fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
+		           	<fr:property name="bundle" value="ACADEMIC_ADMIN_OFFICE" />
 		        </fr:validator>
 				<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
 				<% } %>
@@ -123,19 +112,22 @@
 			<fr:slot name="fiscalAddressParishOfResidence" key="label.parishOfResidence" />
 			<% } %>
 
+			<% if(personBean.getFiscalAddressCountryOfResidence() == null || personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
+			<fr:slot name="fiscalAddressDistrictOfResidence" required="true" key="label.districtOfResidence" >
+				<fr:property name="size" value="50"/>
+				<fr:property name="maxLength" value="100"/>
+			</fr:slot>
+			<% } %>
+			
 			<% if(personBean.getFiscalAddressCountryOfResidence() != null && personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
-		   	<fr:slot name="fiscalAddressDistrictSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required" required="true">
-				<fr:property name="size" value="50" />
-				<fr:property name="format" value="${name} (${district.name})" />
-				<fr:property name="indicatorShown" value="true" />
-				<fr:property name="provider" value="org.fenixedu.academic.service.services.commons.searchers.SearchDistrictSubdivisions"/>
-				<fr:property name="args" value="slot=name,size=20" />
-				<fr:property name="minChars" value="2" />
-			</fr:slot>	
+			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence">
+				<fr:property name="size" value="50"/>
+				<fr:property name="maxLength" value="100"/>
+			</fr:slot>
 			<% } %>
 			
 			<% if(personBean.getFiscalAddressCountryOfResidence() == null || !personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
-			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_OFFICE_RESOURCES" />
+			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_ADMIN_OFFICE" />
 			<% } %>
 
 			<% } %>
@@ -146,10 +138,10 @@
             <fr:property name="columnClasses" value="width14em,,tdclear tderror1"/>
 	    </fr:layout>
 	    
-        <fr:destination name="postback" path="/createStudent.do?method=fillFiscalInformationPostback" />
-        <fr:destination name="invalid" path="/createStudent.do?method=fillFiscalInformationInvalid" />
+        <fr:destination name="postback" path="/accounts/manageAccounts.do?method=fillFiscalInformationPostback" />
+        <fr:destination name="invalid" path="/accounts/manageAccounts.do?method=fillFiscalInformationInvalid" />
     </fr:edit>
 	
-    <p><html:submit><bean:message key="button.submit" bundle="ACADEMIC_OFFICE_RESOURCES" /></html:submit></p>    
+    <p><html:submit><bean:message key="button.submit" bundle="ACADEMIC_ADMIN_OFFICE" /></html:submit></p>
 	
 </fr:form>

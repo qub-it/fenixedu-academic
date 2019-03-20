@@ -50,7 +50,6 @@
 				<fr:property name="size" value="50" />
 			</fr:slot>
 			<fr:slot name="gender" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
-			<fr:slot name="socialSecurityNumber" />
 			<fr:slot name="professionType" />
 			<fr:slot name="professionalCondition" layout="menu-select">
 				<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ProfessionalSituationConditionTypeProviderForRaides"/>
@@ -109,12 +108,23 @@
 	<h3 class="mtop1 mbottom025"><bean:message key="label.person.title.addressInfo" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
 	<fr:edit id="personAddress" name="personBean">
 		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES" >
+			<% if(personBean.getPerson() != null && personBean.getPerson().getDefaultPhysicalAddress() != null 
+					&& personBean.getPerson().getDefaultPhysicalAddress().isFiscalAddress()) { %>
+
+			<fr:slot name="countryOfResidence" readOnly="true">
+				<fr:property name="format"  value="${name}" />
+			</fr:slot>
+			
+			<% } else { %>
 			<fr:slot name="countryOfResidence" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
 				<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DistinctCountriesProvider" />
 				<fr:property name="format" value="${name}"/>
 				<fr:property name="sortBy" value="name"/>		
 				<fr:property name="destination" value="country-postback" />
 			</fr:slot>
+			
+			<% } %>
+						
 			<fr:slot name="address" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
 				<fr:property name="size" value="50"/>
 			</fr:slot>
@@ -125,23 +135,26 @@
 			
 			<fr:slot name="areaCode">
 				<fr:property name="size" value="10"/>
+
 				<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
 				<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RegexpValidator">
 		        	<fr:property name="regexp" value="(\d{4}-\d{3})?"/>
 		        	<fr:property name="message" value="error.areaCode.invalidFormat"/>
 		           	<fr:property name="key" value="true"/>
+		           	<fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
 		        </fr:validator>
+				<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
 				<% } %>
 			</fr:slot>
-			
+
 			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="parishOfResidence" />
 			<% } %>
 
 			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
-		   	<fr:slot name="districtSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required">
+		   	<fr:slot name="districtSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required" required="true">
 				<fr:property name="size" value="50"/>
-				<fr:property name="format" value="${name} - (${district.name})"/>
+				<fr:property name="format" value="${name} (${district.name})"/>
 				<fr:property name="indicatorShown" value="true"/>		
 				<fr:property name="provider" value="org.fenixedu.academic.service.services.commons.searchers.SearchDistrictSubdivisions"/>
 				<fr:property name="args" value="slot=name,size=20"/>
@@ -149,7 +162,7 @@
 			</fr:slot>	
 			<% } %>
 			
-			<% if(personBean.getCountryOfResidence() != null && !personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getCountryOfResidence() == null || !personBean.getCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="districtSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_OFFICE_RESOURCES" />
 			<% } %>
 			

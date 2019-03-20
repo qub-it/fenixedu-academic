@@ -32,9 +32,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.contacts.PartyContactType;
+import org.fenixedu.academic.domain.contacts.PhysicalAddress;
+import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.domain.util.email.Message;
 import org.fenixedu.academic.domain.util.email.SystemSender;
 import org.fenixedu.academic.dto.person.PersonBean;
@@ -65,6 +70,7 @@ import pt.ist.fenixframework.FenixFramework;
 @Forward(name = "createPersonFillInfo", path = "/accounts/createPersonFillInfo.jsp")
 @Forward(name = "viewPerson", path = "/accounts/viewPerson.jsp")
 @Forward(name = "editFiscalData", path = "/accounts/editFiscalData.jsp")
+@Forward(name = "fillFiscalInformation", path = "/accounts/fillFiscalInformation.jsp")
 public class ManageAccountsDA extends FenixDispatchAction {
 
     @EntryPoint
@@ -114,6 +120,48 @@ public class ManageAccountsDA extends FenixDispatchAction {
         request.setAttribute("personBean", getRenderedObject("personBean"));
         return mapping.findForward("createPersonFillInfo");
     }
+    
+    public ActionForward prepareFillFiscalInformation(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) {
+        request.setAttribute("personBean", getRenderedObject("personBean"));
+
+        return mapping.findForward("fillFiscalInformation");
+    }
+
+    public ActionForward fillFiscalInformationInvalid(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) {
+
+        return prepareFillFiscalInformation(mapping, actionForm, request, response);
+    }
+
+    public ActionForward fillFiscalInformationPostback(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) {
+        request.setAttribute("personBean", getRenderedObject("personBean"));
+
+        RenderUtils.invalidateViewState();
+
+        return mapping.findForward("fillFiscalInformation");
+    }
+
+    public ActionForward validateFiscalInformation(ActionMapping mapping, ActionForm actionForm, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        final PersonBean personBean = getRenderedObject("personBean");
+
+        final String socialSecurityNumber = personBean.getSocialSecurityNumber();
+
+        Country fiscalAddressCountry = personBean.isUsePhysicalAddress() ? personBean.getCountryOfResidence() : 
+            personBean.getFiscalAddressCountryOfResidence();
+
+        boolean fiscalInfoValid = TreasuryBridgeAPIFactory.implementation().isValidFiscalNumber(fiscalAddressCountry.getCode(),
+                socialSecurityNumber);
+
+        if (!fiscalInfoValid) {
+            addActionMessage(request, "error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
+            return fillFiscalInformationInvalid(mapping, actionForm, request, response);
+        }
+
+        return createNewPerson(mapping, actionForm, request, response);
+    }
 
     public ActionForward createNewPerson(final ActionMapping mapping, final ActionForm actionForm,
             final HttpServletRequest request, final HttpServletResponse response) throws Exception {
@@ -139,6 +187,44 @@ public class ManageAccountsDA extends FenixDispatchAction {
             person.setUser(new User(person.getProfile()));
         }
         person.getAllPendingPartyContacts().forEach(partyContact -> partyContact.setValid());
+        
+        if (bean.isUsePhysicalAddress()) {
+
+            person.editSocialSecurityNumber(bean.getSocialSecurityNumber(), person.getDefaultPhysicalAddress());
+
+        } else if (!bean.isUsePhysicalAddress()) {
+
+            final Country fiscalAddressCountryOfResidence = bean.getFiscalAddressCountryOfResidence();
+            final String fiscalAddressAddress = bean.getFiscalAddressAddress();
+            final String fiscalAddressAreaCode = bean.getFiscalAddressAreaCode();
+            final String fiscalAddressParishOfResidence = bean.getFiscalAddressParishOfResidence();
+
+            String fiscalAddressDistrictSubdivisionOfResidence = bean.getFiscalAddressDistrictSubdivisionOfResidence();
+            String fiscalAddressDistrictOfResidence = bean.getFiscalAddressDistrictOfResidence();
+            if (fiscalAddressCountryOfResidence.isDefaultCountry()
+                    && bean.getFiscalAddressDistrictSubdivisionOfResidenceObject() != null) {
+                fiscalAddressDistrictSubdivisionOfResidence =
+                        bean.getFiscalAddressDistrictSubdivisionOfResidenceObject().getName();
+
+                fiscalAddressDistrictOfResidence =
+                        bean.getFiscalAddressDistrictSubdivisionOfResidenceObject().getDistrict().getName();
+            }
+
+            final PhysicalAddressData fiscalAddressData = new PhysicalAddressData();
+            fiscalAddressData.setCountryOfResidence(fiscalAddressCountryOfResidence);
+            fiscalAddressData.setAddress(fiscalAddressAddress);
+            fiscalAddressData.setAreaCode(fiscalAddressAreaCode);
+            fiscalAddressData.setParishOfResidence(fiscalAddressParishOfResidence);
+            fiscalAddressData.setDistrictSubdivisionOfResidence(fiscalAddressDistrictSubdivisionOfResidence);
+            fiscalAddressData.setDistrictOfResidence(fiscalAddressDistrictOfResidence);
+
+            final PhysicalAddress fiscalAddress =
+                    PhysicalAddress.createPhysicalAddress(person, fiscalAddressData, PartyContactType.PERSONAL, false);
+            fiscalAddress.setValid();
+
+            person.editSocialSecurityNumber(bean.getSocialSecurityNumber(), fiscalAddress);
+        }
+        
         return person;
     }
 
