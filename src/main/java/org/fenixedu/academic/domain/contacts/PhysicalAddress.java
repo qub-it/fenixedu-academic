@@ -76,6 +76,8 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         setVisibleToStudents(Boolean.FALSE);
         setVisibleToStaff(Boolean.FALSE);
         edit(data);
+
+        checkRules();
     }
 
     // Called from renders with constructor clause.
@@ -84,6 +86,8 @@ public class PhysicalAddress extends PhysicalAddress_Base {
             final String districtSubdivisionOfResidence, final String districtOfResidence, final Country countryOfResidence) {
         this(party, type, defaultContact.booleanValue(), new PhysicalAddressData(address, areaCode, areaOfAreaCode, area,
                 parishOfResidence, districtSubdivisionOfResidence, districtOfResidence, countryOfResidence));
+
+        checkRules();
     }
 
     public void edit(final PhysicalAddressData data) {
@@ -111,6 +115,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
             setLastModifiedDate(new DateTime());
         }
 
+        checkRules();
     }
 
     // Called from renders with edit clause.
@@ -120,6 +125,14 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         super.edit(type, defaultContact);
         edit(new PhysicalAddressData(address, areaCode, areaOfAreaCode, area, parishOfResidence, districtSubdivisionOfResidence,
                 districtOfResidence, countryOfResidence));
+
+        checkRules();
+    }
+
+    private void checkRules() {
+        if(getCountryOfResidence() == null) {
+            throw new DomainException("error.PhysicalAddres.countryOfResidence.required");
+        }
     }
 
     @Override

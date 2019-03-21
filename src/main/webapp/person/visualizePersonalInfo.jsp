@@ -675,9 +675,11 @@
 			      	<bean:message key="label.fiscalAddress" bundle="APPLICATION_RESOURCES" />
 		      </th>
 		      <td>
-		      	<bean:write name="person" property="address" />
-		      	<bean:write name="person" property="areaCode" />
-		      	<bean:write name="person" property="countryOfResidence.localizedName.content" />
+		       	<logic:notEmpty name="person" property="fiscalAddress">
+			      	<bean:write name="person" property="fiscalAddress.address" />
+			      	<bean:write name="person" property="fiscalAddress.areaCode" />
+			      	<bean:write name="person" property="fiscalAddress.countryOfResidence.localizedName.content" />
+		      	</logic:notEmpty>
 		      </td>
 		    </tr>
 		  </tbody>

@@ -67,6 +67,7 @@ request.setAttribute("hideValidationWarning", !partyContact.isToBeValidated());
 </table>
 </logic:notEqual>
 
+<%--
 <logic:equal name="isPhone" value="true">
 	<bean:define id="confirm">
 		<bean:message  bundle="ACADEMIC_OFFICE_RESOURCES" key="label.contact.validation.message.confirm.Phone" />
@@ -79,6 +80,7 @@ request.setAttribute("hideValidationWarning", !partyContact.isToBeValidated());
 		 });
 	</script>
 </logic:equal>
+--%>
 
 <logic:equal name="partyContactClass" value="PhysicalAddress">
 		<bean:define id="physicalAddressBean"  name="partyContact" type="org.fenixedu.academic.dto.contacts.PhysicalAddressBean" />
