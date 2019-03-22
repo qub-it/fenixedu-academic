@@ -71,10 +71,18 @@
 
     <fr:edit id="editPersonBean" name="personBean">
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="APPLICATION_RESOURCES" >
-			<fr:slot name="socialSecurityNumber" required="true" />
-        	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
+			<fr:slot name="socialSecurityNumber" required="true" >
+				<% if(personBean.getFiscalAddress() != null) { %>
+				<fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator">
+					<fr:property name="countryCode" value="<%= personBean.getFiscalAddress().getCountryOfResidence().getCode()  %>" />
+				</fr:validator>
+				<% } %>
+			</fr:slot>
+			
+        	<fr:slot name="fiscalAddress" layout="menu-select-postback" required="true">
                 <fr:property name="from" value="sortedValidAddressesForFiscalData" />
 				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
+				<fr:property name="destination" value="postback" />
         	</fr:slot>
         </fr:schema>
 	    <fr:layout name="tabular" >
@@ -84,6 +92,7 @@
 	    
 		<fr:destination name="invalid" path='<%= "/accounts/manageAccounts.do?method=editFiscalDataInvalid&personId=" + personID %>'/>
 		<fr:destination name="cancel" path='<%= "/accounts/manageAccounts.do?method=viewPerson&personId=" + personID %>'/>
+		<fr:destination name="postback" path='<%= "/accounts/manageAccounts.do?method=editFiscalDataPostback&personId=" + personID %>'/>
     </fr:edit>
 	
     <p>

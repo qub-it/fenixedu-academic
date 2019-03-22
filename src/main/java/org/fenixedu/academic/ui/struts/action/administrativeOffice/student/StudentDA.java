@@ -175,4 +175,15 @@ public class StudentDA extends StudentRegistrationDA {
         return mapping.findForward("editFiscalData");
     }
     
+    public ActionForward editFiscalDataPostback(final ActionMapping mapping, final ActionForm actionForm, final HttpServletRequest request, final HttpServletResponse response) {
+        getAndSetStudent(request);
+
+        final PersonBean personBean = getRenderedObject();
+        request.setAttribute("personBean", personBean);
+        RenderUtils.invalidateViewState();
+        
+        return mapping.findForward("editFiscalData");
+        
+    }
+    
 }

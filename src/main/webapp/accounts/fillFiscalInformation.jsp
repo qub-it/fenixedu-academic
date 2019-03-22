@@ -69,7 +69,14 @@
 
     <fr:edit id="editPersonBean" name="personBean">
 		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_ADMIN_OFFICE">
-			<fr:slot name="socialSecurityNumber" required="true" />
+			<fr:slot name="socialSecurityNumber" required="true" >
+				<logic:notEmpty name="fiscalCountryCode">
+				<bean:define id="fiscalCountryCode" name="fiscalCountryCode" type="java.lang.String" />
+				<fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator">
+					<fr:property name="countryCode" value="<%= fiscalCountryCode  %>" />
+				</fr:validator>
+				</logic:notEmpty>
+			</fr:slot>
 			
 			<fr:slot name="usePhysicalAddress" bundle="ACADEMIC_ADMIN_OFFICE" layout="radio-postback" 
 				key="label.createStudent.fillFiscalInformation.usePhysicalAddress">
@@ -113,23 +120,23 @@
 			<% } %>
 
 			<% if(personBean.getFiscalAddressCountryOfResidence() == null || personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
-			<fr:slot name="fiscalAddressDistrictOfResidence" required="true" key="label.districtOfResidence" >
-				<fr:property name="size" value="50"/>
-				<fr:property name="maxLength" value="100"/>
-			</fr:slot>
-			<% } %>
-			
-			<% if(personBean.getFiscalAddressCountryOfResidence() != null && personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence">
 				<fr:property name="size" value="50"/>
 				<fr:property name="maxLength" value="100"/>
 			</fr:slot>
 			<% } %>
 			
-			<% if(personBean.getFiscalAddressCountryOfResidence() == null || !personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getFiscalAddressCountryOfResidence() != null && !personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_ADMIN_OFFICE" />
 			<% } %>
 
+			<% if(personBean.getFiscalAddressCountryOfResidence() == null || personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
+			<fr:slot name="fiscalAddressDistrictOfResidence" required="true" key="label.districtOfResidence" >
+				<fr:property name="size" value="50"/>
+				<fr:property name="maxLength" value="100"/>
+			</fr:slot>
+			<% } %>
+			
 			<% } %>
 			
         </fr:schema>

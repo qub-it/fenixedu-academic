@@ -57,6 +57,7 @@
        	<fr:slot name="fiscalAddress">
 			<fr:property name="format" value="${uiFiscalPresentationValue}" />
        	</fr:slot>
+       	
 	</fr:schema>
 	
 	<fr:layout name="tabular" >
@@ -83,10 +84,19 @@
 
     <fr:edit id="editPersonBean" name="personBean">
         <fr:schema type="org.fenixedu.academic.domain.Person" bundle="ACADEMIC_OFFICE_RESOURCES" >
-			<fr:slot name="socialSecurityNumber" required="true" />
-        	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
+
+			<fr:slot name="socialSecurityNumber" required="true" >
+				<% if(personBean.getFiscalAddress() != null) { %>
+				<fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator">
+					<fr:property name="countryCode" value="<%= personBean.getFiscalAddress().getCountryOfResidence().getCode()  %>" />
+				</fr:validator>
+				<% } %>
+			</fr:slot>
+			
+        	<fr:slot name="fiscalAddress" layout="menu-select-postback" required="true">
                 <fr:property name="from" value="sortedValidAddressesForFiscalData" />
 				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
+				<fr:property name="destination" value="postback" />
         	</fr:slot>
         </fr:schema>
 	    <fr:layout name="tabular" >
@@ -94,7 +104,8 @@
             <fr:property name="columnClasses" value="width14em,,tdclear tderror1"/>
 	    </fr:layout>
 	    
-		<fr:destination name="invalid" path='<%= "/student.do?method=editFiscalDataInvalid&studentID=" + studentID %>'/>
+		<fr:destination name="invalid" path='<%= "/student.do?method=editFiscalDataInvalid&studentID=" + studentID %>' />
+		<fr:destination name="postback" path='<%= "/student.do?method=editFiscalDataPostback&studentID=" + studentID %>' />
     </fr:edit>
 	
     <p>

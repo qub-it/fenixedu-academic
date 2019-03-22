@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
@@ -170,6 +169,8 @@ public class PersonBean implements Serializable {
     
     private PhysicalAddress fiscalAddress;
     
+    private PhysicalAddressForFiscalDataInCreateRegistrationBean fiscalAddressInCreateRegistrationBean;
+    
     public PersonBean() {
         super();
     }
@@ -260,6 +261,10 @@ public class PersonBean implements Serializable {
         }
         
         setFiscalAddress(person.getFiscalAddress());
+        if(person.getFiscalAddress() != null) {
+            setFiscalAddressInCreateRegistrationBean(new PhysicalAddressForFiscalDataInCreateRegistrationBean(person.getFiscalAddress()));
+        }
+        
     }
 
     public String getUiResidenceAddressForFiscalPresentationValue() {
@@ -658,6 +663,32 @@ public class PersonBean implements Serializable {
         return result;
     }
     
+    // Necessary for create registration, the default address can be changed in fillNewPersonData
+    public List<PhysicalAddressForFiscalDataInCreateRegistrationBean> getSortedValidAddressesBeansForFiscalDataInCreateRegistration() {
+        List<PhysicalAddressForFiscalDataInCreateRegistrationBean> result = new ArrayList<PhysicalAddressForFiscalDataInCreateRegistrationBean>();
+        
+        for (final PhysicalAddress physicalAddress : getPerson().getValidAddressesForFiscalData()) {
+            PhysicalAddressForFiscalDataInCreateRegistrationBean bean = new PhysicalAddressForFiscalDataInCreateRegistrationBean(physicalAddress);
+            
+            if(physicalAddress.isDefault()) {
+                bean.setAddress(getAddress());
+                bean.setArea(getArea());
+                bean.setAreaCode(getAreaCode());
+                bean.setAreaOfAreaCode(getAreaOfAreaCode());
+                bean.setCountryOfResidence(getCountryOfResidence());
+                bean.setParishOfResidence(bean.getParishOfResidence());
+                bean.setDistrictSubdivisionOfResidence(bean.getDistrictSubdivisionOfResidence());
+                bean.setDistrictOfResidence(bean.getDistrictOfResidence());
+            }
+            
+            result.add(bean);
+        }
+        
+        Collections.sort(result, PhysicalAddressForFiscalDataInCreateRegistrationBean.COMPARATOR_BY_ADDRESS);
+
+        return result;
+    }
+    
     public PhysicalAddressData getPhysicalAddressData() {
         String address = getAddress();
         String areaCode = getAreaCode();
@@ -818,6 +849,15 @@ public class PersonBean implements Serializable {
     
     public void setFiscalAddressParishOfResidence(String fiscalAddressParishOfResidence) {
         this.fiscalAddressParishOfResidence = fiscalAddressParishOfResidence;
+    }
+    
+    public PhysicalAddressForFiscalDataInCreateRegistrationBean getFiscalAddressInCreateRegistrationBean() {
+        return fiscalAddressInCreateRegistrationBean;
+    }
+    
+    public void setFiscalAddressInCreateRegistrationBean(
+            PhysicalAddressForFiscalDataInCreateRegistrationBean fiscalAddressInCreateRegistrationBean) {
+        this.fiscalAddressInCreateRegistrationBean = fiscalAddressInCreateRegistrationBean;
     }
     
     public Person save() {

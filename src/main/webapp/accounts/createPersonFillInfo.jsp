@@ -160,23 +160,23 @@
 			<% } %>
 
 			<% if(personBean.getCountryOfResidence() == null || personBean.getCountryOfResidence().isDefaultCountry()) { %>
-			<fr:slot name="districtOfResidence" required="true">
-				<fr:property name="size" value="50"/>
-				<fr:property name="maxLength" value="100"/>
-			</fr:slot>
-			<% } %>
-
-			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="districtSubdivisionOfResidence" required="true">
 				<fr:property name="size" value="50"/>
 				<fr:property name="maxLength" value="100"/>
 			</fr:slot>
 			<% } %>
 			
-			<% if(personBean.getCountryOfResidence() == null || !personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getCountryOfResidence() != null && !personBean.getCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="districtSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_ADMIN_OFFICE" />
 			<% } %>
 			
+			<% if(personBean.getCountryOfResidence() == null || personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<fr:slot name="districtOfResidence" required="true">
+				<fr:property name="size" value="50"/>
+				<fr:property name="maxLength" value="100"/>
+			</fr:slot>
+			<% } %>
+
 		</fr:schema>
 	
 		<fr:layout name="tabular">

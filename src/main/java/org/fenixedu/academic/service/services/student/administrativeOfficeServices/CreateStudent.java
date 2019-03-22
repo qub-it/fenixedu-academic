@@ -73,7 +73,7 @@ public class CreateStudent {
 
         } else if (!createNewPerson && personBean.isUsePhysicalAddress()) {
 
-            person.editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddress());
+            person.editSocialSecurityNumber(personBean.getSocialSecurityNumber(), personBean.getFiscalAddressInCreateRegistrationBean().getPhysicalAddress());
 
         } else if (!personBean.isUsePhysicalAddress()) {
 

@@ -356,7 +356,7 @@ public class StudentOperationsDispatchAction extends FenixDispatchAction {
         if (createNewPerson && personBean.isUsePhysicalAddress()) {
             fiscalAddressCountry = personBean.getCountryOfResidence();
         } else if (!createNewPerson && personBean.isUsePhysicalAddress()) {
-            fiscalAddressCountry = personBean.getFiscalAddress().getCountryOfResidence();
+            fiscalAddressCountry = personBean.getFiscalAddressInCreateRegistrationBean().getCountryOfResidence();
         } else if (!personBean.isUsePhysicalAddress()) {
             fiscalAddressCountry = personBean.getFiscalAddressCountryOfResidence();
         }

@@ -86,8 +86,8 @@
 			<% } %>
 
 			<% if(personBean.getPerson() != null  && personBean.isUsePhysicalAddress()) { %>
-        	<fr:slot name="fiscalAddress" layout="menu-select" required="true">
-                <fr:property name="from" value="sortedValidAddressesForFiscalData" />
+        	<fr:slot name="fiscalAddressInCreateRegistrationBean" layout="menu-select" required="true" key="label.fiscalAddress" >
+                <fr:property name="from" value="sortedValidAddressesBeansForFiscalDataInCreateRegistration" />
 				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
         	</fr:slot>
 			<% } %>
@@ -123,7 +123,7 @@
 			<fr:slot name="fiscalAddressParishOfResidence" key="label.parishOfResidence" />
 			<% } %>
 
-			<% if(personBean.getFiscalAddressCountryOfResidence() != null && personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getFiscalAddressCountryOfResidence() == null || personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
 		   	<fr:slot name="fiscalAddressDistrictSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required" required="true">
 				<fr:property name="size" value="50" />
 				<fr:property name="format" value="${name} (${district.name})" />
@@ -134,7 +134,7 @@
 			</fr:slot>	
 			<% } %>
 			
-			<% if(personBean.getFiscalAddressCountryOfResidence() == null || !personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getFiscalAddressCountryOfResidence() != null && !personBean.getFiscalAddressCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="fiscalAddressDistrictSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_OFFICE_RESOURCES" />
 			<% } %>
 
