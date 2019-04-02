@@ -73,7 +73,14 @@
 
     <fr:edit id="editPersonBean" name="personBean">
 		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES">
-			<fr:slot name="socialSecurityNumber" required="true" />
+			<fr:slot name="socialSecurityNumber" required="true" >
+				<logic:notEmpty name="fiscalCountryCode">
+				<bean:define id="fiscalCountryCode" name="fiscalCountryCode" type="java.lang.String" />
+				<fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator">
+					<fr:property name="countryCode" value="<%= fiscalCountryCode  %>" />
+				</fr:validator>
+				</logic:notEmpty>
+			</fr:slot>
 			
 			<fr:slot name="usePhysicalAddress" bundle="ACADEMIC_OFFICE_RESOURCES" layout="radio-postback" 
 				key="label.createStudent.fillFiscalInformation.usePhysicalAddress">
@@ -86,9 +93,10 @@
 			<% } %>
 
 			<% if(personBean.getPerson() != null  && personBean.isUsePhysicalAddress()) { %>
-        	<fr:slot name="fiscalAddressInCreateRegistrationBean" layout="menu-select" required="true" key="label.fiscalAddress" >
+        	<fr:slot name="fiscalAddressInCreateRegistrationBean" layout="menu-select-postback" required="true" key="label.fiscalAddress" >
                 <fr:property name="from" value="sortedValidAddressesBeansForFiscalDataInCreateRegistration" />
 				<fr:property name="format" value="${uiFiscalPresentationValue} (${countryOfResidence.code})" />
+				<fr:property name="destination" value="postback" />	
         	</fr:slot>
 			<% } %>
 
