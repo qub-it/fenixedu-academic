@@ -76,17 +76,17 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     }
 
     public ExternalEnrolment(final Registration registration, final ExternalCurricularCourse externalCurricularCourse,
-            final Grade grade, final ExecutionSemester executionSemester, final YearMonthDay evaluationDate,
+            final Grade grade, final ExecutionInterval executionInterval, final YearMonthDay evaluationDate,
             final Double ectsCredits) {
         this();
 
-        checkConstraints(registration, externalCurricularCourse, executionSemester, grade, ectsCredits);
+        checkConstraints(registration, externalCurricularCourse, executionInterval, grade, ectsCredits);
         checkIfCanCreateExternalEnrolment(registration, externalCurricularCourse);
 
         setRegistration(registration);
         setExternalCurricularCourse(externalCurricularCourse);
         setGrade(grade);
-        setExecutionPeriod(executionSemester);
+        setExecutionPeriod(executionInterval.convert(ExecutionSemester.class));
         setEvaluationDate(evaluationDate);
         setEctsCredits(ectsCredits);
     }
@@ -103,14 +103,14 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     }
 
     private void checkConstraints(final Registration registration, final ExternalCurricularCourse externalCurricularCourse,
-            final ExecutionSemester executionSemester, final Grade grade, final Double ectsCredits) {
+            final ExecutionInterval executionInterval, final Grade grade, final Double ectsCredits) {
         if (registration == null) {
             throw new DomainException("error.externalEnrolment.student.cannot.be.null");
         }
         if (externalCurricularCourse == null) {
             throw new DomainException("error.externalEnrolment.externalCurricularCourse.cannot.be.null");
         }
-        if (executionSemester == null) {
+        if (executionInterval == null) {
             throw new DomainException("error.externalEnrolment.executionPeriod.cannot.be.null");
         }
         if (grade == null || grade.isEmpty()) {
@@ -121,18 +121,18 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
         }
     }
 
-    public void edit(final Registration registration, final Grade grade, final ExecutionSemester executionSemester,
+    public void edit(final Registration registration, final Grade grade, final ExecutionInterval executionInterval,
             final YearMonthDay evaluationDate, final Double ectsCredits) {
 
         if (registration != getRegistration()) {
             checkIfCanCreateExternalEnrolment(registration, getExternalCurricularCourse());
         }
 
-        checkConstraints(registration, getExternalCurricularCourse(), executionSemester, grade, ectsCredits);
+        checkConstraints(registration, getExternalCurricularCourse(), executionInterval, grade, ectsCredits);
 
         setRegistration(registration);
         setGrade(grade);
-        setExecutionPeriod(executionSemester);
+        setExecutionPeriod(executionInterval.convert(ExecutionSemester.class));
         setEvaluationDate(evaluationDate);
         setEctsCredits(ectsCredits);
     }
@@ -207,12 +207,12 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
 
     @Override
     final public ExecutionYear getExecutionYear() {
-        return getExecutionPeriod() != null ? getExecutionPeriod().getExecutionYear() : null;
+        return getExecutionInterval() != null ? getExecutionInterval().getExecutionYear() : null;
     }
 
     @Override
     final public YearMonthDay getApprovementDate() {
-        return getEvaluationDate() == null && hasExecutionPeriod() ? getExecutionPeriod()
+        return getEvaluationDate() == null && getExecutionInterval() != null ? getExecutionInterval()
                 .getEndDateYearMonthDay() : getEvaluationDate();
     }
 
@@ -249,7 +249,7 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     }
 
     public boolean isResultOfMobility() {
-        if (!hasExecutionPeriod()) {
+        if (getExecutionInterval() == null) {
             return false;
         }
 
@@ -303,5 +303,5 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     public ExecutionInterval getExecutionInterval() {
         return super.getExecutionPeriod();
     }
-    
+
 }

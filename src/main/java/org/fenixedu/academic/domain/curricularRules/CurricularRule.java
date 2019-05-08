@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.util.LogicOperator;
 import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.joda.time.YearMonthDay;
 
 public abstract class CurricularRule extends CurricularRule_Base implements ICurricularRule {
 
@@ -45,7 +44,7 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     }
 
     protected void init(final DegreeModule degreeModuleToApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end, final CurricularRuleType type) {
+            final ExecutionInterval begin, final ExecutionInterval end, final CurricularRuleType type) {
 
         // TODO assure only one rule of a certain type for a given execution
         // period
@@ -62,26 +61,26 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     }
 
     protected void init(final DegreeModule degreeModuleToApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end) {
+            final ExecutionInterval begin, final ExecutionInterval end) {
 
         checkParameters(degreeModuleToApplyRule, begin);
         checkExecutionPeriods(begin, end);
         setDegreeModuleToApplyRule(degreeModuleToApplyRule);
         setContextCourseGroup(contextCourseGroup);
-        setBegin(begin);
-        setEnd(end);
+        setBegin(begin.convert(ExecutionSemester.class));
+        setEnd(end.convert(ExecutionSemester.class));
     }
 
-    protected void checkParameters(final DegreeModule degreeModuleToApplyRule, final ExecutionSemester begin) {
+    protected void checkParameters(final DegreeModule degreeModuleToApplyRule, final ExecutionInterval begin) {
         if (degreeModuleToApplyRule == null || begin == null) {
             throw new DomainException("curricular.rule.invalid.parameters");
         }
     }
 
-    protected void edit(ExecutionSemester beginExecutionPeriod, ExecutionSemester endExecutionPeriod) {
+    protected void edit(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod) {
         checkExecutionPeriods(beginExecutionPeriod, endExecutionPeriod);
-        setBegin(beginExecutionPeriod);
-        setEnd(endExecutionPeriod);
+        setBegin(beginExecutionPeriod.convert(ExecutionSemester.class));
+        setEnd(endExecutionPeriod.convert(ExecutionSemester.class));
     }
 
     public void delete() {
@@ -129,7 +128,7 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     }
 
     public ExecutionInterval getBeginInterval() {
-        return belongsToCompositeRule() ? getParentCompositeRule().getBegin() : super.getBegin();
+        return belongsToCompositeRule() ? getParentCompositeRule().getBeginInterval() : super.getBegin();
     }
 
     /**
@@ -140,15 +139,15 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     public ExecutionSemester getEnd() {
         return belongsToCompositeRule() ? getParentCompositeRule().getEnd() : super.getEnd();
     }
-    
+
     public ExecutionInterval getEndInterval() {
-        return belongsToCompositeRule() ? getParentCompositeRule().getEnd() : super.getEnd();
-    }    
+        return belongsToCompositeRule() ? getParentCompositeRule().getEndInterval() : super.getEnd();
+    }
 
     @Override
     public DegreeModule getDegreeModuleToApplyRule() {
-        return belongsToCompositeRule() ? getParentCompositeRule().getDegreeModuleToApplyRule() : super
-                .getDegreeModuleToApplyRule();
+        return belongsToCompositeRule() ? getParentCompositeRule()
+                .getDegreeModuleToApplyRule() : super.getDegreeModuleToApplyRule();
     }
 
     @Override
@@ -166,15 +165,15 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     }
 
     @Override
-    public boolean isValid(ExecutionSemester executionSemester) {
-        return (getBegin().isBeforeOrEquals(executionSemester) && (getEnd() == null || getEnd()
-                .isAfterOrEquals(executionSemester)));
+    public boolean isValid(ExecutionInterval executionInterval) {
+        return (getBeginInterval().isBeforeOrEquals(executionInterval)
+                && (getEndInterval() == null || getEndInterval().isAfterOrEquals(executionInterval)));
     }
 
     @Override
     public boolean isValid(ExecutionYear executionYear) {
-        for (ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
-            if (isValid(executionSemester)) {
+        for (ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
+            if (isValid(executionInterval)) {
                 return true;
             }
         }
@@ -183,11 +182,11 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
 
     @Override
     public boolean isActive() {
-        return getEnd() == null || getEnd().containsDay(new YearMonthDay());
+        return getEndInterval() == null || getEndInterval().getAcademicInterval().containsNow();
     }
 
-    protected void checkExecutionPeriods(ExecutionSemester beginExecutionPeriod, ExecutionSemester endExecutionPeriod) {
-        if (endExecutionPeriod != null && beginExecutionPeriod.isAfter(endExecutionPeriod)) {
+    protected void checkExecutionPeriods(ExecutionInterval beginExecutionInterval, ExecutionInterval endExecutionInterval) {
+        if (endExecutionInterval != null && beginExecutionInterval.isAfter(endExecutionInterval)) {
             throw new DomainException("curricular.rule.begin.is.after.end.execution.period");
         }
     }
@@ -198,7 +197,8 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     }
 
     @Override
-    public RuleResult evaluate(final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
+    public RuleResult evaluate(final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
+            final EnrolmentContext enrolmentContext) {
         return CurricularRuleExecutorFactory.findExecutor(this).execute(this, sourceDegreeModuleToEvaluate, enrolmentContext);
     }
 
@@ -213,11 +213,12 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
     abstract public boolean isLeaf();
 
     abstract public boolean isRulePreventingAutomaticEnrolment();
-    
+
     @Override
     abstract public List<GenericPair<Object, Boolean>> getLabel();
 
-    static public CurricularRule createCurricularRule(final LogicOperator logicOperator, final CurricularRule... curricularRules) {
+    static public CurricularRule createCurricularRule(final LogicOperator logicOperator,
+            final CurricularRule... curricularRules) {
         switch (logicOperator) {
         case AND:
             return new AndRule(curricularRules);

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -80,13 +81,18 @@ public class DegreeModuleToEnrol implements Serializable, IDegreeModuleToEvaluat
     }
 
     @Override
+    public ExecutionInterval getExecutionInterval() {
+        return this.executionSemester;
+    }
+
+    @Override
     public String getKey() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(this.getContext().getClass().getName()).append(":").append(this.getContext().getExternalId())
                 .append(",").append(this.getCurriculumGroup().getClass().getName()).append(":")
                 .append(this.getCurriculumGroup().getExternalId()).append(",")
-                .append(this.getExecutionPeriod().getClass().getName()).append(":")
-                .append(this.getExecutionPeriod().getExternalId());
+                .append(this.getExecutionInterval().getClass().getName()).append(":")
+                .append(this.getExecutionInterval().getExternalId());
         return stringBuilder.toString();
     }
 
@@ -126,16 +132,16 @@ public class DegreeModuleToEnrol implements Serializable, IDegreeModuleToEvaluat
     }
 
     @Override
-    public Double getEctsCredits(final ExecutionSemester executionSemester) {
-        return isLeaf() ? ((CurricularCourse) getDegreeModule()).getEctsCredits(executionSemester) : Double.valueOf(0d);
+    public Double getEctsCredits(final ExecutionInterval executionInterval) {
+        return isLeaf() ? ((CurricularCourse) getDegreeModule()).getEctsCredits(executionInterval) : Double.valueOf(0d);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DegreeModuleToEnrol) {
             final DegreeModuleToEnrol degreeModuleToEnrol = (DegreeModuleToEnrol) obj;
-            return (this.getContext().equals(degreeModuleToEnrol.getContext()) && (this.getCurriculumGroup()
-                    .equals(degreeModuleToEnrol.getCurriculumGroup())));
+            return (this.getContext().equals(degreeModuleToEnrol.getContext())
+                    && (this.getCurriculumGroup().equals(degreeModuleToEnrol.getCurriculumGroup())));
         }
         return false;
     }
@@ -146,19 +152,19 @@ public class DegreeModuleToEnrol implements Serializable, IDegreeModuleToEvaluat
     }
 
     @Override
-    public List<CurricularRule> getCurricularRulesFromDegreeModule(final ExecutionSemester executionSemester) {
-        return getDegreeModule().getCurricularRules(getContext(), executionSemester);
+    public List<CurricularRule> getCurricularRulesFromDegreeModule(final ExecutionInterval executionInterval) {
+        return getDegreeModule().getCurricularRules(getContext(), executionInterval);
     }
 
     @Override
-    public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(final ExecutionSemester executionSemester) {
-        return getCurriculumGroup().getCurricularRules(executionSemester);
+    public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(final ExecutionInterval executionInterval) {
+        return getCurriculumGroup().getCurricularRules(executionInterval);
     }
 
     @Override
-    public double getAccumulatedEctsCredits(final ExecutionSemester executionSemester) {
+    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
         if (isLeaf()) {
-            return getCurriculumGroup().getStudentCurricularPlan().getAccumulatedEctsCredits(executionSemester,
+            return getCurriculumGroup().getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval,
                     (CurricularCourse) getDegreeModule());
         } else {
             return 0d;
@@ -186,7 +192,7 @@ public class DegreeModuleToEnrol implements Serializable, IDegreeModuleToEvaluat
 
     @Override
     public Double getEctsCredits() {
-        return getEctsCredits(getExecutionPeriod());
+        return getEctsCredits(getExecutionInterval());
     }
 
     @Override

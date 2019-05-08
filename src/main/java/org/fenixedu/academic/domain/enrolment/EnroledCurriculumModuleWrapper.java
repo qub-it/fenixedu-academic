@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
@@ -43,11 +44,11 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
 
     protected Context context;
 
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionInterval;
 
-    public EnroledCurriculumModuleWrapper(final CurriculumModule curriculumModule, final ExecutionSemester executionSemester) {
+    public EnroledCurriculumModuleWrapper(final CurriculumModule curriculumModule, final ExecutionInterval executionInterval) {
         setCurriculumModule(curriculumModule);
-        setExecutionPeriod(executionSemester);
+        setExecutionInterval(executionInterval);
     }
 
     public CurriculumModule getCurriculumModule() {
@@ -91,11 +92,16 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
 
     @Override
     public ExecutionSemester getExecutionPeriod() {
-        return this.executionSemester;
+        return this.executionInterval.convert(ExecutionSemester.class);
     }
 
-    public void setExecutionPeriod(ExecutionSemester executionSemester) {
-        this.executionSemester = executionSemester;
+    public void setExecutionInterval(ExecutionInterval executionInterval) {
+        this.executionInterval = executionInterval;
+    }
+
+    @Override
+    public ExecutionInterval getExecutionInterval() {
+        return this.executionInterval;
     }
 
     @Override
@@ -147,7 +153,7 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
     }
 
     @Override
-    public Double getEctsCredits(final ExecutionSemester executionSemester) {
+    public Double getEctsCredits(final ExecutionInterval executionInterval) {
         return getCurriculumModule().getEctsCredits();
     }
 
@@ -166,20 +172,20 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
     }
 
     @Override
-    public List<CurricularRule> getCurricularRulesFromDegreeModule(ExecutionSemester executionSemester) {
-        return hasDegreeModule() ? getDegreeModule().getCurricularRules(getContext(), executionSemester) : Collections.EMPTY_LIST;
+    public List<CurricularRule> getCurricularRulesFromDegreeModule(ExecutionInterval executionInterval) {
+        return hasDegreeModule() ? getDegreeModule().getCurricularRules(getContext(), executionInterval) : Collections.EMPTY_LIST;
     }
 
     @Override
-    public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(ExecutionSemester executionSemester) {
+    public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(ExecutionInterval executionInterval) {
         return getCurriculumModule().isRoot() ? Collections.EMPTY_SET : getCurriculumGroup()
-                .getCurricularRules(executionSemester);
+                .getCurricularRules(executionInterval);
     }
 
     @Override
-    public double getAccumulatedEctsCredits(final ExecutionSemester executionSemester) {
+    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
         if (getCurriculumModule().isEnrolment()) {
-            return ((Enrolment) getCurriculumModule()).getAccumulatedEctsCredits(executionSemester);
+            return ((Enrolment) getCurriculumModule()).getAccumulatedEctsCredits(executionInterval);
         } else {
             return 0d;
         }
@@ -192,8 +198,8 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
 
     @Override
     public String getYearFullLabel() {
-        if (getExecutionPeriod() != null) {
-            return getExecutionPeriod().getQualifiedName();
+        if (getExecutionInterval() != null) {
+            return getExecutionInterval().getQualifiedName();
         }
         return "";
     }
@@ -213,8 +219,8 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(this.getCurriculumModule().getClass().getName()).append(":")
                 .append(this.getCurriculumModule().getExternalId()).append(",")
-                .append(this.getExecutionPeriod().getClass().getName()).append(":")
-                .append(this.getExecutionPeriod().getExternalId());
+                .append(this.getExecutionInterval().getClass().getName()).append(":")
+                .append(this.getExecutionInterval().getExternalId());
         return stringBuilder.toString();
     }
 

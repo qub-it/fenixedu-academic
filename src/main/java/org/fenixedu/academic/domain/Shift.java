@@ -175,8 +175,8 @@ public class Shift extends Shift_Base {
         }
     }
 
-    public ExecutionSemester getExecutionPeriod() {
-        return getExecutionCourse().getExecutionPeriod();
+    public ExecutionInterval getExecutionPeriod() {
+        return getExecutionCourse().getExecutionInterval();
     }
 
     private void shiftTypeManagement(Collection<ShiftType> types, ExecutionCourse executionCourse) {
