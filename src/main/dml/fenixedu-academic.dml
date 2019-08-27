@@ -2880,14 +2880,14 @@ relation OccupationPeriodReferencePeriod {
 }
 
 relation ExecutionPeriodContextBegin {
-    ExecutionSemester playsRole beginExecutionPeriod;
+    ExecutionInterval playsRole beginExecutionPeriod;
     degreeStructure.Context playsRole beginExecutionPeriodContexts {
         multiplicity *;
     }
 }
 
 relation ExecutionPeriodContextEnd {
-    ExecutionSemester playsRole endExecutionPeriod;
+    ExecutionInterval playsRole endExecutionPeriod;
     degreeStructure.Context playsRole endExecutionPeriodContexts {
         multiplicity *;
     }
