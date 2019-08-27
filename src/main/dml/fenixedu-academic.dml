@@ -2514,7 +2514,7 @@ relation CurricularRuleBeginExecutionPeriod {
     curricularRules.CurricularRule playsRole participatingBeginCurricularRules {
         multiplicity *;
     }
-    ExecutionSemester playsRole begin;
+    ExecutionInterval playsRole begin;
 }
 
 relation CurricularRuleCompositeRule {
@@ -2535,7 +2535,7 @@ relation CurricularRuleEndExecutionPeriod {
     curricularRules.CurricularRule playsRole participatingEndCurricularRules {
         multiplicity *;
     }
-    ExecutionSemester playsRole end;
+    ExecutionInterval playsRole end;
 }
 
 relation CurricularRuleNotRule {

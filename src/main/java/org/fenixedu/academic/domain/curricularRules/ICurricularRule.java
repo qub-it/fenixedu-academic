@@ -61,13 +61,13 @@ public interface ICurricularRule {
      * @deprecated use {@link #getBeginInterval()} instead.
      */
     @Deprecated
-    public ExecutionSemester getBegin();
+    public ExecutionInterval getBegin();
 
     /**
      * @deprecated use {@link #getEndInterval()} instead.
      */
     @Deprecated
-    public ExecutionSemester getEnd();
+    public ExecutionInterval getEnd();
 
     public boolean appliesToContext(final Context context);
 
