@@ -4435,7 +4435,7 @@ relation CompetenceCourseInformationChangeRequestExecutionPeriod {
     degreeStructure.CompetenceCourseInformationChangeRequest playsRole competenceCourseInformationChangeRequests {
         multiplicity *;
     }
-    ExecutionSemester playsRole executionPeriod;
+    ExecutionInterval playsRole executionPeriod;
 }
 
 relation CompetenceCourseInformationChangeRequestCompetenceCourse {
@@ -4460,7 +4460,7 @@ relation CompetenceCourseInformationChangeRequestRootDomainObject {
 }
 
 relation CompetenceCourseInformationExecutionPeriod {
-    ExecutionSemester playsRole executionPeriod;
+    ExecutionInterval playsRole executionPeriod;
     degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformations {
         multiplicity *;
     }
