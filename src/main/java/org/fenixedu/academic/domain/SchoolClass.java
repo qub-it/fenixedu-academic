@@ -101,11 +101,11 @@ public class SchoolClass extends SchoolClass_Base {
     }
 
     @Override
-    public void setExecutionPeriod(ExecutionSemester executionSemester) {
-        if (executionSemester == null) {
+    public void setExecutionPeriod(ExecutionInterval executionInterval) {
+        if (executionInterval == null) {
             throw new DomainException("error.SchoolClass.empty.executionPeriod");
         }
-        super.setExecutionPeriod(executionSemester);
+        super.setExecutionPeriod(executionInterval);
     }
 
     @Override
@@ -213,15 +213,6 @@ public class SchoolClass extends SchoolClass_Base {
 
     public void setCurricularYear(final Integer curricularYear) {
         setAnoCurricular(curricularYear);
-    }
-
-    /**
-     * @deprecated use {@link #getExecutionInterval()} instead.
-     */
-    @Deprecated
-    @Override
-    public ExecutionSemester getExecutionPeriod() {
-        return super.getExecutionPeriod();
     }
 
     public ExecutionInterval getExecutionInterval() {
