@@ -4875,7 +4875,7 @@ relation RootDomainObjectEnrolmentInstructions {
 }
 
 relation ExecutionSemesterEnrolmentInstructions {
-	ExecutionSemester playsRole executionSemester;
+	ExecutionInterval playsRole executionSemester;
 	EnrolmentInstructions playsRole enrolmentInstructions;
 }
 
