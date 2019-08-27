@@ -209,11 +209,11 @@ public class Student extends Student_Base {
         return getStatutesValidOnAnyExecutionSemesterFor(ExecutionYear.findCurrent(null));
     }
 
-    public Collection<StudentStatuteBean> getStatutes(final ExecutionSemester executionSemester) {
+    public Collection<StudentStatuteBean> getStatutes(final ExecutionInterval executionInterval) {
         final List<StudentStatuteBean> result = new ArrayList<>();
         for (final StudentStatute statute : getStudentStatutesSet()) {
-            if (statute.isValidInExecutionPeriod(executionSemester)) {
-                result.add(new StudentStatuteBean(statute, executionSemester));
+            if (statute.isValidInExecutionInterval(executionInterval)) {
+                result.add(new StudentStatuteBean(statute, executionInterval));
             }
         }
 

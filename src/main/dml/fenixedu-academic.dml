@@ -2904,7 +2904,7 @@ relation ExecutionPeriodExecutionCourse {
     ExecutionCourse playsRole associatedExecutionCourses {
         multiplicity *;
     }
-    ExecutionSemester playsRole executionPeriod;
+    ExecutionInterval playsRole executionPeriod;
 }
 
 relation ExecutionPeriodExecutionYear {
