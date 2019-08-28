@@ -43,16 +43,16 @@ public class SchoolClass extends SchoolClass_Base {
 
     };
 
-    public SchoolClass(final ExecutionDegree executionDegree, final ExecutionSemester executionSemester, final String name,
+    public SchoolClass(final ExecutionDegree executionDegree, final ExecutionInterval executionInterval, final String name,
             final Integer curricularYear) {
 //        check(this, ResourceAllocationRolePredicates.checkPermissionsToManageSchoolClass);
         super();
 
-        checkIfExistsSchoolClassWithSameName(executionDegree, executionSemester, curricularYear, name);
+        checkIfExistsSchoolClassWithSameName(executionDegree, executionInterval, curricularYear, name);
 
         setRootDomainObject(Bennu.getInstance());
         setExecutionDegree(executionDegree);
-        setExecutionPeriod(executionSemester);
+        setExecutionPeriod(executionInterval);
         setAnoCurricular(curricularYear);
         setNome(name);
     }
