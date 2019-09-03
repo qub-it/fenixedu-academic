@@ -30,7 +30,6 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -101,8 +100,22 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
         return false;
     }
 
+    public boolean isParentGroupOptional() {
+        return !getCurriculumGroup().isNoCourseGroupCurriculumGroup() && getCurriculumGroup().getDegreeModule().getIsOptional();
+    }
+
     public boolean isStandalone() {
         return getCurriculumGroup().isStandalone();
+    }
+
+    public boolean isAffinity() {
+        final CycleCurriculumGroup cycleCurriculumGroup = getParentCycleCurriculumGroup();
+        return cycleCurriculumGroup != null && cycleCurriculumGroup.isExternal();
+    }
+
+    public boolean isNormal() {
+        return (getCurriculumGroup().isInternalCreditsSourceGroup() || !getCurriculumGroup().isNoCourseGroupCurriculumGroup())
+                && !isAffinity();
     }
 
     final protected void validateDegreeModuleLink(CurriculumGroup curriculumGroup, CurricularCourse curricularCourse) {
