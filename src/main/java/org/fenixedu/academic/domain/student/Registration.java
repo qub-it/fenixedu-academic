@@ -1506,7 +1506,7 @@ public class Registration extends Registration_Base {
         } else if (interval == executionInterval) { // if found in provided interval, return all states
             return new HashSet<>(map.get(interval));
 
-        } else { // otherwise return olny the last one
+        } else { // otherwise return only the last one
             return map.get(interval).stream().max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).map(Stream::of)
                     .orElseGet(Stream::empty).collect(Collectors.toSet());
         }
@@ -1517,6 +1517,8 @@ public class Registration extends Registration_Base {
         return getRegistrationStatesSet().stream().min(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).orElse(null);
     }
 
+    //TODO: change to execution interval
+    //IMPORTANT: when executinInterval is executionYear (higher space) we must first ensure executionInterval is on same space (executionInterval.getExecutionYear) because we cannot compare intervals in different spaces
     public RegistrationState getLastRegistrationState(final ExecutionYear executionYear) {
         return getRegistrationStatesSet().stream().filter(s -> s.getExecutionYear().isBeforeOrEquals(executionYear))
                 .max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).orElse(null);
