@@ -1442,7 +1442,9 @@ valueType org.fenixedu.academic.domain.degreeStructure.CycleTypes as CycleTypes 
         YearMonthDay homologationDate;
         Integer number;
         String agreementInformation;
+        //deprecated
         Boolean requestedChangeBranch;
+        //deprecated
         Boolean requestedChangeDegree;
         YearMonthDay startDate;
         YearMonthDay studiesStartDate;
