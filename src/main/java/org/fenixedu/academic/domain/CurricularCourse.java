@@ -44,7 +44,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CurriculumLineLog;
 import org.fenixedu.academic.domain.organizationalStructure.DepartmentUnit;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
@@ -435,40 +434,17 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getEctsCredits(executionInterval);
     }
 
-    @Deprecated
-    private void addActiveEnrollments(final Collection<Enrolment> enrolments, final ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (!enrolment.isAnnulled() && enrolment.getExecutionInterval() == executionInterval) {
-                    enrolments.add(enrolment);
-                }
-            }
-        }
-    }
-
-    /**
-     * @deprecated {@link #getEnrolmentsByAcademicInterval(AcademicInterval)}
-     */
-    @Deprecated
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
         List<Enrolment> result = new ArrayList<Enrolment>();
         addActiveEnrollments(result, executionInterval);
         return result;
     }
 
-    public List<Enrolment> getEnrolmentsByAcademicInterval(AcademicInterval academicInterval) {
-        List<Enrolment> result = new ArrayList<Enrolment>();
-        addActiveEnrollments(result, academicInterval);
-        return result;
-    }
-
-    private void addActiveEnrollments(List<Enrolment> enrolments, AcademicInterval academicInterval) {
+    private void addActiveEnrollments(final Collection<Enrolment> enrolments, final ExecutionInterval executionInterval) {
         for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
             if (curriculumModule.isEnrolment()) {
                 final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (!enrolment.isAnnulled() && (enrolment.getExecutionInterval().getAcademicInterval().equals(academicInterval)
-                        || enrolment.getExecutionInterval().getExecutionYear().getAcademicInterval().equals(academicInterval))) {
+                if (!enrolment.isAnnulled() && enrolment.getExecutionInterval() == executionInterval) {
                     enrolments.add(enrolment);
                 }
             }
@@ -645,14 +621,10 @@ public class CurricularCourse extends CurricularCourse_Base {
             DegreeCurricularPlan degreeCurricularPlan, final ExecutionInterval executionInterval) {
 
         if (degreeCurricularPlan == null || getDegreeCurricularPlan().equals(degreeCurricularPlan)) {
-            return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval.getAcademicInterval())
+            return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval)
                     && (curricularYear == null || ctx.getCurricularYear().equals(curricularYear.getYear())));
         }
         return false;
-    }
-
-    public ExecutionDegree getExecutionDegreeFor(AcademicInterval academicInterval) {
-        return getDegreeCurricularPlan().getExecutionDegreeByAcademicInterval(academicInterval);
     }
 
     @Deprecated
@@ -674,7 +646,7 @@ public class CurricularCourse extends CurricularCourse_Base {
 //    }
 
     public boolean isActive(final ExecutionInterval interval) {
-        return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(interval.getAcademicInterval()));
+        return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(interval));
     }
 
     public boolean isActive(final ExecutionInterval interval, final Integer curricularYear) {

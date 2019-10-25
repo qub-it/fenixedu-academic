@@ -73,12 +73,12 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         public int compare(final Degree o1, final Degree o2) {
             String name1;
             String name2;
-            name1 = o1.getNameFor((AcademicInterval) null).getContent(I18N.getLocale());
-            name2 = o2.getNameFor((AcademicInterval) null).getContent(I18N.getLocale());
+            name1 = o1.getNameFor((ExecutionYear) null).getContent(I18N.getLocale());
+            name2 = o2.getNameFor((ExecutionYear) null).getContent(I18N.getLocale());
 
             if (Strings.isNullOrEmpty(name1) || Strings.isNullOrEmpty(name2)) {
-                name1 = o1.getNameFor((AcademicInterval) null).getContent();
-                name2 = o2.getNameFor((AcademicInterval) null).getContent();
+                name1 = o1.getNameFor((ExecutionYear) null).getContent();
+                name2 = o2.getNameFor((ExecutionYear) null).getContent();
             }
 
             return collator.compare(name1, name2);
@@ -405,15 +405,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     public List<ExecutionDegree> getExecutionDegrees() {
-        return getExecutionDegrees(null);
-    }
-
-    public List<ExecutionDegree> getExecutionDegrees(final AcademicInterval academicInterval) {
-        if (academicInterval == null) {
-            return getInternalExecutionDegrees();
-        }
-        return getInternalExecutionDegrees().stream().filter(input -> academicInterval.equals(input.getAcademicInterval()))
-                .collect(Collectors.toList());
+        return getInternalExecutionDegrees();
     }
 
     public List<ExecutionDegree> getExecutionDegreesForExecutionYear(final ExecutionYear executionYear) {
@@ -467,12 +459,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     @Deprecated
     public LocalizedString getNameFor(final ExecutionSemester executionSemester) {
         return getNameFor(executionSemester != null ? executionSemester.getExecutionYear() : null);
-    }
-
-    public LocalizedString getNameFor(final AcademicInterval academicInterval) {
-        DegreeInfo degreeInfo = academicInterval == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(academicInterval);
-        return degreeInfo == null ? new LocalizedString().with(org.fenixedu.academic.util.LocaleUtils.PT, super.getNome())
-                .with(org.fenixedu.academic.util.LocaleUtils.EN, super.getNameEn()) : degreeInfo.getName();
     }
 
     @Override

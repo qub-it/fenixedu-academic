@@ -322,8 +322,7 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public List<Context> getParentContexts(final ExecutionInterval interval) {
-        return getParentContextsSet().stream().filter(c -> interval == null || c.isValid(interval.getAcademicInterval()))
-                .collect(Collectors.toList());
+        return getParentContextsSet().stream().filter(c -> interval == null || c.isValid(interval)).collect(Collectors.toList());
     }
 
     public List<Context> getParentContextsByExecutionYear(final ExecutionYear executionYear) {

@@ -348,10 +348,6 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         return Collections.emptyList();
     }
 
-    public AcademicInterval getAcademicInterval() {
-        return getExecutionYear().getAcademicInterval();
-    }
-
     public Collection<OccupationPeriod> getPeriodLessons(final ExecutionInterval interval) {
         return getOccupationPeriodReferencesSet().stream()
                 .filter(opr -> OccupationPeriodType.LESSONS.equals(opr.getPeriodType()) && opr.getExecutionInterval() == interval)

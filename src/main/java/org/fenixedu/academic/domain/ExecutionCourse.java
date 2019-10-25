@@ -439,18 +439,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return result;
     }
 
-    public List<Enrolment> getActiveEnrollments() {
-        List<Enrolment> results = new ArrayList<Enrolment>();
-
-        for (CurricularCourse curricularCourse : this.getAssociatedCurricularCoursesSet()) {
-            List<Enrolment> enrollments =
-                    curricularCourse.getEnrolmentsByAcademicInterval(this.getExecutionInterval().getAcademicInterval());
-
-            results.addAll(enrollments);
-        }
-        return results;
-    }
-
     public static final Comparator<Evaluation> EVALUATION_COMPARATOR = new Comparator<Evaluation>() {
 
         @Override

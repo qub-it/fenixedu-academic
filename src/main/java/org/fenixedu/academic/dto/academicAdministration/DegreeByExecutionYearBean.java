@@ -96,7 +96,7 @@ public class DegreeByExecutionYearBean implements Serializable, Comparable<Degre
     }
 
     public String getDegreeName() {
-        return getDegree().getNameFor(getExecutionYear().getAcademicInterval()).getContent();
+        return getDegree().getNameFor(getExecutionYear()).getContent();
     }
 
     public String getDegreePresentationName() {

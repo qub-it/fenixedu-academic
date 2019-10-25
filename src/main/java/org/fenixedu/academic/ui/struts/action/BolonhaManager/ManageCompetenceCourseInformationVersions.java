@@ -437,7 +437,7 @@ public class ManageCompetenceCourseInformationVersions extends FenixDispatchActi
                             final ExecutionInterval executionInterval = executionCourse.getExecutionInterval();
 
                             for (final Context context : curricularCourse.getParentContextsSet()) {
-                                if (context.isValid(executionInterval.getAcademicInterval())) {
+                                if (context.isValid(executionInterval)) {
                                     final DegreeCurricularPlan degreeCurricularPlan = curricularCourse.getDegreeCurricularPlan();
                                     final Row row = spreadsheet.addRow();
 

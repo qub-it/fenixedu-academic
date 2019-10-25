@@ -386,15 +386,6 @@ public class ExecutionYear extends ExecutionYear_Base {
         return Bennu.getInstance().getExecutionYearsSet().stream().max(Comparator.naturalOrder()).orElse(null);
     }
 
-    public static ExecutionYear readByAcademicInterval(AcademicInterval academicInterval) {
-        for (final ExecutionYear executionYear : Bennu.getInstance().getExecutionYearsSet()) {
-            if (executionYear.getAcademicInterval().equals(academicInterval)) {
-                return executionYear;
-            }
-        }
-        return null;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public <E extends ExecutionInterval> E convert(final Class<E> input) {

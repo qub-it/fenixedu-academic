@@ -522,8 +522,7 @@ valueType org.fenixedu.academic.domain.degreeStructure.CycleTypes as CycleTypes 
 
     class ExecutionDegree  {
         LocalizedString anotation;
-        Boolean temporaryExamMap;                           
-        AcademicInterval executionInterval;
+        Boolean temporaryExamMap;
     }
 
     class ExecutionInterval  {

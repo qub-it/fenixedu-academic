@@ -38,7 +38,6 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.spaces.domain.Space;
-import org.joda.time.Interval;
 
 public class Teacher extends Teacher_Base {
 
@@ -362,11 +361,6 @@ public class Teacher extends Teacher_Base {
 
     protected Optional<TeacherAuthorization> getLastTeacherAuthorization(AcademicInterval interval) {
         return getTeacherAuthorizationStream().filter(a -> !a.getExecutionInterval().getAcademicInterval().isAfter(interval))
-                .findFirst();
-    }
-
-    public Optional<TeacherAuthorization> getLatestTeacherAuthorizationInInterval(Interval interval) {
-        return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval().getAcademicInterval().overlaps(interval))
                 .findFirst();
     }
 

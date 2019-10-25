@@ -594,12 +594,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return null;
     }
 
-    public List<Enrolment> getActiveEnrollments(ExecutionInterval interval) {
-        final AcademicInterval academicInterval = interval.getAcademicInterval();
-        return getAssociatedCurricularCoursesSet().stream()
-                .flatMap(cc -> cc.getEnrolmentsByAcademicInterval(academicInterval).stream()).collect(Collectors.toList());
-    }
-
     public ExecutionInterval getBeginExecutionInterval() {
         final CompetenceCourseInformation firstInformation = getOldestCompetenceCourseInformation();
         return firstInformation != null ? firstInformation.getExecutionInterval() : null;

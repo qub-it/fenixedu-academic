@@ -198,30 +198,3 @@
 	<slot name="failedMailsCount" key="org.fenixedu.academic.domain.util.email.Message.failedMailsCount"/>
 </schema>
 
-<schema name="PublicFindSpaces" type="org.fenixedu.academic.dto.spaceManager.FindSpacesBean" bundle="DEFAULT">
-	<slot name="searchType" key="label.find.space.search.type" layout="radio">
-		<property name="bundle" value="DEFAULT" />
-		<property name="classes" value="liinline" />
-	</slot>
-	<slot name="labelToSearch" key="label.find.spaces.label">
-		<property name="size" value="30"/>
-	</slot>							        
-</schema>
-
-<schema name="PublicFindSpacesWithExtraOptions" extends="PublicFindSpaces" type="org.fenixedu.academic.dto.spaceManager.FindSpacesBean" bundle="DEFAULT">
-	<slot name="searchType" key="label.find.space.search.type" layout="radio">
-		<property name="bundle" value="DEFAULT" />
-		<property name="classes" value="list2 liinline" />
-	</slot>			
-	<slot name="campus" key="label.find.spaces.campus" layout="menu-select-postback">	
-		<property name="size" value="30"/>
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.spaceManager.CampusProvider"/>		
-		<property name="format"	value="${name}" />
-		<property name="destination" value="postBack"/>	
-	</slot>
-	<slot name="building" key="label.find.spaces.building" layout="menu-select">	
-		<property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.spaceManager.BuildingProvider"/>		
-		<property name="format"	value="${name}" />	
-	</slot>								       
-</schema>
-

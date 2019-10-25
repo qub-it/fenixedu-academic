@@ -49,7 +49,6 @@ import org.fenixedu.academic.domain.organizationalStructure.CompetenceCourseGrou
 import org.fenixedu.academic.domain.organizationalStructure.DepartmentUnit;
 import org.fenixedu.academic.domain.organizationalStructure.ScientificAreaUnit;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
@@ -72,11 +71,6 @@ public class Department extends Department_Base {
     public List<Teacher> getAllCurrentTeachers() {
         return ExecutionSemester.findCurrents().stream().flatMap(es -> getAllTeachers(es).stream()).distinct()
                 .collect(Collectors.toList());
-    }
-
-    public List<Teacher> getAllTeachers(AcademicInterval interval) {
-        return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval().getAcademicInterval().overlaps(interval))
-                .map(TeacherAuthorization::getTeacher).distinct().collect(Collectors.toList());
     }
 
     public List<Teacher> getAllTeachers(ExecutionInterval interval) {
