@@ -21,6 +21,7 @@ package org.fenixedu.academic.dto.commons;
 import java.io.Serializable;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.DepartmentUnit;
@@ -31,15 +32,15 @@ public class CurricularCourseByExecutionSemesterBean
         implements Serializable, Comparable<CurricularCourseByExecutionSemesterBean> {
 
     private CurricularCourse curricularCourse;
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionInterval;
 
     public CurricularCourseByExecutionSemesterBean() {
     }
 
     public CurricularCourseByExecutionSemesterBean(final CurricularCourse curricularCourse,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionInterval) {
         setCurricularCourse(curricularCourse);
-        setExecutionSemester(executionSemester);
+        setExecutionSemester(executionInterval);
     }
 
     public CurricularCourse getCurricularCourse() {
@@ -50,16 +51,16 @@ public class CurricularCourseByExecutionSemesterBean
         this.curricularCourse = curricularCourse;
     }
 
-    public ExecutionSemester getExecutionSemester() {
-        return executionSemester;
+    public ExecutionInterval getExecutionSemester() {
+        return executionInterval;
     }
 
-    public void setExecutionSemester(ExecutionSemester executionSemester) {
-        this.executionSemester = executionSemester;
+    public void setExecutionSemester(ExecutionInterval executionInterval) {
+        this.executionInterval = executionInterval;
     }
 
     public ExecutionYear getExecutionYear() {
-        return executionSemester.getExecutionYear();
+        return executionInterval.getExecutionYear();
     }
 
     public String getCurricularCourseName() {

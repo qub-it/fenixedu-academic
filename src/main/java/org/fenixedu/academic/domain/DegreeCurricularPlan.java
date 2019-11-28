@@ -278,7 +278,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             throw new DomainException("error.degreeCurricularPlan.already.approved");
         }
 
-        final ExecutionSemester beginExecutionPeriod;
+        final ExecutionInterval beginExecutionPeriod;
         if (beginExecutionYear == null) {
             throw new DomainException("error.invalid.execution.year");
         } else {
@@ -310,7 +310,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     private void initBeginExecutionPeriodForDegreeCurricularPlan(final CourseGroup courseGroup,
-            final ExecutionSemester beginExecutionPeriod) {
+            final ExecutionInterval beginExecutionPeriod) {
 
         if (beginExecutionPeriod == null) {
             throw new DomainException("");

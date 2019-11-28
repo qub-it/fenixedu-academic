@@ -176,7 +176,7 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
 
     public boolean migrateExecutionInterval() {
         if (super.getExecutionInterval() == null) {
-            final ExecutionSemester interval = getExecutionDegree().getExecutionYear().getExecutionSemesterFor(getSemester());
+            final ExecutionInterval interval = getExecutionDegree().getExecutionYear().getExecutionSemesterFor(getSemester());
             if (interval != null) {
                 setExecutionInterval(interval);
                 return true;

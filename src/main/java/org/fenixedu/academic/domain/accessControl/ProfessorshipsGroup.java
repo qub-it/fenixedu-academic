@@ -91,19 +91,19 @@ public class ProfessorshipsGroup extends FenixGroup {
             ExecutionSemester semester = (ExecutionSemester) interval;
             fillMembers(users, semester);
         } else if (interval instanceof ExecutionYear) {
-            for (ExecutionSemester semester : ((ExecutionYear) interval).getExecutionPeriodsSet()) {
-                fillMembers(users, semester);
+            for (ExecutionInterval childInterval : ((ExecutionYear) interval).getExecutionPeriodsSet()) {
+                fillMembers(users, childInterval);
             }
         }
         return users.stream();
     }
 
-    private void fillMembers(Set<User> users, ExecutionSemester semester) {
+    private void fillMembers(Set<User> users, ExecutionInterval interval) {
         if (externalAuthorizations) {
-            users.addAll(semester.getTeacherAuthorizationSet().stream().filter(a -> !a.isContracted())
+            users.addAll(interval.getTeacherAuthorizationSet().stream().filter(a -> !a.isContracted())
                     .map(a -> a.getTeacher().getPerson().getUser()).collect(Collectors.toSet()));
         } else {
-            for (final ExecutionCourse executionCourse : semester.getAssociatedExecutionCoursesSet()) {
+            for (final ExecutionCourse executionCourse : interval.getAssociatedExecutionCoursesSet()) {
                 for (final Professorship professorship : executionCourse.getProfessorshipsSet()) {
                     User user = professorship.getPerson().getUser();
                     if (user != null) {

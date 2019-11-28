@@ -162,7 +162,7 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
     @Atomic
     private Map<ExecutionDegree, Integer> setFirstYearShiftsCapacity(Boolean toBlock, ExecutionYear executionYear) {
 
-        final ExecutionSemester executionSemester = executionYear.getFirstExecutionPeriod();
+        final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
         final Map<Shift, Set<ExecutionDegree>> shiftsDegrees = new HashMap<Shift, Set<ExecutionDegree>>();
         final Set<Shift> shifts = new HashSet<Shift>();
@@ -172,12 +172,12 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
                 .readAllMatching(DegreeType.oneOf(DegreeType::isBolonhaDegree, DegreeType::isIntegratedMasterDegree))) {
             for (final DegreeCurricularPlan degreeCurricularPlan : degree.getActiveDegreeCurricularPlans()) {
                 final ExecutionDegree executionDegree = degreeCurricularPlan
-                        .getExecutionDegreeByAcademicInterval(executionSemester.getExecutionYear().getAcademicInterval());
+                        .getExecutionDegreeByAcademicInterval(executionInterval.getExecutionYear().getAcademicInterval());
 
                 if (executionDegree != null) {
                     for (final SchoolClass schoolClass : executionDegree.getSchoolClassesSet()) {
                         if (schoolClass.getAnoCurricular().equals(FIRST_CURRICULAR_YEAR)
-                                && schoolClass.getExecutionInterval() == executionSemester) {
+                                && schoolClass.getExecutionInterval() == executionInterval) {
                             for (final Shift shift : schoolClass.getAssociatedShiftsSet()) {
                                 Set<ExecutionDegree> executionDegrees = shiftsDegrees.get(shift);
                                 if (executionDegrees == null) {

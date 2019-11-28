@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.service.services.manager;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
@@ -31,8 +32,8 @@ public class AlterExecutionPeriodState {
     public static void run(final String year, final Integer semester, final PeriodState periodState)
             throws FenixServiceException {
         final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName(year);
-        final ExecutionSemester executionSemester = executionYear.getExecutionSemesterFor(semester);
-        if (executionSemester == null) {
+        final ExecutionInterval executionInterval = executionYear.getExecutionSemesterFor(semester);
+        if (executionInterval == null) {
             throw new InvalidExecutionPeriod();
         }
 
@@ -44,12 +45,12 @@ public class AlterExecutionPeriodState {
                 currentExecutionYear.setState(PeriodState.OPEN);
             }
 
-            executionSemester.setState(periodState);
-            executionSemester.getExecutionYear().setState(periodState);
+            executionInterval.setState(periodState);
+            executionInterval.getExecutionYear().setState(periodState);
         } else {
-            executionSemester.setState(periodState);
+            executionInterval.setState(periodState);
             PeriodState currentPeriodState = periodState;
-            for (final ExecutionSemester otherExecutionPeriod : executionYear.getExecutionPeriodsSet()) {
+            for (final ExecutionInterval otherExecutionPeriod : executionYear.getExecutionPeriodsSet()) {
                 if (currentPeriodState != null
                         && !otherExecutionPeriod.getState().getStateCode().equals(currentPeriodState.getStateCode())) {
                     currentPeriodState = null;

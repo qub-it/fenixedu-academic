@@ -411,7 +411,7 @@ public class StudentCurricularPlanRenderer extends InputRenderer {
 
         protected ExecutionYear executionYearContext;
 
-        protected ExecutionSemester executionPeriodContext;
+        protected ExecutionInterval executionPeriodContext;
 
         protected StudentCurricularPlanRenderer renderer;
 

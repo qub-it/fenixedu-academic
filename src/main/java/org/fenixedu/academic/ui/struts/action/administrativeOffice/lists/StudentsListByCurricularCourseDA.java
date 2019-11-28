@@ -157,8 +157,8 @@ public class StudentsListByCurricularCourseDA extends FenixDispatchAction {
             final Integer semester) {
         final List<Enrolment> result = new ArrayList<Enrolment>();
 
-        final ExecutionSemester executionSemester = executionYear.getExecutionSemesterFor(semester);
-        for (final Enrolment enrolment : curricularCourse.getEnrolmentsByExecutionPeriod(executionSemester)) {
+        final ExecutionInterval executionInterval = executionYear.getExecutionSemesterFor(semester);
+        for (final Enrolment enrolment : curricularCourse.getEnrolmentsByExecutionPeriod(executionInterval)) {
             result.add(enrolment);
         }
         Collections.sort(result, new BeanComparator("studentCurricularPlan.registration.number"));

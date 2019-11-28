@@ -639,8 +639,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getStartExecutionInterval().convert(ExecutionYear.class);
     }
 
-    public ExecutionSemester getStartExecutionPeriod() {
-        return getStartExecutionInterval().convert(ExecutionSemester.class);
+    public ExecutionInterval getStartExecutionPeriod() {
+        return getStartExecutionInterval();
     }
 
     public YearMonthDay getEndDate() {
