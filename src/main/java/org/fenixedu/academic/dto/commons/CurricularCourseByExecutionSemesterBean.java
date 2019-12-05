@@ -22,7 +22,6 @@ import java.io.Serializable;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.organizationalStructure.DepartmentUnit;
 
@@ -153,7 +152,7 @@ public class CurricularCourseByExecutionSemesterBean
         }
         final String[] values = key.split(":");
         final CurricularCourse course = FenixFramework.getDomainObject(values[0]);
-        final ExecutionSemester semester = FenixFramework.getDomainObject(values[1]);
-        return new CurricularCourseByExecutionSemesterBean(course, semester);
+        final ExecutionInterval interval = FenixFramework.getDomainObject(values[1]);
+        return new CurricularCourseByExecutionSemesterBean(course, interval);
     }
 }

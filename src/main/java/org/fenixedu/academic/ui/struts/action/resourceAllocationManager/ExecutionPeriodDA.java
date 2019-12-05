@@ -37,7 +37,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -102,8 +101,8 @@ public class ExecutionPeriodDA extends FenixContextDispatchAction {
                 ExecutionDegree.filterByAcademicInterval(contextSelectionBean.getAcademicInterval()));
         Collections.sort(executionDegrees, executionDegreeComparator);
         request.setAttribute("executionDegrees", executionDegrees);
-        ExecutionSemester executionSemester =
-                (ExecutionSemester) ExecutionInterval.getExecutionInterval(contextSelectionBean.getAcademicInterval());
+        ExecutionInterval executionSemester =
+                (ExecutionInterval) ExecutionInterval.getExecutionInterval(contextSelectionBean.getAcademicInterval());
         request.setAttribute("executionSemester", executionSemester);
 
         AcademicCalendarEntry academicCalendarEntry = contextSelectionBean.getAcademicInterval().getAcademicCalendarEntry();

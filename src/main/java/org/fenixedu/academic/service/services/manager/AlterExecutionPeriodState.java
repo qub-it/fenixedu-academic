@@ -19,7 +19,6 @@
 package org.fenixedu.academic.service.services.manager;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.util.PeriodState;
@@ -39,7 +38,7 @@ public class AlterExecutionPeriodState {
 
         if (periodState.getStateCode().equals(PeriodState.CURRENT.getStateCode())) {
             // Deactivate the current
-            for (ExecutionSemester currentExecutionPeriod : ExecutionSemester.findCurrents()) {
+            for (ExecutionInterval currentExecutionPeriod : ExecutionInterval.findCurrentsChilds()) {
                 final ExecutionYear currentExecutionYear = currentExecutionPeriod.getExecutionYear();
                 currentExecutionPeriod.setState(PeriodState.OPEN);
                 currentExecutionYear.setState(PeriodState.OPEN);

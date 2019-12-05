@@ -230,7 +230,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         setWeigth(studentCurricularPlan.isBolonhaDegree() ? curricularCourse.getEctsCredits(executionInterval) : curricularCourse
                 .getWeigth());
         setEnrollmentState(EnrollmentState.ENROLLED);
-        setExecutionPeriod(executionInterval.convert(ExecutionSemester.class));
+        setExecutionPeriod(executionInterval);
         setEvaluationSeason(EvaluationConfiguration.getInstance().getDefaultEvaluationSeason());
         setCreatedBy(createdBy);
         setCreationDateDateTime(new DateTime());

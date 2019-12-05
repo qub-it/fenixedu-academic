@@ -170,8 +170,7 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
     @Deprecated
     @Override
     public Integer getSemester() {
-        return super.getExecutionInterval() instanceof ExecutionSemester ? ((ExecutionSemester) super.getExecutionInterval())
-                .getSemester() : super.getSemester();
+        return super.getExecutionInterval() != null ? super.getExecutionInterval().getChildOrder() : super.getSemester();
     }
 
     public boolean migrateExecutionInterval() {

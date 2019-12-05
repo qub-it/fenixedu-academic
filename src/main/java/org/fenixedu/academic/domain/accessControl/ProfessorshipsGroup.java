@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -87,13 +86,12 @@ public class ProfessorshipsGroup extends FenixGroup {
         Set<User> users = new HashSet<>();
         //TODO: select active 'when'
         ExecutionInterval interval = ExecutionInterval.getExecutionInterval(AcademicInterval.readDefaultAcademicInterval(period));
-        if (interval instanceof ExecutionSemester) {
-            ExecutionSemester semester = (ExecutionSemester) interval;
-            fillMembers(users, semester);
-        } else if (interval instanceof ExecutionYear) {
+        if (interval instanceof ExecutionYear) {
             for (ExecutionInterval childInterval : ((ExecutionYear) interval).getExecutionPeriodsSet()) {
                 fillMembers(users, childInterval);
             }
+        } else  {
+            fillMembers(users, interval);
         }
         return users.stream();
     }

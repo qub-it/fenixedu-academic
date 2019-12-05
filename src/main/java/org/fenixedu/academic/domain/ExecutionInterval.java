@@ -257,8 +257,27 @@ abstract public class ExecutionInterval extends ExecutionInterval_Base implement
                 .filter(ei -> type != null && type.equals(ei.getAcademicPeriod())).findFirst().orElse(null);
     }
 
-    private static Collection<ExecutionInterval> findCurrentsChilds() {
+    public static Collection<ExecutionInterval> findCurrentsChilds() {
         return findAllChilds().stream().filter(ei -> ei.isCurrent()).collect(Collectors.toSet());
+    }
+
+    public static ExecutionInterval findFirstCurrentChild(final AcademicCalendarRootEntry calendar) {
+        return findCurrentChilds(calendar).stream().min(Comparator.naturalOrder()).orElse(null);
+    }
+
+    /**
+     * Returns current ExecutionIntervals for provided calendar.
+     * If provided calendar is null, use default academic calendar
+     * 
+     * @param calendar the calendar to search in
+     * @return the current ExecutionInterval
+     */
+    private static Collection<ExecutionInterval> findCurrentChilds(final AcademicCalendarRootEntry calendar) {
+        final AcademicCalendarRootEntry calendarToCheck =
+                calendar != null ? calendar : Bennu.getInstance().getDefaultAcademicCalendar();
+
+        return findCurrentsChilds().stream().filter(ey -> ey.getAcademicInterval().getAcademicCalendar() == calendarToCheck)
+                .collect(Collectors.toSet());
     }
 
     public static ExecutionInterval findFirstChild() {

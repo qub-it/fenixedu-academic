@@ -516,8 +516,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
      * @deprecated use {@link #getExecutionCoursesByExecutionInterval(ExecutionInterval)}
      */
     @Deprecated
-    public Set<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionSemester executionSemester) {
-        return getExecutionCourses(executionSemester);
+    public Set<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
+        return getExecutionCourses(executionInterval);
     }
 
     public Set<CurricularCourse> getAllCurricularCourses() {
