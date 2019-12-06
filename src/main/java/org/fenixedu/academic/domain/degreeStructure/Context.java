@@ -242,7 +242,7 @@ public class Context extends Context_Base implements Comparable<Context> {
             if (getChildDegreeModule().isCurricularCourse()) {
                 CurricularCourse curricularCourse = (CurricularCourse) getChildDegreeModule();
                 if (!curricularCourse.isAnual(executionInterval.getExecutionYear())) {
-                    return executionInterval.getAcademicPeriod() == getCurricularPeriod().getAcademicPeriod()
+                    return executionInterval.getAcademicPeriod().equals(getCurricularPeriod().getAcademicPeriod())
                             && executionInterval.getChildOrder().intValue() == getChildOrder().intValue();
                 }
             }
