@@ -38,11 +38,11 @@ public class AlterExecutionPeriodState {
 
         if (periodState.getStateCode().equals(PeriodState.CURRENT.getStateCode())) {
             // Deactivate the current
-            for (ExecutionInterval currentExecutionPeriod : ExecutionInterval.findCurrentsChilds()) {
+            ExecutionInterval.findAllChilds().stream().filter(ei -> ei.isCurrent()).forEach(currentExecutionPeriod -> {
                 final ExecutionYear currentExecutionYear = currentExecutionPeriod.getExecutionYear();
                 currentExecutionPeriod.setState(PeriodState.OPEN);
                 currentExecutionYear.setState(PeriodState.OPEN);
-            }
+            });
 
             executionInterval.setState(periodState);
             executionInterval.getExecutionYear().setState(periodState);
