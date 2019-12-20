@@ -350,7 +350,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
                 return false;
             }
 
-            if (evaluation.getEvaluationSeason().isImprovement() && evaluation.getExecutionInterval() != interval) {
+            if (evaluation.getExecutionInterval() != interval) {
                 return false;
             }
 
