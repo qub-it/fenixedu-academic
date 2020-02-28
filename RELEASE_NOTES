@@ -1,3 +1,4 @@
+28.0.0-rc-jdk11 (28-02-2020)
 28.0.0 (24-02-2020)
 - Refactor: Deprecated fixed state machines workflow cleanup (candidacies and registration states)
 
