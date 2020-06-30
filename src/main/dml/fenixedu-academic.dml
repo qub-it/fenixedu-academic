@@ -1690,8 +1690,6 @@ valueType org.fenixedu.academic.domain.degreeStructure.CycleTypes as CycleTypes 
 
         class messaging.ExecutionCourseForum extends messaging.Forum {
         }
-        class messaging.DepartmentForum extends messaging.Forum {
-        }
 
 class QueueJob  {
                Boolean done;
@@ -2765,11 +2763,6 @@ relation ExecutionCourseForumCourse {
         multiplicity *;
     }
     ExecutionCourse playsRole executionCourse;
-}
-
-relation DepartmentForumDepartment {
-    messaging.DepartmentForum playsRole forum;
-    Department playsRole department;
 }
 
 relation ForumSubscriptionForum {
@@ -4983,15 +4976,6 @@ relation PersistentTeacherGroupCampus {
         multiplicity *;
     }
     public .org.fenixedu.spaces.domain.Space playsRole campus {
-        multiplicity 0..1;
-    }
-}
-
-relation PersistentTeacherGroupDepartment {
-    public accessControl.PersistentTeacherGroup playsRole teacherGroup {
-        multiplicity *;
-    }
-    public Department playsRole department {
         multiplicity 0..1;
     }
 }
