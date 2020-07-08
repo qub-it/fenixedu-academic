@@ -50,4 +50,17 @@ public abstract class StudentCurriculumModuleBean implements Serializable {
     protected Registration getRegistration() {
         return getStudentCurricularPlan().getRegistration();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof StudentCurriculumModuleBean) {
+            return ((StudentCurriculumModuleBean) obj).curriculumModule == this.curriculumModule;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.curriculumModule.hashCode();
+    }
 }

@@ -62,8 +62,11 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
 
     private List<IDegreeModuleToEvaluate> curricularCoursesToEnrol;
 
+    private ExecutionInterval executionInterval;
+
     public StudentCurriculumGroupBean(final CurriculumGroup curriculumGroup, final ExecutionInterval executionInterval) {
         super(curriculumGroup);
+        this.executionInterval = executionInterval;
 
         setCourseGroupsToEnrol(buildCourseGroupsToEnrol(curriculumGroup, executionInterval));
 
@@ -204,6 +207,19 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
 
     public boolean isToBeDisabled() {
         return isRoot() || !getCurriculumModule().getCurriculumModulesSet().isEmpty() || isNoCourseGroupCurriculumGroup();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof StudentCurriculumGroupBean) {
+            return ((StudentCurriculumGroupBean) obj).executionInterval == this.executionInterval && super.equals(obj);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode() + this.executionInterval.hashCode();
     }
 
 }
