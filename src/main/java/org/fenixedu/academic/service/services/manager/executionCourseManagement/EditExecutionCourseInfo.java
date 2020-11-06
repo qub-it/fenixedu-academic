@@ -45,7 +45,7 @@ public class EditExecutionCourseInfo {
         }
 
         final ExecutionCourse existentExecutionCourse =
-                ExecutionCourse.readBySiglaAndExecutionPeriod(infoExecutionCourse.getSigla(), executionInterval);
+                readBySiglaAndExecutionPeriod(infoExecutionCourse.getSigla(), executionInterval);
         if (existentExecutionCourse != null && !existentExecutionCourse.equals(executionCourse)) {
             throw new DomainException("error.manager.executionCourseManagement.acronym.exists",
                     existentExecutionCourse.getSigla(), executionInterval.getName(),
@@ -57,5 +57,14 @@ public class EditExecutionCourseInfo {
                 infoExecutionCourse.getEntryPhase());
 
         return new InfoExecutionCourse(executionCourse);
+    }
+
+    private static ExecutionCourse readBySiglaAndExecutionPeriod(final String sigla, ExecutionInterval executionInterval) {
+        for (ExecutionCourse executionCourse : executionInterval.getAssociatedExecutionCoursesSet()) {
+            if (sigla.equalsIgnoreCase(executionCourse.getSigla())) {
+                return executionCourse;
+            }
+        }
+        return null;
     }
 }
