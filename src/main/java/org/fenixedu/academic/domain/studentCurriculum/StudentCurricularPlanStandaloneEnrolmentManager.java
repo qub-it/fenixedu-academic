@@ -51,43 +51,43 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!isResponsiblePersonAllowedToEnrolStudents() && !isResponsibleInternationalRelationOffice()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
-        }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (!isResponsiblePersonAllowedToEnrolStudents() && !isResponsibleInternationalRelationOffice()) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
+//        }
+//
+//        if (!(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
+//                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
+//                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN", getStudentCurricularPlan().getDegree(),
+//                        getResponsiblePerson().getUser()))) {
+//            checkRegistrationRegime();
+//        }
+//
+//        if (getRegistration().isRegistrationConclusionProcessed()) {
+//            checkUpdateRegistrationAfterConclusion();
+//        }
+//
+//        checkEnrolingDegreeModules();
+//    }
+//
+//    private void checkRegistrationRegime() {
+//        if (getRegistration().isPartialRegime(getExecutionYear())) {
+//            throw new DomainException("error.StudentCurricularPlan.with.part.time.regime.cannot.enrol");
+//        }
+//    }
 
-        if (!(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN", getStudentCurricularPlan().getDegree(),
-                        getResponsiblePerson().getUser()))) {
-            checkRegistrationRegime();
-        }
-
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
-        checkEnrolingDegreeModules();
-    }
-
-    private void checkRegistrationRegime() {
-        if (getRegistration().isPartialRegime(getExecutionYear())) {
-            throw new DomainException("error.StudentCurricularPlan.with.part.time.regime.cannot.enrol");
-        }
-    }
-
-    private void checkEnrolingDegreeModules() {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isEnroling()) {
-                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
-                    throw new DomainException(
-                            "error.StudentCurricularPlanPropaeudeuticsEnrolmentManager.can.only.enrol.in.curricularCourses");
-                }
-                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-    }
+//    private void checkEnrolingDegreeModules() {
+//        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
+//            if (degreeModuleToEvaluate.isEnroling()) {
+//                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
+//                    throw new DomainException(
+//                            "error.StudentCurricularPlanPropaeudeuticsEnrolmentManager.can.only.enrol.in.curricularCourses");
+//                }
+//                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
+//            }
+//        }
+//    }
 
     private void checkIDegreeModuleToEvaluate(final CurricularCourse curricularCourse) {
         if (getStudentCurricularPlan().isApproved(curricularCourse, getExecutionSemester())) {

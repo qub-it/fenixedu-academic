@@ -54,14 +54,14 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!getRegistration().isRegistered(getExecutionSemester())) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
-
-        super.assertEnrolmentPreConditions();
-    }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (!getRegistration().isRegistered(getExecutionSemester())) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
+//        }
+//
+//        super.assertEnrolmentPreConditions();
+//    }
 
     @Override
     protected void unEnrol() {

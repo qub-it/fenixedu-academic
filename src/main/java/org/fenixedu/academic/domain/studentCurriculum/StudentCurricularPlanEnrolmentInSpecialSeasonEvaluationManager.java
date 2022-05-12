@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,18 +30,11 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentInSpecialSeasonEvaluation;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.EnrolmentResultType;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.StudentStatute;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.joda.time.LocalDate;
 
 public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager extends StudentCurricularPlanEnrolment {
 
@@ -50,73 +42,73 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager exte
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (isResponsiblePersonManager()) {
-            return;
-        }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (isResponsiblePersonManager()) {
+//            return;
+//        }
+//
+//        if (!hasRegistrationInValidState()) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
+//        }
+//
+//        super.assertEnrolmentPreConditions();
+//    }
 
-        if (!hasRegistrationInValidState()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
+//    private boolean hasRegistrationInValidState() {
+//        return getRegistration().hasStateType(getExecutionYear(), RegistrationStateType.REGISTERED);
+//    }
 
-        super.assertEnrolmentPreConditions();
-    }
+//    @Override
+//    protected void checkDebts() {
+//        boolean isAcademicalActsBlocked =
+//                TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), getExecutionYear()
+//                        .getEndLocalDate().isBefore(new LocalDate()) ? getExecutionYear().getEndLocalDate() : new LocalDate());
+//
+//        if (isAcademicalActsBlocked) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
+//        }
+//    }
 
-    private boolean hasRegistrationInValidState() {
-        return getRegistration().hasStateType(getExecutionYear(), RegistrationStateType.REGISTERED);
-    }
+//    @Override
+//    protected void assertAcademicAdminOfficePreConditions() {
+//
+//        checkEnrolmentWithoutRules();
+//
+//        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
+//            return;
+//        }
+//    }
 
-    @Override
-    protected void checkDebts() {
-        boolean isAcademicalActsBlocked =
-                TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), getExecutionYear()
-                        .getEndLocalDate().isBefore(new LocalDate()) ? getExecutionYear().getEndLocalDate() : new LocalDate());
+//    @Override
+//    protected void assertStudentEnrolmentPreConditions() {
+//
+//        if (!getRegistrationsToEnrolByStudent(getResponsiblePerson().getStudent()).contains(getRegistration())) {
+//            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
+//        }
+//
+//        if (getCurricularRuleLevel() != CurricularRuleLevel.SPECIAL_SEASON_ENROLMENT) {
+//            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
+//        }
+//
+//    }
+//
+//    private Collection<Registration> getRegistrationsToEnrolByStudent(final Student student) {
+//        final Collection<Registration> registrations = new HashSet<Registration>();
+//
+//        for (final Registration registration : student.getRegistrationsSet()) {
+//            if (registration.isActive() || isRegistrationAvailableToEnrol(registration)) {
+//                registrations.add(registration);
+//            }
+//        }
+//
+//        return registrations;
+//    }
 
-        if (isAcademicalActsBlocked) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-    }
-
-    @Override
-    protected void assertAcademicAdminOfficePreConditions() {
-
-        checkEnrolmentWithoutRules();
-
-        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
-            return;
-        }
-    }
-
-    @Override
-    protected void assertStudentEnrolmentPreConditions() {
-
-        if (!getRegistrationsToEnrolByStudent(getResponsiblePerson().getStudent()).contains(getRegistration())) {
-            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
-        }
-
-        if (getCurricularRuleLevel() != CurricularRuleLevel.SPECIAL_SEASON_ENROLMENT) {
-            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
-        }
-
-    }
-
-    private Collection<Registration> getRegistrationsToEnrolByStudent(final Student student) {
-        final Collection<Registration> registrations = new HashSet<Registration>();
-
-        for (final Registration registration : student.getRegistrationsSet()) {
-            if (registration.isActive() || isRegistrationAvailableToEnrol(registration)) {
-                registrations.add(registration);
-            }
-        }
-
-        return registrations;
-    }
-
-    private boolean isRegistrationAvailableToEnrol(final Registration registration) {
-        return registration.hasAnyEnrolmentsIn(getExecutionYear())
-                && registration.getLastStudentCurricularPlan().hasExternalCycleCurriculumGroups();
-    }
+//    private boolean isRegistrationAvailableToEnrol(final Registration registration) {
+//        return registration.hasAnyEnrolmentsIn(getExecutionYear())
+//                && registration.getLastStudentCurricularPlan().hasExternalCycleCurriculumGroups();
+//    }
 
     @Override
     protected void unEnrol() {
@@ -202,27 +194,27 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager exte
         return getEnrolmentContext().getEvaluationSeason();
     }
 
-    private boolean isEnrolingAsSenior(Enrolment enrolment) {
-        if (isResponsiblePersonAllowedToEnrolStudents()) {
-            return false;
-        }
-        List<StudentStatute> statutesReader = new ArrayList<StudentStatute>(enrolment.getStudent().getStudentStatutesSet());
-        List<StudentStatute> validSeniorStatutes = new ArrayList<StudentStatute>();
-        List<StudentStatute> validOtherStatutes = new ArrayList<StudentStatute>();
-        for (StudentStatute statute : statutesReader) {
-            if (statute.getType().getSpecialSeasonGranted() && statute.isValidInExecutionInterval(getExecutionSemester())) {
-                validOtherStatutes.add(statute);
-            }
-        }
-        if (validOtherStatutes.size() > 0) {
-            return false;
-        }
-        if (validSeniorStatutes.size() == 1 && validOtherStatutes.size() == 0) {
-            return true;
-        } else {
-            throw new DomainException(
-                    "StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager.inconsistent.student.statutes.states");
-        }
-    }
+//    private boolean isEnrolingAsSenior(Enrolment enrolment) {
+//        if (isResponsiblePersonAllowedToEnrolStudents()) {
+//            return false;
+//        }
+//        List<StudentStatute> statutesReader = new ArrayList<StudentStatute>(enrolment.getStudent().getStudentStatutesSet());
+//        List<StudentStatute> validSeniorStatutes = new ArrayList<StudentStatute>();
+//        List<StudentStatute> validOtherStatutes = new ArrayList<StudentStatute>();
+//        for (StudentStatute statute : statutesReader) {
+//            if (statute.getType().getSpecialSeasonGranted() && statute.isValidInExecutionInterval(getExecutionSemester())) {
+//                validOtherStatutes.add(statute);
+//            }
+//        }
+//        if (validOtherStatutes.size() > 0) {
+//            return false;
+//        }
+//        if (validSeniorStatutes.size() == 1 && validOtherStatutes.size() == 0) {
+//            return true;
+//        } else {
+//            throw new DomainException(
+//                    "StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager.inconsistent.student.statutes.states");
+//        }
+//    }
 
 }

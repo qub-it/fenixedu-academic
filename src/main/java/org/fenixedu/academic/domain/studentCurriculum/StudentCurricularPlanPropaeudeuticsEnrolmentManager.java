@@ -40,30 +40,30 @@ public class StudentCurricularPlanPropaeudeuticsEnrolmentManager extends Student
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!isResponsiblePersonAllowedToEnrolStudents()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
-        }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (!isResponsiblePersonAllowedToEnrolStudents()) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
+//        }
+//
+//        if (getRegistration().isRegistrationConclusionProcessed()) {
+//            checkUpdateRegistrationAfterConclusion();
+//        }
+//
+//        checkEnrolingDegreeModules();
+//    }
 
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
-        checkEnrolingDegreeModules();
-    }
-
-    private void checkEnrolingDegreeModules() {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isEnroling()) {
-                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
-                    throw new DomainException(
-                            "error.StudentCurricularPlanPropaeudeuticsEnrolmentManager.can.only.enrol.in.curricularCourses");
-                }
-                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-    }
+//    private void checkEnrolingDegreeModules() {
+//        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
+//            if (degreeModuleToEvaluate.isEnroling()) {
+//                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
+//                    throw new DomainException(
+//                            "error.StudentCurricularPlanPropaeudeuticsEnrolmentManager.can.only.enrol.in.curricularCourses");
+//                }
+//                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
+//            }
+//        }
+//    }
 
     private void checkIDegreeModuleToEvaluate(final CurricularCourse curricularCourse) {
         if (getStudentCurricularPlan().isApproved(curricularCourse, getExecutionSemester())) {

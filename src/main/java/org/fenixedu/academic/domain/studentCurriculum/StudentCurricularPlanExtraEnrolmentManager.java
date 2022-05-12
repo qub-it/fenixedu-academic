@@ -46,26 +46,26 @@ public class StudentCurricularPlanExtraEnrolmentManager extends StudentCurricula
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (getRegistration().isRegistrationConclusionProcessed()) {
+//            checkUpdateRegistrationAfterConclusion();
+//        }
+//
+//        checkEnrolingDegreeModules();
+//    }
 
-        checkEnrolingDegreeModules();
-    }
-
-    private void checkEnrolingDegreeModules() {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isEnroling()) {
-                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
-                    throw new DomainException(
-                            "error.StudentCurricularPlanExtraEnrolmentManager.can.only.enrol.in.curricularCourses");
-                }
-                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-    }
+//    private void checkEnrolingDegreeModules() {
+//        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
+//            if (degreeModuleToEvaluate.isEnroling()) {
+//                if (!degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
+//                    throw new DomainException(
+//                            "error.StudentCurricularPlanExtraEnrolmentManager.can.only.enrol.in.curricularCourses");
+//                }
+//                checkIDegreeModuleToEvaluate((CurricularCourse) degreeModuleToEvaluate.getDegreeModule());
+//            }
+//        }
+//    }
 
     private void checkIDegreeModuleToEvaluate(final CurricularCourse curricularCourse) {
         if (getStudentCurricularPlan().isApproved(curricularCourse, getExecutionSemester())) {

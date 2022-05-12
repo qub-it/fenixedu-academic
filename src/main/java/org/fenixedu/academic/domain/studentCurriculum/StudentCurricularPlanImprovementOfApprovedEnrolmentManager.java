@@ -45,26 +45,26 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends 
         super(enrolmentContext);
     }
 
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!hasRegistrationInValidState()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
+//    @Override
+//    protected void assertEnrolmentPreConditions() {
+//        if (!hasRegistrationInValidState()) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
+//        }
+//
+//        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
+//            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
+//        }
+//
+//        if (areModifiedCyclesConcluded()) {
+//            checkUpdateRegistrationAfterConclusion();
+//        }
+//
+//    }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-
-        if (areModifiedCyclesConcluded()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
-    }
-
-    private boolean hasRegistrationInValidState() {
-        return getRegistration().isRegistered(getExecutionYear())
-                || getRegistration().isRegistered(getExecutionYear().getPreviousExecutionYear());
-    }
+//    private boolean hasRegistrationInValidState() {
+//        return getRegistration().isRegistered(getExecutionYear())
+//                || getRegistration().isRegistered(getExecutionYear().getPreviousExecutionYear());
+//    }
 
     @Override
     protected void unEnrol() {
@@ -146,14 +146,14 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends 
         return getEnrolmentContext().getEvaluationSeason();
     }
 
-    @Override
-    protected boolean isEnrolingInCycle(CycleCurriculumGroup cycle) {
-        for (final IDegreeModuleToEvaluate dmte : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (dmte.isEnroled() && cycle.hasCurriculumModule(dmte.getCurriculumGroup())) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    @Override
+//    protected boolean isEnrolingInCycle(CycleCurriculumGroup cycle) {
+//        for (final IDegreeModuleToEvaluate dmte : enrolmentContext.getDegreeModulesToEvaluate()) {
+//            if (dmte.isEnroled() && cycle.hasCurriculumModule(dmte.getCurriculumGroup())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
 }
