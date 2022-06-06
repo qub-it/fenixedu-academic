@@ -21,6 +21,7 @@ package org.fenixedu.academic.domain.accessControl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -39,11 +40,13 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.ConclusionValue;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.annotation.GroupArgument;
 import org.fenixedu.bennu.core.annotation.GroupOperator;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -189,8 +192,9 @@ public class StudentGroup extends FenixGroup {
         if (Boolean.TRUE.equals(withEnrolments)) {
             parts.add(BundleUtil.getString(Bundle.GROUP, "label.name.student.withEnrolments"));
         }
-        if (Boolean.TRUE.equals(firstTime)) {
-            parts.add(BundleUtil.getString(Bundle.GROUP, "label.name.student.firstTime"));
+        if (firstTime != null) {
+            final String firstTimeArg = BundleUtil.getString(Bundle.APPLICATION, firstTime ? "label.true" : "label.false");
+            parts.add(BundleUtil.getString(Bundle.GROUP, "label.name.student.firstTime", firstTimeArg));
         }
 
         if (!parts.isEmpty()) {
@@ -229,8 +233,8 @@ public class StudentGroup extends FenixGroup {
             registrations = getRegistrations(degreeType);
         } else if (degree != null) {
             registrations = getRegistrations(degree);
-        } else if (executionYear != null) {
-            registrations = getRegistrations(executionYear);
+        } else if (executionYear != null && firstTime == null) {
+            registrations = getRegistrations(executionYear, withEnrolments);
         } else {
             registrations = getRegistrations();
         }
@@ -332,13 +336,18 @@ public class StudentGroup extends FenixGroup {
         return registrations.stream();
     }
 
-    private Stream<Registration> getRegistrations(ExecutionYear executionYear) {
-        return executionYear.getChildIntervals().stream().flatMap(ei -> ei.getEnrolmentsSet().stream())
-                .filter(e -> !e.isAnnulled()).map(e -> e.getRegistration());
+    private Stream<Registration> getRegistrations(ExecutionYear executionYear, Boolean withEnrolments) {
+        if (Boolean.TRUE.equals(withEnrolments)) {
+            return executionYear.getChildIntervals().stream().flatMap(ei -> ei.getEnrolmentsSet().stream())
+                    .filter(e -> !e.isAnnulled()).map(e -> e.getRegistration());
+        } else {
+            return Bennu.getInstance().getRegistrationsSet().stream().filter(r -> Optional
+                    .ofNullable(r.getLastRegistrationState(executionYear)).map(RegistrationState::isActive).orElse(false));
+        }
     }
 
     private static Stream<Registration> getRegistrations() {
-        return RoleType.STUDENT.actualGroup().getMembers().flatMap(u -> u.getPerson().getStudent().getActiveRegistrationStream());
+        return Bennu.getInstance().getRegistrationsSet().stream().filter(Registration::isActive);
     }
 
     private static Stream<User> registrationsToUsers(Stream<Registration> registrations) {
@@ -393,7 +402,7 @@ public class StudentGroup extends FenixGroup {
             if (executionCourse != null && registration.getAttendingExecutionCoursesFor().contains(executionCourse)) {
                 return true;
             }
-            if (executionYear != null && cycle == null
+            if (executionYear != null && cycle == null && firstTime == null
                     && registration.getEnrolments(executionYear).stream().anyMatch(e -> !e.isAnnulled())) {
                 return true;
             }
