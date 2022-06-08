@@ -50,7 +50,7 @@ public class PersistentStudentGroup extends PersistentStudentGroup_Base {
         setCurricularYear(curricularYear);
         setExecutionYear(executionYear);
         setWithEnrolments(withEnrolments);
-        setFirstTime(firstTime);
+        setFirstTimeInDegree(firstTime);
 
         if (degree != null || executionCourse != null || campus != null || curricularYear != null && executionYear != null) {
             setRootForFenixPredicate(null);
@@ -60,7 +60,7 @@ public class PersistentStudentGroup extends PersistentStudentGroup_Base {
     @Override
     public Group toGroup() {
         return StudentGroup.get(getDegreeType(), getDegree(), getCycle(), getCampus(), getExecutionCourse(), getCurricularYear(),
-                getExecutionYear(), getWithEnrolments(), getFirstTime());
+                getExecutionYear(), getWithEnrolments(), getFirstTimeInDegree());
     }
 
     @Override
@@ -151,7 +151,7 @@ public class PersistentStudentGroup extends PersistentStudentGroup_Base {
                         && Objects.equals(group.getCurricularYear(), curricularYear)
                         && Objects.equals(group.getExecutionYear(), executionYear)
                         && Objects.equals(group.getWithEnrolments(), withEnrolments)
-                        && Objects.equals(group.getFirstTime(), firstTime))
+                        && Objects.equals(group.getFirstTimeInDegree(), firstTime))
                 .findAny();
     }
 }
