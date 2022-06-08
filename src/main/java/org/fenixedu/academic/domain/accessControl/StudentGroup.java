@@ -234,7 +234,7 @@ public class StudentGroup extends FenixGroup {
             registrations = getRegistrations(degreeType);
         } else if (degree != null) {
             registrations = getRegistrations(degree);
-        } else if (executionYear != null && firstTimeInDegree == null) {
+        } else if (executionYear != null) {
             registrations = getRegistrations(executionYear, withEnrolments);
         } else {
             registrations = getRegistrations();
