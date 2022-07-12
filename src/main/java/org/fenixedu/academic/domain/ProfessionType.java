@@ -29,7 +29,7 @@ public enum ProfessionType {
      * OLD RAIDES VALUES 
      */
 
-    UNKNOWN(false),
+    UNKNOWN(true),
 
     PUBLIC_ADMINISTRATION_BOARD_OR_DIRECTOR_AND_BOARD_OF_COMPANIES(false),
 
@@ -51,7 +51,7 @@ public enum ProfessionType {
 
     MILITARY_MEMBER(false),
 
-    OTHER(false),
+    OTHER(true),
 
     /*
      * NEW RAIDES VALUES 
@@ -142,11 +142,7 @@ public enum ProfessionType {
 
     STREET_VENDORS_EXCLUDING_FOOD_AND_STREET_SERVICE_WORKERS(true),
 
-    REFUSE_WORKERS_AND_OTHER_ELEMENTARY_WORKERS(true),
-
-    OTHER_SITUATION(true),
-
-    NOT_AVAILABLE(true);
+    REFUSE_WORKERS_AND_OTHER_ELEMENTARY_WORKERS(true);
 
     private boolean active;
 
