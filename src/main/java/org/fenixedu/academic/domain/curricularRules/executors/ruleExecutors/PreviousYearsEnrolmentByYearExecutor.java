@@ -59,6 +59,27 @@ import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 //TODO: refactor common behavior with PreviousYearsEnrolmentBySemesterExecutor when academic domain is more oriented to execution intervals instead of execution years and semesters
 public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor {
 
+    static public interface SkipCollectCurricularCoursesPredicate {
+        public boolean skip(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext);
+    }
+
+    static private SkipCollectCurricularCoursesPredicate SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE =
+            (courseGroup, enrolmentContext) -> {
+                return false;
+            };
+
+    static public SkipCollectCurricularCoursesPredicate getSkipCollectCurricularCoursesPredicate() {
+        return SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE;
+    }
+
+    static public void setSkipCollectCurricularCoursesPredicate(final SkipCollectCurricularCoursesPredicate input) {
+        if (input != null) {
+            SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE = input;
+        } else {
+            System.out.println("Could not set SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE to null");
+        }
+    }
+
     @Override
     protected RuleResult executeEnrolmentVerificationWithRules(final ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
@@ -357,27 +378,6 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
                 && !getSkipCollectCurricularCoursesPredicate().skip(courseGroup, enrolmentContext);
     }
 
-    static public interface SkipCollectCurricularCoursesPredicate {
-        public boolean skip(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext);
-    }
-
-    static private SkipCollectCurricularCoursesPredicate SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE =
-            (courseGroup, enrolmentContext) -> {
-                return false;
-            };
-
-    static public SkipCollectCurricularCoursesPredicate getSkipCollectCurricularCoursesPredicate() {
-        return SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE;
-    }
-
-    static public void setSkipCollectCurricularCoursesPredicate(final SkipCollectCurricularCoursesPredicate input) {
-        if (input != null) {
-            SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE = input;
-        } else {
-            System.out.println("Could not set SKIP_COLLECT_CURRICULAR_COURSES_PREDICATE to null");
-        }
-    }
-
     private boolean isConcludedByModules(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
 
         final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
@@ -440,7 +440,7 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
             return false;
         }
 
-        final double minEctsToApprove = curriculumGroup.getDegreeModule().getMinEctsCredits();
+        final double minEctsToApprove = curriculumGroup.getDegreeModule().getMinEctsCredits(enrolmentContext.getExecutionYear());
         final double totalEcts = calculateTotalEctsInGroup(enrolmentContext, curriculumGroup);
 
         return totalEcts >= minEctsToApprove;
