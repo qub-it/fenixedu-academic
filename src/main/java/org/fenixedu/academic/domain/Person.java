@@ -120,7 +120,7 @@ public class Person extends Person_Base {
 
     /**
      * @deprecated Use {@link UserProfile#getGivenNames()}
-     * But still used in academic-treasury-base module
+     *             But still used in academic-treasury-base module
      */
     @Deprecated
     public String getGivenNames() {
@@ -129,7 +129,7 @@ public class Person extends Person_Base {
 
     /**
      * @deprecated Use {@link UserProfile#getFamilyNames()}
-     * But still used in academic-treasury-base module
+     *             But still used in academic-treasury-base module
      */
     @Deprecated
     public String getFamilyNames() {
@@ -782,10 +782,13 @@ public class Person extends Person_Base {
     }
 
     public boolean isPhotoAvailableToPerson(final Person requester) {
-        if (isPhotoPubliclyAvailable()) {
-            return true;
-        }
-        return requester != null && RoleType.PERSON.isMember(requester.getUser());
+        //TODO: this code must be review in the future to preserve this functionality
+        // Diogo Godinho 2023-02-28
+        return true;
+//        if (isPhotoPubliclyAvailable()) {
+//            return true;
+//        }
+//        return requester != null && RoleType.PERSON.isMember(requester.getUser());
     }
 
     @Override
