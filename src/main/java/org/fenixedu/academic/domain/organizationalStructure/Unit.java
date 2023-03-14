@@ -27,12 +27,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
@@ -133,6 +135,25 @@ public class Unit extends Unit_Base {
             if (getParentUnits().stream().flatMap(pu -> pu.getSubUnits().stream()).filter(u -> u != this).anyMatch(predicate)) {
                 throw new DomainException("error.unit.already.exists.unit.with.same.acronym");
             }
+        }
+    }
+
+    public void generateAndSetAcronym() {
+        final String acronym = Stream.of(getName().split("[^A-Z]+")).collect(Collectors.joining());
+
+        final Set<String> existingAcronyms = getParentUnits().stream().flatMap(u -> u.getSubUnits().stream())
+                .map(Unit::getAcronym).filter(Objects::nonNull).collect(Collectors.toSet());
+
+        if (existingAcronyms.contains(acronym)) {
+            int version = 1;
+            String versionedAcronym = acronym + version;
+            while (existingAcronyms.contains(versionedAcronym)) {
+                versionedAcronym = acronym + ++version;
+            }
+
+            setAcronym(versionedAcronym);
+        } else {
+            setAcronym(acronym);
         }
     }
 
