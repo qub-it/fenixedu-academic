@@ -103,22 +103,6 @@ public class AccountabilityType extends AccountabilityType_Base {
         return getType() != null ? getType().getLocalizedName() : super.getTypeName().getContent();
     }
 
-//    public String getName() {
-//        return LocaleUtils.getPreferedContent(getTypeName());
-//    }
-//
-//    public void setName(String name) {
-//
-//        if (name == null || StringUtils.isEmpty(name.trim())) {
-//            throw new DomainException("error.accountabilityType.empty.name");
-//        }
-//
-//        LocalizedString typeName = getTypeName();
-//        typeName = typeName == null ? new LocalizedString(Locale.getDefault(), name) : typeName.with(Locale.getDefault(), name);
-//
-//        setTypeName(typeName);
-//    }
-
     public boolean hasConnectionRuleFor(PartyType parentType, PartyType childType) {
         return getConnectionRuleFor(parentType, childType) != null;
     }

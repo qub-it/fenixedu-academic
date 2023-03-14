@@ -22,25 +22,16 @@
  */
 package org.fenixedu.academic.domain.organizationalStructure;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.YearMonthDay;
 
 public class UnitUtils {
-
-//    public static List<Unit> readAllExternalInstitutionUnits() {
-//        List<Unit> allExternalUnits = new ArrayList<Unit>();
-//        allExternalUnits.addAll(readExternalInstitutionUnit().getAllSubUnits());
-//        return allExternalUnits;
-//    }
 
     public static Unit readExternalInstitutionUnitByName(final String name) {
         return readExternalInstitutionUnitByName(readExternalInstitutionUnit(), name);
@@ -63,47 +54,6 @@ public class UnitUtils {
         return null;
     }
 
-//    public static List<Unit> readAllUnitsWithoutParents() {
-//        List<Unit> allUnitsWithoutParent = new ArrayList<Unit>();
-//        for (Party party : Bennu.getInstance().getPartysSet()) {
-//            if (party.isUnit()) {
-//                Unit unit = (Unit) party;
-//                if (unit.getParentUnits().isEmpty()) {
-//                    allUnitsWithoutParent.add(unit);
-//                }
-//            }
-//        }
-//        return allUnitsWithoutParent;
-//    }
-
-//    public static List<Unit> readAllInternalActiveUnitsThatCanBeResponsibleOfSpaces() {
-//        List<Unit> result = new ArrayList<Unit>();
-//        final YearMonthDay now = new YearMonthDay();
-//        Unit institutionUnit = readInstitutionUnit();
-//        if (institutionUnit != null) {
-//            if (institutionUnit.getCanBeResponsibleOfSpaces() && institutionUnit.isActive(now)) {
-//                result.add(institutionUnit);
-//            }
-//            for (Unit subUnit : institutionUnit.getSubUnits()) {
-//                if (subUnit.getCanBeResponsibleOfSpaces() && subUnit.isActive(now)) {
-//                    result.add(subUnit);
-//                }
-//                readAllInternalActiveSubUnitsThatCanBeResponsibleOfSpaces(result, subUnit, now);
-//            }
-//        }
-//        return result;
-//    }
-//
-//    private static void readAllInternalActiveSubUnitsThatCanBeResponsibleOfSpaces(List<Unit> result, Unit subUnit,
-//            YearMonthDay now) {
-//        for (Unit unit : subUnit.getSubUnits()) {
-//            if (unit.getCanBeResponsibleOfSpaces() && unit.isActive(now)) {
-//                result.add(unit);
-//            }
-//            readAllInternalActiveSubUnitsThatCanBeResponsibleOfSpaces(result, unit, now);
-//        }
-//    }
-
     public static List<Unit> readAllActiveUnitsByType(PartyTypeEnum type) {
         final List<Unit> result = new ArrayList<Unit>();
         final YearMonthDay now = new YearMonthDay();
@@ -122,41 +72,6 @@ public class UnitUtils {
         return result;
     }
 
-//    public static List<Unit> readAllActiveUnitsByClassification(UnitClassification unitClassification) {
-//        final List<Unit> result = new ArrayList<Unit>();
-//        final YearMonthDay now = new YearMonthDay();
-//        if (unitClassification != null) {
-//            for (Party party : Bennu.getInstance().getPartysSet()) {
-//                if (party.isUnit()) {
-//                    Unit unit = (Unit) party;
-//                    if (unit.getClassification() != null && unit.getClassification().equals(unitClassification)
-//                            && unit.isActive(now)) {
-//                        result.add(unit);
-//                    }
-//                }
-//            }
-//        }
-//        return result;
-//    }
-
-//    public static List<Unit> readAllDepartmentUnits() {
-//        List<Unit> result = new ArrayList<Unit>();
-//        List<Unit> readAllActiveUnitsByType = readAllActiveUnitsByType(PartyTypeEnum.DEPARTMENT);
-//        for (Unit unit : readAllActiveUnitsByType) {
-//            result.add((Unit) unit);
-//        }
-//        return result;
-//    }
-
-//    public static Unit readUnitWithoutParentstByAcronym(String acronym) {
-//        for (Unit topUnit : readAllUnitsWithoutParents()) {
-//            if (topUnit.getAcronym() != null && topUnit.getAcronym().equals(acronym)) {
-//                return topUnit;
-//            }
-//        }
-//        return null;
-//    }
-
     public static Unit readExternalInstitutionUnit() {
         return Bennu.getInstance().getExternalInstitutionUnit();
     }
@@ -168,21 +83,6 @@ public class UnitUtils {
     public static Unit readEarthUnit() {
         return Bennu.getInstance().getEarthUnit();
     }
-
-//    public static Set<Unit> readExternalUnitsByNameAndTypes(final String unitName, List<PartyTypeEnum> types) {
-//        if (unitName == null) {
-//            return Collections.emptySet();
-//        }
-//        final Collection<UnitName> units = UnitName.findExternalUnit(unitName.replace('%', ' '), Integer.MAX_VALUE);
-//        final Set<Unit> result = new HashSet<Unit>();
-//        for (final UnitName un : units) {
-//            final Unit unit = un.getUnit();
-//            if (types.contains(unit.getType())) {
-//                result.add(unit);
-//            }
-//        }
-//        return result;
-//    }
 
     public static List<Unit> getUnitFullPath(final Unit unit, final List<AccountabilityTypeEnum> validAccountabilityTypes) {
         final Collection<Unit> parentUnits = unit.getParentUnits(validAccountabilityTypes);
@@ -216,43 +116,4 @@ public class UnitUtils {
         throw new DomainException("error.unitUtils.unit.full.path.has.more.than.one.parent");
     }
 
-//    public static List<Unit> readExternalUnitsByNameAndTypesStartingAtEarth(final String unitName,
-//            final List<PartyTypeEnum> types) {
-//        if (unitName == null) {
-//            return Collections.emptyList();
-//        }
-//
-//        final String nameToSearch = Normalizer.normalize(unitName.replaceAll("%", ".*").toLowerCase(), Normalizer.Form.NFD)
-//                .replaceAll("\\s", " ").replaceAll("[^\\p{ASCII}]", "");
-//
-//        final List<Unit> result = new ArrayList<Unit>();
-//        for (final UnitName name : Bennu.getInstance().getUnitNameSet()) {
-//
-//            final String current = Normalizer.normalize(name.getName().toLowerCase(), Normalizer.Form.NFD).replaceAll("\\s", " ")
-//                    .replaceAll("[^\\p{ASCII}]", "");
-//
-//            if (current.matches(nameToSearch) && name.getIsExternalUnit() && types.contains(name.getUnit().getType())) {
-//                result.add(name.getUnit());
-//            }
-//        }
-//
-//        return result;
-//    }
-
-//    public static Collection<Unit> readAllUnitsWithClassification(UnitClassification classification) {
-//        List<Unit> result = new ArrayList<Unit>();
-//
-//        for (Party party : Bennu.getInstance().getPartysSet()) {
-//            if (party.isUnit()) {
-//                Unit unit = (Unit) party;
-//
-//                UnitClassification unitClassification = unit.getClassification();
-//                if (unitClassification != null && unitClassification.equals(classification)) {
-//                    result.add(unit);
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
 }
