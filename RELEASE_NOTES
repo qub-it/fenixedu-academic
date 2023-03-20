@@ -1,6 +1,7 @@
 - Refactor: Add method to generate unit acronym from its name
 - Refactor: Delete commented deprecated methods in organizational structure
 - Refactor: Remove deprecated program conclusion management functionalities
+- Refactor: Fill shift relation with course load type
 
 40.7.1 (28-02-2023)
 - Bug fix: Change Method isPhotoAvailableToPerson of Person to return always true

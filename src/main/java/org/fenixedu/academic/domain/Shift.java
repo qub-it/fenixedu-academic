@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacity;
 import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacityType;
@@ -150,6 +151,7 @@ public class Shift extends Shift_Base {
 
         getAssociatedClassesSet().clear();
         getCourseLoadsSet().clear();
+        setCourseLoadType(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
 
@@ -180,6 +182,17 @@ public class Shift extends Shift_Base {
     }
 
     private void shiftTypeManagement(Collection<ShiftType> types, ExecutionCourse executionCourse) {
+
+        if (types.isEmpty()) {
+            throw new DomainException("error.Shift.empty.shiftTypes");
+        }
+
+        if (types.size() > 1) {
+            throw new DomainException("error.Shift.multiple.shiftTypes");
+        }
+
+        CourseLoadType.findByShiftType(types.iterator().next()).ifPresent(loadType -> setCourseLoadType(loadType));
+
         if (executionCourse != null) {
             getCourseLoadsSet().clear();
             for (ShiftType shiftType : types) {

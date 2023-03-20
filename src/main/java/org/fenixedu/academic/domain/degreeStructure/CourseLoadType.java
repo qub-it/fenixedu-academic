@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -68,6 +69,41 @@ public class CourseLoadType extends CourseLoadType_Base {
 
         setRoot(null);
         super.deleteDomainObject();
+    }
+
+    public static Optional<CourseLoadType> findByShiftType(final ShiftType shiftType) {
+
+        String code = null;
+        switch (shiftType) {
+        case TEORICA:
+            code = THEORETICAL;
+            break;
+        case PROBLEMS:
+            code = THEORETICAL_PRACTICAL;
+            break;
+        case LABORATORIAL:
+            code = PRACTICAL_LABORATORY;
+            break;
+        case FIELD_WORK:
+            code = FIELD_WORK;
+            break;
+        case SEMINARY:
+            code = SEMINAR;
+            break;
+        case TRAINING_PERIOD:
+            code = INTERNSHIP;
+            break;
+        case TUTORIAL_ORIENTATION:
+            code = TUTORIAL_ORIENTATION;
+            break;
+        case OTHER:
+            code = OTHER;
+            break;
+        default:
+        }
+
+        final String finalCode = code;
+        return findAll().filter(type -> Objects.equals(type.getCode(), finalCode)).findAny();
     }
 
 }
