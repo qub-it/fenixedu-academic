@@ -1,3 +1,5 @@
+- Refactor: Add direct domain relation between execution course and shifts
+
 40.8.0 (21-03-2023)
 - Refactor: Add method to generate unit acronym from its name
 - Refactor: Delete commented deprecated methods in organizational structure

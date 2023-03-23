@@ -90,6 +90,7 @@ public class Shift extends Shift_Base {
             final String shiftName) {
         super();
         setRootDomainObject(Bennu.getInstance());
+        setExecutionCourse(executionCourse);
         shiftTypeManagement(types, executionCourse);
         setLotacao(lotacao);
         setNome(shiftName);
@@ -127,6 +128,7 @@ public class Shift extends Shift_Base {
             throw new DomainException("error.Shift.empty.courseLoads");
         }
 
+        setExecutionCourse(newExecutionCourse);
         setComment(comment);
     }
 
@@ -152,6 +154,7 @@ public class Shift extends Shift_Base {
         getAssociatedClassesSet().clear();
         getCourseLoadsSet().clear();
         setCourseLoadType(null);
+        setExecutionCourse(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
 
@@ -168,7 +171,13 @@ public class Shift extends Shift_Base {
         return getExecutionCourse();
     }
 
+    @Override
     public ExecutionCourse getExecutionCourse() {
+        final ExecutionCourse executionCourse = super.getExecutionCourse();
+        if (executionCourse != null) {
+            return executionCourse;
+        }
+
         CourseLoad courseLoad = getCourseLoadsSet().iterator().next();
         if (courseLoad != null) {
             return courseLoad.getExecutionCourse();

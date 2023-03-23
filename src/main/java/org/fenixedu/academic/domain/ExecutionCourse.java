@@ -174,7 +174,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         if (!getAssociatedEvaluationsSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
         }
-        if (!getAssociatedShifts().isEmpty()) {
+        if (!getAssociatedShifts().isEmpty() || !getShiftsSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
         }
         if (!getAttendsSet().isEmpty()) {

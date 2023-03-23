@@ -705,7 +705,10 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String comment;
         Languages languages;
     }
-    
+		relation ShiftExecutionCourse {
+		    ExecutionCourse playsRole executionCourse;
+		    Shift playsRole shifts { multiplicity *; }
+		}
 
     class ShiftEnrolment  {
         DateTime createdOn;
