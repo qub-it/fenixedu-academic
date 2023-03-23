@@ -700,8 +700,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
 
     class Shift  {      
-        Integer lotacao;
-        String name;
+        String name (REQUIRED);
         String comment;
         Languages languages;
     }

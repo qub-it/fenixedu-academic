@@ -38,7 +38,6 @@ import org.fenixedu.academic.domain.CourseLoad;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionCourseLog;
-import org.fenixedu.academic.domain.LessonInstance;
 import org.fenixedu.academic.domain.LessonPlanning;
 import org.fenixedu.academic.domain.Mark;
 import org.fenixedu.academic.domain.Person;
@@ -161,10 +160,10 @@ public class MergeExecutionCourses {
             final ExecutionCourse executionCourseTo) {
         final Set<String> shiftNames = new HashSet<String>();
         for (final Shift shift : executionCourseFrom.getAssociatedShifts()) {
-            shiftNames.add(shift.getNome());
+            shiftNames.add(shift.getName());
         }
         for (final Shift shift : executionCourseTo.getAssociatedShifts()) {
-            if (shiftNames.contains(shift.getNome())) {
+            if (shiftNames.contains(shift.getName())) {
                 return true;
             }
         }
@@ -219,21 +218,9 @@ public class MergeExecutionCourses {
                 shift.addCourseLoads(courseLoadTo);
             }
         }
-    }
 
-//    private static void copyLessonsInstances(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
-//        final List<LessonInstance> associatedLessons = executionCourseFrom.getCourseLoadsSet().stream()
-//                .flatMap(cl -> cl.getLessonInstancesSet().stream()).collect(Collectors.toUnmodifiableList());
-//        for (final LessonInstance lessonInstance : associatedLessons) {
-//            CourseLoad courseLoadFrom = lessonInstance.getCourseLoad();
-//            CourseLoad courseLoadTo = executionCourseTo.getCourseLoadByShiftType(courseLoadFrom.getType());
-//            if (courseLoadTo == null) {
-//                courseLoadTo = new CourseLoad(executionCourseTo, courseLoadFrom.getType(), courseLoadFrom.getUnitQuantity(),
-//                        courseLoadFrom.getTotalQuantity());
-//            }
-//            lessonInstance.setCourseLoad(courseLoadTo);
-//        }
-//    }
+        executionCourseTo.getShiftsSet().addAll(executionCourseFrom.getShiftsSet());
+    }
 
     private static void copyAttends(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo)
             throws FenixServiceException {
