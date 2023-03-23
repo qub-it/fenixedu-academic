@@ -146,9 +146,8 @@ public class Registration extends Registration_Base {
         Signal.emit(REGISTRATION_CREATE_SIGNAL, new DomainObjectEvent<>(this));
     }
 
-    private Registration(
-
-            final Person person, final Integer registrationNumber, final Degree degree, final ExecutionYear executionYear) {
+    private Registration(final Person person, final Integer registrationNumber, final Degree degree,
+            final ExecutionYear executionYear) {
         this();
 
         if (executionYear == null) {
