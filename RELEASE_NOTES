@@ -1,3 +1,4 @@
+40.9.0 (27-03-2023)
 - Refactor: Add direct domain relation between execution course and shifts
 - Refactor: Cleanup shift entity code
 - Refactor: Remove deprecated teacher attends search functionality
