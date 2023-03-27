@@ -341,8 +341,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     }
 
     public Collection<OccupationPeriod> getPeriodLessons(final ExecutionInterval interval) {
-        return getOccupationPeriodReferencesSet().stream()
-                .filter(opr -> OccupationPeriodType.LESSONS.equals(opr.getPeriodType()) && opr.getExecutionInterval() == interval)
+        return getOccupationPeriodReferencesSet().stream().filter(opr -> opr.getExecutionInterval() == interval)
                 .map(OccupationPeriodReference::getOccupationPeriod).collect(Collectors.toSet());
     }
 

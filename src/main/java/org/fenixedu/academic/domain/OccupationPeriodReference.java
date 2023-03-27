@@ -29,17 +29,23 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, OccupationPeriodType type,
-            ExecutionInterval interval, CurricularYearList curricularYears) {
+    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, ExecutionInterval interval,
+            CurricularYearList curricularYears) {
         this();
         if (period == null || degree == null) {
             throw new DomainException("exception.null.arguments");
         }
         setOccupationPeriod(period);
         setExecutionDegree(degree);
-        setPeriodType(type);
+        setPeriodType(OccupationPeriodType.LESSONS);
         setExecutionInterval(interval);
         setCurricularYears(curricularYears);
+    }
+
+    @Deprecated
+    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, OccupationPeriodType type,
+            ExecutionInterval interval, CurricularYearList curricularYears) {
+        this(period, degree, interval, curricularYears);
     }
 
     @Deprecated
