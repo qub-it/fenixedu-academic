@@ -80,18 +80,7 @@ public class Lesson extends Lesson_Base {
 
     public Lesson(DiaSemana diaSemana, Calendar inicio, Calendar fim, Shift shift, FrequencyType frequency,
             ExecutionInterval executionInterval, OccupationPeriod period, Space room) {
-
         super();
-
-        if (shift != null) {
-            final Interval maxLessonsInterval = shift.getExecutionCourse().getMaxLessonsInterval();
-            if (period == null || period.getStartYearMonthDay().isBefore(maxLessonsInterval.getStart().toLocalDate())) {
-                throw new DomainException("error.Lesson.invalid.begin.date");
-            }
-            if (period.getEndYearMonthDayWithNextPeriods().isAfter(maxLessonsInterval.getEnd().toLocalDate())) {
-                throw new DomainException("error.invalid.new.date");
-            }
-        }
 
         setRootDomainObject(Bennu.getInstance());
         setDiaSemana(diaSemana);
