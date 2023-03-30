@@ -322,7 +322,7 @@ public class Student extends Student_Base {
         for (final Registration registration : super.getRegistrationsSet()) {
             final RegistrationState registrationState = registration.getActiveState();
             if (registrationState != null) {
-                if (registrationState.getStateTypeEnum().isActive()) {
+                if (registrationState.getType().getActive()) {
                     return true;
                 }
             }
