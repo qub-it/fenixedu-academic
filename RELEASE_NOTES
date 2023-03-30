@@ -1,3 +1,5 @@
+- Refactor: For anual courses, lessons periods should contain all child intervals
+
 40.9.1 (27-03-2023)
 - Refactor: Remove references of lesson occupation period type
 

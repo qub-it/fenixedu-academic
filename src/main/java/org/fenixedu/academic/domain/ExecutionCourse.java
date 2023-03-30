@@ -29,7 +29,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -37,7 +39,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.LocaleUtils;
@@ -50,7 +51,6 @@ import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
@@ -409,48 +409,25 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Interval getMaxLessonsInterval() {
+        final boolean isAnual = getAssociatedCurricularCoursesSet().stream().anyMatch(cc -> cc.isAnual(getExecutionYear()));
 
-        final Collection<Interval> allIntervals =
-                getAssociatedCurricularCoursesSet().stream().map(cc -> cc.getExecutionDegreeFor(getExecutionYear()))
-                        .filter(Objects::nonNull).flatMap(ed -> ed.getPeriodLessons(getExecutionInterval()).stream())
-                        .map(p -> p.getIntervalWithNextPeriods()).collect(Collectors.toSet());
+        final Set<ExecutionInterval> periodsExecutionIntervals =
+                isAnual ? getExecutionInterval().getExecutionYear().getChildIntervals() : Set.of(getExecutionInterval());
+
+        final Function<ExecutionDegree, Stream<OccupationPeriod>> executionDegreeToPeriods =
+                ed -> periodsExecutionIntervals.stream().flatMap(ei -> ed.getPeriodLessons(ei).stream());
+
+        final Function<DegreeCurricularPlan, Stream<ExecutionDegree>> dcpToExecutionDegree =
+                dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream();
+
+        final Collection<Interval> allIntervals = getAssociatedCurricularCoursesSet().stream()
+                .map(CurricularCourse::getDegreeCurricularPlan).flatMap(dcpToExecutionDegree).flatMap(executionDegreeToPeriods)
+                .map(OccupationPeriod::getIntervalWithNextPeriods).collect(Collectors.toSet());
 
         if (!allIntervals.isEmpty()) {
-            final DateTime start = allIntervals.stream().map(i -> i.getStart()).min(Comparator.naturalOrder()).get();
-            final DateTime end = allIntervals.stream().map(i -> i.getEnd()).max(Comparator.naturalOrder()).get();
+            final DateTime start = allIntervals.stream().map(Interval::getStart).min(Comparator.naturalOrder()).get();
+            final DateTime end = allIntervals.stream().map(Interval::getEnd).max(Comparator.naturalOrder()).get();
             return new Interval(start, end);
-        }
-
-        return null;
-    }
-
-    /**
-     * @deprecated use {@link #getMaxLessonsInterval()}
-     * 
-     *             Attention: still used in deprecated JSPs
-     * 
-     */
-    @Deprecated
-    public GenericPair<YearMonthDay, YearMonthDay> getMaxLessonsPeriod() {
-
-        YearMonthDay minBeginDate = null;
-        YearMonthDay maxEndDate = null;
-
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            final ExecutionDegree executionDegree = curricularCourse.getExecutionDegreeFor(getExecutionYear());
-
-            for (final OccupationPeriod period : executionDegree.getPeriodLessons(getExecutionInterval())) {
-                if (minBeginDate == null || minBeginDate.isAfter(period.getStartYearMonthDay())) {
-                    minBeginDate = period.getStartYearMonthDay();
-                }
-                if (maxEndDate == null || maxEndDate.isBefore(period.getEndYearMonthDayWithNextPeriods())) {
-                    maxEndDate = period.getEndYearMonthDayWithNextPeriods();
-                }
-            }
-        }
-
-        if (minBeginDate != null && maxEndDate != null) {
-            return new GenericPair<YearMonthDay, YearMonthDay>(minBeginDate, maxEndDate);
         }
 
         return null;
