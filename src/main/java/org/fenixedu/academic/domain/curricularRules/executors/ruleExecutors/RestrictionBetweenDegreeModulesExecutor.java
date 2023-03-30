@@ -41,28 +41,33 @@ public class RestrictionBetweenDegreeModulesExecutor extends CurricularRuleExecu
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
+        return evaluateRule(sourceDegreeModuleToEvaluate, enrolmentContext, rule);
+    }
+
+    private RuleResult evaluateRule(final IDegreeModuleToEvaluate toEvaluate, final EnrolmentContext enrolmentContext,
+            final RestrictionBetweenDegreeModules rule) {
         final DegreeModule precedenceDegreeModule = rule.getPrecedenceDegreeModule();
 
         if (isEnrolling(enrolmentContext, precedenceDegreeModule)) {
-            return rule.hasMinimumCredits() ? createFalseRuleResultWithInvalidEcts(rule,
-                    sourceDegreeModuleToEvaluate) : RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+            return rule.hasMinimumCredits() ? createFalseRuleResultWithInvalidEcts(rule, toEvaluate) : RuleResult
+                    .createTrue(toEvaluate.getDegreeModule());
 
         } else if (isEnroled(enrolmentContext, precedenceDegreeModule)) {
 
             final CurriculumModule curriculumModule = searchCurriculumModule(enrolmentContext, precedenceDegreeModule);
 
             if (!rule.hasMinimumCredits() || rule.allowCredits(curriculumModule.getAprovedEctsCredits())) {
-                return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+                return RuleResult.createTrue(toEvaluate.getDegreeModule());
             } else {
-                if (sourceDegreeModuleToEvaluate.isEnroled() && sourceDegreeModuleToEvaluate.isLeaf()) {
-                    return createImpossibleRuleResultWithInvalidEcts(rule, sourceDegreeModuleToEvaluate);
+                if (toEvaluate.isEnroled() && toEvaluate.isLeaf()) {
+                    return createImpossibleRuleResultWithInvalidEcts(rule, toEvaluate);
                 } else {
-                    return createFalseRuleResultWithInvalidEcts(rule, sourceDegreeModuleToEvaluate);
+                    return createFalseRuleResultWithInvalidEcts(rule, toEvaluate);
                 }
             }
         }
 
-        return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
+        return RuleResult.createFalse(toEvaluate.getDegreeModule(),
                 "curricularRules.ruleExecutors.RestrictionBetweenDegreeModulesExecutor.student.has.not.precedence.degreeModule",
                 rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
     }
@@ -140,9 +145,11 @@ public class RestrictionBetweenDegreeModulesExecutor extends CurricularRuleExecu
     }
 
     @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
+    protected RuleResult executeEnrolmentPrefilter(ICurricularRule curricularRule, IDegreeModuleToEvaluate toEvaluate,
+            EnrolmentContext enrolmentContext) {
+        final RuleResult result = evaluateRule(toEvaluate, enrolmentContext, (RestrictionBetweenDegreeModules) curricularRule);
+
+        return result.isFalse() ? result : RuleResult.createTrue(toEvaluate.getDegreeModule());
     }
 
     @Override
