@@ -89,6 +89,7 @@ public class Lesson extends Lesson_Base {
         setShift(shift);
         setFrequency(frequency);
         setPeriod(period);
+        setInitialFullPeriod(period);
 
         checkShiftLoad(shift);
 
@@ -111,6 +112,7 @@ public class Lesson extends Lesson_Base {
         if (period != null) {
             period.delete();
         }
+        setInitialFullPeriod(null);
 
         if (getLessonSpaceOccupation() != null) {
             getLessonSpaceOccupation().delete();

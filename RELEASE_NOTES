@@ -1,6 +1,7 @@
 - Refactor: For anual courses, lessons periods should contain all child intervals
 - Refactor: Replace reference of RegistrationStateTypeEnum
 - Refactor: Remove periods check on lesson creation
+- Refactor: Bring domain relation to store lesson initial period
 - Improvement: Add prefilter evaluation to restriction between degree modules rule
 
 40.9.1 (27-03-2023)

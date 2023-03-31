@@ -4008,6 +4008,13 @@ relation OccupationPeriodLesson {
     }
 }
 
+relation InitialFullOccupationPeriodLesson {
+    OccupationPeriod playsRole initialFullPeriod;
+    Lesson playsRole initialLessons {
+        multiplicity *;
+    }
+}
+
 relation LessonInstanceRootDomainObject {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     LessonInstance playsRole lessonInstances {
