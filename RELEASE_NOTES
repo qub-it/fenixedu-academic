@@ -1,3 +1,4 @@
+40.10.0 (31-03-2023)
 - Refactor: For anual courses, lessons periods should contain all child intervals
 - Refactor: Replace reference of RegistrationStateTypeEnum
 - Refactor: Remove periods check on lesson creation
