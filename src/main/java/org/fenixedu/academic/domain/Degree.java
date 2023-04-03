@@ -425,7 +425,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
         LocalizedString.Builder builder = new LocalizedString.Builder();
         CoreConfiguration.supportedLocales().forEach(l -> builder.with(l, degreeType.getContent(l) + " "
-                + BundleUtil.getString(Bundle.APPLICATION, "label.in") + " " + getNameI18N(executionYear).getContent(l)));
+                + BundleUtil.getString(Bundle.APPLICATION, l, "label.in") + " " + getNameI18N(executionYear).getContent(l)));
         return builder.build();
     }
 
