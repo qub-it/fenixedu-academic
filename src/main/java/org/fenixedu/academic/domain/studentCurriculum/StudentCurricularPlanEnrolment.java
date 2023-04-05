@@ -101,7 +101,7 @@ abstract public class StudentCurricularPlanEnrolment {
     protected void assertEnrolmentPreConditions() {
         checkDebts();
 
-        if (isResponsiblePersonAllowedToEnrolStudents() || isResponsibleInternationalRelationOffice()) {
+        if (isResponsiblePersonAllowedToEnrolStudents()) {
             assertAcademicAdminOfficePreConditions();
 
         } else if (isResponsiblePersonStudent()) {
@@ -182,8 +182,8 @@ abstract public class StudentCurricularPlanEnrolment {
         if (isEnrolmentWithoutRules()
                 && !(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
                         getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN", getStudentCurricularPlan().getDegree(),
-                                getResponsiblePerson().getUser()))
+                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser()))
                 && !isResponsibleInternationalRelationOffice()) {
             throw new DomainException("error.permissions.cannot.enrol.without.rules");
         }
@@ -361,7 +361,7 @@ abstract public class StudentCurricularPlanEnrolment {
     }
 
     protected boolean isResponsiblePersonStudent() {
-        return RoleType.STUDENT.isMember(getResponsiblePerson().getUser());
+        return getResponsiblePerson().getStudent() != null && getResponsiblePerson().getStudent().hasActiveRegistrations();
     }
 
     protected boolean isResponsiblePersonCoordinator() {
