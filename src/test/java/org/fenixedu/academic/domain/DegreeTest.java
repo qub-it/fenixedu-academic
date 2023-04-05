@@ -19,6 +19,7 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class DegreeTest {
 
+    public static final String DEGREE_A_CODE = "DA";
     private static Degree degree;
 
     @BeforeClass
@@ -35,9 +36,9 @@ public class DegreeTest {
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
 
-        final Degree degree = new Degree("Computer Science", "Computer Science", "CS", degreeType, new GradeScale(),
-                new GradeScale(), executionYear);
-        degree.setCode("CS");
+        final Degree degree =
+                new Degree("Degree A", "Degree A", DEGREE_A_CODE, degreeType, new GradeScale(), new GradeScale(), executionYear);
+        degree.setCode(DEGREE_A_CODE);
         degree.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
 
         return degree;
@@ -46,8 +47,8 @@ public class DegreeTest {
     @Test
     public void testDegree_find() {
         assertEquals(Degree.findAll().count(), 1l);
-        assertNotNull(Degree.find("CS"));
-        assertEquals(Degree.find("CS"), degree);
+        assertNotNull(Degree.find(DEGREE_A_CODE));
+        assertEquals(Degree.find(DEGREE_A_CODE), degree);
         assertNull(Degree.find("XX"));
     }
 

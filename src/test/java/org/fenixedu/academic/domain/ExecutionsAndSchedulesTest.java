@@ -1,5 +1,7 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
@@ -24,6 +26,7 @@ public class ExecutionsAndSchedulesTest {
 
     private static ExecutionCourse executionCourse;
     private static ExecutionDegree executionDegree;
+    private static Shift shift;
 
     @BeforeClass
     public static void init() {
@@ -40,22 +43,22 @@ public class ExecutionsAndSchedulesTest {
         final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
         DegreeCurricularPlanTest.initDegreeCurricularPlan();
-        final Degree degree = Degree.find("CS");
+        final Degree degree = Degree.find(DEGREE_A_CODE);
         final DegreeCurricularPlan degreeCurricularPlan = degree.getDegreeCurricularPlansSet().iterator().next();
-        final CurricularCourse curricularCourse = degreeCurricularPlan.getCurricularCourseByCode("CA");
+        final CurricularCourse curricularCourse = degreeCurricularPlan.getCurricularCourseByCode(COURSE_A_CODE);
 
         executionDegree = degreeCurricularPlan.createExecutionDegree(executionYear);
 
-        final CompetenceCourse competenceCourse = CompetenceCourse.find("CA");
+        final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
 
         executionCourse = new ExecutionCourse(competenceCourse.getName(), competenceCourse.getCode(), executionInterval);
         executionCourse.addAssociatedCurricularCourses(curricularCourse);
     }
 
-    private static void initSchedules() {
+    static void initSchedules() {
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
         final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
-        final Shift shift = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
+        shift = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
 
         int year = executionInterval.getBeginDateYearMonthDay().getYear();
         final OccupationPeriod occupationPeriod =
@@ -78,14 +81,36 @@ public class ExecutionsAndSchedulesTest {
 
         final Lesson lesson = new Lesson(diaSemana, startTimeCalendar, endTimeCalendar, shift, frequency,
                 shift.getExecutionPeriod(), period, space);
-//        lesson.setInitialFullPeriod(period);
         return lesson;
-
     }
 
     @Test
     public void testExecutionDegree_find() {
         assertTrue(ExecutionYear.findCurrent(null).getExecutionDegreesSet().size() == 1);
     }
+
+//    @Test
+//    public void testShift_name() {
+//        System.out.println("Shift Name: " + shift.getName());
+//        System.out.println();
+//
+//        final Shift shift1 = new Shift(executionCourse, Set.of(ShiftType.LABORATORIAL), 10, null);
+//        System.out.println("Shift Name: " + shift.getName());
+//        System.out.println("Shift 1 Name: " + shift1.getName());
+//        System.out.println();
+//
+//        final Shift shift2 = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
+//        System.out.println("Shift Name: " + shift.getName());
+//        System.out.println("Shift 1 Name: " + shift1.getName());
+//        System.out.println("Shift 2 Name: " + shift2.getName());
+//        System.out.println();
+//
+//        final Shift shift3 = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
+//        System.out.println("Shift Name: " + shift.getName());
+//        System.out.println("Shift 1 Name: " + shift1.getName());
+//        System.out.println("Shift 2 Name: " + shift2.getName());
+//        System.out.println("Shift 3 Name: " + shift3.getName());
+//        System.out.println();
+//    }
 
 }

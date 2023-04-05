@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
@@ -9,6 +10,7 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,15 +36,17 @@ public class DegreeCurricularPlanTest {
 
     static void initDegreeCurricularPlan() {
         DegreeTest.initDegree();
-        final Degree degree = Degree.find("CS");
+        final Degree degree = Degree.find(DEGREE_A_CODE);
 
-        Person person = new Person(
-                new UserProfile("Bruce", "Wayne", "Bruce Wayne", "bruce.wayne@wayne-enterprises.com", Locale.getDefault()));
+        final UserProfile userProfile =
+                new UserProfile("Fenix", "Admin", "Fenix Admin", "fenix.admin@fenixedu.com", Locale.getDefault());
+        new User("admin", userProfile);
+        Person person = new Person(userProfile);
         degreeCurricularPlan = degree.createDegreeCurricularPlan("Version 2022", person, AcademicPeriod.THREE_YEAR);
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
 
         CompetenceCourseTest.initCompetenceCourse();
-        final CompetenceCourse competenceCourse = CompetenceCourse.find("CA");
+        final CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
 
         curricularCourse = new CurricularCourse();
         curricularCourse.setCompetenceCourse(competenceCourse);
@@ -57,7 +61,7 @@ public class DegreeCurricularPlanTest {
 
     @Test
     public void testDegreeCurricularPlan_find() {
-        final Degree degreeCS = Degree.find("CS");
+        final Degree degreeCS = Degree.find(DEGREE_A_CODE);
         assertTrue(degreeCS.getDegreeCurricularPlansSet().size() == 1);
         assertTrue(degreeCS.getDegreeCurricularPlansSet().contains(degreeCurricularPlan));
     }

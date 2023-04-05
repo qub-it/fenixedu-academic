@@ -30,6 +30,7 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class CompetenceCourseTest {
 
+    public static final String COURSE_A_CODE = "CA";
     private static CompetenceCourse competenceCourse;
 
     @BeforeClass
@@ -53,12 +54,12 @@ public class CompetenceCourseTest {
         competenceCourse = new CompetenceCourse("Course A", "Course A", Boolean.TRUE, AcademicPeriod.SEMESTER,
                 CompetenceCourseLevelType.UNKNOWN().orElse(null), CompetenceCourseType.REGULAR, CurricularStage.APPROVED,
                 coursesUnit, ExecutionInterval.findFirstCurrentChild(null), new GradeScale());
-        competenceCourse.setCode("CA");
+        competenceCourse.setCode(COURSE_A_CODE);
 
         final CompetenceCourseInformation courseInformation =
                 competenceCourse.getCompetenceCourseInformationsSet().iterator().next();
 
-        new CompetenceCourseLoad(courseInformation, 30d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
+        new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
 
         final CompetenceCourseInformation nextCourseInformation = new CompetenceCourseInformation(courseInformation);
         final ExecutionYear nextExecutionYear = (ExecutionYear) ExecutionYear.findCurrentAggregator(null).getNext();
@@ -71,7 +72,7 @@ public class CompetenceCourseTest {
 
     @Test
     public void testCourse_find() {
-        assertEquals(CompetenceCourse.find("CA"), competenceCourse);
+        assertEquals(CompetenceCourse.find(COURSE_A_CODE), competenceCourse);
         assertNull(CompetenceCourse.find("XX"));
         assertEquals(CompetenceCourse.findAll().size(), 1);
         assertTrue(CompetenceCourse.findAll().contains(competenceCourse));
