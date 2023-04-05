@@ -28,6 +28,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -86,10 +87,10 @@ public class StudentCurricularPlanEnrolmentPreConditions {
      */
     static EnrolmentPreConditionResult checkDebts(StudentCurricularPlan scp) {
         final Person authenticatedPerson = Authenticate.getUser().getPerson();
-        final boolean hasAcademicalAuthorizationToEnrol =
-                AcademicAccessRule.isMember(Authenticate.getUser(), AcademicOperationType.STUDENT_ENROLMENTS,
-                        Collections.singleton(scp.getDegree()), Collections.singleton(scp.getAdministrativeOffice()))
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", scp.getDegree(), Authenticate.getUser());
+        final boolean hasAcademicalAuthorizationToEnrol = AcademicAccessRule.isMember(Authenticate.getUser(),
+                AcademicOperationType.STUDENT_ENROLMENTS, Collections.singleton(scp.getDegree()),
+                Collections.singleton(scp.getAdministrativeOffice()))
+                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", scp.getDegree(), Authenticate.getUser());
 
         final boolean isStudentEnrolling = authenticatedPerson.getStudent() != null
                 && authenticatedPerson.getStudent() == scp.getRegistration().getStudent();
@@ -98,7 +99,8 @@ public class StudentCurricularPlanEnrolmentPreConditions {
             return createTrue();
         }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
+        final ITreasuryBridgeAPI treasuryAPI = TreasuryBridgeAPIFactory.implementation();
+        if (treasuryAPI != null && treasuryAPI.isAcademicalActsBlocked(scp.getPerson(), new LocalDate())) {
             return createFalse("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
         }
 
