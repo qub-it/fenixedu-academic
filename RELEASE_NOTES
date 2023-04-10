@@ -1,6 +1,7 @@
 - Refactor: Add first units tests for some core domain entities
 - Refactor: Remove reference to deprecated group references on enrolment
 - Refactor: Prevent NPE if treasury bridge API is not registered 
+- Bug fix: Fix course load duration delete check and add missing exception messages
 
 40.10.1 (03-04-2023)
 - Bug fix: Degree presentation name should use locale for separator
