@@ -6,7 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
@@ -31,7 +34,10 @@ import pt.ist.fenixframework.FenixFramework;
 public class CompetenceCourseTest {
 
     public static final String COURSE_A_CODE = "CA";
-    private static CompetenceCourse competenceCourse;
+    public static final String COURSE_B_CODE = "CB"; // annual
+
+    private static CompetenceCourse competenceCourseA;
+    private static CompetenceCourse competenceCourseB;
 
     @BeforeClass
     public static void init() {
@@ -45,19 +51,21 @@ public class CompetenceCourseTest {
         OrganizationalStructureTest.initTypes();
         Unit planetUnit = OrganizationalStructureTest.initPlanetUnit();
 
-        LocalizedString name = new LocalizedString.Builder().with(Locale.getDefault(), "Courses Unit").build();
-        Unit coursesUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), name, "CC", planetUnit,
+        LocalizedString unitName = new LocalizedString.Builder().with(Locale.getDefault(), "Courses Unit").build();
+        Unit coursesUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), unitName, "CC", planetUnit,
                 AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
 
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
 
-        competenceCourse = new CompetenceCourse("Course A", "Course A", Boolean.TRUE, AcademicPeriod.SEMESTER,
-                CompetenceCourseLevelType.UNKNOWN().orElse(null), CompetenceCourseType.REGULAR, CurricularStage.APPROVED,
-                coursesUnit, ExecutionInterval.findFirstCurrentChild(null), new GradeScale());
-        competenceCourse.setCode(COURSE_A_CODE);
+        createCompetenceCourseASemester(coursesUnit);
+        createCompetenceCourseBAnnual(coursesUnit);
+    }
+
+    private static void createCompetenceCourseASemester(Unit coursesUnit) {
+        competenceCourseA = createCompetenceCourse("Course A", COURSE_A_CODE, AcademicPeriod.SEMESTER, coursesUnit);
 
         final CompetenceCourseInformation courseInformation =
-                competenceCourse.getCompetenceCourseInformationsSet().iterator().next();
+                competenceCourseA.getCompetenceCourseInformationsSet().iterator().next();
 
         new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
 
@@ -70,12 +78,32 @@ public class CompetenceCourseTest {
         nextLoad.setProblemsHours(15d);
     }
 
+    private static void createCompetenceCourseBAnnual(Unit coursesUnit) {
+        competenceCourseB = createCompetenceCourse("Course B", COURSE_B_CODE, AcademicPeriod.YEAR, coursesUnit);
+
+        final CompetenceCourseInformation courseInformation =
+                competenceCourseB.getCompetenceCourseInformationsSet().iterator().next();
+
+        new CompetenceCourseLoad(courseInformation, 30d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
+        new CompetenceCourseLoad(courseInformation, 10d, 0d, 5d, 0d, 0d, 0d, 0d, 0d, 0d, 9d, 2, AcademicPeriod.SEMESTER);
+    }
+
+    private static CompetenceCourse createCompetenceCourse(final String name, final String code, final AcademicPeriod duration,
+            Unit coursesUnit) {
+        final CompetenceCourse result = new CompetenceCourse(name, name, Boolean.TRUE, duration,
+                CompetenceCourseLevelType.UNKNOWN().orElse(null), CompetenceCourseType.REGULAR, CurricularStage.APPROVED,
+                coursesUnit, ExecutionInterval.findFirstCurrentChild(null), new GradeScale());
+        result.setCode(code);
+
+        return result;
+    }
+
     @Test
     public void testCourse_find() {
-        assertEquals(CompetenceCourse.find(COURSE_A_CODE), competenceCourse);
+        assertEquals(CompetenceCourse.find(COURSE_A_CODE), competenceCourseA);
         assertNull(CompetenceCourse.find("XX"));
-        assertEquals(CompetenceCourse.findAll().size(), 1);
-        assertTrue(CompetenceCourse.findAll().contains(competenceCourse));
+        assertEquals(CompetenceCourse.findAll().size(), 2);
+        assertTrue(CompetenceCourse.findAll().contains(competenceCourseA));
     }
 
     @Test
@@ -90,10 +118,12 @@ public class CompetenceCourseTest {
         assertNotNull(nextInterval);
         assertNotNull(nextNextInterval);
 
-        final CompetenceCourseInformation currentInformation = competenceCourse.findInformationMostRecentUntil(currentInterval);
-        final CompetenceCourseInformation previousInformation = competenceCourse.findInformationMostRecentUntil(previousInterval);
-        final CompetenceCourseInformation nextInformation = competenceCourse.findInformationMostRecentUntil(nextInterval);
-        final CompetenceCourseInformation nextNextInformation = competenceCourse.findInformationMostRecentUntil(nextNextInterval);
+        final CompetenceCourseInformation currentInformation = competenceCourseA.findInformationMostRecentUntil(currentInterval);
+        final CompetenceCourseInformation previousInformation =
+                competenceCourseA.findInformationMostRecentUntil(previousInterval);
+        final CompetenceCourseInformation nextInformation = competenceCourseA.findInformationMostRecentUntil(nextInterval);
+        final CompetenceCourseInformation nextNextInformation =
+                competenceCourseA.findInformationMostRecentUntil(nextNextInterval);
 
         assertNotNull(currentInformation);
         assertNotNull(previousInformation);
@@ -108,12 +138,45 @@ public class CompetenceCourseTest {
 
     @Test
     public void testCourse_courseLoad() {
-        assertEquals(competenceCourse.getTheoreticalHours(), 0d, 0d);
-        assertEquals(competenceCourse.getProblemsHours(), 15d, 0d);
+        assertEquals(competenceCourseA.getTheoreticalHours(), 0d, 0d);
+        assertEquals(competenceCourseA.getProblemsHours(), 15d, 0d);
 
         final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
-        assertEquals(competenceCourse.getTheoreticalHours(currentInterval), 30d, 0d);
-        assertEquals(competenceCourse.getProblemsHours(currentInterval), 0d, 0d);
+        assertEquals(competenceCourseA.getTheoreticalHours(currentInterval), 30d, 0d);
+        assertEquals(competenceCourseA.getProblemsHours(currentInterval), 0d, 0d);
+    }
+
+    @Test
+    public void testCourse_courseLoadAnnual() {
+        assertEquals(competenceCourseB.getTheoreticalHours(), 40d, 0d);
+        assertEquals(competenceCourseB.getProblemsHours(), 0d, 0d);
+        assertEquals(competenceCourseB.getLaboratorialHours(), 5d, 0d);
+    }
+
+    @Test
+    public void testCourse_credits() {
+        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
+        final CompetenceCourseInformation informationA = competenceCourseA.findInformationMostRecentUntil(currentInterval);
+        final CompetenceCourseInformation informationB = competenceCourseB.findInformationMostRecentUntil(currentInterval);
+
+        assertEquals(competenceCourseA.getEctsCredits(currentInterval), 6d, 0d);
+        assertEquals(informationA.getEctsCredits(1), 6d, 0d);
+        assertEquals(informationA.getCredits(), new BigDecimal("6.0"));
+
+        assertEquals(competenceCourseB.getEctsCredits(currentInterval), 15d, 0d);
+        assertEquals(informationB.getCredits(), new BigDecimal("15.0"));
+
+        Map<Integer, CompetenceCourseLoad> loadsBySemester = informationB.getCompetenceCourseLoadsSet().stream()
+                .collect(Collectors.toMap(CompetenceCourseLoad::getLoadOrder, l -> l));
+
+        loadsBySemester.get(1).setEctsCredits(7d);
+        assertEquals(informationB.getCredits(), new BigDecimal("16.0"));
+
+        loadsBySemester.get(2).setEctsCredits(10d);
+        assertEquals(informationB.getCredits(), new BigDecimal("17.0"));
+
+        loadsBySemester.get(2).setEctsCredits(0d);
+        assertEquals(informationB.getCredits(), new BigDecimal("7.0"));
     }
 
 }

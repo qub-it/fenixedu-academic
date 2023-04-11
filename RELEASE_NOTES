@@ -1,3 +1,5 @@
+- Refactor: Add credits slot to competence course information
+
 40.11.0 (10-04-2023)
 - Refactor: Add first units tests for some core domain entities
 - Refactor: Remove reference to deprecated group references on enrolment

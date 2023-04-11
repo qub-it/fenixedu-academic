@@ -196,6 +196,21 @@ public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements C
         updateCourseLoadDuration(CourseLoadType.AUTONOMOUS_WORK, autonomousWorkHours, otherLoadIfAnual);
     }
 
+    @Override
+    public void setEctsCredits(Double ectsCredits) {
+        super.setEctsCredits(ectsCredits);
+
+        final Double otherCreditsIfAnual = getOtherLoadIfAnual().map(CompetenceCourseLoad::getEctsCredits).orElse(null);
+
+        final CompetenceCourseInformation courseInformation = getCompetenceCourseInformation();
+        if (courseInformation == null) {
+            return; // being created.. //TODO fix this!
+        }
+
+        final Double totalCredits = sum(ectsCredits, otherCreditsIfAnual);
+        courseInformation.setCredits(totalCredits == null ? BigDecimal.ZERO : BigDecimal.valueOf(totalCredits));
+    }
+
     private Optional<CompetenceCourseLoad> getOtherLoadIfAnual() {
         final CompetenceCourseInformation courseInformation = getCompetenceCourseInformation();
         return courseInformation != null && courseInformation.isAnual() ? getCompetenceCourseInformation()
@@ -211,7 +226,7 @@ public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements C
         CourseLoadType.findByCode(loadTypeCode).ifPresent(loadType -> {
             final Optional<CourseLoadDuration> duration = courseInformation.findLoadDurationByType(loadType);
 
-            final Double totalHours = sumHours(hours, otherHoursIfAnual);
+            final Double totalHours = sum(hours, otherHoursIfAnual);
 
             if (totalHours != null && totalHours.doubleValue() != 0d) {
                 duration.orElseGet(() -> CourseLoadDuration.create(courseInformation, loadType, null))
@@ -222,7 +237,7 @@ public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements C
         });
     }
 
-    private static Double sumHours(Double hours1, Double hours2) {
+    private static Double sum(Double hours1, Double hours2) {
         if (hours1 == null) {
             return hours2;
         }

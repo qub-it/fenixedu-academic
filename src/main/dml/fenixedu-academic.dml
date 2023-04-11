@@ -957,6 +957,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class degreeStructure.CompetenceCourseInformation  {
         String acronym;
+        BigDecimal credits;
         Boolean basic;
         BibliographicReferences bibliographicReferences;
         String evaluationMethod;
