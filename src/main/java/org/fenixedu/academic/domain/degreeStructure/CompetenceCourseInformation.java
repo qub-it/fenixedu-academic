@@ -410,6 +410,15 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return result;
     }
 
+    public BigDecimal getContactLoad() {
+        return getCourseLoadDurationsSet().stream().filter(d -> d.getCourseLoadType().getAllowShifts())
+                .map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal getTotalLoad() {
+        return getCourseLoadDurationsSet().stream().map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     private List<CompetenceCourseLoadBean> getCompetenceCourseLoadBeans(final Integer order) {
 
         if (isAnual()) {

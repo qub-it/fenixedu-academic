@@ -9,12 +9,14 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLoad;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
@@ -22,6 +24,8 @@ import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -57,6 +61,8 @@ public class CompetenceCourseTest {
 
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
 
+        initCourseLoadTypes();
+
         createCompetenceCourseASemester(coursesUnit);
         createCompetenceCourseBAnnual(coursesUnit);
     }
@@ -67,7 +73,7 @@ public class CompetenceCourseTest {
         final CompetenceCourseInformation courseInformation =
                 competenceCourseA.getCompetenceCourseInformationsSet().iterator().next();
 
-        new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
+        new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 20d, 6d, 1, AcademicPeriod.SEMESTER);
 
         final CompetenceCourseInformation nextCourseInformation = new CompetenceCourseInformation(courseInformation);
         final ExecutionYear nextExecutionYear = (ExecutionYear) ExecutionYear.findCurrentAggregator(null).getNext();
@@ -96,6 +102,36 @@ public class CompetenceCourseTest {
         result.setCode(code);
 
         return result;
+    }
+
+    private static void initCourseLoadTypes() {
+        if (CourseLoadType.findAll().findAny().isEmpty()) {
+            Function<String, LocalizedString> nameProvider = type -> BundleUtil.getLocalizedString(Bundle.ENUMERATION,
+                    CourseLoadType.class.getName() + "." + type + ".name");
+
+            Function<String, LocalizedString> initialsProvider = type -> BundleUtil.getLocalizedString(Bundle.ENUMERATION,
+                    CourseLoadType.class.getName() + "." + type + ".initials");
+
+            CourseLoadType.create(CourseLoadType.THEORETICAL, nameProvider.apply(CourseLoadType.THEORETICAL),
+                    initialsProvider.apply(CourseLoadType.THEORETICAL), true);
+            CourseLoadType.create(CourseLoadType.THEORETICAL_PRACTICAL, nameProvider.apply(CourseLoadType.THEORETICAL_PRACTICAL),
+                    initialsProvider.apply(CourseLoadType.THEORETICAL_PRACTICAL), true);
+            CourseLoadType.create(CourseLoadType.PRACTICAL_LABORATORY, nameProvider.apply(CourseLoadType.PRACTICAL_LABORATORY),
+                    initialsProvider.apply(CourseLoadType.PRACTICAL_LABORATORY), true);
+            CourseLoadType.create(CourseLoadType.FIELD_WORK, nameProvider.apply(CourseLoadType.FIELD_WORK),
+                    initialsProvider.apply(CourseLoadType.FIELD_WORK), true);
+            CourseLoadType.create(CourseLoadType.SEMINAR, nameProvider.apply(CourseLoadType.SEMINAR),
+                    initialsProvider.apply(CourseLoadType.SEMINAR), true);
+            CourseLoadType.create(CourseLoadType.INTERNSHIP, nameProvider.apply(CourseLoadType.INTERNSHIP),
+                    initialsProvider.apply(CourseLoadType.INTERNSHIP), true);
+            CourseLoadType.create(CourseLoadType.TUTORIAL_ORIENTATION, nameProvider.apply(CourseLoadType.TUTORIAL_ORIENTATION),
+                    initialsProvider.apply(CourseLoadType.TUTORIAL_ORIENTATION), true);
+            CourseLoadType.create(CourseLoadType.OTHER, nameProvider.apply(CourseLoadType.OTHER),
+                    initialsProvider.apply(CourseLoadType.OTHER), true);
+
+            CourseLoadType.create(CourseLoadType.AUTONOMOUS_WORK, nameProvider.apply(CourseLoadType.AUTONOMOUS_WORK),
+                    initialsProvider.apply(CourseLoadType.AUTONOMOUS_WORK), false);
+        }
     }
 
     @Test
@@ -144,6 +180,11 @@ public class CompetenceCourseTest {
         final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
         assertEquals(competenceCourseA.getTheoreticalHours(currentInterval), 30d, 0d);
         assertEquals(competenceCourseA.getProblemsHours(currentInterval), 0d, 0d);
+
+        final CompetenceCourseInformation informationA = competenceCourseA.findInformationMostRecentUntil(currentInterval);
+
+        assertEquals(informationA.getContactLoad(), new BigDecimal("40.0"));
+        assertEquals(informationA.getTotalLoad(), new BigDecimal("60.0"));
     }
 
     @Test

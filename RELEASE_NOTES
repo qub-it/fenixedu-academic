@@ -1,3 +1,5 @@
+- Refactor: Add methods to retrieve contact and total course load from new domain
+
 40.11.1 (11-04-2023)
 - Refactor: Add credits slot to competence course information
 
