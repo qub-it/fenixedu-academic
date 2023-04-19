@@ -1,3 +1,5 @@
+- Refactor: Non mandatory relation between Administrative Office and Managed Academic Programs
+
 40.11.2 (17-04-2023)
 - Refactor: Add methods to retrieve contact and total course load from new domain
 

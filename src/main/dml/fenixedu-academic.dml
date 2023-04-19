@@ -1940,7 +1940,7 @@ relation AcademicServiceRequestYearRootDomainObject {
 
 relation AdministrativeOfficeManagedAcademicPrograms {
     administrativeOffice.AdministrativeOffice playsRole administrativeOffice {
-    	multiplicity 1..1;
+    	multiplicity 0..1;
     }
     AcademicProgram playsRole managedAcademicProgram {
     	multiplicity *;
