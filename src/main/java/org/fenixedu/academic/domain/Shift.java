@@ -32,11 +32,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacity;
 import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacityType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.util.i18n.Languages;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -76,6 +78,7 @@ public class Shift extends Shift_Base {
         Registration.getRelationShiftStudent().addListener(new ShiftStudentListener());
     }
 
+    @Deprecated
     public Shift(final ExecutionCourse executionCourse, Collection<ShiftType> types, final Integer capacity,
             final String shiftName) {
         super();
@@ -94,6 +97,28 @@ public class Shift extends Shift_Base {
         }
     }
 
+    public Shift(final ExecutionCourse executionCourse, final CourseLoadType type, final Integer capacity, final String name) {
+        super();
+        setRootDomainObject(Bennu.getInstance());
+
+        setExecutionCourse(executionCourse);
+        setCourseLoadType(type);
+        shiftTypeManagement(List.of(type.getShiftType()), executionCourse); // TEMP, until full refactor is concluded
+
+        new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
+
+        if (StringUtils.isNotBlank(name)
+                && executionCourse.getAssociatedShifts().stream().anyMatch(s -> s != this && s.getName().equals(name))) {
+            throw new DomainException("error.Shift.with.this.name.already.exists");
+        }
+        setName(name);
+
+        if (StringUtils.isBlank(name)) {
+            executionCourse.setShiftNames();
+        }
+    }
+
+    @Deprecated
     public void edit(List<ShiftType> newTypes, ExecutionCourse newExecutionCourse, String newName, String comment) {
 
         ExecutionCourse beforeExecutionCourse = getExecutionCourse();
@@ -115,6 +140,27 @@ public class Shift extends Shift_Base {
         }
 
         setExecutionCourse(newExecutionCourse);
+        setComment(comment);
+    }
+
+    public void edit(final CourseLoadType type, final String name, final Languages languages, final String comment) {
+
+        if (StringUtils.isBlank(name)) {
+            throw new DomainException("error.Shift.name.is.empty");
+        }
+
+        if (getExecutionCourse().getAssociatedShifts().stream().anyMatch(s -> s != this && s.getName().equals(name))) {
+            throw new DomainException("error.Shift.with.this.name.already.exists");
+        }
+
+        setCourseLoadType(type);
+        shiftTypeManagement(List.of(type.getShiftType()), getExecutionCourse()); // TEMP, until full refactor is concluded
+        if (getCourseLoadsSet().isEmpty()) {
+            throw new DomainException("error.Shift.empty.courseLoads");
+        }
+
+        setName(name);
+        setLanguages(languages);
         setComment(comment);
     }
 
@@ -282,12 +328,19 @@ public class Shift extends Shift_Base {
         return weeklyHours;
     }
 
-    public BigDecimal getCourseLoadTotalHours() {
+    @Deprecated(forRemoval = true)
+    public BigDecimal getCourseLoadTotalHoursOld() {
         BigDecimal weeklyHours = BigDecimal.ZERO;
         for (CourseLoad courseLoad : getCourseLoadsSet()) {
             weeklyHours = weeklyHours.add(courseLoad.getTotalQuantity());
         }
         return weeklyHours;
+    }
+
+    public BigDecimal getCourseLoadTotalHours() {
+        return getExecutionCourse().getCompetenceCoursesInformations().stream()
+                .flatMap(cci -> cci.findLoadDurationByType(getCourseLoadType()).stream()).filter(Objects::nonNull)
+                .map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public SortedSet<Lesson> getLessonsOrderedByWeekDayAndStartTime() {

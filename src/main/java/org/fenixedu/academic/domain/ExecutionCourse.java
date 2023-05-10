@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadDuration;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -347,6 +349,11 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             shiftTypes.add(courseLoad.getType());
         }
         return shiftTypes;
+    }
+
+    public Collection<CourseLoadType> getCourseLoadTypes() {
+        return getCompetenceCoursesInformations().stream().flatMap(cci -> cci.getCourseLoadDurationsSet().stream())
+                .map(CourseLoadDuration::getCourseLoadType).filter(CourseLoadType::getAllowShifts).collect(Collectors.toSet());
     }
 
     @Override

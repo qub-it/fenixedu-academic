@@ -1,3 +1,5 @@
+- Refactor: New Shift constructor and edit method, aware of CourseLoadType 
+
 40.12.0 (19-04-2023)
 - Refactor: Non mandatory relation between Administrative Office and Managed Academic Programs
 

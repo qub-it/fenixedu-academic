@@ -106,4 +106,27 @@ public class CourseLoadType extends CourseLoadType_Base {
         return findAll().filter(type -> Objects.equals(type.getCode(), finalCode)).findAny();
     }
 
+    public ShiftType getShiftType() {
+
+        switch (getCode()) {
+        case THEORETICAL:
+            return ShiftType.TEORICA;
+        case THEORETICAL_PRACTICAL:
+            return ShiftType.PROBLEMS;
+        case PRACTICAL_LABORATORY:
+            return ShiftType.LABORATORIAL;
+        case FIELD_WORK:
+            return ShiftType.FIELD_WORK;
+        case SEMINAR:
+            return ShiftType.SEMINARY;
+        case INTERNSHIP:
+            return ShiftType.TRAINING_PERIOD;
+        case TUTORIAL_ORIENTATION:
+            return ShiftType.TUTORIAL_ORIENTATION;
+        case OTHER:
+            return ShiftType.OTHER;
+        }
+
+        return null;
+    }
 }

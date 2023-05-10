@@ -2,12 +2,15 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.spaces.domain.Space;
@@ -15,7 +18,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalTime;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -58,7 +63,7 @@ public class ExecutionsAndSchedulesTest {
     static void initSchedules() {
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
         final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
-        shift = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
+        shift = new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
 
         int year = executionInterval.getBeginDateYearMonthDay().getYear();
         final OccupationPeriod occupationPeriod =
@@ -87,6 +92,42 @@ public class ExecutionsAndSchedulesTest {
     @Test
     public void testExecutionDegree_find() {
         assertTrue(ExecutionYear.findCurrent(null).getExecutionDegreesSet().size() == 1);
+    }
+
+    @Test
+    public void testShift_courseLoadTotalHours() {
+        assertEquals(shift.getCourseLoadTotalHours(), new BigDecimal("30.0"));
+        assertEquals(shift.getCourseLoadTotalHoursOld(), new BigDecimal("30.0"));
+        assertEquals(shift.getCourseLoadTotalHours(), shift.getCourseLoadTotalHoursOld());
+    }
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Test
+    public void testShift_sameNameOnCreation() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.Shift.with.this.name.already.exists");
+
+        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
+        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
+    }
+
+    @Test
+    public void testShift_sameNameOnEdit() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.Shift.with.this.name.already.exists");
+
+        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
+        final Shift shift2 =
+                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T2");
+
+        shift2.edit(shift2.getCourseLoadType(), "T1", null, null);
+    }
+
+    @Test
+    public void testShift_shiftTypeForMigration() {
+        assertTrue(shift.getTypes().contains(ShiftType.TEORICA));
     }
 
 //    @Test
