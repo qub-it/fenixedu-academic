@@ -288,15 +288,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return competenceCourseInformations;
     }
 
-    public String constructShiftName(final Shift shift, final int n) {
-        final String number = n < 10 ? "0" + n : Integer.toString(n);
-        StringBuilder typesName = new StringBuilder();
-        for (ShiftType shiftType : shift.getSortedTypes()) {
-            typesName.append(shiftType.getSiglaTipoAula());
-        }
-        return getSigla() + typesName.toString() + number;
-    }
-
     public SortedSet<Shift> getShiftsByTypeOrderedByShiftName(final ShiftType shiftType) {
         final SortedSet<Shift> shifts = new TreeSet<Shift>(Shift.SHIFT_COMPARATOR_BY_NAME);
         for (final Shift shift : getAssociatedShifts()) {
@@ -305,21 +296,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             }
         }
         return shifts;
-    }
-
-    public void setShiftNames() {
-
-        final SortedSet<Shift> shifts = new TreeSet<>(Shift.SHIFT_COMPARATOR_BY_TYPE_AND_ORDERED_LESSONS);
-        shifts.addAll(getAssociatedShifts());
-
-        int counter = 0;
-        for (final Shift shift : shifts) {
-            if (shift.isCustomName()) {
-                continue;
-            }
-            final String name = constructShiftName(shift, ++counter);
-            shift.setName(name);
-        }
     }
 
     private Set<SchoolClass> getAllSchoolClassesOrBy(DegreeCurricularPlan degreeCurricularPlan) {

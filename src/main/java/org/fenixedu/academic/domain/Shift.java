@@ -26,8 +26,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -86,11 +89,8 @@ public class Shift extends Shift_Base {
         setExecutionCourse(executionCourse);
         shiftTypeManagement(types, executionCourse);
         new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
-        setName(shiftName);
 
-        if (StringUtils.isBlank(shiftName)) {
-            executionCourse.setShiftNames();
-        }
+        setName(StringUtils.isBlank(shiftName) ? generateShiftName(executionCourse, getCourseLoadType()) : shiftName);
 
         if (getCourseLoadsSet().isEmpty()) {
             throw new DomainException("error.Shift.empty.courseLoads");
@@ -108,20 +108,33 @@ public class Shift extends Shift_Base {
         new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
 
         if (StringUtils.isNotBlank(name)
-                && executionCourse.getAssociatedShifts().stream().anyMatch(s -> s != this && s.getName().equals(name))) {
+                && executionCourse.getAssociatedShifts().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
             throw new DomainException("error.Shift.with.this.name.already.exists");
         }
-        setName(name);
 
-        if (StringUtils.isBlank(name)) {
-            executionCourse.setShiftNames();
+        setName(StringUtils.isBlank(name) ? generateShiftName(executionCourse, type) : name);
+    }
+
+    private static String generateShiftName(final ExecutionCourse executionCourse, final CourseLoadType type) {
+        final Set<String> existingShiftsNames =
+                executionCourse.getShiftsSet().stream().map(Shift::getName).collect(Collectors.toSet());
+
+        final String courseSigla = executionCourse.getSigla();
+        final String typeInitials = type.getInitials().getContent();
+
+        final Function<Integer, String> nameGenerator = n -> courseSigla + typeInitials + String.format("%02d", n);
+
+        final AtomicInteger counter = new AtomicInteger();
+
+        String generatedName = nameGenerator.apply(counter.incrementAndGet());
+        while (existingShiftsNames.contains(generatedName)) {
+            generatedName = nameGenerator.apply(counter.incrementAndGet());
         }
+        return generatedName;
     }
 
     @Deprecated
     public void edit(List<ShiftType> newTypes, ExecutionCourse newExecutionCourse, String newName, String comment) {
-
-        ExecutionCourse beforeExecutionCourse = getExecutionCourse();
 
         if (newExecutionCourse.getAssociatedShifts().stream().anyMatch(s -> s.getName().equals(newName) && s != this)) {
             throw new DomainException("error.Shift.with.this.name.already.exists");
@@ -129,11 +142,6 @@ public class Shift extends Shift_Base {
 
         shiftTypeManagement(newTypes, newExecutionCourse);
         setName(newName);
-
-        beforeExecutionCourse.setShiftNames();
-        if (!beforeExecutionCourse.equals(newExecutionCourse)) {
-            newExecutionCourse.setShiftNames();
-        }
 
         if (getCourseLoadsSet().isEmpty()) {
             throw new DomainException("error.Shift.empty.courseLoads");
@@ -149,7 +157,7 @@ public class Shift extends Shift_Base {
             throw new DomainException("error.Shift.name.is.empty");
         }
 
-        if (getExecutionCourse().getAssociatedShifts().stream().anyMatch(s -> s != this && s.getName().equals(name))) {
+        if (getExecutionCourse().getAssociatedShifts().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
             throw new DomainException("error.Shift.with.this.name.already.exists");
         }
 
@@ -164,15 +172,8 @@ public class Shift extends Shift_Base {
         setComment(comment);
     }
 
-    public boolean isCustomName() {
-        final String cleanSigla = getExecutionCourse().getSigla().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)")
-                .replaceAll("\\[", "\\\\[").replaceAll("\\]", "\\\\]");
-        return StringUtils.isNotBlank(getName()) && !getName().matches(cleanSigla + "[a-zA-Z]+[0-9]+");
-    }
-
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
-        final ExecutionCourse executionCourse = getExecutionCourse();
 
         for (; !getAssociatedLessonsSet().isEmpty(); getAssociatedLessonsSet().iterator().next().delete()) {
             ;
@@ -189,8 +190,6 @@ public class Shift extends Shift_Base {
         setExecutionCourse(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
-
-        executionCourse.setShiftNames();
     }
 
     @Override

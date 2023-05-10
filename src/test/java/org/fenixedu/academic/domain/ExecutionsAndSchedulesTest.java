@@ -130,28 +130,30 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(shift.getTypes().contains(ShiftType.TEORICA));
     }
 
-//    @Test
-//    public void testShift_name() {
-//        System.out.println("Shift Name: " + shift.getName());
-//        System.out.println();
-//
-//        final Shift shift1 = new Shift(executionCourse, Set.of(ShiftType.LABORATORIAL), 10, null);
-//        System.out.println("Shift Name: " + shift.getName());
-//        System.out.println("Shift 1 Name: " + shift1.getName());
-//        System.out.println();
-//
-//        final Shift shift2 = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
-//        System.out.println("Shift Name: " + shift.getName());
-//        System.out.println("Shift 1 Name: " + shift1.getName());
-//        System.out.println("Shift 2 Name: " + shift2.getName());
-//        System.out.println();
-//
-//        final Shift shift3 = new Shift(executionCourse, Set.of(ShiftType.TEORICA), 10, null);
-//        System.out.println("Shift Name: " + shift.getName());
-//        System.out.println("Shift 1 Name: " + shift1.getName());
-//        System.out.println("Shift 2 Name: " + shift2.getName());
-//        System.out.println("Shift 3 Name: " + shift3.getName());
-//        System.out.println();
-//    }
+    @Test
+    public void testShift_nameGeneration() {
+        assertEquals(shift.getName(), "CAT01");
+
+        final Shift shiftNameCustom1 =
+                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "CAPL01");
+        assertEquals(shiftNameCustom1.getName(), "CAPL01");
+
+        final Shift shiftNameCustom2 = new Shift(executionCourse,
+                CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow(), 10, "Custom Name");
+        assertEquals(shiftNameCustom2.getName(), "Custom Name");
+
+        final Shift shift1 = new Shift(executionCourse,
+                CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow(), 10, null);
+        assertEquals(shift1.getName(), "CAPL02");
+
+        final Shift shift2 =
+                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        assertEquals(shift.getName(), "CAT01"); // ensure it's not changed anymore
+        assertEquals(shift2.getName(), "CAT02");
+
+        final Shift shift3 =
+                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        assertEquals(shift3.getName(), "CAT03");
+    }
 
 }
