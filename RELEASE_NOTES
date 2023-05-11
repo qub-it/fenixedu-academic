@@ -1,4 +1,5 @@
 - Refactor: New Shift constructor and edit method, aware of CourseLoadType
+- Refactor: Remove course load types bootstrap 
 - Improvement: When creating new shifts, stop renaming all other existing shifts
 
 40.12.0 (19-04-2023)
