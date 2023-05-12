@@ -1,3 +1,4 @@
+- Refactor: Remove old registration state bean code
 - Refactor: Add domain methods to test final work type (deprecate isDissertation)
 - Refactor: New Shift constructor and edit method, aware of CourseLoadType
 - Refactor: Remove course load types bootstrap 
