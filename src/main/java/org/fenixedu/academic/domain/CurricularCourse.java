@@ -571,6 +571,12 @@ public class CurricularCourse extends CurricularCourse_Base {
         return false;
     }
 
+    /**
+     * @deprecated
+     * 
+     * @use {@link CompetenceCourse#isFinalWork()}
+     */
+    @Deprecated
     @Override
     public boolean isDissertation() {
         CompetenceCourse competenceCourse = getCompetenceCourse();

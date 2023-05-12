@@ -662,8 +662,18 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * @deprecated
+     * 
+     * @use {@link #isFinalWork()}
+     */
+    @Deprecated
     public boolean isDissertation() {
-        return getType() == CompetenceCourseType.DISSERTATION;
+        return isFinalWork();
+    }
+
+    public boolean isFinalWork() {
+        return getType().isFinalWork();
     }
 
     public ExecutionInterval getStartExecutionInterval() {

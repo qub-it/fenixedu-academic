@@ -19,5 +19,23 @@
 package org.fenixedu.academic.domain;
 
 public enum CompetenceCourseType {
-    REGULAR, DISSERTATION, PROJECT_WORK, INTERNSHIP
+
+    REGULAR(false),
+
+    DISSERTATION(true),
+
+    PROJECT_WORK(true),
+
+    INTERNSHIP(true);
+
+    private boolean finalWork;
+
+    private CompetenceCourseType(boolean finalWork) {
+        this.finalWork = finalWork;
+    }
+
+    public boolean isFinalWork() {
+        return this.finalWork;
+    }
+
 }

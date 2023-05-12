@@ -1324,8 +1324,19 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return getCurriculumGroup() instanceof InternalCreditsSourceCurriculumGroup;
     }
 
+    /**
+     * @deprecated
+     * 
+     * @use {@link #isFinalWork()}
+     * 
+     */
+    @Deprecated
     public boolean isDissertation() {
-        return getCurricularCourse().isDissertation();
+        return isFinalWork();
+    }
+
+    public boolean isFinalWork() {
+        return getCurricularCourse().getCompetenceCourse().isFinalWork();
     }
 
     @Override
