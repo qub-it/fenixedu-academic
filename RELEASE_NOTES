@@ -1,8 +1,10 @@
 - Refactor: Remove old registration state bean code
 - Refactor: Add domain methods to test final work type (deprecate isDissertation)
-- Refactor: New Shift constructor and edit method, aware of CourseLoadType
-- Refactor: Remove course load types bootstrap
 - Refactor: Add course load hours getters to competence course
+
+40.13.0 (11-05-2023)
+- Refactor: New Shift constructor and edit method, aware of CourseLoadType
+- Refactor: Remove course load types bootstrap 
 - Improvement: When creating new shifts, stop renaming all other existing shifts
 
 40.12.0 (19-04-2023)
