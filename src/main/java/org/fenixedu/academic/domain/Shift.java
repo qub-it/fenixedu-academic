@@ -59,24 +59,6 @@ public class Shift extends Shift_Base {
     public static final Comparator<Shift> SHIFT_COMPARATOR_BY_NAME =
             (s1, s2) -> Collator.getInstance().compare(s1.getName(), s2.getName());
 
-    public static final Comparator<Shift> SHIFT_COMPARATOR_BY_TYPE_AND_ORDERED_LESSONS = new Comparator<Shift>() {
-
-        @Override
-        public int compare(Shift o1, Shift o2) {
-            final int ce = o1.getExecutionCourse().getName().compareTo(o2.getExecutionCourse().getName());
-            if (ce != 0) {
-                return ce;
-            }
-            final int cs = o1.getShiftTypesIntegerComparator().compareTo(o2.getShiftTypesIntegerComparator());
-            if (cs != 0) {
-                return cs;
-            }
-            final int cl = o1.getLessonsStringComparator().compareTo(o2.getLessonsStringComparator());
-            return cl == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : cl;
-        }
-
-    };
-
     static {
         Registration.getRelationShiftStudent().addListener(new ShiftStudentListener());
     }
