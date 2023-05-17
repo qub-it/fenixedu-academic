@@ -185,6 +185,14 @@ public class CompetenceCourseTest {
 
         assertEquals(informationA.getContactLoad(), new BigDecimal("40.0"));
         assertEquals(informationA.getTotalLoad(), new BigDecimal("60.0"));
+
+        assertEquals(competenceCourseA
+                .getLoadHours(CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), currentInterval).orElseThrow(),
+                new BigDecimal("30.0"));
+        assertNull(
+                competenceCourseA.getLoadHours(CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow()).orElse(null));
+        assertEquals(competenceCourseA.getLoadHours(CourseLoadType.findByCode(CourseLoadType.THEORETICAL_PRACTICAL).orElseThrow())
+                .orElseThrow(), new BigDecimal("15.0"));
     }
 
     @Test
@@ -192,6 +200,14 @@ public class CompetenceCourseTest {
         assertEquals(competenceCourseB.getTheoreticalHours(), 40d, 0d);
         assertEquals(competenceCourseB.getProblemsHours(), 0d, 0d);
         assertEquals(competenceCourseB.getLaboratorialHours(), 5d, 0d);
+
+        assertEquals(
+                competenceCourseB.getLoadHours(CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow()).orElseThrow(),
+                new BigDecimal("40.0"));
+        assertNull(competenceCourseB.getLoadHours(CourseLoadType.findByCode(CourseLoadType.THEORETICAL_PRACTICAL).orElseThrow())
+                .orElse(null));
+        assertEquals(competenceCourseB.getLoadHours(CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow())
+                .orElseThrow(), new BigDecimal("5.0"));
     }
 
     @Test

@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLoad;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -437,6 +439,15 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     public Double getTotalLoad(final Integer order, final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
         return (information != null) ? information.getTotalLoad(order) : 0.0;
+    }
+
+    public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
+        return getLoadHours(courseLoadType, null);
+    }
+
+    public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType, final ExecutionInterval interval) {
+        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
+        return information != null ? information.getLoadHours(courseLoadType) : Optional.empty();
     }
 
     public double getEctsCredits() {

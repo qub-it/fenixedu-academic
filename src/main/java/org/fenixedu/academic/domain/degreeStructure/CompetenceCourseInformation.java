@@ -410,6 +410,11 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return result;
     }
 
+    public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
+        return getCourseLoadDurationsSet().stream().filter(d -> d.getCourseLoadType() == courseLoadType).findAny()
+                .map(CourseLoadDuration::getHours);
+    }
+
     public BigDecimal getContactLoad() {
         return getCourseLoadDurationsSet().stream().filter(d -> d.getCourseLoadType().getAllowShifts())
                 .map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
