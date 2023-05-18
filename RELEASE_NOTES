@@ -1,3 +1,4 @@
+40.13.1 (18-05-2023)
 - Refactor: Remove old registration state bean code
 - Refactor: Add domain methods to test final work type (deprecate isDissertation)
 - Refactor: Add course load hours getters to competence course
