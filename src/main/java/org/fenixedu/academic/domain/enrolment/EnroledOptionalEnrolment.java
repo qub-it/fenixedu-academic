@@ -66,16 +66,16 @@ public class EnroledOptionalEnrolment extends EnroledCurriculumModuleWrapper {
     public Context getContext() {
         if (this.context == null) {
             if (!getCurriculumModule().isRoot()) {
-                final CurriculumGroup parentCurriculumGroup = getCurriculumModule().getCurriculumGroup();
-                for (final Context context : parentCurriculumGroup.getDegreeModule()
-                        .getValidChildContexts(getExecutionInterval())) {
-                    if (context.getChildDegreeModule() == getOptionalCurricularCourse()) {
-                        setContext(context);
-                        break;
+                final CurriculumGroup parentGroup = getCurriculumModule().getCurriculumGroup();
+                if (parentGroup.getDegreeModule() != null) {
+                    for (final Context context : parentGroup.getDegreeModule().getValidChildContexts(getExecutionInterval())) {
+                        if (context.getChildDegreeModule() == getOptionalCurricularCourse()) {
+                            setContext(context);
+                            break;
+                        }
                     }
                 }
             }
-
         }
 
         return context;
