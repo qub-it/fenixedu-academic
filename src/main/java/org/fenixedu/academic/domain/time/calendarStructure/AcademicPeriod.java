@@ -32,18 +32,18 @@ import org.joda.time.base.BaseSingleFieldPeriod;
 
 public abstract class AcademicPeriod extends BaseSingleFieldPeriod {
 
-    public static AcademicPeriod SEMESTER = new AcademicSemesters(1, "SEMESTER");
-    public static AcademicPeriod YEAR = new AcademicYears(1, "YEAR");
-    public static AcademicPeriod TWO_YEAR = new AcademicYears(2, "TWO_YEAR");
-    public static AcademicPeriod THREE_YEAR = new AcademicYears(3, "THREE_YEAR");
-    public static AcademicPeriod FOUR_YEAR = new AcademicYears(4, "FOUR_YEAR");
-    public static AcademicPeriod FIVE_YEAR = new AcademicYears(5, "FIVE_YEAR");
-    public static AcademicPeriod SIX_YEAR = new AcademicYears(6, "SIX_YEAR");
-    public static AcademicPeriod TRIMESTER = new AcademicTrimesters(1, "TRIMESTER");
-    public static AcademicPeriod MONTH = new AcademicMonths(1, "MONTH");
-    public static AcademicPeriod WEEK = new AcademicWeeks(1, "WEEK");
-    public static AcademicPeriod DAY = new AcademicDays(1, "DAY");
-    public static AcademicPeriod OTHER = new AcademicOtherPeriod(1, "OTHER");
+    public static AcademicPeriod SEMESTER = new AcademicSemesters(1, "SEMESTER", "S");
+    public static AcademicPeriod YEAR = new AcademicYears(1, "YEAR", "A");
+    public static AcademicPeriod TWO_YEAR = new AcademicYears(2, "TWO_YEAR", "2A");
+    public static AcademicPeriod THREE_YEAR = new AcademicYears(3, "THREE_YEAR", "3A");
+    public static AcademicPeriod FOUR_YEAR = new AcademicYears(4, "FOUR_YEAR", "4A");
+    public static AcademicPeriod FIVE_YEAR = new AcademicYears(5, "FIVE_YEAR", "5A");
+    public static AcademicPeriod SIX_YEAR = new AcademicYears(6, "SIX_YEAR", "6A");
+    public static AcademicPeriod TRIMESTER = new AcademicTrimesters(1, "TRIMESTER", "T");
+    public static AcademicPeriod MONTH = new AcademicMonths(1, "MONTH", "M");
+    public static AcademicPeriod WEEK = new AcademicWeeks(1, "WEEK", "W");
+    public static AcademicPeriod DAY = new AcademicDays(1, "DAY", "D");
+    public static AcademicPeriod OTHER = new AcademicOtherPeriod(1, "OTHER", "O");
 
     private static Map<String, AcademicPeriod> academicPeriods = new HashMap<String, AcademicPeriod>();
 
@@ -64,13 +64,20 @@ public abstract class AcademicPeriod extends BaseSingleFieldPeriod {
 
     private final String name;
 
-    protected AcademicPeriod(final int period, final String name) {
+    private final String code;
+
+    protected AcademicPeriod(final int period, final String name, final String code) {
         super(period);
         this.name = name;
+        this.code = code;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public String getAbbreviatedName() {

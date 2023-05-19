@@ -8,8 +8,8 @@ import org.joda.time.PeriodType;
 
 public class AcademicOtherPeriod extends AcademicPeriod {
 
-    protected AcademicOtherPeriod(int period, String name) {
-        super(period, name);
+    protected AcademicOtherPeriod(int period, String name, String code) {
+        super(period, name, code);
     }
 
     @Override

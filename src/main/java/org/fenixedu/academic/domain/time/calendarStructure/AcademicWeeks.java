@@ -10,8 +10,8 @@ import org.joda.time.PeriodType;
 
 public class AcademicWeeks extends AcademicPeriod {
 
-    protected AcademicWeeks(int period, String name) {
-        super(period, name);
+    protected AcademicWeeks(int period, String name, String code) {
+        super(period, name, code);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class AcademicWeeks extends AcademicPeriod {
 //        result.add(AcademicPeriod.DAY);
 //
 //        return result;
-        
+
         return Collections.emptySet();
     }
 

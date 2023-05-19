@@ -29,8 +29,8 @@ import org.joda.time.PeriodType;
 
 public class AcademicYears extends AcademicPeriod {
 
-    protected AcademicYears(int period, String name) {
-        super(period, name);
+    protected AcademicYears(int period, String name, String code) {
+        super(period, name, code);
     }
 
     @Override
