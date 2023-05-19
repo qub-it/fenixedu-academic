@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.service.StudentWarningsDefaultCheckers;
 import org.fenixedu.academic.service.StudentWarningsService;
 import org.fenixedu.bennu.core.api.SystemResource;
@@ -60,6 +61,8 @@ public class FenixInitializer implements ServletContextListener {
 
         registerHealthchecks();
         registerDefaultStudentWarningCheckers();
+        
+        initializeAcademicPeriodOrder();
     }
 
     private void registerDefaultStudentWarningCheckers() {
@@ -123,6 +126,11 @@ public class FenixInitializer implements ServletContextListener {
             }
 
         });
+    }
+    
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeAcademicPeriodOrder() {
+        AcademicPeriodOrder.initialize();        
     }
 
 }

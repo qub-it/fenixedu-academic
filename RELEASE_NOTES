@@ -1,3 +1,4 @@
+- Refactor: Add Academic Period Order configuration entity
 - Refactor: Add code to AcademicPeriod value type
 
 40.13.1 (18-05-2023)

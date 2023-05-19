@@ -1586,6 +1586,16 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         
         class time.calendarStructure.AcademicYearCE extends time.calendarStructure.AcademicCalendarEntry {
         }
+    
+    class time.calendarStructure.AcademicPeriodOrder {
+    	Integer periodOrder (REQUIRED);
+    	AcademicPeriod academicPeriod (REQUIRED);
+    }
+    
+    	relation AcademicPeriodOrderRoot {
+		    time.calendarStructure.AcademicPeriodOrder playsRole academicPeriodOrders { multiplicity *; }
+		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+		}
 
         
     class util.Email  {
