@@ -29,8 +29,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,10 +42,6 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.organizationalStructure.Accountability;
-import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
-import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
-import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.person.Gender;
@@ -55,28 +49,21 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.IdDocument;
 import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.academic.domain.person.MaritalStatus;
-import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.StringFormatter;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
-import org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.joda.time.DateTime;
-import org.joda.time.Months;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -179,12 +166,6 @@ public class Person extends Person_Base {
         setIdDocumentType(idDocumentType);
     }
 
-    public void setIdentificationAndNames(final String documentIdNumber, final IDDocumentType idDocumentType,
-            final String givenNames, final String familyNames) {
-        getProfile().changeName(givenNames, familyNames, null);
-        setIdentification(documentIdNumber, idDocumentType);
-    }
-
     public void setGivenNames(final String newGivenNames) {
         UserProfile profile = getProfile();
         profile.changeName(newGivenNames, profile.getFamilyNames(), profile.getDisplayName());
@@ -208,23 +189,10 @@ public class Person extends Person_Base {
         profile.changeName(profile.getGivenNames(), newFamilyNames, profile.getDisplayName());
     }
 
-    public void setNames(final String newGivenName, final String newFamilyName, final String newDisplayName) {
-        UserProfile profile = getProfile();
-        try {
-            profile.changeName(newGivenName, newFamilyName, newDisplayName);
-        } catch (BennuCoreDomainException ex) {
-            throw new DomainException("error.invalid.displayName", ex.getLocalizedMessage());
-        }
-    }
-
     private boolean checkIfDocumentNumberIdAndDocumentIdTypeExists(final String documentIDNumber,
             final IDDocumentType documentType) {
         final Person person = readByDocumentIdNumberAndIdDocumentType(documentIDNumber, documentType);
         return person != null && !person.equals(this);
-    }
-
-    final public String getValidatedName() {
-        return StringFormatter.prettyPrint(getName());
     }
 
     /**
@@ -319,40 +287,6 @@ public class Person extends Person_Base {
 
     public Person editPersonalInformation(final PersonBean personBean) {
         setProperties(personBean);
-        return this;
-    }
-
-    public Person editByPublicCandidate(final PersonBean personBean) {
-        getProfile().changeName(personBean.getGivenNames(), personBean.getFamilyNames(), null);
-        setGender(personBean.getGender());
-        setIdentification(personBean.getDocumentIdNumber(), personBean.getIdDocumentType());
-        setExpirationDateOfDocumentIdYearMonthDay(personBean.getDocumentIdExpirationDate());
-        setDateOfBirthYearMonthDay(personBean.getDateOfBirth());
-        setCountry(personBean.getNationality());
-        setDefaultPhysicalAddressData(personBean.getPhysicalAddressData());
-        setDefaultPhoneNumber(personBean.getPhone());
-        setDefaultEmailAddressValue(personBean.getEmail(), true);
-        setDefaultMobilePhoneNumber(personBean.getMobile());
-        return this;
-    }
-
-    public Person editPersonWithExternalData(final PersonBean personBean, final boolean updateExistingContacts) {
-
-        setProperties(personBean);
-        setDefaultPhysicalAddressData(personBean.getPhysicalAddressData());
-
-        if (updateExistingContacts) {
-            setDefaultPhoneNumber(personBean.getPhone());
-            setDefaultMobilePhoneNumber(personBean.getMobile());
-            setDefaultWebAddressUrl(personBean.getWebAddress());
-            setDefaultEmailAddressValue(personBean.getEmail());
-        } else {
-            Phone.createPhone(this, personBean.getPhone(), PartyContactType.PERSONAL, !hasDefaultPhone());
-            MobilePhone.createMobilePhone(this, personBean.getMobile(), PartyContactType.PERSONAL, !hasDefaultMobilePhone());
-            EmailAddress.createEmailAddress(this, personBean.getEmail(), PartyContactType.PERSONAL, !hasDefaultEmailAddress());
-            WebAddress.createWebAddress(this, personBean.getWebAddress(), PartyContactType.PERSONAL, !hasDefaultWebAddress());
-        }
-
         return this;
     }
 
@@ -514,34 +448,6 @@ public class Person extends Person_Base {
         getProfile().setEmail(getEmailForSendingEmails());
     }
 
-//    public boolean hasDegreeCandidacyForExecutionDegree(final ExecutionDegree executionDegree) {
-//        for (final Candidacy candidacy : this.getCandidaciesSet()) {
-//            if (candidacy instanceof DegreeCandidacy && candidacy.isActive()) {
-//                final DegreeCandidacy degreeCandidacy = (DegreeCandidacy) candidacy;
-//                if (degreeCandidacy.getExecutionDegree().equals(executionDegree)) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
-
-//    public StudentCandidacy getStudentCandidacyForExecutionDegree(final ExecutionDegree executionDegree) {
-//        for (final Candidacy candidacy : this.getCandidaciesSet()) {
-//            if (candidacy instanceof StudentCandidacy && candidacy.isActive()) {
-//                final StudentCandidacy studentCandidacy = (StudentCandidacy) candidacy;
-//                if (studentCandidacy.getExecutionDegree().equals(executionDegree)) {
-//                    return studentCandidacy;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
-//    public boolean hasStudentCandidacyForExecutionDegree(final ExecutionDegree executionDegree) {
-//        return getStudentCandidacyForExecutionDegree(executionDegree) != null;
-//    }
-
     public static Person readPersonByUsername(final String username) {
         final User user = User.findByUsername(username);
         return user == null ? null : user.getPerson();
@@ -579,42 +485,6 @@ public class Person extends Person_Base {
         return findPersonStream(name, size).collect(Collectors.toSet());
     }
 
-    public static Collection<Person> readPersonsByNameAndRoleType(final String name, final RoleType roleType) {
-        final Collection<Person> people = findPerson(name);
-        for (final Iterator<Person> iter = people.iterator(); iter.hasNext();) {
-            final Person person = iter.next();
-            if (!roleType.isMember(person.getUser())) {
-                iter.remove();
-            }
-        }
-        return people;
-    }
-
-    public SortedSet<StudentCurricularPlan> getActiveStudentCurricularPlansSortedByDegreeTypeAndDegreeName() {
-        final SortedSet<StudentCurricularPlan> studentCurricularPlans = new TreeSet<StudentCurricularPlan>(
-                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME);
-        for (final Registration registration : getStudentsSet()) {
-            final StudentCurricularPlan studentCurricularPlan = registration.getActiveStudentCurricularPlan();
-            if (studentCurricularPlan != null) {
-                studentCurricularPlans.add(studentCurricularPlan);
-            }
-        }
-        return studentCurricularPlans;
-    }
-
-    public Set<Attends> getCurrentAttends() {
-        final Set<Attends> attends = new HashSet<Attends>();
-        for (final Registration registration : getStudentsSet()) {
-            for (final Attends attend : registration.getAssociatedAttendsSet()) {
-                final ExecutionCourse executionCourse = attend.getExecutionCourse();
-                if (executionCourse.getExecutionInterval().isCurrent()) {
-                    attends.add(attend);
-                }
-            }
-        }
-        return attends;
-    }
-
     @Override
     final public boolean isPerson() {
         return true;
@@ -648,34 +518,6 @@ public class Person extends Person_Base {
         return getStudent() != null ? getStudent().getRegistrationsSet() : Collections.EMPTY_SET;
     }
 
-    public SortedSet<String> getOrganizationalUnitsPresentation() {
-        final SortedSet<String> organizationalUnits = new TreeSet<String>();
-        for (final Accountability accountability : getParentsSet()) {
-            if (isOrganizationalUnitsForPresentation(accountability)) {
-                final Party party = accountability.getParentParty();
-                organizationalUnits.add(party.getName());
-            }
-        }
-        if (getStudent() != null) {
-            for (final Registration registration : getStudent().getRegistrationsSet()) {
-                if (registration.isActive()) {
-                    final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
-                    if (degreeCurricularPlan != null) {
-                        final Degree degree = degreeCurricularPlan.getDegree();
-                        organizationalUnits.add(degree.getPresentationName());
-                    }
-                }
-            }
-        }
-        return organizationalUnits;
-    }
-
-    private boolean isOrganizationalUnitsForPresentation(final Accountability accountability) {
-        final AccountabilityType accountabilityType = accountability.getAccountabilityType();
-        final AccountabilityTypeEnum accountabilityTypeEnum = accountabilityType.getType();
-        return accountabilityTypeEnum == AccountabilityTypeEnum.WORKING_CONTRACT;
-    }
-
     @Deprecated
     public String getNickname() {
         return getProfile().getDisplayName();
@@ -691,45 +533,6 @@ public class Person extends Person_Base {
     @Deprecated
     public boolean hasAvailableWebSite() {
         return getAvailableWebSite() != null && getAvailableWebSite().booleanValue();
-    }
-
-    public Collection<ExecutionDegree> getCoordinatedExecutionDegrees(final DegreeCurricularPlan degreeCurricularPlan) {
-        final Set<ExecutionDegree> result = new TreeSet<ExecutionDegree>(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
-        for (final Coordinator coordinator : getCoordinatorsSet()) {
-            if (coordinator.getExecutionDegree().getDegreeCurricularPlan().equals(degreeCurricularPlan)) {
-                result.add(coordinator.getExecutionDegree());
-            }
-        }
-        return result;
-    }
-
-    public boolean isCoordinatorFor(final DegreeCurricularPlan degreeCurricularPlan, final ExecutionYear executionYear) {
-        for (final ExecutionDegree executionDegree : degreeCurricularPlan.getExecutionDegreesSet()) {
-            if (executionDegree.getExecutionYear() == executionYear) {
-                return executionDegree.getCoordinatorByTeacher(this) != null;
-            }
-        }
-        return false;
-    }
-
-    public boolean isResponsibleOrCoordinatorFor(final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval) {
-        final Teacher teacher = getTeacher();
-        return teacher != null && teacher.isResponsibleFor(curricularCourse, executionInterval)
-                || isCoordinatorFor(curricularCourse.getDegreeCurricularPlan(), executionInterval.getExecutionYear());
-    }
-
-    public boolean isCoordinatorFor(final ExecutionYear executionYear, final List<DegreeType> degreeTypes) {
-        for (final Coordinator coordinator : getCoordinatorsSet()) {
-            final ExecutionDegree executionDegree = coordinator.getExecutionDegree();
-            if (executionDegree != null && executionDegree.getExecutionYear() == executionYear
-                    && degreeTypes.contains(executionDegree.getDegree().getDegreeType())) {
-                return true;
-            }
-        }
-
-        return false;
-
     }
 
     public String getFirstAndLastName() {
@@ -901,13 +704,6 @@ public class Person extends Person_Base {
         return getProfessorshipByExecutionCourse(executionCourse) != null;
     }
 
-    public RegistrationProtocol getOnlyRegistrationProtocol() {
-        if (getRegistrationProtocolsSet().size() == 1) {
-            return getRegistrationProtocolsSet().iterator().next();
-        }
-        return null;
-    }
-
     public List<Professorship> getProfessorships(final ExecutionInterval executionInterval) {
         final List<Professorship> professorships = new ArrayList<Professorship>();
         for (final Professorship professorship : getProfessorshipsSet()) {
@@ -937,11 +733,6 @@ public class Person extends Person_Base {
         return false;
     }
 
-    public boolean isTeacherEvaluationCoordinatorCouncilMember() {
-        PersistentGroup group = Bennu.getInstance().getTeacherEvaluationCoordinatorCouncil();
-        return group != null ? group.isMember(Authenticate.getUser()) : false;
-    }
-
     public EmailAddress getEmailAddressForSendingEmails() {
         final Boolean disableSendEmails = getDisableSendEmails();
         if (disableSendEmails != null && disableSendEmails.booleanValue()) {
@@ -969,26 +760,6 @@ public class Person extends Person_Base {
     public String getEmailForSendingEmails() {
         final EmailAddress emailAddress = getEmailAddressForSendingEmails();
         return emailAddress == null ? null : emailAddress.getValue();
-    }
-
-    public boolean areContactsRecent(final Class<? extends PartyContact> contactClass, final int daysNotUpdated) {
-        final List<? extends PartyContact> partyContacts = getPartyContacts(contactClass);
-        boolean isUpdated = false;
-        for (final PartyContact partyContact : partyContacts) {
-            if (partyContact.getLastModifiedDate() == null) {
-                isUpdated = isUpdated || false;
-            } else {
-                final DateTime lastModifiedDate = partyContact.getLastModifiedDate();
-                final DateTime now = new DateTime();
-                final Months months = Months.monthsBetween(lastModifiedDate, now);
-                if (months.getMonths() > daysNotUpdated) {
-                    isUpdated = isUpdated || false;
-                } else {
-                    isUpdated = isUpdated || true;
-                }
-            }
-        }
-        return isUpdated;
     }
 
     /**
@@ -1122,11 +893,6 @@ public class Person extends Person_Base {
             return 0;
         }
         return numberOfValidationRequests;
-    }
-
-    public boolean isOptOutAvailable() {
-        Group optOutGroup = Bennu.getInstance().getSystemSender().getOptOutGroup();
-        return optOutGroup.isMember(this.getUser());
     }
 
     @Deprecated
