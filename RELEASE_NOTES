@@ -1,3 +1,4 @@
+40.14.0 (23-05-2023)
 - Refactor: Add Academic Period Order configuration entity
 - Refactor: Add code to AcademicPeriod value type
 - Refactor: Add method to find shifts by course load type
