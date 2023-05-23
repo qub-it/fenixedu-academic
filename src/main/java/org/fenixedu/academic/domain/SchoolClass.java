@@ -20,17 +20,16 @@ package org.fenixedu.academic.domain;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -141,23 +140,17 @@ public class SchoolClass extends SchoolClass_Base {
 
     public boolean isFreeFor(final Registration registration) {
 
-        final List<ExecutionCourse> attendingCourses = registration.getAttendingExecutionCoursesFor(getExecutionInterval());
+        final Map<ExecutionCourse, List<Shift>> shiftsByExecutionCourse =
+                findShiftsFor(registration).collect(Collectors.groupingBy(Shift::getExecutionCourse));
 
-        final List<Shift> shiftsForCoursesAndSchoolClass = getAssociatedShiftsSet().stream()
-                .filter(s -> attendingCourses.contains(s.getExecutionCourse())).collect(Collectors.toList());
+        for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+            final Map<CourseLoadType, List<Shift>> shiftsByLoadType = shiftsByExecutionCourse.get(executionCourse).stream()
+                    .collect(Collectors.groupingBy(Shift::getCourseLoadType));
 
-        final Map<ExecutionCourse, List<Shift>> shiftsGroupedByCourses =
-                shiftsForCoursesAndSchoolClass.stream().collect(Collectors.groupingBy(Shift::getExecutionCourse));
-
-        for (final Entry<ExecutionCourse, List<Shift>> entry : shiftsGroupedByCourses.entrySet()) {
-            final Map<ShiftType, Collection<Shift>> shiftsGroupedByType = new HashMap<>();
-            entry.getValue().forEach(
-                    s -> s.getTypes().forEach(st -> shiftsGroupedByType.computeIfAbsent(st, x -> new HashSet<>()).add(s)));
-
-            for (final ShiftType shiftType : shiftsGroupedByType.keySet()) {
-                final Shift enrolledShift = registration.getShiftFor(entry.getKey(), shiftType);
-                if (enrolledShift == null || !shiftsForCoursesAndSchoolClass.contains(enrolledShift)) {
-                    if (shiftsGroupedByType.get(shiftType).stream().noneMatch(s -> s.isFreeFor(registration))) {
+            for (final CourseLoadType courseLoadType : shiftsByLoadType.keySet()) {
+                final Optional<Shift> enrolledShift = registration.findEnrolledShiftFor(executionCourse, courseLoadType);
+                if (enrolledShift.isEmpty() || !enrolledShift.get().getAssociatedClassesSet().contains(this)) {
+                    if (shiftsByLoadType.get(courseLoadType).stream().noneMatch(s -> s.isFreeFor(registration))) {
                         return false;
                     }
                 }
@@ -165,6 +158,65 @@ public class SchoolClass extends SchoolClass_Base {
         }
 
         return true;
+    }
+
+    public Stream<Shift> findShiftsFor(final Registration registration) {
+        final List<ExecutionCourse> attendingCourses = registration.getAttendingExecutionCoursesFor(getExecutionInterval());
+        return getAssociatedShiftsSet().stream().filter(s -> attendingCourses.contains(s.getExecutionCourse()));
+    }
+
+    /*
+     * Unenrolls school class of provided execution interval, and enrolls in new school class
+     */
+    public static void replaceSchoolClass(final Registration registration, final SchoolClass schoolClass,
+            final ExecutionInterval executionInterval) {
+
+        registration.findSchoolClass(executionInterval).ifPresent(sc -> sc.unenrolInSchoolClassAndShifts(registration));
+
+        if (schoolClass != null) {
+            schoolClass.enrolInSchoolClassAndShifts(registration);
+        }
+    }
+
+    private void enrolInSchoolClassAndShifts(final Registration registration) {
+        registration.getSchoolClassesSet().add(this); // must add first in order to correct evaluation of shift capacities based on school classes
+
+        final Comparator<Shift> vacanciesComparator = Comparator.comparing(Shift::getVacancies).reversed();
+
+        final Map<ExecutionCourse, List<Shift>> shiftsByExecutionCourse =
+                findShiftsFor(registration).collect(Collectors.groupingBy(Shift::getExecutionCourse));
+
+        for (final ExecutionCourse executionCourse : shiftsByExecutionCourse.keySet()) {
+            final Map<CourseLoadType, List<Shift>> shiftsByLoadType = shiftsByExecutionCourse.get(executionCourse).stream()
+                    .collect(Collectors.groupingBy(Shift::getCourseLoadType));
+
+            for (final CourseLoadType courseLoadType : shiftsByLoadType.keySet()) {
+                if (registration.findEnrolledShiftFor(executionCourse, courseLoadType).isEmpty()) {
+                    final List<Shift> shiftsOrderedByVacancies = shiftsByLoadType.get(courseLoadType).stream()
+                            .sorted(vacanciesComparator).collect(Collectors.toList());
+
+                    if (!enrolInOneShift(shiftsOrderedByVacancies, registration)) {
+                        throw new DomainException("error.registration.enrolSchoolClass.shiftFull",
+                                shiftsOrderedByVacancies.iterator().next().getName(), courseLoadType.getName().getContent(),
+                                executionCourse.getName());
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean enrolInOneShift(Collection<Shift> shiftsOrderedByVacancies, Registration registration) {
+        for (final Shift shift : shiftsOrderedByVacancies) {
+            if (shift.getStudentsSet().contains(registration) || shift.enrol(registration)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void unenrolInSchoolClassAndShifts(final Registration registration) {
+        getAssociatedShiftsSet().forEach(s -> s.unenrol(registration));
+        registration.getSchoolClassesSet().remove(this);
     }
 
     public static Stream<SchoolClass> findBy(final ExecutionDegree executionDegree, final ExecutionInterval interval,
