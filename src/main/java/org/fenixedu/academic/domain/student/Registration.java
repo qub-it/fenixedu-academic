@@ -69,6 +69,7 @@ import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -100,7 +101,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
-import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -1054,6 +1054,11 @@ public class Registration extends Registration_Base {
             }
         }
         return null;
+    }
+
+    public Optional<Shift> findEnrolledShiftFor(final ExecutionCourse executionCourse, final CourseLoadType loadType) {
+        return getShiftsSet().stream().filter(s -> s.getExecutionCourse() == executionCourse)
+                .filter(s -> s.getCourseLoadType() == loadType).findAny();
     }
 
     private int countNumberOfDistinctExecutionCoursesOfShiftsFor(final ExecutionInterval executionInterval) {

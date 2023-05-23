@@ -131,8 +131,10 @@ public class EnrolmentTest {
 
         assertTrue(shift.enrol(registration));
         assertEquals(registration.getShiftEnrolmentsSet().size(), 1);
+        assertEquals(registration.findEnrolledShiftFor(shift.getExecutionCourse(), shift.getCourseLoadType()).get(), shift);
 
         shift.unenrol(registration);
         assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
+        assertTrue(registration.findEnrolledShiftFor(shift.getExecutionCourse(), shift.getCourseLoadType()).isEmpty());
     }
 }

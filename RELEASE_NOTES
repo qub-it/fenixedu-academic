@@ -1,6 +1,7 @@
 - Refactor: Add Academic Period Order configuration entity
 - Refactor: Add code to AcademicPeriod value type
 - Refactor: Add method to find shifts by course load type
+- Refactor: Add method to find enrolled shifts by course load type
 
 40.13.1 (18-05-2023)
 - Refactor: Remove old registration state bean code
