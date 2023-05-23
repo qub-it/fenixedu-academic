@@ -298,6 +298,10 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return shifts;
     }
 
+    public Stream<Shift> findShiftsByLoadType(final CourseLoadType loadType) {
+        return getShiftsSet().stream().filter(s -> s.getCourseLoadType() == loadType);
+    }
+
     private Set<SchoolClass> getAllSchoolClassesOrBy(DegreeCurricularPlan degreeCurricularPlan) {
         final Set<SchoolClass> result = new HashSet<SchoolClass>();
         for (final Shift shift : getAssociatedShifts()) {

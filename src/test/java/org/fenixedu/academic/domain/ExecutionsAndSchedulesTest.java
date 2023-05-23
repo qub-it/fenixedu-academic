@@ -95,6 +95,17 @@ public class ExecutionsAndSchedulesTest {
     }
 
     @Test
+    public void testShift_findByCourseLoad() {
+        final CourseLoadType theoreticalLoad = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
+        final CourseLoadType seminarLoad = CourseLoadType.findByCode(CourseLoadType.SEMINAR).orElseThrow();
+
+        assertTrue(executionCourse.findShiftsByLoadType(theoreticalLoad).findAny().isPresent());
+        assertTrue(executionCourse.findShiftsByLoadType(theoreticalLoad).anyMatch(s -> s == shift));
+
+        assertTrue(executionCourse.findShiftsByLoadType(seminarLoad).findAny().isEmpty());
+    }
+
+    @Test
     public void testShift_courseLoadTotalHours() {
         assertEquals(shift.getCourseLoadTotalHours(), new BigDecimal("30.0"));
         assertEquals(shift.getCourseLoadTotalHoursOld(), new BigDecimal("30.0"));
