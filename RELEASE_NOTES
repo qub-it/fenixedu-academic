@@ -1,3 +1,4 @@
+40.14.1 (24-05-2023)
 - Refactor: Remove unused methods from Person entity
 - Refactor: Add method to find possible shifts to enrol by course load type
 
