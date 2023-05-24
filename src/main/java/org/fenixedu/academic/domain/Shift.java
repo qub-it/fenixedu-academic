@@ -352,9 +352,17 @@ public class Shift extends Shift_Base {
                 .anyMatch(sc -> sc.accepts(registration));
     }
 
+    @Deprecated
     public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
             final ExecutionCourse executionCourse, final ShiftType shiftType) {
         return executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
+                .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
+                .filter(sc -> sc.accepts(registration));
+    }
+
+    public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
+            final ExecutionCourse executionCourse, final CourseLoadType courseLoadType) {
+        return executionCourse.getAssociatedShifts().stream().filter(s -> s.getCourseLoadType() == courseLoadType)
                 .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
                 .filter(sc -> sc.accepts(registration));
     }

@@ -1,4 +1,5 @@
 - Refactor: Remove unused methods from Person entity
+- Refactor: Add method to find possible shifts to enrol by course load type
 
 40.14.0 (23-05-2023)
 - Refactor: Add Academic Period Order configuration entity
