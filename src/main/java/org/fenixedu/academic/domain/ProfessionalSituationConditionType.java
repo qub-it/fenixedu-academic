@@ -43,9 +43,9 @@ public enum ProfessionalSituationConditionType {
 
     STUDENT(true),
 
-    INTERN(true),
+    INTERN(false),
 
-    GRANT_HOLDER(true),
+    GRANT_HOLDER(false),
 
     MILITARY_SERVICE(false),
 
