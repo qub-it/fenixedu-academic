@@ -1016,6 +1016,10 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    degreeStructure.CourseLoadType playsRole courseLoadType;
 		    Shift playsRole shifts { multiplicity *; }
 		}   		   
+		relation CourseLoadTypeLessonPlanning {
+		    degreeStructure.CourseLoadType playsRole courseLoadType;
+		    LessonPlanning playsRole lessonPlannings { multiplicity *; }
+		}		
 		 
     class degreeStructure.CourseLoadDuration {
 	    BigDecimal hours (REQUIRED);
