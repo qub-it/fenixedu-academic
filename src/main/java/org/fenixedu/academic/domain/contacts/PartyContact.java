@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -504,7 +505,7 @@ public abstract class PartyContact extends PartyContact_Base {
         } else {
             // has previous contact = edit
             String oldValue = getPrevPartyContact().getPresentationValue();
-            if (oldValue.compareTo(getPresentationValue()) == 0) {
+            if (Objects.equals(oldValue, getPresentationValue())) {
                 // previous value is the same
                 PersonInformationLog.createLog(person, Bundle.MESSAGING,
                         "log.personInformation.contact.generic.edit.need.valid.accepted", infoLabel, this.getPresentationValue(),
