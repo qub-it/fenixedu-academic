@@ -30,7 +30,6 @@ import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class LessonPlanning extends LessonPlanning_Base {
@@ -68,12 +67,12 @@ public class LessonPlanning extends LessonPlanning_Base {
         final String title = getTitle().getContent();
 
         super.setExecutionCourse(null);
-        super.setCourseLoadType(courseLoadType);
+        super.setCourseLoadType(null);
         super.setRootDomainObject(null);
         deleteDomainObject();
 
         if (executionCourse != null && courseLoadType != null) {
-            CurricularManagementLog.createLog(getExecutionCourse(), Bundle.MESSAGING,
+            CurricularManagementLog.createLog(executionCourse, Bundle.MESSAGING,
                     "log.executionCourse.curricular.planning.removed", title, courseLoadType.getName().getContent(),
                     executionCourse.getNome(), executionCourse.getDegreePresentationString());
 
@@ -122,50 +121,12 @@ public class LessonPlanning extends LessonPlanning_Base {
                 existingPlanning.setOrderOfPlanning(getOrderOfPlanning());
                 setOrderOfPlanning(order);
             }
-
-//            List<LessonPlanning> lessonPlannings = LessonPlanning.findOrdered(getExecutionCourse(), getLessonType());
-//            if (!lessonPlannings.isEmpty() && order != getOrderOfPlanning() && order <= lessonPlannings.size() && order >= 1) {
-//                LessonPlanning posPlanning = lessonPlannings.get(order - 1);
-//                Integer posOrder = posPlanning.getOrderOfPlanning();
-//                posPlanning.setOrderOfPlanning(getOrderOfPlanning());
-//                setOrderOfPlanning(posOrder);
-//            }
         }
     }
 
-//    private void reOrderLessonPlannings() {
-//        if (getExecutionCourse() != null) {
-//            List<LessonPlanning> lessonPlannings = findOrdered(getExecutionCourse(), getLessonType());
-//            if (!lessonPlannings.isEmpty() && !lessonPlannings.get(lessonPlannings.size() - 1).equals(this)) {
-//                for (int i = getOrderOfPlanning(); i < lessonPlannings.size(); i++) {
-//                    LessonPlanning planning = lessonPlannings.get(i);
-//                    planning.setOrderOfPlanning(planning.getOrderOfPlanning() - 1);
-//                }
-//            }
-//        }
-//    }
-
     private void setLastOrder(ExecutionCourse executionCourse, CourseLoadType courseLoadType) {
-//        List<LessonPlanning> lessonPlannings = findOrdered(executionCourse, lessonType);
-//        Integer order =
-//                (!lessonPlannings.isEmpty()) ? (lessonPlannings.get(lessonPlannings.size() - 1).getOrderOfPlanning() + 1) : 1;
         int maxOrder = find(executionCourse, courseLoadType).mapToInt(LessonPlanning::getOrderOfPlanning).max().orElse(0);
         setOrderOfPlanning(maxOrder + 1);
-    }
-
-    public String getLessonPlanningLabel() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(BundleUtil.getString(Bundle.APPLICATION, "label.lesson")).append(" ");
-        builder.append(getOrderOfPlanning()).append(" (");
-        builder.append(BundleUtil.getString(Bundle.ENUMERATION, getLessonType().getName())).append(") - ");
-        builder.append(getTitle().getContent());
-        return builder.toString();
-    }
-
-    public void logEditEditLessonPlanning() {
-        CurricularManagementLog.createLog(getExecutionCourse(), Bundle.MESSAGING,
-                "log.executionCourse.curricular.planning.edited", getTitle().getContent(), getLessonType().getFullNameTipoAula(),
-                getExecutionCourse().getNome(), getExecutionCourse().getDegreePresentationString());
     }
 
     public static Stream<LessonPlanning> find(final ExecutionCourse executionCourse, final CourseLoadType courseLoadType) {
