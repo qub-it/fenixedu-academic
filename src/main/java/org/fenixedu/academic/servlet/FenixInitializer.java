@@ -19,6 +19,8 @@
 package org.fenixedu.academic.servlet;
 
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -29,11 +31,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Installation;
+import org.fenixedu.academic.domain.LessonPlanning;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.service.StudentWarningsDefaultCheckers;
 import org.fenixedu.academic.service.StudentWarningsService;
 import org.fenixedu.bennu.core.api.SystemResource;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.rest.Healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +66,10 @@ public class FenixInitializer implements ServletContextListener {
 
         registerHealthchecks();
         registerDefaultStudentWarningCheckers();
-        
+
         initializeAcademicPeriodOrder();
+
+        migrateLessonPlanningShiftTypeToCourseLoadType();
     }
 
     private void registerDefaultStudentWarningCheckers() {
@@ -127,10 +134,27 @@ public class FenixInitializer implements ServletContextListener {
 
         });
     }
-    
+
     @Atomic(mode = TxMode.WRITE)
     private void initializeAcademicPeriodOrder() {
-        AcademicPeriodOrder.initialize();        
+        AcademicPeriodOrder.initialize();
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migrateLessonPlanningShiftTypeToCourseLoadType() {
+        logger.info("LessonPlanning with CourseLoadType - starting migration...");
+
+        final Set<LessonPlanning> lessonPlannings = Bennu.getInstance().getLessonPlanningsSet();
+
+        final AtomicInteger counter = new AtomicInteger();
+        lessonPlannings.stream().filter(lp -> lp.getCourseLoadType() == null && lp.getLessonType() != null)
+                .forEach(lp -> CourseLoadType.findByShiftType(lp.getLessonType()).ifPresent(clt -> {
+                    lp.setCourseLoadType(clt);
+                    counter.incrementAndGet();
+                }));
+
+        logger.info("Migrated: {}/{}", counter.get(), lessonPlannings.size());
+        logger.info("LessonPlanning with CourseLoadType - ... migration end!");
     }
 
 }

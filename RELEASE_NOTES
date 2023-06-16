@@ -1,3 +1,4 @@
+- Refactor: Add domain relation between LessonPlanning and CourseLoadType
 - Bug fix: Prevent NPE when logging update of a previously empty contact
 
 40.14.2 (07-06-2023)
