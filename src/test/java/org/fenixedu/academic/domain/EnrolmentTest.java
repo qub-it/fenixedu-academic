@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,8 @@ import pt.ist.fenixframework.FenixFramework;
 public class EnrolmentTest {
 
     private static Registration registration;
+    private static CurricularCourse curricularCourse;
+    private static ExecutionInterval executionInterval;
     private static Shift shift;
 
     @BeforeClass
@@ -51,10 +54,9 @@ public class EnrolmentTest {
         registration = Student.readStudentByNumber(1).getRegistrationStream().findAny().orElseThrow();
         final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
 
-        final ExecutionInterval executionInterval = ExecutionInterval.findFirstCurrentChild(scp.getDegree().getCalendar());
+        executionInterval = ExecutionInterval.findFirstCurrentChild(scp.getDegree().getCalendar());
 
-        final CurricularCourse curricularCourse =
-                scp.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
+        curricularCourse = scp.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
         final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
                 .findAny().orElseThrow();
 
@@ -123,6 +125,12 @@ public class EnrolmentTest {
         final Set<String> attendsCoursesCodes =
                 attends.stream().map(a -> a.getExecutionCourse().getCode()).distinct().collect(Collectors.toSet());
         assertTrue(attendsCoursesCodes.contains(COURSE_A_CODE));
+
+        for (final ExecutionCourse executionCourse : curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval)) {
+            final Optional<Attends> attendsOpt = registration.findAttends(executionCourse);
+            assertTrue(attendsOpt.isPresent());
+            assertTrue(attends.contains(attendsOpt.get()));
+        }
     }
 
     @Test

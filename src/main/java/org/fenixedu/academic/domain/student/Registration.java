@@ -1871,6 +1871,7 @@ public class Registration extends Registration_Base {
         return getStudent().readAttendByExecutionCourse(executionCourse);
     }
 
+    @Deprecated
     final public Attends readRegistrationAttendByExecutionCourse(final ExecutionCourse executionCourse) {
         for (final Attends attend : this.getAssociatedAttendsSet()) {
             if (attend.isFor(executionCourse)) {
@@ -1878,6 +1879,10 @@ public class Registration extends Registration_Base {
             }
         }
         return null;
+    }
+
+    public Optional<Attends> findAttends(final ExecutionCourse executionCourse) {
+        return this.getAssociatedAttendsSet().stream().filter(a -> a.isFor(executionCourse)).findAny();
     }
 
     @Override
