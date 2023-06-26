@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -54,7 +53,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.spaces.domain.Space;
 
 import com.google.common.base.Strings;
 
@@ -279,9 +277,12 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
         getDegreeLogsSet().forEach(DegreeLog::delete);
 
+        if (getUnit() != null) {
+            getUnit().delete();
+        }
+
         setNumericGradeScale(null);
         setCalendar(null);
-        setUnit(null);
         setDegreeType(null);
         setRootDomainObject(null);
         setQualitativeGradeScale(null);
