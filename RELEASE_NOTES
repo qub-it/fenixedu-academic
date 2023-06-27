@@ -1,3 +1,5 @@
+- Refactor: Add new summary constructor and remove type requirement
+
 40.15.1 (26-06-2023)
 - Bug fix: Delete correspondent unit when deleting degree
 - Bug fix: Add missing error message for units with same acronym
