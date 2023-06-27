@@ -174,13 +174,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         this.setAnotation(annotation);
     }
 
-    public DegreeCurricularPlan(final Degree degree, final String name, final Person creator,
-            final CurricularPeriod curricularPeriod) {
+    public DegreeCurricularPlan(final Degree degree, final String name, final CurricularPeriod curricularPeriod) {
         this(degree, name);
-
-        if (creator == null) {
-            throw new DomainException("degreeCurricularPlan.creator.not.null");
-        }
 
         if (curricularPeriod == null) {
             throw new DomainException("degreeCurricularPlan.curricularPeriod.not.null");
@@ -191,6 +186,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         setState(DegreeCurricularPlanState.ACTIVE);
 
         newStructureFieldsChange(CurricularStage.DRAFT, null);
+    }
+
+    @Deprecated
+    public DegreeCurricularPlan(final Degree degree, final String name, final Person creator,
+            final CurricularPeriod curricularPeriod) {
+        this(degree, name, curricularPeriod);
     }
 
     private void createDefaultCourseGroups() {

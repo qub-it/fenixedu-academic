@@ -1,4 +1,5 @@
 - Refactor: Add new summary constructor and remove type requirement
+- Refactor: Add new degree curricular plan constructor, without creator check 
 
 40.15.1 (26-06-2023)
 - Bug fix: Delete correspondent unit when deleting degree
