@@ -1,3 +1,5 @@
+- Refactor: Remove mandatory shift type on lesson planning creation
+
 40.15.2 (28-06-2023)
 - Refactor: Add new summary constructor and remove type requirement
 - Refactor: Add new degree curricular plan constructor, without creator check 

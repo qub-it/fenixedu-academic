@@ -84,7 +84,7 @@ public class LessonPlanning extends LessonPlanning_Base {
 
     @jvstm.cps.ConsistencyPredicate
     protected boolean checkRequiredParameters() {
-        return getLessonType() != null && getTitle() != null && !getTitle().isEmpty() && getOrderOfPlanning() != null;
+        return getTitle() != null && !getTitle().isEmpty() && getOrderOfPlanning() != null;
     }
 
     @Override
