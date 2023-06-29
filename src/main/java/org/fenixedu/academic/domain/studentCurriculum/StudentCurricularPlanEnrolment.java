@@ -346,14 +346,8 @@ abstract public class StudentCurricularPlanEnrolment {
         return Group.managers().isMember(getResponsiblePerson().getUser());
     }
 
-    // Old AcademicAdminOffice role check
     protected boolean isResponsiblePersonAllowedToEnrolStudents() {
-        final Degree degree = getStudentCurricularPlan().getDegree();
-        Set<AcademicProgram> programs = AcademicAccessRule
-                .getProgramsAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS, getResponsiblePerson().getUser())
-                .collect(Collectors.toSet());
-        programs.addAll(AcademicPermissionService.getDegrees("ACADEMIC_OFFICE_ENROLMENTS", getResponsiblePerson().getUser()));
-        return programs.stream().anyMatch(p -> p == degree);
+        return AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS");
     }
 
     protected boolean isResponsibleInternationalRelationOffice() {
