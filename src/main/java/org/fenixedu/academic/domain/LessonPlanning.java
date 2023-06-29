@@ -54,12 +54,12 @@ public class LessonPlanning extends LessonPlanning_Base {
                 executionCourse.getDegreePresentationString());
     }
 
-    @Deprecated
-    public LessonPlanning(LocalizedString title, LocalizedString planning, ShiftType lessonType,
-            ExecutionCourse executionCourse) {
-        this(title, planning, CourseLoadType.findByShiftType(lessonType).orElseThrow(), executionCourse);
-        setLessonType(lessonType);
-    }
+//    @Deprecated
+//    public LessonPlanning(LocalizedString title, LocalizedString planning, ShiftType lessonType,
+//            ExecutionCourse executionCourse) {
+//        this(title, planning, CourseLoadType.findByShiftType(lessonType).orElseThrow(), executionCourse);
+//        setLessonType(lessonType);
+//    }
 
     public void delete() {
         final ExecutionCourse executionCourse = getExecutionCourse();
@@ -133,11 +133,11 @@ public class LessonPlanning extends LessonPlanning_Base {
         return executionCourse.getLessonPlanningsSet().stream().filter(lp -> lp.getCourseLoadType() == courseLoadType);
     }
 
-    @Deprecated
-    public static List<LessonPlanning> findOrdered(final ExecutionCourse executionCourse, final ShiftType lessonType) {
-        return executionCourse.getLessonPlanningsSet().stream().filter(lp -> lp.getLessonType().equals(lessonType))
-                .sorted(COMPARATOR_BY_ORDER).collect(Collectors.toUnmodifiableList());
-    }
+//    @Deprecated
+//    public static List<LessonPlanning> findOrdered(final ExecutionCourse executionCourse, final ShiftType lessonType) {
+//        return executionCourse.getLessonPlanningsSet().stream().filter(lp -> lp.getLessonType().equals(lessonType))
+//                .sorted(COMPARATOR_BY_ORDER).collect(Collectors.toUnmodifiableList());
+//    }
 
     public static void copyLessonPlanningsFrom(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
         final Collection<CourseLoadType> courseLoadTypes = executionCourseTo.getCourseLoadTypes();

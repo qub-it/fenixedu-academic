@@ -103,7 +103,7 @@ public class Lesson extends Lesson_Base {
     }
 
     public void delete() {
-        if (hasAnyAssociatedSummaries()) {
+        if (!getAssociatedSummaries().isEmpty()) {
             throw new DomainException("error.deleteLesson.with.summaries", prettyPrint());
         }
 
@@ -226,7 +226,7 @@ public class Lesson extends Lesson_Base {
         return getLessonInstancesSet().stream().flatMap(LessonInstance::getSpaces);
     }
 
-    public void refreshPeriodAndInstancesInSummaryCreation(YearMonthDay newBeginDate) {
+    void refreshPeriodAndInstancesInSummaryCreation(YearMonthDay newBeginDate) {
         if (!wasFinished() && newBeginDate != null && newBeginDate.isAfter(getPeriod().getStartYearMonthDay())) {
             SortedSet<YearMonthDay> instanceDates =
                     getAllLessonInstancesDatesToCreate(getLessonStartDay(), newBeginDate.minusDays(1), true);
@@ -407,7 +407,7 @@ public class Lesson extends Lesson_Base {
         return 0.0;
     }
 
-    public Summary getSummaryByDate(YearMonthDay date) {
+    Summary getSummaryByDate(YearMonthDay date) {
         for (Summary summary : getAssociatedSummaries()) {
             if (summary.getSummaryDateYearMonthDay().isEqual(date)) {
                 return summary;
@@ -427,17 +427,17 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    public boolean hasAnyAssociatedSummaries() {
-        return !getAssociatedSummaries().isEmpty();
-    }
+//    public boolean hasAnyAssociatedSummaries() {
+//        return !getAssociatedSummaries().isEmpty();
+//    }
 
-    public SortedSet<Summary> getSummariesSortedByDate() {
-        return getSummaries(new ReverseComparator(Summary.COMPARATOR_BY_DATE_AND_HOUR));
-    }
+//    public SortedSet<Summary> getSummariesSortedByDate() {
+//        return getSummaries(new ReverseComparator(Summary.COMPARATOR_BY_DATE_AND_HOUR));
+//    }
 
-    public SortedSet<Summary> getSummariesSortedByNewestDate() {
-        return getSummaries(Summary.COMPARATOR_BY_DATE_AND_HOUR);
-    }
+//    public SortedSet<Summary> getSummariesSortedByNewestDate() {
+//        return getSummaries(Summary.COMPARATOR_BY_DATE_AND_HOUR);
+//    }
 
     public boolean isTimeValidToInsertSummary(HourMinuteSecond timeToInsert, YearMonthDay summaryDate) {
 
@@ -456,15 +456,15 @@ public class Lesson extends Lesson_Base {
         return true;
     }
 
-    public boolean isDateValidToInsertSummary(YearMonthDay date) {
+    boolean isDateValidToInsertSummary(YearMonthDay date) {
         YearMonthDay currentDate = new YearMonthDay();
         SortedSet<YearMonthDay> allLessonDatesEvenToday = getAllLessonDatesUntil(currentDate);
         return (allLessonDatesEvenToday.isEmpty() || date == null) ? false : allLessonDatesEvenToday.contains(date);
     }
 
-    public boolean isDateValidToInsertExtraSummary(YearMonthDay date) {
-        return !(getLessonStartDay().isAfter(date) || getLessonEndDay().isBefore(date));
-    }
+//    public boolean isDateValidToInsertExtraSummary(YearMonthDay date) {
+//        return !(getLessonStartDay().isAfter(date) || getLessonEndDay().isBefore(date));
+//    }
 
     private YearMonthDay getLessonStartDay() {
         if (!wasFinished()) {
@@ -528,58 +528,58 @@ public class Lesson extends Lesson_Base {
         }
     }
 
-    public YearMonthDay getNextPossibleSummaryDate() {
+//    public YearMonthDay getNextPossibleSummaryDate() {
+//
+//        YearMonthDay currentDate = new YearMonthDay();
+//        HourMinuteSecond now = new HourMinuteSecond();
+//        Summary lastSummary = getLastSummary();
+//
+//        if (lastSummary != null) {
+//
+//            SortedSet<YearMonthDay> datesEvenToday = getAllLessonDatesUntil(currentDate);
+//            SortedSet<YearMonthDay> possibleDates = datesEvenToday.tailSet(lastSummary.getSummaryDateYearMonthDay());
+//
+//            possibleDates.remove(lastSummary.getSummaryDateYearMonthDay());
+//            if (!possibleDates.isEmpty()) {
+//                YearMonthDay nextPossibleDate = possibleDates.first();
+//                return isTimeValidToInsertSummary(now, nextPossibleDate) ? nextPossibleDate : null;
+//            }
+//
+//        } else {
+//            YearMonthDay nextPossibleDate;
+//            if (hasAnyLessonInstances()) {
+//                nextPossibleDate = getFirstLessonInstance().getDay();
+//            } else {
+//                SortedSet<YearMonthDay> validLessonDates =
+//                        getAllValidLessonDatesWithoutInstancesDates(getLessonStartDay(), getLessonEndDay());
+//                nextPossibleDate = validLessonDates.size() > 0 ? validLessonDates.first() : null;
+//            }
+//            return isTimeValidToInsertSummary(now, nextPossibleDate) ? nextPossibleDate : null;
+//        }
+//
+//        return null;
+//    }
 
-        YearMonthDay currentDate = new YearMonthDay();
-        HourMinuteSecond now = new HourMinuteSecond();
-        Summary lastSummary = getLastSummary();
-
-        if (lastSummary != null) {
-
-            SortedSet<YearMonthDay> datesEvenToday = getAllLessonDatesUntil(currentDate);
-            SortedSet<YearMonthDay> possibleDates = datesEvenToday.tailSet(lastSummary.getSummaryDateYearMonthDay());
-
-            possibleDates.remove(lastSummary.getSummaryDateYearMonthDay());
-            if (!possibleDates.isEmpty()) {
-                YearMonthDay nextPossibleDate = possibleDates.first();
-                return isTimeValidToInsertSummary(now, nextPossibleDate) ? nextPossibleDate : null;
-            }
-
-        } else {
-            YearMonthDay nextPossibleDate;
-            if (hasAnyLessonInstances()) {
-                nextPossibleDate = getFirstLessonInstance().getDay();
-            } else {
-                SortedSet<YearMonthDay> validLessonDates =
-                        getAllValidLessonDatesWithoutInstancesDates(getLessonStartDay(), getLessonEndDay());
-                nextPossibleDate = validLessonDates.size() > 0 ? validLessonDates.first() : null;
-            }
-            return isTimeValidToInsertSummary(now, nextPossibleDate) ? nextPossibleDate : null;
-        }
-
-        return null;
-    }
-
-    public SortedSet<YearMonthDay> getAllPossibleDatesToInsertSummary() {
-
-        HourMinuteSecond now = new HourMinuteSecond();
-        YearMonthDay currentDate = new YearMonthDay();
-        SortedSet<YearMonthDay> datesToInsert = getAllLessonDatesUntil(currentDate);
-
-        for (Summary summary : getAssociatedSummaries()) {
-            YearMonthDay summaryDate = summary.getSummaryDateYearMonthDay();
-            datesToInsert.remove(summaryDate);
-        }
-
-        for (Iterator<YearMonthDay> iter = datesToInsert.iterator(); iter.hasNext();) {
-            YearMonthDay date = iter.next();
-            if (!isTimeValidToInsertSummary(now, date)) {
-                iter.remove();
-            }
-        }
-
-        return datesToInsert;
-    }
+//    public SortedSet<YearMonthDay> getAllPossibleDatesToInsertSummary() {
+//
+//        HourMinuteSecond now = new HourMinuteSecond();
+//        YearMonthDay currentDate = new YearMonthDay();
+//        SortedSet<YearMonthDay> datesToInsert = getAllLessonDatesUntil(currentDate);
+//
+//        for (Summary summary : getAssociatedSummaries()) {
+//            YearMonthDay summaryDate = summary.getSummaryDateYearMonthDay();
+//            datesToInsert.remove(summaryDate);
+//        }
+//
+//        for (Iterator<YearMonthDay> iter = datesToInsert.iterator(); iter.hasNext();) {
+//            YearMonthDay date = iter.next();
+//            if (!isTimeValidToInsertSummary(now, date)) {
+//                iter.remove();
+//            }
+//        }
+//
+//        return datesToInsert;
+//    }
 
     public SortedSet<YearMonthDay> getAllLessonDatesWithoutInstanceDates() {
         SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
@@ -775,10 +775,10 @@ public class Lesson extends Lesson_Base {
         return !result.isEmpty() ? result.first() : null;
     }
 
-    private Summary getLastSummary() {
-        SortedSet<Summary> summaries = getSummariesSortedByNewestDate();
-        return (summaries.isEmpty()) ? null : summaries.first();
-    }
+//    private Summary getLastSummary() {
+//        SortedSet<Summary> summaries = getSummariesSortedByNewestDate();
+//        return (summaries.isEmpty()) ? null : summaries.first();
+//    }
 
     private SortedSet<Summary> getSummaries(Comparator<Summary> comparator) {
         SortedSet<Summary> lessonSummaries = new TreeSet<Summary>(comparator);

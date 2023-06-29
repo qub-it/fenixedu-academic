@@ -23,11 +23,6 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.SortedSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
@@ -52,33 +47,33 @@ public class Summary extends Summary_Base {
     public static final String CREATE_SIGNAL = "academic.summary.create.signal";
     public static final String EDIT_SIGNAL = "academic.summary.edit.signal";
 
-    public static final Comparator<Summary> COMPARATOR_BY_DATE_AND_HOUR = new Comparator<Summary>() {
-        @Override
-        public int compare(final Summary o1, final Summary o2) {
-            final int c1 = o2.getSummaryDateYearMonthDay().compareTo(o1.getSummaryDateYearMonthDay());
-            if (c1 == 0) {
-                final int c2 = o2.getSummaryHourHourMinuteSecond().compareTo(o1.getSummaryHourHourMinuteSecond());
-                return c2 == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c2;
-            } else {
-                return c1;
-            }
-        }
-    };
+//    public static final Comparator<Summary> COMPARATOR_BY_DATE_AND_HOUR = new Comparator<Summary>() {
+//        @Override
+//        public int compare(final Summary o1, final Summary o2) {
+//            final int c1 = o2.getSummaryDateYearMonthDay().compareTo(o1.getSummaryDateYearMonthDay());
+//            if (c1 == 0) {
+//                final int c2 = o2.getSummaryHourHourMinuteSecond().compareTo(o1.getSummaryHourHourMinuteSecond());
+//                return c2 == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c2;
+//            } else {
+//                return c1;
+//            }
+//        }
+//    };
 
-    public static final Comparator<Summary> COMPARATOR_BY_DATE_AND_HOUR_ASC = new Comparator<Summary>() {
-        @Override
-        public int compare(final Summary o1, final Summary o2) {
-            final int c1 = o2.getSummaryDateYearMonthDay().compareTo(o1.getSummaryDateYearMonthDay());
-            if (c1 == 0) {
-                final int c2 = o2.getSummaryHourHourMinuteSecond().compareTo(o1.getSummaryHourHourMinuteSecond());
-                return -1 * (c2 == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c2);
-            } else {
-                return -1 * c1;
-            }
-        }
-    };
+//    public static final Comparator<Summary> COMPARATOR_BY_DATE_AND_HOUR_ASC = new Comparator<Summary>() {
+//        @Override
+//        public int compare(final Summary o1, final Summary o2) {
+//            final int c1 = o2.getSummaryDateYearMonthDay().compareTo(o1.getSummaryDateYearMonthDay());
+//            if (c1 == 0) {
+//                final int c2 = o2.getSummaryHourHourMinuteSecond().compareTo(o1.getSummaryHourHourMinuteSecond());
+//                return -1 * (c2 == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c2);
+//            } else {
+//                return -1 * c1;
+//            }
+//        }
+//    };
 
-    public Summary(LocalizedString title, LocalizedString summaryText, Integer studentsNumber, Boolean isExtraLesson,
+    protected Summary(LocalizedString title, LocalizedString summaryText, Integer studentsNumber, Boolean isExtraLesson,
             Professorship professorship, String teacherName, Teacher teacher, Shift shift, Lesson lesson, YearMonthDay date,
             Space room, Partial hour, ShiftType type, Boolean taught) {
 
@@ -100,19 +95,19 @@ public class Summary extends Summary_Base {
         Signal.emit(CREATE_SIGNAL, new DomainObjectEvent<Summary>(this));
     }
 
-    public void edit(LocalizedString title, LocalizedString summaryText, Integer studentsNumber, Boolean isExtraLesson,
-            Professorship professorship, String teacherName, Teacher teacher, Shift shift, Lesson lesson, YearMonthDay date,
-            Space room, Partial hour, ShiftType type, Boolean taught) {
-
-        fillSummaryWithInfo(title, summaryText, studentsNumber, isExtraLesson, professorship, teacherName, teacher, shift, lesson,
-                date, room, hour, type, taught);
-
-        ContentManagementLog.createLog(shift.getExecutionCourse(), Bundle.MESSAGING, "log.executionCourse.content.summary.edited",
-                title.getContent(), shift.getPresentationName(), shift.getExecutionCourse().getNome(),
-                shift.getExecutionCourse().getDegreePresentationString());
-
-        Signal.emit(EDIT_SIGNAL, new DomainObjectEvent<Summary>(this));
-    }
+//    public void edit(LocalizedString title, LocalizedString summaryText, Integer studentsNumber, Boolean isExtraLesson,
+//            Professorship professorship, String teacherName, Teacher teacher, Shift shift, Lesson lesson, YearMonthDay date,
+//            Space room, Partial hour, ShiftType type, Boolean taught) {
+//
+//        fillSummaryWithInfo(title, summaryText, studentsNumber, isExtraLesson, professorship, teacherName, teacher, shift,
+//                lesson, date, room, hour, type, taught);
+//
+//        ContentManagementLog.createLog(shift.getExecutionCourse(), Bundle.MESSAGING,
+//                "log.executionCourse.content.summary.edited", title.getContent(), shift.getPresentationName(), shift
+//                        .getExecutionCourse().getNome(), shift.getExecutionCourse().getDegreePresentationString());
+//
+//        Signal.emit(EDIT_SIGNAL, new DomainObjectEvent<Summary>(this));
+//    }
 
     private void fillSummaryWithInfo(LocalizedString title, LocalizedString summaryText, Integer studentsNumber,
             Boolean isExtraLesson, Professorship professorship, String teacherName, Teacher teacher, Shift shift, Lesson lesson,
@@ -294,32 +289,32 @@ public class Summary extends Summary_Base {
         }
     }
 
-    public String getOrder() {
-        StringBuilder stringBuilder = new StringBuilder();
-        Lesson lesson = getLesson();
-        if (lesson != null) {
-            SortedSet<YearMonthDay> allLessonDates = lesson.getAllLessonDates();
-            List<YearMonthDay> lessonDates = new ArrayList<YearMonthDay>(allLessonDates);
-            if (!lessonDates.isEmpty()) {
-                int index = lessonDates.indexOf(getSummaryDateYearMonthDay());
-                if (index != -1) {
-                    stringBuilder.append("(").append(index + 1).append("/");
-                    return stringBuilder.append(lessonDates.size()).append(")").toString();
-                }
-            }
-        }
-        return "";
-    }
+//    public String getOrder() {
+//        StringBuilder stringBuilder = new StringBuilder();
+//        Lesson lesson = getLesson();
+//        if (lesson != null) {
+//            SortedSet<YearMonthDay> allLessonDates = lesson.getAllLessonDates();
+//            List<YearMonthDay> lessonDates = new ArrayList<YearMonthDay>(allLessonDates);
+//            if (!lessonDates.isEmpty()) {
+//                int index = lessonDates.indexOf(getSummaryDateYearMonthDay());
+//                if (index != -1) {
+//                    stringBuilder.append("(").append(index + 1).append("/");
+//                    return stringBuilder.append(lessonDates.size()).append(")").toString();
+//                }
+//            }
+//        }
+//        return "";
+//    }
 
-    @Override
-    public Space getRoom() {
-        if (isExtraSummary()) {
-            return super.getRoom();
-        } else if (getLessonInstance() != null) {
-            return getLessonInstance().getRoom();
-        }
-        return null;
-    }
+//    @Override
+//    public Space getRoom() {
+//        if (isExtraSummary()) {
+//            return super.getRoom();
+//        } else if (getLessonInstance() != null) {
+//            return getLessonInstance().getRoom();
+//        }
+//        return null;
+//    }
 
     public void moveFromTeacherToProfessorship(Professorship professorship) {
         if (getTeacher() != null && professorship != null && professorship.getExecutionCourse().equals(getExecutionCourse())
@@ -334,9 +329,9 @@ public class Summary extends Summary_Base {
 //        return getLessonInstance().getCourseLoad().getType();
 //    }
 
-    public boolean isExtraSummary() {
-        return getIsExtraLesson().booleanValue();
-    }
+//    public boolean isExtraSummary() {
+//        return getIsExtraLesson().booleanValue();
+//    }
 
     public DateTime getSummaryDateTime() {
         HourMinuteSecond time = getSummaryHourHourMinuteSecond();
@@ -344,49 +339,49 @@ public class Summary extends Summary_Base {
                 .toDateTime(new TimeOfDay(time.getHour(), time.getMinuteOfHour(), time.getSecondOfMinute(), 0));
     }
 
-    @Deprecated
-    public java.util.Date getLastModifiedDate() {
-        org.joda.time.DateTime dt = getLastModifiedDateDateTime();
-        return (dt == null) ? null : new java.util.Date(dt.getMillis());
-    }
-
-    @Deprecated
-    public void setLastModifiedDate(java.util.Date date) {
-        if (date == null) {
-            setLastModifiedDateDateTime(null);
-        } else {
-            setLastModifiedDateDateTime(new org.joda.time.DateTime(date.getTime()));
-        }
-    }
-
-    @Deprecated
-    public java.util.Date getSummaryDate() {
-        org.joda.time.YearMonthDay ymd = getSummaryDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
-    @Deprecated
-    public void setSummaryDate(java.util.Date date) {
-        if (date == null) {
-            setSummaryDateYearMonthDay(null);
-        } else {
-            setSummaryDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
-    }
-
-    @Deprecated
-    public java.util.Date getSummaryHour() {
-        org.fenixedu.academic.util.HourMinuteSecond hms = getSummaryHourHourMinuteSecond();
-        return (hms == null) ? null : new java.util.Date(0, 0, 1, hms.getHour(), hms.getMinuteOfHour(), hms.getSecondOfMinute());
-    }
-
-    @Deprecated
-    public void setSummaryHour(java.util.Date date) {
-        if (date == null) {
-            setSummaryHourHourMinuteSecond(null);
-        } else {
-            setSummaryHourHourMinuteSecond(org.fenixedu.academic.util.HourMinuteSecond.fromDateFields(date));
-        }
-    }
+//    @Deprecated
+//    public java.util.Date getLastModifiedDate() {
+//        org.joda.time.DateTime dt = getLastModifiedDateDateTime();
+//        return (dt == null) ? null : new java.util.Date(dt.getMillis());
+//    }
+//
+//    @Deprecated
+//    public void setLastModifiedDate(java.util.Date date) {
+//        if (date == null) {
+//            setLastModifiedDateDateTime(null);
+//        } else {
+//            setLastModifiedDateDateTime(new org.joda.time.DateTime(date.getTime()));
+//        }
+//    }
+//
+//    @Deprecated
+//    public java.util.Date getSummaryDate() {
+//        org.joda.time.YearMonthDay ymd = getSummaryDateYearMonthDay();
+//        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
+//    }
+//
+//    @Deprecated
+//    public void setSummaryDate(java.util.Date date) {
+//        if (date == null) {
+//            setSummaryDateYearMonthDay(null);
+//        } else {
+//            setSummaryDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
+//        }
+//    }
+//
+//    @Deprecated
+//    public java.util.Date getSummaryHour() {
+//        org.fenixedu.academic.util.HourMinuteSecond hms = getSummaryHourHourMinuteSecond();
+//        return (hms == null) ? null : new java.util.Date(0, 0, 1, hms.getHour(), hms.getMinuteOfHour(), hms.getSecondOfMinute());
+//    }
+//
+//    @Deprecated
+//    public void setSummaryHour(java.util.Date date) {
+//        if (date == null) {
+//            setSummaryHourHourMinuteSecond(null);
+//        } else {
+//            setSummaryHourHourMinuteSecond(org.fenixedu.academic.util.HourMinuteSecond.fromDateFields(date));
+//        }
+//    }
 
 }
