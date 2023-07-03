@@ -651,10 +651,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     
     class LessonPlanning  {
-        ShiftType lessonType;
         Integer orderOfPlanning;
-        LocalizedString planning;
         LocalizedString title;
+        LocalizedString planning;
     }
 
     class Mark  {
@@ -1017,7 +1016,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    Shift playsRole shifts { multiplicity *; }
 		}   		   
 		relation CourseLoadTypeLessonPlanning {
-		    degreeStructure.CourseLoadType playsRole courseLoadType;
+		    degreeStructure.CourseLoadType playsRole courseLoadType { multiplicity 1..1; }
 		    LessonPlanning playsRole lessonPlannings { multiplicity *; }
 		}		
 		 

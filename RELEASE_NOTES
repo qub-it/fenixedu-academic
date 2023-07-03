@@ -1,4 +1,5 @@
 - Refactor: Cleanup unused summaries and lesson plannings methods
+- Refactor: Remove shift type slot from lesson planning and add not null domain verifications
 
 40.15.3 (29-06-2023)
 - Refactor: Remove mandatory shift type on lesson planning creation

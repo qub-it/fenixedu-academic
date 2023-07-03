@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -54,12 +53,10 @@ public class LessonPlanning extends LessonPlanning_Base {
                 executionCourse.getDegreePresentationString());
     }
 
-//    @Deprecated
-//    public LessonPlanning(LocalizedString title, LocalizedString planning, ShiftType lessonType,
-//            ExecutionCourse executionCourse) {
-//        this(title, planning, CourseLoadType.findByShiftType(lessonType).orElseThrow(), executionCourse);
-//        setLessonType(lessonType);
-//    }
+    private void setLastOrder(ExecutionCourse executionCourse, CourseLoadType courseLoadType) {
+        int maxOrder = find(executionCourse, courseLoadType).mapToInt(LessonPlanning::getOrderOfPlanning).max().orElse(0);
+        setOrderOfPlanning(maxOrder + 1);
+    }
 
     public void delete() {
         final ExecutionCourse executionCourse = getExecutionCourse();
@@ -82,22 +79,9 @@ public class LessonPlanning extends LessonPlanning_Base {
         }
     }
 
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkRequiredParameters() {
-        return getTitle() != null && !getTitle().isEmpty() && getOrderOfPlanning() != null;
-    }
-
-    @Override
-    public void setLessonType(ShiftType lessonType) {
-        if (lessonType == null) {
-            throw new DomainException("error.LessonPlanning.no.lessonType");
-        }
-        super.setLessonType(lessonType);
-    }
-
     @Override
     public void setTitle(LocalizedString title) {
-        if (title == null || title.getLocales().isEmpty()) {
+        if (title == null || title.isEmpty()) {
             throw new DomainException("error.LessonPlanning.no.title");
         }
         super.setTitle(title);
@@ -124,20 +108,9 @@ public class LessonPlanning extends LessonPlanning_Base {
         }
     }
 
-    private void setLastOrder(ExecutionCourse executionCourse, CourseLoadType courseLoadType) {
-        int maxOrder = find(executionCourse, courseLoadType).mapToInt(LessonPlanning::getOrderOfPlanning).max().orElse(0);
-        setOrderOfPlanning(maxOrder + 1);
-    }
-
     public static Stream<LessonPlanning> find(final ExecutionCourse executionCourse, final CourseLoadType courseLoadType) {
         return executionCourse.getLessonPlanningsSet().stream().filter(lp -> lp.getCourseLoadType() == courseLoadType);
     }
-
-//    @Deprecated
-//    public static List<LessonPlanning> findOrdered(final ExecutionCourse executionCourse, final ShiftType lessonType) {
-//        return executionCourse.getLessonPlanningsSet().stream().filter(lp -> lp.getLessonType().equals(lessonType))
-//                .sorted(COMPARATOR_BY_ORDER).collect(Collectors.toUnmodifiableList());
-//    }
 
     public static void copyLessonPlanningsFrom(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
         final Collection<CourseLoadType> courseLoadTypes = executionCourseTo.getCourseLoadTypes();

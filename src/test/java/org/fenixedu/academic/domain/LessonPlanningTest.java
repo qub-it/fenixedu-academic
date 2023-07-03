@@ -5,10 +5,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -32,6 +35,21 @@ public class LessonPlanningTest {
         ExecutionsAndSchedulesTest.initSchedules();
 
         executionCourse = Bennu.getInstance().getExecutionCoursesSet().iterator().next();
+    }
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Test
+    public void testRequiredTitle() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.LessonPlanning.no.title");
+
+        executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
+
+        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
+
+        createLessonPlanning(null, "Planning A", theoretical, executionCourse);
     }
 
     @Test
