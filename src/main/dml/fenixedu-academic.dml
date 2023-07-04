@@ -735,11 +735,10 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         YearMonthDay summaryDateYearMonthDay;
         HourMinuteSecond summaryHourHourMinuteSecond;
         LocalizedString summaryText;
-        ShiftType summaryType;
         String teacherName;
         LocalizedString title;    
         Boolean taught;
-        }
+	}
 
     class Teacher  {
 		String number;    
@@ -2547,7 +2546,7 @@ relation ExecutionCourseSummary {
     Summary playsRole associatedSummaries {
         multiplicity *;
     }
-    ExecutionCourse playsRole executionCourse;
+    ExecutionCourse playsRole executionCourse { multiplicity 1..1; }
 }
 
 relation ExecutionCourseSender {
@@ -3861,7 +3860,7 @@ relation ShiftSummary {
     Summary playsRole associatedSummaries {
         multiplicity *;
     }
-    Shift playsRole shift;
+    Shift playsRole shift { multiplicity 1..1; }
 }
 
 relation StudentCandidacyExecutionDegree {
