@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -35,7 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.comparators.ReverseComparator;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
@@ -223,7 +221,7 @@ public class Lesson extends Lesson_Base {
             return spaceOccupation.getSpaces().stream();
         }
 
-        return getLessonInstancesSet().stream().flatMap(LessonInstance::getSpaces);
+        return getLessonInstancesSet().stream().flatMap(LessonInstance::getSpaces).distinct();
     }
 
     void refreshPeriodAndInstancesInSummaryCreation(YearMonthDay newBeginDate) {
@@ -246,6 +244,21 @@ public class Lesson extends Lesson_Base {
         for (YearMonthDay day : instanceDates) {
             new LessonInstance(this, day);
         }
+    }
+
+    public void createAllLessonInstances() {
+        final SortedSet<YearMonthDay> dates = getAllLessonDatesWithoutInstanceDates();
+
+        final OccupationPeriod period = getPeriod();
+        super.setPeriod(null); // to avoid dates and space overlaps
+
+        dates.forEach(date -> new LessonInstance(this, date));
+
+        if (getLessonSpaceOccupation() != null) {
+            getLessonSpaceOccupation().delete();
+        }
+
+        period.delete();
     }
 
     private SortedSet<YearMonthDay> getAllLessonInstancesDatesToCreate(YearMonthDay startDate, YearMonthDay endDate,
@@ -587,6 +600,8 @@ public class Lesson extends Lesson_Base {
             YearMonthDay startDateToSearch = getLessonStartDay();
             YearMonthDay endDateToSearch = getLessonEndDay();
             dates.addAll(getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch));
+
+            dates.removeAll(getAllLessonInstanceDates());
         }
         return dates;
     }

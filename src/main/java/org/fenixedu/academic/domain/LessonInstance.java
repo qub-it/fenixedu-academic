@@ -50,61 +50,7 @@ public class LessonInstance extends LessonInstance_Base {
 
     };
 
-    public LessonInstance(Summary summary, Lesson lesson) {
-//        check(this, ResourceAllocationRolePredicates.checkPermissionsToManageLessonInstancesWithTeacherCheck);
-
-        super();
-
-        if (summary == null) {
-            throw new DomainException("error.LessonInstance.empty.summary");
-        }
-
-        if (lesson == null) {
-            throw new DomainException("error.LessonInstance.empty.lesson");
-        }
-
-        YearMonthDay day = summary.getSummaryDateYearMonthDay();
-
-        LessonInstance lessonInstance = lesson.getLessonInstanceFor(day);
-        if (lessonInstance != null) {
-            throw new DomainException("error.lessonInstance.already.exist");
-        }
-
-        Space room = lesson.getSala();
-
-        HourMinuteSecond beginTime = lesson.getBeginHourMinuteSecond();
-        HourMinuteSecond endTime = lesson.getEndHourMinuteSecond();
-        DateTime beginDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), beginTime.getHour(),
-                beginTime.getMinuteOfHour(), beginTime.getSecondOfMinute(), 0);
-        DateTime endDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), endTime.getHour(),
-                endTime.getMinuteOfHour(), endTime.getSecondOfMinute(), 0);
-
-        setRootDomainObject(Bennu.getInstance());
-        setBeginDateTime(beginDateTime);
-        setEndDateTime(endDateTime);
-
-        YearMonthDay nextPossibleDay = findNextPossibleDateAfter(day, lesson);
-
-        setLesson(lesson);
-
-//        summaryAndCourseLoadManagement(summary, lesson);
-        setSummary(summary);
-        lesson.refreshPeriodAndInstancesInSummaryCreation(nextPossibleDay);
-        lessonInstanceSpaceOccupationManagement(room);
-    }
-
-    private YearMonthDay findNextPossibleDateAfter(YearMonthDay day, Lesson lesson) {
-        for (YearMonthDay lessonDay : lesson.getAllLessonDatesWithoutInstanceDates()) {
-            if (lessonDay.isAfter(day)) {
-                return lessonDay;
-            }
-        }
-        return lesson.isBiWeeklyOffset() ? day.plusDays(8) : day.plusDays(1);
-    }
-
     public LessonInstance(Lesson lesson, YearMonthDay day) {
-//        check(this, ResourceAllocationRolePredicates.checkPermissionsToManageLessonInstancesWithTeacherCheck);
-
         super();
 
         if (day == null) {
@@ -152,15 +98,6 @@ public class LessonInstance extends LessonInstance_Base {
         deleteDomainObject();
     }
 
-//    public void summaryAndCourseLoadManagement(Summary summary, Lesson lesson) {
-//        CourseLoad courseLoad = null;
-//        if (lesson != null && summary != null) {
-//            courseLoad = lesson.getExecutionCourse().getCourseLoadByShiftType(summary.getSummaryType());
-//        }
-//        setSummary(summary);
-//        setCourseLoad(courseLoad);
-//    }
-
     private int getUnitMinutes() {
         return Minutes.minutesBetween(getStartTime(), getEndTime()).getMinutes();
     }
@@ -199,14 +136,6 @@ public class LessonInstance extends LessonInstance_Base {
         }
         super.setSummary(summary);
     }
-
-//    @Override
-//    public void setCourseLoad(CourseLoad courseLoad) {
-//        if (courseLoad == null) {
-//            throw new DomainException("error.lessonInstance.empty.courseLoad");
-//        }
-//        super.setCourseLoad(courseLoad);
-//    }
 
     @Override
     public void setLesson(Lesson lesson) {

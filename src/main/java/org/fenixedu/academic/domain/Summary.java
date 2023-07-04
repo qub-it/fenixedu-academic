@@ -97,11 +97,17 @@ public class Summary extends Summary_Base {
 
     private void lessonInstanceManagement(Lesson lesson, YearMonthDay day) {
         LessonInstance lessonInstance = lesson.getLessonInstanceFor(day);
+
         if (lessonInstance == null) {
-            new LessonInstance(this, lesson);
-        } else {
-            lessonInstance.setSummary(this);
+            lesson.createAllLessonInstances();
+
+            lessonInstance = lesson.getLessonInstanceFor(day);
+            if (lessonInstance == null) {
+                throw new DomainException("error.summary.no.valid.date.to.lesson");
+            }
         }
+
+        lessonInstance.setSummary(this);
     }
 
     private void checkIfSummaryDateIsValid(YearMonthDay date, ExecutionInterval executionSemester, Lesson lesson) {
