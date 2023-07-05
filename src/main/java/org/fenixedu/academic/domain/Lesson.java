@@ -27,11 +27,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -234,7 +236,9 @@ public class Lesson extends Lesson_Base {
             getLessonSpaceOccupation().delete();
         }
 
-        period.delete();
+        if (period != null) {
+            period.delete();
+        }
     }
 
     public void removeOccupationPeriod() {
@@ -270,24 +274,9 @@ public class Lesson extends Lesson_Base {
         return String.valueOf(getFim().get(Calendar.HOUR_OF_DAY));
     }
 
-    Summary getSummaryByDate(YearMonthDay date) {
-        for (Summary summary : getAssociatedSummaries()) {
-            if (summary.getSummaryDateYearMonthDay().isEqual(date)) {
-                return summary;
-            }
-        }
-        return null;
-    }
-
     public List<Summary> getAssociatedSummaries() {
-        List<Summary> result = new ArrayList<Summary>();
-        Collection<LessonInstance> lessonInstances = getLessonInstancesSet();
-        for (LessonInstance lessonInstance : lessonInstances) {
-            if (lessonInstance.getSummary() != null) {
-                result.add(lessonInstance.getSummary());
-            }
-        }
-        return result;
+        return getLessonInstancesSet().stream().map(LessonInstance::getSummary).filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public boolean isTimeValidToInsertSummary(HourMinuteSecond timeToInsert, YearMonthDay summaryDate) {
@@ -298,19 +287,13 @@ public class Lesson extends Lesson_Base {
         }
 
         if (currentDate.isEqual(summaryDate)) {
-            HourMinuteSecond lessonStartTime = null;
             LessonInstance lessonInstance = getLessonInstanceFor(summaryDate);
-            lessonStartTime = lessonInstance != null ? lessonInstance.getStartTime() : getBeginHourMinuteSecond();
+            HourMinuteSecond lessonStartTime =
+                    lessonInstance != null ? lessonInstance.getStartTime() : getBeginHourMinuteSecond();
             return !lessonStartTime.isAfter(timeToInsert);
         }
 
         return true;
-    }
-
-    boolean isDateValidToInsertSummary(YearMonthDay date) {
-        YearMonthDay currentDate = new YearMonthDay();
-        SortedSet<YearMonthDay> allLessonDatesEvenToday = getAllLessonDatesUntil(currentDate);
-        return (allLessonDatesEvenToday.isEmpty() || date == null) ? false : allLessonDatesEvenToday.contains(date);
     }
 
     private YearMonthDay getLessonStartDay() {
@@ -416,20 +399,6 @@ public class Lesson extends Lesson_Base {
         return count;
     }
 
-    private SortedSet<YearMonthDay> getAllLessonDatesUntil(YearMonthDay day) {
-        SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
-        if (day != null) {
-            result.addAll(getAllLessonInstanceDatesUntil(day));
-            if (!wasFinished()) {
-                YearMonthDay startDateToSearch = getLessonStartDay();
-                YearMonthDay lessonEndDay = getLessonEndDay();
-                YearMonthDay endDateToSearch = (lessonEndDay.isAfter(day)) ? day : lessonEndDay;
-                result.addAll(getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch));
-            }
-        }
-        return result;
-    }
-
     private SortedSet<YearMonthDay> getAllLessonInstanceDates() {
         SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
         for (LessonInstance instance : getLessonInstancesSet()) {
@@ -444,19 +413,6 @@ public class Lesson extends Lesson_Base {
             for (LessonInstance instance : getLessonInstancesSet()) {
                 if (!instance.getDay().isAfter(day)) {
                     result.add(instance);
-                }
-            }
-        }
-        return result;
-    }
-
-    private SortedSet<YearMonthDay> getAllLessonInstanceDatesUntil(YearMonthDay day) {
-        SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
-        if (day != null) {
-            for (LessonInstance instance : getLessonInstancesSet()) {
-                YearMonthDay instanceDay = instance.getDay();
-                if (!instanceDay.isAfter(day)) {
-                    result.add(instanceDay);
                 }
             }
         }

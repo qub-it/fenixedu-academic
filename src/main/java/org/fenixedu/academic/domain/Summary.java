@@ -111,13 +111,11 @@ public class Summary extends Summary_Base {
     }
 
     private void checkIfSummaryDateIsValid(YearMonthDay date, ExecutionInterval executionSemester, Lesson lesson) {
-        Summary summary = lesson.getSummaryByDate(date);
-        if (summary != null && !summary.equals(this)) {
+        if (lesson.getAssociatedSummaries().stream().filter(s -> s != this)
+                .anyMatch(s -> s.getSummaryDateYearMonthDay().isEqual(date))) {
             throw new DomainException("error.summary.already.exists");
         }
-        if (!lesson.isDateValidToInsertSummary(date)) {
-            throw new DomainException("error.summary.no.valid.date.to.lesson");
-        }
+
         if (!lesson.isTimeValidToInsertSummary(new HourMinuteSecond(), date)) {
             throw new DomainException("error.summary.no.valid.time.to.lesson");
         }
