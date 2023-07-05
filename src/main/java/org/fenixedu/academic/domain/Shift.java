@@ -292,15 +292,6 @@ public class Shift extends Shift_Base {
         return hours;
     }
 
-    public int getNumberOfLessonInstances() {
-        Collection<Lesson> lessons = getAssociatedLessonsSet();
-        int totalLessonsDates = 0;
-        for (Lesson lesson : lessons) {
-            totalLessonsDates += lesson.getFinalNumberOfLessonInstances();
-        }
-        return totalLessonsDates;
-    }
-
     public BigDecimal getCourseLoadWeeklyAverage() {
         BigDecimal weeklyHours = BigDecimal.ZERO;
         for (CourseLoad courseLoad : getCourseLoadsSet()) {

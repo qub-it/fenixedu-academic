@@ -24,15 +24,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,8 +85,6 @@ public class Lesson extends Lesson_Base {
         setFrequency(frequency);
         setPeriod(period);
         setInitialFullPeriod(period);
-
-        checkShiftLoad(shift);
 
         if (room != null) {
             new LessonSpaceOccupation(room, this);
@@ -254,7 +249,7 @@ public class Lesson extends Lesson_Base {
     }
 
     public BigDecimal getTotalHours() {
-        return getUnitHours().multiply(BigDecimal.valueOf(getFinalNumberOfLessonInstances()));
+        return getUnitHours().multiply(BigDecimal.valueOf(getAllLessonDates().size()));
     }
 
     public Duration getTotalDuration() {
@@ -389,34 +384,12 @@ public class Lesson extends Lesson_Base {
         return dates;
     }
 
-    public int getFinalNumberOfLessonInstances() {
-        int count = getLessonInstancesSet().size();
-        if (!wasFinished()) {
-            YearMonthDay startDateToSearch = getLessonStartDay();
-            YearMonthDay endDateToSearch = getLessonEndDay();
-            count += getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch).size();
-        }
-        return count;
-    }
-
     private SortedSet<YearMonthDay> getAllLessonInstanceDates() {
         SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
         for (LessonInstance instance : getLessonInstancesSet()) {
             dates.add(instance.getDay());
         }
         return dates;
-    }
-
-    private List<LessonInstance> getAllLessonInstancesUntil(LocalDate day) {
-        List<LessonInstance> result = new ArrayList<LessonInstance>();
-        if (day != null) {
-            for (LessonInstance instance : getLessonInstancesSet()) {
-                if (!instance.getDay().isAfter(day)) {
-                    result.add(instance);
-                }
-            }
-        }
-        return result;
     }
 
     private SortedSet<YearMonthDay> getAllValidLessonDatesWithoutInstancesDates(YearMonthDay startDateToSearch,
@@ -522,59 +495,6 @@ public class Lesson extends Lesson_Base {
         return result.toString();
     }
 
-    private void checkShiftLoad(Shift shift) {
-
-        if (shift != null) {
-
-            Collection<CourseLoad> courseLoads = shift.getCourseLoadsSet();
-
-            if (courseLoads.size() == 1) {
-
-                CourseLoad courseLoad = courseLoads.iterator().next();
-
-                if (courseLoad.getUnitQuantity() != null && getUnitHours().compareTo(courseLoad.getUnitQuantity()) != 0) {
-                    throw new DomainException("error.Lesson.shift.load.unit.quantity.exceeded", getUnitHours().toString(),
-                            courseLoad.getUnitQuantity().toString());
-                }
-
-//                if (shift.getTotalHours().compareTo(courseLoad.getTotalQuantity()) == 1) {
-//                    throw new DomainException("error.Lesson.shift.load.total.quantity.exceeded",
-//                            shift.getTotalHours().toString(), courseLoad.getTotalQuantity().toString());
-//                }
-
-            } else if (courseLoads.size() > 1) {
-
-                boolean unitValid = false, totalValid = false;
-                BigDecimal lessonHours = getUnitHours();
-                BigDecimal totalHours = shift.getTotalHours();
-
-                for (CourseLoad courseLoad : courseLoads) {
-
-                    unitValid = false;
-                    totalValid = false;
-
-                    if (courseLoad.getUnitQuantity() == null || lessonHours.compareTo(courseLoad.getUnitQuantity()) == 0) {
-                        unitValid = true;
-                    }
-                    if (totalHours.compareTo(courseLoad.getTotalQuantity()) != 1) {
-                        totalValid = true;
-                        if (unitValid) {
-                            break;
-                        }
-                    }
-                }
-
-//                if (!totalValid) {
-//                    throw new DomainException("error.Lesson.shift.load.total.quantity.exceeded.2", shift.getTotalHours()
-//                            .toString());
-//                }
-                if (!unitValid) {
-                    throw new DomainException("error.Lesson.shift.load.unit.quantity.exceeded.2", getUnitHours().toString());
-                }
-            }
-        }
-    }
-
     public Calendar getInicio() {
         if (this.getBegin() != null) {
             Calendar result = Calendar.getInstance();
@@ -614,60 +534,12 @@ public class Lesson extends Lesson_Base {
     }
 
     public List<EventBean> getAllLessonsEvents() {
-        HashMap<DateTime, LessonInstance> hashmap = new HashMap<DateTime, LessonInstance>();
-        ArrayList<EventBean> result = new ArrayList<EventBean>();
-        LocalDate lessonEndDay = null;
-        if (getLessonEndDay() != null) {
-            getLessonEndDay().toLocalDate();
-        }
-        for (LessonInstance lessonInstance : getAllLessonInstancesUntil(lessonEndDay)) {
-            hashmap.put(lessonInstance.getBeginDateTime(), lessonInstance);
-        }
-
+        List<EventBean> result = new ArrayList<>();
         for (YearMonthDay aDay : getAllLessonDates()) {
-            DateTime beginDate = new DateTime(aDay.getYear(), aDay.getMonthOfYear(), aDay.getDayOfMonth(),
-                    getBeginHourMinuteSecond().getHour(), getBeginHourMinuteSecond().getMinuteOfHour(),
-                    getBeginHourMinuteSecond().getSecondOfMinute(), 0);
-
-            LessonInstance lessonInstance = hashmap.get(beginDate);
-            EventBean bean;
-            Set<Space> location = new HashSet<>();
-
-            String url = getExecutionCourse().getSiteUrl();
-
-            if (lessonInstance != null) {
-
-                if (lessonInstance.getLessonInstanceSpaceOccupation() != null) {
-                    location.addAll(lessonInstance.getLessonInstanceSpaceOccupation().getSpaces());
-                }
-                String summary = null;
-                if (lessonInstance.getSummary() != null) {
-                    summary = lessonInstance.getSummary().getSummaryText().getContent();
-                    Pattern p = Pattern.compile("<[a-zA-Z0-9\\/]*[^>]*>");
-                    Matcher matcher = p.matcher(summary);
-                    summary = matcher.replaceAll("");
-
-                    p = Pattern.compile("\\s(\\s)*");
-                    matcher = p.matcher(summary);
-                    summary = matcher.replaceAll(" ");
-                }
-
-                bean = new ClassEventBean(lessonInstance.getBeginDateTime(), lessonInstance.getEndDateTime(), false, location,
-                        url + "/sumarios", summary, getShift());
-            } else {
-                if (getLessonSpaceOccupation() != null) {
-                    location.add(getLessonSpaceOccupation().getSpace());
-                }
-                DateTime endDate = new DateTime(aDay.getYear(), aDay.getMonthOfYear(), aDay.getDayOfMonth(),
-                        getEndHourMinuteSecond().getHour(), getEndHourMinuteSecond().getMinuteOfHour(),
-                        getEndHourMinuteSecond().getSecondOfMinute(), 0);
-
-                bean = new ClassEventBean(beginDate, endDate, false, location, url, null, getShift());
-            }
-
-            result.add(bean);
+            DateTime beginDate = aDay.toLocalDate().toDateTime(getBeginHourMinuteSecond().toLocalTime());
+            DateTime endDate = aDay.toLocalDate().toDateTime(getEndHourMinuteSecond().toLocalTime());
+            result.add(new ClassEventBean(beginDate, endDate, false, Set.of(), null, null, getShift()));
         }
-
         return result;
     }
 
@@ -734,10 +606,6 @@ public class Lesson extends Lesson_Base {
 
     private boolean hasAnyLessonInstances() {
         return !getLessonInstancesSet().isEmpty();
-    }
-
-    public boolean isBiWeeklyOffset() {
-        return getFrequency() == FrequencyType.BIWEEKLY;
     }
 
 }
