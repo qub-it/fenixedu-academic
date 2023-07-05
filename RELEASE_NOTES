@@ -3,6 +3,7 @@
 - Refactor: Remove shift type slot from summary and not null domain verifications
 - Refactor: On summary creation, create all missing lesson instances of lesson
 - Refactor: Remove unused lesson methods
+- Refactor: Add lesson unit tests
 
 40.15.3 (29-06-2023)
 - Refactor: Remove mandatory shift type on lesson planning creation

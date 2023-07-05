@@ -3,20 +3,29 @@ package org.fenixedu.academic.domain;
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
+import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.spaces.domain.Information;
 import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.Partial;
+import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +40,7 @@ public class ExecutionsAndSchedulesTest {
 
     private static ExecutionCourse executionCourse;
     private static ExecutionDegree executionDegree;
+    private static SpaceClassification classification;
     private static Shift shift;
 
     @BeforeClass
@@ -61,17 +71,21 @@ public class ExecutionsAndSchedulesTest {
     }
 
     static void initSchedules() {
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-        final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
-        shift = new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        classification = new SpaceClassification("ROOM", new LocalizedString());
+        classification.setIsAllocatable(true);
 
-        int year = executionInterval.getBeginDateYearMonthDay().getYear();
+        shift = new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                createDefaultOccupationPeriod(), null);
+    }
+
+    private static OccupationPeriod createDefaultOccupationPeriod() {
+        final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
+        int year = 2023; // executionInterval.getBeginDateYearMonthDay().getYear(); 
         final OccupationPeriod occupationPeriod =
                 new OccupationPeriod(new Interval(new DateTime(year, 9, 15, 0, 0), new DateTime(year, 12, 15, 0, 0)));
         new OccupationPeriodReference(occupationPeriod, executionDegree, executionInterval, new CurricularYearList(List.of(-1)));
-
-        createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY, occupationPeriod,
-                null);
+        return occupationPeriod;
     }
 
     private static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime,
@@ -165,6 +179,185 @@ public class ExecutionsAndSchedulesTest {
         final Shift shift3 =
                 new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
         assertEquals(shift3.getName(), "CAT03");
+    }
+
+    @Test
+    public void testLesson_datesWithPeriodChange() {
+
+        new Holiday(new Partial(new LocalDate(2023, 10, 9)));
+
+        Space space = new Space(new Information.Builder().classification(classification).build());
+
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
+        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, space);
+
+        final SortedSet<YearMonthDay> originalDates = lesson.getAllLessonDates();
+
+        assertEquals(originalDates.size(), 12);
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 9, 18)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 10, 2)));
+        assertFalse(originalDates.contains(new YearMonthDay(2023, 10, 9))); // holiday
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 10, 16)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 10, 30)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 11, 6)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 11, 20)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 11, 27)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 12, 4)));
+        assertTrue(originalDates.contains(new YearMonthDay(2023, 12, 11)));
+
+        int year = 2023;
+        final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
+        final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
+        final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
+        occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        final SortedSet<YearMonthDay> newDates = lesson.getAllLessonDates();
+
+        assertEquals(newDates.size(), 9);
+        assertFalse(newDates.contains(new YearMonthDay(2023, 9, 18)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 10, 2)));
+        assertFalse(newDates.contains(new YearMonthDay(2023, 10, 9)));  // holiday
+        assertTrue(newDates.contains(new YearMonthDay(2023, 10, 16)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 10, 30)));
+        assertFalse(newDates.contains(new YearMonthDay(2023, 11, 6)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 11, 20)));
+        assertFalse(newDates.contains(new YearMonthDay(2023, 11, 27)));
+        assertFalse(newDates.contains(new YearMonthDay(2023, 12, 4)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 12, 11)));
+        assertTrue(newDates.contains(new YearMonthDay(2023, 12, 18)));
+
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+
+        lesson.createAllLessonInstances();
+        assertNull(lesson.getPeriod());
+        assertEquals(lesson.getLessonInstancesSet().size(), 9);
+
+        final SortedSet<YearMonthDay> datesAfterInstancesCreation = lesson.getAllLessonDates();
+        assertEquals(datesAfterInstancesCreation.size(), 9);
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 10, 2)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 10, 16)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 10, 30)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 11, 20)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 12, 11)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 12, 18)));
+
+        assertNull(lesson.getLessonSpaceOccupation());
+        assertTrue(lesson.getSpaces().findAny().get() == space);
+
+        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+
+//        new LessonInstance(lesson, new YearMonthDay(2023, 12, 17)); TODO ERROR: invalid date!
+
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.lessonInstance.already.exist");
+        new LessonInstance(lesson, new YearMonthDay(2023, 12, 18));
+    }
+
+    @Test
+    public void testLesson_datesBiweekly() {
+
+        new Holiday(new Partial(new LocalDate(2023, 10, 9)));
+//        Bennu.getInstance().getHolidaysSet().forEach(Holiday::delete);
+
+        Space space = new Space(new Information.Builder().classification(classification).build());
+
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
+        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.BIWEEKLY,
+                occupationPeriod, space);
+
+        int year = 2023;
+        final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
+        final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
+        final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
+        occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        final SortedSet<YearMonthDay> lessonDates = lesson.getAllLessonDates();
+
+//        lessonDates.forEach(date -> System.out.println(">> " + date.toString()));
+
+        assertEquals(lessonDates.size(), 4);
+        assertTrue(lessonDates.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(lessonDates.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(lessonDates.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(lessonDates.contains(new YearMonthDay(2023, 12, 11)));
+
+        // FIXME: with holiday, dates should be 5: 2023-09-25, 2023-10-09, 2023-10-23, 2023-11-13, 2023-12-11
+
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+
+        lesson.createAllLessonInstances();
+        assertNull(lesson.getPeriod());
+        assertEquals(lesson.getLessonInstancesSet().size(), 4);
+
+        final SortedSet<YearMonthDay> datesAfterInstancesCreation = lesson.getAllLessonDates();
+        assertEquals(datesAfterInstancesCreation.size(), 4);
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(datesAfterInstancesCreation.contains(new YearMonthDay(2023, 12, 11)));
+
+        assertNull(lesson.getLessonSpaceOccupation());
+        assertTrue(lesson.getSpaces().findAny().get() == space);
+
+        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+    }
+
+    @Test
+    public void testLesson_datesWithoutInstances() {
+
+        new Holiday(new Partial(new LocalDate(2023, 10, 9)));
+
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
+        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+
+        int year = 2023;
+        final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
+        final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
+        final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
+        occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        final SortedSet<YearMonthDay> newDates = lesson.getAllLessonDates();
+        assertEquals(newDates.size(), 9);
+
+        new LessonInstance(lesson, new YearMonthDay(2023, 10, 23));
+        new LessonInstance(lesson, new YearMonthDay(2023, 11, 13));
+        new LessonInstance(lesson, new YearMonthDay(2023, 12, 11));
+
+        assertEquals(lesson.getLessonInstancesSet().size(), 3);
+
+        final SortedSet<YearMonthDay> datesAfterInstancesCreation = lesson.getAllLessonDates();
+        assertEquals(datesAfterInstancesCreation.size(), 9);
+
+        SortedSet<YearMonthDay> datesWithoutInstances = lesson.getAllLessonDatesWithoutInstanceDates();
+        assertEquals(datesWithoutInstances.size(), 6);
+
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 9, 25)));
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 10, 2)));
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 10, 16)));
+        assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 10, 23)));
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 10, 30)));
+        assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 11, 13)));
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 11, 20)));
+        assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 11)));
+        assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 18)));
+
     }
 
 }
