@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
-import org.fenixedu.academic.domain.space.SpaceUtils;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.util.icalendar.ClassEventBean;
 import org.fenixedu.academic.domain.util.icalendar.EventBean;
@@ -271,21 +270,6 @@ public class Lesson extends Lesson_Base {
         return String.valueOf(getFim().get(Calendar.HOUR_OF_DAY));
     }
 
-    public double hoursAfter(int hour) {
-
-        HourMinuteSecond afterHour = new HourMinuteSecond(hour, 0, 0);
-
-        if (!getBeginHourMinuteSecond().isBefore(afterHour)) {
-            return getUnitHours().doubleValue();
-
-        } else if (getEndHourMinuteSecond().isAfter(afterHour)) {
-            return BigDecimal.valueOf(Minutes.minutesBetween(afterHour, getEndHourMinuteSecond()).getMinutes())
-                    .divide(BigDecimal.valueOf(NUMBER_OF_MINUTES_IN_HOUR), 2, RoundingMode.HALF_UP).doubleValue();
-        }
-
-        return 0.0;
-    }
-
     Summary getSummaryByDate(YearMonthDay date) {
         for (Summary summary : getAssociatedSummaries()) {
             if (summary.getSummaryDateYearMonthDay().isEqual(date)) {
@@ -355,7 +339,7 @@ public class Lesson extends Lesson_Base {
                 lessonBegin = lessonBegin.plusDays(NUMBER_OF_DAYS_IN_WEEK);
             }
 
-            while (!isDayValid(lessonBegin, null)) {
+            while (!isDayValid(lessonBegin)) {
                 if (!lessonBegin.isAfter(periodEndDate)) {
                     lessonBegin = lessonBegin.plusDays(NUMBER_OF_DAYS_IN_WEEK);
                 } else {
@@ -376,19 +360,6 @@ public class Lesson extends Lesson_Base {
             lessonEnd = lessonEnd.minusDays(NUMBER_OF_DAYS_IN_WEEK);
         }
         return lessonEnd;
-    }
-
-    public Space getLessonCampus() {
-        if (!wasFinished()) {
-            return hasSala() ? SpaceUtils.getSpaceCampus(getSala()) : null;
-        } else {
-            LessonInstance lastLessonInstance = getLastLessonInstance();
-            if (lastLessonInstance != null && lastLessonInstance.getRoom() != null) {
-                return SpaceUtils.getSpaceCampus(lastLessonInstance.getRoom());
-            } else {
-                return null;
-            }
-        }
     }
 
     public SortedSet<YearMonthDay> getAllLessonDatesWithoutInstanceDates() {
@@ -445,7 +416,7 @@ public class Lesson extends Lesson_Base {
         return count;
     }
 
-    public SortedSet<YearMonthDay> getAllLessonDatesUntil(YearMonthDay day) {
+    private SortedSet<YearMonthDay> getAllLessonDatesUntil(YearMonthDay day) {
         SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
         if (day != null) {
             result.addAll(getAllLessonInstanceDatesUntil(day));
@@ -459,7 +430,7 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    public SortedSet<YearMonthDay> getAllLessonInstanceDates() {
+    private SortedSet<YearMonthDay> getAllLessonInstanceDates() {
         SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
         for (LessonInstance instance : getLessonInstancesSet()) {
             dates.add(instance.getDay());
@@ -467,7 +438,7 @@ public class Lesson extends Lesson_Base {
         return dates;
     }
 
-    public List<LessonInstance> getAllLessonInstancesUntil(LocalDate day) {
+    private List<LessonInstance> getAllLessonInstancesUntil(LocalDate day) {
         List<LessonInstance> result = new ArrayList<LessonInstance>();
         if (day != null) {
             for (LessonInstance instance : getLessonInstancesSet()) {
@@ -479,7 +450,7 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    public SortedSet<YearMonthDay> getAllLessonInstanceDatesUntil(YearMonthDay day) {
+    private SortedSet<YearMonthDay> getAllLessonInstanceDatesUntil(YearMonthDay day) {
         SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
         if (day != null) {
             for (LessonInstance instance : getLessonInstancesSet()) {
@@ -500,14 +471,13 @@ public class Lesson extends Lesson_Base {
 
         if (!wasFinished() && startDateToSearch != null && endDateToSearch != null
                 && !startDateToSearch.isAfter(endDateToSearch)) {
-            Space lessonCampus = getLessonCampus();
             final int dayIncrement = getFrequency() == FrequencyType.BIWEEKLY ? FrequencyType.WEEKLY
                     .getNumberOfDays() : getFrequency().getNumberOfDays();
             boolean shouldAdd = true;
             while (true) {
-                if (isDayValid(startDateToSearch, lessonCampus)) {
+                if (isDayValid(startDateToSearch)) {
                     if (getFrequency() != FrequencyType.BIWEEKLY || shouldAdd) {
-                        if (!isHoliday(startDateToSearch, lessonCampus)) {
+                        if (!isHoliday(startDateToSearch)) {
                             result.add(startDateToSearch);
                         }
                     }
@@ -522,11 +492,11 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    private boolean isHoliday(YearMonthDay day, Space lessonCampus) {
+    private boolean isHoliday(YearMonthDay day) {
         return Holiday.isHoliday(day.toLocalDate());
     }
 
-    private boolean isDayValid(YearMonthDay day, Space lessonCampus) {
+    private boolean isDayValid(YearMonthDay day) {
         return /* !Holiday.isHoliday(day.toLocalDate(), lessonCampus) && */getPeriod().nestedOccupationPeriodsContainsDay(day);
     }
 
