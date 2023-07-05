@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 
@@ -74,22 +75,24 @@ public class ExecutionsAndSchedulesTest {
         classification = new SpaceClassification("ROOM", new LocalizedString());
         classification.setIsAllocatable(true);
 
+        int year = 2023; // executionInterval.getBeginDateYearMonthDay().getYear(); 
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(year, 9, 15, 0, 0), new DateTime(year, 12, 15, 0, 0))).iterator();
+
         shift = new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
         createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
-                createDefaultOccupationPeriod(), null);
+                createDefaultOccupationPeriod(intervals), null);
     }
 
-    private static OccupationPeriod createDefaultOccupationPeriod() {
+    static OccupationPeriod createDefaultOccupationPeriod(Iterator<Interval> intervals) {
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
-        int year = 2023; // executionInterval.getBeginDateYearMonthDay().getYear(); 
-        final OccupationPeriod occupationPeriod =
-                new OccupationPeriod(new Interval(new DateTime(year, 9, 15, 0, 0), new DateTime(year, 12, 15, 0, 0)));
+        final OccupationPeriod occupationPeriod = new OccupationPeriod(intervals);
         new OccupationPeriodReference(occupationPeriod, executionDegree, executionInterval, new CurricularYearList(List.of(-1)));
         return occupationPeriod;
     }
 
-    private static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime,
-            final LocalTime endTime, final FrequencyType frequency, final OccupationPeriod period, final Space space) {
+    static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime, final LocalTime endTime,
+            final FrequencyType frequency, final OccupationPeriod period, final Space space) {
 
         final DiaSemana diaSemana = DiaSemana.fromWeekDay(weekDay);
 
@@ -188,7 +191,9 @@ public class ExecutionsAndSchedulesTest {
 
         Space space = new Space(new Information.Builder().classification(classification).build());
 
-        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
         Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, space);
 
@@ -274,15 +279,15 @@ public class ExecutionsAndSchedulesTest {
 
         Space space = new Space(new Information.Builder().classification(classification).build());
 
-        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
-        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.BIWEEKLY,
-                occupationPeriod, space);
-
         int year = 2023;
         final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
         final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
         final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
-        occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        final OccupationPeriod occupationPeriod =
+                createDefaultOccupationPeriod(List.of(interval1, interval2, interval3).iterator());
+        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.BIWEEKLY,
+                occupationPeriod, space);
 
         final SortedSet<YearMonthDay> lessonDates = lesson.getAllLessonDates();
 
@@ -323,15 +328,15 @@ public class ExecutionsAndSchedulesTest {
 
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
 
-        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod();
-        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
-                occupationPeriod, null);
-
         int year = 2023;
         final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
         final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
         final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
-        occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        final OccupationPeriod occupationPeriod =
+                createDefaultOccupationPeriod(List.of(interval1, interval2, interval3).iterator());
+        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
 
         final SortedSet<YearMonthDay> newDates = lesson.getAllLessonDates();
         assertEquals(newDates.size(), 9);
