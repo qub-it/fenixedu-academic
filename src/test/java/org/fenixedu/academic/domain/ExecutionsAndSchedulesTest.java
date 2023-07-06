@@ -191,7 +191,7 @@ public class ExecutionsAndSchedulesTest {
 
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
 
-        Space space = new Space(new Information.Builder().classification(classification).build());
+        Space space = new Space(new Information.Builder().classification(classification).name("Room 1").build());
 
         Iterator<Interval> intervals =
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
@@ -284,7 +284,7 @@ public class ExecutionsAndSchedulesTest {
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
 //        Bennu.getInstance().getHolidaysSet().forEach(Holiday::delete);
 
-        Space space = new Space(new Information.Builder().classification(classification).build());
+        Space space = new Space(new Information.Builder().classification(classification).name("Room 2").build());
 
         int year = 2023;
         final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
@@ -369,7 +369,6 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 11, 20)));
         assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 11)));
         assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 18)));
-
     }
 
     @Test

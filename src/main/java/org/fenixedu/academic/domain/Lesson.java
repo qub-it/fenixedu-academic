@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,15 +34,11 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
-import org.fenixedu.academic.domain.util.icalendar.ClassEventBean;
-import org.fenixedu.academic.domain.util.icalendar.EventBean;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.spaces.domain.Space;
-import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -63,7 +58,7 @@ public class Lesson extends Lesson_Base {
         super();
 
         setRootDomainObject(Bennu.getInstance());
-        setDiaSemana(diaSemana);
+        setWeekDay(diaSemana == null ? null : WeekDay.getWeekDay(diaSemana)); //setDiaSemana(diaSemana);
         setInicio(inicio);
         setFim(fim);
         setShift(shift);
@@ -185,7 +180,8 @@ public class Lesson extends Lesson_Base {
         if (getLessonSpaceOccupation() != null) {
             return getLessonSpaceOccupation().getSpace();
         } else if (hasAnyLessonInstances() && wasFinished()) {
-            return getLastLessonInstance().getRoom();
+            return getLessonInstancesSet().stream().max(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME).map(LessonInstance::getRoom)
+                    .orElse(null);
         }
         return null;
     }
@@ -244,14 +240,6 @@ public class Lesson extends Lesson_Base {
     public BigDecimal getUnitHours() {
         return BigDecimal.valueOf(getUnitMinutes()).divide(BigDecimal.valueOf(NUMBER_OF_MINUTES_IN_HOUR), 2,
                 RoundingMode.HALF_UP);
-    }
-
-    public String getInicioString() {
-        return String.valueOf(getInicio().get(Calendar.HOUR_OF_DAY));
-    }
-
-    public String getFimString() {
-        return String.valueOf(getFim().get(Calendar.HOUR_OF_DAY));
     }
 
     public List<Summary> getAssociatedSummaries() {
@@ -362,7 +350,7 @@ public class Lesson extends Lesson_Base {
             while (true) {
                 if (isDayValid(startDateToSearch)) {
                     if (getFrequency() != FrequencyType.BIWEEKLY || shouldAdd) {
-                        if (!isHoliday(startDateToSearch)) {
+                        if (!Holiday.isHoliday(startDateToSearch.toLocalDate())) {
                             result.add(startDateToSearch);
                         }
                     }
@@ -380,24 +368,8 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    private boolean isHoliday(YearMonthDay day) {
-        return Holiday.isHoliday(day.toLocalDate());
-    }
-
     private boolean isDayValid(YearMonthDay day) {
-        return /* !Holiday.isHoliday(day.toLocalDate(), lessonCampus) && */getPeriod().nestedOccupationPeriodsContainsDay(day);
-    }
-
-    public LessonInstance getLastLessonInstance() {
-        SortedSet<LessonInstance> result = new TreeSet<LessonInstance>(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME);
-        result.addAll(getLessonInstancesSet());
-        return !result.isEmpty() ? result.last() : null;
-    }
-
-    public LessonInstance getFirstLessonInstance() {
-        SortedSet<LessonInstance> result = new TreeSet<LessonInstance>(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME);
-        result.addAll(getLessonInstancesSet());
-        return !result.isEmpty() ? result.first() : null;
+        return getPeriod().nestedOccupationPeriodsContainsDay(day);
     }
 
     public LessonInstance getLessonInstanceFor(YearMonthDay date) {
@@ -426,10 +398,10 @@ public class Lesson extends Lesson_Base {
 
     public String prettyPrint() {
         final StringBuilder result = new StringBuilder();
-        result.append(getDiaSemana().toString()).append(" (");
+        result.append(getWeekDay().getLabelShort()).append(" (");
         result.append(getBeginHourMinuteSecond().toString("HH:mm")).append("-");
         result.append(getEndHourMinuteSecond().toString("HH:mm")).append(") ");
-        result.append(hasSala() ? (getSala()).getName().toString() : "");
+        result.append(getSpaces().map(Space::getName).collect(Collectors.joining(", ")));
         return result.toString();
     }
 
@@ -467,20 +439,6 @@ public class Lesson extends Lesson_Base {
         }
     }
 
-    public AcademicInterval getAcademicInterval() {
-        return getExecutionPeriod().getAcademicInterval();
-    }
-
-    public List<EventBean> getAllLessonsEvents() {
-        List<EventBean> result = new ArrayList<>();
-        for (YearMonthDay aDay : getAllLessonDates()) {
-            DateTime beginDate = aDay.toLocalDate().toDateTime(getBeginHourMinuteSecond().toLocalTime());
-            DateTime endDate = aDay.toLocalDate().toDateTime(getEndHourMinuteSecond().toLocalTime());
-            result.add(new ClassEventBean(beginDate, endDate, false, Set.of(), null, null, getShift()));
-        }
-        return result;
-    }
-
     @Deprecated
     public java.util.Date getBegin() {
         org.fenixedu.academic.util.HourMinuteSecond hms = getBeginHourMinuteSecond();
@@ -512,28 +470,18 @@ public class Lesson extends Lesson_Base {
     }
 
     @Deprecated
-    public void setDiaSemana(DiaSemana diaSemana) {
-        setWeekDay(diaSemana == null ? null : WeekDay.getWeekDay(diaSemana));
-    }
-
-    @Deprecated
     public DiaSemana getDiaSemana() {
         return DiaSemana.fromWeekDay(getWeekDay());
     }
 
-    private static DateTime toDateTime(final YearMonthDay ymd, final HourMinuteSecond hms) {
-        return new DateTime(ymd.getYear(), ymd.getMonthOfYear(), ymd.getDayOfMonth(), hms.getHour(), hms.getMinuteOfHour(),
-                hms.getSecondOfMinute(), 0);
-    }
-
     public Set<Interval> getAllLessonIntervals() {
         return getAllLessonDates().stream()
-                .map(day -> new Interval(toDateTime(day, getBeginHourMinuteSecond()), toDateTime(day, getEndHourMinuteSecond())))
+                .map(day -> new Interval(day.toLocalDate().toDateTime(getBeginHourMinuteSecond().toLocalTime()),
+                        day.toLocalDate().toDateTime(getEndHourMinuteSecond().toLocalTime())))
                 .collect(Collectors.toSet());
     }
 
     private boolean hasAnyLessonInstances() {
         return !getLessonInstancesSet().isEmpty();
     }
-
 }
