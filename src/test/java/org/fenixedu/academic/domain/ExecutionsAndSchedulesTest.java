@@ -12,6 +12,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -363,6 +365,30 @@ public class ExecutionsAndSchedulesTest {
         assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 11)));
         assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 18)));
 
+    }
+
+    @Test
+    public void testLesson_comparator() {
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
+
+        Lesson lesson3 = createLesson(shift, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson4 = createLesson(shift, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson1 = createLesson(shift, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson2 = createLesson(shift, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+
+        List<Lesson> sortedLessons = Stream.of(lesson3, lesson4, lesson1, lesson2)
+                .sorted(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME).collect(Collectors.toList());
+
+        assertEquals(sortedLessons.get(0), lesson1);
+        assertEquals(sortedLessons.get(1), lesson2);
+        assertEquals(sortedLessons.get(2), lesson3);
+        assertEquals(sortedLessons.get(3), lesson4);
     }
 
 }

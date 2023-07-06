@@ -56,22 +56,8 @@ public class Lesson extends Lesson_Base {
     public static int NUMBER_OF_MINUTES_IN_HOUR = 60;
     public static int NUMBER_OF_DAYS_IN_WEEK = 7;
 
-    public static final Comparator<Lesson> LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME = new Comparator<Lesson>() {
-
-        @Override
-        public int compare(Lesson o1, Lesson o2) {
-            final int cd = o1.getDiaSemana().getDiaSemana().compareTo(o2.getDiaSemana().getDiaSemana());
-            if (cd != 0) {
-                return cd;
-            }
-            final int cb = o1.getBeginHourMinuteSecond().compareTo(o2.getBeginHourMinuteSecond());
-            if (cb != 0) {
-                return cb;
-            }
-            return DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2);
-        }
-
-    };
+    public static final Comparator<Lesson> LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME =
+            Comparator.comparing(Lesson::getWeekDay).thenComparing(Lesson::getBeginHourMinuteSecond);
 
     public Lesson(DiaSemana diaSemana, Calendar inicio, Calendar fim, Shift shift, FrequencyType frequency,
             ExecutionInterval executionInterval, OccupationPeriod period, Space room) {
