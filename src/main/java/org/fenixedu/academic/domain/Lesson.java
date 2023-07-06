@@ -446,30 +446,9 @@ public class Lesson extends Lesson_Base {
     }
 
     private boolean contains(Interval interval, SortedSet<YearMonthDay> allLessonDates) {
-
-        YearMonthDay intervalStartDate = interval.getStart().toYearMonthDay();
-        YearMonthDay intervalEndDate = interval.getEnd().toYearMonthDay();
-
-        HourMinuteSecond intervalBegin = new HourMinuteSecond(interval.getStart().getHourOfDay(),
-                interval.getStart().getMinuteOfHour(), interval.getStart().getSecondOfMinute());
-        HourMinuteSecond intervalEnd = new HourMinuteSecond(interval.getEnd().getHourOfDay(), interval.getEnd().getMinuteOfHour(),
-                interval.getEnd().getSecondOfMinute());
-
-        for (YearMonthDay day : allLessonDates) {
-            if (intervalStartDate.isEqual(intervalEndDate)) {
-                if (day.isEqual(intervalStartDate) && !intervalBegin.isAfter(getEndHourMinuteSecond())
-                        && !intervalEnd.isBefore(getBeginHourMinuteSecond())) {
-                    return true;
-                }
-            } else {
-                if ((day.isAfter(intervalStartDate) && day.isBefore(intervalEndDate))
-                        || day.isEqual(intervalStartDate) && !getEndHourMinuteSecond().isBefore(intervalBegin)
-                        || (day.isEqual(intervalEndDate) && !getBeginHourMinuteSecond().isAfter(intervalEnd))) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return allLessonDates.stream()
+                .map(date -> new Interval(date.toDateTimeAtMidnight(), date.toDateTimeAtMidnight().plusDays(1)))
+                .anyMatch(i -> i.overlaps(interval));
     }
 
     public String prettyPrint() {
