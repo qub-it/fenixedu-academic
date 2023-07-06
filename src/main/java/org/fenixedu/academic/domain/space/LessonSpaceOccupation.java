@@ -21,19 +21,17 @@ package org.fenixedu.academic.domain.space;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.OccupationPeriod;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.YearMonthDay;
-
-import com.google.common.collect.Lists;
 
 public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
@@ -46,17 +44,7 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
         setLesson(lesson);
 
-        if (getPeriod() == null) {
-            throw new DomainException("error.LessonSpaceOccupation.empty.period");
-        }
-        if (allocatableSpace != null
-                && !allocatableSpace.isFree(Lists.newArrayList(lesson.getAllLessonIntervalsWithoutInstanceDates()))) {
-            throw new DomainException("error.LessonSpaceOccupation.room.is.not.free", allocatableSpace.getName(),
-                    getPeriod().getStartYearMonthDay().toString("dd-MM-yyy"),
-                    getPeriod().getLastOccupationPeriodOfNestedPeriods().getEndYearMonthDay().toString("dd-MM-yyy"));
-        }
-
-        setResource(allocatableSpace);
+        edit(allocatableSpace);
     }
 
     public void edit(Space allocatableSpace) {
@@ -64,10 +52,7 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
             throw new DomainException("error.LessonSpaceOccupation.empty.period");
         }
 
-        final SortedSet<Interval> allLessonIntervalsWithoutInstanceDates =
-                getLesson().getAllLessonIntervalsWithoutInstanceDates();
-        if (allocatableSpace != null /* && !allocatableSpace.isFree(this) */
-                && !allocatableSpace.isFree(Lists.newArrayList(allLessonIntervalsWithoutInstanceDates))) {
+        if (allocatableSpace != null && !allocatableSpace.isFree(getIntervals())) {
             throw new DomainException("error.LessonSpaceOccupation.room.is.not.free", allocatableSpace.getName(),
                     getPeriod().getStartYearMonthDay().toString("dd-MM-yyy"),
                     getPeriod().getLastOccupationPeriodOfNestedPeriods().getEndYearMonthDay().toString("dd-MM-yyy"));
@@ -88,7 +73,16 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
     @Override
     public List<Interval> getIntervals() {
-        return new ArrayList<>(getLesson().getAllLessonIntervalsWithoutInstanceDates());
+        List<Interval> result = new ArrayList<>();
+        if (!getLesson().wasFinished()) {
+            final HourMinuteSecond b = getLesson().getBeginHourMinuteSecond();
+            final HourMinuteSecond e = getLesson().getEndHourMinuteSecond();
+            for (final YearMonthDay yearMonthDay : getLesson().getAllLessonDatesWithoutInstanceDates()) {
+                result.add(new Interval(yearMonthDay.toLocalDate().toDateTime(b.toLocalTime()),
+                        yearMonthDay.toLocalDate().toDateTime(e.toLocalTime())));
+            }
+        }
+        return result;
     }
 
     @Override

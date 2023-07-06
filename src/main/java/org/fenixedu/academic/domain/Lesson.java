@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -329,33 +328,7 @@ public class Lesson extends Lesson_Base {
     public SortedSet<YearMonthDay> getAllLessonDatesWithoutInstanceDates() {
         SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
         if (!wasFinished()) {
-            YearMonthDay startDateToSearch = getLessonStartDay();
-            YearMonthDay endDateToSearch = getLessonEndDay();
-            dates.addAll(getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch));
-
-            dates.removeAll(getAllLessonInstanceDates());
-        }
-        return dates;
-    }
-
-    public SortedSet<Interval> getAllLessonIntervalsWithoutInstanceDates() {
-        SortedSet<Interval> dates = new TreeSet<Interval>(new Comparator<Interval>() {
-
-            @Override
-            public int compare(Interval o1, Interval o2) {
-                return o1.getStart().compareTo(o2.getStart());
-            }
-
-        });
-        if (!wasFinished()) {
-            YearMonthDay startDateToSearch = getLessonStartDay();
-            YearMonthDay endDateToSearch = getLessonEndDay();
-            final HourMinuteSecond b = getBeginHourMinuteSecond();
-            final HourMinuteSecond e = getEndHourMinuteSecond();
-            for (final YearMonthDay yearMonthDay : getAllValidLessonDatesWithoutInstancesDates(startDateToSearch,
-                    endDateToSearch)) {
-                dates.add(new Interval(toDateTime(yearMonthDay, b), toDateTime(yearMonthDay, e)));
-            }
+            dates.addAll(getAllValidLessonDatesWithoutInstancesDates());
         }
         return dates;
     }
@@ -363,23 +336,20 @@ public class Lesson extends Lesson_Base {
     public SortedSet<YearMonthDay> getAllLessonDates() {
         SortedSet<YearMonthDay> dates = getAllLessonInstanceDates();
         if (!wasFinished()) {
-            YearMonthDay startDateToSearch = getLessonStartDay();
-            YearMonthDay endDateToSearch = getLessonEndDay();
-            dates.addAll(getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch));
+            dates.addAll(getAllValidLessonDatesWithoutInstancesDates());
         }
         return dates;
     }
 
     private SortedSet<YearMonthDay> getAllLessonInstanceDates() {
-        SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
-        for (LessonInstance instance : getLessonInstancesSet()) {
-            dates.add(instance.getDay());
-        }
-        return dates;
+        return getLessonInstancesSet().stream().map(li -> li.getDay())
+                .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
     }
 
-    private SortedSet<YearMonthDay> getAllValidLessonDatesWithoutInstancesDates(YearMonthDay startDateToSearch,
-            YearMonthDay endDateToSearch) {
+    private SortedSet<YearMonthDay> getAllValidLessonDatesWithoutInstancesDates() {
+
+        YearMonthDay startDateToSearch = getLessonStartDay();
+        YearMonthDay endDateToSearch = getLessonEndDay();
 
         SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
         startDateToSearch = startDateToSearch != null ? getValidBeginDate(startDateToSearch) : null;
@@ -404,6 +374,9 @@ public class Lesson extends Lesson_Base {
                 }
             }
         }
+
+        result.removeAll(getAllLessonInstanceDates());
+
         return result;
     }
 
@@ -554,19 +527,9 @@ public class Lesson extends Lesson_Base {
     }
 
     public Set<Interval> getAllLessonIntervals() {
-        Set<Interval> intervals = new HashSet<Interval>();
-        for (LessonInstance instance : getLessonInstancesSet()) {
-            intervals.add(new Interval(instance.getBeginDateTime(), instance.getEndDateTime()));
-        }
-        if (!wasFinished()) {
-            YearMonthDay startDateToSearch = getLessonStartDay();
-            YearMonthDay endDateToSearch = getLessonEndDay();
-            for (YearMonthDay day : getAllValidLessonDatesWithoutInstancesDates(startDateToSearch, endDateToSearch)) {
-                intervals.add(
-                        new Interval(toDateTime(day, getBeginHourMinuteSecond()), toDateTime(day, getEndHourMinuteSecond())));
-            }
-        }
-        return intervals;
+        return getAllLessonDates().stream()
+                .map(day -> new Interval(toDateTime(day, getBeginHourMinuteSecond()), toDateTime(day, getEndHourMinuteSecond())))
+                .collect(Collectors.toSet());
     }
 
     private boolean hasAnyLessonInstances() {

@@ -199,6 +199,8 @@ public class ExecutionsAndSchedulesTest {
         Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, space);
 
+        assertEquals(lesson.getAllLessonIntervals().size(), 12);
+
         final SortedSet<YearMonthDay> originalDates = lesson.getAllLessonDates();
 
         assertEquals(originalDates.size(), 12);
@@ -221,6 +223,8 @@ public class ExecutionsAndSchedulesTest {
         final Interval interval2 = new Interval(new DateTime(year, 11, 13, 0, 0), new DateTime(year, 11, 20, 23, 59));
         final Interval interval3 = new Interval(new DateTime(year, 12, 5, 0, 0), new DateTime(year, 12, 20, 23, 59));
         occupationPeriod.editDates(List.of(interval1, interval2, interval3).iterator());
+
+        assertEquals(lesson.getAllLessonIntervals().size(), 9);
 
         final SortedSet<YearMonthDay> newDates = lesson.getAllLessonDates();
 
@@ -246,6 +250,7 @@ public class ExecutionsAndSchedulesTest {
         lesson.createAllLessonInstances();
         assertNull(lesson.getPeriod());
         assertEquals(lesson.getLessonInstancesSet().size(), 9);
+        assertEquals(lesson.getAllLessonIntervals().size(), 9);
 
         final SortedSet<YearMonthDay> datesAfterInstancesCreation = lesson.getAllLessonDates();
         assertEquals(datesAfterInstancesCreation.size(), 9);
