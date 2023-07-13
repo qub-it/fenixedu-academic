@@ -76,6 +76,21 @@
     </scm>
 
     <build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>test-jar</id>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

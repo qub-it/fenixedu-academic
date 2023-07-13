@@ -4,6 +4,7 @@
 - Refactor: On summary creation, create all missing lesson instances of lesson
 - Refactor: Cleanup and remove unused lesson methods
 - Refactor: Add lesson and summary unit tests
+- Improvement: Publishing test jar so other modules can use academic's domain tear up
 
 40.15.3 (29-06-2023)
 - Refactor: Remove mandatory shift type on lesson planning creation
