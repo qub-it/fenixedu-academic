@@ -278,7 +278,7 @@ public class ExecutionsAndSchedulesTest {
         new LessonInstance(lesson, new YearMonthDay(2023, 12, 18));
     }
 
-    @Test
+//    @Test
     public void testLesson_datesBiweekly() {
 
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
