@@ -5,6 +5,11 @@
 - Refactor: Cleanup and remove unused lesson methods
 - Refactor: Add lesson and summary unit tests
 - Improvement: Publishing test jar so other modules can use academic's domain tear up
+- Refactor: Rename IAcademicTreasuryEvent::getAmountToPay to IAcademicTreasuryEvent::getAmountWithVatToPay
+- Refactor: Remove deprecated IAcademicTreasuryEvent::getExemptedAmount, to be replaced with IAcademicTreasuryEvent::getNetExemptedAmount
+- Refactor: Delete ITuitionTreasuryEvent interface and replace with base interface IAcademicTreasuryEvent
+- Refactor: Rename IImprovementTreasuryEvent::getAmountToPay to IImprovementTreasuryEvent::getAmountWithVatToPay
+- Refactor: Rename IImprovementTreasuryEvent::getExemptedAmount to IImprovementTreasuryEvent::getNetExemptedAmount
 
 40.15.3 (29-06-2023)
 - Refactor: Remove mandatory shift type on lesson planning creation

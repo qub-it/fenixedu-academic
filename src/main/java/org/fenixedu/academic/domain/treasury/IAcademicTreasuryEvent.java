@@ -47,19 +47,13 @@ public interface IAcademicTreasuryEvent {
 
     public boolean isBlockingAcademicalActs(final LocalDate when);
 
-    public BigDecimal getAmountToPay();
+    public BigDecimal getAmountWithVatToPay();
 
     public BigDecimal getInterestsAmountToPay();
 
     public BigDecimal getRemainingAmountToPay();
 
-    @Deprecated
-    /** Must be replaced by {@link IAcademicTreasuryEvent#getNetExemptedAmount()} */
-    public BigDecimal getExemptedAmount();
-
-    default public BigDecimal getNetExemptedAmount() {
-        return getExemptedAmount();
-    }
+    public BigDecimal getNetExemptedAmount();
 
     public String getExemptionTypeName();
 

@@ -74,14 +74,14 @@ public interface ITreasuryBridgeAPI {
 
     public boolean isToPayTuition(Registration registration, ExecutionYear executionYear);
 
-    public ITuitionTreasuryEvent getTuitionForRegistrationTreasuryEvent(Registration registration, ExecutionYear executionYear);
+    public IAcademicTreasuryEvent getTuitionForRegistrationTreasuryEvent(Registration registration, ExecutionYear executionYear);
 
-    public ITuitionTreasuryEvent getTuitionForStandaloneTreasuryEvent(Registration registration, ExecutionYear executionYear);
+    public IAcademicTreasuryEvent getTuitionForStandaloneTreasuryEvent(Registration registration, ExecutionYear executionYear);
 
-    public ITuitionTreasuryEvent getTuitionForExtracurricularTreasuryEvent(Registration registration,
+    public IAcademicTreasuryEvent getTuitionForExtracurricularTreasuryEvent(Registration registration,
             ExecutionYear executionYear);
 
-    public ITuitionTreasuryEvent getTuitionForImprovementTreasuryEvent(Registration registration, ExecutionYear executionYear);
+    public IAcademicTreasuryEvent getTuitionForImprovementTreasuryEvent(Registration registration, ExecutionYear executionYear);
 
     // @formatter:off
     /* --------------

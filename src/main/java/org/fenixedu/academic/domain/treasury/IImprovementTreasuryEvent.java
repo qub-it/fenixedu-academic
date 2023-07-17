@@ -30,11 +30,11 @@ public interface IImprovementTreasuryEvent extends IAcademicTreasuryEvent {
     
     public boolean isBlockingAcademicalActs(final EnrolmentEvaluation enrolmentEvaluation, final LocalDate when);
 
-    public BigDecimal getAmountToPay(final EnrolmentEvaluation enrolmentEvaluation);
+    public BigDecimal getAmountWithVatToPay(final EnrolmentEvaluation enrolmentEvaluation);
 
     public BigDecimal getRemainingAmountToPay(final EnrolmentEvaluation enrolmentEvaluation);
 
-    public BigDecimal getExemptedAmount(final EnrolmentEvaluation enrolmentEvaluation);
+    public BigDecimal getNetExemptedAmount(final EnrolmentEvaluation enrolmentEvaluation);
     
     public LocalDate getDueDate(final EnrolmentEvaluation enrolmentEvaluation);
     
