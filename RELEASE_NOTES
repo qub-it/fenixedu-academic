@@ -1,16 +1,17 @@
-40.16.0 (18-07-2023)
+- Refactor: Rename IAcademicTreasuryEvent::getAmountToPay to IAcademicTreasuryEvent::getAmountWithVatToPay
+- Refactor: Remove deprecated IAcademicTreasuryEvent::getExemptedAmount, to be replaced with IAcademicTreasuryEvent::getNetExemptedAmount
+- Refactor: Delete ITuitionTreasuryEvent interface and replace with base interface IAcademicTreasuryEvent
+- Refactor: Rename IImprovementTreasuryEvent::getAmountToPay to IImprovementTreasuryEvent::getAmountWithVatToPay
+- Refactor: Rename IImprovementTreasuryEvent::getExemptedAmount to IImprovementTreasuryEvent::getNetExemptedAmount
+- Improvement: Publishing test jar so other modules can use academic's domain tear up
+
+41.0.0 (11-07-2023)
 - Refactor: Cleanup unused summaries and lesson plannings methods
 - Refactor: Remove shift type slot from lesson planning and add not null domain verifications
 - Refactor: Remove shift type slot from summary and not null domain verifications
 - Refactor: On summary creation, create all missing lesson instances of lesson
 - Refactor: Cleanup and remove unused lesson methods
 - Refactor: Add lesson and summary unit tests
-- Improvement: Publishing test jar so other modules can use academic's domain tear up
-- Refactor: Rename IAcademicTreasuryEvent::getAmountToPay to IAcademicTreasuryEvent::getAmountWithVatToPay
-- Refactor: Remove deprecated IAcademicTreasuryEvent::getExemptedAmount, to be replaced with IAcademicTreasuryEvent::getNetExemptedAmount
-- Refactor: Delete ITuitionTreasuryEvent interface and replace with base interface IAcademicTreasuryEvent
-- Refactor: Rename IImprovementTreasuryEvent::getAmountToPay to IImprovementTreasuryEvent::getAmountWithVatToPay
-- Refactor: Rename IImprovementTreasuryEvent::getExemptedAmount to IImprovementTreasuryEvent::getNetExemptedAmount
 
 40.15.3 (29-06-2023)
 - Refactor: Remove mandatory shift type on lesson planning creation
