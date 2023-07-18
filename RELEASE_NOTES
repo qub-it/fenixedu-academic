@@ -1,3 +1,4 @@
+41.1.0 (18-07-2023)
 - Refactor: Rename IAcademicTreasuryEvent::getAmountToPay to IAcademicTreasuryEvent::getAmountWithVatToPay
 - Refactor: Remove deprecated IAcademicTreasuryEvent::getExemptedAmount, to be replaced with IAcademicTreasuryEvent::getNetExemptedAmount
 - Refactor: Delete ITuitionTreasuryEvent interface and replace with base interface IAcademicTreasuryEvent
