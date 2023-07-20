@@ -81,7 +81,7 @@ public class ExecutionsAndSchedulesTest {
         Iterator<Interval> intervals =
                 List.of(new Interval(new DateTime(year, 9, 15, 0, 0), new DateTime(year, 12, 15, 0, 0))).iterator();
 
-        shift = new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
         createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 createDefaultOccupationPeriod(intervals), null);
     }
@@ -115,8 +115,8 @@ public class ExecutionsAndSchedulesTest {
 
     @Test
     public void testShift_findByCourseLoad() {
-        final CourseLoadType theoreticalLoad = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
-        final CourseLoadType seminarLoad = CourseLoadType.findByCode(CourseLoadType.SEMINAR).orElseThrow();
+        final CourseLoadType theoreticalLoad = CourseLoadType.of(CourseLoadType.THEORETICAL);
+        final CourseLoadType seminarLoad = CourseLoadType.of(CourseLoadType.SEMINAR);
 
         assertTrue(executionCourse.findShiftsByLoadType(theoreticalLoad).findAny().isPresent());
         assertTrue(executionCourse.findShiftsByLoadType(theoreticalLoad).anyMatch(s -> s == shift));
@@ -139,8 +139,8 @@ public class ExecutionsAndSchedulesTest {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.Shift.with.this.name.already.exists");
 
-        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
-        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
+        new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T1");
+        new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T1");
     }
 
     @Test
@@ -148,9 +148,8 @@ public class ExecutionsAndSchedulesTest {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.Shift.with.this.name.already.exists");
 
-        new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T1");
-        final Shift shift2 =
-                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "T2");
+        new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T1");
+        final Shift shift2 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T2");
 
         shift2.edit(shift2.getCourseLoadType(), "T1", null, null);
     }
@@ -164,25 +163,21 @@ public class ExecutionsAndSchedulesTest {
     public void testShift_nameGeneration() {
         assertEquals(shift.getName(), "CAT01");
 
-        final Shift shiftNameCustom1 =
-                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, "CAPL01");
+        final Shift shiftNameCustom1 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "CAPL01");
         assertEquals(shiftNameCustom1.getName(), "CAPL01");
 
-        final Shift shiftNameCustom2 = new Shift(executionCourse,
-                CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow(), 10, "Custom Name");
+        final Shift shiftNameCustom2 =
+                new Shift(executionCourse, CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), 10, "Custom Name");
         assertEquals(shiftNameCustom2.getName(), "Custom Name");
 
-        final Shift shift1 = new Shift(executionCourse,
-                CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow(), 10, null);
+        final Shift shift1 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), 10, null);
         assertEquals(shift1.getName(), "CAPL02");
 
-        final Shift shift2 =
-                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        final Shift shift2 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
         assertEquals(shift.getName(), "CAT01"); // ensure it's not changed anymore
         assertEquals(shift2.getName(), "CAT02");
 
-        final Shift shift3 =
-                new Shift(executionCourse, CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow(), 10, null);
+        final Shift shift3 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
         assertEquals(shift3.getName(), "CAT03");
     }
 

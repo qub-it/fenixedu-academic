@@ -1,5 +1,7 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -19,6 +21,8 @@ public class CourseLoadType extends CourseLoadType_Base {
     public static final String TUTORIAL_ORIENTATION = "TUTORIAL_ORIENTATION";
     public static final String OTHER = "OTHER";
     public static final String AUTONOMOUS_WORK = "AUTONOMOUS_WORK";
+
+    private static final Map<String, CourseLoadType> internalCache = new HashMap<>();
 
     protected CourseLoadType() {
         super();
@@ -40,13 +44,22 @@ public class CourseLoadType extends CourseLoadType_Base {
         return Bennu.getInstance().getCourseLoadTypesSet().stream();
     }
 
+    public static CourseLoadType of(final String code) {
+        return internalCache.computeIfAbsent(code,
+                c -> findAll().filter(type -> Objects.equals(type.getCode(), code)).findAny().orElse(null));
+    }
+
+    /**
+     * @deprecated use {@link CourseLoadType#of(String)}
+     */
+    @Deprecated
     public static Optional<CourseLoadType> findByCode(final String code) {
         return findAll().filter(type -> Objects.equals(type.getCode(), code)).findAny();
     }
 
     @Override
     public void setCode(String code) {
-        if (findByCode(code).filter(type -> type != this).isPresent()) {
+        if (findAll().filter(type -> Objects.equals(type.getCode(), code)).anyMatch(type -> type != this)) {
             throw new IllegalArgumentException("CourseLoadType already exists with same code");
         }
 

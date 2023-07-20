@@ -47,7 +47,7 @@ public class LessonPlanningTest {
 
         executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
 
-        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
+        final CourseLoadType theoretical = CourseLoadType.of(CourseLoadType.THEORETICAL);
 
         createLessonPlanning(null, "Planning A", theoretical, executionCourse);
     }
@@ -56,8 +56,8 @@ public class LessonPlanningTest {
     public void testOrder() {
         executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
 
-        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
-        final CourseLoadType praticalLab = CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow();
+        final CourseLoadType theoretical = CourseLoadType.of(CourseLoadType.THEORETICAL);
+        final CourseLoadType praticalLab = CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY);
 
         final LessonPlanning lpA_T = createLessonPlanning("A (T)", "Planning A", theoretical, executionCourse);
         final LessonPlanning lpB_T = createLessonPlanning("B (T)", "Planning B", theoretical, executionCourse);
@@ -84,8 +84,8 @@ public class LessonPlanningTest {
     public void testOrderAfterDelete() {
         executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
 
-        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
-        final CourseLoadType praticalLab = CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow();
+        final CourseLoadType theoretical = CourseLoadType.of(CourseLoadType.THEORETICAL);
+        final CourseLoadType praticalLab = CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY);
 
         final LessonPlanning lpA_T = createLessonPlanning("A (T)", "Planning A", theoretical, executionCourse);
         final LessonPlanning lpB_T = createLessonPlanning("B (T)", "Planning B", theoretical, executionCourse);
@@ -125,8 +125,8 @@ public class LessonPlanningTest {
     public void testOrderAfterMove() {
         executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
 
-        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
-        final CourseLoadType praticalLab = CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow();
+        final CourseLoadType theoretical = CourseLoadType.of(CourseLoadType.THEORETICAL);
+        final CourseLoadType praticalLab = CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY);
 
         final LessonPlanning lpA_T = createLessonPlanning("A (T)", "Planning A", theoretical, executionCourse);
         final LessonPlanning lpB_T = createLessonPlanning("B (T)", "Planning B", theoretical, executionCourse);
@@ -178,9 +178,9 @@ public class LessonPlanningTest {
     public void testCopyLessonPlannings() {
         executionCourse.getLessonPlanningsSet().forEach(LessonPlanning::delete);
 
-        final CourseLoadType theoretical = CourseLoadType.findByCode(CourseLoadType.THEORETICAL).orElseThrow();
-        final CourseLoadType praticalLab = CourseLoadType.findByCode(CourseLoadType.PRACTICAL_LABORATORY).orElseThrow();
-        final CourseLoadType seminar = CourseLoadType.findByCode(CourseLoadType.SEMINAR).orElseThrow();
+        final CourseLoadType theoretical = CourseLoadType.of(CourseLoadType.THEORETICAL);
+        final CourseLoadType praticalLab = CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY);
+        final CourseLoadType seminar = CourseLoadType.of(CourseLoadType.SEMINAR);
 
         final LessonPlanning lpA_T = createLessonPlanning("A (T)", "Planning A", theoretical, executionCourse);
         final LessonPlanning lpB_T = createLessonPlanning("B (T)", "Planning B", theoretical, executionCourse);

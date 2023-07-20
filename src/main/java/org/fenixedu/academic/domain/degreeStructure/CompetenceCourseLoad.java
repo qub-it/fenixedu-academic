@@ -223,18 +223,17 @@ public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements C
             return; // being created.. //TODO fix this!
         }
 
-        CourseLoadType.findByCode(loadTypeCode).ifPresent(loadType -> {
-            final Optional<CourseLoadDuration> duration = courseInformation.findLoadDurationByType(loadType);
+        final CourseLoadType loadType = CourseLoadType.of(loadTypeCode);
+        final Optional<CourseLoadDuration> duration = courseInformation.findLoadDurationByType(loadType);
 
-            final Double totalHours = sum(hours, otherHoursIfAnual);
+        final Double totalHours = sum(hours, otherHoursIfAnual);
 
-            if (totalHours != null && totalHours.doubleValue() != 0d) {
-                duration.orElseGet(() -> CourseLoadDuration.create(courseInformation, loadType, null))
-                        .setHours(BigDecimal.valueOf(totalHours));
-            } else {
-                duration.ifPresent(CourseLoadDuration::delete);
-            }
-        });
+        if (totalHours != null && totalHours.doubleValue() != 0d) {
+            duration.orElseGet(() -> CourseLoadDuration.create(courseInformation, loadType, null))
+                    .setHours(BigDecimal.valueOf(totalHours));
+        } else {
+            duration.ifPresent(CourseLoadDuration::delete);
+        }
     }
 
     private static Double sum(Double hours1, Double hours2) {
