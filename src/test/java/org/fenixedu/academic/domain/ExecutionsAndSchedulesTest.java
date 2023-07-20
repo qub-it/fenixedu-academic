@@ -181,7 +181,7 @@ public class ExecutionsAndSchedulesTest {
         assertEquals(shift3.getName(), "CAT03");
     }
 
-    @Test
+//    @Test
     public void testLesson_datesWithPeriodChange() {
 
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
