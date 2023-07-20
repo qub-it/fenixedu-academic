@@ -1683,27 +1683,6 @@ class CoordinatorLog  {
 	OperationType operation;
 }
 
-class ProfessorshipPermissions  {
-	boolean personalization;
-	boolean siteArchive;
-	boolean announcements;
-	boolean sections;
-	boolean summaries;
-	boolean students;
-	boolean planning;
-	boolean evaluationSpecific;
-	boolean evaluationWorksheets;
-	boolean evaluationProject;
-	boolean evaluationTests;
-	boolean evaluationExams;
-	boolean evaluationFinal;
-	boolean worksheets;
-	boolean groups;
-	boolean shift;
-	boolean evaluationMethod;
-	boolean bibliografy;
-}
-
 class UserPrivateKey {
     bytearray privateKey;
     DateTime privateKeyCreation;
@@ -4449,18 +4428,6 @@ relation RegistrationIngressionType{
 		multiplicity 0..1;
 	}
 } 
-
-relation ProfessorshipPremissionsProfessorship {
-	Professorship playsRole professorship;
-	ProfessorshipPermissions playsRole permissions;
-}
-
-relation PremissionsProfessorshipRootDomainObject {
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-	ProfessorshipPermissions playsRole professorshipPermissions {
-		multiplicity *;
-	}
-}
 
 relation ProfessorshipUser {
 	Person playsRole creator;

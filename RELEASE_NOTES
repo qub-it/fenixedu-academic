@@ -1,4 +1,5 @@
-- Refactor: Add new method to read course load types and an internal cache 
+- Refactor: Add new method to read course load types and an internal cache
+- Refactor: Remove deprecated entity ProfessorshipPermissions
 
 41.1.0 (18-07-2023)
 - Refactor: Rename IAcademicTreasuryEvent::getAmountToPay to IAcademicTreasuryEvent::getAmountWithVatToPay

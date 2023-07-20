@@ -72,7 +72,6 @@ public class ExecutionCourseCommunicationController extends StrutsFunctionalityC
     }
 
     private boolean hasPermissions(Person person, ExecutionCourse executionCourse) {
-        return person != null && executionCourse.getProfessorship(person) != null
-                && executionCourse.getProfessorship(person).getPermissions().getPersonalization();
+        return person != null && executionCourse.getProfessorship(person) != null;
     }
 }
