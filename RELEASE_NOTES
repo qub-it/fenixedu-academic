@@ -1,3 +1,5 @@
+- Bug fix: EnrolmentDomainException should reimplement getLocalizedMessage
+
 41.2.0 (20-07-2023)
 - Refactor: Add new method to read course load types and an internal cache
 - Refactor: Remove deprecated entity ProfessorshipPermissions

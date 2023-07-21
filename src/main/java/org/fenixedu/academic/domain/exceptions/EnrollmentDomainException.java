@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.domain.exceptions;
 
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 
 public class EnrollmentDomainException extends DomainException {
@@ -44,6 +46,15 @@ public class EnrollmentDomainException extends DomainException {
 
     public RuleResult getFalseResult() {
         return this.falseResult;
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        if (this.falseResult == null) {
+            return super.getLocalizedMessage();
+        }
+
+        return this.falseResult.getMessages().stream().map(m -> m.getMessageTranslated()).collect(Collectors.joining(";"));
     }
 
 }
