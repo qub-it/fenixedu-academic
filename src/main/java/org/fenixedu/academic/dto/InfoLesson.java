@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.FrequencyType;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.util.DiaSemana;
 import org.joda.time.YearMonthDay;
 
@@ -61,11 +60,6 @@ public class InfoLesson extends InfoShowOccupation implements Comparable<InfoLes
 
     public InfoLesson(Lesson lesson) {
         super.copyFromDomain(lesson);
-    }
-
-    @Override
-    public ShiftType getTipo() {
-        return null;
     }
 
     @Override

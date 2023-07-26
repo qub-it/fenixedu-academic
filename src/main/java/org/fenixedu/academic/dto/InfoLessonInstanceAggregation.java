@@ -29,7 +29,6 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.LessonInstance;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.spaces.domain.Space;
@@ -81,11 +80,6 @@ public class InfoLessonInstanceAggregation extends InfoShowOccupation {
     @Override
     public InfoShift getInfoShift() {
         return new InfoShift(shift);
-    }
-
-    @Override
-    public ShiftType getTipo() {
-        return null;
     }
 
     @Override

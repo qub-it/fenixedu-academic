@@ -36,7 +36,6 @@ import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftEnrolment;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.util.DateFormatUtil;
 import org.fenixedu.academic.util.NumberUtils;
 
@@ -79,10 +78,6 @@ public class InfoShift extends InfoObject {
 
     public InfoExecutionCourse getInfoDisciplinaExecucao() {
         return InfoExecutionCourse.newInfoFromDomain(getShift().getExecutionCourse());
-    }
-
-    public Set<ShiftType> getSortedTypes() {
-        return getShift().getSortedTypes();
     }
 
     public Integer getShiftTypesIntegerComparator() {
@@ -193,10 +188,6 @@ public class InfoShift extends InfoObject {
 
     public Shift getShift() {
         return shift;
-    }
-
-    public boolean containsType(ShiftType shiftType) {
-        return getShift().containsType(shiftType);
     }
 
     public String getComment() {

@@ -22,7 +22,6 @@ import java.util.Calendar;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.Evaluation;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.EvaluationType;
 
@@ -106,11 +105,6 @@ public class InfoEvaluation extends InfoShowOccupation {
     // Methods inherited from abstract InfoShowOccupations - not used
     @Override
     public InfoShift getInfoShift() {
-        return null;
-    }
-
-    @Override
-    public ShiftType getTipo() {
         return null;
     }
 

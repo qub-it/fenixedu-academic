@@ -20,7 +20,6 @@ package org.fenixedu.academic.dto;
 
 import java.util.Calendar;
 
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.spaces.domain.Space;
@@ -35,7 +34,7 @@ public abstract class InfoShowOccupation extends InfoObject {
 
     public abstract InfoShift getInfoShift();
 
-    public abstract ShiftType getTipo();
+//    public abstract ShiftType getTipo();
 
     public abstract InfoRoomOccupation getInfoRoomOccupation();
 

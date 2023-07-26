@@ -34,7 +34,6 @@ import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 
 /**
@@ -79,9 +78,9 @@ public class InfoExecutionCourse extends InfoObject {
     // =================== FIELDS RETRIEVED BY DOMAIN LOGIC
     // =======================
 
-    public Double getWeeklyTheoreticalHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TEORICA).doubleValue();
-    }
+//    public Double getWeeklyTheoreticalHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TEORICA).doubleValue();
+//    }
 
 //    public Double getWeeklyPraticalHours() {
 //        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.PRATICA).doubleValue();
@@ -91,34 +90,34 @@ public class InfoExecutionCourse extends InfoObject {
 //        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TEORICO_PRATICA).doubleValue();
 //    }
 
-    public Double getWeeklyLabHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.LABORATORIAL).doubleValue();
-    }
-
-    public Double getWeeklyFieldWorkHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.FIELD_WORK).doubleValue();
-    }
-
-    public Double getWeeklyProblemsHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.PROBLEMS).doubleValue();
-    }
-
-    public Double getWeeklySeminaryHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.SEMINARY).doubleValue();
-    }
-
-    public Double getWeeklyTrainingPeriodHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TRAINING_PERIOD).doubleValue();
-    }
-
-    public Double getWeeklyTutorialOrientationHours() {
-        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TUTORIAL_ORIENTATION).doubleValue();
-    }
-
-    private static BigDecimal getWeeklyCourseLoadTotalQuantityByShiftType(ExecutionCourse executionCourse, ShiftType type) {
-        CourseLoad courseLoad = executionCourse.getCourseLoadByShiftType(type);
-        return courseLoad != null ? courseLoad.getWeeklyHours() : BigDecimal.ZERO;
-    }
+//    public Double getWeeklyLabHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.LABORATORIAL).doubleValue();
+//    }
+//
+//    public Double getWeeklyFieldWorkHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.FIELD_WORK).doubleValue();
+//    }
+//
+//    public Double getWeeklyProblemsHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.PROBLEMS).doubleValue();
+//    }
+//
+//    public Double getWeeklySeminaryHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.SEMINARY).doubleValue();
+//    }
+//
+//    public Double getWeeklyTrainingPeriodHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TRAINING_PERIOD).doubleValue();
+//    }
+//
+//    public Double getWeeklyTutorialOrientationHours() {
+//        return getWeeklyCourseLoadTotalQuantityByShiftType(getExecutionCourse(), ShiftType.TUTORIAL_ORIENTATION).doubleValue();
+//    }
+//
+//    private static BigDecimal getWeeklyCourseLoadTotalQuantityByShiftType(ExecutionCourse executionCourse, ShiftType type) {
+//        CourseLoad courseLoad = executionCourse.getCourseLoadByShiftType(type);
+//        return courseLoad != null ? courseLoad.getWeeklyHours() : BigDecimal.ZERO;
+//    }
 
     public String getNome() {
         return getExecutionCourse().getNome();

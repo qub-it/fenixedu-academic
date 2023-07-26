@@ -22,10 +22,7 @@ import java.util.Calendar;
 
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.LessonInstance;
-import org.fenixedu.academic.domain.ShiftType;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.DiaSemana;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
 
 public class InfoLessonInstance extends InfoShowOccupation {
@@ -69,11 +66,6 @@ public class InfoLessonInstance extends InfoShowOccupation {
     @Override
     public InfoShift getInfoShift() {
         return getLessonInstance().getLesson().getShift() != null ? InfoShift.newInfoFromDomain(getLesson().getShift()) : null;
-    }
-
-    @Override
-    public ShiftType getTipo() {
-        return null;
     }
 
     public String getShiftTypeCodesPrettyPrint() {
