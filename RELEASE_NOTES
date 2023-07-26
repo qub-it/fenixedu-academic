@@ -1,3 +1,5 @@
+- Refactor: Add method to get course load type from shift type
+
 41.2.1 (21-07-2023)
 - Bug fix: EnrolmentDomainException should reimplement getLocalizedMessage
 

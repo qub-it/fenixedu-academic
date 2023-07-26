@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
@@ -59,6 +60,30 @@ public enum ShiftType {
 
     public String getName() {
         return name();
+    }
+
+    public CourseLoadType toCourseLoadType() {
+
+        switch (this) {
+        case TEORICA:
+            return CourseLoadType.of(CourseLoadType.THEORETICAL);
+        case PROBLEMS:
+            return CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL);
+        case LABORATORIAL:
+            return CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY);
+        case FIELD_WORK:
+            return CourseLoadType.of(CourseLoadType.FIELD_WORK);
+        case SEMINARY:
+            return CourseLoadType.of(CourseLoadType.SEMINAR);
+        case TRAINING_PERIOD:
+            return CourseLoadType.of(CourseLoadType.INTERNSHIP);
+        case TUTORIAL_ORIENTATION:
+            return CourseLoadType.of(CourseLoadType.TUTORIAL_ORIENTATION);
+        case OTHER:
+            return CourseLoadType.of(CourseLoadType.OTHER);
+        }
+
+        return null;
     }
 
 }
