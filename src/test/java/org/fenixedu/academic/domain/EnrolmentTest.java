@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -37,7 +39,6 @@ public class EnrolmentTest {
     private static Registration registration;
     private static CurricularCourse curricularCourse;
     private static ExecutionInterval executionInterval;
-    private static Shift shift;
 
     @BeforeClass
     public static void init() {
@@ -73,8 +74,6 @@ public class EnrolmentTest {
         scp.enrol(executionInterval, Set.of(degreeModuleToEnrol), List.of(), CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
         ExecutionsAndSchedulesTest.initSchedules();
-        shift = curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval).stream()
-                .flatMap(ec -> ec.getAssociatedShifts().stream()).findAny().orElseThrow();
 
         Authenticate.unmock();
     }
@@ -135,14 +134,34 @@ public class EnrolmentTest {
 
     @Test
     public void testShiftEnrolments() {
-        assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
+        final ExecutionCourse executionCourse =
+                curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval).iterator().next();
 
-        assertTrue(shift.enrol(registration));
+        final CourseLoadType theoreticalLoad = CourseLoadType.of(THEORETICAL);
+
+        final Shift shiftA = new Shift(executionCourse, theoreticalLoad, 10, "T_testShiftEnrolments_A");
+        final Shift shiftB = new Shift(executionCourse, theoreticalLoad, 10, "T_testShiftEnrolments_B");
+
+        assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
+        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
+
+        assertTrue(shiftA.enrol(registration));
         assertEquals(registration.getShiftEnrolmentsSet().size(), 1);
-        assertEquals(registration.findEnrolledShiftFor(shift.getExecutionCourse(), shift.getCourseLoadType()).get(), shift);
+        assertEquals(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).get(), shiftA);
+        assertEquals(shiftA.getVacancies(), Integer.valueOf(9));
+        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
 
-        shift.unenrol(registration);
+        assertTrue(shiftB.enrol(registration));
+        assertEquals(registration.getShiftEnrolmentsSet().size(), 1);
+        assertEquals(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).get(), shiftB);
+        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftB.getVacancies(), Integer.valueOf(9));
+
+        shiftB.unenrol(registration);
         assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
-        assertTrue(registration.findEnrolledShiftFor(shift.getExecutionCourse(), shift.getCourseLoadType()).isEmpty());
+        assertTrue(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).isEmpty());
+        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
     }
 }

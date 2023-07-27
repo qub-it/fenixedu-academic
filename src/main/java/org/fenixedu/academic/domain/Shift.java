@@ -404,8 +404,7 @@ public class Shift extends Shift_Base {
         final ExecutionCourse executionCourse = shift.getExecutionCourse();
 
         // remove registration from shifts of the same type
-        shift.getTypes().stream().map(st -> registration.getShiftFor(executionCourse, st)).filter(Objects::nonNull)
-                .forEach(s -> s.unenrol(registration));
+        registration.findEnrolledShiftFor(executionCourse, shift.getCourseLoadType()).ifPresent(s -> s.unenrol(registration));
 
         if (ShiftEnrolment.find(shift, registration).isPresent()) {
             throw new DomainException("error.Shift.enrolment.alreadyEnrolled"); // this should never happen
