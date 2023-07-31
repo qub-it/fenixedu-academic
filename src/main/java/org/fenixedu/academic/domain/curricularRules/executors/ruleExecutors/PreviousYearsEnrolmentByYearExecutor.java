@@ -196,15 +196,21 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
             final EnrolmentContext enrolmentContext) {
         if (courseGroup.isRoot()) {
             final Collection<CourseGroup> res = new HashSet<CourseGroup>();
-            for (final CycleType cycleType : enrolmentContext.getStudentCurricularPlan().getDegreeType().getCycleTypes()) {
-                CycleCurriculumGroup cycleCurriculumGroup =
-                        enrolmentContext.getStudentCurricularPlan().getRoot().getCycleCurriculumGroup(cycleType);
-                if (cycleCurriculumGroup != null) {
-                    if (cycleCurriculumGroup.isExternal()) {
-                        throw new DomainException("error.cycleCurriculumGroup.cannot.be.external");
-                    }
+            final Collection<CycleType> cycleTypes = enrolmentContext.getStudentCurricularPlan().getDegreeType().getCycleTypes();
+            if (cycleTypes.isEmpty()) {
+                res.addAll(courseGroup.getChildDegreeModulesValidOnExecutionAggregation(enrolmentContext.getExecutionYear())
+                        .stream().filter(dm -> dm.isCourseGroup()).map(CourseGroup.class::cast).collect(Collectors.toSet()));
+            } else {
+                for (final CycleType cycleType : cycleTypes) {
+                    CycleCurriculumGroup cycleCurriculumGroup =
+                            enrolmentContext.getStudentCurricularPlan().getRoot().getCycleCurriculumGroup(cycleType);
+                    if (cycleCurriculumGroup != null) {
+                        if (cycleCurriculumGroup.isExternal()) {
+                            throw new DomainException("error.cycleCurriculumGroup.cannot.be.external");
+                        }
 
-                    res.add(cycleCurriculumGroup.getDegreeModule());
+                        res.add(cycleCurriculumGroup.getDegreeModule());
+                    }
                 }
             }
             return res;

@@ -1,3 +1,5 @@
+- Bug fix: Allow previous years rule to evaluate in degrees without cycles
+
 41.3.0 (27-07-2023)
 - Refactor: Add method to get course load type from shift type
 - Refactor: Remove shift type references from DTOs
