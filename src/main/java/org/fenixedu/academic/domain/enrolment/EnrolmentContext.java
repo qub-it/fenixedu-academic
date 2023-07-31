@@ -30,7 +30,7 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
+import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -96,7 +96,7 @@ public class EnrolmentContext {
     public Set<IDegreeModuleToEvaluate> getAllChildDegreeModulesToEvaluateFor(final DegreeModule degreeModule) {
         final Set<IDegreeModuleToEvaluate> result = new HashSet<IDegreeModuleToEvaluate>();
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : this.degreeModulesToEvaluate) {
-            if (degreeModule.hasDegreeModule(degreeModuleToEvaluate.getDegreeModule())) {
+            if (degreeModuleToEvaluate.isEqualOrHasParent(degreeModule)) {
                 result.add(degreeModuleToEvaluate);
             }
         }
@@ -202,8 +202,7 @@ public class EnrolmentContext {
     }
 
     public boolean isToEvaluateRulesByYear() {
-        return getStudentCurricularPlan().getDegreeCurricularPlan()
-                .getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR;
+        return getStudentCurricularPlan().getDegreeCurricularPlan().getCurricularRuleValidationType() == EnrolmentModel.YEAR;
     }
 
     public ExecutionYear getExecutionYear() {

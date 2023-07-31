@@ -24,7 +24,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
 
-public enum CurricularRuleValidationType {
+public enum EnrolmentModel {
 
     SEMESTER,
 

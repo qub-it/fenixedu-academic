@@ -91,4 +91,9 @@ public class EnroledOptionalEnrolment extends EnroledCurriculumModuleWrapper {
         return getOptionalCurricularCourse().isAnual(executionYear);
     }
 
+    @Override
+    public boolean isEqualOrHasParent(DegreeModule degreeModule) {
+        return degreeModule.hasDegreeModule(getOptionalCurricularCourse());
+    }
+
 }

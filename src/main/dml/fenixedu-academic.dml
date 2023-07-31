@@ -47,7 +47,7 @@ enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicO
 enum org.fenixedu.academic.domain.administrativeOffice.AdministrativeOfficeType                                        as AdministrativeOfficeType;
 enum org.fenixedu.academic.domain.contacts.PartyContactType                                                            as PartyContactType;
 enum org.fenixedu.academic.domain.curricularRules.CurricularRuleType                                                   as CurricularRuleType;
-enum org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType                                         as CurricularRuleValidationType;
+enum org.fenixedu.academic.domain.curricularRules.EnrolmentModel				                                       as EnrolmentModel;
 enum org.fenixedu.academic.domain.curriculum.CurricularCourseType                                                      as CurricularCourseType;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentCondition                                                       as EnrollmentCondition;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentState                                                           as EnrollmentState;
@@ -436,7 +436,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         Integer numerusClausus;
         DegreeCurricularPlanState state;
         Boolean applyPreviousYearsEnrolmentRule;
-        CurricularRuleValidationType curricularRuleValidationType;
+        EnrolmentModel curricularRuleValidationType;
        	LocalizedString enrolmentInstructions;
     }
     

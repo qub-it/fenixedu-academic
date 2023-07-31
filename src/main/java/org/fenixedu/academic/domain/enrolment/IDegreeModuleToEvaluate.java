@@ -99,4 +99,8 @@ public interface IDegreeModuleToEvaluate {
 
     public boolean isAnnualCurricularCourse(final ExecutionYear executionYear);
 
+    default public boolean isEqualOrHasParent(DegreeModule degreeModule) {
+        return degreeModule.hasDegreeModule(getDegreeModule());
+    }
+
 }

@@ -42,7 +42,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
-import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
+import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -344,7 +344,7 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
                 final CurricularCourse curricularCourse = (CurricularCourse) context.getChildDegreeModule();
 
-                if (getDegreeCurricularPlanOfStudent().getCurricularRuleValidationType() == CurricularRuleValidationType.YEAR) {
+                if (getDegreeCurricularPlanOfStudent().getCurricularRuleValidationType() == EnrolmentModel.YEAR) {
 
                     if (!getStudentCurricularPlan().isApproved(curricularCourse, executionInterval)
                             && !getStudentCurricularPlan().getRoot().hasEnrolmentWithEnroledState(curricularCourse,

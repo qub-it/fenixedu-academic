@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
-import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
+import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.degreeStructure.BranchType;
@@ -126,7 +126,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super();
         super.setRootDomainObject(Bennu.getInstance());
         super.setApplyPreviousYearsEnrolmentRule(Boolean.TRUE);
-        super.setCurricularRuleValidationType(CurricularRuleValidationType.SEMESTER);
+        super.setCurricularRuleValidationType(EnrolmentModel.SEMESTER);
     }
 
     private DegreeCurricularPlan(final Degree degree, final String name) {
