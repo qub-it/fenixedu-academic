@@ -119,6 +119,10 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                     return o1.getStartDateYearMonthDay().compareTo(o2.getStartDateYearMonthDay());
                 }
             };
+            
+    public static final Comparator<StudentCurricularPlan> COMPARATOR_BY_START_EXECUTION_AND_DATE =
+            Comparator.comparing(StudentCurricularPlan::getStartExecutionInterval)
+                    .thenComparing(StudentCurricularPlan::getStartDateYearMonthDay);
 
     private StudentCurricularPlan() {
         super();

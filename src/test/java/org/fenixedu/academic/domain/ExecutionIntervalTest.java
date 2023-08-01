@@ -28,6 +28,7 @@ public class ExecutionIntervalTest {
     private static AcademicYearCE academicYearEntryFirst;
     private static AcademicYearCE academicYearEntrySecond;
     private static AcademicYearCE academicYearEntryThird;
+    private static AcademicYearCE academicYearEntryFourth;
 
     @BeforeClass
     public static void init() {
@@ -51,6 +52,7 @@ public class ExecutionIntervalTest {
         academicYearEntryFirst = createYearInterval(year - 1);
         academicYearEntrySecond = createYearInterval(year);
         academicYearEntryThird = createYearInterval(year + 1);
+        academicYearEntryFourth = createYearInterval(year + 2);
 
 //        final ExecutionYear currentExecutionYear = (ExecutionYear) academicYearEntrySecond.getExecutionInterval();
 //        currentExecutionYear.setState(PeriodState.CURRENT);
@@ -64,6 +66,9 @@ public class ExecutionIntervalTest {
 
         createFirstSemesterInterval(academicYearEntryThird);
         createSecondSemesterInterval(academicYearEntryThird);
+
+        createFirstSemesterInterval(academicYearEntryFourth);
+        createSecondSemesterInterval(academicYearEntryFourth);
 
     }
 
@@ -97,7 +102,7 @@ public class ExecutionIntervalTest {
         assertTrue("Root entry".equals(rootEntry.getTitle().getContent()));
         assertTrue(academicYearEntryFirst.getExecutionInterval() != null);
         assertTrue(academicYearEntryFirst.getExecutionInterval().isBefore(academicYearEntrySecond.getExecutionInterval()));
-        assertTrue(ExecutionYear.findAllAggregators().size() == 3);
+        assertTrue(ExecutionYear.findAllAggregators().size() == 4);
         assertEquals(ExecutionYear.findCurrent(null), academicYearEntrySecond.getExecutionInterval());
     }
 

@@ -1,11 +1,15 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V3;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -54,7 +58,8 @@ public class StudentTest {
         ExecutionsAndSchedulesTest.initExecutions();
 
         final Degree degree = Degree.find(DEGREE_A_CODE);
-        final DegreeCurricularPlan degreeCurricularPlan = degree.getDegreeCurricularPlansSet().iterator().next();
+        final DegreeCurricularPlan degreeCurricularPlan = degree.getDegreeCurricularPlansSet().stream()
+                .filter(dcp -> DegreeCurricularPlanTest.DCP_NAME_V1.equals(dcp.getName())).findAny().orElseThrow();
 
         registration = Registration.create(student, degreeCurricularPlan, ExecutionYear.findCurrent(degree.getCalendar()),
                 RegistrationProtocol.findByCode(PROTOCOL_CODE),
@@ -83,8 +88,38 @@ public class StudentTest {
     }
 
     @Test
-    public void testRegistration_studentCurricularPlan() {
+    public void testRegistration_studentCurricularPlans() {
+        Map<String, DegreeCurricularPlan> dcpsByName = registration.getDegree().getDegreeCurricularPlansSet().stream()
+                .collect(Collectors.toMap(dcp -> dcp.getName(), dcp -> dcp));
+
+        DegreeCurricularPlan dcpV1 = dcpsByName.get(DCP_NAME_V1);
+        DegreeCurricularPlan dcpV2 = dcpsByName.get(DCP_NAME_V2);
+        DegreeCurricularPlan dcpV3 = dcpsByName.get(DCP_NAME_V3);
+
+        final ExecutionYear currentYear = ExecutionYear.findCurrent(registration.getDegree().getCalendar());
+        final ExecutionYear nextYear = (ExecutionYear) currentYear.getNext();
+        final ExecutionYear nextNextYear = (ExecutionYear) nextYear.getNext();
+
         assertEquals(registration.getStudentCurricularPlansSet().size(), 1);
-        assertNotNull(registration.getLastStudentCurricularPlan());
+
+        StudentCurricularPlan firstSCP = registration.getStudentCurricularPlansSet().iterator().next();
+        StudentCurricularPlan secondSCP = registration.createStudentCurricularPlan(dcpV2, nextYear);
+        StudentCurricularPlan thirdSCP = StudentCurricularPlan.createBolonhaStudentCurricularPlan(registration, dcpV3,
+                nextYear.getBeginDateYearMonthDay().plusDays(1), nextYear.getFirstExecutionPeriod(), null);
+
+        assertEquals(firstSCP.getDegreeCurricularPlan(), dcpV1);
+        assertEquals(secondSCP.getDegreeCurricularPlan(), dcpV2);
+        assertEquals(thirdSCP.getDegreeCurricularPlan(), dcpV3);
+        assertEquals(firstSCP.getStartExecutionInterval(), currentYear.getFirstExecutionPeriod());
+        assertEquals(secondSCP.getStartExecutionInterval(), thirdSCP.getStartExecutionInterval());
+
+        assertEquals(registration.getFirstStudentCurricularPlan(), firstSCP);
+        assertEquals(registration.getLastStudentCurricularPlan(), thirdSCP);
+
+        assertTrue(registration.findStudentCurricularPlan(currentYear.getPrevious()).isEmpty());
+        assertEquals(registration.findStudentCurricularPlan(currentYear).get(), firstSCP);
+        assertEquals(registration.findStudentCurricularPlan(currentYear.getLastExecutionPeriod()).get(), firstSCP);
+        assertEquals(registration.findStudentCurricularPlan(nextYear).get(), thirdSCP);
+        assertEquals(registration.findStudentCurricularPlan(nextNextYear).get(), thirdSCP);
     }
 }

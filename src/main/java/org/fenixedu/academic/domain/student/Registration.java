@@ -1761,6 +1761,15 @@ public class Registration extends Registration_Base {
                 executionInterval.getEndDateYearMonthDay());
     }
 
+    public Optional<StudentCurricularPlan> findStudentCurricularPlan(final ExecutionInterval executionInterval) {
+        final ExecutionInterval childInterval = executionInterval.isAggregator() ? ((ExecutionYear) executionInterval)
+                .getFirstExecutionPeriod() : executionInterval;
+
+        return getStudentCurricularPlansSet().stream()
+                .filter(scp -> scp.getStartExecutionPeriod().isBeforeOrEquals(childInterval))
+                .max(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
+    }
+
     private StudentCurricularPlan getStudentCurricularPlan(final YearMonthDay date) {
         StudentCurricularPlan result = null;
         for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {

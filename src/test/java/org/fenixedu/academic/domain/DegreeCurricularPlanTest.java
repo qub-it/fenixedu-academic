@@ -25,6 +25,10 @@ public class DegreeCurricularPlanTest {
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static CurricularCourse curricularCourse;
 
+    static final String DCP_NAME_V1 = "DCP_NAME_V1";
+    static final String DCP_NAME_V3 = "DCP_NAME_V3";
+    static final String DCP_NAME_V2 = "DCP_NAME_V2";
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
@@ -42,8 +46,11 @@ public class DegreeCurricularPlanTest {
                 new UserProfile("Fenix", "Admin", "Fenix Admin", "fenix.admin@fenixedu.com", Locale.getDefault());
         new User("admin", userProfile);
         Person person = new Person(userProfile);
-        degreeCurricularPlan = degree.createDegreeCurricularPlan("Version 2022", person, AcademicPeriod.THREE_YEAR);
+        degreeCurricularPlan = degree.createDegreeCurricularPlan(DCP_NAME_V1, person, AcademicPeriod.THREE_YEAR);
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
+
+        degree.createDegreeCurricularPlan(DCP_NAME_V2, person, AcademicPeriod.THREE_YEAR);
+        degree.createDegreeCurricularPlan(DCP_NAME_V3, person, AcademicPeriod.THREE_YEAR);
 
         CompetenceCourseTest.initCompetenceCourse();
         final CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
@@ -62,7 +69,7 @@ public class DegreeCurricularPlanTest {
     @Test
     public void testDegreeCurricularPlan_find() {
         final Degree degreeCS = Degree.find(DEGREE_A_CODE);
-        assertTrue(degreeCS.getDegreeCurricularPlansSet().size() == 1);
+        assertTrue(degreeCS.getDegreeCurricularPlansSet().size() == 3);
         assertTrue(degreeCS.getDegreeCurricularPlansSet().contains(degreeCurricularPlan));
     }
 
