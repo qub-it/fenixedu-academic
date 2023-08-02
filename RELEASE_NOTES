@@ -1,3 +1,4 @@
+41.4.0 (02-08-2023)
 - Refactor: Change Visibility of Delete method in Party
 - Refactor: Add method to find student curricular plan by execution interval
 - Refactor: Change student curricular plan search to use comparator with interval
