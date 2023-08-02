@@ -1,5 +1,7 @@
-- Refactor: Add method to find student curricular plan by execution interval
 - Refactor: Change Visibility of Delete method in Party
+- Refactor: Add method to find student curricular plan by execution interval
+- Refactor: Change student curricular plan search to use comparator with interval
+- Refactor: Mark old student curricular plan search methods as deprecated
 
 41.3.1 (31-07-2023)
 - Refactor: Rename CurricularRuleValidationType to EnrolmentModel

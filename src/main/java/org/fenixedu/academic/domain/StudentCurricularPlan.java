@@ -85,7 +85,6 @@ import org.fenixedu.academic.util.predicates.AndPredicate;
 import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
 
@@ -112,6 +111,11 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
             };
 
+    /**
+     * @deprecated use {@link #COMPARATOR_BY_START_EXECUTION_AND_DATE}
+     * 
+     */
+    @Deprecated(forRemoval = true)
     static final public Comparator<StudentCurricularPlan> STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE =
             new Comparator<StudentCurricularPlan>() {
                 @Override
@@ -119,7 +123,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                     return o1.getStartDateYearMonthDay().compareTo(o2.getStartDateYearMonthDay());
                 }
             };
-            
+
     public static final Comparator<StudentCurricularPlan> COMPARATOR_BY_START_EXECUTION_AND_DATE =
             Comparator.comparing(StudentCurricularPlan::getStartExecutionInterval)
                     .thenComparing(StudentCurricularPlan::getStartDateYearMonthDay);

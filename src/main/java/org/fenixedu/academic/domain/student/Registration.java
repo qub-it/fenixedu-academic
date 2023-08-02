@@ -367,21 +367,26 @@ public class Registration extends Registration_Base {
         if (studentCurricularPlans.isEmpty()) {
             return null;
         }
-        return Collections.max(studentCurricularPlans, StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE);
+        return Collections.max(studentCurricularPlans, StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
     }
 
     public StudentCurricularPlan getFirstStudentCurricularPlan() {
         return !getStudentCurricularPlansSet().isEmpty() ? (StudentCurricularPlan) Collections.min(getStudentCurricularPlansSet(),
-                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE) : null;
+                StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE) : null;
     }
 
     public List<StudentCurricularPlan> getSortedStudentCurricularPlans() {
         final ArrayList<StudentCurricularPlan> sortedStudentCurricularPlans =
                 new ArrayList<>(super.getStudentCurricularPlansSet());
-        Collections.sort(sortedStudentCurricularPlans, StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE);
+        Collections.sort(sortedStudentCurricularPlans, StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
         return sortedStudentCurricularPlans;
     }
 
+    /**
+     * @deprecated
+     * 
+     */
+    @Deprecated(forRemoval = true)
     final public List<StudentCurricularPlan> getStudentCurricularPlansExceptPast() {
         List<StudentCurricularPlan> result = new ArrayList<>();
         for (StudentCurricularPlan studentCurricularPlan : super.getStudentCurricularPlansSet()) {
@@ -402,8 +407,7 @@ public class Registration extends Registration_Base {
     }
 
     final public Stream<StudentCurricularPlan> getStudentCurricularPlanStream() {
-        return getStudentCurricularPlansSet().stream()
-                .sorted(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.reversed());
+        return getStudentCurricularPlansSet().stream();
     }
 
     public static Boolean getEnrolmentsAllowStudentToChooseAffinityCycle() {
@@ -1752,13 +1756,12 @@ public class Registration extends Registration_Base {
     }
 
     public StudentCurricularPlan getStudentCurricularPlan(final ExecutionYear executionYear) {
-        return executionYear == null ? getStudentCurricularPlan(new YearMonthDay()) : getStudentCurricularPlan(
-                executionYear.getEndDateYearMonthDay());
+        return executionYear == null ? getLastStudentCurricularPlan() : findStudentCurricularPlan(executionYear).orElse(null);
     }
 
     public StudentCurricularPlan getStudentCurricularPlan(final ExecutionInterval executionInterval) {
-        return executionInterval == null ? getStudentCurricularPlan(new YearMonthDay()) : getStudentCurricularPlan(
-                executionInterval.getEndDateYearMonthDay());
+        return executionInterval == null ? getLastStudentCurricularPlan() : findStudentCurricularPlan(executionInterval)
+                .orElse(null);
     }
 
     public Optional<StudentCurricularPlan> findStudentCurricularPlan(final ExecutionInterval executionInterval) {
@@ -1770,17 +1773,6 @@ public class Registration extends Registration_Base {
                 .max(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
     }
 
-    private StudentCurricularPlan getStudentCurricularPlan(final YearMonthDay date) {
-        StudentCurricularPlan result = null;
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            final YearMonthDay startDate = studentCurricularPlan.getStartDateYearMonthDay();
-            if (!startDate.isAfter(date) && (result == null || startDate.isAfter(result.getStartDateYearMonthDay()))) {
-                result = studentCurricularPlan;
-            }
-        }
-        return result;
-    }
-
     public StudentCurricularPlan getStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan) {
         for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
             if (studentCurricularPlan.getDegreeCurricularPlan().equals(degreeCurricularPlan)) {
@@ -1788,15 +1780,6 @@ public class Registration extends Registration_Base {
             }
         }
         return null;
-    }
-
-    public StudentCurricularPlan getStudentCurricularPlan(final CycleType cycleType) {
-        if (cycleType == null) {
-            return getLastStudentCurricularPlan();
-        }
-        return getStudentCurricularPlansSet().stream().filter(scp -> scp.getRoot().getCycleCurriculumGroup(cycleType) != null)
-                .max(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE)
-                .orElse(getLastStudentCurricularPlan());
     }
 
     public Set<DegreeCurricularPlan> getDegreeCurricularPlans() {
