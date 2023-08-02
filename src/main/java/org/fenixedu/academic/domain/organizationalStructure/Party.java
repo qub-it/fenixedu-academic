@@ -240,7 +240,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return result;
     }
 
-    protected void delete() {
+    public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
         for (; !getPartyContactsSet().isEmpty(); getPartyContactsSet().iterator().next().deleteWithoutCheckRules()) {
