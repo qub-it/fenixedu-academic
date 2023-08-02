@@ -382,21 +382,6 @@ public class Registration extends Registration_Base {
         return sortedStudentCurricularPlans;
     }
 
-    /**
-     * @deprecated
-     * 
-     */
-    @Deprecated(forRemoval = true)
-    final public List<StudentCurricularPlan> getStudentCurricularPlansExceptPast() {
-        List<StudentCurricularPlan> result = new ArrayList<>();
-        for (StudentCurricularPlan studentCurricularPlan : super.getStudentCurricularPlansSet()) {
-            if (!studentCurricularPlan.isPast()) {
-                result.add(studentCurricularPlan);
-            }
-        }
-        return result;
-    }
-
     public boolean attends(final ExecutionCourse executionCourse) {
         for (final Attends attends : getAssociatedAttendsSet()) {
             if (attends.isFor(executionCourse)) {
