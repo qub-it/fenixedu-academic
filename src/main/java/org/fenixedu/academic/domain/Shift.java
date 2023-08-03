@@ -310,9 +310,9 @@ public class Shift extends Shift_Base {
     }
 
     public BigDecimal getCourseLoadTotalHours() {
-        return getExecutionCourse().getCompetenceCoursesInformations().stream()
+        return getExecutionCourse().getCompetenceCoursesInformations().stream().distinct()
                 .flatMap(cci -> cci.findLoadDurationByType(getCourseLoadType()).stream()).filter(Objects::nonNull)
-                .map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(CourseLoadDuration::getHours).max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
     }
 
     public SortedSet<Lesson> getLessonsOrderedByWeekDayAndStartTime() {
