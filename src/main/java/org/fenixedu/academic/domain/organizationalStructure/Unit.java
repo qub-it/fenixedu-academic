@@ -399,6 +399,25 @@ public class Unit extends Unit_Base {
         return allUnits;
     }
 
+    /**
+     * @param path Acronyms path separated by character '>' (greater-than). The path start after
+     *            institution unit and contains the parent acronyms.
+     */
+    public static Optional<Unit> findInternalUnitByAcronymPath(final String path) {
+        final List<String> separatedPath = StringUtils.isNotBlank(path) ? List.of(path.split(">")) : List.of();
+
+        Unit unit = UnitUtils.readInstitutionUnit();
+
+        for (String acronym : separatedPath) {
+            unit = unit.getChildUnitByAcronym(acronym.trim());
+            if (unit == null) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.of(unit);
+    }
+
     public String getNameWithAcronym() {
         String name = getName().trim();
         return (getAcronym() == null || StringUtils.isEmpty(getAcronym().trim())) ? name : name + " (" + getAcronym().trim()

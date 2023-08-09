@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,10 +17,6 @@ import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLoad;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
-import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
-import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
-import org.fenixedu.academic.domain.organizationalStructure.PartyType;
-import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.Bundle;
@@ -53,16 +48,13 @@ public class CompetenceCourseTest {
 
     static void initCompetenceCourse() {
         OrganizationalStructureTest.initTypes();
-        Unit planetUnit = OrganizationalStructureTest.initPlanetUnit();
-
-        LocalizedString unitName = new LocalizedString.Builder().with(Locale.getDefault(), "Courses Unit").build();
-        Unit coursesUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), unitName, "CC", planetUnit,
-                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
+        OrganizationalStructureTest.initUnits();
 
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
 
         initCourseLoadTypes();
 
+        Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
         createCompetenceCourseASemester(coursesUnit);
         createCompetenceCourseBAnnual(coursesUnit);
     }
@@ -140,7 +132,7 @@ public class CompetenceCourseTest {
         assertNotNull(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL));
         assertNotNull(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY));
         assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL).getCode(), CourseLoadType.THEORETICAL);
-        
+
         assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL), ShiftType.TEORICA.toCourseLoadType());
         assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL), ShiftType.PROBLEMS.toCourseLoadType());
     }

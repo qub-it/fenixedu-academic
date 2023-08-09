@@ -1,3 +1,5 @@
+- Refactor: Add new method to find internal units by acronyms path
+
 41.4.1 (03-08-2023)
 - Refactor: Remove deprecated method to search student curricular plans
 - Bug fix: Shift total load hould return max course load
