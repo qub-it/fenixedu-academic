@@ -25,9 +25,9 @@ public class DegreeCurricularPlanTest {
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static CurricularCourse curricularCourse;
 
-    static final String DCP_NAME_V1 = "DCP_NAME_V1";
-    static final String DCP_NAME_V3 = "DCP_NAME_V3";
-    static final String DCP_NAME_V2 = "DCP_NAME_V2";
+    public static final String DCP_NAME_V1 = "DCP_NAME_V1";
+    public static final String DCP_NAME_V3 = "DCP_NAME_V3";
+    public static final String DCP_NAME_V2 = "DCP_NAME_V2";
 
     @BeforeClass
     public static void init() {

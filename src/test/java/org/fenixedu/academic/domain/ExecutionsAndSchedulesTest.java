@@ -55,7 +55,7 @@ public class ExecutionsAndSchedulesTest {
         });
     }
 
-    static void initExecutions() {
+    public static void initExecutions() {
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
         final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();

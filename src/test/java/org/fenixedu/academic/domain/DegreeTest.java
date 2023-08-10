@@ -20,6 +20,11 @@ import pt.ist.fenixframework.FenixFramework;
 public class DegreeTest {
 
     public static final String DEGREE_A_CODE = "DA";
+
+    public static final String DEGREE_TYPE_CODE = "DEGREE";
+
+    public static final String MASTER_DEGREE_TYPE_CODE = "MASTER";
+
     private static Degree degree;
 
     @BeforeClass
@@ -32,6 +37,11 @@ public class DegreeTest {
 
     static Degree initDegree() {
         final DegreeType degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
+        degreeType.setCode(DEGREE_TYPE_CODE);
+
+        final DegreeType masterDegreeType =
+                new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Master Degree").build());
+        masterDegreeType.setCode(MASTER_DEGREE_TYPE_CODE);
 
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);

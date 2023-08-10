@@ -1,3 +1,4 @@
+- Refactor: Improve automated unit tests
 - Refactor: Add new method to find internal units by acronyms path
 
 41.4.1 (03-08-2023)

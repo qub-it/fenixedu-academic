@@ -29,8 +29,9 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class StudentTest {
 
-    private static final String INGRESSION_CODE = "I";
-    private static final String PROTOCOL_CODE = "P";
+    public static final String INGRESSION_CODE = "I";
+    public static final String PROTOCOL_CODE = "P";
+    public static final String REGISTRATION_STATE_INTERRUPTED = "INTERRUPTED";
 
     public static final String STUDENT_A_USERNAME = "student.a";
 
@@ -45,14 +46,10 @@ public class StudentTest {
         });
     }
 
-    static void initStudentAndRegistration() {
-        initConfigEntities();
+    public static void initStudentAndRegistration() {
+        initRegistrationConfigEntities();
 
-        final UserProfile userProfile =
-                new UserProfile("Student", "A", "Student A", "student.a@fenixedu.com", Locale.getDefault());
-        new User(STUDENT_A_USERNAME, userProfile);
-        final Person person = new Person(userProfile);
-        student = new Student(person);
+        student = createStudent("Student A", STUDENT_A_USERNAME);
 
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         ExecutionsAndSchedulesTest.initExecutions();
@@ -61,12 +58,25 @@ public class StudentTest {
         final DegreeCurricularPlan degreeCurricularPlan = degree.getDegreeCurricularPlansSet().stream()
                 .filter(dcp -> DegreeCurricularPlanTest.DCP_NAME_V1.equals(dcp.getName())).findAny().orElseThrow();
 
-        registration = Registration.create(student, degreeCurricularPlan, ExecutionYear.findCurrent(degree.getCalendar()),
-                RegistrationProtocol.findByCode(PROTOCOL_CODE),
+        registration = createRegistration(student, degreeCurricularPlan,
+                ExecutionYear.findCurrent(degreeCurricularPlan.getDegree().getCalendar()));
+    }
+
+    public static Student createStudent(String name, String username) {
+        final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
+        new User(username, userProfile);
+        final Person person = new Person(userProfile);
+
+        return new Student(person);
+    }
+
+    public static Registration createRegistration(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
+            final ExecutionYear executionYear) {
+        return Registration.create(student, degreeCurricularPlan, executionYear, RegistrationProtocol.findByCode(PROTOCOL_CODE),
                 IngressionType.findIngressionTypeByCode(INGRESSION_CODE).orElseThrow());
     }
 
-    private static void initConfigEntities() {
+    public static void initRegistrationConfigEntities() {
         RegistrationProtocol.create(PROTOCOL_CODE, new LocalizedString.Builder().with(Locale.getDefault(), "Protocol").build());
 
         IngressionType.createIngressionType(INGRESSION_CODE,
@@ -74,6 +84,9 @@ public class StudentTest {
 
         RegistrationStateType.create(RegistrationStateType.REGISTERED_CODE,
                 new LocalizedString.Builder().with(Locale.getDefault(), "Registered").build(), true, null);
+
+        RegistrationStateType.create(REGISTRATION_STATE_INTERRUPTED,
+                new LocalizedString.Builder().with(Locale.getDefault(), "Interrupted").build(), true, null);
     }
 
     @Test
