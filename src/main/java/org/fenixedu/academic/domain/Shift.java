@@ -23,7 +23,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -43,7 +42,6 @@ import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacityType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.util.i18n.Languages;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.Duration;
@@ -526,51 +524,16 @@ public class Shift extends Shift_Base {
     }
 
     public String getPresentationName() {
-        StringBuilder stringBuilder = new StringBuilder(this.getName());
-        if (!this.getAssociatedLessonsSet().isEmpty()) {
-            stringBuilder.append(" ( ");
-
-            for (Iterator<Lesson> iterator = this.getAssociatedLessonsSet().iterator(); iterator.hasNext();) {
-                Lesson lesson = iterator.next();
-                stringBuilder.append(WeekDay.getWeekDay(lesson.getDiaSemana()).getLabelShort());
-                stringBuilder.append(" ");
-                stringBuilder.append(lesson.getBeginHourMinuteSecond().toString("HH:mm"));
-                stringBuilder.append(" - ");
-                stringBuilder.append(lesson.getEndHourMinuteSecond().toString("HH:mm"));
-                if (lesson.hasSala()) {
-                    stringBuilder.append(" - ");
-                    stringBuilder.append(lesson.getSala().getName());
-                }
-                if (iterator.hasNext()) {
-                    stringBuilder.append(" ; ");
-                }
-            }
-            stringBuilder.append(" ) ");
-        }
-        return stringBuilder.toString();
+        final Set<Lesson> lessons = getAssociatedLessonsSet();
+        final String lessonsPresentation = lessons.isEmpty() ? "" : lessons.stream().filter(l -> !l.getExtraLesson())
+                .sorted(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME).map(Lesson::getPresentationName)
+                .collect(Collectors.joining("; ", " (", ")"));
+        return this.getName() + lessonsPresentation;
     }
 
+    @Deprecated
     public String getLessonPresentationString() {
-        StringBuilder stringBuilder = new StringBuilder(this.getName());
-        if (!this.getAssociatedLessonsSet().isEmpty()) {
-            for (Iterator<Lesson> iterator = this.getAssociatedLessonsSet().iterator(); iterator.hasNext();) {
-                Lesson lesson = iterator.next();
-                stringBuilder.append(" ");
-                stringBuilder.append(WeekDay.getWeekDay(lesson.getDiaSemana()).getLabelShort());
-                stringBuilder.append(" ");
-                stringBuilder.append(lesson.getBeginHourMinuteSecond().toString("HH:mm"));
-                stringBuilder.append(" - ");
-                stringBuilder.append(lesson.getEndHourMinuteSecond().toString("HH:mm"));
-                if (lesson.hasSala()) {
-                    stringBuilder.append(" - ");
-                    stringBuilder.append(lesson.getSala().getName());
-                }
-                if (iterator.hasNext()) {
-                    stringBuilder.append(" ; ");
-                }
-            }
-        }
-        return stringBuilder.toString();
+        return getPresentationName();
     }
 
     public Integer getVacancies() {

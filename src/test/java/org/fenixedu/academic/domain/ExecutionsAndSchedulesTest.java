@@ -390,4 +390,34 @@ public class ExecutionsAndSchedulesTest {
         assertEquals(sortedLessons.get(3), lesson4);
     }
 
+    @Test
+    public void testShift_presentationName() {
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
+
+        Space spaceX = new Space(new Information.Builder().classification(classification).name("Room X").build());
+        Space spaceY = new Space(new Information.Builder().classification(classification).name("Room Y").build());
+
+        Shift shift1 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T100");
+
+        Lesson lesson3 = createLesson(shift1, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson4 = createLesson(shift1, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
+                occupationPeriod, spaceX);
+        Lesson lesson1 = createLesson(shift1, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson2 = createLesson(shift1, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, spaceY);
+        Lesson lessonExtra = createLesson(shift1, WeekDay.SATURDAY, new LocalTime(12, 0), new LocalTime(13, 0),
+                FrequencyType.WEEKLY, occupationPeriod, spaceY);
+        lessonExtra.setExtraLesson(true);
+
+        Shift shift2 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T101");
+
+//        System.out.println(shift2.getPresentationName());
+        assertEquals(shift1.getPresentationName(),
+                "T100 (Wed. 10:00-11:00; Thu. 10:00-11:00 - Room Y; Fri. 10:00-11:00; Fri. 11:00-12:00 - Room X)");
+        assertEquals(shift2.getPresentationName(), "T101");
+    }
 }
