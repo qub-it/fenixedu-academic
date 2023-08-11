@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
@@ -396,13 +397,21 @@ public class Lesson extends Lesson_Base {
                 .anyMatch(i -> i.overlaps(interval));
     }
 
-    public String prettyPrint() {
+    public String getPresentationName() {
         final StringBuilder result = new StringBuilder();
-        result.append(getWeekDay().getLabelShort()).append(" (");
+        result.append(getWeekDay().getLabelShort()).append(" ");
         result.append(getBeginHourMinuteSecond().toString("HH:mm")).append("-");
-        result.append(getEndHourMinuteSecond().toString("HH:mm")).append(") ");
-        result.append(getSpaces().map(Space::getName).collect(Collectors.joining(", ")));
+        result.append(getEndHourMinuteSecond().toString("HH:mm"));
+        final String spaces = getSpaces().map(Space::getName).collect(Collectors.joining(", "));
+        if (StringUtils.isNotBlank(spaces)) {
+            result.append(" - ").append(spaces);
+        }
         return result.toString();
+    }
+
+    @Deprecated
+    public String prettyPrint() {
+        return getPresentationName();
     }
 
     public Calendar getInicio() {
