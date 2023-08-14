@@ -1,3 +1,5 @@
+- Refactor: Change visibility of EnrolmentTest::initEnrolments, to be used by other tests of other modules
+
 41.4.3 (11-08-2023)
 - Refactor: Add lesson presentationName method and deprecate prettyPrint
 - Improvement: Shift presentation name improvements

@@ -48,7 +48,7 @@ public class EnrolmentTest {
         });
     }
 
-    private static void initEnrolments() {
+    public static void initEnrolments() {
         StudentTest.initStudentAndRegistration();
         initDefaultSeason();
 
