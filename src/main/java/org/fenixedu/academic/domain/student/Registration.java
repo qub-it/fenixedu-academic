@@ -59,7 +59,6 @@ import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
@@ -1034,15 +1033,6 @@ public class Registration extends Registration_Base {
             }
         }
         return result;
-    }
-
-    final public Shift getShiftFor(final ExecutionCourse executionCourse, final ShiftType shiftType) {
-        for (final Shift shift : getShiftsSet()) {
-            if (shift.getExecutionCourse() == executionCourse && shift.hasShiftType(shiftType)) {
-                return shift;
-            }
-        }
-        return null;
     }
 
     public Optional<Shift> findEnrolledShiftFor(final ExecutionCourse executionCourse, final CourseLoadType loadType) {

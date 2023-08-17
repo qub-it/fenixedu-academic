@@ -1,6 +1,7 @@
 - Refactor: Add method to test if an unit is sub unit of other units
 - Refactor: Remove unused methods from deprecated execution course dto
 - Refactor: Remove unused domain json adapters
+- Refactor: Remove unused method to retrieve enrolled shift by type
 
 41.4.4 (14-08-2023)
 - Refactor: Change visibility of EnrolmentTest::initEnrolments, to be used by other tests of other modules
