@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
@@ -64,7 +65,10 @@ public class OrganizationalStructureTest {
         final Unit coursesAgregatorUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Courses"),
                 "Courses", schoolUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
-        Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), buildLS.apply("Courses Unit"), "CC",
+        Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Degrees"), "Degrees", schoolUnit,
+                AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+
+        Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), buildLS.apply("Courses Group"), "CC",
                 coursesAgregatorUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
         final Bennu rootDomainObject = Bennu.getInstance();
@@ -74,7 +78,7 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnits_readAll() {
-        assertEquals(Unit.readAllUnits().size(), 6);
+        assertEquals(Unit.readAllUnits().size(), 7);
     }
 
     @Test
@@ -104,4 +108,17 @@ public class OrganizationalStructureTest {
         assertEquals(Unit.findInternalUnitByAcronymPath(null).get(), institutionUnit);
     }
 
+    @Test
+    public void testUnits_isSubUnit() {
+        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit degreesAgregatorUnit = Unit.findInternalUnitByAcronymPath("QS>Degrees").orElseThrow();
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        assertTrue(coursesUnit.isSubUnitOf(List.of(coursesUnit)));
+        assertTrue(coursesUnit.isSubUnitOf(List.of(schoolUnit)));
+        assertTrue(coursesUnit.isSubUnitOf(List.of(schoolUnit, degreesAgregatorUnit)));
+
+        assertTrue(!schoolUnit.isSubUnitOf(List.of(coursesUnit)));
+        assertTrue(!coursesUnit.isSubUnitOf(List.of(degreesAgregatorUnit)));
+    }
 }

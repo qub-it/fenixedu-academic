@@ -24,6 +24,7 @@ package org.fenixedu.academic.domain.organizationalStructure;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -554,4 +555,7 @@ public class Unit extends Unit_Base {
         return getAdministrativeOffice() != null;
     }
 
+    public boolean isSubUnitOf(final Collection<Unit> units) {
+        return units.contains(this) || !Collections.disjoint(units, getAllParentUnits());
+    }
 }
