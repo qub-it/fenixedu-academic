@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
 
+@Deprecated
 public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements Comparable {
 
     public static int NUMBER_OF_WEEKS = 14;

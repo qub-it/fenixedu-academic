@@ -257,20 +257,24 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         findInformationMostRecentUntil(null).setAcademicPeriod(regimeType.convertToAcademicPeriod());
     }
 
+    @Deprecated
     public Collection<CompetenceCourseLoad> getCompetenceCourseLoads(final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
         return information != null ? information.getCompetenceCourseLoadsSet() : Collections.emptyList();
     }
 
+    @Deprecated
     public Collection<CompetenceCourseLoad> getCompetenceCourseLoads() {
         return getCompetenceCourseLoads(null);
     }
 
+    @Deprecated
     public int getCompetenceCourseLoadsCount(final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
         return information != null ? information.getCompetenceCourseLoadsSet().size() : 0;
     }
 
+    @Deprecated
     public int getCompetenceCourseLoadsCount() {
         return getCompetenceCourseLoadsCount(null);
     }

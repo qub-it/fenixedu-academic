@@ -288,6 +288,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return competenceCourseInformations;
     }
 
+    @Deprecated
     public SortedSet<Shift> getShiftsByTypeOrderedByShiftName(final ShiftType shiftType) {
         final SortedSet<Shift> shifts = new TreeSet<Shift>(Shift.SHIFT_COMPARATOR_BY_NAME);
         for (final Shift shift : getAssociatedShifts()) {
@@ -323,6 +324,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return getAllSchoolClassesOrBy(null);
     }
 
+    @Deprecated
     public Set<ShiftType> getShiftTypes() {
         Set<ShiftType> shiftTypes = new TreeSet<ShiftType>();
         for (CourseLoad courseLoad : getCourseLoadsSet()) {
@@ -420,6 +422,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return null;
     }
 
+    @Deprecated
     public CourseLoad getCourseLoadByShiftType(ShiftType type) {
         if (type != null) {
             for (CourseLoad courseLoad : getCourseLoadsSet()) {

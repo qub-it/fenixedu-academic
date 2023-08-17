@@ -22,6 +22,7 @@ import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
+@Deprecated
 public enum ShiftType {
 
     TEORICA,

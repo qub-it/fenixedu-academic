@@ -214,6 +214,7 @@ public class Shift extends Shift_Base {
         }
     }
 
+    @Deprecated
     public List<ShiftType> getTypes() {
         List<ShiftType> result = new ArrayList<ShiftType>();
         for (CourseLoad courseLoad : getCourseLoadsSet()) {
@@ -222,6 +223,7 @@ public class Shift extends Shift_Base {
         return result;
     }
 
+    @Deprecated
     public SortedSet<ShiftType> getSortedTypes() {
         SortedSet<ShiftType> result = new TreeSet<ShiftType>();
         for (CourseLoad courseLoad : getCourseLoadsSet()) {
@@ -230,6 +232,7 @@ public class Shift extends Shift_Base {
         return result;
     }
 
+    @Deprecated
     public boolean containsType(ShiftType shiftType) {
         if (shiftType != null) {
             for (CourseLoad courseLoad : getCourseLoadsSet()) {
@@ -436,6 +439,7 @@ public class Shift extends Shift_Base {
         return builder.toString();
     }
 
+    @Deprecated
     public String getShiftTypesPrettyPrint() {
         StringBuilder builder = new StringBuilder();
         int index = 0;
@@ -450,6 +454,7 @@ public class Shift extends Shift_Base {
         return builder.toString();
     }
 
+    @Deprecated
     public String getShiftTypesCapitalizedPrettyPrint() {
         StringBuilder builder = new StringBuilder();
         int index = 0;
@@ -464,6 +469,7 @@ public class Shift extends Shift_Base {
         return builder.toString();
     }
 
+    @Deprecated
     public String getShiftTypesCodePrettyPrint() {
         StringBuilder builder = new StringBuilder();
         int index = 0;
@@ -497,6 +503,7 @@ public class Shift extends Shift_Base {
         return capacity + (capacity / 10);
     }
 
+    @Deprecated
     public boolean hasShiftType(final ShiftType shiftType) {
         for (CourseLoad courseLoad : getCourseLoadsSet()) {
             if (courseLoad.getType() == shiftType) {
