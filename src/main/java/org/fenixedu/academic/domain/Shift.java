@@ -319,23 +319,6 @@ public class Shift extends Shift_Base {
         return lessons;
     }
 
-    public String getLessonsStringComparator() {
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (final Lesson lesson : getLessonsOrderedByWeekDayAndStartTime()) {
-            stringBuilder.append(lesson.getDiaSemana().getDiaSemana().toString());
-            stringBuilder.append(lesson.getBeginHourMinuteSecond().toString());
-        }
-        return stringBuilder.toString();
-    }
-
-    public Integer getShiftTypesIntegerComparator() {
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (ShiftType shiftType : getSortedTypes()) {
-            stringBuilder.append(shiftType.ordinal() + 1);
-        }
-        return Integer.valueOf(stringBuilder.toString());
-    }
-
     public boolean isFreeFor(final Registration registration) {
         return getShiftCapacitiesSet().stream().filter(ShiftCapacity::isFreeIncludingExtraCapacities)
                 .anyMatch(sc -> sc.accepts(registration));

@@ -28,36 +28,15 @@ package org.fenixedu.academic.dto;
  * @author tfc130
  */
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftEnrolment;
-import org.fenixedu.academic.util.DateFormatUtil;
 import org.fenixedu.academic.util.NumberUtils;
 
 public class InfoShift extends InfoObject {
-
-    public static final Comparator<InfoShift> SHIFT_COMPARATOR_BY_TYPE_AND_ORDERED_LESSONS = new Comparator<InfoShift>() {
-
-        @Override
-        public int compare(InfoShift o1, InfoShift o2) {
-            final int c1 = o1.getShift().getExecutionCourse().getNome().compareTo(o2.getShift().getExecutionCourse().getNome());
-            if (c1 != 0) {
-                return c1;
-            }
-            final int c2 = o1.getShiftTypesIntegerComparator().compareTo(o2.getShiftTypesIntegerComparator());
-            if (c2 != 0) {
-                return c2;
-            }
-            final int c3 = o1.getLessonsStringComparator().compareTo(o2.getLessonsStringComparator());
-            return c3 == 0 ? o1.getShift().getExternalId().compareTo(o2.getShift().getExternalId()) : c3;
-        }
-
-    };
 
     private final Shift shift;
 
@@ -78,14 +57,6 @@ public class InfoShift extends InfoObject {
 
     public InfoExecutionCourse getInfoDisciplinaExecucao() {
         return InfoExecutionCourse.newInfoFromDomain(getShift().getExecutionCourse());
-    }
-
-    public Integer getShiftTypesIntegerComparator() {
-        return getShift().getShiftTypesIntegerComparator();
-    }
-
-    public String getLessonsStringComparator() {
-        return getShift().getLessonsStringComparator();
     }
 
     public String getShiftTypesPrettyPrint() {
@@ -127,33 +98,7 @@ public class InfoShift extends InfoObject {
     }
 
     public String getLessons() {
-        final StringBuilder stringBuilder = new StringBuilder();
-
-        final List<InfoLesson> infoLessonsList = getInfoLessons();
-        if (infoLessonsList != null) {
-            int index = 0;
-            for (final InfoLesson infoLesson : infoLessonsList) {
-                index = index + 1;
-                stringBuilder.append(infoLesson.getDiaSemana().toString());
-                stringBuilder.append(" (");
-                stringBuilder.append(DateFormatUtil.format("HH:mm", infoLesson.getInicio().getTime()));
-                stringBuilder.append("-");
-                stringBuilder.append(DateFormatUtil.format("HH:mm", infoLesson.getFim().getTime()));
-                stringBuilder.append(") ");
-                if (infoLesson.getInfoSala() != null) {
-                    stringBuilder.append(infoLesson.getInfoSala().getNome().toString());
-                }
-
-                int last = (infoLessonsList.size());
-                if (index != last || (index != 1 && index != last)) {
-                    stringBuilder.append(" , ");
-                } else {
-                    stringBuilder.append(" ");
-                }
-            }
-        }
-
-        return stringBuilder.toString();
+        return getShift().getPresentationName();
     }
 
     public List<InfoLesson> getInfoLessons() {
