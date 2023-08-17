@@ -31,10 +31,8 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.Partial;
 import org.joda.time.TimeOfDay;
 import org.joda.time.YearMonthDay;
 
@@ -79,14 +77,6 @@ public class Summary extends Summary_Base {
                 executionCourse.getDegreePresentationString());
 
         Signal.emit(CREATE_SIGNAL, new DomainObjectEvent<Summary>(this));
-    }
-
-    @Deprecated
-    public Summary(LocalizedString title, LocalizedString summaryText, Integer studentsNumber, Boolean isExtraLesson,
-            Professorship professorship, String teacherName, Teacher teacher, Shift shift, Lesson lesson, YearMonthDay date,
-            Space room, Partial hour, ShiftType type, Boolean taught) {
-        this(title, summaryText, studentsNumber, professorship, teacherName, lesson,
-                new LocalDate(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth()));
     }
 
     @jvstm.cps.ConsistencyPredicate
