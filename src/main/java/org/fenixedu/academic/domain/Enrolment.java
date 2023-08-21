@@ -820,10 +820,12 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     public boolean hasImprovementFor(final ExecutionInterval interval) {
+        final Collection<ExecutionInterval> intervals = interval instanceof ExecutionYear ? ((ExecutionYear) interval).getChildIntervals() : Set.of(interval);
+
         for (EnrolmentEvaluation enrolmentEvaluation : this.getEvaluationsSet()) {
             if (enrolmentEvaluation.getEvaluationSeason().isImprovement()) {
                 final ExecutionInterval evalPeriod = enrolmentEvaluation.getExecutionInterval();
-                if (evalPeriod != null && evalPeriod == interval) {
+                if (evalPeriod != null && intervals.contains(evalPeriod)) {
                     return true;
                 }
             }
