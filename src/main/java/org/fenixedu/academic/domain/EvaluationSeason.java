@@ -18,8 +18,12 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class EvaluationSeason extends EvaluationSeason_Base implements Comparable<EvaluationSeason> {
@@ -54,6 +58,17 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
 
     public boolean isSpecialAuthorization() {
         return getSpecialAuthorization();
+    }
+
+    @Override
+    public void setCode(String code) {
+        if (StringUtils.isNotBlank(code)) {
+            if (all().anyMatch(es -> es != this && Objects.equals(es.getCode(), code))) {
+                throw new DomainException("error.EvaluationSeason.code.already.exists");
+            }
+        }
+
+        super.setCode(code);
     }
 
     /**
@@ -101,6 +116,10 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
 
     public static Stream<EvaluationSeason> all() {
         return EvaluationConfiguration.getInstance().getEvaluationSeasonSet().stream();
+    }
+
+    public static Optional<EvaluationSeason> findByCode(final String code) {
+        return all().filter(s -> Objects.equals(s.getCode(), code)).findFirst();
     }
 
     @Override
