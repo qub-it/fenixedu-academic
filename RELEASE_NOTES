@@ -1,3 +1,4 @@
+42.0.0 (21-08-2023)
 - Refactor: Add method to test if an unit is sub unit of other units
 - Refactor: Remove unused methods from deprecated execution course dto
 - Refactor: Remove unused domain json adapters
