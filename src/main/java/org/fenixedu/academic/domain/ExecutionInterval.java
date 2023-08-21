@@ -423,5 +423,9 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         setRootDomainObject(null);
         deleteDomainObject();
     }
+    
+    public String getShortName() {
+        return getAcademicPeriod().getCode() + Optional.ofNullable(getChildOrder()).map(o -> o.toString()).orElse("");
+    }
 
 }

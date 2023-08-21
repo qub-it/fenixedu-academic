@@ -5,7 +5,8 @@
 - Refactor: Remove deprecated summary constructor
 - Refactor: Remove unused shift methods for comparison
 - Refactor: Mark ShiftType, CompetenceCourseLoad and CourseLoad as deprecated
-- Improvement: Add curriculum module method to return path 
+- Improvement: Add execution interval method to return short name 
+- Improvement: Add curriculum module method to return path
 
 41.4.4 (14-08-2023)
 - Refactor: Change visibility of EnrolmentTest::initEnrolments, to be used by other tests of other modules

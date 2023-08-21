@@ -141,4 +141,12 @@ public class ExecutionIntervalTest {
         assertEquals(ExecutionYear.findCurrent(null), academicYearEntrySecond.getExecutionInterval());
     }
 
+    @Test
+    public void testShortNameFormat() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        assertEquals("A", executionYear.getShortName());
+        assertEquals("S1", executionYear.getChildInterval(1, AcademicPeriod.SEMESTER).getShortName());
+        assertEquals("S2", executionYear.getChildInterval(2, AcademicPeriod.SEMESTER).getShortName());
+    }
+
 }
