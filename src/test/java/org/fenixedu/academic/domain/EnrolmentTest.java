@@ -7,10 +7,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -117,6 +119,25 @@ public class EnrolmentTest {
     }
 
     @Test
+    public void testEnrolment_path() {
+        final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
+                .findAny().orElseThrow();
+
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+
+        final List<CourseGroup> contextPath = Stream
+                .concat(context.getParentCourseGroup().getAllParentCourseGroups().stream(),
+                        Stream.of(context.getParentCourseGroup()))
+                .sorted(Comparator.comparing(CourseGroup::getOneFullName)).collect(Collectors.toList());
+
+        final List<CourseGroup> enrolmentPath = enrolment.getCurriculumGroup().getPath().stream()
+                .map(cg -> (CourseGroup) cg.getDegreeModule()).collect(Collectors.toList());
+
+        assertEquals(contextPath, enrolmentPath);
+    }
+
+    @Test
     public void testAttends_find() {
         final Set<Attends> attends = registration.getAssociatedAttendsSet();
         assertEquals(attends.size(), 1);
@@ -164,4 +185,5 @@ public class EnrolmentTest {
         assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
         assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
     }
+
 }

@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -214,6 +215,11 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         } else {
             return getCurriculumGroup().getFullPath() + " > " + getName().getContent();
         }
+    }
+
+    public List<CurriculumModule> getPath() {
+        return isRoot() ? List.of(this) : Stream.concat(getCurriculumGroup().getPath().stream(), Stream.of(this))
+                .collect(Collectors.toList());
     }
 
     public boolean isFor(final DegreeCurricularPlan degreeCurricularPlan) {
