@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
 import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,13 +24,12 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -42,6 +42,9 @@ public class EnrolmentTest {
     private static CurricularCourse curricularCourse;
     private static ExecutionInterval executionInterval;
 
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
@@ -52,7 +55,7 @@ public class EnrolmentTest {
 
     public static void initEnrolments() {
         StudentTest.initStudentAndRegistration();
-        initDefaultSeason();
+        EvaluationSeasonTest.initEvaluationSeasons();
 
         registration = Student.readStudentByNumber(1).getRegistrationStream().findAny().orElseThrow();
         final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
@@ -78,12 +81,6 @@ public class EnrolmentTest {
         ExecutionsAndSchedulesTest.initSchedules();
 
         Authenticate.unmock();
-    }
-
-    private static void initDefaultSeason() {
-        final LocalizedString seasonLabel = BundleUtil.getLocalizedString(Bundle.ENUMERATION, "NORMAL");
-        final EvaluationSeason season = new EvaluationSeason(seasonLabel, seasonLabel, true, true, false, false);
-        EvaluationConfiguration.getInstance().setDefaultEvaluationSeason(season);
     }
 
     //TODO: move this method to domain && remove StudentCurricularPlanServices.initializeGroupIfRequired(StudentCurricularPlan, CourseGroup)
@@ -135,6 +132,41 @@ public class EnrolmentTest {
                 .map(cg -> (CourseGroup) cg.getDegreeModule()).collect(Collectors.toList());
 
         assertEquals(contextPath, enrolmentPath);
+    }
+
+    @Test
+    public void testEnrolment_hasImprovementForDifferentInterval() {
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        createImprovementEvaluation(enrolment);
+        final ExecutionInterval otherInterval = enrolment.getExecutionYear().getChildIntervals().stream()
+                .filter(ei -> ei != enrolment.getExecutionInterval()).findFirst().get();
+
+        assertEquals(false, enrolment.hasImprovementFor(otherInterval));
+    }
+
+    @Test
+    public void testEnrolment_hasImprovementForSameInterval() {
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        createImprovementEvaluation(enrolment);
+
+        assertEquals(true, enrolment.hasImprovementFor(enrolment.getExecutionInterval()));
+    }
+
+    @Test
+    public void testEnrolment_hasImprovementForExecutionYear() {
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        createImprovementEvaluation(enrolment);
+
+        assertEquals(true, enrolment.hasImprovementFor(enrolment.getExecutionYear()));
+    }
+
+    private void createImprovementEvaluation(final Enrolment enrolment) {
+        final EvaluationSeason season = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
+        final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, season);
+        evaluation.setExecutionPeriod(enrolment.getExecutionInterval());
     }
 
     @Test

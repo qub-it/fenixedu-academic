@@ -44,15 +44,21 @@ public class EvaluationSeasonTest {
         createEvaluationSeason(NORMAL_SEASON_CODE, true, false, false);
     }
 
-    private static void initEvaluationSeasons() {
-        createEvaluationSeason(NORMAL_SEASON_CODE, true, false, false);
+    public static void initEvaluationSeasons() {
+        final EvaluationSeason normal = createEvaluationSeason(NORMAL_SEASON_CODE, true, false, false);
+        EvaluationConfiguration.getInstance().setDefaultEvaluationSeason(normal);
+        
         createEvaluationSeason(IMPROVEMENT_SEASON_CODE, false, true, false);
         createEvaluationSeason(SPECIAL_SEASON_CODE, false, false, true);
     }
 
-    private static void createEvaluationSeason(final String code, boolean normal, boolean improvement, boolean special) {
+    public static EvaluationSeason createEvaluationSeason(final String code, boolean normal, boolean improvement,
+            boolean special) {
         final LocalizedString label = getLocalizedString(ENUMERATION, code);
-        new EvaluationSeason(label, label, normal, improvement, false, special).setCode(code);
+        final EvaluationSeason result = new EvaluationSeason(label, label, normal, improvement, false, special);
+        result.setCode(code);
+
+        return result;
     }
 
 }
