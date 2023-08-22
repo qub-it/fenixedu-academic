@@ -1,5 +1,6 @@
 - Refactor: Improve Enrolment and EvaluationSeason tests code
 - Refactor: Change Enrolment.hasImprovement method to support execution year
+- Improvement: Add RegistrationRegimeType method to get localized name with locale
 - Improvement: Add EvaluationSeason finder by code (and tests)
 
 42.0.0 (21-08-2023)

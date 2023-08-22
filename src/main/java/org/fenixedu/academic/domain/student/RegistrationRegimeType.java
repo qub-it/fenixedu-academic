@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.domain.student;
 
+import java.util.Locale;
+
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
@@ -48,5 +50,9 @@ public enum RegistrationRegimeType implements IPresentableEnum {
     @Override
     public String getLocalizedName() {
         return BundleUtil.getString(Bundle.ENUMERATION, getQualifiedName());
+    }
+
+    public String getLocalizedName(Locale locale) {
+        return BundleUtil.getString(Bundle.ENUMERATION, locale, getQualifiedName());
     }
 }
