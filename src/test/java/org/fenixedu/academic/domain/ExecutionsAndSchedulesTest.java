@@ -127,8 +127,6 @@ public class ExecutionsAndSchedulesTest {
     @Test
     public void testShift_courseLoadTotalHours() {
         assertEquals(shift.getCourseLoadTotalHours(), new BigDecimal("30.0"));
-        assertEquals(shift.getCourseLoadTotalHoursOld(), new BigDecimal("30.0"));
-        assertEquals(shift.getCourseLoadTotalHours(), shift.getCourseLoadTotalHoursOld());
     }
 
     @Rule

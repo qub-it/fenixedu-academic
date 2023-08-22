@@ -44,7 +44,8 @@ public class ClassEventBean extends EventBean {
 
     @Override
     public String getTitle() {
-        return getClassShift().getExecutionCourse().getNome() + " : " + getClassShift().getShiftTypesCapitalizedPrettyPrint();
+        return getClassShift().getExecutionCourse().getNome() + " : "
+                + getClassShift().getCourseLoadType().getInitials().getContent();
     }
 
 }

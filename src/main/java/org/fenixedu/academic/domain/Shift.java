@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -61,22 +60,6 @@ public class Shift extends Shift_Base {
         Registration.getRelationShiftStudent().addListener(new ShiftStudentListener());
     }
 
-    @Deprecated
-    public Shift(final ExecutionCourse executionCourse, Collection<ShiftType> types, final Integer capacity,
-            final String shiftName) {
-        super();
-        setRootDomainObject(Bennu.getInstance());
-        setExecutionCourse(executionCourse);
-        shiftTypeManagement(types, executionCourse);
-        new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
-
-        setName(StringUtils.isBlank(shiftName) ? generateShiftName(executionCourse, getCourseLoadType()) : shiftName);
-
-        if (getCourseLoadsSet().isEmpty()) {
-            throw new DomainException("error.Shift.empty.courseLoads");
-        }
-    }
-
     public Shift(final ExecutionCourse executionCourse, final CourseLoadType type, final Integer capacity, final String name) {
         super();
         setRootDomainObject(Bennu.getInstance());
@@ -88,7 +71,7 @@ public class Shift extends Shift_Base {
         new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
 
         if (StringUtils.isNotBlank(name)
-                && executionCourse.getAssociatedShifts().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
+                && executionCourse.getShiftsSet().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
             throw new DomainException("error.Shift.with.this.name.already.exists");
         }
 
@@ -113,31 +96,13 @@ public class Shift extends Shift_Base {
         return generatedName;
     }
 
-    @Deprecated
-    public void edit(List<ShiftType> newTypes, ExecutionCourse newExecutionCourse, String newName, String comment) {
-
-        if (newExecutionCourse.getAssociatedShifts().stream().anyMatch(s -> s.getName().equals(newName) && s != this)) {
-            throw new DomainException("error.Shift.with.this.name.already.exists");
-        }
-
-        shiftTypeManagement(newTypes, newExecutionCourse);
-        setName(newName);
-
-        if (getCourseLoadsSet().isEmpty()) {
-            throw new DomainException("error.Shift.empty.courseLoads");
-        }
-
-        setExecutionCourse(newExecutionCourse);
-        setComment(comment);
-    }
-
     public void edit(final CourseLoadType type, final String name, final Languages languages, final String comment) {
 
         if (StringUtils.isBlank(name)) {
             throw new DomainException("error.Shift.name.is.empty");
         }
 
-        if (getExecutionCourse().getAssociatedShifts().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
+        if (getExecutionCourse().getShiftsSet().stream().anyMatch(s -> s != this && name.equals(s.getName()))) {
             throw new DomainException("error.Shift.with.this.name.already.exists");
         }
 
@@ -172,21 +137,6 @@ public class Shift extends Shift_Base {
         super.deleteDomainObject();
     }
 
-    @Override
-    public ExecutionCourse getExecutionCourse() {
-        final ExecutionCourse executionCourse = super.getExecutionCourse();
-        if (executionCourse != null) {
-            return executionCourse;
-        }
-
-        CourseLoad courseLoad = getCourseLoadsSet().iterator().next();
-        if (courseLoad != null) {
-            return courseLoad.getExecutionCourse();
-        } else {
-            return null;
-        }
-    }
-
     public ExecutionInterval getExecutionPeriod() {
         return getExecutionCourse().getExecutionInterval();
     }
@@ -201,7 +151,7 @@ public class Shift extends Shift_Base {
             throw new DomainException("error.Shift.multiple.shiftTypes");
         }
 
-        CourseLoadType.findByShiftType(types.iterator().next()).ifPresent(loadType -> setCourseLoadType(loadType));
+//        CourseLoadType.findByShiftType(types.iterator().next()).ifPresent(loadType -> setCourseLoadType(loadType));
 
         if (executionCourse != null) {
             getCourseLoadsSet().clear();
@@ -216,32 +166,12 @@ public class Shift extends Shift_Base {
 
     @Deprecated
     public List<ShiftType> getTypes() {
-        List<ShiftType> result = new ArrayList<ShiftType>();
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            result.add(courseLoad.getType());
-        }
-        return result;
-    }
-
-    @Deprecated
-    public SortedSet<ShiftType> getSortedTypes() {
-        SortedSet<ShiftType> result = new TreeSet<ShiftType>();
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            result.add(courseLoad.getType());
-        }
-        return result;
+        return List.of(getCourseLoadType().getShiftType());
     }
 
     @Deprecated
     public boolean containsType(ShiftType shiftType) {
-        if (shiftType != null) {
-            for (CourseLoad courseLoad : getCourseLoadsSet()) {
-                if (courseLoad.getType().equals(shiftType)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getCourseLoadType().getShiftType() == shiftType;
     }
 
     @Override
@@ -293,23 +223,6 @@ public class Shift extends Shift_Base {
         return hours;
     }
 
-    public BigDecimal getCourseLoadWeeklyAverage() {
-        BigDecimal weeklyHours = BigDecimal.ZERO;
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            weeklyHours = weeklyHours.add(courseLoad.getWeeklyHours());
-        }
-        return weeklyHours;
-    }
-
-    @Deprecated(forRemoval = true)
-    public BigDecimal getCourseLoadTotalHoursOld() {
-        BigDecimal weeklyHours = BigDecimal.ZERO;
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            weeklyHours = weeklyHours.add(courseLoad.getTotalQuantity());
-        }
-        return weeklyHours;
-    }
-
     public BigDecimal getCourseLoadTotalHours() {
         return getExecutionCourse().getCompetenceCoursesInformations().stream().distinct()
                 .flatMap(cci -> cci.findLoadDurationByType(getCourseLoadType()).stream()).filter(Objects::nonNull)
@@ -327,17 +240,17 @@ public class Shift extends Shift_Base {
                 .anyMatch(sc -> sc.accepts(registration));
     }
 
-    @Deprecated
-    public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
-            final ExecutionCourse executionCourse, final ShiftType shiftType) {
-        return executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
-                .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
-                .filter(sc -> sc.accepts(registration));
-    }
+//    @Deprecated
+//    public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
+//            final ExecutionCourse executionCourse, final ShiftType shiftType) {
+//        return executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
+//                .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
+//                .filter(sc -> sc.accepts(registration));
+//    }
 
     public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
             final ExecutionCourse executionCourse, final CourseLoadType courseLoadType) {
-        return executionCourse.getAssociatedShifts().stream().filter(s -> s.getCourseLoadType() == courseLoadType)
+        return executionCourse.getShiftsSet().stream().filter(s -> s.getCourseLoadType() == courseLoadType)
                 .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
                 .filter(sc -> sc.accepts(registration));
     }
@@ -441,47 +354,17 @@ public class Shift extends Shift_Base {
 
     @Deprecated
     public String getShiftTypesPrettyPrint() {
-        StringBuilder builder = new StringBuilder();
-        int index = 0;
-        SortedSet<ShiftType> sortedTypes = getSortedTypes();
-        for (ShiftType shiftType : sortedTypes) {
-            builder.append(BundleUtil.getString(Bundle.ENUMERATION, shiftType.getName()));
-            index++;
-            if (index < sortedTypes.size()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
+        return getCourseLoadType().getName().getContent();
     }
 
-    @Deprecated
-    public String getShiftTypesCapitalizedPrettyPrint() {
-        StringBuilder builder = new StringBuilder();
-        int index = 0;
-        SortedSet<ShiftType> sortedTypes = getSortedTypes();
-        for (ShiftType shiftType : sortedTypes) {
-            builder.append(shiftType.getFullNameTipoAula());
-            index++;
-            if (index < sortedTypes.size()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
-    }
+//    @Deprecated(forRemoval = true) // after i release
+//    public String getShiftTypesCapitalizedPrettyPrint() {
+//        return getShiftTypesPrettyPrint();
+//    }
 
     @Deprecated
     public String getShiftTypesCodePrettyPrint() {
-        StringBuilder builder = new StringBuilder();
-        int index = 0;
-        SortedSet<ShiftType> sortedTypes = getSortedTypes();
-        for (ShiftType shiftType : sortedTypes) {
-            builder.append(shiftType.getSiglaTipoAula());
-            index++;
-            if (index < sortedTypes.size()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
+        return getCourseLoadType().getInitials().getContent();
     }
 
     private static class ShiftStudentListener extends RelationAdapter<Registration, Shift> {
@@ -497,21 +380,10 @@ public class Shift extends Shift_Base {
         }
     }
 
-    public int getCapacityBasedOnSmallestRoom() {
-        int capacity = getAssociatedLessonsSet().stream().filter(Lesson::hasSala)
-                .mapToInt(lesson -> lesson.getSala().getAllocatableCapacity()).min().orElse(0);
-        return capacity + (capacity / 10);
-    }
-
-    @Deprecated
-    public boolean hasShiftType(final ShiftType shiftType) {
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            if (courseLoad.getType() == shiftType) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    @Deprecated(forRemoval = true) // after i release
+//    public boolean hasShiftType(final ShiftType shiftType) {
+//        return getCourseLoadType().getShiftType() == shiftType;
+//    }
 
     public String getPresentationName() {
         final Set<Lesson> lessons = getAssociatedLessonsSet();
