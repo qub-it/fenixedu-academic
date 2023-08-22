@@ -100,7 +100,7 @@ public class LessonInstanceSpaceOccupation extends LessonInstanceSpaceOccupation
         Set<LessonInstance> lessonInstancesSet = getLessonInstancesSet();
         if (!lessonInstancesSet.isEmpty()) {
             Lesson theLesson = lessonInstancesSet.iterator().next().getLesson();
-            String asd = theLesson.getShift().getCourseLoadsSet().iterator().next().getType().getFullNameTipoAula();
+            String asd = theLesson.getShift().getCourseLoadType().getName().getContent();
             for (YearMonthDay ymd : theLesson.getAllLessonDates()) {
                 asd += "\n" + ymd.toString();
             }

@@ -1,3 +1,5 @@
+- Refactor: Replace usage of deprecated CourseLoad
+
 42.0.1 (22-08-2023)
 - Refactor: Improve Enrolment and EvaluationSeason tests code
 - Refactor: Change Enrolment.hasImprovement method to support execution year

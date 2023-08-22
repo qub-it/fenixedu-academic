@@ -105,7 +105,7 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
     @Override
     public String getInfo() {
-        String asd = getLesson().getShift().getCourseLoadsSet().iterator().next().getType().getFullNameTipoAula();
+        String asd = getLesson().getShift().getCourseLoadType().getName().getContent();
         for (YearMonthDay ymd : getLesson().getAllLessonDates()) {
             asd += "\n" + ymd.toString();
         }

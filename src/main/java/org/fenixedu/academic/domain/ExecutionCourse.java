@@ -190,12 +190,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         }
     }
 
+    @Deprecated
     public Set<Shift> getAssociatedShifts() {
-        Set<Shift> result = new HashSet<Shift>();
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            result.addAll(courseLoad.getShiftsSet());
-        }
-        return result;
+        return getShiftsSet();
     }
 
     private static class CurricularCourseExecutionCourseListener extends RelationAdapter<ExecutionCourse, CurricularCourse> {
@@ -324,14 +321,14 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return getAllSchoolClassesOrBy(null);
     }
 
-    @Deprecated
-    public Set<ShiftType> getShiftTypes() {
-        Set<ShiftType> shiftTypes = new TreeSet<ShiftType>();
-        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-            shiftTypes.add(courseLoad.getType());
-        }
-        return shiftTypes;
-    }
+//    @Deprecated
+//    public Set<ShiftType> getShiftTypes() {
+//        Set<ShiftType> shiftTypes = new TreeSet<ShiftType>();
+//        for (CourseLoad courseLoad : getCourseLoadsSet()) {
+//            shiftTypes.add(courseLoad.getType());
+//        }
+//        return shiftTypes;
+//    }
 
     public Collection<CourseLoadType> getCourseLoadTypes() {
         return getCompetenceCoursesInformations().stream().flatMap(cci -> cci.getCourseLoadDurationsSet().stream())
