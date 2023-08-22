@@ -1,3 +1,4 @@
+42.0.1 (22-08-2023)
 - Refactor: Improve Enrolment and EvaluationSeason tests code
 - Refactor: Change Enrolment.hasImprovement method to support execution year
 - Improvement: Add RegistrationRegimeType method to get localized name with locale
