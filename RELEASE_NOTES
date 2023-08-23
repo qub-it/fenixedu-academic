@@ -1,3 +1,4 @@
+42.1.0 (23-08-2023)
 - Refactor: Replace usage of deprecated CourseLoad
 - Refactor: Remove deprecated and unused methods from Shift
 
