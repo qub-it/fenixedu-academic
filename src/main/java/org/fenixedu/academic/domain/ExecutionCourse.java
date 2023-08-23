@@ -321,15 +321,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return getAllSchoolClassesOrBy(null);
     }
 
-//    @Deprecated
-//    public Set<ShiftType> getShiftTypes() {
-//        Set<ShiftType> shiftTypes = new TreeSet<ShiftType>();
-//        for (CourseLoad courseLoad : getCourseLoadsSet()) {
-//            shiftTypes.add(courseLoad.getType());
-//        }
-//        return shiftTypes;
-//    }
-
     public Collection<CourseLoadType> getCourseLoadTypes() {
         return getCompetenceCoursesInformations().stream().flatMap(cci -> cci.getCourseLoadDurationsSet().stream())
                 .map(CourseLoadDuration::getCourseLoadType).filter(CourseLoadType::getAllowShifts).collect(Collectors.toSet());

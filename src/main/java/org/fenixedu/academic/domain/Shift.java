@@ -240,14 +240,6 @@ public class Shift extends Shift_Base {
                 .anyMatch(sc -> sc.accepts(registration));
     }
 
-//    @Deprecated
-//    public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
-//            final ExecutionCourse executionCourse, final ShiftType shiftType) {
-//        return executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
-//                .flatMap(s -> s.getShiftCapacitiesSet().stream()).filter(ShiftCapacity::isFreeIncludingExtraCapacities)
-//                .filter(sc -> sc.accepts(registration));
-//    }
-
     public static Stream<ShiftCapacity> findPossibleShiftsToEnrol(final Registration registration,
             final ExecutionCourse executionCourse, final CourseLoadType courseLoadType) {
         return executionCourse.getShiftsSet().stream().filter(s -> s.getCourseLoadType() == courseLoadType)
@@ -357,11 +349,6 @@ public class Shift extends Shift_Base {
         return getCourseLoadType().getName().getContent();
     }
 
-//    @Deprecated(forRemoval = true) // after i release
-//    public String getShiftTypesCapitalizedPrettyPrint() {
-//        return getShiftTypesPrettyPrint();
-//    }
-
     @Deprecated
     public String getShiftTypesCodePrettyPrint() {
         return getCourseLoadType().getInitials().getContent();
@@ -379,11 +366,6 @@ public class Shift extends Shift_Base {
             ShiftEnrolment.find(shift, registration).ifPresent(se -> se.delete());
         }
     }
-
-//    @Deprecated(forRemoval = true) // after i release
-//    public boolean hasShiftType(final ShiftType shiftType) {
-//        return getCourseLoadType().getShiftType() == shiftType;
-//    }
 
     public String getPresentationName() {
         final Set<Lesson> lessons = getAssociatedLessonsSet();
