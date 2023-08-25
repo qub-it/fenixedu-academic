@@ -44,7 +44,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.dto.student.DomainObjectDeletionBean;
+import org.fenixedu.academic.dto.DomainObjectDeletionBean;
 import org.fenixedu.academic.dto.student.StudentStatuteBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.Signal;
@@ -55,7 +55,7 @@ public class Student extends Student_Base {
     public static final String DELETION_BEAN_USERNAME = "username";
     public static final String DELETION_BEAN_NAME = "name";
 
-    public static final String STUDENT_CREATE_SIGNAL = "academic.student.create.signal";
+    public static final String STUDENT_DELETE_SIGNAL = "academic.student.delete.signal";
 
     public final static Comparator<Student> NAME_COMPARATOR = new Comparator<Student>() {
 
@@ -205,7 +205,7 @@ public class Student extends Student_Base {
         Person person = getPerson();
         domainObjectDeletionBean.addAttribute(DELETION_BEAN_USERNAME, person != null ? person.getUsername() : "");
         domainObjectDeletionBean.addAttribute(DELETION_BEAN_NUMBER, String.valueOf(getNumber()));
-        Signal.emit(STUDENT_CREATE_SIGNAL, domainObjectDeletionBean);
+        Signal.emit(STUDENT_DELETE_SIGNAL, domainObjectDeletionBean);
 
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
         for (; !getRegistrationsSet().isEmpty(); getRegistrationsSet().iterator().next().delete()) {

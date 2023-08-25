@@ -1,7 +1,9 @@
-package org.fenixedu.academic.dto.student;
+package org.fenixedu.academic.dto;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class DomainObjectDeletionBean {
     private Map<String, String> attributes = new HashMap<>();
@@ -11,7 +13,7 @@ public class DomainObjectDeletionBean {
     }
 
     public Map<String, String> getAttributes() {
-        return this.attributes;
+        return Collections.unmodifiableMap(this.attributes);
     }
 
     public void setAttributes(Map<String, String> attributes) {
