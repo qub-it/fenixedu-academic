@@ -2,6 +2,8 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
+import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_A_NAME;
+import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_B_NAME;
 import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.accessControl.SchoolClassStudentsGroup;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -186,7 +189,7 @@ public class EnrolmentTest {
     }
 
     @Test
-    public void testShiftEnrolments() {
+    public void testShift_enrolments() {
         final ExecutionCourse executionCourse =
                 curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval).iterator().next();
 
@@ -218,4 +221,30 @@ public class EnrolmentTest {
         assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
     }
 
+    @Test
+    public void testSchoolClass_enrolments() {
+        final ExecutionDegree executionDegree =
+                registration.getLastDegreeCurricularPlan().findExecutionDegree(executionInterval).orElseThrow();
+        final SchoolClass schoolClassA = SchoolClass.findBy(executionDegree, executionInterval, 1)
+                .filter(sc -> sc.getName().equals(SCHOOL_CLASS_A_NAME)).findAny().orElseThrow();
+        final SchoolClass schoolClassB = SchoolClass.findBy(executionDegree, executionInterval, 1)
+                .filter(sc -> sc.getName().equals(SCHOOL_CLASS_B_NAME)).findAny().orElseThrow();
+
+        assertTrue(registration.findSchoolClass(executionInterval).isEmpty());
+
+        SchoolClass.replaceSchoolClass(registration, schoolClassA, executionInterval);
+        assertTrue(registration.findSchoolClass(executionInterval).isPresent());
+        assertTrue(registration.findSchoolClass(executionInterval).stream().anyMatch(sc -> sc == schoolClassA));
+        assertTrue(registration.findSchoolClass(executionInterval).stream().noneMatch(sc -> sc == schoolClassB));
+
+        final SchoolClassStudentsGroup schoolClassAStudentsGroup = SchoolClassStudentsGroup.get(schoolClassA);
+        final SchoolClassStudentsGroup schoolClassBStudentsGroup = SchoolClassStudentsGroup.get(schoolClassB);
+
+        final User registrationUser = registration.getStudent().getPerson().getUser();
+
+        assertEquals(schoolClassAStudentsGroup.getMembers().count(), 1);
+        assertTrue(schoolClassAStudentsGroup.getMembers().anyMatch(u -> u == registrationUser));
+        assertTrue(schoolClassAStudentsGroup.isMember(registrationUser));
+        assertTrue(schoolClassBStudentsGroup.getMembers().findAny().isEmpty());
+    }
 }
