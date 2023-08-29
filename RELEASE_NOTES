@@ -1,10 +1,10 @@
 - Refactor: Add school class tests
 - Refactor: Add school class students group
+- Improvement: Sends deletion signal in Student deletion
 
 42.1.0 (23-08-2023)
 - Refactor: Replace usage of deprecated CourseLoad
 - Refactor: Remove deprecated and unused methods from Shift
-- Improvement: Sends deletion signal in Student deletion
 
 42.0.1 (22-08-2023)
 - Refactor: Improve Enrolment and EvaluationSeason tests code
