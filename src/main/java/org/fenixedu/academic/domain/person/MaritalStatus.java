@@ -21,6 +21,8 @@
  */
 package org.fenixedu.academic.domain.person;
 
+import java.util.Locale;
+
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
@@ -51,5 +53,9 @@ public enum MaritalStatus implements IPresentableEnum {
     @Override
     public String getLocalizedName() {
         return BundleUtil.getString(Bundle.ENUMERATION, this.getClass().getName() + "." + name());
+    }
+
+    public String toLocalizedString(Locale locale) {
+        return BundleUtil.getString(Bundle.ENUMERATION, locale, name());
     }
 }
