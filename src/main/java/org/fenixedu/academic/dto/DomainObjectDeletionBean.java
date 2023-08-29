@@ -1,9 +1,8 @@
 package org.fenixedu.academic.dto;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 public class DomainObjectDeletionBean {
     private Map<String, String> attributes = new HashMap<>();
