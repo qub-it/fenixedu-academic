@@ -41,6 +41,9 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ExecutionsAndSchedulesTest {
 
+    public static final String SCHOOL_CLASS_B_NAME = "School Class B";
+    public static final String SCHOOL_CLASS_A_NAME = "School Class A";
+
     private static ExecutionCourse executionCourse;
     private static ExecutionDegree executionDegree;
     private static SpaceClassification classification;
@@ -84,6 +87,10 @@ public class ExecutionsAndSchedulesTest {
         shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
         createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 createDefaultOccupationPeriod(intervals), null);
+
+        final ExecutionInterval executionInterval = executionDegree.getExecutionYear().getFirstExecutionPeriod();
+        new SchoolClass(executionDegree, executionInterval, SCHOOL_CLASS_A_NAME, 1);
+        new SchoolClass(executionDegree, executionInterval, SCHOOL_CLASS_B_NAME, 1);
     }
 
     static OccupationPeriod createDefaultOccupationPeriod(Iterator<Interval> intervals) {
@@ -417,5 +424,13 @@ public class ExecutionsAndSchedulesTest {
         assertEquals(shift1.getPresentationName(),
                 "T100 (Wed. 10:00-11:00; Thu. 10:00-11:00 - Room Y; Fri. 10:00-11:00; Fri. 11:00-12:00 - Room X)");
         assertEquals(shift2.getPresentationName(), "T101");
+    }
+
+    @Test
+    public void testSchoolClass_find() {
+        final ExecutionInterval executionInterval = executionDegree.getExecutionYear().getFirstExecutionPeriod();
+        assertTrue(SchoolClass.findBy(executionDegree, executionInterval, 1).findAny().isPresent());
+        assertTrue(SchoolClass.findBy(executionDegree, executionInterval, 2).findAny().isEmpty());
+        assertEquals(SchoolClass.findBy(executionDegree, executionInterval, 1).count(), 2);
     }
 }
