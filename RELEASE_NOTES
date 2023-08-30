@@ -1,3 +1,4 @@
+42.1.1 (29-08-2023)
 - Refactor: Add school class tests
 - Refactor: Add school class students group
 - Improvement: Sends deletion signal in Student deletion
