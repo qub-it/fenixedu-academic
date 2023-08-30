@@ -86,10 +86,15 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                 existingInformation.getAcademicPeriod(), existingInformation.getLevelType(),
                 existingInformation.getExecutionInterval(), existingInformation.getCompetenceCourseGroupUnit());
         setCompetenceCourse(existingInformation.getCompetenceCourse());
+
+        existingInformation.getCourseLoadDurationsSet().forEach(existingDuration -> CourseLoadDuration.create(this,
+                existingDuration.getCourseLoadType(), existingDuration.getHours()));
+
         for (CompetenceCourseLoad load : existingInformation.getCompetenceCourseLoadsSet()) {
             CompetenceCourseLoad newLoad = new CompetenceCourseLoad(load);
             addCompetenceCourseLoads(newLoad);
         }
+        setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
         setBibliographicReferences(existingInformation.getBibliographicReferences());
         setEvaluationMethod(existingInformation.getEvaluationMethod());
