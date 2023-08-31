@@ -67,9 +67,9 @@ public class CompetenceCourseTest {
 
         new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 20d, 6d, 1, AcademicPeriod.SEMESTER);
 
-        final CompetenceCourseInformation nextCourseInformation = new CompetenceCourseInformation(courseInformation);
         final ExecutionYear nextExecutionYear = (ExecutionYear) ExecutionYear.findCurrentAggregator(null).getNext();
-        nextCourseInformation.setExecutionInterval(nextExecutionYear.getFirstExecutionPeriod());
+        final CompetenceCourseInformation nextCourseInformation =
+                new CompetenceCourseInformation(courseInformation, nextExecutionYear.getFirstExecutionPeriod());
 
         final CompetenceCourseLoad nextLoad = nextCourseInformation.getCompetenceCourseLoadsSet().iterator().next();
         nextLoad.setTheoreticalHours(0d);

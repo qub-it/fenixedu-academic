@@ -81,28 +81,34 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public CompetenceCourseInformation(final CompetenceCourseInformation existingInformation) {
+    public CompetenceCourseInformation(final CompetenceCourseInformation existingInformation,
+            final ExecutionInterval executionInterval) {
+
         this(existingInformation.getName(), existingInformation.getNameEn(), existingInformation.getBasic(),
-                existingInformation.getAcademicPeriod(), existingInformation.getLevelType(),
-                existingInformation.getExecutionInterval(), existingInformation.getCompetenceCourseGroupUnit());
+                existingInformation.getAcademicPeriod(), existingInformation.getLevelType(), executionInterval,
+                existingInformation.getCompetenceCourseGroupUnit());
+
         setCompetenceCourse(existingInformation.getCompetenceCourse());
 
         existingInformation.getCourseLoadDurationsSet().forEach(existingDuration -> CourseLoadDuration.create(this,
                 existingDuration.getCourseLoadType(), existingDuration.getHours()));
 
         for (CompetenceCourseLoad load : existingInformation.getCompetenceCourseLoadsSet()) {
-            CompetenceCourseLoad newLoad = new CompetenceCourseLoad(load);
-            addCompetenceCourseLoads(newLoad);
+            new CompetenceCourseLoad(this, load);
         }
+
         setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
         setBibliographicReferences(existingInformation.getBibliographicReferences());
+
         setEvaluationMethod(existingInformation.getEvaluationMethod());
         setEvaluationMethodEn(existingInformation.getEvaluationMethodEn());
         setObjectives(existingInformation.getObjectives());
         setObjectivesEn(existingInformation.getObjectivesEn());
         setProgram(existingInformation.getProgram());
         setProgramEn(existingInformation.getProgramEn());
+
+        setLanguages(existingInformation.getLanguages());
     }
 
     public CompetenceCourseInformation(final String name, final String nameEn, final Boolean basic,

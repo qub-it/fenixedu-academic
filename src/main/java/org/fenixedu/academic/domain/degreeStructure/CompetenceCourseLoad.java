@@ -34,11 +34,12 @@ public class CompetenceCourseLoad extends CompetenceCourseLoad_Base implements C
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public CompetenceCourseLoad(CompetenceCourseLoad existingLoad) {
-        this(existingLoad.getTheoreticalHours(), existingLoad.getProblemsHours(), existingLoad.getLaboratorialHours(),
-                existingLoad.getSeminaryHours(), existingLoad.getFieldWorkHours(), existingLoad.getTrainingPeriodHours(),
-                existingLoad.getTutorialOrientationHours(), existingLoad.getOtherHours(), existingLoad.getAutonomousWorkHours(),
-                existingLoad.getEctsCredits(), existingLoad.getLoadOrder(), existingLoad.getAcademicPeriod());
+    public CompetenceCourseLoad(CompetenceCourseInformation courseInformation, CompetenceCourseLoad existingLoad) {
+        this(courseInformation, existingLoad.getTheoreticalHours(), existingLoad.getProblemsHours(),
+                existingLoad.getLaboratorialHours(), existingLoad.getSeminaryHours(), existingLoad.getFieldWorkHours(),
+                existingLoad.getTrainingPeriodHours(), existingLoad.getTutorialOrientationHours(), existingLoad.getOtherHours(),
+                existingLoad.getAutonomousWorkHours(), existingLoad.getEctsCredits(), existingLoad.getLoadOrder(),
+                existingLoad.getAcademicPeriod());
     }
 
     public CompetenceCourseLoad(CompetenceCourseInformation courseInformation, Double theoreticalHours, Double problemsHours,
