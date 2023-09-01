@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -25,6 +26,8 @@ public class GradeScale extends GradeScale_Base {
 
     private Map<String, Object> CACHE_APPROVED_GRADE_VALUES = null;
     private Map<String, Object> CACHE_NOT_APPROVED_GRADE_VALUES = null;
+
+    private static final Map<GradeScale, Map<String, GradeScaleEntry>> internalCache = new HashMap<>();
 
     public static final Comparator<GradeScale> COMPARE_BY_NAME = (o1, o2) -> {
         int c = o1.getName().compareTo(o2.getName());
@@ -136,7 +139,7 @@ public class GradeScale extends GradeScale_Base {
         setActive(activeGradeScale);
 
         checkRules();
-        
+
         invalidateCache();
     }
 
@@ -157,7 +160,8 @@ public class GradeScale extends GradeScale_Base {
         }
 
         if (!leftGrade.getGradeScale().equals(rightGrade.getGradeScale())) {
-            throw new DomainException("Grade.unsupported.comparison.of.grades.of.different.scales", leftGrade.toString(), rightGrade.toString());
+            throw new DomainException("Grade.unsupported.comparison.of.grades.of.different.scales", leftGrade.toString(),
+                    rightGrade.toString());
         }
 
         {
@@ -331,6 +335,8 @@ public class GradeScale extends GradeScale_Base {
         if (this.CACHE_NOT_APPROVED_GRADE_VALUES != null) {
             this.CACHE_NOT_APPROVED_GRADE_VALUES.clear();
         }
+
+        internalCache.clear();
     }
 
     public LocalizedString getExtendedValue(Grade grade) {
@@ -345,7 +351,13 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private Optional<GradeScaleEntry> findGradeScaleEntry(final String value) {
-        return getGradeScaleEntriesSet().stream().filter(e -> e.getValue().equals(value)).findFirst();
+        return Optional.ofNullable(of(value));
+    }
+
+    private GradeScaleEntry of(final String value) {
+        final Map<String, GradeScaleEntry> entriesCache = internalCache.computeIfAbsent(this, c -> new HashMap<>());
+        return entriesCache.computeIfAbsent(value,
+                c -> getGradeScaleEntriesSet().stream().filter(e -> Objects.equals(e.getValue(), value)).findAny().orElse(null));
     }
 
     private void reorderGrades() {
