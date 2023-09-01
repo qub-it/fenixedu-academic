@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -46,7 +45,7 @@ public class CompetenceCourseTest {
         });
     }
 
-    static void initCompetenceCourse() {
+    public static void initCompetenceCourse() {
         OrganizationalStructureTest.initTypes();
         OrganizationalStructureTest.initUnits();
 
@@ -72,7 +71,7 @@ public class CompetenceCourseTest {
                 new CompetenceCourseInformation(courseInformation, nextExecutionYear.getFirstExecutionPeriod());
 
         final CompetenceCourseLoad nextLoad = nextCourseInformation.getCompetenceCourseLoadsSet().iterator().next();
-        nextLoad.setTheoreticalHours(0d);
+        nextLoad.setTheoreticalHours(5d);
         nextLoad.setProblemsHours(15d);
     }
 
@@ -146,38 +145,8 @@ public class CompetenceCourseTest {
     }
 
     @Test
-    public void testCourse_findInformation() {
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
-        final ExecutionInterval previousInterval = currentInterval.getPrevious();
-        final ExecutionInterval nextInterval = currentInterval.getNext();
-        final ExecutionInterval nextNextInterval = nextInterval.getNext();
-
-        assertNotNull(currentInterval);
-        assertNotNull(previousInterval);
-        assertNotNull(nextInterval);
-        assertNotNull(nextNextInterval);
-
-        final CompetenceCourseInformation currentInformation = competenceCourseA.findInformationMostRecentUntil(currentInterval);
-        final CompetenceCourseInformation previousInformation =
-                competenceCourseA.findInformationMostRecentUntil(previousInterval);
-        final CompetenceCourseInformation nextInformation = competenceCourseA.findInformationMostRecentUntil(nextInterval);
-        final CompetenceCourseInformation nextNextInformation =
-                competenceCourseA.findInformationMostRecentUntil(nextNextInterval);
-
-        assertNotNull(currentInformation);
-        assertNotNull(previousInformation);
-        assertNotNull(nextInformation);
-        assertNotNull(nextNextInformation);
-
-        assertEquals(currentInformation, previousInformation);
-        assertEquals(currentInformation, nextInformation);
-        assertNotEquals(currentInformation, nextNextInformation);
-
-    }
-
-    @Test
     public void testCourse_courseLoad() {
-        assertEquals(competenceCourseA.getTheoreticalHours(), 0d, 0d);
+        assertEquals(competenceCourseA.getTheoreticalHours(), 5d, 0d);
         assertEquals(competenceCourseA.getProblemsHours(), 15d, 0d);
 
         final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
@@ -191,7 +160,9 @@ public class CompetenceCourseTest {
 
         assertEquals(competenceCourseA.getLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), currentInterval).orElseThrow(),
                 new BigDecimal("30.0"));
-        assertNull(competenceCourseA.getLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL)).orElse(null));
+        assertNotNull(competenceCourseA.getLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL)).orElse(null));
+        assertNull(competenceCourseA.getLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL), currentInterval)
+                .orElse(null));
         assertEquals(competenceCourseA.getLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL)).orElseThrow(),
                 new BigDecimal("15.0"));
     }

@@ -1,7 +1,7 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -39,6 +39,17 @@ public class CourseLoadDuration extends CourseLoadDuration_Base {
         super.setHours(hours);
     }
 
+    void deleteTriggeredByCompetenceCourseInformation() {
+        final Boolean previousInformationHasNotThisLoadType = getCompetenceCourseInformation().findPrevious()
+                .map(cci -> cci.findLoadDurationByType(getCourseLoadType()).isEmpty()).orElse(false);
+        if (previousInformationHasNotThisLoadType) {
+            checkIfCanBeDeleted();
+        }
+
+        setCompetenceCourseInformation(null); // to bypass further deletion check
+        delete();
+    }
+
     public void delete() {
         checkIfCanBeDeleted();
 
@@ -49,15 +60,19 @@ public class CourseLoadDuration extends CourseLoadDuration_Base {
     }
 
     private void checkIfCanBeDeleted() {
-        final List<ExecutionInterval> executionIntervals = getCompetenceCourseInformation().getExecutionIntervalsRange();
-        final CompetenceCourse competenceCourse = getCompetenceCourseInformation().getCompetenceCourse();
+        final CompetenceCourseInformation competenceCourseInformation = getCompetenceCourseInformation();
 
-        boolean shiftExistsForThisDurationLoadType = executionIntervals.stream()
-                .flatMap(ei -> competenceCourse.getExecutionCoursesByExecutionPeriod(ei).stream())
-                .flatMap(ec -> ec.getAssociatedShifts().stream()).anyMatch(s -> s.getCourseLoadType() == getCourseLoadType());
+        if (competenceCourseInformation != null) { // If it's null, the entire competence course information is to be deleted
+            final Stream<ExecutionInterval> executionIntervals = competenceCourseInformation.getExecutionIntervalsRange();
+            final CompetenceCourse competenceCourse = competenceCourseInformation.getCompetenceCourse();
 
-        if (shiftExistsForThisDurationLoadType) {
-            throw new DomainException("error.CourseLoadDuration.delete.shiftsExistsForDuration");
+            boolean shiftExistsForThisDurationLoadType = executionIntervals
+                    .flatMap(ei -> competenceCourse.getExecutionCoursesByExecutionPeriod(ei).stream())
+                    .flatMap(ec -> ec.getShiftsSet().stream()).anyMatch(s -> s.getCourseLoadType() == getCourseLoadType());
+
+            if (shiftExistsForThisDurationLoadType) {
+                throw new DomainException("error.CourseLoadDuration.delete.shiftsExistsForDuration");
+            }
         }
     }
 }

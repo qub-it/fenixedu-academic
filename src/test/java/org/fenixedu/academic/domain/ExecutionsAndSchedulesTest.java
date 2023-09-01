@@ -15,6 +15,7 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.DiaSemana;
@@ -424,6 +425,60 @@ public class ExecutionsAndSchedulesTest {
         assertEquals(shift1.getPresentationName(),
                 "T100 (Wed. 10:00-11:00; Thu. 10:00-11:00 - Room Y; Fri. 10:00-11:00; Fri. 11:00-12:00 - Room X)");
         assertEquals(shift2.getPresentationName(), "T101");
+    }
+
+    @Test
+    public void testShift_deleteCourseLoadDuration() {
+
+        final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
+
+        ExecutionYear nextYear = (ExecutionYear) ExecutionInterval.findCurrentAggregator(null).getNext();
+        final ExecutionInterval nextInterval = nextYear.getFirstExecutionPeriod();
+
+        final ExecutionCourse nextExecutionCourse =
+                new ExecutionCourse(competenceCourse.getName(), competenceCourse.getCode(), nextInterval);
+        nextExecutionCourse.addAssociatedCurricularCourses(executionCourse.getAssociatedCurricularCoursesSet().iterator().next());
+
+        Shift nextExecutionCourseShiftT = new Shift(nextExecutionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
+        Shift nextExecutionCourseShiftTP =
+                new Shift(nextExecutionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL), 10, null);
+        // TODO test if course load type is valid for execution course!
+
+        CompetenceCourseInformation nextInformation = competenceCourse.findInformationMostRecentUntil(nextInterval);
+
+        assertThrows(
+                () -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL))
+                        .ifPresent(d -> d.delete()),
+                DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+
+        assertThrows(
+                () -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL))
+                        .ifPresent(d -> d.delete()),
+                DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+
+        assertThrows(() -> nextInformation.delete(), DomainException.class,
+                "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+
+        nextExecutionCourseShiftTP.delete();
+
+        assertThrows(() -> nextInformation.delete(), DomainException.class,
+                "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+    }
+
+    /*
+     * HACK until not using JUnit5 (Assertions.assertThrows(DomainException.class, () -> {])
+     */
+    private void assertThrows(Runnable codeToRun, Class<? extends Exception> exceptionClass, String exceptionMessage) {
+        try {
+            codeToRun.run();
+        } catch (Exception e) {
+            if (!e.getClass().equals(exceptionClass)) {
+                throw e;
+            }
+            if (exceptionMessage != null && !exceptionMessage.equals(e.getMessage())) {
+                throw e;
+            }
+        }
     }
 
     @Test

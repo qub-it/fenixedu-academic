@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -301,7 +302,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public void delete() {
-        getCourseLoadDurationsSet().forEach(CourseLoadDuration::delete); // must be the initial instruction, in order to perform validations
+        getCourseLoadDurationsSet().forEach(CourseLoadDuration::deleteTriggeredByCompetenceCourseInformation); // must be the initial instruction, in order to perform validations
 
         setExecutionPeriod(null);
         setCompetenceCourse(null);
@@ -477,13 +478,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return getCourseLoadDurationsSet().stream().filter(duration -> duration.getCourseLoadType() == courseLoadType).findAny();
     }
 
-    List<ExecutionInterval> getExecutionIntervalsRange() {
-
-        final Optional<CompetenceCourseInformation> nextCCI =
-                getCompetenceCourse().getCompetenceCourseInformationsSet().stream().sorted(COMPARATORY_BY_EXECUTION_INTERVAL)
-                        .dropWhile(cci -> cci != this).dropWhile(cci -> cci == this).findFirst();
-
-        final ExecutionInterval endExecutionInterval = nextCCI.map(cci -> cci.getExecutionInterval().getPrevious())
+    Stream<ExecutionInterval> getExecutionIntervalsRange() {
+        final ExecutionInterval endExecutionInterval = findNext().map(cci -> cci.getExecutionInterval().getPrevious())
                 .orElseGet(() -> ExecutionInterval.findLastChild(getExecutionInterval().getAcademicCalendar()).orElse(null));
 
         ExecutionInterval executionInterval = getExecutionInterval();
@@ -494,7 +490,18 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
             executionInterval = executionInterval.getNext();
         }
 
-        return result;
+        return result.stream();
+    }
+
+    Optional<CompetenceCourseInformation> findNext() {
+        return getCompetenceCourse().getCompetenceCourseInformationsSet().stream().sorted(COMPARATORY_BY_EXECUTION_INTERVAL)
+                .dropWhile(cci -> cci != this).dropWhile(cci -> cci == this).findFirst();
+    }
+
+    Optional<CompetenceCourseInformation> findPrevious() {
+        return getCompetenceCourse().getCompetenceCourseInformationsSet().stream()
+                .sorted(COMPARATORY_BY_EXECUTION_INTERVAL.reversed()).dropWhile(cci -> cci != this).dropWhile(cci -> cci == this)
+                .findFirst();
     }
 
 }

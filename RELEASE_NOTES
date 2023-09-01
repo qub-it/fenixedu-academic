@@ -1,4 +1,5 @@
-- Refactor: Competence coirse information constructor enhancenments
+- Refactor: Competence course information constructor enhancenments
+- Bug fix: On course load duration delete, test of existing shifts differs if course information is also being deleted or not
 
 42.1.2 (30-08-2023)
 - Bug fix: Copy load durations and credits on course information duplication

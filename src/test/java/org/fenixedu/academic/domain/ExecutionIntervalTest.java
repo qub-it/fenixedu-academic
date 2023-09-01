@@ -25,6 +25,18 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ExecutionIntervalTest {
 
+    /*
+     * Child execution intervals created:
+     *  > 1st Semester 2019/2020 
+     *  > 2nd Semester 2019/2020
+     *  > 1st Semester 2020/2021 (current)
+     *  > 2nd Semester 2020/2021 
+     *  > 1st Semester 2021/2022 
+     *  > 2nd Semester 2021/2022 
+     *  > 1st Semester 2022/2023 
+     *  > 2nd Semester 2022/2023
+     */
+
     private static final int CURRENT_YEAR = 2020;
     private static AcademicYearCE academicYearEntryFirst;
     private static AcademicYearCE academicYearEntrySecond;
