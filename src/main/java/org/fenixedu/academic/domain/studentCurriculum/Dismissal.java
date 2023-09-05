@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -42,15 +43,22 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.DismissalLog;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.dto.DomainObjectDeletionBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Sets;
 
 public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
+
+    public static final String DELETE_SIGNAL = "academic.dismissal.delete.signal";
+    public static final String DELETION_EVENT_CURRICULAR_PLAN_ID = "curricularPlanId";
+    public static final String DELETION_EVENT_CURRICULAR_COURSE_ID = "curricularCourseId";
+    public static final String DELETION_EVENT_EXECUTION_INTERVAL_ID = "executionIntervalId";
 
     public Dismissal() {
         super();
@@ -269,6 +277,8 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     void deleteFromCredits() {
         createCurriculumLineLog(EnrolmentAction.UNENROL);
+        emitDeleteSignal();
+        
         setCredits(null);
         super.delete();
     }
@@ -276,13 +286,25 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     @Override
     public void delete() {
         createCurriculumLineLog(EnrolmentAction.UNENROL);
+        emitDeleteSignal();
 
         final Credits credits = getCredits();
         setCredits(null);
         if (credits != null && credits.getDismissalsSet().isEmpty()) {
             credits.delete();
         }
+
         super.delete();
+    }
+
+    private void emitDeleteSignal() {
+        final DomainObjectDeletionBean event = new DomainObjectDeletionBean();
+        event.addAttribute(DELETION_EVENT_CURRICULAR_PLAN_ID, getStudentCurricularPlan().getExternalId());
+        event.addAttribute(DELETION_EVENT_CURRICULAR_COURSE_ID,
+                Optional.ofNullable(getCurricularCourse()).map(cc -> cc.getExternalId()).orElse(null));
+        event.addAttribute(DELETION_EVENT_EXECUTION_INTERVAL_ID, getExecutionInterval().getExternalId());
+
+        Signal.emit(DELETE_SIGNAL, event);
     }
 
     @Override
