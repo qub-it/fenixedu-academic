@@ -1,3 +1,4 @@
+42.1.6 (20-09-2023)
 - Bug fix: On lesson instance creation, only assign space, if defined on lesson
 
 42.1.5 (05-09-2023)
