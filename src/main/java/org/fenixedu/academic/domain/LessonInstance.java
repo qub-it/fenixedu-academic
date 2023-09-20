@@ -22,10 +22,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
+import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
@@ -66,8 +68,6 @@ public class LessonInstance extends LessonInstance_Base {
             throw new DomainException("error.lessonInstance.already.exist");
         }
 
-        Space room = lesson.getSala();
-
         HourMinuteSecond beginTime = lesson.getBeginHourMinuteSecond();
         HourMinuteSecond endTime = lesson.getEndHourMinuteSecond();
         DateTime beginDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), beginTime.getHour(),
@@ -80,7 +80,8 @@ public class LessonInstance extends LessonInstance_Base {
         setEndDateTime(endDateTime);
         setLesson(lesson);
 
-        lessonInstanceSpaceOccupationManagement(room);
+        Optional.ofNullable(lesson.getLessonSpaceOccupation()).map(LessonSpaceOccupation::getSpace)
+                .ifPresent(this::lessonInstanceSpaceOccupationManagement);
     }
 
     public void delete() {
