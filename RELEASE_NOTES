@@ -1,3 +1,5 @@
+- Improvement: When checking if an occupation period is empty, check also the relation with initial lessons
+
 42.1.6 (20-09-2023)
 - Bug fix: On lesson instance creation, only assign space, if defined on lesson
 
