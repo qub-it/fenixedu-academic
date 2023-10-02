@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +38,6 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.joda.time.LocalDate;
@@ -52,10 +50,6 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager exte
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (isResponsiblePersonManager()) {
-            return;
-        }
-
         if (!hasRegistrationInValidState()) {
             throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
         }
@@ -200,29 +194,6 @@ public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager exte
 
     public EvaluationSeason getEvaluationSeason() {
         return getEnrolmentContext().getEvaluationSeason();
-    }
-
-    private boolean isEnrolingAsSenior(Enrolment enrolment) {
-        if (isResponsiblePersonAllowedToEnrolStudents()) {
-            return false;
-        }
-        List<StudentStatute> statutesReader = new ArrayList<StudentStatute>(enrolment.getStudent().getStudentStatutesSet());
-        List<StudentStatute> validSeniorStatutes = new ArrayList<StudentStatute>();
-        List<StudentStatute> validOtherStatutes = new ArrayList<StudentStatute>();
-        for (StudentStatute statute : statutesReader) {
-            if (statute.getType().getSpecialSeasonGranted() && statute.isValidInExecutionInterval(getExecutionSemester())) {
-                validOtherStatutes.add(statute);
-            }
-        }
-        if (validOtherStatutes.size() > 0) {
-            return false;
-        }
-        if (validSeniorStatutes.size() == 1 && validOtherStatutes.size() == 0) {
-            return true;
-        } else {
-            throw new DomainException(
-                    "StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager.inconsistent.student.statutes.states");
-        }
     }
 
 }

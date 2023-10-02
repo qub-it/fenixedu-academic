@@ -27,10 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.AcademicProgram;
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -179,14 +176,6 @@ abstract public class StudentCurricularPlanEnrolment {
     }
 
     protected void checkEnrolmentWithoutRules() {
-        if (isEnrolmentWithoutRules()
-                && !(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                        getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
-                                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser()))
-                && !isResponsibleInternationalRelationOffice()) {
-            throw new DomainException("error.permissions.cannot.enrol.without.rules");
-        }
     }
 
     protected void checkUpdateRegistrationAfterConclusion() {
@@ -337,19 +326,17 @@ abstract public class StudentCurricularPlanEnrolment {
         return enrolmentContext.getResponsiblePerson();
     }
 
-    private boolean isEnrolmentWithoutRules() {
-        return enrolmentContext.isEnrolmentWithoutRules();
-    }
-
     @Deprecated
     protected boolean isResponsiblePersonManager() {
         return Group.managers().isMember(getResponsiblePerson().getUser());
     }
 
+    @Deprecated
     protected boolean isResponsiblePersonAllowedToEnrolStudents() {
         return AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS");
     }
 
+    @Deprecated
     protected boolean isResponsibleInternationalRelationOffice() {
         return RoleType.INTERNATIONAL_RELATION_OFFICE.isMember(getResponsiblePerson().getUser());
     }
@@ -358,6 +345,7 @@ abstract public class StudentCurricularPlanEnrolment {
         return getResponsiblePerson().getStudent() != null && getResponsiblePerson().getStudent().hasActiveRegistrations();
     }
 
+    @Deprecated
     protected boolean isResponsiblePersonCoordinator() {
         return RoleType.COORDINATOR.isMember(getResponsiblePerson().getUser());
     }

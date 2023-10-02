@@ -42,10 +42,6 @@ public class StudentCurricularPlanPropaeudeuticsEnrolmentManager extends Student
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (!isResponsiblePersonAllowedToEnrolStudents()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
-        }
-
         if (getRegistration().isRegistrationConclusionProcessed()) {
             checkUpdateRegistrationAfterConclusion();
         }

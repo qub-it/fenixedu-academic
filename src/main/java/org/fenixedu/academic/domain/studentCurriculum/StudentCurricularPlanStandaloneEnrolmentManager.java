@@ -28,8 +28,6 @@ import java.util.Set;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.EnrolmentResultType;
@@ -39,7 +37,6 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 
@@ -53,28 +50,11 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (!isResponsiblePersonAllowedToEnrolStudents() && !isResponsibleInternationalRelationOffice()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.in.propaeudeutics");
-        }
-
-        if (!(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN", getStudentCurricularPlan().getDegree(),
-                        getResponsiblePerson().getUser()))) {
-            checkRegistrationRegime();
-        }
-
         if (getRegistration().isRegistrationConclusionProcessed()) {
             checkUpdateRegistrationAfterConclusion();
         }
 
         checkEnrolingDegreeModules();
-    }
-
-    private void checkRegistrationRegime() {
-        if (getRegistration().isPartialRegime(getExecutionYear())) {
-            throw new DomainException("error.StudentCurricularPlan.with.part.time.regime.cannot.enrol");
-        }
     }
 
     private void checkEnrolingDegreeModules() {
