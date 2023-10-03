@@ -58,7 +58,6 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EctsAndWeightProviderRegistry;
-import org.fenixedu.academic.domain.studentCurriculum.InternalCreditsSourceCurriculumGroup;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.service.AcademicPermissionService;
@@ -1319,11 +1318,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     public boolean canBeUsedAsCreditsSource() {
-        return !isInvisible() && isApproved() && !parentIsInternalCreditsGroup();
-    }
-
-    private boolean parentIsInternalCreditsGroup() {
-        return getCurriculumGroup() instanceof InternalCreditsSourceCurriculumGroup;
+        return !isInvisible() && isApproved();
     }
 
     /**
