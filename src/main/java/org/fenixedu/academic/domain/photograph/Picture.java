@@ -31,6 +31,7 @@ import org.fenixedu.academic.util.ContentType;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
+import org.imgscalr.Scalr.Rotation;
 
 public abstract class Picture extends Picture_Base {
 
@@ -106,6 +107,35 @@ public abstract class Picture extends Picture_Base {
             finale = Scalr.crop(padded, padding, 0, destW, destH);
         }
         return finale;
+    }
+
+    static public BufferedImage transformRotate(BufferedImage source, int jpgExifOrientationValue) {
+        BufferedImage rotate;
+        switch (jpgExifOrientationValue) {
+        //
+        // 1: Normal (0° rotation)
+        // 3: Upside-down (180° rotation)
+        // 6: Rotated 90° counterclockwise (270° clockwise)
+        // 8: Rotated 90° clockwise (270° counterclockwise)
+        //
+        // More info in: https://til.simonwillison.net/exif/orientation-and-location
+        case 1:
+            rotate = source;
+            break;
+        case 3:
+            rotate = Scalr.rotate(source, Rotation.CW_180);
+            break;
+        case 6:
+            rotate = Scalr.rotate(source, Rotation.CW_90);
+            break;
+        case 8:
+            rotate = Scalr.rotate(source, Rotation.CW_270);
+            break;
+        default:
+            rotate = source;
+            break;
+        }
+        return rotate;
     }
 
     /**

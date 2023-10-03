@@ -1,3 +1,5 @@
+- Improvement: Handling jpeg exif information in personal photographs so we can apply described rotation
+
 42.1.7 (03-10-2023)
 - Refactor: Remove deprecated permission checks on enrolments manager
 - Improvement: When checking if an occupation period is empty, check also the relation with initial lessons

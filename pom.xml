@@ -314,6 +314,12 @@
 			<artifactId>qub-access-control</artifactId>
 			<version>1.9.0</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.drewnoakes</groupId>
+		    <artifactId>metadata-extractor</artifactId>
+		    <version>2.18.0</version>
+		</dependency>
+		
     </dependencies>
 
 

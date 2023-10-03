@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -40,6 +41,11 @@ import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
 import org.joda.time.DateTime;
+
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -175,9 +181,32 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
 
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
         PictureOriginal original = getOriginal();
-        BufferedImage image = original.getPictureFileFormat() == ContentType.JPG ? Picture
-                .readImage(original.getPictureData()) : read(original);
+        BufferedImage image =
+                original.getPictureFileFormat() == ContentType.JPG ? readJpegImage(original.getPictureData()) : read(original);
         return processImage(image, xRatio, yRatio, width, height, pictureMode);
+    }
+
+    private BufferedImage readJpegImage(byte[] pictureData) {
+        BufferedImage image = Picture.readImage(pictureData);
+        //
+        // In the case of jpeg format is pretty common that exif data contains rotation
+        // information, the code below is trying to handle that so any transformation 
+        // made regarding size and scaling will also take into account rotation if available
+        // in exif data
+        //
+        try (InputStream imageStream = new ByteArrayInputStream(pictureData);) {
+            Metadata readMetadata = ImageMetadataReader.readMetadata(imageStream);
+            if (readMetadata != null) {
+                Directory directory = readMetadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+                if (directory != null) {
+                    int rotationInt = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                    image = Picture.transformRotate(image, rotationInt);
+                }
+            }
+        } catch (Throwable t) {
+            // Let's ignore the error here, we'll serve the image as is
+        }
+        return image;
     }
 
     public byte[] getCustomAvatar(AspectRatio aspectRatio, int width, int height, PictureMode pictureMode) {
