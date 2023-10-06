@@ -47,6 +47,7 @@ import org.fenixedu.academic.domain.enrolment.EnroledEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.ExternalDegreeEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
@@ -60,7 +61,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EctsAndWeightProviderRegistry;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
@@ -714,7 +714,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
             final boolean isServices =
                     AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
-                            || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", Authenticate.getUser());
+                            || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", Authenticate.getUser());
             return considerThisEnrolmentNormalEnrolments(enrolment)
                     || considerThisEnrolmentPropaedeuticEnrolments(enrolment, isServices)
                     || considerThisEnrolmentExtraCurricularEnrolments(enrolment, isServices)

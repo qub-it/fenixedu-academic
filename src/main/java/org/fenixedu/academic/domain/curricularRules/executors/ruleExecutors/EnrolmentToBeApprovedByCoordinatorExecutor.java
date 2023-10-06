@@ -24,7 +24,7 @@ import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.service.AcademicPermissionService;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
 
 public class EnrolmentToBeApprovedByCoordinatorExecutor extends CurricularRuleExecutor {
@@ -80,8 +80,7 @@ public class EnrolmentToBeApprovedByCoordinatorExecutor extends CurricularRuleEx
     private boolean isPersonAuthorized(EnrolmentContext enrolmentContext) {
         return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS,
                 enrolmentContext.getStudentCurricularPlan().getDegree(), enrolmentContext.getResponsiblePerson().getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS",
-                        enrolmentContext.getStudentCurricularPlan().getDegree(),
+                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS",
                         enrolmentContext.getResponsiblePerson().getUser());
     }
 

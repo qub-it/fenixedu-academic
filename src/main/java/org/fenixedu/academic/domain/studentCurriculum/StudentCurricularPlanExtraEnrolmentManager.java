@@ -48,9 +48,7 @@ public class StudentCurricularPlanExtraEnrolmentManager extends StudentCurricula
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
+        super.assertEnrolmentPreConditions();
 
         checkEnrolingDegreeModules();
     }

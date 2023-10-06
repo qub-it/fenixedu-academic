@@ -20,12 +20,10 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -33,8 +31,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
@@ -43,12 +39,8 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
-import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentPreConditions.EnrolmentPreConditionResult;
-import org.fenixedu.academic.service.AcademicPermissionService;
-import org.fenixedu.bennu.core.groups.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +49,6 @@ abstract public class StudentCurricularPlanEnrolment {
     private static Logger logger = LoggerFactory.getLogger(StudentCurricularPlanEnrolment.class);
 
     protected EnrolmentContext enrolmentContext;
-    private static ConcurrentLinkedQueue<CurricularCourseEnrollmentCondition> conditions = new ConcurrentLinkedQueue<>();
 
     protected StudentCurricularPlanEnrolment(final EnrolmentContext enrolmentContext) {
         checkParameters(enrolmentContext);
@@ -96,39 +87,8 @@ abstract public class StudentCurricularPlanEnrolment {
     }
 
     protected void assertEnrolmentPreConditions() {
-        checkDebts();
-
-        if (isResponsiblePersonAllowedToEnrolStudents()) {
-            assertAcademicAdminOfficePreConditions();
-
-        } else if (isResponsiblePersonStudent()) {
+        if (isResponsiblePersonStudent()) {
             assertStudentEnrolmentPreConditions();
-
-        } else {
-            assertOtherRolesPreConditions();
-        }
-
-        for (CurricularCourseEnrollmentCondition condition : conditions) {
-            condition.verify(getStudentCurricularPlan());
-        }
-    }
-
-    @FunctionalInterface
-    public static interface CurricularCourseEnrollmentCondition {
-        public void verify(StudentCurricularPlan scp) throws DomainException;
-    }
-
-    public static void registerCondition(CurricularCourseEnrollmentCondition condition) {
-        conditions.add(condition);
-    }
-
-    protected void checkDebts() {
-
-        final EnrolmentPreConditionResult result =
-                StudentCurricularPlanEnrolmentPreConditions.checkDebts(getStudentCurricularPlan());
-
-        if (!result.isValid()) {
-            throw new DomainException(result.message(), result.args());
         }
     }
 
@@ -136,104 +96,14 @@ abstract public class StudentCurricularPlanEnrolment {
         return getStudent().getPerson();
     }
 
-    protected void assertAcademicAdminOfficePreConditions() {
-
-        checkEnrolmentWithoutRules();
-
-        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
-            return;
-        }
-
-        if (!getRegistration().hasActiveLastState(getExecutionSemester())) {
-            throw new DomainException("error.StudentCurricularPlan.registration.is.not.active.for.semester",
-                    getExecutionSemester().getQualifiedName());
-        }
-    }
-
-    protected boolean updateRegistrationAfterConclusionProcessPermissionEvaluated() {
-
-        if (areModifiedCyclesConcluded() || isStudentCurricularPlanConcluded()) {
-            checkUpdateRegistrationAfterConclusion();
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    protected boolean areModifiedCyclesConcluded() {
-        for (final CycleCurriculumGroup curriculumGroup : getModifiedCycles()) {
-            if (curriculumGroup.isConclusionProcessed()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    protected boolean isStudentCurricularPlanConcluded() {
-        return getStudentCurricularPlan().isConclusionProcessed();
-    }
-
-    protected void checkEnrolmentWithoutRules() {
-    }
-
-    protected void checkUpdateRegistrationAfterConclusion() {
-        if (!(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.UPDATE_REGISTRATION_AFTER_CONCLUSION,
-                getStudentCurricularPlan().getDegree(), getResponsiblePerson().getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", getStudentCurricularPlan().getDegree(),
-                        getResponsiblePerson().getUser()))) {
-            throw new DomainException("error.permissions.cannot.update.registration.after.conclusion.process");
-        }
-    }
-
-    protected Set<CycleCurriculumGroup> getModifiedCycles() {
-
-        final Set<CycleCurriculumGroup> result = new HashSet<CycleCurriculumGroup>();
-
-        for (final CycleCurriculumGroup cycle : getStudentCurricularPlan().getCycleCurriculumGroups()) {
-            if (isRemovingModulesFromCycle(cycle)) {
-                result.add(cycle);
-                break;
-            }
-
-            if (isEnrolingInCycle(cycle)) {
-                result.add(cycle);
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    protected boolean isRemovingModulesFromCycle(final CycleCurriculumGroup cycle) {
-        for (final CurriculumModule module : enrolmentContext.getToRemove()) {
-            if (cycle.hasCurriculumModule(module)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    protected boolean isEnrolingInCycle(final CycleCurriculumGroup cycle) {
-        for (final IDegreeModuleToEvaluate dmte : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (dmte.isEnroling() && cycle.hasCurriculumModule(dmte.getCurriculumGroup())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     protected void assertStudentEnrolmentPreConditions() {
-
         if (getCurricularRuleLevel() != CurricularRuleLevel.ENROLMENT_WITH_RULES) {
             throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
         }
 
-    }
-
-    protected void assertOtherRolesPreConditions() {
-        throw new DomainException("error.invalid.user");
+        if (!getRegistration().hasActiveLastState(getExecutionInterval())) {
+            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
+        }
     }
 
     private RuleResult evaluateDegreeModules(
@@ -290,7 +160,15 @@ abstract public class StudentCurricularPlanEnrolment {
         information.add(degreeModuleToEnrol);
     }
 
+    /**
+     * @deprecated use {@link #getExecutionInterval()}
+     */
+    @Deprecated
     protected ExecutionInterval getExecutionSemester() {
+        return enrolmentContext.getExecutionPeriod();
+    }
+
+    protected ExecutionInterval getExecutionInterval() {
         return enrolmentContext.getExecutionPeriod();
     }
 
@@ -326,28 +204,8 @@ abstract public class StudentCurricularPlanEnrolment {
         return enrolmentContext.getResponsiblePerson();
     }
 
-    @Deprecated
-    protected boolean isResponsiblePersonManager() {
-        return Group.managers().isMember(getResponsiblePerson().getUser());
-    }
-
-    @Deprecated
-    protected boolean isResponsiblePersonAllowedToEnrolStudents() {
-        return AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS");
-    }
-
-    @Deprecated
-    protected boolean isResponsibleInternationalRelationOffice() {
-        return RoleType.INTERNATIONAL_RELATION_OFFICE.isMember(getResponsiblePerson().getUser());
-    }
-
     protected boolean isResponsiblePersonStudent() {
-        return getResponsiblePerson().getStudent() != null && getResponsiblePerson().getStudent().hasActiveRegistrations();
-    }
-
-    @Deprecated
-    protected boolean isResponsiblePersonCoordinator() {
-        return RoleType.COORDINATOR.isMember(getResponsiblePerson().getUser());
+        return getRegistration().getStudent().getPerson() == getResponsiblePerson();
     }
 
     abstract protected void unEnrol();

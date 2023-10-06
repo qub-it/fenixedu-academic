@@ -36,34 +36,11 @@ import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.joda.time.LocalDate;
 
 public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends StudentCurricularPlanEnrolment {
 
     public StudentCurricularPlanImprovementOfApprovedEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
-    }
-
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!hasRegistrationInValidState()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
-
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-
-        if (areModifiedCyclesConcluded()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
-    }
-
-    private boolean hasRegistrationInValidState() {
-        return getRegistration().isRegistered(getExecutionYear())
-                || getRegistration().isRegistered(getExecutionYear().getPreviousExecutionYear());
     }
 
     @Override
@@ -144,16 +121,6 @@ public class StudentCurricularPlanImprovementOfApprovedEnrolmentManager extends 
 
     public EvaluationSeason getEvaluationSeason() {
         return getEnrolmentContext().getEvaluationSeason();
-    }
-
-    @Override
-    protected boolean isEnrolingInCycle(CycleCurriculumGroup cycle) {
-        for (final IDegreeModuleToEvaluate dmte : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (dmte.isEnroled() && cycle.hasCurriculumModule(dmte.getCurriculumGroup())) {
-                return true;
-            }
-        }
-        return false;
     }
 
 }

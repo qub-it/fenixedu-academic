@@ -42,10 +42,8 @@ public class StudentCurricularPlanPropaeudeuticsEnrolmentManager extends Student
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
+        super.assertEnrolmentPreConditions();
+        
         checkEnrolingDegreeModules();
     }
 

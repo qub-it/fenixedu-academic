@@ -1,3 +1,5 @@
+- Refactor: Remove hardcoded permissions from academic-core domain [#qubIT-Fenix-4434]
+
 42.1.8 (03-10-2023)
 - Improvement: Handling jpeg exif information in personal photographs so we can apply described rotation
 

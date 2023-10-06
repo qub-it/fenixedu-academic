@@ -19,24 +19,16 @@
 package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Comparator;
-import java.util.Set;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
-import org.fenixedu.academic.domain.degreeStructure.BranchType;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.service.AcademicPermissionService;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.groups.Group;
-import org.fenixedu.bennu.core.security.Authenticate;
 
 /**
  *
@@ -147,43 +139,12 @@ public class CycleCurriculumGroup extends CycleCurriculumGroup_Base {
     }
 
     @Override
-    public void delete() {
-        checkRulesToDelete();
-
-        super.delete();
-    }
-
-    @Override
     public void deleteRecursive() {
         for (final CurriculumModule child : getCurriculumModulesSet()) {
             child.deleteRecursive();
         }
 
         super.delete();
-    }
-
-    private void checkRulesToDelete() {
-        if (isFirstCycle()) {
-            if (getRegistration().getIngressionType().isDirectAccessFrom1stCycle()
-                    || getRegistration().getIngressionType().isInternal2ndCycleAccess()) {
-                final User userView = Authenticate.getUser();
-                if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS,
-                        getRegistration().getDegree(), userView.getPerson().getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", getRegistration().getDegree(),
-                                userView.getPerson().getUser())
-                        || Group.managers().isMember(userView.getPerson().getUser())) {
-                    return;
-                }
-            }
-        }
-
-        /* For Integrated master degrees one of the cycles must exists */
-        if (getCurriculumGroup().getDegreeType().isIntegratedMasterDegree()) {
-            if (getCurriculumGroup().getRootCurriculumGroup().getCycleCurriculumGroups().size() == 1) {
-                throw new DomainException("error.studentCurriculum.CycleCurriculumGroup.degree.type.requires.this.cycle.to.exist",
-                        getName().getContent());
-            }
-        }
     }
 
     public Double getDefaultEcts(final ExecutionYear executionYear) {

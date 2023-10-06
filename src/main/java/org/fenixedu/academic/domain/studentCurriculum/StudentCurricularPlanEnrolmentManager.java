@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
@@ -52,15 +51,6 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
 
     public StudentCurricularPlanEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
-    }
-
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!getRegistration().isRegistered(getExecutionSemester())) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
-
-        super.assertEnrolmentPreConditions();
     }
 
     @Override

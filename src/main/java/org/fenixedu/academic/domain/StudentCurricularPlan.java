@@ -36,8 +36,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -80,7 +78,6 @@ import org.fenixedu.academic.domain.studentCurriculum.curriculumLine.CurriculumL
 import org.fenixedu.academic.domain.studentCurriculum.curriculumLine.MoveCurriculumLinesBean;
 import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.predicates.AndPredicate;
 import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -1126,9 +1123,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     final public Credits createNewCreditsDismissal(CourseGroup courseGroup, CurriculumGroup curriculumGroup,
             Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
             ExecutionInterval executionInterval) {
-
-        checkPermission(courseGroup, curriculumGroup, dismissals);
-
         if (courseGroup != null) {
             Collection<CurricularCourse> noEnrolCurricularCourse = new ArrayList<CurricularCourse>();
             if (dismissals != null) {
@@ -1157,9 +1151,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     final public Equivalence createNewEquivalenceDismissal(CourseGroup courseGroup, CurriculumGroup curriculumGroup,
             Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
             Grade givenGrade, ExecutionInterval executionInterval) {
-
-        checkPermission(courseGroup, curriculumGroup, dismissals);
-
         return CreditsManager.createEquivalence(this, courseGroup, curriculumGroup, dismissals, enrolments, givenCredits,
                 givenGrade, executionInterval);
     }
@@ -1167,9 +1158,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     final public Substitution createNewSubstitutionDismissal(CourseGroup courseGroup, CurriculumGroup curriculumGroup,
             Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
             ExecutionInterval executionInterval) {
-
-        checkPermission(courseGroup, curriculumGroup, dismissals);
-
         return CreditsManager.createSubstitution(this, courseGroup, curriculumGroup, dismissals, enrolments, givenCredits,
                 executionInterval);
     }
@@ -1177,51 +1165,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     public InternalSubstitution createNewInternalSubstitution(CourseGroup courseGroup, CurriculumGroup curriculumGroup,
             Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
             ExecutionInterval executionInterval) {
-
-        checkPermission(courseGroup, curriculumGroup, dismissals);
-
         return CreditsManager.createInternalSubstitution(this, courseGroup, curriculumGroup, dismissals, enrolments, givenCredits,
                 executionInterval);
-
-    }
-
-    private void checkPermission(final CourseGroup courseGroup, final CurriculumGroup curriculumGroup,
-            final Collection<SelectedCurricularCourse> dismissals) {
-
-        final Person person = AccessControl.getPerson();
-
-        final boolean hasUpdateRegistrationAfterConclusionProcessPermission =
-                AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.UPDATE_REGISTRATION_AFTER_CONCLUSION,
-                        getDegree(), person.getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", getDegree(), person.getUser());
-
-        if (courseGroup != null) {
-            final CurriculumGroup group = findCurriculumGroupFor(courseGroup);
-            if (group != null && group.getParentCycleCurriculumGroup() != null
-                    && group.getParentCycleCurriculumGroup().isConclusionProcessed()
-                    && !hasUpdateRegistrationAfterConclusionProcessPermission) {
-                throw new DomainException("error.StudentCurricularPlan.cannot.create.dismissals");
-            }
-        } else if (curriculumGroup != null) {
-            if (curriculumGroup.getParentCycleCurriculumGroup() != null
-                    && curriculumGroup.getParentCycleCurriculumGroup().isConclusionProcessed()
-                    && !hasUpdateRegistrationAfterConclusionProcessPermission) {
-                throw new DomainException("error.StudentCurricularPlan.cannot.create.dismissals");
-            }
-        } else {
-            for (final SelectedCurricularCourse selected : dismissals) {
-                if (selected.getCurriculumGroup().getParentCycleCurriculumGroup() != null
-                        && selected.getCurriculumGroup().getParentCycleCurriculumGroup().isConclusionProcessed()
-                        && !hasUpdateRegistrationAfterConclusionProcessPermission) {
-                    throw new DomainException("error.StudentCurricularPlan.cannot.create.dismissals");
-                }
-            }
-        }
-
-        if (getRegistration().isRegistrationConclusionProcessed() && !hasUpdateRegistrationAfterConclusionProcessPermission) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.create.dismissals");
-        }
-
     }
 
     final public Set<DegreeModule> getAllDegreeModules() {
@@ -1264,9 +1209,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             final CurriculumLine curriculumLine = curriculumLineLocationBean.getCurriculumLine();
 
             if (curriculumLine.getCurriculumGroup() != destination) {
-
-                checkPermission(responsible, curriculumLineLocationBean);
-
                 if (!destination.canAdd(curriculumLine)) {
                     throw new DomainException("error.StudentCurricularPlan.cannot.move.curriculum.line.to.curriculum.group",
                             curriculumLine.getFullPath(), destination.getFullPath());
@@ -1309,8 +1251,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             final CurriculumLine curriculumLine = curriculumLineLocationBean.getCurriculumLine();
 
             if (curriculumLine.getCurriculumGroup() != destination) {
-                checkPermission(responsiblePerson, curriculumLineLocationBean);
-
                 if (curriculumLine.getExecutionInterval() != null && curriculumLine.getExecutionInterval().getExecutionYear()
                         .isBefore(destination.getRegistration().getStartExecutionYear())) {
                     throw new DomainException(
@@ -1326,25 +1266,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             // if curriculum line is moved then change created by
             curriculumLine
                     .setCreatedBy(responsiblePerson != null ? responsiblePerson.getUsername() : curriculumLine.getCreatedBy());
-        }
-    }
-
-    private void checkPermission(final Person responsiblePerson, final CurriculumLineLocationBean bean) {
-
-        final boolean hasUpdateRegistrationAfterConclusionPermission = AcademicAccessRule.isProgramAccessibleToFunction(
-                AcademicOperationType.UPDATE_REGISTRATION_AFTER_CONCLUSION, getDegree(), responsiblePerson.getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", getDegree(), responsiblePerson.getUser());
-
-        if (bean.getCurriculumGroup().getParentCycleCurriculumGroup() != null
-                && bean.getCurriculumGroup().getParentCycleCurriculumGroup().isConclusionProcessed()
-                && !hasUpdateRegistrationAfterConclusionPermission) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.move.is.not.authorized");
-        }
-
-        if (bean.getCurriculumLine().getParentCycleCurriculumGroup() != null
-                && bean.getCurriculumLine().getParentCycleCurriculumGroup().isConclusionProcessed()
-                && !hasUpdateRegistrationAfterConclusionPermission) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.move.is.not.authorized");
         }
     }
 
@@ -1469,15 +1390,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     public OptionalEnrolment convertEnrolmentToOptionalEnrolment(final Enrolment enrolment, final CurriculumGroup curriculumGroup,
             final OptionalCurricularCourse curricularCourse) {
 
-        final Person person = AccessControl.getPerson();
-
-        if (enrolment.getParentCycleCurriculumGroup() != null && enrolment.getParentCycleCurriculumGroup().isConclusionProcessed()
-                && !(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.UPDATE_REGISTRATION_AFTER_CONCLUSION,
-                        getDegree(), person.getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", getDegree(), person.getUser()))) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.move.is.not.authorized");
-        }
-
         if (!hasEnrolments(enrolment)) {
             // if we remove this test, then check if enrolment period is before
             // registration start
@@ -1509,15 +1421,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     public Enrolment convertOptionalEnrolmentToEnrolment(final OptionalEnrolment enrolment,
             final CurriculumGroup curriculumGroup) {
-
-        final Person person = AccessControl.getPerson();
-
-        if (enrolment.getParentCycleCurriculumGroup() != null && enrolment.getParentCycleCurriculumGroup().isConclusionProcessed()
-                && !(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.UPDATE_REGISTRATION_AFTER_CONCLUSION,
-                        getDegree(), person.getUser())
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", getDegree(), person.getUser()))) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.move.is.not.authorized");
-        }
 
         if (!hasEnrolments(enrolment)) {
             // if we remove this test, then check if enrolment period is before
@@ -1604,20 +1507,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public boolean isAllowedToDelete() {
-        final Set<StudentCurricularPlan> plans = getRegistration().getStudentCurricularPlansSet();
-        return isAllowedToManageEnrolments() && plans.size() > 1;
-    }
-
-    public boolean isAllowedToManageEnrolments() {
-        return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS, getDegree(),
-                Authenticate.getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", getDegree(), Authenticate.getUser());
-    }
-
-    public boolean isAllowedToManageEquivalencies() {
-        return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.MANAGE_EQUIVALENCES, getDegree(),
-                Authenticate.getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CREDITS_TRANSFER", getDegree(), Authenticate.getUser());
+        return getRegistration().getStudentCurricularPlansSet().size() > 1;
     }
 
     public Stream<Enrolment> getEnrolmentStream() {

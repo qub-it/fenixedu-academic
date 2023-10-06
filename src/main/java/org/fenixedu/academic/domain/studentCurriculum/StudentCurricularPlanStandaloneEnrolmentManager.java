@@ -50,10 +50,8 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
 
     @Override
     protected void assertEnrolmentPreConditions() {
-        if (getRegistration().isRegistrationConclusionProcessed()) {
-            checkUpdateRegistrationAfterConclusion();
-        }
-
+        super.assertEnrolmentPreConditions();
+        
         checkEnrolingDegreeModules();
     }
 

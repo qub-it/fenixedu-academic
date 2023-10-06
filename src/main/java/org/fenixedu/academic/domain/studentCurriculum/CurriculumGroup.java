@@ -1271,12 +1271,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     // Stuff moved from CycleCurriculumGroup
 
     public void conclude() {
-        if (isConclusionProcessed()) {
-            if (!getRegistration().canRepeatConclusionProcess(AccessControl.getPerson())) {
-                throw new DomainException("error.CycleCurriculumGroup.cycle.is.already.concluded", getDegreeModule().getName());
-            }
-        }
-
         ProgramConclusion conclusion = getDegreeModule().getProgramConclusion();
 
         if (conclusion == null) {

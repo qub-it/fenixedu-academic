@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.commons.i18n.I18N;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -247,16 +246,6 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
 
     public boolean isConclusionProcessed() {
         return getCurriculumGroup().isConclusionProcessed();
-    }
-
-    public boolean getCanBeConclusionProcessed() {
-        return (!isConclusionProcessed()
-                || (isConclusionProcessed() && getRegistration().canRepeatConclusionProcess(AccessControl.getPerson())))
-                && isConcluded();
-    }
-
-    public boolean getCanRepeatConclusionProcess() {
-        return getRegistration().canRepeatConclusionProcess(AccessControl.getPerson());
     }
 
     public ConclusionProcess getConclusionProcess() {

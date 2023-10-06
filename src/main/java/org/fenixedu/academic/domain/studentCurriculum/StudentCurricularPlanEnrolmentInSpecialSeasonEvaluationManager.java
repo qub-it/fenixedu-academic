@@ -30,86 +30,16 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentInSpecialSeasonEvaluation;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.EnrolmentResultType;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.joda.time.LocalDate;
 
 public class StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager extends StudentCurricularPlanEnrolment {
 
     public StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
-    }
-
-    @Override
-    protected void assertEnrolmentPreConditions() {
-        if (!hasRegistrationInValidState()) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.registration.inactive");
-        }
-
-        super.assertEnrolmentPreConditions();
-    }
-
-    private boolean hasRegistrationInValidState() {
-        return getRegistration().hasStateType(getExecutionYear(), RegistrationStateTypeEnum.REGISTERED);
-    }
-
-    @Override
-    protected void checkDebts() {
-        boolean isAcademicalActsBlocked =
-                TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), getExecutionYear()
-                        .getEndLocalDate().isBefore(new LocalDate()) ? getExecutionYear().getEndLocalDate() : new LocalDate());
-
-        if (isAcademicalActsBlocked) {
-            throw new DomainException("error.StudentCurricularPlan.cannot.enrol.with.debts.for.previous.execution.years");
-        }
-    }
-
-    @Override
-    protected void assertAcademicAdminOfficePreConditions() {
-
-        checkEnrolmentWithoutRules();
-
-        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
-            return;
-        }
-    }
-
-    @Override
-    protected void assertStudentEnrolmentPreConditions() {
-
-        if (!getRegistrationsToEnrolByStudent(getResponsiblePerson().getStudent()).contains(getRegistration())) {
-            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
-        }
-
-        if (getCurricularRuleLevel() != CurricularRuleLevel.SPECIAL_SEASON_ENROLMENT) {
-            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
-        }
-
-    }
-
-    private Collection<Registration> getRegistrationsToEnrolByStudent(final Student student) {
-        final Collection<Registration> registrations = new HashSet<Registration>();
-
-        for (final Registration registration : student.getRegistrationsSet()) {
-            if (registration.isActive() || isRegistrationAvailableToEnrol(registration)) {
-                registrations.add(registration);
-            }
-        }
-
-        return registrations;
-    }
-
-    private boolean isRegistrationAvailableToEnrol(final Registration registration) {
-        return registration.hasAnyEnrolmentsIn(getExecutionYear())
-                && registration.getLastStudentCurricularPlan().hasExternalCycleCurriculumGroups();
     }
 
     @Override

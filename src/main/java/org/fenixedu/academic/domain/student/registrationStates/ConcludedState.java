@@ -19,11 +19,7 @@
 package org.fenixedu.academic.domain.student.registrationStates;
 
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.joda.time.DateTime;
 
 /**
@@ -39,27 +35,6 @@ public class ConcludedState extends ConcludedState_Base {
         init(registration, person, dateTime);
         registration.getPerson().getUser().openLoginPeriod();
     }
-
-    @Override
-    public void delete() {
-        checkRulesToDelete();
-        super.delete();
-    }
-
-    private void checkRulesToDelete() {
-        final Person person = AccessControl.getPerson();
-        if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.REPEAT_CONCLUSION_PROCESS,
-                getRegistration().getDegree(), person.getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION_REPEAT", getRegistration().getDegree(),
-                        person.getUser())) {
-            return;
-        }
-    }
-
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.CONCLUDED;
-//    }
 
     @Override
     public RegistrationStateTypeEnum getStateTypeEnum() {

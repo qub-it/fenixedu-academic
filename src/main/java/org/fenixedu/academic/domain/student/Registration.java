@@ -43,7 +43,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
-import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
@@ -60,8 +59,6 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOfficeType;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
@@ -92,12 +89,9 @@ import org.fenixedu.academic.domain.studentCurriculum.StandaloneCurriculumGroup;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
@@ -1080,8 +1074,6 @@ public class Registration extends Registration_Base {
 
     public void addAttendsTo(final ExecutionCourse executionCourse) {
 
-        checkIfReachedAttendsLimit();
-
         if (getStudent().readAttendByExecutionCourse(executionCourse) == null) {
             final Enrolment enrolment =
                     findEnrolment(getActiveStudentCurricularPlan(), executionCourse, executionCourse.getExecutionPeriod());
@@ -1119,23 +1111,6 @@ public class Registration extends Registration_Base {
             }
         }
         return null;
-    }
-
-    private static final int MAXIMUM_STUDENT_ATTENDS_PER_EXECUTION_PERIOD = 10;
-
-    // ;
-
-    private void checkIfReachedAttendsLimit() {
-        final User userView = Authenticate.getUser();
-        if (userView == null || !(AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS,
-                getDegree(), userView.getPerson().getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", getDegree(),
-                        userView.getPerson().getUser()))) {
-            if (readAttendsInCurrentExecutionPeriod().size() >= MAXIMUM_STUDENT_ATTENDS_PER_EXECUTION_PERIOD) {
-                throw new DomainException("error.student.reached.attends.limit",
-                        String.valueOf(MAXIMUM_STUDENT_ATTENDS_PER_EXECUTION_PERIOD));
-            }
-        }
     }
 
     @Override
@@ -1268,23 +1243,6 @@ public class Registration extends Registration_Base {
         return getDegree().getAdministrativeOffice().equals(administrativeOffice);
     }
 
-    final public boolean isAllowedToManageRegistration() {
-        final Degree degree = getDegree();
-        final User user = Authenticate.getUser();
-        Set<AcademicProgram> programsManageRegistration = AcademicAccessRule
-                .getProgramsAccessibleToFunction(AcademicOperationType.MANAGE_REGISTRATIONS, user).collect(Collectors.toSet());
-        programsManageRegistration.addAll(AcademicPermissionService.getDegrees("ACADEMIC_OFFICE_REGISTRATION_ACCESS", user));
-
-        Set<AcademicProgram> programsViewFullStudentCurriculum =
-                AcademicAccessRule.getProgramsAccessibleToFunction(AcademicOperationType.VIEW_FULL_STUDENT_CURRICULUM, user)
-                        .collect(Collectors.toSet());
-        programsViewFullStudentCurriculum
-                .addAll(AcademicPermissionService.getDegrees("ACADEMIC_OFFICE_REGISTRATION_ACCESS", user));
-
-        return programsManageRegistration.stream().anyMatch(ap -> ap == degree)
-                || programsViewFullStudentCurriculum.stream().anyMatch(ap -> ap == degree);
-    }
-
     public boolean isCurricularCourseApproved(final CurricularCourse curricularCourse) {
         for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
             if (studentCurricularPlan.isCurricularCourseApproved(curricularCourse)) {
@@ -1293,17 +1251,6 @@ public class Registration extends Registration_Base {
         }
         return false;
     }
-
-//    @Deprecated
-//    public Set<RegistrationStateType> getRegistrationStatesTypes(final ExecutionYear executionYear) {
-//        final Set<RegistrationStateType> result = new HashSet<>();
-//
-//        for (final RegistrationState registrationState : getRegistrationStates(executionYear)) {
-//            result.add(registrationState.getStateType());
-//        }
-//
-//        return result;
-//    }
 
     public Set<RegistrationStateTypeEnum> getRegistrationStatesTypesEnums(final ExecutionYear executionYear) {
         return getRegistrationStates(executionYear).stream().map(RegistrationState::getStateTypeEnum).collect(Collectors.toSet());
@@ -1671,12 +1618,6 @@ public class Registration extends Registration_Base {
     final public CycleType getLastConcludedCycleType() {
         final SortedSet<CycleType> concludedCycles = new TreeSet<>(getConcludedCycles());
         return concludedCycles.isEmpty() ? null : concludedCycles.last();
-    }
-
-    public boolean canRepeatConclusionProcess(final Person person) {
-        return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.REPEAT_CONCLUSION_PROCESS, getDegree(),
-                person.getUser())
-                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION_REPEAT", getDegree(), person.getUser());
     }
 
     public void conclude(final CurriculumGroup curriculumGroup) {
