@@ -148,6 +148,16 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
 
     }
 
+    public StringBuilder print(String tabs) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(tabs);
+        builder.append("[OE ").append(getCode()).append(" - ").append(getOptionalCurricularCourse().getName()).append("(")
+                .append(getDegreeModule().getName()).append(")").append(" ").append(isApproved()).append(" - ")
+                .append(getEctsCreditsForCurriculum()).append(" ects - ").append(" - ")
+                .append(getExecutionInterval().getQualifiedName()).append(" ]\n");
+        return builder;
+    }
+
     /**
      * 
      * After create new OptionalEnrolment, must delete Enrolment (to delete

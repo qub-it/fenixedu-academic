@@ -955,10 +955,12 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     @Override
-    public StringBuilder print(final String tabs) {
+    public StringBuilder print(String tabs) {
         final StringBuilder builder = new StringBuilder();
         builder.append(tabs);
-        builder.append("[E ").append(getDegreeModule().getName()).append(" ").append(isApproved()).append(" ]\n");
+        builder.append("[E ").append(getCode() + " - " + getDegreeModule().getName()).append(" ").append(isApproved())
+                .append(" - ").append(getEctsCreditsForCurriculum()).append(" ects").append(" - ")
+                .append(getExecutionInterval().getQualifiedName()).append(" ]\n");
         return builder;
     }
 

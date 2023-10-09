@@ -147,9 +147,25 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     public StringBuilder print(String tabs) {
         final StringBuilder builder = new StringBuilder();
         builder.append(tabs);
-        builder.append("[D ").append(getDegreeModule() != null ? getDegreeModule().getName() : "").append(" ");
-        builder.append(getEctsCredits()).append(" ects ]\n");
+        builder.append("[D(").append(getCredits().getClass().getSimpleName().substring(0, 2)).append(") ")
+                .append(getDegreeModule() != null ? (getDegreeModule().getCode() + " - " + getDegreeModule().getName()) : "")
+                .append(" ");
+        builder.append(getEctsCredits()).append(" ects - ").append(" - ").append(getExecutionInterval().getQualifiedName())
+                .append(" ] [ ").append(buildSourcesToPrint()).append(" ]\n");
         return builder;
+    }
+
+    private String buildSourcesToPrint() {
+        final StringBuilder result = new StringBuilder();
+        for (final EnrolmentWrapper wrapper : getCredits().getEnrolmentsSet()) {
+            result.append(wrapper.getIEnrolment().getCode()).append("(")
+                    .append(wrapper.getIEnrolment().getEctsCreditsForCurriculum().toPlainString()).append(")").append(", ");
+        }
+
+        if (result.toString().endsWith(", ")) {
+            result.delete(result.length() - 2, result.length());
+        }
+        return result.toString();
     }
 
     @Override
@@ -278,7 +294,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     void deleteFromCredits() {
         createCurriculumLineLog(EnrolmentAction.UNENROL);
         emitDeleteSignal();
-        
+
         setCredits(null);
         super.delete();
     }

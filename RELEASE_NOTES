@@ -1,3 +1,5 @@
+- Improvement: Improve student curriculum text printing
+
 43.0.0 (09-10-2023)
 - Refactor: Remove hardcoded permissions from academic-core domain [#qubIT-Fenix-4434]
 

@@ -209,10 +209,11 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     @Override
-    final public StringBuilder print(String tabs) {
+    public final StringBuilder print(String tabs) {
         final StringBuilder builder = new StringBuilder();
         builder.append(tabs);
-        builder.append("[CG ").append(getName().getContent()).append(" ]\n");
+        builder.append("[CG ").append(getName().getContent()).append(" - ").append(getAprovedEctsCredits()).append(" ects")
+                .append(" ]\n");
         final String tab = tabs + "\t";
         for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
             builder.append(curriculumModule.print(tab));

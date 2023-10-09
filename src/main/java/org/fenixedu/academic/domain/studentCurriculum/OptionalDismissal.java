@@ -66,7 +66,9 @@ public class OptionalDismissal extends OptionalDismissal_Base {
     public StringBuilder print(String tabs) {
         final StringBuilder builder = new StringBuilder();
         builder.append(tabs);
-        builder.append("[OD ").append(getDegreeModule() != null ? getDegreeModule().getName() : "").append(" ]\n");
+        builder.append("[OD ").append(getDegreeModule() != null ? getDegreeModule().getName() : "").append(" ")
+                .append(getEctsCredits()).append(" ects").append(" - ").append(getExecutionInterval().getQualifiedName())
+                .append(" ]\n");
         return builder;
     }
 
