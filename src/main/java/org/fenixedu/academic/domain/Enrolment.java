@@ -198,6 +198,10 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         if (studentCurricularPlan.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourse, executionInterval) != null) {
             throw new DomainException("error.Enrolment.duplicate.enrolment", curricularCourse.getName());
         }
+
+        if (curricularCourse.getParentContexts(executionInterval).isEmpty()) {
+            throw new DomainException("error.Enrolment.no.valid.context.found");
+        }
     }
 
     protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurriculumGroup curriculumGroup,
@@ -819,7 +823,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     public boolean hasImprovementFor(final ExecutionInterval interval) {
-        final Collection<ExecutionInterval> intervals = interval instanceof ExecutionYear ? ((ExecutionYear) interval).getChildIntervals() : Set.of(interval);
+        final Collection<ExecutionInterval> intervals =
+                interval instanceof ExecutionYear ? ((ExecutionYear) interval).getChildIntervals() : Set.of(interval);
 
         for (EnrolmentEvaluation enrolmentEvaluation : this.getEvaluationsSet()) {
             if (enrolmentEvaluation.getEvaluationSeason().isImprovement()) {

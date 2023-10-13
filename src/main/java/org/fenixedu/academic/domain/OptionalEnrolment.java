@@ -67,6 +67,10 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
             throw new DomainException("error.OptionalEnrolment.duplicate.enrolment", optionalCurricularCourse.getName());
 
         }
+
+        if (optionalCurricularCourse.getParentContexts(executionInterval).isEmpty()) {
+            throw new DomainException("error.Enrolment.no.valid.context.found");
+        }
     }
 
     @Override
