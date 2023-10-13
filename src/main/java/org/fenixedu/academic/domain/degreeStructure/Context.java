@@ -194,7 +194,7 @@ public class Context extends Context_Base implements Comparable<Context> {
             if (curriculumModule.isCurriculumLine()) {
                 final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
                 if (curriculumLine.getExecutionInterval() != null
-                        && !degreeModule.hasAnyOpenParentContexts(curriculumLine.getExecutionInterval())) {
+                        && !degreeModule.hasAnyParentContexts(curriculumLine.getExecutionInterval())) {
                     throw new DomainException("error.Context.cannot.modify.begin.and.end.because.of.enroled.curriculumLines");
                 }
             }

@@ -1,3 +1,5 @@
+- Bug fix: Context changes should always validate existance of curriculum lines [#qubIT-Fenix-4445]
+
 43.0.1 (09-10-2023)
 - Improvement: Improve student curriculum text printing
 
