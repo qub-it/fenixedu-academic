@@ -191,10 +191,17 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     private void checkCurriculumLines(final DegreeModule degreeModule) {
         for (final CurriculumModule curriculumModule : degreeModule.getCurriculumModulesSet()) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.getExecutionInterval() != null
-                        && !degreeModule.hasAnyParentContexts(curriculumLine.getExecutionInterval())) {
+            if (!curriculumModule.isCurriculumLine()) {
+                continue;
+            }
+
+            final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
+            if (curriculumModule.isEnrolment()) {
+                if (!degreeModule.hasAnyParentContexts(curriculumLine.getExecutionInterval())) {
+                    throw new DomainException("error.Context.cannot.modify.begin.and.end.because.of.enroled.curriculumLines");
+                }
+            } else {
+                if (!degreeModule.hasAnyOpenParentContexts(curriculumLine.getExecutionInterval())) { //dismissals just need to be valid for year (open)
                     throw new DomainException("error.Context.cannot.modify.begin.and.end.because.of.enroled.curriculumLines");
                 }
             }
