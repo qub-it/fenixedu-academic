@@ -1,3 +1,5 @@
+- Refactor: Optimize method Registration.getRegistrationStates(ExecutionInterval) [#qubIT-Fenix-4454]
+
 43.0.2 (16-10-2023)
 - Improvement: Ensure existance of context before enroling in course [#qubIT-Fenix-4446]
 - Bug fix: Context changes should always validate existance of curriculum lines [#qubIT-Fenix-4445]

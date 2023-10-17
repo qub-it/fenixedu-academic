@@ -1377,28 +1377,25 @@ public class Registration extends Registration_Base {
                 .collect(Collectors.toSet());
     }
 
-    private Set<RegistrationState> getRegistrationStates(final ExecutionInterval executionInterval) {
-
+    Set<RegistrationState> getRegistrationStates(final ExecutionInterval executionInterval) {
         // group states by intervals
         final Map<ExecutionInterval, List<RegistrationState>> map =
                 getRegistrationStatesSet().stream().collect(Collectors.groupingBy(RegistrationState::getExecutionInterval));
 
-        ExecutionInterval interval = executionInterval;
-        while (interval != null && !map.containsKey(interval)) {
-            interval = interval.getPrevious(); // find previous interval with explicit states
+        if (map.containsKey(executionInterval)) { // if found in provided interval, return all states
+            return new HashSet<>(map.get(executionInterval));
         }
 
-        if (interval == null) { // invalid interval
-            return Collections.emptySet();
+        final Optional<ExecutionInterval> lastIntervalWithStates =
+                map.keySet().stream().filter(ei -> ei.isBeforeOrEquals(executionInterval)).max(Comparator.naturalOrder());
 
-        } else if (interval == executionInterval) { // if found in provided interval, return all states
-            return new HashSet<>(map.get(interval));
-
-        } else { // otherwise return only the last one
-            return map.get(interval).stream().max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).map(Stream::of)
-                    .orElseGet(Stream::empty).collect(Collectors.toSet());
+        if (lastIntervalWithStates.isEmpty()) {
+            return Set.of(); // no states yet for provided executionInterval
         }
 
+        // otherwise return only the last one
+        return map.get(lastIntervalWithStates.get()).stream().max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR)
+                .map(s -> Set.of(s)).orElse(Set.of());
     }
 
     public RegistrationState getFirstRegistrationState() {
