@@ -1,3 +1,4 @@
+43.0.3 (17-10-2023)
 - Refactor: Optimize method Registration.getRegistrationStates(ExecutionInterval) [#qubIT-Fenix-4454]
 
 43.0.2 (16-10-2023)
