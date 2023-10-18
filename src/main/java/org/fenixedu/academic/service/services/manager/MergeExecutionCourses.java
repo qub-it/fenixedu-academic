@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Attends;
-import org.fenixedu.academic.domain.CourseLoad;
+//import org.fenixedu.academic.domain.CourseLoad;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionCourseLog;
@@ -203,21 +203,21 @@ public class MergeExecutionCourses {
     }
 
     private static void copyShifts(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo) {
-        final List<Shift> associatedShifts = new ArrayList<Shift>(executionCourseFrom.getAssociatedShifts());
-        for (final Shift shift : associatedShifts) {
-            List<CourseLoad> courseLoadsFrom = new ArrayList<CourseLoad>(shift.getCourseLoadsSet());
-            for (Iterator<CourseLoad> iter = courseLoadsFrom.iterator(); iter.hasNext();) {
-                CourseLoad courseLoadFrom = iter.next();
-                CourseLoad courseLoadTo = executionCourseTo.getCourseLoadByShiftType(courseLoadFrom.getType());
-                if (courseLoadTo == null) {
-                    courseLoadTo = new CourseLoad(executionCourseTo, courseLoadFrom.getType(), courseLoadFrom.getUnitQuantity(),
-                            courseLoadFrom.getTotalQuantity());
-                }
-                iter.remove();
-                shift.removeCourseLoads(courseLoadFrom);
-                shift.addCourseLoads(courseLoadTo);
-            }
-        }
+//        final List<Shift> associatedShifts = new ArrayList<Shift>(executionCourseFrom.getAssociatedShifts());
+//        for (final Shift shift : associatedShifts) {
+//            List<CourseLoad> courseLoadsFrom = new ArrayList<CourseLoad>(shift.getCourseLoadsSet());
+//            for (Iterator<CourseLoad> iter = courseLoadsFrom.iterator(); iter.hasNext();) {
+//                CourseLoad courseLoadFrom = iter.next();
+//                CourseLoad courseLoadTo = executionCourseTo.getCourseLoadByShiftType(courseLoadFrom.getType());
+//                if (courseLoadTo == null) {
+//                    courseLoadTo = new CourseLoad(executionCourseTo, courseLoadFrom.getType(), courseLoadFrom.getUnitQuantity(),
+//                            courseLoadFrom.getTotalQuantity());
+//                }
+//                iter.remove();
+//                shift.removeCourseLoads(courseLoadFrom);
+//                shift.addCourseLoads(courseLoadTo);
+//            }
+//        }
 
         executionCourseTo.getShiftsSet().addAll(executionCourseFrom.getShiftsSet());
     }

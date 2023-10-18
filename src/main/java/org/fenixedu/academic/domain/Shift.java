@@ -108,9 +108,9 @@ public class Shift extends Shift_Base {
 
         setCourseLoadType(type);
         shiftTypeManagement(List.of(type.getShiftType()), getExecutionCourse()); // TEMP, until full refactor is concluded
-        if (getCourseLoadsSet().isEmpty()) {
-            throw new DomainException("error.Shift.empty.courseLoads");
-        }
+//        if (getCourseLoadsSet().isEmpty()) {
+//            throw new DomainException("error.Shift.empty.courseLoads");
+//        }
 
         setName(name);
         setLanguages(languages);
@@ -130,7 +130,7 @@ public class Shift extends Shift_Base {
         getShiftCapacitiesSet().forEach(sc -> sc.delete());
 
         getAssociatedClassesSet().clear();
-        getCourseLoadsSet().clear();
+//        getCourseLoadsSet().clear();
         setCourseLoadType(null);
         setExecutionCourse(null);
         setRootDomainObject(null);
@@ -153,15 +153,15 @@ public class Shift extends Shift_Base {
 
 //        CourseLoadType.findByShiftType(types.iterator().next()).ifPresent(loadType -> setCourseLoadType(loadType));
 
-        if (executionCourse != null) {
-            getCourseLoadsSet().clear();
-            for (ShiftType shiftType : types) {
-                CourseLoad courseLoad = executionCourse.getCourseLoadByShiftType(shiftType);
-                if (courseLoad != null) {
-                    addCourseLoads(courseLoad);
-                }
-            }
-        }
+//        if (executionCourse != null) {
+//            getCourseLoadsSet().clear();
+//            for (ShiftType shiftType : types) {
+//                CourseLoad courseLoad = executionCourse.getCourseLoadByShiftType(shiftType);
+//                if (courseLoad != null) {
+//                    addCourseLoads(courseLoad);
+//                }
+//            }
+//        }
     }
 
     @Deprecated

@@ -582,12 +582,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     	
     class  PersonInformationLog extends DomainOperationLog {
     }
-        
-    class CourseLoad  {
-        ShiftType type;
-        BigDecimal totalQuantity;
-        BigDecimal unitQuantity;    
-    }
 
     class ExecutionDegree  {
         LocalizedString anotation;
@@ -4036,29 +4030,6 @@ relation SummaryLessonInstance {
 relation CompetenceCourseInformationExecutionPeriod {
     ExecutionInterval playsRole executionPeriod;
     degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformations {
-        multiplicity *;
-    }
-}
-
-relation CourseLoadRootDomainObject {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    CourseLoad playsRole courseLoads {
-        multiplicity *;
-    }
-}
-
-relation CourseLoadExecutionCourse {
-    ExecutionCourse playsRole executionCourse;
-    CourseLoad playsRole courseLoads {
-        multiplicity *;
-    }
-}
-
-relation CourseLoadShift {
-    Shift playsRole shifts {
-        multiplicity *;
-    }
-    CourseLoad playsRole courseLoads {
         multiplicity *;
     }
 }

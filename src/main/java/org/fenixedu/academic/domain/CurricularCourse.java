@@ -663,41 +663,41 @@ public class CurricularCourse extends CurricularCourse_Base {
 //                .valueOf(0) : super.getMaximumValueForAcumulatedEnrollments();
 //    }
 
-    public BigDecimal getTotalHoursByShiftType(ShiftType type, ExecutionInterval executionInterval) {
-        if (type != null) {
-            Double hours = null;
-            switch (type) {
-            case TEORICA:
-                hours = getTheoreticalHours(executionInterval);
-                break;
-            case PROBLEMS:
-                hours = getProblemsHours(executionInterval);
-                break;
-            case LABORATORIAL:
-                hours = getLaboratorialHours(executionInterval);
-                break;
-            case TRAINING_PERIOD:
-                hours = getTrainingPeriodHours(executionInterval);
-                break;
-            case SEMINARY:
-                hours = getSeminaryHours(executionInterval);
-                break;
-            case TUTORIAL_ORIENTATION:
-                hours = getTutorialOrientationHours(executionInterval);
-                break;
-            case FIELD_WORK:
-                hours = getFieldWorkHours(executionInterval);
-                break;
-            case OTHER:
-                hours = getOtherHours(executionInterval);
-                break;
-            default:
-                break;
-            }
-            return hours != null ? BigDecimal.valueOf(hours) : null;
-        }
-        return null;
-    }
+//    public BigDecimal getTotalHoursByShiftType(ShiftType type, ExecutionInterval executionInterval) {
+//        if (type != null) {
+//            Double hours = null;
+//            switch (type) {
+//            case TEORICA:
+//                hours = getTheoreticalHours(executionInterval);
+//                break;
+//            case PROBLEMS:
+//                hours = getProblemsHours(executionInterval);
+//                break;
+//            case LABORATORIAL:
+//                hours = getLaboratorialHours(executionInterval);
+//                break;
+//            case TRAINING_PERIOD:
+//                hours = getTrainingPeriodHours(executionInterval);
+//                break;
+//            case SEMINARY:
+//                hours = getSeminaryHours(executionInterval);
+//                break;
+//            case TUTORIAL_ORIENTATION:
+//                hours = getTutorialOrientationHours(executionInterval);
+//                break;
+//            case FIELD_WORK:
+//                hours = getFieldWorkHours(executionInterval);
+//                break;
+//            case OTHER:
+//                hours = getOtherHours(executionInterval);
+//                break;
+//            default:
+//                break;
+//            }
+//            return hours != null ? BigDecimal.valueOf(hours) : null;
+//        }
+//        return null;
+//    }
 
     public boolean hasAnyExecutionCourseIn(ExecutionInterval executionInterval) {
         for (ExecutionCourse executionCourse : getAssociatedExecutionCoursesSet()) {
