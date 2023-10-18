@@ -1,4 +1,5 @@
 - Refactor: Remove deprecated entity CourseLoad [#qubIT-Fenix-1587]
+- Refactor: Declare method in IAcademicTreasuryTarget to merge the treasury target with a target person [#qubIT-Fenix-4459]
 
 43.0.3 (17-10-2023)
 - Refactor: Optimize method Registration.getRegistrationStates(ExecutionInterval) [#qubIT-Fenix-4454]

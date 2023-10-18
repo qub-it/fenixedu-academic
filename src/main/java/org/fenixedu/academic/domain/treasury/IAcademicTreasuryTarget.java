@@ -40,7 +40,7 @@ public interface IAcademicTreasuryTarget extends DomainObject {
     }
     
     public default void handleSettlement(final IAcademicTreasuryEvent e) {
-        //TODO: considerar isenções sobre dívidas não facturadas
+        // TODO: consider exemptions on debts not closed in debit entry
         if(e.isPayed()) {
             handleTotalPayment(e);
         }
@@ -48,6 +48,15 @@ public interface IAcademicTreasuryTarget extends DomainObject {
 
     public default LocalizedString getEventTargetCurrentState() {
         return new LocalizedString();
+    }
+    
+    // TODO ANIL 2023-10-18: This should be implemented by all classes implementing this
+    // interface. But the implementing classes are scattered in many modules,
+    // it is not pratical to release all of them.
+    // For now just leave this method as default, and implement where it is 
+    // necessary
+    public default void mergeToTargetPerson(Person targetPerson) {
+        
     }
     
 }
