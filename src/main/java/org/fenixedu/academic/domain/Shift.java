@@ -385,6 +385,10 @@ public class Shift extends Shift_Base {
         return ShiftCapacity.getTotalCapacity(this) - ShiftEnrolment.getTotalEnrolments(this);
     }
 
+    public Integer getTotalCapacity() {
+        return ShiftCapacity.getTotalCapacity(this);
+    }
+
     @Deprecated
     public Integer getLotacao() {
         return ShiftCapacity.getTotalCapacity(this);
