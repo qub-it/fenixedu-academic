@@ -5012,6 +5012,21 @@ class Employee {
 	    Person playsRole person { multiplicity 1..1; }
 	}
 	
+class curricularRules.EnrolmentModelConfigEntry  {
+}
+	relation EnrolmentModelConfigEntryRoot {
+	    curricularRules.EnrolmentModelConfigEntry playsRole enrolmentModelConfigEntries { multiplicity *; }
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+	}
+	relation EnrolmentModelConfigEntryDegreeCurricularPlan {
+		curricularRules.EnrolmentModelConfigEntry playsRole enrolmentModelConfigEntries { multiplicity *; }
+	 	DegreeCurricularPlan playsRole degreeCurricularPlan { multiplicity 1..1; }
+	}
+	relation EnrolmentModelConfigEntryAcademicPeriodOrder {
+		curricularRules.EnrolmentModelConfigEntry playsRole enrolmentModelConfigEntries { multiplicity *; }
+		time.calendarStructure.AcademicPeriodOrder playsRole academicPeriodOrders { multiplicity *; }
+	}
+
 //DEPRECATED
 class studentCurriculum.BranchCurriculumGroup extends studentCurriculum.CurriculumGroup {}
 	
