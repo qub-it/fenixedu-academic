@@ -1,3 +1,5 @@
+- Bug fix: Add missing messages in course contexts validations [#qubIT-Fenix-4445]
+
 44.0.0 (20-10-2023)
 - New feature: Add domain for enrolment model config [#qubIT-Fenix-3968]
 - Refactor: Remove deprecated entity CourseLoad [#qubIT-Fenix-1587]
