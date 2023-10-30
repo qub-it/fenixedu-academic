@@ -1005,7 +1005,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
 		}
 		relation CourseLoadTypeShift {
-		    degreeStructure.CourseLoadType playsRole courseLoadType;
+		    degreeStructure.CourseLoadType playsRole courseLoadType { multiplicity 1..1; }
 		    Shift playsRole shifts { multiplicity *; }
 		}   		   
 		relation CourseLoadTypeLessonPlanning {

@@ -66,7 +66,6 @@ public class Shift extends Shift_Base {
 
         setExecutionCourse(executionCourse);
         setCourseLoadType(type);
-        shiftTypeManagement(List.of(type.getShiftType()), executionCourse); // TEMP, until full refactor is concluded
 
         new ShiftCapacity(this, ShiftCapacityType.findOrCreateDefault(), capacity);
 
@@ -107,10 +106,6 @@ public class Shift extends Shift_Base {
         }
 
         setCourseLoadType(type);
-        shiftTypeManagement(List.of(type.getShiftType()), getExecutionCourse()); // TEMP, until full refactor is concluded
-//        if (getCourseLoadsSet().isEmpty()) {
-//            throw new DomainException("error.Shift.empty.courseLoads");
-//        }
 
         setName(name);
         setLanguages(languages);
@@ -138,17 +133,6 @@ public class Shift extends Shift_Base {
 
     public ExecutionInterval getExecutionPeriod() {
         return getExecutionCourse().getExecutionInterval();
-    }
-
-    private void shiftTypeManagement(Collection<ShiftType> types, ExecutionCourse executionCourse) {
-
-        if (types.isEmpty()) {
-            throw new DomainException("error.Shift.empty.shiftTypes");
-        }
-
-        if (types.size() > 1) {
-            throw new DomainException("error.Shift.multiple.shiftTypes");
-        }
     }
 
     @Deprecated
