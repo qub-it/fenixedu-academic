@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.math.BigDecimal;
 import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
@@ -130,9 +129,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             getSender().delete();
         }
 
-//        for (; !getCourseLoadsSet().isEmpty(); getCourseLoadsSet().iterator().next().delete()) {
-//            ;
-//        }
         for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
             ;
         }
@@ -204,7 +200,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
                     associateAttend(enrolment, execution);
                 }
             }
-//            fillCourseLoads(execution, curricular);
         }
 
         @Override
@@ -237,17 +232,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             return false;
         }
 
-//        private void fillCourseLoads(ExecutionCourse execution, CurricularCourse curricular) {
-//            for (ShiftType shiftType : ShiftType.values()) {
-//                BigDecimal totalHours = curricular.getTotalHoursByShiftType(shiftType, execution.getExecutionInterval());
-//                if (totalHours != null && totalHours.compareTo(BigDecimal.ZERO) == 1) {
-//                    CourseLoad courseLoad = execution.getCourseLoadByShiftType(shiftType);
-//                    if (courseLoad == null) {
-//                        new CourseLoad(execution, shiftType, null, totalHours);
-//                    }
-//                }
-//            }
-//        }
     }
 
     public SortedSet<Degree> getDegreesSortedByDegreeName() {
@@ -409,18 +393,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
         return null;
     }
-
-//    @Deprecated
-//    public CourseLoad getCourseLoadByShiftType(ShiftType type) {
-//        if (type != null) {
-//            for (CourseLoad courseLoad : getCourseLoadsSet()) {
-//                if (courseLoad.getType().equals(type)) {
-//                    return courseLoad;
-//                }
-//            }
-//        }
-//        return null;
-//    }
 
     public AcademicInterval getAcademicInterval() {
         return getExecutionInterval().getAcademicInterval();

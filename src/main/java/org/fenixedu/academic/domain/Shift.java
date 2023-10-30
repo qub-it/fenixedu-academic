@@ -130,7 +130,6 @@ public class Shift extends Shift_Base {
         getShiftCapacitiesSet().forEach(sc -> sc.delete());
 
         getAssociatedClassesSet().clear();
-//        getCourseLoadsSet().clear();
         setCourseLoadType(null);
         setExecutionCourse(null);
         setRootDomainObject(null);
@@ -150,18 +149,6 @@ public class Shift extends Shift_Base {
         if (types.size() > 1) {
             throw new DomainException("error.Shift.multiple.shiftTypes");
         }
-
-//        CourseLoadType.findByShiftType(types.iterator().next()).ifPresent(loadType -> setCourseLoadType(loadType));
-
-//        if (executionCourse != null) {
-//            getCourseLoadsSet().clear();
-//            for (ShiftType shiftType : types) {
-//                CourseLoad courseLoad = executionCourse.getCourseLoadByShiftType(shiftType);
-//                if (courseLoad != null) {
-//                    addCourseLoads(courseLoad);
-//                }
-//            }
-//        }
     }
 
     @Deprecated
