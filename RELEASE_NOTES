@@ -1,3 +1,5 @@
+- Bug fix: On enrolments made by students, also allow extra and standalone enrolments [#qubIT-Fenix-4434]
+
 44.0.1 (30-10-2023)
 - Refactor: Add course load type required check in shift to domain model [#qubIT-Fenix-1587]
 - Bug fix: Add missing messages in course contexts validations [#qubIT-Fenix-4445]

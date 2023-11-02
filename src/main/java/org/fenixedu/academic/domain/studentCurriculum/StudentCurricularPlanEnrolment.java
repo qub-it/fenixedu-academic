@@ -18,6 +18,10 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
+import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.ENROLMENT_WITH_RULES;
+import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.EXTRA_ENROLMENT;
+import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.STANDALONE_ENROLMENT;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -97,7 +101,8 @@ abstract public class StudentCurricularPlanEnrolment {
     }
 
     protected void assertStudentEnrolmentPreConditions() {
-        if (getCurricularRuleLevel() != CurricularRuleLevel.ENROLMENT_WITH_RULES) {
+        final CurricularRuleLevel ruleLevel = getCurricularRuleLevel();
+        if (ruleLevel != ENROLMENT_WITH_RULES && ruleLevel != EXTRA_ENROLMENT && ruleLevel != STANDALONE_ENROLMENT) {
             throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
         }
 
