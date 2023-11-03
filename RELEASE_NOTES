@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated course load getters [#qubIT-Fenix-1587]
+
 44.0.2 (02-11-2023)
 - Bug fix: On enrolments made by students, also allow extra and standalone enrolments [#qubIT-Fenix-4434]
 

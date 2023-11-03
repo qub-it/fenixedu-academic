@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -284,23 +283,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         }
     }
 
-    protected CompetenceCourseLoad findLoad(final Integer order) {
-        CompetenceCourseLoad result = null;
-
-        for (final CompetenceCourseLoad iter : getCompetenceCourseLoadsSet()) {
-            if (iter.getLoadOrder().equals(order)) {
-                if (result != null) {
-                    throw new DomainException("error.CompetenceCourseInformation.found.duplicate.CompetenceCourseLoad",
-                            result.toString(), iter.toString());
-                }
-
-                result = iter;
-            }
-        }
-
-        return result;
-    }
-
     public void delete() {
         getCourseLoadDurationsSet().forEach(CourseLoadDuration::deleteTriggeredByCompetenceCourseInformation); // must be the initial instruction, in order to perform validations
 
@@ -317,100 +299,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     public BibliographicReference getBibliographicReference(final Integer oid) {
         return getBibliographicReferences().getBibliographicReference(oid);
-    }
-
-    public Double getTheoreticalHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getTheoreticalHours();
-        }
-        return result;
-    }
-
-    public Double getProblemsHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getProblemsHours();
-        }
-        return result;
-    }
-
-    public Double getLaboratorialHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getLaboratorialHours();
-        }
-        return result;
-    }
-
-    public Double getSeminaryHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getSeminaryHours();
-        }
-        return result;
-    }
-
-    public Double getFieldWorkHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getFieldWorkHours();
-        }
-        return result;
-    }
-
-    public Double getTrainingPeriodHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getTrainingPeriodHours();
-        }
-        return result;
-    }
-
-    public Double getTutorialOrientationHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getTutorialOrientationHours();
-        }
-        return result;
-    }
-
-    public Double getOtherHours(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getOtherHours();
-        }
-        return result;
-    }
-
-    public Double getAutonomousWorkHours(final Integer order) {
-        BigDecimal result = new BigDecimal(0.0);
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result = result.add(new BigDecimal(competenceCourseLoad.getAutonomousWorkHours()));
-        }
-
-        result = result.setScale(1, RoundingMode.HALF_EVEN);
-        return result.doubleValue();
-    }
-
-    public Double getContactLoad(final Integer order) {
-        BigDecimal result = new BigDecimal(0.0);
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result = result.add(new BigDecimal(competenceCourseLoad.getContactLoad()));
-        }
-
-        result = result.setScale(1, RoundingMode.HALF_EVEN);
-        return result.doubleValue();
-    }
-
-    public Double getTotalLoad(final Integer order) {
-        BigDecimal result = new BigDecimal(0.0);
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result = result.add(new BigDecimal(competenceCourseLoad.getTotalLoad()));
-        }
-
-        result = result.setScale(1, RoundingMode.HALF_EVEN);
-        return result.doubleValue();
     }
 
     public double getEctsCredits(final Integer order) {

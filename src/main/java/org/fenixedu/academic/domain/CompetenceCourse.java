@@ -18,6 +18,16 @@
  */
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.AUTONOMOUS_WORK;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.FIELD_WORK;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.INTERNSHIP;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.OTHER;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.PRACTICAL_LABORATORY;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.SEMINAR;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL_PRACTICAL;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.TUTORIAL_ORIENTATION;
+
 import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.Normalizer;
@@ -338,8 +348,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getTheoreticalHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getTheoreticalHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(THEORETICAL), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getProblemsHours() {
@@ -347,8 +356,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getProblemsHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getProblemsHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(THEORETICAL_PRACTICAL), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getLaboratorialHours() {
@@ -356,8 +364,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getLaboratorialHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getLaboratorialHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(PRACTICAL_LABORATORY), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getSeminaryHours() {
@@ -365,8 +372,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getSeminaryHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getSeminaryHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(SEMINAR), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getFieldWorkHours() {
@@ -374,8 +380,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getFieldWorkHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getFieldWorkHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(FIELD_WORK), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getTrainingPeriodHours() {
@@ -383,8 +388,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getTrainingPeriodHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getTrainingPeriodHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(INTERNSHIP), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getTutorialOrientationHours() {
@@ -392,8 +396,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getTutorialOrientationHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getTutorialOrientationHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(TUTORIAL_ORIENTATION), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getOtherHours() {
@@ -401,8 +404,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getOtherHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getOtherHours(null) : 0.0;
+        return getLoadHours(CourseLoadType.of(OTHER), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getAutonomousWorkHours() {
@@ -410,13 +412,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getAutonomousWorkHours(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getAutonomousWorkHours(null) : 0.0;
-    }
-
-    public Double getAutonomousWorkHours(final Integer order, final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getAutonomousWorkHours(order) : 0.0;
+        return getLoadHours(CourseLoadType.of(AUTONOMOUS_WORK), interval).map(BigDecimal::doubleValue).orElse(0.0);
     }
 
     public double getContactLoad() {
@@ -424,12 +420,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public Double getContactLoad(final ExecutionInterval interval) {
-        return getContactLoad(null, interval);
-    }
-
-    public Double getContactLoad(final Integer order, final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getContactLoad(order) : 0.0;
+        return information != null ? information.getContactLoad().doubleValue() : 0.0;
     }
 
     public double getTotalLoad() {
@@ -437,12 +429,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getTotalLoad(final ExecutionInterval interval) {
-        return getTotalLoad((Integer) null, interval);
-    }
-
-    public Double getTotalLoad(final Integer order, final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getTotalLoad(order) : 0.0;
+        return information != null ? information.getTotalLoad().doubleValue() : 0.0;
     }
 
     public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
