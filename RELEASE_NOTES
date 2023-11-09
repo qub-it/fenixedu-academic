@@ -1,5 +1,6 @@
 - Refactor: Unify degree curricular plan state and stage [#qubIT-Fenix-4442]
 - Refactor: Deprecate RegistrationStateTypeEnum [#qubIT-Fenix-2590]
+- Refactor: Remove unused MarkType util [#qubIT-Fenix-1784]
 
 44.1.0 (06-11-2023)
 - Refactor: Remove deprecated course load getters [#qubIT-Fenix-1587]
