@@ -24,6 +24,7 @@ package org.fenixedu.academic.domain.student.registrationStates;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
+@Deprecated(forRemoval = true)
 public enum RegistrationStateTypeEnum {
 
     REGISTERED(true),
