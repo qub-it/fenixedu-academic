@@ -808,15 +808,6 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    final public StudentCurricularPlan getPastStudentCurricularPlanByDegree(final Degree degree) {
-        for (StudentCurricularPlan studentCurricularPlan : this.getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.getDegree() == degree && studentCurricularPlan.isPast()) {
-                return studentCurricularPlan;
-            }
-        }
-        return null;
-    }
-
     public List<Attends> readAttendsInCurrentExecutionPeriod() {
         final List<Attends> attends = new ArrayList<>();
         for (final Attends attend : this.getAssociatedAttendsSet()) {

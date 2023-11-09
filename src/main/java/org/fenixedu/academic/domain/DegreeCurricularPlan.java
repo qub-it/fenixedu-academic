@@ -324,16 +324,17 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return false;
     }
 
-    public boolean isApproved() {
+    private boolean isApproved() {
         return getCurricularStage() == CurricularStage.APPROVED;
     }
 
-    public boolean isDraft() {
+    private boolean isDraft() {
         return getCurricularStage() == CurricularStage.DRAFT;
     }
 
     public boolean isActive() {
-        return getState() == DegreeCurricularPlanState.ACTIVE;
+        final CurricularStage curricularStage = getCurricularStage();
+        return curricularStage == CurricularStage.APPROVED || curricularStage == CurricularStage.PUBLISHED;
     }
 
     private Boolean getCanBeDeleted() {
@@ -789,37 +790,37 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
-    /**
-     * If state is null then just degree type is checked
-     */
-    public static List<DegreeCurricularPlan> readByDegreeTypeAndState(final java.util.function.Predicate<DegreeType> degreeType,
-            final DegreeCurricularPlanState state) {
-        List<DegreeCurricularPlan> result = new ArrayList<>();
-        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-            if (degreeType.test(degreeCurricularPlan.getDegree().getDegreeType())
-                    && (state == null || degreeCurricularPlan.getState() == state)) {
+//    /**
+//     * If state is null then just degree type is checked
+//     */
+//    public static List<DegreeCurricularPlan> readByDegreeTypeAndState(final java.util.function.Predicate<DegreeType> degreeType,
+//            final DegreeCurricularPlanState state) {
+//        List<DegreeCurricularPlan> result = new ArrayList<>();
+//        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
+//            if (degreeType.test(degreeCurricularPlan.getDegree().getDegreeType())
+//                    && (state == null || degreeCurricularPlan.getState() == state)) {
+//
+//                result.add(degreeCurricularPlan);
+//            }
+//        }
+//        return result;
+//    }
 
-                result.add(degreeCurricularPlan);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * If state is null then just degree type is checked
-     */
-    public static List<DegreeCurricularPlan> readByDegreeTypesAndState(final java.util.function.Predicate<DegreeType> predicate,
-            final DegreeCurricularPlanState state) {
-        List<DegreeCurricularPlan> result = new ArrayList<>();
-        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-            if (predicate.test(degreeCurricularPlan.getDegree().getDegreeType())
-                    && (state == null || degreeCurricularPlan.getState() == state)) {
-
-                result.add(degreeCurricularPlan);
-            }
-        }
-        return result;
-    }
+//    /**
+//     * If state is null then just degree type is checked
+//     */
+//    public static List<DegreeCurricularPlan> readByDegreeTypesAndState(final java.util.function.Predicate<DegreeType> predicate,
+//            final DegreeCurricularPlanState state) {
+//        List<DegreeCurricularPlan> result = new ArrayList<>();
+//        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
+//            if (predicate.test(degreeCurricularPlan.getDegree().getDegreeType())
+//                    && (state == null || degreeCurricularPlan.getState() == state)) {
+//
+//                result.add(degreeCurricularPlan);
+//            }
+//        }
+//        return result;
+//    }
 
     public static DegreeCurricularPlan readByNameAndDegreeSigla(final String name, final String degreeSigla) {
         for (final DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
@@ -939,10 +940,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
 
         return result;
-    }
-
-    public boolean isPast() {
-        return getState().equals(DegreeCurricularPlanState.PAST);
     }
 
     @Override
@@ -1140,20 +1137,20 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return getDegree().getEctsCredits();
     }
 
-    public static List<DegreeCurricularPlan> readByDegreeTypesAndStateWithExecutionDegreeForYear(
-            final java.util.function.Predicate<DegreeType> degreeTypes, final DegreeCurricularPlanState state,
-            final ExecutionYear executionYear) {
-
-        final List<DegreeCurricularPlan> result = new ArrayList<>();
-        for (final DegreeCurricularPlan degreeCurricularPlan : readByDegreeTypesAndState(degreeTypes, state)) {
-            if (degreeCurricularPlan.hasExecutionDegreeFor(executionYear)) {
-                result.add(degreeCurricularPlan);
-            }
-        }
-
-        return result;
-
-    }
+//    public static List<DegreeCurricularPlan> readByDegreeTypesAndStateWithExecutionDegreeForYear(
+//            final java.util.function.Predicate<DegreeType> degreeTypes, final DegreeCurricularPlanState state,
+//            final ExecutionYear executionYear) {
+//
+//        final List<DegreeCurricularPlan> result = new ArrayList<>();
+//        for (final DegreeCurricularPlan degreeCurricularPlan : readByDegreeTypesAndState(degreeTypes, state)) {
+//            if (degreeCurricularPlan.hasExecutionDegreeFor(executionYear)) {
+//                result.add(degreeCurricularPlan);
+//            }
+//        }
+//
+//        return result;
+//
+//    }
 
     public ExecutionYear getInauguralExecutionYear() {
         return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)

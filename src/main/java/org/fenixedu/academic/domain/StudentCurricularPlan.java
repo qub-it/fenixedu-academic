@@ -281,10 +281,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return isLastStudentCurricularPlanFromRegistration() && getRegistration().isActive();
     }
 
-    final public boolean isPast() {
-        return getDegreeCurricularPlan().isPast();
-    }
-
     final public Person getPerson() {
         return getRegistration().getPerson();
     }
