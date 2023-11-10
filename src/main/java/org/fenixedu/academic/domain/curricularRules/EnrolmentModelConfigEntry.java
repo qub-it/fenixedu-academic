@@ -31,16 +31,24 @@ public class EnrolmentModelConfigEntry extends EnrolmentModelConfigEntry_Base {
         getAcademicPeriodOrdersSet().addAll(periods);
     }
 
-    public static Optional<EnrolmentModelConfigEntry> findFor(final DegreeCurricularPlan degreeCurricularPlan,
-            final AcademicPeriodOrder period) {
-        return degreeCurricularPlan.getEnrolmentModelConfigEntriesSet().stream()
-                .filter(entry -> entry.getAcademicPeriodOrdersSet().contains(period)).findAny();
-    }
+//    public boolean isFor(ExecutionInterval executionInterval) {
+//        return getAcademicPeriodOrdersSet().stream().anyMatch(apo -> apo.isFor(executionInterval));
+//    }
+//
+//    public Collection<ExecutionInterval> getIntervalsFrom(final ExecutionYear executionYear) {
+//        return executionYear.getChildIntervals().stream().filter(ei -> isFor(ei)).collect(Collectors.toSet());
+//    }
 
     public void delete() {
         setRoot(null);
         setDegreeCurricularPlan(null);
         getAcademicPeriodOrdersSet().clear();
         super.deleteDomainObject();
+    }
+
+    public static Optional<EnrolmentModelConfigEntry> findFor(final DegreeCurricularPlan degreeCurricularPlan,
+            final AcademicPeriodOrder period) {
+        return degreeCurricularPlan.getEnrolmentModelConfigEntriesSet().stream()
+                .filter(entry -> entry.getAcademicPeriodOrdersSet().contains(period)).findAny();
     }
 }

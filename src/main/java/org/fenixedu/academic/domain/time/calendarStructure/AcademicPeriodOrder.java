@@ -53,6 +53,11 @@ public class AcademicPeriodOrder extends AcademicPeriodOrder_Base {
         super.deleteDomainObject();
     }
 
+//    public boolean isFor(ExecutionInterval executionInterval) {
+//        return getAcademicPeriod().equals(executionInterval.getAcademicPeriod())
+//                && getPeriodOrder().intValue() == executionInterval.getChildOrder();
+//    }
+
     public static void initialize() {
         if (findAll().findAny().isEmpty()) {
             initializeFromAcademicPeriod();

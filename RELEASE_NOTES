@@ -1,3 +1,4 @@
+- Refactor: Change enrolment rules to allow association of periods [#qubIT-Fenix-3969]
 - Refactor: Unify degree curricular plan state and stage [#qubIT-Fenix-4442]
 - Refactor: Deprecate RegistrationStateTypeEnum [#qubIT-Fenix-2590]
 - Refactor: Remove unused MarkType util [#qubIT-Fenix-1784]
