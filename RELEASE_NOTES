@@ -1,3 +1,5 @@
+- Bug fix: Allow registrations without registration state [#qubIT-Fenix-2585]
+
 44.2.0 (13-11-2023)
 - Refactor: Change enrolment rules to allow association of periods [#qubIT-Fenix-3969]
 - Refactor: Unify degree curricular plan state and stage [#qubIT-Fenix-4442]

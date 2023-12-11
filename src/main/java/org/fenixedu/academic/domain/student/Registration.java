@@ -1285,7 +1285,8 @@ public class Registration extends Registration_Base {
     }
 
     public RegistrationStateType getActiveStateType() {
-        return getActiveState().getType();
+        final RegistrationState activeState = getActiveState();
+        return activeState != null ? activeState.getType() : null;
     }
 
     public boolean isActive() {
