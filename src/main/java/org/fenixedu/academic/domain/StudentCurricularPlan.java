@@ -37,7 +37,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
-import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
@@ -775,6 +774,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getRoot().isEnroledInExecutionPeriod(curricularCourse, executionInterval);
     }
 
+    @Deprecated
     public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
         double result = 0.0;
 
@@ -785,19 +785,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return result;
     }
 
+    @Deprecated
     public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval, final CurricularCourse curricularCourse) {
-        return isAccumulated(executionInterval, curricularCourse) ? MaximumNumberOfCreditsForEnrolmentPeriod.getAccumulatedEcts(
-                curricularCourse,
-                executionInterval) : curricularCourse.getEctsCredits(executionInterval.getChildOrder(), executionInterval);
-    }
-
-    private boolean isAccumulated(final ExecutionInterval executionInterval, final CurricularCourse curricularCourse) {
-        return hasEnrolmentInCurricularCourseBefore(curricularCourse, executionInterval);
-    }
-
-    private boolean hasEnrolmentInCurricularCourseBefore(final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval) {
-        return getRoot().hasEnrolmentInCurricularCourseBefore(curricularCourse, executionInterval);
+        return curricularCourse.getEctsCredits(executionInterval.getChildOrder(), executionInterval);
     }
 
     // -------------------------------------------------------------

@@ -34,7 +34,6 @@ import org.fenixedu.academic.domain.curricularRules.EvenOddRule;
 import org.fenixedu.academic.domain.curricularRules.Exclusiveness;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.ImprovementOfApprovedEnrolment;
-import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
 import org.fenixedu.academic.domain.curricularRules.MinimumNumberOfCreditsToEnrol;
 import org.fenixedu.academic.domain.curricularRules.PreviousYearsEnrolmentCurricularRule;
 import org.fenixedu.academic.domain.curricularRules.RestrictionBetweenDegreeModules;
@@ -60,7 +59,6 @@ public class CurricularRuleExecutorFactory {
         executors.put(CreditsLimit.class, new CreditsLimitExecutor());
         executors.put(AnyCurricularCourse.class, new AnyCurricularCourseExecutor());
         executors.put(AnyCurricularCourseExceptions.class, new AnyCurricularCourseExceptionsExecutor());
-        executors.put(MaximumNumberOfCreditsForEnrolmentPeriod.class, new MaximumNumberOfCreditsForEnrolmentPeriodExecutor());
         executors.put(EnrolmentPeriodRestrictions.class, new EnrolmentPeriodRestrictionsExecutor());
         executors.put(PreviousYearsEnrolmentCurricularRule.class, new PreviousYearsEnrolmentExecutor());
         executors.put(AssertUniqueApprovalInCurricularCourseContexts.class,

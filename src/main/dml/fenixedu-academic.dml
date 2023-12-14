@@ -920,9 +920,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             class curricularRules.EnrolmentPeriodRestrictions extends curricularRules.Rule {
             }
 
-            class curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod extends curricularRules.Rule {
-            }
-
             class curricularRules.MinimumNumberOfCreditsToEnrol extends curricularRules.Rule {
                 Double minimumCredits;
             }

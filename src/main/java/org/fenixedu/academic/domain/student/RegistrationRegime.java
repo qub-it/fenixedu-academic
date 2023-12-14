@@ -21,11 +21,13 @@ package org.fenixedu.academic.domain.student;
 import java.util.Comparator;
 import java.util.function.Supplier;
 
-import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.curricularRules.MaximumNumberOfCreditsForEnrolmentPeriod;
+import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -79,18 +81,25 @@ public class RegistrationRegime extends RegistrationRegime_Base {
         public void checkEctsCredits(final Registration registration, final ExecutionYear executionYear,
                 final RegistrationRegimeType type) {
 
-            final StudentCurricularPlan studentCurricularPlan = registration.getLastStudentCurricularPlan();
+            if (type == RegistrationRegimeType.PARTIAL_TIME) {
 
-            double enroledEctsCredits = 0d;
-            for (final ExecutionInterval interval : executionYear.getExecutionPeriodsSet()) {
-                enroledEctsCredits += studentCurricularPlan.getAccumulatedEctsCredits(interval);
+                StudentCurricularPlan plan = registration.getStudentCurricularPlan(executionYear);
+                if (plan == null) {
+                    plan = registration.getLastStudentCurricularPlan();
+                }
+
+                try {
+                    plan.enrol(executionYear.getFirstExecutionPeriod(), CurricularRuleLevel.ENROLMENT_VERIFICATION_WITH_RULES);
+                } catch (final EnrollmentDomainException e) {
+                    final RuleResult ruleResult = e.getFalseResult();
+                    final RuleResultMessage resultMessage =
+                            ruleResult == null ? null : ruleResult.getMessages().iterator().next();
+                    if (resultMessage != null) {
+                        throw new DomainException(resultMessage.getMessage(), resultMessage.getArgs());
+                    }
+                }
             }
 
-            if (enroledEctsCredits > MaximumNumberOfCreditsForEnrolmentPeriod.MAXIMUM_NUMBER_OF_CREDITS_PARTIAL_TIME) {
-                throw new DomainException("error.RegistrationRegime.semester.has.more.ects.than.maximum.allowed",
-                        String.valueOf(enroledEctsCredits), executionYear.getQualifiedName(),
-                        String.valueOf(MaximumNumberOfCreditsForEnrolmentPeriod.MAXIMUM_NUMBER_OF_CREDITS_PARTIAL_TIME));
-            }
         }
 
     };

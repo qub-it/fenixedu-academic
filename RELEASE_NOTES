@@ -1,3 +1,4 @@
+- Refactor: Remove deprecated rule MaximumNumberOfCreditsForEnrolmentPeriod [#qubIT-Fenix-1587]
 - Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
 
 44.2.1 (11-12-2023)
