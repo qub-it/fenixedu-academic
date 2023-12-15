@@ -351,12 +351,11 @@ public class Shift extends Shift_Base {
         return getPresentationName();
     }
 
-    public Integer getVacancies() {
-//        return getLotacao() - getStudentsSet().size();
+    public int getVacancies() {
         return ShiftCapacity.getTotalCapacity(this) - ShiftEnrolment.getTotalEnrolments(this);
     }
 
-    public Integer getTotalCapacity() {
+    public int getTotalCapacity() {
         return ShiftCapacity.getTotalCapacity(this);
     }
 

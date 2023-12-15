@@ -1,4 +1,5 @@
 - Refactor: Remove deprecated rule MaximumNumberOfCreditsForEnrolmentPeriod [#qubIT-Fenix-1587]
+- Refactor: Shift vacancies and capacity should return primitive values [#qubIT-Fenix-4690]
 - Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
 - Improvement: Allow external curricular courses in any kind of unit [#qubIT-Fenix-4689]
 

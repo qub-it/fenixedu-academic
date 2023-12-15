@@ -199,26 +199,26 @@ public class EnrolmentTest {
         final Shift shiftB = new Shift(executionCourse, theoreticalLoad, 10, "T_testShiftEnrolments_B");
 
         assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
-        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
-        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftA.getVacancies(), 10);
+        assertEquals(shiftB.getVacancies(), 10);
 
         assertTrue(shiftA.enrol(registration));
         assertEquals(registration.getShiftEnrolmentsSet().size(), 1);
         assertEquals(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).get(), shiftA);
-        assertEquals(shiftA.getVacancies(), Integer.valueOf(9));
-        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftA.getVacancies(), 9);
+        assertEquals(shiftB.getVacancies(), 10);
 
         assertTrue(shiftB.enrol(registration));
         assertEquals(registration.getShiftEnrolmentsSet().size(), 1);
         assertEquals(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).get(), shiftB);
-        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
-        assertEquals(shiftB.getVacancies(), Integer.valueOf(9));
+        assertEquals(shiftA.getVacancies(), 10);
+        assertEquals(shiftB.getVacancies(), 9);
 
         shiftB.unenrol(registration);
         assertEquals(registration.getShiftEnrolmentsSet().size(), 0);
         assertTrue(registration.findEnrolledShiftFor(executionCourse, theoreticalLoad).isEmpty());
-        assertEquals(shiftA.getVacancies(), Integer.valueOf(10));
-        assertEquals(shiftB.getVacancies(), Integer.valueOf(10));
+        assertEquals(shiftA.getVacancies(), 10);
+        assertEquals(shiftB.getVacancies(), 10);
     }
 
     @Test
