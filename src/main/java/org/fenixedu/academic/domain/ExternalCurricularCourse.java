@@ -35,22 +35,7 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
-import pt.ist.fenixframework.dml.runtime.RelationAdapter;
-
 public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
-
-    static {
-        getRelationExternalCurricularCourseUnit().addListener(new RelationAdapter<Unit, ExternalCurricularCourse>() {
-            @Override
-            public void beforeAdd(Unit unit, ExternalCurricularCourse externalCurricularCourse) {
-                if (unit != null) {
-                    if (!unit.isUniversityUnit() && !unit.isSchoolUnit() && !unit.isDepartmentUnit()) {
-                        throw new DomainException("error.extraCurricularCourse.invalid.unit.type");
-                    }
-                }
-            }
-        });
-    }
 
     public ExternalCurricularCourse(final Unit unit, final String name, final String code) {
         super();

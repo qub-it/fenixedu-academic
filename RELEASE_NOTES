@@ -1,5 +1,6 @@
 - Refactor: Remove deprecated rule MaximumNumberOfCreditsForEnrolmentPeriod [#qubIT-Fenix-1587]
 - Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
+- Improvement: Allow external curricular courses in any kind of unit [#qubIT-Fenix-4689]
 
 44.2.1 (11-12-2023)
 - Bug fix: Allow registrations without registration state [#qubIT-Fenix-2585]
