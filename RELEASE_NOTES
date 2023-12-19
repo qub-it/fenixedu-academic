@@ -1,3 +1,4 @@
+44.3.0 (19-12-2023)
 - Refactor: Remove deprecated rule MaximumNumberOfCreditsForEnrolmentPeriod [#qubIT-Fenix-1587]
 - Refactor: Shift vacancies and capacity should return primitive values [#qubIT-Fenix-4690]
 - Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
