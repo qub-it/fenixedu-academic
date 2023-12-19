@@ -447,13 +447,15 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public double getEctsCredits(final ExecutionInterval interval) {
-        return getEctsCredits((Integer) null, interval);
+        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
+        return Optional.ofNullable(information).map(i -> i.getCredits()).map(c -> c.doubleValue()).orElse(0.0);
     }
 
-    public Double getEctsCredits(final Integer order, final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getEctsCredits(order) : 0.0;
-    }
+//    @Deprecated(forRemoval = true)
+//    public Double getEctsCredits(final Integer order, final ExecutionInterval interval) {
+//        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
+//        return (information != null) ? information.getEctsCredits(order) : 0.0;
+//    }
 
     @SuppressWarnings("unchecked")
     public List<CurricularCourse> getCurricularCoursesWithActiveScopesInExecutionPeriod(final ExecutionInterval interval) {

@@ -49,16 +49,16 @@ public class NoCourseGroupEnroledCurriculumModuleWrapper extends EnroledCurricul
         return null;
     }
 
-    @Override
-    public double getAccumulatedEctsCredits(ExecutionInterval executionInterval) {
-        if (getCurriculumModule().isEnrolment()) {
-            final Enrolment enrolment = (Enrolment) getCurriculumModule();
-            return enrolment.getStudentCurricularPlan().getAccumulatedEctsCredits(getExecutionInterval(),
-                    enrolment.getCurricularCourse());
-        } else {
-            return 0d;
-        }
-    }
+//    @Override
+//    public double getAccumulatedEctsCredits(ExecutionInterval executionInterval) {
+//        if (getCurriculumModule().isEnrolment()) {
+//            final Enrolment enrolment = (Enrolment) getCurriculumModule();
+//            return enrolment.getStudentCurricularPlan().getAccumulatedEctsCredits(getExecutionInterval(),
+//                    enrolment.getCurricularCourse());
+//        } else {
+//            return 0d;
+//        }
+//    }
 
     @Override
     public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(ExecutionInterval executionInterval) {

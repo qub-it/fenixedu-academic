@@ -83,13 +83,13 @@ public class OptionalDegreeModuleToEnrol extends DegreeModuleToEnrol {
         return getDegreeModule() == degreeModule || getCurricularCourse() == degreeModule;
     }
 
-    @Override
-    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-        if (isLeaf()) {
-            return getCurriculumGroup().getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval,
-                    getCurricularCourse());
-        } else {
-            return 0d;
-        }
-    }
+//    @Override
+//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
+//        if (isLeaf()) {
+//            return getCurriculumGroup().getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval,
+//                    getCurricularCourse());
+//        } else {
+//            return 0d;
+//        }
+//    }
 }

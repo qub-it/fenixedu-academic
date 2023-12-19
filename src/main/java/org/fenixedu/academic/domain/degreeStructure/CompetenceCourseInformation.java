@@ -301,14 +301,14 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return getBibliographicReferences().getBibliographicReference(oid);
     }
 
-    public double getEctsCredits(final Integer order) {
-        double result = 0.0;
-        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
-            result += competenceCourseLoad.getEctsCredits();
-        }
-
-        return result;
-    }
+//    public double getEctsCredits(final Integer order) {
+//        double result = 0.0;
+//        for (final CompetenceCourseLoadBean competenceCourseLoad : getCompetenceCourseLoadBeans(order)) {
+//            result += competenceCourseLoad.getEctsCredits();
+//        }
+//
+//        return result;
+//    }
 
     public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
         return getCourseLoadDurationsSet().stream().filter(d -> d.getCourseLoadType() == courseLoadType).findAny()

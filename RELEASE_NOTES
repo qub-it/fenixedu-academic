@@ -1,3 +1,5 @@
+- Refactor: Anual courses credits should not be divided for each semestrial load [#qubIT-Fenix-3940] 
+
 44.3.0 (19-12-2023)
 - Refactor: Remove deprecated rule MaximumNumberOfCreditsForEnrolmentPeriod [#qubIT-Fenix-1587]
 - Refactor: Shift vacancies and capacity should return primitive values [#qubIT-Fenix-4690]

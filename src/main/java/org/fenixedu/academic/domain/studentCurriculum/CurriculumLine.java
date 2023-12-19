@@ -309,7 +309,7 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
 
     abstract public BigDecimal getEctsCreditsForCurriculum();
 
-    abstract public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval);
+//    abstract public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval);
 
     abstract public String getModuleTypeName();
 

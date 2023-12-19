@@ -181,14 +181,14 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
                 .getCurricularRules(executionInterval);
     }
 
-    @Override
-    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-        if (getCurriculumModule().isEnrolment()) {
-            return ((Enrolment) getCurriculumModule()).getAccumulatedEctsCredits(executionInterval);
-        } else {
-            return 0d;
-        }
-    }
+//    @Override
+//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
+//        if (getCurriculumModule().isEnrolment()) {
+//            return ((Enrolment) getCurriculumModule()).getAccumulatedEctsCredits(executionInterval);
+//        } else {
+//            return 0d;
+//        }
+//    }
 
     @Override
     public String getName() {

@@ -91,7 +91,7 @@ public interface IDegreeModuleToEvaluate {
 
     public Double getEctsCredits(final ExecutionInterval executionInterval);
 
-    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval);
+//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval); 
 
     public List<CurricularRule> getCurricularRulesFromDegreeModule(final ExecutionInterval executionInterval);
 

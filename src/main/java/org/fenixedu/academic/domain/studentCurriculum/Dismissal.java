@@ -238,10 +238,10 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
         return BigDecimal.valueOf(getEctsCredits());
     }
 
-    @Override
-    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-        return getEctsCredits().doubleValue();
-    }
+//    @Override
+//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
+//        return getEctsCredits().doubleValue();
+//    }
 
     protected Double getEnrolmentsEcts() {
         return getCredits().getEnrolmentsEcts();
