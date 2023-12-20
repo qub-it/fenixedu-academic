@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
@@ -48,17 +47,6 @@ public class NoCourseGroupEnroledCurriculumModuleWrapper extends EnroledCurricul
     public Context getContext() {
         return null;
     }
-
-//    @Override
-//    public double getAccumulatedEctsCredits(ExecutionInterval executionInterval) {
-//        if (getCurriculumModule().isEnrolment()) {
-//            final Enrolment enrolment = (Enrolment) getCurriculumModule();
-//            return enrolment.getStudentCurricularPlan().getAccumulatedEctsCredits(getExecutionInterval(),
-//                    enrolment.getCurricularCourse());
-//        } else {
-//            return 0d;
-//        }
-//    }
 
     @Override
     public Set<ICurricularRule> getCurricularRulesFromCurriculumGroup(ExecutionInterval executionInterval) {

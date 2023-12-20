@@ -46,11 +46,6 @@ public class ExternalCurricularCourseToEnrol extends DegreeModuleToEnrol {
         return false;
     }
 
-//    @Override
-//    public double getAccumulatedEctsCredits(ExecutionInterval executionInterval) {
-//        return getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval, getDegreeModule());
-//    }
-
     @Override
     public Context getContext() {
         throw new DomainException("error.ExternalCurricularCourseToEnrol.doesnot.have.context");

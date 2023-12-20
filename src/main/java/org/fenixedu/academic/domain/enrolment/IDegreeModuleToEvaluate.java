@@ -59,12 +59,6 @@ public interface IDegreeModuleToEvaluate {
 
     public boolean isFor(final DegreeModule degreeModule);
 
-//    /**
-//     * @deprecated use {@link #getExecutionInterval()}
-//     */
-//    @Deprecated
-//    public ExecutionSemester getExecutionPeriod();
-
     public ExecutionInterval getExecutionInterval();
 
     public boolean isLeaf();
@@ -90,8 +84,6 @@ public interface IDegreeModuleToEvaluate {
     public Double getEctsCredits();
 
     public Double getEctsCredits(final ExecutionInterval executionInterval);
-
-//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval); 
 
     public List<CurricularRule> getCurricularRulesFromDegreeModule(final ExecutionInterval executionInterval);
 

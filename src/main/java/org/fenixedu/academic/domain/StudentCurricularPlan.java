@@ -774,22 +774,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getRoot().isEnroledInExecutionPeriod(curricularCourse, executionInterval);
     }
 
-//    @Deprecated
-//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-//        double result = 0.0;
-//
-//        for (final Enrolment enrolment : getVisibleEnroledEnrolments(executionInterval)) {
-//            result += getAccumulatedEctsCredits(executionInterval, enrolment.getCurricularCourse());
-//        }
-//
-//        return result;
-//    }
-
-//    @Deprecated
-//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval, final CurricularCourse curricularCourse) {
-//        return curricularCourse.getEctsCredits(executionInterval.getChildOrder(), executionInterval);
-//    }
-
     // -------------------------------------------------------------
     // END: Only for enrollment purposes (PUBLIC)
     // -------------------------------------------------------------

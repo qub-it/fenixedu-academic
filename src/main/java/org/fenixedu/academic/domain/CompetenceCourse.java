@@ -451,12 +451,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return Optional.ofNullable(information).map(i -> i.getCredits()).map(c -> c.doubleValue()).orElse(0.0);
     }
 
-//    @Deprecated(forRemoval = true)
-//    public Double getEctsCredits(final Integer order, final ExecutionInterval interval) {
-//        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-//        return (information != null) ? information.getEctsCredits(order) : 0.0;
-//    }
-
     @SuppressWarnings("unchecked")
     public List<CurricularCourse> getCurricularCoursesWithActiveScopesInExecutionPeriod(final ExecutionInterval interval) {
         return getAssociatedCurricularCoursesSet().stream().filter(cc -> cc.isActive(interval)).collect(Collectors.toList());

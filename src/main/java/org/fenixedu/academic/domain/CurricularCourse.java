@@ -191,21 +191,6 @@ public class CurricularCourse extends CurricularCourse_Base {
         throw new DomainException("CurricularCourse.with.no.ects.credits");
     }
 
-//    @Deprecated(forRemoval = true)
-//    public Double getEctsCredits(final CurricularPeriod curricularPeriod, final ExecutionInterval executionInterval) {
-//        return getEctsCredits(curricularPeriod == null ? null : curricularPeriod.getChildOrder(), executionInterval);
-//    }
-
-//    @Deprecated(forRemoval = true)
-//    public Double getEctsCredits(final Integer order, final ExecutionInterval executionInterval) {
-//        if (getCompetenceCourse() != null) {
-//            return getCompetenceCourse().getEctsCredits(order, executionInterval);
-//        } else if (isOptionalCurricularCourse()) {
-//            return 0.0d;
-//        }
-//        throw new DomainException("CurricularCourse.with.no.ects.credits");
-//    }
-
     @Override
     public Double getMaxEctsCredits(final ExecutionInterval executionInterval) {
         return getEctsCredits(executionInterval);

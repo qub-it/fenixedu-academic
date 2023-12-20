@@ -1201,12 +1201,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return getDegreeModule().getParentDegreeCurricularPlan() != getDegreeCurricularPlanOfDegreeModule();
     }
 
-//    @Override
-//    final public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-//        return !parentAllowAccumulatedEctsCredits() ? 0d : getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval,
-//                getCurricularCourse());
-//    }
-
     @Override
     final public String getDescription() {
         return getStudentCurricularPlan().getDegree().getPresentationName(getExecutionYear()) + " > " + getName().getContent();

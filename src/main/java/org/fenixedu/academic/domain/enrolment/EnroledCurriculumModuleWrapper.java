@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
@@ -180,15 +179,6 @@ public class EnroledCurriculumModuleWrapper implements Serializable, IDegreeModu
         return getCurriculumModule().isRoot() ? Collections.EMPTY_SET : getCurriculumGroup()
                 .getCurricularRules(executionInterval);
     }
-
-//    @Override
-//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-//        if (getCurriculumModule().isEnrolment()) {
-//            return ((Enrolment) getCurriculumModule()).getAccumulatedEctsCredits(executionInterval);
-//        } else {
-//            return 0d;
-//        }
-//    }
 
     @Override
     public String getName() {

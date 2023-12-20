@@ -160,16 +160,6 @@ public class DegreeModuleToEnrol implements Serializable, IDegreeModuleToEvaluat
         return getCurriculumGroup().getCurricularRules(executionInterval);
     }
 
-//    @Override
-//    public double getAccumulatedEctsCredits(final ExecutionInterval executionInterval) {
-//        if (isLeaf()) {
-//            return getCurriculumGroup().getStudentCurricularPlan().getAccumulatedEctsCredits(executionInterval,
-//                    (CurricularCourse) getDegreeModule());
-//        } else {
-//            return 0d;
-//        }
-//    }
-
     @Override
     public String getName() {
         return getDegreeModule().getName();
