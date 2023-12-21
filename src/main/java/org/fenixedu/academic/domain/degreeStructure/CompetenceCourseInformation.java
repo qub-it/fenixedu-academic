@@ -302,8 +302,16 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
-        return getCourseLoadDurationsSet().stream().filter(d -> d.getCourseLoadType() == courseLoadType).findAny()
-                .map(CourseLoadDuration::getHours);
+        return findLoadDurationByType(courseLoadType).map(CourseLoadDuration::getHours);
+    }
+
+    public void setLoadHours(final CourseLoadType courseLoadType, final BigDecimal hours) {
+        final Optional<CourseLoadDuration> duration = findLoadDurationByType(courseLoadType);
+        if (hours == null || hours.compareTo(BigDecimal.ZERO) <= 0) {
+            duration.ifPresent(CourseLoadDuration::delete);
+        } else {
+            duration.orElseGet(() -> CourseLoadDuration.create(this, courseLoadType, null)).setHours(hours);
+        }
     }
 
     public BigDecimal getContactLoad() {
