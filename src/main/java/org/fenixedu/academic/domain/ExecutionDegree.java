@@ -188,6 +188,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         return this == Collections.min(executionDegrees, EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
     }
 
+    @Deprecated(forRemoval = true)
     public Set<SchoolClass> findSchoolClassesByAcademicInterval(final AcademicInterval academicInterval) {
         final Set<SchoolClass> schoolClasses = new HashSet<SchoolClass>();
         for (final SchoolClass schoolClass : getSchoolClassesSet()) {
@@ -198,6 +199,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         return schoolClasses;
     }
 
+    @Deprecated(forRemoval = true)
     public Set<SchoolClass> findSchoolClassesByAcademicIntervalAndCurricularYear(final AcademicInterval academicInterval,
             final Integer curricularYear) {
         final Set<SchoolClass> schoolClasses = new HashSet<SchoolClass>();
@@ -210,6 +212,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         return schoolClasses;
     }
 
+    @Deprecated(forRemoval = true)
     public SchoolClass findSchoolClassesByExecutionPeriodAndName(final ExecutionInterval executionInterval, final String name) {
         for (final SchoolClass schoolClass : getSchoolClassesSet()) {
             if (schoolClass.getExecutionInterval() == executionInterval && schoolClass.getNome().equalsIgnoreCase(name)) {

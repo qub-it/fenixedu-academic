@@ -385,6 +385,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     // FIXME: Optimization Required
+    @Deprecated
     public ExecutionDegree getExecutionDegreeByAcademicInterval(final AcademicInterval academicInterval) {
         AcademicCalendarEntry academicCalendarEntry = academicInterval.getAcademicCalendarEntry();
         while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {

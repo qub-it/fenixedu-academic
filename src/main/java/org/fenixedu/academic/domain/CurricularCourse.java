@@ -430,6 +430,7 @@ public class CurricularCourse extends CurricularCourse_Base {
         return false;
     }
 
+    @Deprecated
     public ExecutionDegree getExecutionDegreeFor(AcademicInterval academicInterval) {
         return getDegreeCurricularPlan().getExecutionDegreeByAcademicInterval(academicInterval);
     }
