@@ -21,11 +21,9 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -92,10 +90,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
         existingInformation.getCourseLoadDurationsSet().forEach(existingDuration -> CourseLoadDuration.create(this,
                 existingDuration.getCourseLoadType(), existingDuration.getHours()));
-
-        for (CompetenceCourseLoad load : existingInformation.getCompetenceCourseLoadsSet()) {
-            new CompetenceCourseLoad(this, load);
-        }
 
         setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
@@ -290,9 +284,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setCompetenceCourse(null);
         setCompetenceCourseGroupUnit(null);
         setLevelType(null);
-        for (; !getCompetenceCourseLoadsSet().isEmpty(); getCompetenceCourseLoadsSet().iterator().next().delete()) {
-            ;
-        }
+
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
@@ -321,36 +313,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     public BigDecimal getTotalLoad() {
         return getCourseLoadDurationsSet().stream().map(CourseLoadDuration::getHours).reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private List<CompetenceCourseLoadBean> getCompetenceCourseLoadBeans(final Integer order) {
-
-        if (isAnual()) {
-            final List<CompetenceCourseLoadBean> result = new ArrayList<>();
-
-            for (final CompetenceCourseLoad competenceCourseLoad : getCompetenceCourseLoadsSet()) {
-                result.add(new CompetenceCourseLoadBean(competenceCourseLoad));
-            }
-
-            if (getCompetenceCourseLoadsSet().size() == 1) { // hack
-                final CompetenceCourseLoad courseLoad = getCompetenceCourseLoadsSet().iterator().next();
-                final CompetenceCourseLoadBean courseLoadBean = new CompetenceCourseLoadBean(courseLoad);
-                courseLoadBean.setLoadOrder(courseLoad.getLoadOrder() + 1);
-                result.add(courseLoadBean);
-            }
-
-            final Iterator<CompetenceCourseLoadBean> loads = result.iterator();
-            while (loads.hasNext()) {
-                final CompetenceCourseLoadBean courseLoadBean = loads.next();
-                if (order != null && !courseLoadBean.getLoadOrder().equals(order)) {
-                    loads.remove();
-                }
-            }
-            return result;
-        }
-
-        return getCompetenceCourseLoadsSet().stream().limit(1).map(ccl -> new CompetenceCourseLoadBean(ccl))
-                .collect(Collectors.toList());
     }
 
     public boolean isAnual() {

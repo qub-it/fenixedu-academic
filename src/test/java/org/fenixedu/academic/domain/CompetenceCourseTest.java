@@ -6,14 +6,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLoad;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -63,16 +60,17 @@ public class CompetenceCourseTest {
 
         final CompetenceCourseInformation courseInformation =
                 competenceCourseA.getCompetenceCourseInformationsSet().iterator().next();
-
-        new CompetenceCourseLoad(courseInformation, 30d, 0d, 10d, 0d, 0d, 0d, 0d, 0d, 20d, 6d, 1, AcademicPeriod.SEMESTER);
+        courseInformation.setCredits(new BigDecimal("6.0"));
+        courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), new BigDecimal("30.0"));
+        courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), new BigDecimal("10.0"));
+        courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.AUTONOMOUS_WORK), new BigDecimal("20.0"));
 
         final ExecutionYear nextExecutionYear = (ExecutionYear) ExecutionYear.findCurrentAggregator(null).getNext();
         final CompetenceCourseInformation nextCourseInformation =
                 new CompetenceCourseInformation(courseInformation, nextExecutionYear.getFirstExecutionPeriod());
 
-        final CompetenceCourseLoad nextLoad = nextCourseInformation.getCompetenceCourseLoadsSet().iterator().next();
-        nextLoad.setTheoreticalHours(5d);
-        nextLoad.setProblemsHours(15d);
+        nextCourseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), new BigDecimal("5.0"));
+        nextCourseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL), new BigDecimal("15.0"));
     }
 
     private static void createCompetenceCourseBAnnual(Unit coursesUnit) {
@@ -81,8 +79,9 @@ public class CompetenceCourseTest {
         final CompetenceCourseInformation courseInformation =
                 competenceCourseB.getCompetenceCourseInformationsSet().iterator().next();
 
-        new CompetenceCourseLoad(courseInformation, 30d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 6d, 1, AcademicPeriod.SEMESTER);
-        new CompetenceCourseLoad(courseInformation, 10d, 0d, 5d, 0d, 0d, 0d, 0d, 0d, 0d, 9d, 2, AcademicPeriod.SEMESTER);
+        courseInformation.setCredits(new BigDecimal("15.0"));
+        courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), new BigDecimal("40.0"));
+        courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), new BigDecimal("5.0"));
     }
 
     private static CompetenceCourse createCompetenceCourse(final String name, final String code, final AcademicPeriod duration,
@@ -187,23 +186,10 @@ public class CompetenceCourseTest {
         final CompetenceCourseInformation informationB = competenceCourseB.findInformationMostRecentUntil(currentInterval);
 
         assertEquals(competenceCourseA.getEctsCredits(currentInterval), 6d, 0d);
-//        assertEquals(informationA.getEctsCredits(1), 6d, 0d);
         assertEquals(informationA.getCredits(), new BigDecimal("6.0"));
 
         assertEquals(competenceCourseB.getEctsCredits(currentInterval), 15d, 0d);
         assertEquals(informationB.getCredits(), new BigDecimal("15.0"));
-
-        Map<Integer, CompetenceCourseLoad> loadsBySemester = informationB.getCompetenceCourseLoadsSet().stream()
-                .collect(Collectors.toMap(CompetenceCourseLoad::getLoadOrder, l -> l));
-
-        loadsBySemester.get(1).setEctsCredits(7d);
-        assertEquals(informationB.getCredits(), new BigDecimal("16.0"));
-
-        loadsBySemester.get(2).setEctsCredits(10d);
-        assertEquals(informationB.getCredits(), new BigDecimal("17.0"));
-
-        loadsBySemester.get(2).setEctsCredits(0d);
-        assertEquals(informationB.getCredits(), new BigDecimal("7.0"));
     }
 
 }

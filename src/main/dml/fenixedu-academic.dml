@@ -975,21 +975,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformations { multiplicity *; }
 		}	    
     
-    class degreeStructure.CompetenceCourseLoad  {
-        Double autonomousWorkHours;
-        AcademicPeriod academicPeriod;
-        Double ectsCredits;
-        Double fieldWorkHours;
-        Double laboratorialHours;
-        Integer loadOrder;
-        Double problemsHours;
-        Double seminaryHours;
-        Double theoreticalHours;
-        Double trainingPeriodHours;
-        Double tutorialOrientationHours;
-        Double otherHours;
-    }
-    
     class degreeStructure.CourseLoadType {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
@@ -2083,13 +2068,6 @@ relation CompetenceCourseInformationCompetenceCourse {
         multiplicity *;
     }
     CompetenceCourse playsRole competenceCourse;
-}
-
-relation CompetenceCourseInformationCompetenceCourseLoad {
-    degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformation;
-    degreeStructure.CompetenceCourseLoad playsRole competenceCourseLoads {
-        multiplicity *;
-    }
 }
 
 relation CompetenceCourseInformationUnit {
@@ -3234,13 +3212,6 @@ relation RootDomainObjectCompetenceCourse {
 relation RootDomainObjectCompetenceCourseInformation {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformations {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectCompetenceCourseLoad {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    degreeStructure.CompetenceCourseLoad playsRole competenceCourseLoads {
         multiplicity *;
     }
 }

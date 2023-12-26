@@ -33,7 +33,6 @@ import java.text.Collator;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +50,6 @@ import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReference;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLoad;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
@@ -265,28 +263,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     @Deprecated
     public void setRegime(RegimeType regimeType) {
         findInformationMostRecentUntil(null).setAcademicPeriod(regimeType.convertToAcademicPeriod());
-    }
-
-    @Deprecated
-    public Collection<CompetenceCourseLoad> getCompetenceCourseLoads(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getCompetenceCourseLoadsSet() : Collections.emptyList();
-    }
-
-    @Deprecated
-    public Collection<CompetenceCourseLoad> getCompetenceCourseLoads() {
-        return getCompetenceCourseLoads(null);
-    }
-
-    @Deprecated
-    public int getCompetenceCourseLoadsCount(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getCompetenceCourseLoadsSet().size() : 0;
-    }
-
-    @Deprecated
-    public int getCompetenceCourseLoadsCount() {
-        return getCompetenceCourseLoadsCount(null);
     }
 
     public String getObjectives(final ExecutionInterval interval) {
@@ -539,13 +515,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     public Unit getCompetenceCourseGroupUnit(ExecutionInterval interval) {
         return findInformationMostRecentUntil(interval).getCompetenceCourseGroupUnit();
-    }
-
-    public List<CompetenceCourseLoad> getSortedCompetenceCourseLoads() {
-        final List<CompetenceCourseLoad> result = new ArrayList<CompetenceCourseLoad>(getCompetenceCourseLoadsCount());
-        result.addAll(getCompetenceCourseLoads());
-        Collections.sort(result);
-        return result;
     }
 
     @Override
