@@ -1,3 +1,4 @@
+45.0.0 (27-12-2023)
 - Refactor: Delete deprecated entity CompetenceCourseLoad [#qubIT-Fenix-1587]
 - Improvement: Deletes unnecessary properties [#qubIT-Omnis-4749]
 
