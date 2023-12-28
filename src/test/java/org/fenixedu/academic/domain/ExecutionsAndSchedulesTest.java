@@ -161,11 +161,6 @@ public class ExecutionsAndSchedulesTest {
     }
 
     @Test
-    public void testShift_shiftTypeForMigration() {
-        assertTrue(shift.getTypes().contains(ShiftType.TEORICA));
-    }
-
-    @Test
     public void testShift_nameGeneration() {
         assertEquals(shift.getName(), "CAT01");
 

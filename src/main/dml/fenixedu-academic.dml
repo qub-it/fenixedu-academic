@@ -40,7 +40,6 @@ enum org.fenixedu.academic.domain.ProfessionalSituationConditionType            
 enum org.fenixedu.academic.domain.RequestState                                                                         as RequestState;
 enum org.fenixedu.academic.domain.SalaryType                                                                           as SalaryType;
 enum org.fenixedu.academic.domain.SchoolLevelType                                                                      as SchoolLevelType;
-enum org.fenixedu.academic.domain.ShiftType                                                                            as ShiftType;
 enum org.fenixedu.academic.domain.UnitBoardPermittedGroupType                                                          as UnitBoardPermittedGroupType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType				  			  as AcademicOperationType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType.Scope                     as AcademicOperationTypeScope;

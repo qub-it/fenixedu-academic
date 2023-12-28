@@ -269,17 +269,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         return competenceCourseInformations;
     }
 
-    @Deprecated
-    public SortedSet<Shift> getShiftsByTypeOrderedByShiftName(final ShiftType shiftType) {
-        final SortedSet<Shift> shifts = new TreeSet<Shift>(Shift.SHIFT_COMPARATOR_BY_NAME);
-        for (final Shift shift : getAssociatedShifts()) {
-            if (shift.containsType(shiftType)) {
-                shifts.add(shift);
-            }
-        }
-        return shifts;
-    }
-
     public Stream<Shift> findShiftsByLoadType(final CourseLoadType loadType) {
         return getShiftsSet().stream().filter(s -> s.getCourseLoadType() == loadType);
     }

@@ -135,16 +135,6 @@ public class Shift extends Shift_Base {
         return getExecutionCourse().getExecutionInterval();
     }
 
-    @Deprecated
-    public List<ShiftType> getTypes() {
-        return List.of(getCourseLoadType().getShiftType());
-    }
-
-    @Deprecated
-    public boolean containsType(ShiftType shiftType) {
-        return getCourseLoadType().getShiftType() == shiftType;
-    }
-
     @Override
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);

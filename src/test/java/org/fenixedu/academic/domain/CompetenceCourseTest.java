@@ -130,9 +130,6 @@ public class CompetenceCourseTest {
         assertNotNull(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL));
         assertNotNull(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY));
         assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL).getCode(), CourseLoadType.THEORETICAL);
-
-        assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL), ShiftType.TEORICA.toCourseLoadType());
-        assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL), ShiftType.PROBLEMS.toCourseLoadType());
     }
 
     @Test
