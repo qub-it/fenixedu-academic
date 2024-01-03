@@ -1,3 +1,5 @@
+- Refactor: Remove email notification send on photograph rejection [#qubIT-Fenix-4782]
+
 46.0.0 (29-12-2023)
 - Refactor: Delete deprecated enum ShiftType [#qubIT-Fenix-1587]
 

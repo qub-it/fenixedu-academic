@@ -28,15 +28,11 @@ import org.fenixedu.academic.domain.photograph.AspectRatio;
 import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
 import org.fenixedu.academic.domain.photograph.PictureOriginal;
-import org.fenixedu.academic.domain.util.email.Message;
-import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.domain.util.email.SystemSender;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.ContentType;
 import org.fenixedu.bennu.core.domain.Avatar;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
@@ -50,10 +46,6 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import pt.ist.fenixframework.Atomic;
 
 public class Photograph extends Photograph_Base implements Comparable<Photograph> {
-
-    private static final String REJECTION_MAIL_SUBJECT_KEY = "photo.email.subject.rejection";
-
-    private static final String REJECTION_MAIL_BODY_KEY = "photo.email.body.rejection";
 
     private Photograph() {
         super();
@@ -95,29 +87,20 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
         if (getState() != state) {
             super.setState(state);
             setStateChange(new DateTime());
+
             if (state == PhotoState.PENDING) {
                 setPendingHolder(Bennu.getInstance());
             } else {
                 setPendingHolder(null);
             }
-            if (state == PhotoState.REJECTED) {
-                logState("log.personInformation.photo.rejected");
-                Person person = AccessControl.getPerson();
-                if (person != null) {
-                    setRejector(person);
-                }
-                SystemSender systemSender = getRootDomainObject().getSystemSender();
-                new Message(systemSender, systemSender.getConcreteReplyTos(),
-                        new Recipient(getPerson().getUser().groupOf()).asCollection(),
-                        BundleUtil.getString(Bundle.PERSONAL, REJECTION_MAIL_SUBJECT_KEY),
-                        BundleUtil.getString(Bundle.PERSONAL, REJECTION_MAIL_BODY_KEY), "");
 
+            if (state == PhotoState.REJECTED) {
+                setRejector(AccessControl.getPerson());
+                logState("log.personInformation.photo.rejected");
             }
+
             if (state == PhotoState.APPROVED) {
-                Person person = AccessControl.getPerson();
-                if (person != null) {
-                    setApprover(person);
-                }
+                setApprover(AccessControl.getPerson());
                 if (getPhotoType() != PhotoType.INSTITUTIONAL) {
                     logState("log.personInformation.photo.approved");
                 }
