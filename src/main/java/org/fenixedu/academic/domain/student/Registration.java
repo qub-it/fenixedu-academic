@@ -59,8 +59,6 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
-import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOfficeType;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -1219,19 +1217,6 @@ public class Registration extends Registration_Base {
 
     final public DegreeType getDegreeType() {
         return getDegree() == null ? null : getDegree().getDegreeType();
-    }
-
-    final public boolean isActiveForOffice(final Unit office) {
-        return isActive() && isForOffice(office.getAdministrativeOffice());
-    }
-
-    @Deprecated
-    public boolean isDegreeAdministrativeOffice() {
-        return getDegree().getAdministrativeOffice().getAdministrativeOfficeType() == AdministrativeOfficeType.DEGREE;
-    }
-
-    final public boolean isForOffice(final AdministrativeOffice administrativeOffice) {
-        return getDegree().getAdministrativeOffice().equals(administrativeOffice);
     }
 
     public boolean isCurricularCourseApproved(final CurricularCourse curricularCourse) {

@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
@@ -1243,10 +1242,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     private void checkEnrolmentRules(final Set<IDegreeModuleToEvaluate> degreeModuleToEvaluate,
             final ExecutionInterval executionInterval) {
         enrol(executionInterval, degreeModuleToEvaluate, Collections.EMPTY_LIST, CurricularRuleLevel.ENROLMENT_WITH_RULES);
-    }
-
-    public AdministrativeOffice getAdministrativeOffice() {
-        return getDegree().getAdministrativeOffice();
     }
 
     public CycleCurriculumGroup getCycle(final CycleType cycleType) {

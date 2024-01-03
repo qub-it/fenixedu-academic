@@ -1,3 +1,5 @@
+- Refactor: Remove references to deprecated entity AdministrativeOffice [#qubIT-Fenix-1951]
+
 46.0.1 (03-01-2024)
 - Refactor: Remove email notification send on photograph rejection [#qubIT-Fenix-4782]
 
