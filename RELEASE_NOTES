@@ -1,3 +1,4 @@
+46.0.2 (05-01-2024)
 - Refactor: Remove references to deprecated entity AdministrativeOffice [#qubIT-Fenix-1951]
 - Improvement: Improve PT and EN error messages [#qubIT-Fenix-4783] 
 
