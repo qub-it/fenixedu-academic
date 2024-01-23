@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.person.Gender;
@@ -51,13 +52,13 @@ import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.person.PersonBean;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -581,17 +582,12 @@ public class Person extends Person_Base {
     }
 
     public boolean isPhotoAvailableToCurrentUser() {
-        return isPhotoAvailableToPerson(AccessControl.getPerson());
-    }
+        if (getPhotoAvailable()) {
+            return true;
+        }
 
-    public boolean isPhotoAvailableToPerson(final Person requester) {
-        //TODO: this code must be review in the future to preserve this functionality
-        // Diogo Godinho 2023-02-28
-        return true;
-//        if (isPhotoPubliclyAvailable()) {
-//            return true;
-//        }
-//        return requester != null && RoleType.PERSON.isMember(requester.getUser());
+        final User currentUser = Authenticate.getUser();
+        return currentUser != null && PermissionService.hasAccess("PERSON_PHOTOS_ACCESS", currentUser);
     }
 
     @Override
@@ -647,10 +643,6 @@ public class Person extends Person_Base {
             history.addFirst(photo);
         }
         return history;
-    }
-
-    public boolean isPhotoPubliclyAvailable() {
-        return getPhotoAvailable();
     }
 
     public boolean isDefaultEmailVisible() {
