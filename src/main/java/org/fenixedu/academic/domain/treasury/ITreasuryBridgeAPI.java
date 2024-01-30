@@ -1,6 +1,5 @@
 package org.fenixedu.academic.domain.treasury;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -104,14 +103,6 @@ public interface ITreasuryBridgeAPI {
     public IAcademicTreasuryEvent getAcademicTreasuryEventForTarget(IAcademicTreasuryTarget target);
 
     public void anullDebtsForTarget(IAcademicTreasuryTarget target, String reason);
-
-    public IAcademicTreasuryEvent createDebt(ITreasuryEntity treasuryEntity, ITreasuryProduct treasuryProduct,
-            IAcademicTreasuryTarget target, LocalDate when, boolean createPaymentCode, IPaymentCodePool paymentCodePool,
-            int numberOfUnits, int numberOfPages);
-
-    public IAcademicTreasuryEvent createDebt(ITreasuryEntity treasuryEntity, ITreasuryProduct treasuryProduct,
-            IAcademicTreasuryTarget target, BigDecimal amount, LocalDate when, LocalDate dueDate, boolean createPaymentCode,
-            IPaymentCodePool paymentCodePool);
 
     // @formatter:off
     /* --------------
