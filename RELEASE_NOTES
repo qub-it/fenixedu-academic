@@ -1,3 +1,4 @@
+46.1.0 (31-01-2024)
 - Refactor: Remove deprecated ITreasuryBridgeAPI#createDebt [#qubIT-Fenix-4912]
 
 46.0.3 (23-01-2024)
