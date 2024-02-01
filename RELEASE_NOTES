@@ -1,3 +1,4 @@
+46.1.1 (01-02-2024)
 - Refactor: Allow conclusion process objects to be used in unit tests [#qubIT-Fenix-4925]
 
 46.1.0 (31-01-2024)
