@@ -60,6 +60,11 @@ public class ConclusionProcessVersion extends ConclusionProcessVersion_Base {
                 }
             };
 
+    protected ConclusionProcessVersion() {
+        super();
+        super.setRootDomainObject(Bennu.getInstance());
+    }
+
     protected ConclusionProcessVersion(final RegistrationConclusionBean bean) {
         super();
         super.setRootDomainObject(Bennu.getInstance());

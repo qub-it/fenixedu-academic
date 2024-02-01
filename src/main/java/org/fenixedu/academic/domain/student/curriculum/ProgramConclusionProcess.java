@@ -35,6 +35,11 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.LocalDate;
 
 public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
+    
+    protected ProgramConclusionProcess() {
+        super();
+        super.setRootDomainObject(Bennu.getInstance());
+    }
 
     public ProgramConclusionProcess(final RegistrationConclusionBean bean) {
         super();

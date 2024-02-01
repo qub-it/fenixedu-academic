@@ -1,3 +1,5 @@
+- Refactor: Allow conclusion process objects to be used in unit tests [#qubIT-Fenix-4925]
+
 46.1.0 (31-01-2024)
 - Refactor: Remove deprecated ITreasuryBridgeAPI#createDebt [#qubIT-Fenix-4912]
 
