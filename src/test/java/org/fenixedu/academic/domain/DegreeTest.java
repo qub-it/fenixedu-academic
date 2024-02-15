@@ -46,12 +46,16 @@ public class DegreeTest {
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
 
-        final Degree degree =
-                new Degree("Degree A", "Degree A", DEGREE_A_CODE, degreeType, new GradeScale(), new GradeScale(), executionYear);
-        degree.setCode(DEGREE_A_CODE);
-        degree.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
+        return createDegree(degreeType, DEGREE_A_CODE, "Degree A", executionYear);
 
-        return degree;
+    }
+
+    public static Degree createDegree(final DegreeType degreeType, String code, String name, final ExecutionYear executionYear) {
+        final Degree result = new Degree(name, name, code, degreeType, new GradeScale(), new GradeScale(), executionYear);
+        result.setCode(code);
+        result.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
+
+        return result;
     }
 
     @Test

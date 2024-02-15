@@ -69,21 +69,24 @@ public class EnrolmentTest {
         final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
                 .findAny().orElseThrow();
 
-        final CourseGroup courseGroup = context.getParentCourseGroup();
-        CurriculumGroup curriculumGroup = scp.findCurriculumGroupFor(courseGroup);
-        if (curriculumGroup == null) {
-            curriculumGroup = findOrCreateCurriculumGroupFor(scp, courseGroup);
-        }
-
-        final DegreeModuleToEnrol degreeModuleToEnrol = new DegreeModuleToEnrol(curriculumGroup, context, executionInterval);
-
-        Authenticate.mock(User.findByUsername(StudentTest.STUDENT_A_USERNAME), "none");
-
-        scp.enrol(executionInterval, Set.of(degreeModuleToEnrol), List.of(), CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        createEnrolment(scp, executionInterval, context, StudentTest.STUDENT_A_USERNAME);
 
         ExecutionsAndSchedulesTest.initSchedules();
 
-        Authenticate.unmock();
+    }
+
+    public static void createEnrolment(StudentCurricularPlan curricularPlan, ExecutionInterval interval, Context context,
+            String username) {
+        try {
+            Authenticate.mock(User.findByUsername(username), "none");
+            final CurriculumGroup curriculumGroup =
+                    findOrCreateCurriculumGroupFor(curricularPlan, context.getParentCourseGroup());
+            final DegreeModuleToEnrol degreeModuleToEnrol = new DegreeModuleToEnrol(curriculumGroup, context, interval);
+
+            curricularPlan.enrol(interval, Set.of(degreeModuleToEnrol), List.of(), CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        } finally {
+            Authenticate.unmock();
+        }
     }
 
     //TODO: move this method to domain && remove StudentCurricularPlanServices.initializeGroupIfRequired(StudentCurricularPlan, CourseGroup)

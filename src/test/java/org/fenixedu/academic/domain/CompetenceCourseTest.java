@@ -28,6 +28,7 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class CompetenceCourseTest {
 
+    public static final String COURSES_UNIT_PATH = "QS>Courses>CC";
     public static final String COURSE_A_CODE = "CA";
     public static final String COURSE_B_CODE = "CB"; // annual
 
@@ -50,17 +51,17 @@ public class CompetenceCourseTest {
 
         initCourseLoadTypes();
 
-        Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+        Unit coursesUnit = Unit.findInternalUnitByAcronymPath(COURSES_UNIT_PATH).orElseThrow();
         createCompetenceCourseASemester(coursesUnit);
         createCompetenceCourseBAnnual(coursesUnit);
     }
 
     private static void createCompetenceCourseASemester(Unit coursesUnit) {
-        competenceCourseA = createCompetenceCourse("Course A", COURSE_A_CODE, AcademicPeriod.SEMESTER, coursesUnit);
+        competenceCourseA = createCompetenceCourse("Course A", COURSE_A_CODE, new BigDecimal("6.0"), AcademicPeriod.SEMESTER,
+                ExecutionInterval.findFirstCurrentChild(null), coursesUnit);
 
         final CompetenceCourseInformation courseInformation =
                 competenceCourseA.getCompetenceCourseInformationsSet().iterator().next();
-        courseInformation.setCredits(new BigDecimal("6.0"));
         courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), new BigDecimal("30.0"));
         courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), new BigDecimal("10.0"));
         courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.AUTONOMOUS_WORK), new BigDecimal("20.0"));
@@ -74,22 +75,24 @@ public class CompetenceCourseTest {
     }
 
     private static void createCompetenceCourseBAnnual(Unit coursesUnit) {
-        competenceCourseB = createCompetenceCourse("Course B", COURSE_B_CODE, AcademicPeriod.YEAR, coursesUnit);
+        competenceCourseB = createCompetenceCourse("Course B", COURSE_B_CODE, new BigDecimal("15.0"), AcademicPeriod.YEAR,
+                ExecutionInterval.findFirstCurrentChild(null), coursesUnit);
 
         final CompetenceCourseInformation courseInformation =
                 competenceCourseB.getCompetenceCourseInformationsSet().iterator().next();
-
-        courseInformation.setCredits(new BigDecimal("15.0"));
         courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.THEORETICAL), new BigDecimal("40.0"));
         courseInformation.setLoadHours(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY), new BigDecimal("5.0"));
     }
 
-    private static CompetenceCourse createCompetenceCourse(final String name, final String code, final AcademicPeriod duration,
-            Unit coursesUnit) {
-        final CompetenceCourse result = new CompetenceCourse(name, name, Boolean.TRUE, duration,
-                CompetenceCourseLevelType.UNKNOWN().orElse(null), CompetenceCourseType.REGULAR, CurricularStage.APPROVED,
-                coursesUnit, ExecutionInterval.findFirstCurrentChild(null), new GradeScale());
+    public static CompetenceCourse createCompetenceCourse(final String name, final String code, BigDecimal credits,
+            final AcademicPeriod duration, ExecutionInterval executionInterval, Unit coursesUnit) {
+        final CompetenceCourse result =
+                new CompetenceCourse(name, name, Boolean.TRUE, duration, CompetenceCourseLevelType.UNKNOWN().orElse(null),
+                        CompetenceCourseType.REGULAR, CurricularStage.APPROVED, coursesUnit, executionInterval, new GradeScale());
         result.setCode(code);
+
+        final CompetenceCourseInformation courseInformation = result.getCompetenceCourseInformationsSet().iterator().next();
+        courseInformation.setCredits(credits);
 
         return result;
     }
