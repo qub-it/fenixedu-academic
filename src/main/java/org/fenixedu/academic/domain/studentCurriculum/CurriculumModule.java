@@ -203,12 +203,6 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
                 executionYear);
     }
 
-    public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
-            final ExecutionInterval executionInterval) {
-        return getDegreeModule().getMostRecentActiveCurricularRule(ruleType, getCurriculumGroup().getDegreeModule(),
-                executionInterval);
-    }
-
     public String getFullPath() {
         if (isRoot()) {
             return getName().getContent();
@@ -367,6 +361,19 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     abstract public Stream<CurriculumLine> getCurriculumLineStream();
 
     abstract public ConclusionValue isConcluded(ExecutionYear executionYear);
+
+    /**
+     * 
+     * 
+     * @return
+     * 
+     *         <pre>
+     *  
+     *      true if can conclude on executionYear
+     *      false if cannot conclude on executionYear or if its already concluded
+     *         </pre>
+     */
+    abstract public boolean canConclude(ExecutionYear executionYear);
 
     abstract public boolean hasConcluded(DegreeModule degreeModule, ExecutionYear executionYear);
 

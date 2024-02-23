@@ -20,20 +20,22 @@ package org.fenixedu.academic.domain.curricularRules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.GenericPair;
 
-public class CreditsLimit extends CreditsLimit_Base {
-    
+public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
 
     protected CreditsLimit() {
-        
+
     }
 
     private CreditsLimit(final Double minimum, final Double maximum) {
@@ -116,6 +118,22 @@ public class CreditsLimit extends CreditsLimit_Base {
     @Override
     public VerifyRuleExecutor createVerifyRuleExecutor() {
         return VerifyRuleExecutor.NULL_VERIFY_EXECUTOR;
+    }
+
+    @Override
+    public boolean isConcluded(CurriculumGroup group, ExecutionYear executionYear) {
+        final Double creditsConcluded =
+                group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).isValid())
+                        .map(m -> m.getCreditsConcluded(executionYear)).collect(Collectors.summingDouble(v -> v));
+        return creditsConcluded >= getMinimumCredits();
+    }
+
+    @Override
+    public boolean canConclude(CurriculumGroup group, ExecutionYear executionYear) {
+        final double minCreditsToApprove = group.getDegreeModule().getMinEctsCredits(executionYear);
+        final double totalCredits = group.getCreditsConcluded(executionYear) + group.getEnroledEctsCredits(executionYear);
+
+        return totalCredits >= minCreditsToApprove;
     }
 
 }

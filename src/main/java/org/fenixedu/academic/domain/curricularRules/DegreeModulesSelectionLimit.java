@@ -20,14 +20,17 @@ package org.fenixedu.academic.domain.curricularRules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.GenericPair;
 
-public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Base {
+public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Base implements ConclusionRule {
 
     private DegreeModulesSelectionLimit(final Integer minimum, final Integer maximum) {
         super();
@@ -117,6 +120,23 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
     @Override
     public VerifyRuleExecutor createVerifyRuleExecutor() {
         return VerifyRuleExecutor.NULL_VERIFY_EXECUTOR;
+    }
+
+    @Override
+    public boolean isConcluded(CurriculumGroup group, ExecutionYear executionYear) {
+        final long modulesConcluded =
+                group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value()).count();
+        return modulesConcluded >= getMinimumLimit();
+    }
+
+    @Override
+    public boolean canConclude(CurriculumGroup group, ExecutionYear executionYear) {
+        final int approvedModules = group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value())
+                .collect(Collectors.toSet()).size();
+        final int modulesToConclude = group.getCurriculumModulesSet().stream().filter(m -> m.canConclude(executionYear))
+                .collect(Collectors.toSet()).size();
+
+        return approvedModules + modulesToConclude >= getMinimumLimit();
     }
 
 }

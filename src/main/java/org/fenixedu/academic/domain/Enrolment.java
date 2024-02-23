@@ -904,6 +904,11 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     @Override
+    public boolean canConclude(ExecutionYear executionYear) {
+        return isValid(executionYear) && isEnroled();
+    }
+
+    @Override
     public YearMonthDay calculateConclusionDate() {
         if (!isApproved()) {
             throw new DomainException("error.Enrolment.not.approved");

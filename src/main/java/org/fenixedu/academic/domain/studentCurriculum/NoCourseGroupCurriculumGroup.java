@@ -170,6 +170,12 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
     }
 
     @Override
+    public boolean canConclude(ExecutionYear executionYear) {
+        //no course groups are always concluded
+        return false;
+    }
+
+    @Override
     final public Curriculum getCurriculum(final DateTime when, final ExecutionYear executionYear) {
         return Curriculum.createEmpty(this, executionYear);
     }
