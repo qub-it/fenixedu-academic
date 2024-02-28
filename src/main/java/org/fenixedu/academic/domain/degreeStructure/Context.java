@@ -190,7 +190,12 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     private void checkCurriculumLines(final DegreeModule degreeModule) {
-        for (final CurriculumModule curriculumModule : degreeModule.getCurriculumModulesSet()) {
+
+        final Set<? extends CurriculumModule> curriculumModulesToCheck =
+                (degreeModule instanceof OptionalCurricularCourse) ? ((OptionalCurricularCourse) degreeModule)
+                        .getOptionalEnrolmentsSet() : degreeModule.getCurriculumModulesSet();
+
+        for (final CurriculumModule curriculumModule : curriculumModulesToCheck) {
             if (!curriculumModule.isCurriculumLine()) {
                 continue;
             }
