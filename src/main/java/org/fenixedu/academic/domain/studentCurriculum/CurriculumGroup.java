@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -39,11 +40,11 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.ConclusionRule;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
-import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -55,7 +56,6 @@ import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.predicates.AndPredicate;
 import org.fenixedu.academic.util.predicates.ResultCollection;
@@ -893,13 +893,26 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public ConclusionValue isConcluded(final ExecutionYear executionYear) {
-        if (isToCheckCreditsLimits(executionYear)) {
-            return ConclusionValue.create(checkCreditsLimits(executionYear));
-        } else if (isToCheckDegreeModulesSelectionLimit(executionYear)) {
-            return ConclusionValue.create(checkDegreeModulesSelectionLimit(executionYear));
-        } else {
-            return ConclusionValue.UNKNOWN;
+        final Collection<ConclusionRule> rules = getConclusionRulesToEvaluate(executionYear);
+        return rules.isEmpty() ? ConclusionValue.UNKNOWN : ConclusionValue
+                .create(rules.stream().allMatch(r -> r.isConcluded(this, executionYear)));
+    }
+
+    @Override
+    public boolean canConclude(ExecutionYear executionYear) {
+        //can conclude should not return true if is already concluded
+        if (isConcluded(executionYear).value()) {
+            return false;
         }
+
+        final Collection<ConclusionRule> rules = getConclusionRulesToEvaluate(executionYear);
+        return !rules.isEmpty() && rules.stream().allMatch(r -> r.canConclude(this, executionYear));
+    }
+
+    private Collection<ConclusionRule> getConclusionRulesToEvaluate(ExecutionYear executionYear) {
+        return getDegreeModule().getCurricularRules(executionYear).stream().filter(ConclusionRule.class::isInstance)
+                .map(ConclusionRule.class::cast).filter(r -> r.canBeEvaluatedForConclusion(this, executionYear))
+                .collect(Collectors.toSet());
     }
 
     public void assertCorrectStructure(final Collection<CurriculumGroup> result, ExecutionYear lastApprovedYear) {
@@ -923,53 +936,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     public boolean hasInsufficientCredits() {
         return getAprovedEctsCredits().doubleValue() < getCreditsConcluded().doubleValue();
-    }
-
-    private boolean isToCheckDegreeModulesSelectionLimit(ExecutionYear executionYear) {
-        return getMostRecentActiveCurricularRule(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionYear) != null;
-    }
-
-    private boolean isToCheckCreditsLimits(ExecutionYear executionYear) {
-        return getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear) != null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean checkCreditsLimits(ExecutionYear executionYear) {
-        final CreditsLimit creditsLimit =
-                (CreditsLimit) getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionYear);
-
-        if (creditsLimit == null) {
-            return false;
-        } else {
-            Double creditsConcluded = 0d;
-            for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-                if (curriculumModule.isConcluded(executionYear).isValid()) {
-                    creditsConcluded += curriculumModule.getCreditsConcluded(executionYear);
-                }
-            }
-
-            return creditsConcluded >= creditsLimit.getMinimumCredits();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean checkDegreeModulesSelectionLimit(ExecutionYear executionYear) {
-        final DegreeModulesSelectionLimit degreeModulesSelectionLimit =
-                (DegreeModulesSelectionLimit) getMostRecentActiveCurricularRule(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT,
-                        executionYear);
-
-        if (degreeModulesSelectionLimit == null) {
-            return false;
-        } else {
-            int modulesConcluded = 0;
-            for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-                if (curriculumModule.isConcluded(executionYear).value()) {
-                    modulesConcluded++;
-                }
-            }
-
-            return modulesConcluded >= degreeModulesSelectionLimit.getMinimumLimit();
-        }
     }
 
     @Override

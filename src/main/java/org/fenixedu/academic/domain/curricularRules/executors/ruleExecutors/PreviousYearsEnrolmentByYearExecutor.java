@@ -378,12 +378,16 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         return courseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).size();
     }
 
+    //TODO: Add unit testing and remove icConcluded and isConcludedByModules because conclusion rules can more complex than modules or credits
+    //TODO: add !canConclude
     protected boolean isToCollectCurricularCourses(CourseGroup courseGroup, EnrolmentContext enrolmentContext,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
-        return !isConcluded(courseGroup, enrolmentContext, sourceDegreeModuleToEvaluate)
+        return !isConcludedByCredits(courseGroup, enrolmentContext, sourceDegreeModuleToEvaluate)
                 && !isExclusiveWithExisting(courseGroup, enrolmentContext)
                 && !hasRuleBypassingPreviousYearsEnrolmentCurricularRule(courseGroup, enrolmentContext)
                 && !isConcludedByModules(courseGroup, enrolmentContext)
+                //TODO: test
+//                && !canConclude(courseGroup, enrolmentContext)
                 && !getSkipCollectCurricularCoursesPredicate().skip(courseGroup, enrolmentContext);
     }
 
@@ -411,6 +415,16 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
 
         return approvedModules + enroledModules >= minModulesToApprove;
 
+    }
+
+    private boolean canConclude(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
+        final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
+
+        if (curriculumGroup == null) {
+            return false;
+        }
+
+        return curriculumGroup.canConclude(enrolmentContext.getExecutionYear());
     }
 
     private boolean isExclusiveWithExisting(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
@@ -441,7 +455,7 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         return false;
     }
 
-    private boolean isConcluded(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext,
+    private boolean isConcludedByCredits(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
         final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
 
