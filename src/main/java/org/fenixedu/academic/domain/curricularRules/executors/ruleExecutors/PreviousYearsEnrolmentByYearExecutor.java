@@ -378,43 +378,23 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         return courseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).size();
     }
 
-    //TODO: Add unit testing and remove icConcluded and isConcludedByModules because conclusion rules can more complex than modules or credits
-    //TODO: add !canConclude
+    //TODO: Add unit testing (conclusion rules can more complex than modules or credits)
     protected boolean isToCollectCurricularCourses(CourseGroup courseGroup, EnrolmentContext enrolmentContext,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
-        return !isConcludedByCredits(courseGroup, enrolmentContext, sourceDegreeModuleToEvaluate)
+        return !isConcluded(courseGroup, enrolmentContext) && !canConclude(courseGroup, enrolmentContext)
                 && !isExclusiveWithExisting(courseGroup, enrolmentContext)
                 && !hasRuleBypassingPreviousYearsEnrolmentCurricularRule(courseGroup, enrolmentContext)
-                && !isConcludedByModules(courseGroup, enrolmentContext)
-                //TODO: test
-//                && !canConclude(courseGroup, enrolmentContext)
                 && !getSkipCollectCurricularCoursesPredicate().skip(courseGroup, enrolmentContext);
     }
 
-    private boolean isConcludedByModules(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
-
+    private boolean isConcluded(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
         final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
 
         if (curriculumGroup == null) {
             return false;
         }
 
-        final DegreeModulesSelectionLimit degreeModulesSelectionLimit =
-                (DegreeModulesSelectionLimit) curriculumGroup.getMostRecentActiveCurricularRule(
-                        CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, enrolmentContext.getExecutionYear());
-
-        if (degreeModulesSelectionLimit == null) {
-            return false;
-        }
-
-        final int minModulesToApprove = degreeModulesSelectionLimit.getMinimumLimit();
-        final int approvedModules = curriculumGroup.getCurriculumModulesSet().stream()
-                .filter(x -> x.isConcluded(enrolmentContext.getExecutionYear()).value()).collect(Collectors.toSet()).size();
-        final int enroledModules = enrolmentContext.getDegreeModulesToEvaluate().stream()
-                .filter(x -> x.isLeaf() && x.getCurriculumGroup() == curriculumGroup).collect(Collectors.toSet()).size();
-
-        return approvedModules + enroledModules >= minModulesToApprove;
-
+        return curriculumGroup.isConcluded(enrolmentContext.getExecutionYear()).value();
     }
 
     private boolean canConclude(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
@@ -453,20 +433,6 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         }
 
         return false;
-    }
-
-    private boolean isConcludedByCredits(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
-        final CurriculumGroup curriculumGroup = enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup);
-
-        if (curriculumGroup == null) {
-            return false;
-        }
-
-        final double minEctsToApprove = curriculumGroup.getDegreeModule().getMinEctsCredits(enrolmentContext.getExecutionYear());
-        final double totalEcts = calculateTotalEctsInGroup(enrolmentContext, curriculumGroup);
-
-        return totalEcts >= minEctsToApprove;
     }
 
     protected int getChildDegreeModulesCount(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext) {
@@ -524,13 +490,6 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
                 addCurricularCourse(result, context.getCurricularYear(), (CurricularCourse) context.getChildDegreeModule());
             }
         }
-    }
-
-    protected double calculateTotalEctsInGroup(final EnrolmentContext enrolmentContext, final CurriculumGroup curriculumGroup) {
-        double result = curriculumGroup.getCreditsConcluded(enrolmentContext.getExecutionYear());
-        result += curriculumGroup.getEnroledEctsCredits(enrolmentContext.getExecutionYear());
-
-        return result;
     }
 
     private boolean isCurricularRulesSatisfied(EnrolmentContext enrolmentContext, Context context,
