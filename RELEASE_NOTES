@@ -1,3 +1,5 @@
+- Improvement: Add curricular rule to validate degree modules set for conclusion [#qubIT-Fenix-4993]
+
 46.2.0 (28-02-2024)
 - Refactor: Allow combination of rules to test conclusion [#qubIT-Fenix-4972]
 

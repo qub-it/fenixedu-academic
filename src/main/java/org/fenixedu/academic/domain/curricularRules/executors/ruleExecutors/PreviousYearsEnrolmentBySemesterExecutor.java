@@ -123,9 +123,7 @@ public class PreviousYearsEnrolmentBySemesterExecutor extends PreviousYearsEnrol
         }
     }
 
-    //TODO: rewrite with enrolment context to unify code with PreviousYearsEnrolmentByYearExecutor
-    @Override
-    protected double calculateTotalEctsInGroup(final EnrolmentContext enrolmentContext, final CurriculumGroup curriculumGroup) {
+    private double calculateTotalEctsInGroup(final EnrolmentContext enrolmentContext, final CurriculumGroup curriculumGroup) {
         double result = curriculumGroup.getCreditsConcluded(enrolmentContext.getExecutionPeriod().getExecutionYear());
         result += curriculumGroup.getEnroledEctsCredits(enrolmentContext.getExecutionPeriod());
 

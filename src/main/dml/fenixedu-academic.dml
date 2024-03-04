@@ -4997,3 +4997,18 @@ class curricularRules.EnrolmentModelConfigEntry  {
 //DEPRECATED
 class studentCurriculum.BranchCurriculumGroup extends studentCurriculum.CurriculumGroup {}
 	
+
+class curricularRules.DegreeModuleSetApprovalRule extends curricularRules.Rule {
+	boolean showWarningOnEnrolment;
+}
+
+	relation DegreeModuleSetApprovalRuleDegreeModule {
+		degreeStructure.DegreeModule playsRole degreeModulesToApprove { multiplicity *; }
+		curricularRules.DegreeModuleSetApprovalRule playsRole degreeModuleSetApprovalRules { multiplicity *; }
+	}
+	
+	relation DegreeModuleSetApprovalRuleCourseGroup {
+		degreeStructure.CourseGroup playsRole courseGroupForApprovals { multiplicity 0..1; }
+		curricularRules.DegreeModuleSetApprovalRule playsRole degreeModuleSetApprovalRulesAsApprovalGroup { multiplicity *; }
+	}
+

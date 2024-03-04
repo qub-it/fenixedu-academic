@@ -23,6 +23,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
+import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -82,6 +83,21 @@ public class EnrolmentTest {
             final CurriculumGroup curriculumGroup =
                     findOrCreateCurriculumGroupFor(curricularPlan, context.getParentCourseGroup());
             final DegreeModuleToEnrol degreeModuleToEnrol = new DegreeModuleToEnrol(curriculumGroup, context, interval);
+
+            curricularPlan.enrol(interval, Set.of(degreeModuleToEnrol), List.of(), CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        } finally {
+            Authenticate.unmock();
+        }
+    }
+
+    public static void createOptionalEnrolment(StudentCurricularPlan curricularPlan, ExecutionInterval interval, Context context,
+            CurricularCourse curricularCourse, String username) {
+        try {
+            Authenticate.mock(User.findByUsername(username), "none");
+            final CurriculumGroup curriculumGroup =
+                    findOrCreateCurriculumGroupFor(curricularPlan, context.getParentCourseGroup());
+            final DegreeModuleToEnrol degreeModuleToEnrol =
+                    new OptionalDegreeModuleToEnrol(curriculumGroup, context, interval, curricularCourse);
 
             curricularPlan.enrol(interval, Set.of(degreeModuleToEnrol), List.of(), CurricularRuleLevel.ENROLMENT_WITH_RULES);
         } finally {
