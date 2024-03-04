@@ -73,7 +73,7 @@ public class OptionalCurricularCourse extends OptionalCurricularCourse_Base {
         }
         final AnyCurricularCourse anyCurricularCourseRule = getAnyCurricularCourseRule(executionInterval);
         if (anyCurricularCourseRule != null) {
-            return anyCurricularCourseRule.hasCredits() ? anyCurricularCourseRule.getCredits() : 0;
+            return anyCurricularCourseRule.hasMinimumCredits() ? anyCurricularCourseRule.getMinimumCredits() : 0;
         }
         return Double.valueOf(0d);
     }
