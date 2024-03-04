@@ -1,3 +1,4 @@
+46.3.0 (04-03-2024)
 - Improvement: Add curricular rule to validate degree modules set for conclusion [#qubIT-Fenix-4993]
 - Bug fix: Correctly handle getMinCredits in Optional Curricular Course [#qubIT-Fenix-5003]
 
