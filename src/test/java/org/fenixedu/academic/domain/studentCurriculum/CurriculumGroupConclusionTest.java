@@ -874,7 +874,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -901,7 +901,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -924,7 +924,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -947,7 +947,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -972,10 +972,10 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, optionalGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, optionalGroup,
                 Set.of(degreeCurricularPlan.getCurricularCourseByCode("C5")));
 
 //        System.out.println(mandatoryGroup.getCurricularRules(executionYear).stream()
@@ -1002,10 +1002,10 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, optionalGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, optionalGroup,
                 Set.of(degreeCurricularPlan.getCurricularCourseByCode("C5")));
 
         final StudentCurricularPlan curricularPlan =
@@ -1028,10 +1028,10 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, optionalGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, optionalGroup,
                 Set.of(degreeCurricularPlan.getCurricularCourseByCode("C5")));
 
         final StudentCurricularPlan curricularPlan =
@@ -1054,10 +1054,10 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, optionalGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, optionalGroup,
                 Set.of(degreeCurricularPlan.getCurricularCourseByCode("C5")));
 
         final StudentCurricularPlan curricularPlan =
@@ -1085,7 +1085,7 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1113,7 +1113,7 @@ public class CurriculumGroupConclusionTest {
 
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1140,7 +1140,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1163,7 +1163,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1194,7 +1194,7 @@ public class CurriculumGroupConclusionTest {
                 degreeCurricularPlan.getCurricularPeriodFor(2, 1, SEMESTER), executionYear.getFirstExecutionPeriod(),
                 mandatoryChildGroup);
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
 
 //        System.out.println(mandatoryGroup.getCurricularRules(executionYear).stream()
@@ -1227,7 +1227,7 @@ public class CurriculumGroupConclusionTest {
                 degreeCurricularPlan.getCurricularPeriodFor(2, 1, SEMESTER), executionYear.getFirstExecutionPeriod(),
                 mandatoryChildGroup);
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
 
 //        System.out.println(mandatoryGroup.getCurricularRules(executionYear).stream()
@@ -1260,7 +1260,7 @@ public class CurriculumGroupConclusionTest {
                 degreeCurricularPlan.getCurricularPeriodFor(2, 1, SEMESTER), executionYear.getFirstExecutionPeriod(),
                 mandatoryChildGroup);
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
 
 //        System.out.println(mandatoryGroup.getCurricularRules(executionYear).stream()
@@ -1293,7 +1293,7 @@ public class CurriculumGroupConclusionTest {
                 degreeCurricularPlan.getCurricularPeriodFor(2, 1, SEMESTER), executionYear.getFirstExecutionPeriod(),
                 mandatoryChildGroup);
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
 
 //        System.out.println(mandatoryGroup.getCurricularRules(executionYear).stream()
@@ -1324,7 +1324,7 @@ public class CurriculumGroupConclusionTest {
         //avoid automatic enrolment in optional group
         new EnrolmentToBeApprovedByCoordinator(optionalGroup, null, executionYear, null);
 
-        new DegreeModuleSetApprovalRule(cycleGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(cycleGroup, null, executionYear, null, false, false, null,
                 Set.of(mandatoryGroup, optionalGroup));
 
         final StudentCurricularPlan curricularPlan =
@@ -1352,7 +1352,7 @@ public class CurriculumGroupConclusionTest {
         //avoid automatic enrolment in optional group
         new EnrolmentToBeApprovedByCoordinator(optionalGroup, null, executionYear, null);
 
-        new DegreeModuleSetApprovalRule(cycleGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(cycleGroup, null, executionYear, null, false, false, null,
                 Set.of(mandatoryGroup, optionalGroup));
 
         final StudentCurricularPlan curricularPlan =
@@ -1374,7 +1374,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1398,7 +1398,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1422,7 +1422,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1446,7 +1446,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1470,7 +1470,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1507,7 +1507,7 @@ public class CurriculumGroupConclusionTest {
                 createOptionalCurricularCourse("Optional 1", period1Y1S, firstSemester, mandatoryGroup);
         final Context optionalCourseContext = optionalCourse.getParentContextsSet().iterator().next();
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1540,7 +1540,7 @@ public class CurriculumGroupConclusionTest {
                 createOptionalCurricularCourse("Optional 1", period1Y1S, firstSemester, mandatoryGroup);
         final Context optionalCourseContext = optionalCurricularCourse.getParentContextsSet().iterator().next();
 
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1566,7 +1566,7 @@ public class CurriculumGroupConclusionTest {
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, true, null,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, true, false, null,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
@@ -1592,14 +1592,47 @@ public class CurriculumGroupConclusionTest {
     }
 
     @Test
-    public void testDegreeModuleSetApproval_ShowEnrolmentWarningWithApprovalGroup() {
+    public void testDegreeModuleSetApproval_ShowEnrolmentWarningWithApprovalGroupSameAsGroupForRule() {
         final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
         final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
         final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
 
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
-        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, true, mandatoryGroup,
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, true, false, mandatoryGroup,
                 mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
+                        .collect(Collectors.toSet()));
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+
+        try {
+            Authenticate.mock(User.findByUsername(ADMIN_USERNAME), "none");
+            final ExecutionInterval interval = executionYear.getChildInterval(1, SEMESTER);
+            final Context context = degreeCurricularPlan.getCurricularCourseByCode("C1").getParentContextsSet().iterator().next();
+            final CurriculumGroup curriculumGroup = curricularPlan.findCurriculumGroupFor(context.getParentCourseGroup());
+            final DegreeModuleToEnrol degreeModuleToEnrol = new DegreeModuleToEnrol(curriculumGroup, context, interval);
+
+            final RuleResult ruleResult = curricularPlan.enrol(interval, Set.of(degreeModuleToEnrol), List.of(),
+                    CurricularRuleLevel.ENROLMENT_WITH_RULES);
+            assertEquals(true, ruleResult.isWarning());
+            assertEquals(true, ruleResult.getMessages().stream()
+                    .anyMatch(m -> m.getMessage().equals("label.DegreeModuleSetApprovalRule.conclusion.warning")));
+        } finally {
+            Authenticate.unmock();
+        }
+
+    }
+
+    @Test
+    public void testDegreeModuleSetApproval_ShowEnrolmentWarningWithOtherApprovalGroup() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, true, false, optionalGroup,
+                optionalGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
                         .collect(Collectors.toSet()));
 
         final StudentCurricularPlan curricularPlan =
