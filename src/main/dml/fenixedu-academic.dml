@@ -5000,6 +5000,7 @@ class studentCurriculum.BranchCurriculumGroup extends studentCurriculum.Curricul
 
 class curricularRules.DegreeModuleSetApprovalRule extends curricularRules.Rule {
 	boolean showWarningOnEnrolment;
+	boolean validateEnroledModulesOnly;
 }
 
 	relation DegreeModuleSetApprovalRuleDegreeModule {
