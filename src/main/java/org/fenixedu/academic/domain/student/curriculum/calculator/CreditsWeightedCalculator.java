@@ -13,17 +13,8 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         super();
     }
 
-    public static CreditsWeightedCalculator createCreditsWeightedCalculator() {
-        final CreditsWeightedCalculator calculator = new CreditsWeightedCalculator();
-
-        calculator.setRoundingMode(RoundingMode.HALF_UP);
-        calculator.setNumberOfDecimals(BigDecimal.ONE);
-
-        return calculator;
-    }
-
     public static CreditsWeightedCalculator create(RoundingMode roundingMode, BigDecimal numberOfDecimals) {
-        final CreditsWeightedCalculator calculator = createCreditsWeightedCalculator();
+        final CreditsWeightedCalculator calculator = new CreditsWeightedCalculator();
 
         calculator.setRoundingMode(roundingMode);
         calculator.setNumberOfDecimals(numberOfDecimals);

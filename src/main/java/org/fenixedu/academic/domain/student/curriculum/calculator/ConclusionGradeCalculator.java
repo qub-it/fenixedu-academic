@@ -6,12 +6,12 @@ import org.fenixedu.bennu.core.domain.Bennu;
 
 public abstract class ConclusionGradeCalculator extends ConclusionGradeCalculator_Base {
 
-    public ConclusionGradeCalculator() {
+    protected ConclusionGradeCalculator() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public static Stream<ConclusionGradeCalculator> readAll() {
+    public static Stream<ConclusionGradeCalculator> findAll() {
         return Bennu.getInstance().getConclusionGradeCalculatorSet().stream();
     }
 
