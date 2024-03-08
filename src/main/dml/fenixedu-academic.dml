@@ -79,6 +79,7 @@ enum org.fenixedu.academic.domain.contacts.PartyContactValidationState 									
 enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as SchoolPeriodDuration;
 enum org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum                                 as RegistrationStateTypeEnum;
 enum org.fenixedu.academic.domain.candidacy.CandidacySituationType                                                     as CandidacySituationType;
+enum java.math.RoundingMode 																							as RoundingMode;
 
 
 /*
@@ -303,6 +304,24 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 				multiplicity *;
 			}
 		}
+		
+	class student.curriculum.calculator.ConclusionGradeCalculator {
+		String name;
+	}
+
+		relation ConclusionGradeCalculatorBennu {
+			public student.curriculum.calculator.ConclusionGradeCalculator playsRole conclusionGradeCalculator {
+		        multiplicity 0..*;
+		    }
+		    protected .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject {
+		        multiplicity 1..1;
+		    }
+		}
+	
+	class student.curriculum.calculator.CreditsWeightedCalculator extends student.curriculum.calculator.ConclusionGradeCalculator  {
+		BigDecimal numberOfDecimals;
+		RoundingMode roundingMode;
+	}
 
     class Alumni  {
     }
@@ -2163,6 +2182,15 @@ relation CreditsDismissalNoEnrolCurricularCourses {
     }
 }
 
+relation ConclusionGradeCalculatorDegreeCurricularPlan {
+	student.curriculum.calculator.ConclusionGradeCalculator playsRole conclusionGradeCalculator {
+		multiplicity 0..1;
+	}
+
+	DegreeCurricularPlan playsRole degreeCurricularPlans {
+		multiplicity 0..*;
+	}
+}
 
 
 relation CurricularCourseCompetenceCourse {
