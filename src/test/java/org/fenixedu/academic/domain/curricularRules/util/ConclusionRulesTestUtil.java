@@ -78,8 +78,6 @@ public class ConclusionRulesTestUtil {
         StudentTest.createStudent("Student Test Conclusion A", STUDENT_CONCLUSION_A_USERNAME);
     }
 
-   
-
     public static DegreeCurricularPlan createDegreeCurricularPlan(ExecutionYear executionYear) {
         final ExecutionInterval firstExecutionPeriod = executionYear.getFirstExecutionPeriod();
         final DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
@@ -170,8 +168,7 @@ public class ConclusionRulesTestUtil {
         });
     }
 
-    public static void approveOptionalEnrolment(final StudentCurricularPlan curricularPlan,
-            final CurricularCourse targetCourse) {
+    public static void approveOptionalEnrolment(final StudentCurricularPlan curricularPlan, final CurricularCourse targetCourse) {
         final OptionalEnrolment optionalEnrolment =
                 (OptionalEnrolment) curricularPlan.getEnrolments(targetCourse).iterator().next();
         final EnrolmentEvaluation evaluation = optionalEnrolment.getEvaluationsSet().iterator().next();
@@ -182,14 +179,28 @@ public class ConclusionRulesTestUtil {
     }
 
     public static void flunk(StudentCurricularPlan studentCurricularPlan, String... codes) {
+        flunk(studentCurricularPlan, null, codes);
+    }
+
+    public static void flunk(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear, String... codes) {
         Stream.of(codes).forEach(c -> {
-            final Enrolment enrolment = studentCurricularPlan.getEnrolmentsSet().stream()
-                    .filter(e -> Objects.equals(e.getCode(), c)).findFirst().get();
+            final Enrolment enrolment =
+                    studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), c))
+                            .filter(e -> executionYear == null || e.getExecutionYear() == executionYear).findFirst().get();
             final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
             evaluation.setGrade(Grade.createGrade("0", GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get()));
             evaluation.setExamDateYearMonthDay(new YearMonthDay());
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
             enrolment.setEnrollmentState(EnrollmentState.NOT_APROVED);
+        });
+    }
+    
+    public static void annul(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear, String... codes) {
+        Stream.of(codes).forEach(c -> {
+            final Enrolment enrolment =
+                    studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), c))
+                            .filter(e -> executionYear == null || e.getExecutionYear() == executionYear).findFirst().get();
+            enrolment.annul();
         });
     }
 
