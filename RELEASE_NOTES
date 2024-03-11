@@ -1,3 +1,5 @@
+- Refactor: Split conclusion rule tests into separate classes [#qubIT-Fenix-5037]
+
 46.3.2 (08-03-2024)
 - Feature: Add Conclusion Grade Calculators  [#qubIT-Fenix-4856]
 
