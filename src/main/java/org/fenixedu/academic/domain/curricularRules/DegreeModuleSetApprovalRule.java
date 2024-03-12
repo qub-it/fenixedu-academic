@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -183,10 +184,11 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
         }
 
         final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
-        final CurriculumLine line = curricularPlan.getApprovedCurriculumLine(curricularCourse);
+        final CurriculumLine line = curricularPlan.getApprovedCurriculumLines().stream()
+                .filter(l -> matchesCourse(l, curricularCourse)).findAny().orElse(null);
         if (line == null) {
             //credits dismissal with no enrol courses
-            return curricularPlan.isApproved(curricularCourse, executionYear);
+            return curricularPlan.isApproved(curricularCourse, null);
         }
 
         if (line.getCurriculumGroup().isNoCourseGroupCurriculumGroup()) {
@@ -205,11 +207,23 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
         }
 
         final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
-        return curricularPlan.getEnrolmentsByExecutionYear(executionYear).stream()
-                .filter(e -> e.hasDegreeModule(curricularCourse))
+        return curricularPlan.getEnrolmentsByExecutionYear(executionYear).stream().filter(e -> matchesCourse(e, curricularCourse))
                 .filter(e -> !e.getCurriculumGroup().isNoCourseGroupCurriculumGroup())
                 .filter(e -> parentGroup == null || e.getCurriculumGroup().getDegreeModule() == parentGroup)
                 .anyMatch(e -> e.canConclude(executionYear));
+    }
+
+    private static boolean matchesCourse(CurriculumLine line, CurricularCourse course) {
+        if (line.getDegreeModule() == null) {
+            return false;
+        }
+
+        if (line.hasDegreeModule(course)) {
+            return true;
+        }
+
+        final CompetenceCourse competenceCourse = course.getCompetenceCourse();
+        return competenceCourse != null && line.getCurricularCourse().getCompetenceCourse() == competenceCourse;
     }
 
 }

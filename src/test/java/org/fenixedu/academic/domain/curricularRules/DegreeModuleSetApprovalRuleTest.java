@@ -14,8 +14,10 @@ import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesT
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.createOptionalCurricularCourse;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.createRegistration;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.enrol;
+import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.enrolInNoCourseGroup;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.flunk;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.getChildGroup;
+import static org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR;
 import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 import static org.junit.Assert.assertEquals;
 
@@ -1125,6 +1127,62 @@ public class DegreeModuleSetApprovalRuleTest {
         final CurriculumGroup optionalCurriculumGroup = curricularPlan.findCurriculumGroupFor(optionalGroup);
 
         assertEquals(true, optionalCurriculumGroup.isConcluded());
+    }
+
+    @Test
+    public void concluded_approvedInCompetenceCourse() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final DegreeCurricularPlan otherDegreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
+                mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
+                        .collect(Collectors.toSet()));
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1", "C2");
+        approve(curricularPlan, "C1", "C2");
+
+        enrolInNoCourseGroup(curricularPlan, executionYear, NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR,
+                otherDegreeCurricularPlan, "C3");
+        approve(curricularPlan, "C3");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+        curricularPlan.getAllEnrollments().stream().filter(e -> e.getCode().equals("C3"))
+                .forEach(e -> e.setCurriculumGroup(mandatoryCurriculumGroup));
+
+//        System.out.println(curricularPlan.getRoot().print("\t"));
+
+        assertEquals(true, mandatoryCurriculumGroup.isConcluded());
+    }
+
+    @Test
+    public void canConclude_enroledInCompetenceCourse() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final DegreeCurricularPlan otherDegreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModuleSetApprovalRule(mandatoryGroup, null, executionYear, null, false, false, null,
+                mandatoryGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear).stream().filter(dm -> dm.isLeaf())
+                        .collect(Collectors.toSet()));
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1", "C2");
+        approve(curricularPlan, "C1", "C2");
+
+        enrolInNoCourseGroup(curricularPlan, executionYear, EXTRA_CURRICULAR, otherDegreeCurricularPlan, "C3");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+        curricularPlan.getAllEnrollments().stream().filter(e -> e.getCode().equals("C3"))
+                .forEach(e -> e.setCurriculumGroup(mandatoryCurriculumGroup));
+
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
     }
 
 }
