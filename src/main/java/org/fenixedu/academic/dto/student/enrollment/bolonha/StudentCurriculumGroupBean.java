@@ -19,9 +19,11 @@
 package org.fenixedu.academic.dto.student.enrollment.bolonha;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -62,6 +64,19 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
 
     private List<IDegreeModuleToEvaluate> curricularCoursesToEnrol;
 
+    public StudentCurriculumGroupBean(final CurriculumGroup curriculumGroup,
+            final Collection<ExecutionInterval> executionIntervals) {
+        super(curriculumGroup);
+
+        final List<ExecutionInterval> sortedIntervals = executionIntervals.stream().sorted().collect(Collectors.toList());
+
+        setCourseGroupsToEnrol(buildCourseGroupsToEnrol(curriculumGroup, sortedIntervals));
+        setCurricularCoursesToEnrol(buildCurricularCoursesToEnrol(curriculumGroup, sortedIntervals));
+        setEnrolledCurriculumGroups(buildCurriculumGroupsEnroled(curriculumGroup, sortedIntervals));
+        setEnrolledCurriculumCourses(buildCurricularCoursesEnroled(curriculumGroup, sortedIntervals));
+    }
+
+    @Deprecated
     public StudentCurriculumGroupBean(final CurriculumGroup curriculumGroup, final ExecutionInterval executionInterval) {
         super(curriculumGroup);
 
@@ -73,6 +88,7 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
         setEnrolledCurriculumCourses(buildCurricularCoursesEnroled(curriculumGroup, executionInterval));
     }
 
+    @Deprecated
     protected List<StudentCurriculumGroupBean> buildCurriculumGroupsEnroled(CurriculumGroup parentGroup,
             ExecutionInterval executionInterval) {
         final List<StudentCurriculumGroupBean> result = new ArrayList<StudentCurriculumGroupBean>();
@@ -83,11 +99,25 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
         return result;
     }
 
+    private List<StudentCurriculumGroupBean> buildCurriculumGroupsEnroled(CurriculumGroup parentGroup,
+            List<ExecutionInterval> executionIntervals) {
+        return parentGroup.getCurriculumGroupsToEnrolmentProcess().stream()
+                .map(curriculumGroup -> createEnroledCurriculumGroupBean(executionIntervals, curriculumGroup))
+                .collect(Collectors.toList());
+    }
+
+    @Deprecated
     protected StudentCurriculumGroupBean createEnroledCurriculumGroupBean(ExecutionInterval executionInterval,
             final CurriculumGroup curriculumGroup) {
         return new StudentCurriculumGroupBean(curriculumGroup, executionInterval);
     }
 
+    private StudentCurriculumGroupBean createEnroledCurriculumGroupBean(List<ExecutionInterval> executionIntervals,
+            final CurriculumGroup curriculumGroup) {
+        return new StudentCurriculumGroupBean(curriculumGroup, executionIntervals);
+    }
+
+    @Deprecated
     protected List<IDegreeModuleToEvaluate> buildCourseGroupsToEnrol(CurriculumGroup group, ExecutionInterval executionInterval) {
         final List<IDegreeModuleToEvaluate> result = new ArrayList<IDegreeModuleToEvaluate>();
         final List<Context> courseGroupContextsToEnrol = group.getCourseGroupContextsToEnrol(executionInterval);
@@ -100,6 +130,19 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
         return result;
     }
 
+    private List<IDegreeModuleToEvaluate> buildCourseGroupsToEnrol(CurriculumGroup group,
+            List<ExecutionInterval> executionIntervals) {
+        if (executionIntervals.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        final ExecutionInterval executionInterval = executionIntervals.iterator().next();
+
+        return group.getCourseGroupContextsToEnrol(executionInterval).stream()
+                .map(context -> new DegreeModuleToEnrol(group, context, executionInterval)).collect(Collectors.toList());
+    }
+
+    @Deprecated
     protected List<IDegreeModuleToEvaluate> buildCurricularCoursesToEnrol(CurriculumGroup group,
             ExecutionInterval executionInterval) {
 
@@ -112,6 +155,20 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
 
     }
 
+    private List<IDegreeModuleToEvaluate> buildCurricularCoursesToEnrol(CurriculumGroup group,
+            List<ExecutionInterval> executionIntervals) {
+        final List<IDegreeModuleToEvaluate> result = new ArrayList<>();
+
+        for (ExecutionInterval executionInterval : executionIntervals) {
+            for (final Context context : group.getCurricularCourseContextsToEnrol(executionInterval)) {
+                result.add(new DegreeModuleToEnrol(group, context, executionInterval));
+            }
+        }
+
+        return result;
+    }
+
+    @Deprecated
     protected List<StudentCurriculumEnrolmentBean> buildCurricularCoursesEnroled(CurriculumGroup group,
             ExecutionInterval executionInterval) {
         final List<StudentCurriculumEnrolmentBean> result = new ArrayList<StudentCurriculumEnrolmentBean>();
@@ -120,6 +177,22 @@ public class StudentCurriculumGroupBean extends StudentCurriculumModuleBean {
             if (curriculumLine.isEnrolment()) {
                 Enrolment enrolment = (Enrolment) curriculumLine;
                 if (enrolment.getExecutionInterval().equals(executionInterval) && enrolment.isEnroled()) {
+                    result.add(new StudentCurriculumEnrolmentBean((Enrolment) curriculumLine));
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private List<StudentCurriculumEnrolmentBean> buildCurricularCoursesEnroled(CurriculumGroup group,
+            List<ExecutionInterval> executionIntervals) {
+        final List<StudentCurriculumEnrolmentBean> result = new ArrayList<>();
+
+        for (final CurriculumLine curriculumLine : group.getCurriculumLines()) {
+            if (curriculumLine.isEnrolment()) {
+                Enrolment enrolment = (Enrolment) curriculumLine;
+                if (executionIntervals.contains(enrolment.getExecutionInterval()) && enrolment.isEnroled()) {
                     result.add(new StudentCurriculumEnrolmentBean((Enrolment) curriculumLine));
                 }
             }
