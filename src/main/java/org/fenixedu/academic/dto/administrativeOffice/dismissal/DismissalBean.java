@@ -33,9 +33,8 @@ import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.dto.student.IStudentCurricularPlanBean;
 
-public class DismissalBean implements Serializable, IStudentCurricularPlanBean {
+public class DismissalBean implements Serializable {
 
     static private final long serialVersionUID = 1L;
 
@@ -136,7 +135,6 @@ public class DismissalBean implements Serializable, IStudentCurricularPlanBean {
         this.curriculumGroup = curriculumGroup;
     }
 
-    @Override
     public StudentCurricularPlan getStudentCurricularPlan() {
         return this.studentCurricularPlan;
     }

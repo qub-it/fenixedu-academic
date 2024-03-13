@@ -1,4 +1,5 @@
 - Refactor: Build StudentCurriculumGroupBeans with multiple execution intervals [#qubIT-Fenix-5038]
+- Refactor: Remove unused enrolment beans [#qubIT-Fenix-5038]
 - Refactor: Split conclusion rule tests into separate classes [#qubIT-Fenix-5037]
 - Improvement: Test competence courses in degree module set conclusion rule [#qubIT-Fenix-5035]
 - Improvement: Add unit tests for degree module set conclusion rule (enroled only modules) [#qubIT-Fenix-5034]
