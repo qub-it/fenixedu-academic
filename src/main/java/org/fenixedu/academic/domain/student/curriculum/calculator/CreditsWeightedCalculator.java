@@ -2,7 +2,9 @@ package org.fenixedu.academic.domain.student.curriculum.calculator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
@@ -33,6 +35,7 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         GradeScale gradeScale = curriculum.getStudentCurricularPlan().getRegistration().getDegree().getNumericGradeScale();
 
         Grade unroundedGrade = Grade.createGrade(avg.toString(), gradeScale);
+        //FIXME: doesn't accept zero, even if the gradescale accepts it, it says invalid grade
         Grade rawGrade = Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
         Grade finalGrade = Grade.createGrade(avg.setScale(0, getRoundingMode()).toString(), gradeScale);
         return new ConclusionGradeCalculatorResultsDTO(rawGrade, unroundedGrade, finalGrade);
@@ -42,24 +45,20 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         BigDecimal sumOfGradesWeighted = BigDecimal.ZERO;
         BigDecimal sumOfWeights = BigDecimal.ZERO;
 
-        countAverage(curriculum.getEnrolmentRelatedEntries(), sumOfGradesWeighted, sumOfWeights);
-        countAverage(curriculum.getDismissalRelatedEntries(), sumOfGradesWeighted, sumOfWeights);
+        List<ICurriculumEntry> numericCurriculumEntries =
+                Stream.concat(curriculum.getEnrolmentRelatedEntries().stream(), curriculum.getDismissalRelatedEntries().stream())
+                        .filter(entry -> entry.getGrade().isNumeric()).collect(Collectors.toList());
+        for (ICurriculumEntry entry : numericCurriculumEntries) {
+            final BigDecimal weight = entry.getWeigthForCurriculum();
+            sumOfWeights = sumOfWeights.add(weight);
+            sumOfGradesWeighted = sumOfGradesWeighted.add(weight.multiply(entry.getGrade().getNumericValue()));
+        }
 
         if (sumOfWeights.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
+            return BigDecimal.ZERO.setScale(getNumberOfDecimals(), getRoundingMode());
+            //FIXME: shouldn't it be the bottom of the gradescale of the degreeCP?
         }
         return sumOfGradesWeighted.divide(sumOfWeights, getNumberOfDecimals() * 2 + 1, getRoundingMode());
-    }
-
-    private void countAverage(final Set<ICurriculumEntry> entries, BigDecimal sumOfGradesWeighted, BigDecimal sumOfWeights) {
-        for (final ICurriculumEntry entry : entries) {
-            if (entry.getGrade().isNumeric()) {
-                final BigDecimal weigth = entry.getWeigthForCurriculum();
-                sumOfWeights = sumOfWeights.add(weigth);
-                sumOfGradesWeighted =
-                        sumOfGradesWeighted.add(entry.getWeigthForCurriculum().multiply(entry.getGrade().getNumericValue()));
-            }
-        }
     }
 
     public void delete() {

@@ -1,15 +1,21 @@
 package org.fenixedu.academic.domain.student.curriculum.calculator;
 
+import static org.junit.Assert.assertTrue;
+
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.calculator.util.ConclusionGradeCalculatorTestUtil;
 import org.fenixedu.bennu.core.domain.User;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -26,46 +32,55 @@ public class CreditsWeightedCalculatorTest {
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            ConclusionRulesTestUtil.initData(); //maybe
+            ConclusionGradeCalculatorTestUtil.initData();
             return null;
         });
     }
 
     @Test
-    public void testCalculator_enrolments() {
-        DegreeCurricularPlan dcp =
-                ConclusionRulesTestUtil.createDegreeCurricularPlan(ExecutionYear.readExecutionYearByName("2021/2022"));
-        Student student = User.findByUsername(STUDENT_CONCLUSION_A_USERNAME).getPerson().getStudent();
-        StudentCurricularPlan scp = student.getRegistrationsFor(dcp).get(0).getLastStudentCurricularPlan();
+    public void calculateAvgGrade_enrolments() {
 
-        Curriculum curriculum =
-                new Curriculum(scp.getRoot(), null, scp.getEnrolmentsSet().stream().collect(Collectors.toCollection(null)),
-                        scp.getDismissals().stream().collect(Collectors.toCollection(null)), (Collection) Collections.EMPTY_LIST);
+        ExecutionYear year = ExecutionYear.readExecutionYearByName("2021/2022");
+        StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year);
 
-//    public Curriculum(final CurriculumModule curriculumModule, final ExecutionYear executionYear,
-//                final Collection<ICurriculumEntry> averageEnrolmentRelatedEntries,
-//                final Collection<ICurriculumEntry> averageDismissalRelatedEntries,
-//                final Collection<ICurriculumEntry> curricularYearEntries) {
+        ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2", "C3", "C4", "C5");
+
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "10");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "10");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C4", "10");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C5", "10");
+
+        Curriculum curriculum = new Curriculum(scp.getRoot(), null, scp.getEnrolmentsSet().stream().collect(Collectors.toList()),
+                scp.getDismissals().stream().collect(Collectors.toList()), (Collection) Collections.EMPTY_LIST);
+
+        ConclusionGradeCalculator calc = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
+
+        ConclusionGradeCalculatorResultsDTO results = calc.calculate(curriculum);
+        ConclusionGradeCalculatorResultsDTO expectedResults =
+                new ConclusionGradeCalculatorResultsDTO(ConclusionGradeCalculatorTestUtil.createGrade("10"),
+                        ConclusionGradeCalculatorTestUtil.createGrade("10"), ConclusionGradeCalculatorTestUtil.createGrade("10"));
+        assertTrue(checkIfEqualsGrades(results, expectedResults));
     }
 
     @Test
-    public void testCalculator_dismissals() {
-
+    public void calculateAvgGrade_dismissals() {
+        //TODO
     }
 
     @Test
-    public void testCalculator_enrolmentsAndDismissals() {
-
+    public void calculateAvgGrade_enrolmentsAndDismissals() {
+        //TODO 
     }
 
     @Test
-    public void testCalculator_numberOfDecimals() {
-
+    public void calculateAvgGrade_numberOfDecimals() {
+        //TODO
     }
 
     @Test
-    public void testCalculator_roundingMode() {
-
+    public void calculateAvgGrade_roundingMode() {
+        //TODO
     }
 
     public static boolean checkIfEqualsGrades(ConclusionGradeCalculatorResultsDTO results,
