@@ -32,6 +32,26 @@ public class CreditsWeightedCalculatorTest {
         });
     }
 
+//    @Test
+//    public void calculateAvgGrade_roundingModeCornerCase() {
+//
+//        ExecutionYear year = ExecutionYear.readExecutionYearByName("2021/2022");
+//        StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year);
+//
+//        ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2");
+//        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "19.5");
+//        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "19.4");
+//
+//        ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
+//        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
+//        assertTrue(checkIfEqualsGrades(calculatedResultsHalfUP, "19.49500", "19.5", "20"));
+//
+//        ConclusionGradeCalculator calculatorHalfDOWN = CreditsWeightedCalculator.create(RoundingMode.HALF_DOWN, 2);
+//        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfDOWN =
+//                calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
+//        assertTrue(checkIfEqualsGrades(calculatedResultsHalfDOWN, "19.49500", "19.5", "19"));
+//    }
+
     @Test
     public void calculateAvgGrade_enrolments() {
 
@@ -177,14 +197,14 @@ public class CreditsWeightedCalculatorTest {
 
         ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2", "C3");
 
-        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "10.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "11");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "10.5");
-        ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10");
 
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.DOWN, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.50000", "10.50", "10"));
+        assertTrue(checkIfEqualsGrades(calculatedResults, "10.50000", "10.50", "11"));
     }
 
     public static boolean checkIfEqualsGrades(ConclusionGradeCalculatorResultsDTO results, String unroundedGrade, String rawGrade,

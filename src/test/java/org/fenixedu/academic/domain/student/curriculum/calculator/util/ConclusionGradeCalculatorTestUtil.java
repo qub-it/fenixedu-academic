@@ -58,19 +58,11 @@ public class ConclusionGradeCalculatorTestUtil {
     public static final String GRADE_SCALE_NUMERIC = "TYPE20";
     public static final String GRADE_SCALE_QUALITATIVE = "BOOLEAN";
 
-    @BeforeClass
-    public static void init() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            initData();
-            return null;
-        });
-    }
-
     public static void initData() {
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
         EnrolmentTest.init();
         GradeScale.create(GRADE_SCALE_NUMERIC, new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
-                new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true);
+                new BigDecimal("9.49"), new BigDecimal("9.5"), new BigDecimal("20"), false, true);
 
         GradeScale booleanGradeScale = GradeScale.create(GRADE_SCALE_QUALITATIVE,
                 new LocalizedString(Locale.getDefault(), "Passou ou Chumbou"), null, null, null, null, false, true);

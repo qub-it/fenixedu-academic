@@ -20,12 +20,10 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         super();
     }
 
-    public static CreditsWeightedCalculator create(RoundingMode roundingMode, Integer numberOfDecimals) {
+    public static CreditsWeightedCalculator create(RoundingMode roundingMode, int numberOfDecimals) {
         final CreditsWeightedCalculator calculator = new CreditsWeightedCalculator();
-
         calculator.setRoundingMode(roundingMode);
-        calculator.setNumberOfDecimals(numberOfDecimals == null ? 0 : numberOfDecimals);
-
+        calculator.setNumberOfDecimals(numberOfDecimals);
         return calculator;
     }
 
@@ -35,9 +33,10 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
 
         final GradeScale gradeScale = curriculum.getStudentCurricularPlan().getRegistration().getDegree().getNumericGradeScale();
         Grade unroundedGrade = Grade.createGrade(avg.toString(), gradeScale);
-        Grade rawGrade = Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
-        Grade finalGrade = Grade.createGrade(avg.setScale(0, getRoundingMode()).toString(), gradeScale);
-        return new ConclusionGradeCalculatorResultsDTO(unroundedGrade, rawGrade, finalGrade);
+        Grade intermediateRoundedGrade =
+                Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
+        Grade finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), gradeScale);
+        return new ConclusionGradeCalculatorResultsDTO(unroundedGrade, intermediateRoundedGrade, finalGrade);
     }
 
     private BigDecimal calculateAverage(final Curriculum curriculum) {
@@ -54,9 +53,7 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         }
 
         if (sumOfWeights.equals(BigDecimal.ZERO)) {
-            BigDecimal minimumGradePossible =
-                    curriculum.getStudentCurricularPlan().getDegree().getNumericGradeScale().getMinimumReprovedGrade();
-            return minimumGradePossible.setScale(getNumberOfDecimals() * 2 + 1, getRoundingMode());
+            return BigDecimal.ZERO;
         }
         return sumOfGradesWeighted.divide(sumOfWeights, getNumberOfDecimals() * 2 + 1, getRoundingMode());
     }
@@ -69,8 +66,8 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         super.deleteDomainObject();
     }
 
-    @Override
-    public void setNumberOfDecimals(Integer numberOfDecimals) {
+//    @Override
+    public void setNumberOfDecimals(int numberOfDecimals) {
         if (numberOfDecimals < 0) {
             throw new DomainException("error.conclusionGradeCalculator.creditsweightedCalculator.cantSetNegativeDecimals");
         }

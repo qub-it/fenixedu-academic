@@ -319,7 +319,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		}
 	
 	class student.curriculum.calculator.CreditsWeightedCalculator extends student.curriculum.calculator.ConclusionGradeCalculator  {
-		Integer numberOfDecimals;
+		int numberOfDecimals;
 		RoundingMode roundingMode;
 	}
 
