@@ -10,6 +10,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.calculator.util.ConclusionGradeCalculatorTestUtil;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.junit.BeforeClass;
@@ -32,25 +33,49 @@ public class CreditsWeightedCalculatorTest {
         });
     }
 
-//    @Test
-//    public void calculateAvgGrade_roundingModeCornerCase() {
-//
-//        ExecutionYear year = ExecutionYear.readExecutionYearByName("2021/2022");
-//        StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year);
-//
-//        ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2");
-//        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "19.5");
-//        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "19.4");
-//
-//        ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
-//        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
-//        assertTrue(checkIfEqualsGrades(calculatedResultsHalfUP, "19.49500", "19.5", "20"));
-//
-//        ConclusionGradeCalculator calculatorHalfDOWN = CreditsWeightedCalculator.create(RoundingMode.HALF_DOWN, 2);
-//        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfDOWN =
-//                calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
-//        assertTrue(checkIfEqualsGrades(calculatedResultsHalfDOWN, "19.49500", "19.5", "19"));
-//    }
+    @Test
+    public void calculateAvgGrade_roundingModeCornerCase() {
+
+        ExecutionYear year1 = ExecutionYear.readExecutionYearByName("2019/2020");
+        ExecutionYear year2 = ExecutionYear.readExecutionYearByName("2020/2021");
+        ExecutionYear year3 = ExecutionYear.readExecutionYearByName("2021/2022");
+        StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year1);
+
+        ConclusionGradeCalculatorTestUtil.enrol(scp, year1, "C1", "C2", "C3", "C6", "C7", "C8", "C9");
+        ConclusionGradeCalculatorTestUtil.enrol(scp, year2, "C10", "C11", "C12", "C13", "C14", "C15", "C16");
+        ConclusionGradeCalculatorTestUtil.enrol(scp, year3, "C17", "C18", "C19", "C20", "C21", "C22");
+
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "20");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "20");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "18.8");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C6", "19.4");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C7", "19.4");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C8", "19.4");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C9", "19.4");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C10", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C11", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C12", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C13", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C14", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C15", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C16", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C17", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C18", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C19", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C20", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C21", "19.5");
+        ConclusionGradeCalculatorTestUtil.approve(scp, "C22", "19.5");
+
+        //Actual value: 19.49500000000
+        ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
+        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
+        assertTrue(checkIfEqualsGrades(calculatedResultsHalfUP, "19.49500", "19.50", "20"));
+
+        ConclusionGradeCalculator calculatorHalfDOWN = CreditsWeightedCalculator.create(RoundingMode.HALF_DOWN, 2);
+        ConclusionGradeCalculatorResultsDTO calculatedResultsHalfDOWN =
+                calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
+        assertTrue(checkIfEqualsGrades(calculatedResultsHalfDOWN, "19.49500", "19.49", "19"));
+    }
 
     @Test
     public void calculateAvgGrade_enrolments() {

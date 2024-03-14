@@ -35,7 +35,8 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         Grade unroundedGrade = Grade.createGrade(avg.toString(), gradeScale);
         Grade intermediateRoundedGrade =
                 Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
-        Grade finalGrade = Grade.createGrade(avg.setScale(0, RoundingMode.HALF_UP).toString(), gradeScale);
+        Grade finalGrade = Grade
+                .createGrade(intermediateRoundedGrade.getNumericValue().setScale(0, RoundingMode.HALF_UP).toString(), gradeScale);
         return new ConclusionGradeCalculatorResultsDTO(unroundedGrade, intermediateRoundedGrade, finalGrade);
     }
 

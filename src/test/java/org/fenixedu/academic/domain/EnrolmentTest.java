@@ -106,7 +106,7 @@ public class EnrolmentTest {
     }
 
     //TODO: move this method to domain && remove StudentCurricularPlanServices.initializeGroupIfRequired(StudentCurricularPlan, CourseGroup)
-    private static CurriculumGroup findOrCreateCurriculumGroupFor(StudentCurricularPlan scp, CourseGroup courseGroup) {
+    public static CurriculumGroup findOrCreateCurriculumGroupFor(StudentCurricularPlan scp, CourseGroup courseGroup) {
 
         final List<CourseGroup> path = new ArrayList<CourseGroup>();
         CourseGroup groupToAdd = courseGroup;

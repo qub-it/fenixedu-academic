@@ -5,6 +5,7 @@ import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
 import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScaleEntry;
@@ -34,14 +36,17 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
+import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
@@ -77,7 +82,8 @@ public class ConclusionGradeCalculatorTestUtil {
         Student student = User.findByUsername(STUDENT_CONCLUSION_GRADE_A_USERNAME).getPerson().getStudent();
         Registration registration = createRegistration(dcp, executionYear);
 
-        return registration.getLastStudentCurricularPlan();
+        StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
+        return scp;
     }
 
     public static Registration createRegistration(final DegreeCurricularPlan degreeCurricularPlan,
@@ -120,6 +126,23 @@ public class ConclusionGradeCalculatorTestUtil {
         createCurricularCourse("C1", "Course 1", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
         createCurricularCourse("C2", "Course 2", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
         createCurricularCourse("C3", "Course 3", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C6", "Course 6", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C7", "Course 7", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C8", "Course 8", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C9", "Course 9", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C10", "Course 10", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C11", "Course 11", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C12", "Course 12", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C13", "Course 13", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C14", "Course 14", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C15", "Course 15", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C16", "Course 16", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C17", "Course 17", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C18", "Course 18", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C19", "Course 19", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C20", "Course 20", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C21", "Course 21", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
+        createCurricularCourse("C22", "Course 22", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
 
         createCurricularCourse("C1", "Course 1", new BigDecimal(6), period1Y2S, executionYear.getLastExecutionPeriod(),
                 mandatoryGroup);
@@ -159,7 +182,18 @@ public class ConclusionGradeCalculatorTestUtil {
             final Context context = degreeCurricularPlan.getCurricularCourseByCode(c).getParentContextsSet().iterator().next();
             final ExecutionInterval enrolmentInterval = executionYear.getChildInterval(
                     context.getCurricularPeriod().getChildOrder(), context.getCurricularPeriod().getAcademicPeriod());
-            EnrolmentTest.createEnrolment(studentCurricularPlan, enrolmentInterval, context, ADMIN_USERNAME);
+            try {
+                Authenticate.mock(User.findByUsername(ADMIN_USERNAME), "none");
+                final CurriculumGroup curriculumGroup =
+                        EnrolmentTest.findOrCreateCurriculumGroupFor(studentCurricularPlan, context.getParentCourseGroup());
+                final DegreeModuleToEnrol degreeModuleToEnrol =
+                        new DegreeModuleToEnrol(curriculumGroup, context, enrolmentInterval);
+
+                studentCurricularPlan.enrol(enrolmentInterval, Set.of(degreeModuleToEnrol), List.of(),
+                        CurricularRuleLevel.ENROLMENT_NO_RULES);
+            } finally {
+                Authenticate.unmock();
+            }
         });
     }
 
