@@ -2,6 +2,7 @@ package org.fenixedu.academic.domain.student.curriculum.calculator;
 
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public abstract class ConclusionGradeCalculator extends ConclusionGradeCalculator_Base {
@@ -14,6 +15,8 @@ public abstract class ConclusionGradeCalculator extends ConclusionGradeCalculato
     public static Stream<ConclusionGradeCalculator> findAll() {
         return Bennu.getInstance().getConclusionGradeCalculatorSet().stream();
     }
+
+    public abstract ConclusionGradeCalculatorResultsDTO calculate(final Curriculum curriculum);
 
     public abstract void delete();
 
