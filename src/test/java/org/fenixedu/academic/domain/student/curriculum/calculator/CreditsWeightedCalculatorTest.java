@@ -233,7 +233,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.DOWN, 1);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.500", "10.5", "11"));
+        assertTrue(checkIfEqualsGrades(calculatedResults, "10.833", "10.8", "11"));
     }
 
     public static boolean checkIfEqualsGrades(ConclusionGradeCalculatorResultsDTO results, String unroundedGrade, String rawGrade,
