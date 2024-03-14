@@ -1,3 +1,5 @@
+- Feature: Add calculation logic to CreditsWeightedCalculator  [#qubIT-Fenix-4856]
+
 46.4.0 (14-03-2024)
 - Refactor: Build StudentCurriculumGroupBeans with multiple execution intervals [#qubIT-Fenix-5038]
 - Refactor: Remove unused enrolment beans [#qubIT-Fenix-5038]
