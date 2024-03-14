@@ -189,8 +189,13 @@ public class ConclusionRulesTestUtil {
     }
 
     public static void approve(StudentCurricularPlan studentCurricularPlan, String... codes) {
+        approve(studentCurricularPlan, null, codes);
+    }
+
+    public static void approve(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear, String... codes) {
         Stream.of(codes).forEach(c -> {
             final Enrolment enrolment = studentCurricularPlan.getEnrolmentsSet().stream()
+                    .filter(e -> executionYear == null || e.getExecutionYear() == executionYear)
                     .filter(e -> Objects.equals(e.getCode(), c)).findFirst().get();
             final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
             evaluation.setGrade(Grade.createGrade("10", GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get()));

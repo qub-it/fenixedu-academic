@@ -46,24 +46,40 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
             final ExecutionYear executionYear = enrolmentContext.getExecutionYear();
             final CourseGroup groupForApprovals = rule.getCourseGroupForApprovals();
 
-            final Set<DegreeModule> modulesMissing = rule.getDegreeModulesToApproveFor(curricularPlan).stream()
-                    .filter(dm -> !isConcluded(curricularPlan, dm, groupForApprovals, executionYear))
-                    .filter(dm -> !canConclude(curricularPlan, dm, groupForApprovals, executionYear))
-                    .filter(dm -> !isEnrolling(enrolmentContext, dm)).collect(Collectors.toSet());
+            final Collection<DegreeModule> moduleToApprove = rule.getDegreeModulesToApproveFor(curricularPlan);
+
+            if (rule.getRequiresApprovalInOneModuleOnly()) {
+                final boolean satisfied = moduleToApprove.isEmpty() || moduleToApprove.stream()
+                        .anyMatch(dm -> isConcluded(curricularPlan, dm, groupForApprovals, executionYear)
+                                || canConclude(curricularPlan, dm, groupForApprovals, executionYear)
+                                || isEnrolling(enrolmentContext, dm));
+
+                if (satisfied) {
+                    return RuleResult.createTrue(moduleToEvaluate);
+                }
+            }
+
+            final Set<DegreeModule> modulesMissing =
+                    moduleToApprove.stream().filter(dm -> !isConcluded(curricularPlan, dm, groupForApprovals, executionYear))
+                            .filter(dm -> !canConclude(curricularPlan, dm, groupForApprovals, executionYear))
+                            .filter(dm -> !isEnrolling(enrolmentContext, dm)).collect(Collectors.toSet());
 
             if (modulesMissing.isEmpty()) {
                 return RuleResult.createTrue(moduleToEvaluate);
             }
 
             final DegreeModule moduleToApplyRule = rule.getDegreeModuleToApplyRule();
+            final String oneModuleKeySuffix = rule.getRequiresApprovalInOneModuleOnly() ? ".one.module" : "";
 
             if (groupForApprovals == null || moduleToApplyRule == groupForApprovals) {
-                return RuleResult.createWarning(moduleToEvaluate, "label.DegreeModuleSetApprovalRule.conclusion.warning",
-                        moduleToApplyRule.getName(), buildModulesToApproveText(modulesMissing));
+                final String key = "label.DegreeModuleSetApprovalRule.conclusion.warning" + oneModuleKeySuffix;
+                return RuleResult.createWarning(moduleToEvaluate, key, moduleToApplyRule.getName(),
+                        buildModulesToApproveText(modulesMissing));
             }
 
-            return RuleResult.createWarning(moduleToEvaluate, "label.DegreeModuleSetApprovalRule.conclusion.warning.with.group",
-                    moduleToApplyRule.getName(), buildModulesToApproveText(modulesMissing), groupForApprovals.getName());
+            final String key = "label.DegreeModuleSetApprovalRule.conclusion.warning.with.group" + oneModuleKeySuffix;
+            return RuleResult.createWarning(moduleToEvaluate, key, moduleToApplyRule.getName(),
+                    buildModulesToApproveText(modulesMissing), groupForApprovals.getName());
         }
     };
 
@@ -73,19 +89,16 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
     }
 
     public DegreeModuleSetApprovalRule(DegreeModule degreeModule, CourseGroup courseGroup, ExecutionInterval begin,
-            ExecutionInterval end, boolean showWarningOnEnrolment, boolean validateEnroledModulesOnly, CourseGroup approvalsGroup,
-            Collection<DegreeModule> degreeModulesToApprove) {
+            ExecutionInterval end, CourseGroup approvalsGroup, Collection<DegreeModule> degreeModulesToApprove) {
         this();
         super.init(degreeModule, courseGroup, begin, end);
-        edit(courseGroup, begin, end, showWarningOnEnrolment, validateEnroledModulesOnly, approvalsGroup, degreeModulesToApprove);
+        edit(courseGroup, begin, end, approvalsGroup, degreeModulesToApprove);
     }
 
-    public void edit(CourseGroup courseGroup, ExecutionInterval begin, ExecutionInterval end, boolean showWarningOnEnrolment,
-            boolean validateEnroledModulesOnly, CourseGroup approvalsGroup, Collection<DegreeModule> degreeModulesToApprove) {
+    public void edit(CourseGroup courseGroup, ExecutionInterval begin, ExecutionInterval end, CourseGroup approvalsGroup,
+            Collection<DegreeModule> degreeModulesToApprove) {
         super.edit(begin, end);
         super.setContextCourseGroup(courseGroup);
-        super.setShowWarningOnEnrolment(showWarningOnEnrolment);
-        super.setValidateEnroledModulesOnly(validateEnroledModulesOnly);
         super.setCourseGroupForApprovals(approvalsGroup);
         super.getDegreeModulesToApproveSet().clear();
         super.getDegreeModulesToApproveSet().addAll(degreeModulesToApprove);
@@ -110,7 +123,9 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
     }
 
     public List<GenericPair<Object, Boolean>> getLabel() {
-        final String key = "label.DegreeModuleSetApprovalRule.approval.in" + (getValidateEnroledModulesOnly() ? ".enroled" : "");
+        final String oneModuleSuffix = getRequiresApprovalInOneModuleOnly() ? ".one.module" : "";
+        final String enroledModulesSuffix = getValidateEnroledModulesOnly() ? ".enroled" : "";
+        final String key = "label.DegreeModuleSetApprovalRule.approval.in" + oneModuleSuffix + enroledModulesSuffix;
         return List.of(new GenericPair<Object, Boolean>(
                 BundleUtil.getString(APPLICATION, key, buildModulesToApproveText(getDegreeModulesToApproveSet())), false));
     }
@@ -144,14 +159,29 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
 
     @Override
     public boolean isConcluded(CurriculumGroup group, ExecutionYear executionYear) {
-        return getDegreeModulesToApproveFor(group.getStudentCurricularPlan()).stream()
+        final Collection<DegreeModule> modulesToApprove = getDegreeModulesToApproveFor(group.getStudentCurricularPlan());
+
+        if (getRequiresApprovalInOneModuleOnly()) {
+            return modulesToApprove.isEmpty() || modulesToApprove.stream().anyMatch(
+                    dm -> isConcluded(group.getStudentCurricularPlan(), dm, getCourseGroupForApprovals(), executionYear));
+        }
+
+        return modulesToApprove.stream()
                 .allMatch(dm -> isConcluded(group.getStudentCurricularPlan(), dm, getCourseGroupForApprovals(), executionYear));
     }
 
     @Override
     public boolean canConclude(CurriculumGroup group, ExecutionYear executionYear) {
-        return getDegreeModulesToApproveFor(group.getStudentCurricularPlan()).stream()
+        final Collection<DegreeModule> modulesToApprove = getDegreeModulesToApproveFor(group.getStudentCurricularPlan()).stream()
                 .filter(dm -> !isConcluded(group.getStudentCurricularPlan(), dm, getCourseGroupForApprovals(), executionYear))
+                .collect(Collectors.toSet());
+
+        if (getRequiresApprovalInOneModuleOnly()) {
+            return modulesToApprove.isEmpty() || modulesToApprove.stream().anyMatch(
+                    dm -> canConclude(group.getStudentCurricularPlan(), dm, getCourseGroupForApprovals(), executionYear));
+        }
+
+        return modulesToApprove.stream()
                 .allMatch(dm -> canConclude(group.getStudentCurricularPlan(), dm, getCourseGroupForApprovals(), executionYear));
     }
 
