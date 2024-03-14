@@ -1,3 +1,4 @@
+46.4.0 (14-03-2024)
 - Refactor: Build StudentCurriculumGroupBeans with multiple execution intervals [#qubIT-Fenix-5038]
 - Refactor: Remove unused enrolment beans [#qubIT-Fenix-5038]
 - Refactor: Split conclusion rule tests into separate classes [#qubIT-Fenix-5037]
