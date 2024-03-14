@@ -4,22 +4,22 @@ import org.fenixedu.academic.domain.Grade;
 
 public class ConclusionGradeCalculatorResultsDTO {
 
-    private final Grade rawGrade;
     private final Grade unroundedGrade;
+    private final Grade intermediateRoundedGrade;
     private final Grade finalGrade;
 
-    public ConclusionGradeCalculatorResultsDTO(Grade rawGrade, Grade unroundedGrade, Grade finalGrade) {
-        this.rawGrade = rawGrade;
+    public ConclusionGradeCalculatorResultsDTO(Grade unroundedGrade, Grade intermediateRoundedGrade, Grade finalGrade) {
         this.unroundedGrade = unroundedGrade;
+        this.intermediateRoundedGrade = intermediateRoundedGrade;
         this.finalGrade = finalGrade;
-    }
-
-    public Grade getRawGrade() {
-        return rawGrade;
     }
 
     public Grade getUnroundedGrade() {
         return unroundedGrade;
+    }
+
+    public Grade getIntermediateRoundedGrade() {
+        return intermediateRoundedGrade;
     }
 
     public Grade getFinalGrade() {

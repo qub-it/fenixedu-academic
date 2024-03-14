@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -28,6 +29,7 @@ import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScaleEntry;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -35,7 +37,9 @@ import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -52,6 +56,7 @@ public class ConclusionGradeCalculatorTestUtil {
     public static final String ADMIN_USERNAME = "admin";
     public static final String STUDENT_CONCLUSION_GRADE_A_USERNAME = "student.test.conclusionGrade.a";
     public static final String GRADE_SCALE_NUMERIC = "TYPE20";
+    public static final String GRADE_SCALE_QUALITATIVE = "BOOLEAN";
 
     @BeforeClass
     public static void init() {
@@ -66,6 +71,11 @@ public class ConclusionGradeCalculatorTestUtil {
         EnrolmentTest.init();
         GradeScale.create(GRADE_SCALE_NUMERIC, new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
                 new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true);
+
+        GradeScale booleanGradeScale = GradeScale.create(GRADE_SCALE_QUALITATIVE,
+                new LocalizedString(Locale.getDefault(), "Passou ou Chumbou"), null, null, null, null, false, true);
+        booleanGradeScale.createGradeScaleEntry("FLUNK", new LocalizedString(Locale.getDefault(), "Flunked"), false);
+        booleanGradeScale.createGradeScaleEntry("APPROVED", new LocalizedString(Locale.getDefault(), "Approved"), true);
 
         StudentTest.createStudent("Student Test Conclusion Grade A", STUDENT_CONCLUSION_GRADE_A_USERNAME);
     }
@@ -89,10 +99,13 @@ public class ConclusionGradeCalculatorTestUtil {
         final DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
         final Degree degree = DegreeTest.createDegree(degreeType, "D" + System.currentTimeMillis(),
                 "D" + System.currentTimeMillis(), executionYear);
+        degree.setNumericGradeScale(GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get());
+
         final User user = User.findByUsername(ADMIN_USERNAME);
 
         final DegreeCurricularPlan degreeCurricularPlan =
                 degree.createDegreeCurricularPlan("Plan 1", user.getPerson(), AcademicPeriod.THREE_YEAR);
+
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
         final CurricularPeriod firstYearPeriod =
                 new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
@@ -115,6 +128,11 @@ public class ConclusionGradeCalculatorTestUtil {
         createCurricularCourse("C1", "Course 1", new BigDecimal(6), period1Y1S, firstExecutionPeriod, mandatoryGroup);
         createCurricularCourse("C2", "Course 2", new BigDecimal(6), period1Y2S, firstExecutionPeriod, mandatoryGroup);
         createCurricularCourse("C3", "Course 3", new BigDecimal(6), period2Y1S, firstExecutionPeriod, mandatoryGroup);
+
+        createCurricularCourse("C1", "Course 1", new BigDecimal(6), period1Y2S, executionYear.getLastExecutionPeriod(),
+                mandatoryGroup);
+        createCurricularCourse("C2", "Course 2", new BigDecimal(6), period2Y1S, executionYear.getLastExecutionPeriod(),
+                mandatoryGroup);
 
         final CourseGroup optionalGroup = new CourseGroup(cycleGroup, OPTIONAL_GROUP, OPTIONAL_GROUP, executionYear, null, null);
         optionalGroup.setIsOptional(true);
@@ -154,25 +172,32 @@ public class ConclusionGradeCalculatorTestUtil {
     }
 
     public static void approve(StudentCurricularPlan studentCurricularPlan, String code, String grade) {
-        concludeEnroledClass(studentCurricularPlan, null, code, grade, EnrollmentState.APROVED);
+        concludeEnroledClass(studentCurricularPlan, null, code, grade, GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get(),
+                EnrollmentState.APROVED);
+    }
+
+    public static void approveQualitative(StudentCurricularPlan studentCurricularPlan, String code, String grade) {
+        concludeEnroledClass(studentCurricularPlan, null, code, grade, GradeScale.findUniqueByCode(GRADE_SCALE_QUALITATIVE).get(),
+                EnrollmentState.APROVED);
     }
 
     public static void flunk(StudentCurricularPlan studentCurricularPlan, String code, String grade) {
-        flunk(studentCurricularPlan, null, code);
+        flunk(studentCurricularPlan, null, code, grade);
     }
 
     public static void flunk(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear, String code,
             String grade) {
-        concludeEnroledClass(studentCurricularPlan, executionYear, code, grade, EnrollmentState.NOT_APROVED);
+        concludeEnroledClass(studentCurricularPlan, executionYear, code, grade,
+                GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get(), EnrollmentState.NOT_APROVED);
     }
 
     private static void concludeEnroledClass(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear,
-            String code, String grade, EnrollmentState state) {
+            String code, String grade, GradeScale gradeScale, EnrollmentState state) {
         final Enrolment enrolment =
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), code))
                         .filter(e -> executionYear == null || e.getExecutionYear() == executionYear).findFirst().get();
         final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
-        evaluation.setGrade(Grade.createGrade(grade, GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get()));
+        evaluation.setGrade(Grade.createGrade(grade, gradeScale));
         evaluation.setExamDateYearMonthDay(new YearMonthDay());
         evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
         enrolment.setEnrollmentState(state);
@@ -180,6 +205,19 @@ public class ConclusionGradeCalculatorTestUtil {
 
     public static Grade createGrade(String grade) {
         return Grade.createGrade(grade, GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get());
+    }
+
+    public static void createEquivalence(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear, String c,
+            String grade) {
+        final DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
+        final CurricularCourse curricularCourse = degreeCurricularPlan.getCurricularCourseByCode(c);
+        final Context context = curricularCourse.getParentContextsSet().iterator().next();
+        final ExecutionInterval executionInterval = executionYear.getChildInterval(context.getCurricularPeriod().getChildOrder(),
+                context.getCurricularPeriod().getAcademicPeriod());
+        final SelectedCurricularCourse dismissalDTO = new SelectedCurricularCourse(curricularCourse, studentCurricularPlan);
+        dismissalDTO.setCurriculumGroup(studentCurricularPlan.findCurriculumGroupFor(context.getParentCourseGroup()));
+
+        new Equivalence(studentCurricularPlan, Set.of(dismissalDTO), Set.of(), createGrade(grade), executionInterval);
     }
 
 }

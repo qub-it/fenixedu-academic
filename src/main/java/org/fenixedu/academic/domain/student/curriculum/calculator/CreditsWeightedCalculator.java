@@ -32,13 +32,12 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
     @Override
     public ConclusionGradeCalculatorResultsDTO calculate(final Curriculum curriculum) {
         BigDecimal avg = calculateAverage(curriculum);
-        GradeScale gradeScale = curriculum.getStudentCurricularPlan().getRegistration().getDegree().getNumericGradeScale();
 
+        final GradeScale gradeScale = curriculum.getStudentCurricularPlan().getRegistration().getDegree().getNumericGradeScale();
         Grade unroundedGrade = Grade.createGrade(avg.toString(), gradeScale);
-        //FIXME: doesn't accept zero, even if the gradescale accepts it, it says invalid grade
         Grade rawGrade = Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
         Grade finalGrade = Grade.createGrade(avg.setScale(0, getRoundingMode()).toString(), gradeScale);
-        return new ConclusionGradeCalculatorResultsDTO(rawGrade, unroundedGrade, finalGrade);
+        return new ConclusionGradeCalculatorResultsDTO(unroundedGrade, rawGrade, finalGrade);
     }
 
     private BigDecimal calculateAverage(final Curriculum curriculum) {
@@ -54,9 +53,10 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
             sumOfGradesWeighted = sumOfGradesWeighted.add(weight.multiply(entry.getGrade().getNumericValue()));
         }
 
-        if (sumOfWeights.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO.setScale(getNumberOfDecimals(), getRoundingMode());
-            //FIXME: shouldn't it be the bottom of the gradescale of the degreeCP?
+        if (sumOfWeights.equals(BigDecimal.ZERO)) {
+            BigDecimal minimumGradePossible =
+                    curriculum.getStudentCurricularPlan().getDegree().getNumericGradeScale().getMinimumReprovedGrade();
+            return minimumGradePossible.setScale(getNumberOfDecimals() * 2 + 1, getRoundingMode());
         }
         return sumOfGradesWeighted.divide(sumOfWeights, getNumberOfDecimals() * 2 + 1, getRoundingMode());
     }
@@ -67,6 +67,14 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         }
         super.setRootDomainObject(null);
         super.deleteDomainObject();
+    }
+
+    @Override
+    public void setNumberOfDecimals(Integer numberOfDecimals) {
+        if (numberOfDecimals < 0) {
+            throw new DomainException("error.conclusionGradeCalculator.creditsweightedCalculator.cantSetNegativeDecimals");
+        }
+        super.setNumberOfDecimals(numberOfDecimals);
     }
 
     public String getType() {

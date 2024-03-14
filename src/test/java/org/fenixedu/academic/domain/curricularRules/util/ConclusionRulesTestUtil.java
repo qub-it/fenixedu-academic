@@ -249,18 +249,18 @@ public class ConclusionRulesTestUtil {
 
             new Equivalence(studentCurricularPlan, Set.of(dismissalDTO), Set.of(),
                     Grade.createGrade("10", GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get()), executionInterval);
-
         });
     }
 
-    public static void createCredits(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear,
+    public static Credits createCredits(StudentCurricularPlan studentCurricularPlan, ExecutionYear executionYear,
             CourseGroup courseGroup, BigDecimal credits, String... noEnrolCodes) {
         final DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
         final Collection<CurricularCourse> noEnrolCourses =
                 Stream.of(noEnrolCodes).map(c -> degreeCurricularPlan.getCurricularCourseByCode(c)).collect(Collectors.toSet());
         final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
-        new Credits(studentCurricularPlan, courseGroup, Set.of(), noEnrolCourses, credits.doubleValue(), executionInterval);
+        return new Credits(studentCurricularPlan, courseGroup, Set.of(), noEnrolCourses, credits.doubleValue(),
+                executionInterval);
     }
 
 }
