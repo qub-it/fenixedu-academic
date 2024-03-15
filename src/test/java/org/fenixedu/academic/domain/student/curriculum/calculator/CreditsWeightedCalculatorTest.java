@@ -73,10 +73,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
 
-        System.out.println("Unrounded Grade: " + calculatedResultsHalfUP.getUnroundedGrade());
-        scp.getEnrolmentsSet().stream().forEach(cl -> System.out.println(cl.getCode() + ": " + cl.getGradeValue()));
-
-        System.out.println("C1: " + calculatedResultsHalfUP.getUnroundedGrade());
+//        System.out.println("Unrounded Grade: " + calculatedResultsHalfUP.getUnroundedGrade());
+        scp.getEnrolmentsSet().stream()
+                .forEach(cl -> /*System.out.println*/(cl.getCode() + ": " + cl.getGradeValue()).toString());
 
         assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfUP.getUnroundedGrade(), "19.49500"));
         assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfUP.getIntermediateRoundedGrade(), "19.50"));
