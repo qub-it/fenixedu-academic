@@ -31,7 +31,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
-import org.fenixedu.academic.domain.curriculum.grade.GradeScaleEntry;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -49,9 +48,6 @@ import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
-import org.junit.BeforeClass;
-
-import pt.ist.fenixframework.FenixFramework;
 
 public class ConclusionGradeCalculatorTestUtil {
 
@@ -153,8 +149,6 @@ public class ConclusionGradeCalculatorTestUtil {
         optionalGroup.setIsOptional(true);
         createCurricularCourse("C4", "Course 4", new BigDecimal(6), period2Y1S, firstExecutionPeriod, optionalGroup);
         createCurricularCourse("C5", "Course 5", new BigDecimal(6), period2Y1S, firstExecutionPeriod, optionalGroup);
-
-//      System.out.println(degreeCurricularPlan.print());
 
         degreeCurricularPlan.createExecutionDegree(executionYear);
 

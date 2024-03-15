@@ -1,16 +1,19 @@
 package org.fenixedu.academic.domain.student.curriculum.calculator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
-import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.calculator.util.ConclusionGradeCalculatorTestUtil;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.junit.BeforeClass;
@@ -35,7 +38,6 @@ public class CreditsWeightedCalculatorTest {
 
     @Test
     public void calculateAvgGrade_roundingModeCornerCase() {
-
         ExecutionYear year1 = ExecutionYear.readExecutionYearByName("2019/2020");
         ExecutionYear year2 = ExecutionYear.readExecutionYearByName("2020/2021");
         ExecutionYear year3 = ExecutionYear.readExecutionYearByName("2021/2022");
@@ -44,6 +46,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.enrol(scp, year1, "C1", "C2", "C3", "C6", "C7", "C8", "C9");
         ConclusionGradeCalculatorTestUtil.enrol(scp, year2, "C10", "C11", "C12", "C13", "C14", "C15", "C16");
         ConclusionGradeCalculatorTestUtil.enrol(scp, year3, "C17", "C18", "C19", "C20", "C21", "C22");
+        assertEquals(true, scp.getAllCurriculumLines().size() == 20);
 
         ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "20");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "20");
@@ -69,16 +72,30 @@ public class CreditsWeightedCalculatorTest {
         //Actual value: 19.49500000000
         ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResultsHalfUP, "19.49500", "19.50", "20"));
+
+        System.out.println("Unrounded Grade: " + calculatedResultsHalfUP.getUnroundedGrade());
+        scp.getEnrolmentsSet().stream().forEach(cl -> System.out.println(cl.getCode() + ": " + cl.getGradeValue()));
+
+        System.out.println("C1: " + calculatedResultsHalfUP.getUnroundedGrade());
+
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfUP.getUnroundedGrade(), "19.49500"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfUP.getIntermediateRoundedGrade(), "19.50"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfUP.getFinalGrade(), "20"));
 
         ConclusionGradeCalculator calculatorHalfDOWN = CreditsWeightedCalculator.create(RoundingMode.HALF_DOWN, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsHalfDOWN =
                 calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResultsHalfDOWN, "19.49500", "19.49", "19"));
+
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfDOWN.getUnroundedGrade(), "19.49500"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfDOWN.getIntermediateRoundedGrade(), "19.49"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsHalfDOWN.getFinalGrade(), "19"));
 
         ConclusionGradeCalculator calculatorDOWN = CreditsWeightedCalculator.create(RoundingMode.DOWN, 2);
-        ConclusionGradeCalculatorResultsDTO calculatedResultsDOWN = calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResultsDOWN, "19.49500", "19.49", "19"));
+        ConclusionGradeCalculatorResultsDTO calculatedResultsDOWN = calculatorDOWN.calculate(scp.getRoot().getCurriculum());
+
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsDOWN.getUnroundedGrade(), "19.49500"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsDOWN.getIntermediateRoundedGrade(), "19.49"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResultsDOWN.getFinalGrade(), "19"));
     }
 
     @Test
@@ -98,7 +115,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.00000", "10.00", "10"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "10.00000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "10.00"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "10"));
     }
 
     @Test
@@ -119,7 +138,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "20.00000", "20.00", "20"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "20.00000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "20.00"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "20"));
 
     }
 
@@ -141,7 +162,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "14.00000", "14.00", "14"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "14.00000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "14.00"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "14"));
 
     }
 
@@ -159,7 +182,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 5);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "15.00000000000", "15.00000", "15"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "15.00000000000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "15.00000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "15"));
     }
 
     @Test
@@ -178,7 +203,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "13.33333", "13.33", "13"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "13.33333"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "13.33"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "13"));
     }
 
     @Test
@@ -199,7 +226,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.00000", "10.00", "10"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "10.00000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "10.00"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "10"));
     }
 
     @Test
@@ -216,7 +245,9 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 5);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.50000000000", "10.50000", "11"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "10.50000000000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "10.50000"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "11"));
     }
 
     @Test
@@ -225,26 +256,36 @@ public class CreditsWeightedCalculatorTest {
         StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year);
 
         ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2", "C3");
+        assertEquals(true, scp.getAllCurriculumLines().size() == 3);
 
         ConclusionGradeCalculatorTestUtil.approve(scp, "C1", "12");
+        Optional<Enrolment> course = scp.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), "C1")).findAny();
+        assertEquals(true, course.isPresent());
+        assertEquals(true, course.get().getGrade().equals(ConclusionGradeCalculatorTestUtil.createGrade("12")));
+
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "10.5");
+        course = scp.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), "C2")).findAny();
+        assertEquals(true, course.isPresent());
+        assertEquals(true, course.get().getGrade().equals(ConclusionGradeCalculatorTestUtil.createGrade("10.5")));
+
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10");
+        course = scp.getEnrolmentsSet().stream().filter(e -> Objects.equals(e.getCode(), "C3")).findAny();
+        assertEquals(true, course.isPresent());
+        assertEquals(true, course.get().getGrade().equals(ConclusionGradeCalculatorTestUtil.createGrade("10")));
 
         ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.DOWN, 1);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
-        assertTrue(checkIfEqualsGrades(calculatedResults, "10.833", "10.8", "11"));
+
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getUnroundedGrade(), "10.833"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getIntermediateRoundedGrade(), "10.8"));
+        assertEquals(true, checkIfEqualsGrade(calculatedResults.getFinalGrade(), "11"));
+
     }
 
-    public static boolean checkIfEqualsGrades(ConclusionGradeCalculatorResultsDTO results, String unroundedGrade, String rawGrade,
-            String finalGrade) {
-        ConclusionGradeCalculatorResultsDTO expectedResults =
-                new ConclusionGradeCalculatorResultsDTO(ConclusionGradeCalculatorTestUtil.createGrade(unroundedGrade),
-                        ConclusionGradeCalculatorTestUtil.createGrade(rawGrade),
-                        ConclusionGradeCalculatorTestUtil.createGrade(finalGrade));
-        return results.getFinalGrade() == expectedResults.getFinalGrade()
-                && results.getIntermediateRoundedGrade() == expectedResults.getIntermediateRoundedGrade()
-                && results.getUnroundedGrade() == expectedResults.getUnroundedGrade();
+    public static boolean checkIfEqualsGrade(Grade grade, String confirm) {
+        Grade gradeToConfirm = ConclusionGradeCalculatorTestUtil.createGrade(confirm);
+        return grade.equals(gradeToConfirm);
     }
 
 }
