@@ -31,7 +31,7 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
     public ConclusionGradeCalculatorResultsDTO calculate(final Curriculum curriculum) {
         BigDecimal avg = calculateAverage(curriculum);
 
-        final GradeScale gradeScale = curriculum.getStudentCurricularPlan().getRegistration().getDegree().getNumericGradeScale();
+        final GradeScale gradeScale = curriculum.getStudentCurricularPlan().getDegree().getNumericGradeScale();
         Grade unroundedGrade = Grade.createGrade(avg.toString(), gradeScale);
         Grade intermediateRoundedGrade =
                 Grade.createGrade(avg.setScale(getNumberOfDecimals(), getRoundingMode()).toString(), gradeScale);
@@ -53,7 +53,7 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
             sumOfGradesWeighted = sumOfGradesWeighted.add(weight.multiply(entry.getGrade().getNumericValue()));
         }
 
-        if (sumOfWeights.equals(BigDecimal.ZERO)) {
+        if (sumOfWeights.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
         return sumOfGradesWeighted.divide(sumOfWeights, getNumberOfDecimals() * 2 + 1, getRoundingMode());
