@@ -322,6 +322,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		int numberOfDecimals;
 		RoundingMode roundingMode;
 	}
+	
+	class student.curriculum.calculator.SequentialRoundingCalculator extends student.curriculum.calculator.ConclusionGradeCalculator  {
+	}
 
     class Alumni  {
     }
