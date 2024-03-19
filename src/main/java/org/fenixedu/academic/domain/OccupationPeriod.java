@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.date.IntervalTools;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.YearMonthDay;
 
@@ -191,6 +192,10 @@ public class OccupationPeriod extends OccupationPeriod_Base {
 
     private boolean containsDay(YearMonthDay day) {
         return this.getPeriodInterval().contains(day.toDateTimeAtMidnight());
+    }
+
+    public boolean isDateInNestedPeriods(final OccupationPeriod rootOccupationPeriod, final DateTime dateToCheck) {
+        return getIntervals().stream().anyMatch(interval -> interval.contains(dateToCheck));
     }
 
     public void delete() {

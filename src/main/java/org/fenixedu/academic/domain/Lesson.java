@@ -24,9 +24,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,6 +43,7 @@ import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.spaces.domain.Space;
+import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -265,107 +269,72 @@ public class Lesson extends Lesson_Base {
         return true;
     }
 
-    private YearMonthDay getLessonStartDay() {
-        if (!wasFinished()) {
-            YearMonthDay periodBegin = getPeriod().getStartYearMonthDay();
-            return getValidBeginDate(periodBegin);
-        }
-        return null;
-    }
-
-    private YearMonthDay getLessonEndDay() {
-        if (!wasFinished()) {
-            YearMonthDay periodEnd = getPeriod().getLastOccupationPeriodOfNestedPeriods().getEndYearMonthDay();
-            return getValidEndDate(periodEnd);
-        }
-        return null;
-    }
-
-    private YearMonthDay getValidBeginDate(YearMonthDay startDate) {
-        final YearMonthDay periodEndDate = getPeriod() != null ? getPeriod().getEndYearMonthDayWithNextPeriods() : null;
-        if (periodEndDate != null) {
-
-            YearMonthDay lessonBegin = startDate.toDateTimeAtMidnight()
-                    .withDayOfWeek(getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat()).toYearMonthDay();
-            if (lessonBegin.isBefore(startDate)) {
-                lessonBegin = lessonBegin.plusDays(NUMBER_OF_DAYS_IN_WEEK);
-            }
-
-            while (!isDayValid(lessonBegin)) {
-                if (!lessonBegin.isAfter(periodEndDate)) {
-                    lessonBegin = lessonBegin.plusDays(NUMBER_OF_DAYS_IN_WEEK);
-                } else {
-                    return null;
-                }
-            }
-
-            return lessonBegin;
-        }
-
-        return null;
-    }
-
-    private YearMonthDay getValidEndDate(YearMonthDay endDate) {
-        YearMonthDay lessonEnd =
-                endDate.toDateTimeAtMidnight().withDayOfWeek(getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat()).toYearMonthDay();
-        if (lessonEnd.isAfter(endDate)) {
-            lessonEnd = lessonEnd.minusDays(NUMBER_OF_DAYS_IN_WEEK);
-        }
-        return lessonEnd;
-    }
-
+    @Deprecated
     public SortedSet<YearMonthDay> getAllLessonDatesWithoutInstanceDates() {
-        SortedSet<YearMonthDay> dates = new TreeSet<YearMonthDay>();
-        if (!wasFinished()) {
-            dates.addAll(getAllValidLessonDatesWithoutInstancesDates());
-        }
-        return dates;
-    }
-
-    public SortedSet<YearMonthDay> getAllLessonDates() {
-        SortedSet<YearMonthDay> dates = getAllLessonInstanceDates();
-        if (!wasFinished()) {
-            dates.addAll(getAllValidLessonDatesWithoutInstancesDates());
-        }
-        return dates;
-    }
-
-    private SortedSet<YearMonthDay> getAllLessonInstanceDates() {
-        return getLessonInstancesSet().stream().map(li -> li.getDay())
+        final Map<LocalDate, LessonInstance> lessonInstancesMap = getLessonInstancesForDatesMap();
+        final Set<LocalDate> deletedLessonDates = getDeletedLessonDates();
+        return lessonInstancesMap.entrySet().stream()
+                .filter(entry -> entry.getValue() == null && !deletedLessonDates.contains(entry.getKey())).map(e -> e.getKey())
+                .map(ld -> new YearMonthDay(ld.getYear(), ld.getMonthOfYear(), ld.getDayOfMonth()))
                 .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
     }
 
-    private SortedSet<YearMonthDay> getAllValidLessonDatesWithoutInstancesDates() {
+    @Deprecated
+    public SortedSet<YearMonthDay> getAllLessonDates() {
+        return getLessonDates().stream().map(ld -> new YearMonthDay(ld.getYear(), ld.getMonthOfYear(), ld.getDayOfMonth()))
+                .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
+    }
+    
+    // TODO set visibility to private after references in ScheduleServices are merged
+    public Set<LocalDate> getLessonDatesForPeriod(final OccupationPeriod period) {
+        final SortedSet<LocalDate> result = new TreeSet<LocalDate>();
 
-        YearMonthDay startDateToSearch = getLessonStartDay();
-        YearMonthDay endDateToSearch = getLessonEndDay();
+        if (period != null) {
+            final int weekDays = 7;
+            final int dayIncrement = getFrequency().getNumberOfDays();
 
-        SortedSet<YearMonthDay> result = new TreeSet<YearMonthDay>();
-        startDateToSearch = startDateToSearch != null ? getValidBeginDate(startDateToSearch) : null;
+            final HourMinuteSecond beginTime = getBeginHourMinuteSecond();
+            final HourMinuteSecond endTime = getEndHourMinuteSecond();
 
-        if (!wasFinished() && startDateToSearch != null && endDateToSearch != null
-                && !startDateToSearch.isAfter(endDateToSearch)) {
-            final int dayIncrement = getFrequency() == FrequencyType.BIWEEKLY ? FrequencyType.WEEKLY
-                    .getNumberOfDays() : getFrequency().getNumberOfDays();
-            boolean shouldAdd = true;
-            while (true) {
-                if (isDayValid(startDateToSearch)) {
-                    if (getFrequency() != FrequencyType.BIWEEKLY || shouldAdd) {
-                        if (!Holiday.isHoliday(startDateToSearch.toLocalDate())) {
-                            result.add(startDateToSearch);
-                        }
-                    }
-                    shouldAdd = !shouldAdd;
+            DateTime dateToCheck =
+                    period.getPeriodInterval().getStart().withTime(beginTime.getHour(), beginTime.getMinuteOfHour(), 0, 0);
+            final int lessonDayOfWeek = getWeekDay().getDayOfWeek();
+            if (lessonDayOfWeek < dateToCheck.getDayOfWeek()) {
+                dateToCheck = dateToCheck.plusDays(weekDays);
+            }
+            dateToCheck = dateToCheck.withDayOfWeek(lessonDayOfWeek);
+
+            final DateTime lastDate =
+                    period.getIntervalWithNextPeriods().getEnd().withTime(endTime.getHour(), endTime.getMinuteOfHour(), 0, 0);
+
+            while (dateToCheck.isBefore(lastDate)) {
+                boolean dateValid = period.isDateInNestedPeriods(period, dateToCheck);
+                if (dateValid && !Holiday.isHoliday(dateToCheck.toLocalDate())) {
+                    result.add(dateToCheck.toLocalDate());
                 }
-                startDateToSearch = startDateToSearch.plusDays(dayIncrement);
-                if (startDateToSearch.isAfter(endDateToSearch)) {
-                    break;
-                }
+                dateToCheck = dateToCheck.plusDays(!dateValid && dayIncrement > weekDays ? weekDays : dayIncrement); // if the frequency is greater than weekly, we want to check the next week again
             }
         }
 
-        result.removeAll(getAllLessonInstanceDates());
+        return result;
+    }
 
+    public Set<LocalDate> getLessonDates() {
+        return getLessonInstancesForDatesMap().keySet();
+    }
+
+    public Set<LocalDate> getDeletedLessonDates() {
+        final SortedSet<LocalDate> result = new TreeSet<LocalDate>();
+        final OccupationPeriod period = Optional.ofNullable(getInitialFullPeriod()).orElse(getPeriod());
+        result.addAll(getLessonDatesForPeriod(period));
+        result.removeAll(getLessonDates());
+        return result;
+    }
+
+    public Map<LocalDate, LessonInstance> getLessonInstancesForDatesMap() {
+        final Map<LocalDate, LessonInstance> result = new TreeMap<>();
+        getLessonDatesForPeriod(getPeriod()).forEach(date -> result.put(date, null));
+        getLessonInstancesSet().forEach(li -> result.put(li.getBeginDateTime().toLocalDate(), li));
         return result;
     }
 

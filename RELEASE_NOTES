@@ -1,3 +1,5 @@
+- Refactor: Merge lesson dates algorithm with schedule service [#qubIT-Fenix-4690]
+
 46.4.1 (19-03-2024)
 - New feature: Add calculation logic to CreditsWeightedCalculator  [#qubIT-Fenix-4856]
 
