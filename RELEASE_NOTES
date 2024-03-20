@@ -1,4 +1,5 @@
 - Refactor: Merge lesson dates algorithm with schedule service [#qubIT-Fenix-4690]
+- Bug fix: Result of getTotalHours() from lesson is losing precision [#qubIT-Fenix-5055]
 
 46.4.1 (19-03-2024)
 - New feature: Add calculation logic to CreditsWeightedCalculator  [#qubIT-Fenix-4856]

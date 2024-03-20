@@ -235,7 +235,10 @@ public class Lesson extends Lesson_Base {
     }
 
     public BigDecimal getTotalHours() {
-        return getUnitHours().multiply(BigDecimal.valueOf(getAllLessonDates().size()));
+        final BigDecimal totalHoursBigPrecision = BigDecimal.valueOf(getUnitMinutes())
+                .divide(BigDecimal.valueOf(NUMBER_OF_MINUTES_IN_HOUR), 5, RoundingMode.HALF_UP);
+
+        return totalHoursBigPrecision.multiply(BigDecimal.valueOf(getLessonDates().size())).setScale(2, RoundingMode.HALF_UP);
     }
 
     public Duration getTotalDuration() {
@@ -284,7 +287,7 @@ public class Lesson extends Lesson_Base {
         return getLessonDates().stream().map(ld -> new YearMonthDay(ld.getYear(), ld.getMonthOfYear(), ld.getDayOfMonth()))
                 .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
     }
-    
+
     // TODO set visibility to private after references in ScheduleServices are merged
     public Set<LocalDate> getLessonDatesForPeriod(final OccupationPeriod period) {
         final SortedSet<LocalDate> result = new TreeSet<LocalDate>();

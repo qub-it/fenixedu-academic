@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.spaces.domain.Information;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.DateTime;
@@ -136,6 +135,31 @@ public class ExecutionsAndSchedulesTest {
     @Test
     public void testShift_courseLoadTotalHours() {
         assertEquals(shift.getCourseLoadTotalHours(), new BigDecimal("30.0"));
+    }
+
+    @Test
+    public void testShift_totalHours() {
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 22, 0, 0))).iterator();
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
+
+        Shift shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T-test-total-hours");
+
+        Lesson lesson3h00m = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
+        Lesson lesson1h20m = createLesson(shift, WeekDay.TUESDAY, new LocalTime(10, 0), new LocalTime(11, 20),
+                FrequencyType.WEEKLY, occupationPeriod, null);
+
+        assertEquals(lesson3h00m.getLessonDates().size(), 13);
+        assertEquals(lesson1h20m.getLessonDates().size(), 14);
+
+        assertEquals(lesson3h00m.getUnitHours(), new BigDecimal("3.00"));
+        assertEquals(lesson1h20m.getUnitHours(), new BigDecimal("1.33"));
+        
+        assertEquals(lesson3h00m.getTotalHours(), new BigDecimal("39.00"));
+        assertEquals(lesson1h20m.getTotalHours(), new BigDecimal("18.67"));
+        
+        assertEquals(shift.getTotalHours(), new BigDecimal("57.67"));
     }
 
     @Rule
