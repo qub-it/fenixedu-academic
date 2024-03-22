@@ -90,15 +90,18 @@ public class RuleResult {
         final RuleResultType andResult = this.getResult().and(ruleResult.getResult());
         final Set<RuleResultMessage> messages = new HashSet<>();
 
-        if (isFalse()) {
+        final boolean thisRuleIsFalseOrImpossible = isFalse() || hasAnyImpossibleEnrolment();
+        final boolean otherRuleIsFalseOrImpossibile = ruleResult.isFalse() || ruleResult.hasAnyImpossibleEnrolment();
+
+        if (thisRuleIsFalseOrImpossible) {
             messages.addAll(getMessages());
         }
 
-        if (ruleResult.isFalse()) {
+        if (otherRuleIsFalseOrImpossibile) {
             messages.addAll(ruleResult.getMessages());
         }
 
-        if (!isFalse() && !ruleResult.isFalse()) {
+        if (!thisRuleIsFalseOrImpossible && !otherRuleIsFalseOrImpossibile) {
             messages.addAll(getMessages());
             messages.addAll(ruleResult.getMessages());
         }
@@ -125,7 +128,7 @@ public class RuleResult {
         final RuleResultType orResult = this.getResult().or(ruleResult.getResult());
         final Set<RuleResultMessage> messages = new HashSet<>();
 
-        if (isFalse() && ruleResult.isFalse()) {
+        if ((isFalse() || hasAnyImpossibleEnrolment()) && (ruleResult.isFalse() || ruleResult.hasAnyImpossibleEnrolment())) {
             messages.addAll(getMessages());
             messages.addAll(ruleResult.getMessages());
         } else {
