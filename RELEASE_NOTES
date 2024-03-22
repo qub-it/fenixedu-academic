@@ -1,3 +1,5 @@
+- Improvement: Improve enrolment messages [#qubIT-Fenix-5089]
+
 46.5.0 (20-03-2024)
 - Refactor: Merge lesson dates algorithm with schedule service [#qubIT-Fenix-4690]
 - Bug fix: Result of getTotalHours() from lesson is losing precision [#qubIT-Fenix-5055]

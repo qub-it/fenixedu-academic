@@ -43,7 +43,8 @@ public class RuleResult {
     }
 
     private RuleResult(final RuleResultType resultType,
-            final Map<DegreeModule, EnrolmentResultType> enrolmentResultTypeByDegreeModule, final Set<RuleResultMessage> messages) {
+            final Map<DegreeModule, EnrolmentResultType> enrolmentResultTypeByDegreeModule,
+            final Set<RuleResultMessage> messages) {
         this();
         this.result = resultType;
         this.enrolmentResultTypeByDegreeModule = enrolmentResultTypeByDegreeModule;
@@ -51,7 +52,8 @@ public class RuleResult {
 
     }
 
-    private RuleResult(final RuleResultType result, final EnrolmentResultType enrolmentResultType, final DegreeModule degreeModule) {
+    private RuleResult(final RuleResultType result, final EnrolmentResultType enrolmentResultType,
+            final DegreeModule degreeModule) {
         this();
 
         if (result == null) {
@@ -86,11 +88,23 @@ public class RuleResult {
 
     public RuleResult and(final RuleResult ruleResult) {
         final RuleResultType andResult = this.getResult().and(ruleResult.getResult());
-        final Set<RuleResultMessage> messages = new HashSet<RuleResultMessage>(getMessages());
-        messages.addAll(ruleResult.getMessages());
+        final Set<RuleResultMessage> messages = new HashSet<>();
 
-        return new RuleResult(andResult, andMerge(this.enrolmentResultTypeByDegreeModule,
-                ruleResult.enrolmentResultTypeByDegreeModule), messages);
+        if (isFalse()) {
+            messages.addAll(getMessages());
+        }
+
+        if (ruleResult.isFalse()) {
+            messages.addAll(ruleResult.getMessages());
+        }
+
+        if (!isFalse() && !ruleResult.isFalse()) {
+            messages.addAll(getMessages());
+            messages.addAll(ruleResult.getMessages());
+        }
+
+        return new RuleResult(andResult,
+                andMerge(this.enrolmentResultTypeByDegreeModule, ruleResult.enrolmentResultTypeByDegreeModule), messages);
     }
 
     private Map<DegreeModule, EnrolmentResultType> andMerge(final Map<DegreeModule, EnrolmentResultType> left,
@@ -109,11 +123,23 @@ public class RuleResult {
 
     public RuleResult or(final RuleResult ruleResult) {
         final RuleResultType orResult = this.getResult().or(ruleResult.getResult());
-        final Set<RuleResultMessage> messages = new HashSet<RuleResultMessage>(getMessages());
-        messages.addAll(ruleResult.getMessages());
+        final Set<RuleResultMessage> messages = new HashSet<>();
 
-        return new RuleResult(orResult, orMerge(this.enrolmentResultTypeByDegreeModule,
-                ruleResult.enrolmentResultTypeByDegreeModule), messages);
+        if (isFalse() && ruleResult.isFalse()) {
+            messages.addAll(getMessages());
+            messages.addAll(ruleResult.getMessages());
+        } else {
+            if (isWarning()) {
+                messages.addAll(getMessages());
+            }
+
+            if (ruleResult.isWarning()) {
+                messages.addAll(ruleResult.getMessages());
+            }
+        }
+
+        return new RuleResult(orResult,
+                orMerge(this.enrolmentResultTypeByDegreeModule, ruleResult.enrolmentResultTypeByDegreeModule), messages);
     }
 
     private Map<DegreeModule, EnrolmentResultType> orMerge(final Map<DegreeModule, EnrolmentResultType> left,

@@ -46,9 +46,7 @@ public class EnrolmentToBeApprovedByCoordinatorExecutor extends CurricularRuleEx
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
 
         if (isPersonAuthorized(enrolmentContext)) {
-            return RuleResult.createWarning(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                    "curricularRules.ruleExecutors.EnrolmentToBeApprovedByCoordinatorExecutor.degree.module.needs.aproval.by.coordinator",
-                    sourceDegreeModuleToEvaluate.getName());
+            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
         if (sourceDegreeModuleToEvaluate.isEnroled()) {
@@ -80,8 +78,7 @@ public class EnrolmentToBeApprovedByCoordinatorExecutor extends CurricularRuleEx
     private boolean isPersonAuthorized(EnrolmentContext enrolmentContext) {
         return AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.STUDENT_ENROLMENTS,
                 enrolmentContext.getStudentCurricularPlan().getDegree(), enrolmentContext.getResponsiblePerson().getUser())
-                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS",
-                        enrolmentContext.getResponsiblePerson().getUser());
+                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", enrolmentContext.getResponsiblePerson().getUser());
     }
 
     @Override
