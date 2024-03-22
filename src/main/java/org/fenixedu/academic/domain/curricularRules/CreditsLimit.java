@@ -130,10 +130,13 @@ public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
 
     @Override
     public boolean canConclude(CurriculumGroup group, ExecutionYear executionYear) {
-        final double minCreditsToApprove = group.getDegreeModule().getMinEctsCredits(executionYear);
         final double totalCredits = group.getCreditsConcluded(executionYear) + group.getEnroledEctsCredits(executionYear);
 
-        return totalCredits >= minCreditsToApprove;
+        if (getMinimumCredits().doubleValue() == 0) {
+            return totalCredits >= getMaximumCredits().doubleValue();
+        }
+
+        return totalCredits >= getMinimumCredits().doubleValue();
     }
 
 }

@@ -900,11 +900,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public boolean canConclude(ExecutionYear executionYear) {
-        //can conclude should not return true if is already concluded
-        if (isConcluded(executionYear).value()) {
-            return false;
-        }
-
         final Collection<ConclusionRule> rules = getConclusionRulesToEvaluate(executionYear);
         return !rules.isEmpty() && rules.stream().allMatch(r -> r.canConclude(this, executionYear));
     }

@@ -66,7 +66,7 @@ public class DegreeModulesSelectionLimitTest {
                 createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
 
         assertEquals(true, curricularPlan.getRoot().isConcluded());
-        assertEquals(false, curricularPlan.getRoot().canConclude(executionYear));
+        assertEquals(true, curricularPlan.getRoot().canConclude(executionYear));
     }
 
     @Test
@@ -419,6 +419,66 @@ public class DegreeModulesSelectionLimitTest {
         enrol(curricularPlan, executionYear, "C6");
 
         assertEquals(false, mandatoryCurriculumGroup.isConcluded());
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
+
+    }
+
+    @Test
+    public void testCanConcludeWhenMinModulesIsZero() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModulesSelectionLimit(mandatoryGroup, null, executionYear, null, 0, 4);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1", "C2", "C3");
+        approve(curricularPlan, "C1", "C2");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+
+        assertEquals(false, mandatoryCurriculumGroup.canConclude(executionYear));
+
+    }
+
+    @Test
+    public void testCanConcludeWhenMinModulesIsZeroAndMaxIsFull() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModulesSelectionLimit(mandatoryGroup, null, executionYear, null, 0, 3);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1", "C2", "C3");
+        approve(curricularPlan, "C1", "C2");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
+
+    }
+
+    @Test
+    public void testCanConcludeWhenMinModulesIsGreatherThanZero() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModulesSelectionLimit(mandatoryGroup, null, executionYear, null, 2, 4);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1", "C2", "C3");
+        approve(curricularPlan, "C1", "C2");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+
         assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
 
     }

@@ -1,4 +1,5 @@
 - Improvement: Improve enrolment messages [#qubIT-Fenix-5089]
+- Bug fix: CurriculumModule canConclude should also return true when isConcluded is true [#qubIT-Fenix-5047]
 
 46.5.0 (20-03-2024)
 - Refactor: Merge lesson dates algorithm with schedule service [#qubIT-Fenix-4690]

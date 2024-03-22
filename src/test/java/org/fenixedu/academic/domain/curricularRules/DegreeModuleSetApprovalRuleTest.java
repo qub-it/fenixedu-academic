@@ -1021,7 +1021,7 @@ public class DegreeModuleSetApprovalRuleTest {
 
         final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
 
-        assertEquals(false, mandatoryCurriculumGroup.canConclude(executionYear));
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
     }
 
     @Test
@@ -1390,8 +1390,7 @@ public class DegreeModuleSetApprovalRuleTest {
 
         final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
 
-        assertEquals(false, mandatoryCurriculumGroup.canConclude(executionYear)); //group behaviour when concluded is false
-        assertEquals(true, rule.canConclude(mandatoryCurriculumGroup, executionYear)); //rule behavious is to always evaluate
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear));
     }
 
     @Test
@@ -1515,7 +1514,7 @@ public class DegreeModuleSetApprovalRuleTest {
 
         final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
 
-        assertEquals(false, rule.canConclude(mandatoryCurriculumGroup, nextYear));
+        assertEquals(false, mandatoryCurriculumGroup.canConclude(nextYear));
     }
 
 }

@@ -326,8 +326,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     @Override
     public boolean canConclude(ExecutionYear executionYear) {
-        //dismissals are always concluded
-        return false;
+        return true;
     }
 
     @Override

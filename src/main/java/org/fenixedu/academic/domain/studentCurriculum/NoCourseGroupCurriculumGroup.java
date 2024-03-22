@@ -171,8 +171,7 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
 
     @Override
     public boolean canConclude(ExecutionYear executionYear) {
-        //no course groups are always concluded
-        return false;
+        return true;
     }
 
     @Override
