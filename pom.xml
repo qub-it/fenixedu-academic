@@ -170,10 +170,6 @@
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-struts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.fenixedu</groupId>
             <artifactId>fenixedu-commons</artifactId>
         </dependency>
         <dependency>

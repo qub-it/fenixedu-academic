@@ -18,17 +18,9 @@
  */
 package org.fenixedu.bennu;
 
-import org.fenixedu.academic.service.GOPSendMessageService;
 import org.fenixedu.bennu.spring.BennuSpringModule;
-import org.fenixedu.spaces.core.service.NotificationService;
-import org.springframework.context.annotation.Bean;
 
 @BennuSpringModule(basePackages = "org.fenixedu.academic.ui.spring", bundles = "ApplicationResources")
 public class FenixSpringConfiguration {
-
-    @Bean
-    public NotificationService notificationService() {
-        return new GOPSendMessageService();
-    }
 
 }
