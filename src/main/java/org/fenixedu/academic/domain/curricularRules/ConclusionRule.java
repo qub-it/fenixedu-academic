@@ -13,4 +13,6 @@ public interface ConclusionRule {
 
     public boolean canConclude(CurriculumGroup group, ExecutionYear executionYear);
 
+    public boolean canEnrolAfterConclusion(CurriculumGroup group, ExecutionYear executionYear);
+
 }

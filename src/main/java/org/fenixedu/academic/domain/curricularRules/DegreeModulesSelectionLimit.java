@@ -126,7 +126,7 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
     public boolean isConcluded(CurriculumGroup group, ExecutionYear executionYear) {
         final long modulesConcluded =
                 group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value()).count();
-        return modulesConcluded >= getMinimumLimit();
+        return modulesConcluded >= getMinimumLimit().intValue();
     }
 
     @Override
@@ -139,6 +139,13 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
         }
 
         return modulesThatCanConclude >= getMinimumLimit().intValue();
+    }
+
+    @Override
+    public boolean canEnrolAfterConclusion(CurriculumGroup group, ExecutionYear executionYear) {
+        final long modulesConcluded =
+                group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value()).count();
+        return modulesConcluded < getMaximumLimit().intValue();
     }
 
 }

@@ -256,4 +256,9 @@ public class DegreeModuleSetApprovalRule extends DegreeModuleSetApprovalRule_Bas
         return competenceCourse != null && line.getCurricularCourse().getCompetenceCourse() == competenceCourse;
     }
 
+    @Override
+    public boolean canEnrolAfterConclusion(CurriculumGroup group, ExecutionYear executionYear) {
+        return getCanEnrolAfterConclusion() || !isConcluded(group, executionYear);
+    }
+
 }

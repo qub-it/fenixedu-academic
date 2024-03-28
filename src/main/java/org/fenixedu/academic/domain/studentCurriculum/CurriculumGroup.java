@@ -904,7 +904,7 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         return !rules.isEmpty() && rules.stream().allMatch(r -> r.canConclude(this, executionYear));
     }
 
-    private Collection<ConclusionRule> getConclusionRulesToEvaluate(ExecutionYear executionYear) {
+    public Collection<ConclusionRule> getConclusionRulesToEvaluate(ExecutionYear executionYear) {
         return getDegreeModule().getCurricularRules(executionYear).stream().filter(ConclusionRule.class::isInstance)
                 .map(ConclusionRule.class::cast).filter(r -> r.canBeEvaluatedForConclusion(this, executionYear))
                 .collect(Collectors.toSet());

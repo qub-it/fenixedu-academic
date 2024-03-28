@@ -5030,6 +5030,7 @@ class curricularRules.DegreeModuleSetApprovalRule extends curricularRules.Rule {
 	boolean showWarningOnEnrolment;
 	boolean validateEnroledModulesOnly;
 	boolean requiresApprovalInOneModuleOnly;
+	boolean canEnrolAfterConclusion;
 }
 
 	relation DegreeModuleSetApprovalRuleDegreeModule {

@@ -139,4 +139,12 @@ public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
         return totalCredits >= getMinimumCredits().doubleValue();
     }
 
+    @Override
+    public boolean canEnrolAfterConclusion(CurriculumGroup group, ExecutionYear executionYear) {        
+        final Double creditsConcluded =
+                group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).isValid())
+                        .map(m -> m.getCreditsConcluded(executionYear)).collect(Collectors.summingDouble(v -> v));
+        return creditsConcluded < getMaximumCredits();
+    }
+
 }
