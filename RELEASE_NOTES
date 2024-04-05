@@ -1,3 +1,5 @@
+- Refactor: Remove reference of RegistrationStateTypeEnum in student candidacy [#qubIT-Fenix-2589]
+
 46.6.2 (05-04-2024)
 - Improvement: Degree module selection limit rule should allow enrolment after conclusion [#qubIT-Fenix-5047]
 
