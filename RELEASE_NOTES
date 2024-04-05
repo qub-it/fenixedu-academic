@@ -1,3 +1,5 @@
+- Improvement: Degree module selection limit rule should allow enrolment after conclusion [#qubIT-Fenix-5047]
+
 46.6.1 (28-03-2024)
 - Refactor: Conclusion rules now answers about enrolment after conclusion [#qubIT-Fenix-5047]
 

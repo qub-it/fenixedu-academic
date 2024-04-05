@@ -143,6 +143,10 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
 
     @Override
     public boolean canEnrolAfterConclusion(CurriculumGroup group, ExecutionYear executionYear) {
+        if (getCanEnrolAfterConclusion()) {
+            return true;
+        }
+        
         final long modulesConcluded =
                 group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value()).count();
         return modulesConcluded < getMaximumLimit().intValue();

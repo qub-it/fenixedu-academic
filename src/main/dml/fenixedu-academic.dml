@@ -921,6 +921,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             class curricularRules.DegreeModulesSelectionLimit extends curricularRules.Rule {
                 Integer maximumLimit;
                 Integer minimumLimit;
+                boolean canEnrolAfterConclusion;
             }
 
             class curricularRules.EnrolmentToBeApprovedByCoordinator extends curricularRules.Rule {
