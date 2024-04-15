@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.domain.student.curriculum;
 
+import static java.util.Optional.ofNullable;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,6 +36,8 @@ import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.student.curriculum.calculator.ConclusionGradeCalculator;
+import org.fenixedu.academic.domain.student.curriculum.calculator.ConclusionGradeCalculatorResultsDTO;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
@@ -319,6 +323,8 @@ public class Curriculum implements Serializable, ICurriculum {
 
     private CurriculumGradeCalculator gradeCalculator = CURRICULUM_GRADE_CALCULATOR.get();
 
+    private ConclusionGradeCalculatorResultsDTO conclusionGradeCalculatorResult;
+
     static public Curriculum createEmpty(final ExecutionYear executionYear) {
         return Curriculum.createEmpty(null, executionYear);
     }
@@ -502,17 +508,35 @@ public class Curriculum implements Serializable, ICurriculum {
 
     @Override
     public Grade getRawGrade() {
-        return getGradeCalculator().rawGrade(this);
+        updateConclusionGradeCalculatorResult();
+
+        return ofNullable(conclusionGradeCalculatorResult).map(r -> r.getIntermediateRoundedGrade())
+                .orElseGet(() -> getGradeCalculator().rawGrade(this));
     }
 
     @Override
     public Grade getFinalGrade() {
-        return getGradeCalculator().finalGrade(this);
+        updateConclusionGradeCalculatorResult();
+
+        return ofNullable(conclusionGradeCalculatorResult).map(r -> r.getFinalGrade())
+                .orElseGet(() -> getGradeCalculator().finalGrade(this));
     }
 
     @Override
     public Grade getUnroundedGrade() {
-        return getGradeCalculator().unroundedGrade(this);
+        updateConclusionGradeCalculatorResult();
+
+        return ofNullable(conclusionGradeCalculatorResult).map(r -> r.getUnroundedGrade())
+                .orElseGet(() -> getGradeCalculator().unroundedGrade(this));
+    }
+
+    private void updateConclusionGradeCalculatorResult() {
+        if (this.conclusionGradeCalculatorResult == null) {
+            final ConclusionGradeCalculator conclusionGradeCalculator =
+                    getStudentCurricularPlan().getDegreeCurricularPlan().getConclusionGradeCalculator();
+            this.conclusionGradeCalculatorResult =
+                    conclusionGradeCalculator == null ? null : conclusionGradeCalculator.calculate(this);
+        }
     }
 
     @Override

@@ -1,5 +1,7 @@
+- Refactor: Integrate conclusion grade calculator with curriculum [#qubIT-Fenix-4856]
+
 46.6.4 (08-04-2024)
-Bug fix: Fixed photograph deletion by removing relation with photo rejector [#qubIT-Fenix-5124]
+- Bug fix: Fixed photograph deletion by removing relation with photo rejector [#qubIT-Fenix-5124]
 
 46.6.3 (05-04-2024)
 - Refactor: Remove reference of RegistrationStateTypeEnum in student candidacy [#qubIT-Fenix-2589]
