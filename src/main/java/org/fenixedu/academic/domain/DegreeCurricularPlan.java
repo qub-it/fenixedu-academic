@@ -353,6 +353,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             if (getDegreeStructure() != null) {
                 getDegreeStructure().delete();
             }
+            super.setConclusionGradeCalculator(null);
             setRootDomainObject(null);
             deleteDomainObject();
         } else {
