@@ -61,14 +61,6 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         return sumOfGradesWeighted.divide(sumOfWeights, getNumberOfDecimals() * 2 + 1, getRoundingMode());
     }
 
-    public void delete() {
-        if (!getDegreeCurricularPlansSet().isEmpty()) {
-            throw new DomainException("error.GradeCalculator.delete.impossible.withDCP");
-        }
-        super.setRootDomainObject(null);
-        super.deleteDomainObject();
-    }
-
 //    @Override
     public void setNumberOfDecimals(int numberOfDecimals) {
         if (numberOfDecimals < 0) {
