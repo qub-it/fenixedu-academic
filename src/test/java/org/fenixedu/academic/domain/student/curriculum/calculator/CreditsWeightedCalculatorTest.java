@@ -16,6 +16,7 @@ import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.student.curriculum.calculator.util.ConclusionGradeCalculatorTestUtil;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +71,8 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C22", "19.5");
 
         //Actual value: 19.49500000000
-        ConclusionGradeCalculator calculatorHalfUP = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
+        ConclusionGradeCalculator calculatorHalfUP =
+                CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.HALF_UP, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsHalfUP = calculatorHalfUP.calculate(scp.getRoot().getCurriculum());
 
 //        System.out.println("Unrounded Grade: " + calculatedResultsHalfUP.getUnroundedGrade());
@@ -81,7 +83,8 @@ public class CreditsWeightedCalculatorTest {
         assertEquals(calculatedResultsHalfUP.getIntermediateRoundedGrade(), grade("19.50"));
         assertEquals(calculatedResultsHalfUP.getFinalGrade(), grade("20"));
 
-        ConclusionGradeCalculator calculatorHalfDOWN = CreditsWeightedCalculator.create(RoundingMode.HALF_DOWN, 2);
+        ConclusionGradeCalculator calculatorHalfDOWN =
+                CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.HALF_DOWN, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsHalfDOWN =
                 calculatorHalfDOWN.calculate(scp.getRoot().getCurriculum());
 
@@ -89,7 +92,7 @@ public class CreditsWeightedCalculatorTest {
         assertEquals(calculatedResultsHalfDOWN.getIntermediateRoundedGrade(), grade("19.49"));
         assertEquals(calculatedResultsHalfDOWN.getFinalGrade(), grade("19"));
 
-        ConclusionGradeCalculator calculatorDOWN = CreditsWeightedCalculator.create(RoundingMode.DOWN, 2);
+        ConclusionGradeCalculator calculatorDOWN = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.DOWN, 2);
         ConclusionGradeCalculatorResultsDTO calculatedResultsDOWN = calculatorDOWN.calculate(scp.getRoot().getCurriculum());
 
         assertEquals(calculatedResultsDOWN.getUnroundedGrade(), grade("19.49500"));
@@ -111,7 +114,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C4", "10");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C5", "10");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("10.00000"));
@@ -134,7 +137,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "20");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C5", "20");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("20.00000"));
@@ -158,7 +161,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "20");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C5", "20");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("14.00000"));
@@ -178,7 +181,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "15");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 5);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 5);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("15.00000000000"));
@@ -199,7 +202,7 @@ public class CreditsWeightedCalculatorTest {
         Credits credits = ConclusionRulesTestUtil.createCredits(scp, year, scp.getDegreeCurricularPlan().getRoot(),
                 new BigDecimal("6.0"), "C3");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.HALF_UP, 2);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.HALF_UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("13.33333"));
@@ -222,7 +225,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "10");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 2);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 2);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("10.00000"));
@@ -241,7 +244,7 @@ public class CreditsWeightedCalculatorTest {
         ConclusionGradeCalculatorTestUtil.approve(scp, "C2", "10.5");
         ConclusionGradeCalculatorTestUtil.approve(scp, "C3", "10.5");
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.UP, 5);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.UP, 5);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
         assertEquals(calculatedResults.getUnroundedGrade(), grade("10.50000000000"));
@@ -272,7 +275,7 @@ public class CreditsWeightedCalculatorTest {
         assertEquals(true, course.isPresent());
         assertEquals(course.get().getGrade(), grade("10"));
 
-        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(RoundingMode.DOWN, 1);
+        ConclusionGradeCalculator calculator = CreditsWeightedCalculator.create(new LocalizedString(), RoundingMode.DOWN, 1);
 
         ConclusionGradeCalculatorResultsDTO calculatedResults = calculator.calculate(scp.getRoot().getCurriculum());
 

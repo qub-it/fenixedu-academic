@@ -13,6 +13,7 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
 
@@ -20,8 +21,9 @@ public class CreditsWeightedCalculator extends CreditsWeightedCalculator_Base {
         super();
     }
 
-    public static CreditsWeightedCalculator create(RoundingMode roundingMode, int numberOfDecimals) {
+    public static CreditsWeightedCalculator create(LocalizedString name, RoundingMode roundingMode, int numberOfDecimals) {
         final CreditsWeightedCalculator calculator = new CreditsWeightedCalculator();
+        calculator.setName(name);
         calculator.setRoundingMode(roundingMode);
         calculator.setNumberOfDecimals(numberOfDecimals);
         return calculator;

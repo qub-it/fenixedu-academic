@@ -306,7 +306,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		}
 		
 	class student.curriculum.calculator.ConclusionGradeCalculator {
-		String name;
+		LocalizedString name (REQUIRED);
 	}
 
 		relation ConclusionGradeCalculatorBennu {

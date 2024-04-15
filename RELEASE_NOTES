@@ -1,3 +1,4 @@
+- Refactor: Change conclusion grade calculator name to localized string [#qubIT-Fenix-4856]
 - Refactor: Integrate conclusion grade calculator with curriculum [#qubIT-Fenix-4856]
 
 46.6.4 (08-04-2024)
