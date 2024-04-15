@@ -1,3 +1,4 @@
+46.6.6 (15-04-2024)
 - Refactor: Move delete method of conclusion grade calculator to superclass [#qubIT-Fenix-4856]
 
 46.6.5 (15-04-2024)
