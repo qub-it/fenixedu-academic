@@ -1,3 +1,4 @@
+46.7.0 (17-04-2024)
 - Refactor: Removes commons-httpclient dependency [#qubIT-Omnis-5730]
 - Refactor: Remove deprecated UI controllers and views [#qubIT-Fenix-1596]
 - Refactor: Remove fenixedu-spaces UI references [#qubIT-Omnis-5753]
