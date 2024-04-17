@@ -1,3 +1,4 @@
+- Refactor: Removes commons-httpclient dependency [#qubIT-Omnis-5730]
 - Refactor: Remove deprecated UI controllers and views [#qubIT-Fenix-1596]
 - Refactor: Remove fenixedu-spaces UI references [#qubIT-Omnis-5753]
 
