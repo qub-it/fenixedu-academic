@@ -340,7 +340,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     public List<DegreeCurricularPlan> getActiveDegreeCurricularPlans() {
-        return getDegreeCurricularPlansSet().stream().filter(dcp -> dcp.getState() == DegreeCurricularPlanState.ACTIVE)
+        return getDegreeCurricularPlansSet().stream().filter(DegreeCurricularPlan::isActive)
                 .collect(Collectors.toUnmodifiableList());
     }
 
