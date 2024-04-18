@@ -1,3 +1,4 @@
+- Refactor: Removes bennu-spring dependency [#qubIT-Omnis-5754]
 - Refactor: Refactors PhotoController to JaxWS [#qubIT-Omnis-5754]
 - New feature: Course load durations by teaching method [#qubIT-Fenix-5220]
 
