@@ -87,6 +87,9 @@ public class StudentTest {
 
         RegistrationStateType.create(REGISTRATION_STATE_INTERRUPTED,
                 new LocalizedString.Builder().with(Locale.getDefault(), "Interrupted").build(), false, null);
+
+        RegistrationStateType.create(RegistrationStateType.CONCLUDED_CODE,
+                new LocalizedString.Builder().with(Locale.getDefault(), "Concluded").build(), false, null);
     }
 
     @Test
