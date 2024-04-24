@@ -1,4 +1,4 @@
-package org.fenixedu.academic.ui.rest;
+package org.fenixedu.academic.ui.spring.controller;
 
 import java.io.Serializable;
 

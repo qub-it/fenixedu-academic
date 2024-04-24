@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Photograph;
 import org.fenixedu.academic.domain.photograph.PictureMode;
 import org.fenixedu.academic.service.services.fileManager.UploadOwnPhoto;
+import org.fenixedu.academic.ui.spring.controller.PhotographForm;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.ContentType;
 import org.fenixedu.bennu.core.domain.Avatar;
