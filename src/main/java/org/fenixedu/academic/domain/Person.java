@@ -88,7 +88,7 @@ public class Person extends Person_Base {
         super.setUser(user);
         if (getProfile() != null) {
             getProfile().setAvatarUrl(
-                    CoreConfiguration.getConfiguration().applicationUrl() + "/user/photo/" + getUser().getUsername());
+                    CoreConfiguration.getConfiguration().applicationUrl() + "/api/user/photo/" + getUser().getUsername());
         }
     }
 
