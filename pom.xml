@@ -157,6 +157,10 @@
         </dependency>
         <dependency>
             <groupId>org.fenixedu</groupId>
+            <artifactId>bennu-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fenixedu</groupId>
             <artifactId>bennu-cas-client</artifactId>
         </dependency>
         <dependency>
