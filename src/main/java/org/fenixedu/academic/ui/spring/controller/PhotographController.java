@@ -45,11 +45,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
-import com.google.common.io.ByteStreams;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.twilio.sdk.verbs.Redirect;
 
 @Controller
 @RequestMapping("/user/photo")
@@ -58,9 +55,9 @@ public class PhotographController {
     public static int MAX_PHOTO_SIZE = 1048576; //1M
 
     @RequestMapping(value = "{username:.+}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> get(@PathVariable String username, @RequestParam(value = "s", required = false,
-            defaultValue = "100") Integer size, @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch)
-            throws IOException {
+    public ResponseEntity<byte[]> get(@PathVariable String username,
+            @RequestParam(value = "s", required = false, defaultValue = "100") Integer size,
+            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
 
         if (size <= 0) {
             size = 100;
@@ -89,8 +86,8 @@ public class PhotographController {
                 headers.set("Content-Type", personalPhoto.getOriginal().getPictureFileFormat().getMimeType());
                 return new ResponseEntity<>(personalPhoto.getCustomAvatar(size, size, PictureMode.ZOOM), headers, HttpStatus.OK);
             } else {
-                try (InputStream mm =
-                        PhotographController.class.getClassLoader().getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
+                try (InputStream mm = PhotographController.class.getClassLoader()
+                        .getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
                     headers.set("Content-Type", "image/png");
                     return new ResponseEntity<>(Avatar.process(mm, "image/png", size), headers, HttpStatus.OK);
                 }
@@ -101,8 +98,8 @@ public class PhotographController {
     }
 
     @RequestMapping(value = "{size}/{username:.+}")
-    public ResponseEntity<byte[]> getWithSize(@PathVariable String username, @PathVariable Integer size, @RequestHeader(
-            value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
+    public ResponseEntity<byte[]> getWithSize(@PathVariable String username, @PathVariable Integer size,
+            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
         return get(username, size, ifNoneMatch);
     }
 
