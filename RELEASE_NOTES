@@ -1,3 +1,4 @@
+46.8.0 (30-04-2024)
 - Refactor: Refactors PhotoController to JaxWS [#qubIT-Omnis-5754]
 - New feature: Course load durations by teaching method [#qubIT-Fenix-5220]
 
