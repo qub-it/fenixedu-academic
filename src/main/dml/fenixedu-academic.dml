@@ -1008,7 +1008,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		relation CourseLoadTypeShift {
 		    degreeStructure.CourseLoadType playsRole courseLoadType { multiplicity 1..1; }
 		    Shift playsRole shifts { multiplicity *; }
-		}   		   
+		}
 		relation CourseLoadTypeLessonPlanning {
 		    degreeStructure.CourseLoadType playsRole courseLoadType { multiplicity 1..1; }
 		    LessonPlanning playsRole lessonPlannings { multiplicity *; }
@@ -1016,7 +1016,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		 
     class degreeStructure.CourseLoadDuration {
 	    BigDecimal hours (REQUIRED);
-    }       
+    }
 		relation CourseLoadDurationRoot {
 		    degreeStructure.CourseLoadDuration playsRole courseLoadDurations { multiplicity *; }
 		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
@@ -1029,6 +1029,33 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    degreeStructure.CourseLoadDuration playsRole courseLoadDurations { multiplicity *; }
 		    degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformation { multiplicity 1..1; }
 		}
+		
+    class degreeStructure.TeachingMethodType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+        LocalizedString initials (REQUIRED);
+        int displayOrder (REQUIRED);
+    }
+		relation TeachingMethodTypeRoot {
+		    degreeStructure.TeachingMethodType playsRole teachingMethodTypes { multiplicity *; }
+		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+		}    
+    		
+    class degreeStructure.CourseLoadDurationByTeachingMethod {
+	    BigDecimal hours (REQUIRED);
+    }
+		relation CourseLoadDurationByTeachingMethodRoot {
+		    degreeStructure.CourseLoadDurationByTeachingMethod playsRole courseLoadDurationsByTeachingMethod { multiplicity *; }
+		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+		}
+		relation CourseLoadDurationByTeachingMethodCourseLoadDuration {
+		    degreeStructure.CourseLoadDurationByTeachingMethod playsRole durationsByTeachingMethod { multiplicity *; }
+			degreeStructure.CourseLoadDuration playsRole courseLoadDuration { multiplicity 1..1; }
+		}
+		relation CourseLoadDurationByTeachingMethodTeachingMethodType {
+		    degreeStructure.CourseLoadDurationByTeachingMethod playsRole courseLoadDurationsByTeachingMethod { multiplicity *; }
+		    degreeStructure.TeachingMethodType playsRole teachingMethodType { multiplicity 1..1; }
+		}		
 
     class degreeStructure.Context  {
         Integer childOrder;

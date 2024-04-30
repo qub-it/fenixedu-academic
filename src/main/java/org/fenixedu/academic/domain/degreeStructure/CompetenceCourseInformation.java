@@ -297,12 +297,31 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return findLoadDurationByType(courseLoadType).map(CourseLoadDuration::getHours);
     }
 
+    public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType, final TeachingMethodType teachingMethod) {
+        return findLoadDurationByType(courseLoadType).flatMap(d -> d.findLoadDurationByTeachingMethod(teachingMethod))
+                .map(CourseLoadDurationByTeachingMethod::getHours);
+    }
+
     public void setLoadHours(final CourseLoadType courseLoadType, final BigDecimal hours) {
         final Optional<CourseLoadDuration> duration = findLoadDurationByType(courseLoadType);
         if (hours == null || hours.compareTo(BigDecimal.ZERO) <= 0) {
             duration.ifPresent(CourseLoadDuration::delete);
         } else {
             duration.orElseGet(() -> CourseLoadDuration.create(this, courseLoadType, null)).setHours(hours);
+        }
+    }
+
+    public void setLoadHours(final CourseLoadType courseLoadType, final TeachingMethodType teachingMethod,
+            final BigDecimal hours) {
+        final CourseLoadDuration duration = findLoadDurationByType(courseLoadType).orElseThrow();
+        final Optional<CourseLoadDurationByTeachingMethod> durationByTeachingMethod =
+                duration.findLoadDurationByTeachingMethod(teachingMethod);
+
+        if (hours == null || hours.compareTo(BigDecimal.ZERO) <= 0) {
+            durationByTeachingMethod.ifPresent(CourseLoadDurationByTeachingMethod::delete);
+        } else {
+            durationByTeachingMethod.orElseGet(() -> CourseLoadDurationByTeachingMethod.create(duration, teachingMethod, null))
+                    .setHours(hours);
         }
     }
 

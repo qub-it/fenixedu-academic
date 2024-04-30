@@ -1,3 +1,5 @@
+- New feature: Course load durations by teaching method [#qubIT-Fenix-5220]
+
 46.7.2 (19-04-2024)
 - Refactor: Add concluded state to student test initialization [#qubIT-Fenix-5172]
 

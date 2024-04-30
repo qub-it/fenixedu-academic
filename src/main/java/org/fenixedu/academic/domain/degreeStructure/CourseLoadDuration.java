@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -39,6 +40,10 @@ public class CourseLoadDuration extends CourseLoadDuration_Base {
         super.setHours(hours);
     }
 
+    public Optional<CourseLoadDurationByTeachingMethod> findLoadDurationByTeachingMethod(final TeachingMethodType teachingMethodType) {
+        return getDurationsByTeachingMethodSet().stream().filter(d -> d.getTeachingMethodType() == teachingMethodType).findAny();
+    }
+
     void deleteTriggeredByCompetenceCourseInformation() {
         final Boolean previousInformationHasNotThisLoadType = getCompetenceCourseInformation().findPrevious()
                 .map(cci -> cci.findLoadDurationByType(getCourseLoadType()).isEmpty()).orElse(false);
@@ -56,6 +61,7 @@ public class CourseLoadDuration extends CourseLoadDuration_Base {
         setRoot(null);
         setCompetenceCourseInformation(null);
         setCourseLoadType(null);
+        getDurationsByTeachingMethodSet().forEach(CourseLoadDurationByTeachingMethod::delete);
         super.deleteDomainObject();
     }
 
