@@ -55,9 +55,9 @@ public class PhotographController {
     public static int MAX_PHOTO_SIZE = 1048576; //1M
 
     @RequestMapping(value = "{username:.+}", method = RequestMethod.GET)
-    public ResponseEntity<byte[]> get(@PathVariable String username, @RequestParam(value = "s", required = false,
-            defaultValue = "100") Integer size, @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch)
-            throws IOException {
+    public ResponseEntity<byte[]> get(@PathVariable String username,
+            @RequestParam(value = "s", required = false, defaultValue = "100") Integer size,
+            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
 
         if (size <= 0) {
             size = 100;
@@ -86,8 +86,8 @@ public class PhotographController {
                 headers.set("Content-Type", personalPhoto.getOriginal().getPictureFileFormat().getMimeType());
                 return new ResponseEntity<>(personalPhoto.getCustomAvatar(size, size, PictureMode.ZOOM), headers, HttpStatus.OK);
             } else {
-                try (InputStream mm =
-                        PhotographController.class.getClassLoader().getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
+                try (InputStream mm = PhotographController.class.getClassLoader()
+                        .getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
                     headers.set("Content-Type", "image/png");
                     return new ResponseEntity<>(Avatar.process(mm, "image/png", size), headers, HttpStatus.OK);
                 }
@@ -98,29 +98,9 @@ public class PhotographController {
     }
 
     @RequestMapping(value = "{size}/{username:.+}")
-    public ResponseEntity<byte[]> getWithSize(@PathVariable String username, @PathVariable Integer size, @RequestHeader(
-            value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
+    public ResponseEntity<byte[]> getWithSize(@PathVariable String username, @PathVariable Integer size,
+            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch) throws IOException {
         return get(username, size, ifNoneMatch);
     }
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public @ResponseBody String upload(@RequestBody final PhotographForm jsonPhotographForm) {
-        final JsonObject response = new JsonObject();
-        String encodedPhoto = jsonPhotographForm.getEncodedPhoto();
-        if (Strings.isNullOrEmpty(encodedPhoto)) {
-            response.addProperty("reload", "true");
-            return new GsonBuilder().create().toJson(response);
-        }
-        String encodedContent = encodedPhoto.split(",")[1];
-        String photoContentType = encodedPhoto.split(",")[0].split(":")[1].split(";")[0];
-        byte[] photoContent = BaseEncoding.base64().decode(encodedContent);
-        if (photoContent.length > MAX_PHOTO_SIZE) {
-            response.addProperty("error", "true");
-            response.addProperty("message", BundleUtil.getString(Bundle.MANAGER, "errors.fileTooLarge"));
-            return new GsonBuilder().create().toJson(response);
-        }
-        UploadOwnPhoto.run(photoContent, ContentType.getContentType(photoContentType));
-        response.addProperty("success", "true");
-        return new GsonBuilder().create().toJson(response);
-    }
 }
