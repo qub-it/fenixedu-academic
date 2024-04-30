@@ -118,28 +118,4 @@ public class PhotographController {
         return get(username, size, ifNoneMatch);
     }
 
-    @POST
-    @Path(value = "/upload")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response upload(final PhotographForm jsonPhotographForm) {
-        final JsonObject response = new JsonObject();
-        String encodedPhoto = jsonPhotographForm.getEncodedPhoto();
-        Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK);
-        if (Strings.isNullOrEmpty(encodedPhoto)) {
-            response.addProperty("reload", "true");
-            return responseBuilder.entity(gson.toJson(response)).build();
-        }
-        String encodedContent = encodedPhoto.split(",")[1];
-        String photoContentType = encodedPhoto.split(",")[0].split(":")[1].split(";")[0];
-        byte[] photoContent = BaseEncoding.base64().decode(encodedContent);
-        if (photoContent.length > MAX_PHOTO_SIZE) {
-            response.addProperty("error", "true");
-            response.addProperty("message", BundleUtil.getString(Bundle.MANAGER, "errors.fileTooLarge"));
-            return responseBuilder.entity(gson.toJson(response)).build();
-        }
-        UploadOwnPhoto.run(photoContent, ContentType.getContentType(photoContentType));
-        response.addProperty("success", "true");
-        return responseBuilder.entity(gson.toJson(response)).build();
-    }
 }
