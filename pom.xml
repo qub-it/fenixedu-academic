@@ -74,7 +74,7 @@
             <dependency>
                 <groupId>com.qubit.solution.fenixedu</groupId>
                 <artifactId>fenixedu-oss-dependency-management</artifactId>
-                <version>125</version>
+                <version>128</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
