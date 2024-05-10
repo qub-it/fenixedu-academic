@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.TeacherCategory;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.springframework.stereotype.Service;
 
 /***
  * Teacher authorization and categories service
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Service;
  * @author Sérgio Silva (sergio.silva@tecnico.ulisboa.pt)
  *
  */
-@Service
 public class AuthorizationService {
 
     /***
