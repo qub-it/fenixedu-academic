@@ -1,3 +1,5 @@
+- Refactor: Removes remaining spring configuration classes to ulisboa specifications [#qubIT-Omnis-5807]
+- Refactor: Removes old PhotographController [#qubIT-Omnis-5807]
 - Refactor: Removes @Service annotation from AuthorizationService [#qubIT-Omnis-5833]
 
 46.8.0 (30-04-2024)
