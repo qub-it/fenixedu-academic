@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain.student;
 
+import static java.util.Comparator.comparing;
 import static org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType.REGISTERED_CODE;
 
 import java.math.BigDecimal;
@@ -2038,23 +2039,19 @@ public class Registration extends Registration_Base {
     }
 
     public void updateEnrolmentDate(final ExecutionYear executionYear) {
+        final Collection<Enrolment> enrolments = getEnrolments(executionYear);
+
+        if (enrolments.isEmpty() && getRegistrationDataByExecutionYear(executionYear) == null) {
+            return;
+        }
 
         final RegistrationDataByExecutionYear registrationData =
                 RegistrationDataByExecutionYear.getOrCreateRegistrationDataByYear(this, executionYear);
-        final Collection<Enrolment> executionYearEnrolments = getEnrolments(executionYear);
 
-        if (executionYearEnrolments.isEmpty()) {
+        if (enrolments.isEmpty()) {
             registrationData.setEnrolmentDate(null);
-
         } else if (registrationData.getEnrolmentDate() == null) {
-
-            final Enrolment firstEnrolment = Collections.min(executionYearEnrolments, new Comparator<Enrolment>() {
-                @Override
-                public int compare(final Enrolment left, final Enrolment right) {
-                    return left.getCreationDateDateTime().compareTo(right.getCreationDateDateTime());
-                }
-            });
-
+            final Enrolment firstEnrolment = enrolments.stream().min(comparing(Enrolment::getCreationDateDateTime)).orElseThrow();
             registrationData.edit(firstEnrolment.getCreationDateDateTime().toLocalDate());
         }
     }
