@@ -1409,15 +1409,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 	    public String code;
 		LocalizedString name (REQUIRED);
 		boolean workingStudentStatute;
-		boolean associativeLeaderStatute;
-		boolean specialSeasonGrantedByRequest;
-		boolean grantOwnerStatute;
-		boolean seniorStatute;
-		boolean handicappedStatute;
 		boolean active;
 		boolean explicitCreation;
 		boolean visible;
-		boolean specialSeasonGranted;
 		boolean appliedOnRegistration;
 	}
 

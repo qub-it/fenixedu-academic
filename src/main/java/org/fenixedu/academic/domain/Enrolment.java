@@ -52,8 +52,6 @@ import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
-import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -710,11 +708,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             }
 
             // checkPermissions
-            final StudentCurricularPlan scp = enrolment.getStudentCurricularPlan();
-            final Registration registration = scp.getRegistration();
-            if (!isSpecialSeasonGrantedByStatute(registration)) {
-                throw new DomainException("error.special.season.not.granted");
-            }
 
             final boolean isServices =
                     AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
@@ -723,23 +716,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
                     || considerThisEnrolmentPropaedeuticEnrolments(enrolment, isServices)
                     || considerThisEnrolmentExtraCurricularEnrolments(enrolment, isServices)
                     || considerThisEnrolmentStandaloneEnrolments(enrolment, isServices);
-        }
-
-        private boolean isSpecialSeasonGrantedByStatute(final Registration registration) {
-            final Student student = registration.getStudent();
-
-            for (StudentStatute statute : student.getStudentStatutesSet()) {
-                if (!statute.getType().getSpecialSeasonGranted() && !statute.hasSeniorStatuteForRegistration(registration)) {
-                    continue;
-                }
-                if (!statute.isValidInExecutionInterval(getExecutionInterval())) {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         private boolean considerThisEnrolmentNormalEnrolments(final Enrolment enrolment) {

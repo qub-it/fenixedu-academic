@@ -60,15 +60,9 @@ public class StatuteType extends StatuteType_Base {
         setCode(code);
         setName(name);
         setWorkingStudentStatute(workingStudentStatute);
-        setAssociativeLeaderStatute(associativeLeaderStatute);
-        setSpecialSeasonGrantedByRequest(specialSeasonGrantedByRequest);
-        setGrantOwnerStatute(grantOwnerStatute);
-        setSeniorStatute(seniorStatute);
-        setHandicappedStatute(handicappedStatute);
         setActive(active);
         setExplicitCreation(explicitCreation);
         setVisible(visible);
-        setSpecialSeasonGranted(specialSeasonGranted);
         setAppliedOnRegistration(appliedOnRegistration);
 
         checkRules();

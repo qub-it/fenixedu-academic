@@ -19,11 +19,9 @@
 package org.fenixedu.academic.domain.student;
 
 import java.util.Optional;
-import java.util.Set;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
 import org.fenixedu.academic.util.Bundle;
@@ -78,19 +76,6 @@ public class StudentStatute extends StudentStatute_Base {
         }
 
     }
-
-    //TODO: DELETE
-//    public boolean isValidInExecutionPeriod(final ExecutionSemester executionSemester) {
-//        if (getBeginExecutionInterval() != null && getBeginExecutionInterval().isAfter(executionSemester)) {
-//            return false;
-//        }
-//
-//        if (getEndExecutionInterval() != null && getEndExecutionInterval().isBefore(executionSemester)) {
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
     public boolean isValidInExecutionInterval(final ExecutionInterval interval) {
         if (interval instanceof ExecutionYear) {
@@ -213,29 +198,6 @@ public class StudentStatute extends StudentStatute_Base {
         return statuteBegin.isAfterOrEquals(thisStatuteBegin) && statuteBegin.isBeforeOrEquals(thisStatuteEnd)
                 || statuteEnd.isAfterOrEquals(thisStatuteBegin) && statuteEnd.isBeforeOrEquals(thisStatuteEnd);
 
-    }
-
-//    public void add(final StudentStatute statute) {
-//        if (this.overlapsWith(statute)) {
-//            if (statute.getBeginExecutionInterval() == null || getBeginExecutionInterval() != null
-//                    && statute.getBeginExecutionInterval().isBefore(getBeginExecutionInterval())) {
-//                setBeginExecutionPeriod(statute.getBeginExecutionInterval());
-//            }
-//
-//            if (statute.getEndExecutionInterval() == null || getEndExecutionInterval() != null
-//                    && statute.getEndExecutionInterval().isAfter(getEndExecutionInterval())) {
-//                setEndExecutionPeriod(statute.getEndExecutionInterval());
-//            }
-//        }
-//    }
-
-    public String toDetailedString() {
-        return (getBeginExecutionInterval() != null ? getBeginExecutionInterval().getQualifiedName() : " - ") + " ..... "
-                + (getEndExecutionInterval() != null ? getEndExecutionInterval().getQualifiedName() : " - ");
-    }
-
-    public boolean hasSeniorStatuteForRegistration(final Registration registration) {
-        return false;
     }
 
     /**
