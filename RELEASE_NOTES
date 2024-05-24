@@ -1,3 +1,5 @@
+- Refactor: Change internal source credits label [#qubIT-Fenix-5327]
+
 46.10.1 (21-05-2024)
 - Bug fix: Registration data by year should only be created/update when enrolments occur [#qubIT-Fenix-5306]
 
