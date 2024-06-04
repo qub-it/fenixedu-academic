@@ -1,3 +1,4 @@
+46.10.3 (04-06-2024)
 - Refactor: Remove deprecated statute type slots and methods [#qubIT-Fenix-5325]
 - Refactor: Add tests for student statutes [#qubIT-Fenix-5325]
 - Improvement: Adds title field to Person entity [#qubIT-Fenix-5348]
