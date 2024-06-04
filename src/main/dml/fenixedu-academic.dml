@@ -1210,6 +1210,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 			String iban;
 			String healthCardNumber;
 			Boolean selfAccountCreated;
+			LocalizedString title;
         }
 
 		class PersonIdentificationDocumentExtraInfo  {
