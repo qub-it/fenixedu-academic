@@ -1,3 +1,5 @@
+- Improvement: Better error messages when deletion of execution degree is not possible [#qubIT-Fenix-5167]
+
 46.10.3 (04-06-2024)
 - Refactor: Remove deprecated statute type slots and methods [#qubIT-Fenix-5325]
 - Refactor: Add tests for student statutes [#qubIT-Fenix-5325]
