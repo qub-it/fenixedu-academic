@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.qubit.solution.fenixedu.build</groupId>
         <artifactId>qub-fenixedu-project</artifactId>
-        <version>1.4.0</version>
+        <version>2.0.0</version>
         <relativePath />
     </parent>
 
 	<groupId>com.qubit.solution.fenixedu</groupId>
     <artifactId>fenixedu-academic-core</artifactId>
-    <version>46.10.4</version>
+    <version>46.11.0</version>
     <packaging>jar</packaging>
 
     <name>FenixEdu Academic</name>
@@ -74,7 +74,7 @@
             <dependency>
                 <groupId>com.qubit.solution.fenixedu</groupId>
                 <artifactId>fenixedu-oss-dependency-management</artifactId>
-                <version>160</version>
+                <version>166</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
