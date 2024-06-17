@@ -1,3 +1,5 @@
+- Improvement: Performs release for jdk 17 [#qubIT-Omnis-4737]
+
 46.10.4 (17-06-2024)
 - Improvement: Better error messages when deletion of execution course is not possible [#qubIT-Fenix-5338]
 - Improvement: Better error messages when deletion of execution degree is not possible [#qubIT-Fenix-5167]
