@@ -161,27 +161,27 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     @Override
-    protected void checkForDeletionBlockers(Collection<String> blockers) {
+    public void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (!getAssociatedSummariesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasSummaries"));
         }
         if (!getAssociatedBibliographicReferencesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasBibliographyReferences"));
         }
         if (!getAssociatedEvaluationsSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasEvaluations"));
         }
         if (!getAssociatedShifts().isEmpty() || !getShiftsSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasShifts"));
         }
         if (!getAttendsSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasAttends"));
         }
 
         for (final Professorship professorship : getProfessorshipsSet()) {
             if (!professorship.isDeletable()) {
-                blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.execution.course.cant.delete"));
+                blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasProfessorships"));
             }
         }
     }
