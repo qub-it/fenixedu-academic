@@ -68,8 +68,54 @@ public class StudentStatuteTest {
         assertFalse(studentStatute.isValidInExecutionInterval(executionInterval.getExecutionYear()));
         assertFalse(studentStatute.isValidOn(executionInterval.getExecutionYear()));
         assertTrue(studentStatute.isValidOnAnyExecutionPeriodFor(executionInterval.getExecutionYear()));
-        assertFalse(studentStatute.isValidOnAnyExecutionPeriodFor((ExecutionYear) executionInterval.getExecutionYear().getNext()));
+        assertFalse(
+                studentStatute.isValidOnAnyExecutionPeriodFor((ExecutionYear) executionInterval.getExecutionYear().getNext()));
+    }
 
+    @Test
+    public void registrationStatutes_isValidOn_onlyBeginInterval() {
+        final Student student = Student.readStudentByNumber(1);
+        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
+
+        final ExecutionInterval executionInterval =
+                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
+
+        final StudentStatute studentStatute =
+                new StudentStatute(student, statuteTypeA, executionInterval, null, null, null, null, registration);
+
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval));
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval.getNext()));
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval.getExecutionYear()));
+        assertFalse(studentStatute.isValidInExecutionInterval(executionInterval.getPrevious()));
+        assertTrue(studentStatute.isValidOn(executionInterval.getExecutionYear()));
+        assertTrue(studentStatute.isValidOnAnyExecutionPeriodFor(executionInterval.getExecutionYear()));
+        assertTrue(studentStatute.isValidOnAnyExecutionPeriodFor((ExecutionYear) executionInterval.getExecutionYear().getNext()));
+    }
+
+    @Test
+    public void registrationStatutes_isValidOn_onlyEndInterval() {
+        final Student student = Student.readStudentByNumber(1);
+        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
+
+        final ExecutionInterval executionInterval =
+                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
+
+        final StudentStatute studentStatute =
+                new StudentStatute(student, statuteTypeA, null, executionInterval, null, null, null, registration);
+
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval));
+        assertFalse(studentStatute.isValidInExecutionInterval(executionInterval.getNext()));
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval.getPrevious()));
+        assertFalse(studentStatute.isValidInExecutionInterval(executionInterval.getExecutionYear()));
+        assertTrue(studentStatute.isValidInExecutionInterval(executionInterval.getExecutionYear().getPrevious()));
+        assertFalse(studentStatute.isValidOn(executionInterval.getExecutionYear()));
+        assertTrue(studentStatute.isValidOnAnyExecutionPeriodFor(executionInterval.getExecutionYear()));
+        assertTrue(studentStatute
+                .isValidOnAnyExecutionPeriodFor((ExecutionYear) executionInterval.getExecutionYear().getPrevious()));
     }
 
     @Test
@@ -109,6 +155,91 @@ public class StudentStatuteTest {
         final Set<StatuteType> statuteTypesForPreviousInterval =
                 StatuteType.findforRegistration(registration, previousInterval).collect(Collectors.toSet());
         assertTrue(statuteTypesForPreviousInterval.isEmpty());
+    }
+
+    @Test
+    public void registrationStatutes_findByExecutionInterval_onlyBeginInterval() {
+        final Student student = Student.readStudentByNumber(1);
+        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
+
+        final ExecutionInterval executionInterval =
+                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
+
+        new StudentStatute(student, statuteTypeA, executionInterval, null, null, null, null, registration);
+
+        Set<StatuteType> statuteTypesForInterval =
+                StatuteType.findforRegistration(registration, executionInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForInterval.contains(statuteTypeA));
+
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+        final Set<StatuteType> statuteTypesForNextInterval =
+                StatuteType.findforRegistration(registration, nextInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForNextInterval.contains(statuteTypeA));
+
+        final ExecutionInterval previousInterval = executionInterval.getPrevious();
+        final Set<StatuteType> statuteTypesForPreviousInterval =
+                StatuteType.findforRegistration(registration, previousInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForPreviousInterval.isEmpty());
+    }
+
+    @Test
+    public void registrationStatutes_findByExecutionInterval_onlyEndInterval() {
+        final Student student = Student.readStudentByNumber(1);
+        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
+
+        final ExecutionInterval executionInterval =
+                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
+
+        new StudentStatute(student, statuteTypeA, null, executionInterval, null, null, null, registration);
+
+        Set<StatuteType> statuteTypesForInterval =
+                StatuteType.findforRegistration(registration, executionInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForInterval.contains(statuteTypeA));
+
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+        final Set<StatuteType> statuteTypesForNextInterval =
+                StatuteType.findforRegistration(registration, nextInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForNextInterval.isEmpty());
+
+        final ExecutionInterval previousInterval = executionInterval.getPrevious();
+        final Set<StatuteType> statuteTypesForPreviousInterval =
+                StatuteType.findforRegistration(registration, previousInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForPreviousInterval.contains(statuteTypeA));
+    }
+
+    @Test
+    public void registrationStatutes_findByExecutionInterval_createdWithoutAnyInterval() {
+        final Student student = Student.readStudentByNumber(1);
+        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
+
+        final ExecutionInterval executionInterval =
+                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
+        final StatuteType statuteTypeB = StatuteType.findByCode(TYPE_B).orElseThrow();
+
+        new StudentStatute(student, statuteTypeA, null, null, null, null, null, registration);
+
+        Set<StatuteType> statuteTypesForInterval =
+                StatuteType.findforRegistration(registration, executionInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForInterval.contains(statuteTypeA));
+        assertFalse(statuteTypesForInterval.contains(statuteTypeB));
+
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+        final Set<StatuteType> statuteTypesForNextInterval =
+                StatuteType.findforRegistration(registration, nextInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForNextInterval.contains(statuteTypeA));
+        assertFalse(statuteTypesForNextInterval.contains(statuteTypeB));
+
+        final ExecutionInterval previousInterval = executionInterval.getPrevious();
+        final Set<StatuteType> statuteTypesForPreviousInterval =
+                StatuteType.findforRegistration(registration, previousInterval).collect(Collectors.toSet());
+        assertTrue(statuteTypesForPreviousInterval.contains(statuteTypeA));
+        assertFalse(statuteTypesForPreviousInterval.contains(statuteTypeB));
     }
 
     @Test
