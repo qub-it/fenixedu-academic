@@ -1414,6 +1414,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		boolean explicitCreation;
 		boolean visible;
 		boolean appliedOnRegistration;
+		boolean allowOpenInterval;
 	}
 
     class student.StudentStatute  {
