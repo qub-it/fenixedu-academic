@@ -1,3 +1,5 @@
+- Bug fix: Enrolment can conclude should return true for approved enrolments [#qubIT-Fenix-5047]
+
 46.11.1 (20-06-2024)
 - Refactor: Add tests for student statutes with open intervals [#qubIT-Fenix-5325]
 - Improvement: Specify statutes types allowing open intervals [#qubIT-Fenix-3853]
