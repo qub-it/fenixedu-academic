@@ -1,3 +1,4 @@
+46.11.2 (21-06-2024)
 - Bug fix: Enrolment can conclude should return true for approved enrolments [#qubIT-Fenix-5047]
 
 46.11.1 (20-06-2024)
