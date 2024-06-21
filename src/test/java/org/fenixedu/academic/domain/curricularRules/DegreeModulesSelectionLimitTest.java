@@ -483,4 +483,50 @@ public class DegreeModulesSelectionLimitTest {
 
     }
 
+    @Test
+    public void testCanConcludeWithPreviouslyApprovedLineAndCurrentEnrolmentEnrolled() {
+        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
+        final ExecutionYear executionYear2122 = ExecutionYear.readExecutionYearByName("2021/2022");
+
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear2021);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModulesSelectionLimit(mandatoryGroup, null, executionYear2021, null, 2, 2);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear2021).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear2021, "C1");
+        enrol(curricularPlan, executionYear2122, "C2");
+        approve(curricularPlan, "C1");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+
+        assertEquals(false, mandatoryCurriculumGroup.isConcluded());
+        assertEquals(true, mandatoryCurriculumGroup.canConclude(executionYear2122));
+    }
+
+    @Test
+    public void testCannotConcludeWithPreviouslyApprovedLineAndCurrentEnrolmentFlunked() {
+        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
+        final ExecutionYear executionYear2122 = ExecutionYear.readExecutionYearByName("2021/2022");
+
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear2021);
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new DegreeModulesSelectionLimit(mandatoryGroup, null, executionYear2021, null, 2, 2);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear2021).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear2021, "C1");
+        enrol(curricularPlan, executionYear2122, "C2");
+        approve(curricularPlan, "C1");
+        flunk(curricularPlan, "C2");
+
+        final CurriculumGroup mandatoryCurriculumGroup = curricularPlan.findCurriculumGroupFor(mandatoryGroup);
+
+        assertEquals(false, mandatoryCurriculumGroup.isConcluded());
+        assertEquals(false, mandatoryCurriculumGroup.canConclude(executionYear2122));
+    }
 }
