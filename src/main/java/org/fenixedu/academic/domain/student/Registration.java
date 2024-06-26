@@ -120,7 +120,7 @@ public class Registration extends Registration_Base {
         @Override
         public int compare(final Registration o1, final Registration o2) {
             final int comparationResult = o1.getStartDate().compareTo(o2.getStartDate());
-            return comparationResult == 0 ? o1.getExternalId().compareTo(o2.getExternalId()) : comparationResult;
+            return comparationResult == 0 ? o1.getOid().compareTo(o2.getOid()) : comparationResult;
         }
     };
 

@@ -1,3 +1,5 @@
+- Improvement: Changing the user of getExternalId to getOid in comparators used in enrolments to improve performance [#qubIT-Fenix-5453]
+
 46.11.2 (21-06-2024)
 - Bug fix: Enrolment can conclude should return true for approved enrolments [#qubIT-Fenix-5047]
 

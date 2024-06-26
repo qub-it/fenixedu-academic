@@ -145,7 +145,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         final Comparator<ExecutionInterval> comparatorByEnd = (ei1, ei2) -> ei1.getAcademicInterval()
                 .getEndDateTimeWithoutChronology().compareTo(ei2.getAcademicInterval().getEndDateTimeWithoutChronology());
 
-        return comparatorByStart.thenComparing(comparatorByEnd.reversed()).thenComparing(ExecutionInterval::getExternalId) // end comparator is reversed in order to year be first than 1st semester (as it is first than 2nd semester)
+        return comparatorByStart.thenComparing(comparatorByEnd.reversed()).thenComparing(ExecutionInterval::getOid) // end comparator is reversed in order to year be first than 1st semester (as it is first than 2nd semester)
                 .compare(this, anotherInterval);
     }
 
@@ -370,7 +370,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
     public static Optional<ExecutionInterval> findFirstChild(final AcademicCalendarEntry calendar) {
         final AcademicCalendarEntry calendarToCheck =
                 calendar != null ? calendar.getRootEntry() : AcademicCalendarEntry.findDefaultCalendar();
-        
+
         return findAllChilds().stream().filter(ei -> ei.getAcademicCalendar() == calendarToCheck).min(Comparator.naturalOrder());
     }
 
@@ -382,7 +382,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
     public static Optional<ExecutionInterval> findLastChild(final AcademicCalendarEntry calendar) {
         final AcademicCalendarEntry calendarToCheck =
                 calendar != null ? calendar.getRootEntry() : AcademicCalendarEntry.findDefaultCalendar();
-        
+
         return findAllChilds().stream().filter(ei -> ei.getAcademicCalendar() == calendarToCheck).max(Comparator.naturalOrder());
     }
 
@@ -423,7 +423,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         setRootDomainObject(null);
         deleteDomainObject();
     }
-    
+
     public String getShortName() {
         return getAcademicPeriod().getCode() + Optional.ofNullable(getChildOrder()).map(o -> o.toString()).orElse("");
     }
