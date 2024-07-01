@@ -398,6 +398,10 @@ public class Person extends Person_Base {
         for (; !getIdDocumentsSet().isEmpty(); getIdDocumentsSet().iterator().next().delete()) {
             ;
         }
+        
+        for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
+            ;
+        }
 
         for (PersonInformationLog log : getPersonInformationLogsSet()) {
             log.delete();
