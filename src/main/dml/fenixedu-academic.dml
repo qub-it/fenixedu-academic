@@ -4573,6 +4573,32 @@ relation PersonCountryHighSchool {
     .org.fenixedu.academic.domain.Country playsRole countryHighSchool;
 }
 
+class person.VaccineType {
+	LocalizedString name (REQUIRED);
+}
+
+class person.VaccineAdministration {
+	DateTime validityLimit (REQUIRED);
+}
+
+relation VaccineTypeVaccineAdministration {
+	person.VaccineType playsRole vaccineType {
+		multiplicity 1..1;	
+	}
+	person.VaccineAdministration  playsRole vaccineAdministrations {
+		multiplicity *;
+	}
+}
+
+relation PersonVaccineAdministration {
+	Person playsRole person {
+		multiplicity 1..1;
+	}
+	person.VaccineAdministration playsRole vaccineAdministrations {
+		multiplicity *;
+	}
+}
+
 /* RAIDES Domain */
 
 relation RootDomainObjectDegreeDesignation {
