@@ -4573,19 +4573,26 @@ relation PersonCountryHighSchool {
     .org.fenixedu.academic.domain.Country playsRole countryHighSchool;
 }
 
-class person.VaccineType {
+class person.vaccine.VaccineType {
 	LocalizedString name (REQUIRED);
 }
 
-class person.VaccineAdministration {
+relation VaccineTypeRootDomainObject {
+	person.vaccine.VaccineType playsRole vaccineTypes{
+		multiplicity *;
+	}
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+}
+
+class person.vaccine.VaccineAdministration {
 	DateTime validityLimit (REQUIRED);
 }
 
 relation VaccineTypeVaccineAdministration {
-	person.VaccineType playsRole vaccineType {
+	person.vaccine.VaccineType playsRole vaccineType {
 		multiplicity 1..1;	
 	}
-	person.VaccineAdministration  playsRole vaccineAdministrations {
+	person.vaccine.VaccineAdministration  playsRole vaccineAdministrations {
 		multiplicity *;
 	}
 }
@@ -4594,7 +4601,7 @@ relation PersonVaccineAdministration {
 	Person playsRole person {
 		multiplicity 1..1;
 	}
-	person.VaccineAdministration playsRole vaccineAdministrations {
+	person.vaccine.VaccineAdministration playsRole vaccineAdministrations {
 		multiplicity *;
 	}
 }

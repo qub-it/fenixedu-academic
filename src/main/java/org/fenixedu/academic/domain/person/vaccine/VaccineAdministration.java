@@ -1,4 +1,4 @@
-package org.fenixedu.academic.domain.person;
+package org.fenixedu.academic.domain.person.vaccine;
 
 import org.fenixedu.academic.domain.Person;
 import org.joda.time.DateTime;
@@ -12,7 +12,7 @@ public class VaccineAdministration extends VaccineAdministration_Base {
         setValidityLimit(validationLimit);
     }
 
-    public VaccineAdministration create(VaccineType type, Person person, DateTime validityLimit) {
+    public static VaccineAdministration create(VaccineType type, Person person, DateTime validityLimit) {
         VaccineAdministration result = person.getVaccineAdministrationsSet().stream()
                 .filter(vA -> vA.getVaccineType().equals(type)).findAny().orElse(null);
 
