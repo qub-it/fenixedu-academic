@@ -6,25 +6,16 @@ import org.joda.time.DateTime;
 
 public class VaccineAdministration extends VaccineAdministration_Base {
 
-    private VaccineAdministration() {
+    private VaccineAdministration(VaccineType type, Person person) {
         super();
         setRootDomainObject(Bennu.getInstance());
-    }
-
-    private VaccineAdministration(VaccineType type, Person person) {
-        this();
         setVaccineType(type);
         setPerson(person);
     }
 
-    private VaccineAdministration(VaccineType type, Person person, DateTime validationLimit) {
-        this(type, person);
-        setValidityLimit(validationLimit);
-    }
-
     public static VaccineAdministration createOrUpdate(VaccineType type, Person person, DateTime validityLimit) {
         VaccineAdministration result =
-                person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getVaccineType().equals(type)).findAny()
+                person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getVaccineType() == type).findAny()
                         .orElseGet(() -> new VaccineAdministration(type, person));
         result.setValidityLimit(validityLimit);
         return result;

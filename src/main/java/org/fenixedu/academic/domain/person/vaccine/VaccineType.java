@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain.person.vaccine;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -19,18 +20,21 @@ public class VaccineType extends VaccineType_Base {
 
     @Override
     public void setCode(String code) {
+        if (Objects.equals(this.getCode(), code)) {
+            return;
+        }
         if (!findByCode(code).isEmpty()) {
             throw new DomainException("error.VaccineType.code.cannotBeDuplicated");
         }
         super.setCode(code);
     }
 
-    public static Set<VaccineType> findAll() {
-        return Bennu.getInstance().getVaccineTypesSet();
+    public static Stream<VaccineType> findAll() {
+        return Bennu.getInstance().getVaccineTypesSet().stream();
     }
 
     public static Optional<VaccineType> findByCode(String code) {
-        return findAll().stream().filter(vT -> Objects.equals(vT.getCode(), code)).findAny();
+        return findAll().filter(vT -> Objects.equals(vT.getCode(), code)).findAny();
     }
 
     public void delete() {

@@ -1,4 +1,4 @@
-package org.fenixedu.academic.domain;
+package org.fenixedu.academic.domain.person.vaccine;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
 import org.fenixedu.academic.domain.person.vaccine.VaccineType;
@@ -28,7 +29,6 @@ public class VaccineTest {
     private static Person person;
     private static VaccineType type1, type2;
     private static LocalizedString ls1, ls2;
-    private static VaccineAdministration administration1, administration2;
 
     @BeforeClass
     public static void init() {
@@ -50,52 +50,51 @@ public class VaccineTest {
     }
 
     @Test
-    public void successfulVaccineTypeCreationTest() {
+    public void testCreateVaccineTypeSucessful() {
         assertTrue(!Bennu.getInstance().getVaccineTypesSet().isEmpty());
     }
 
     @Test
-    public void setCodeDuplicatedValueThrowsDomainExceptionTest() {
+    public void testSetCodeDuplicateValueThrowsDomainException() {
         assertThrows(DomainException.class, () -> type1.setCode("TET"));
     }
 
     @Test
-    public void successfulSetAndGetCodeTest() {
+    public void testSetAndGetCodeSuccessful() {
         type1.setCode("ABC");
         assertTrue(type1.getCode().equals("ABC"));
     }
 
     @Test
-    public void sucessfulFindAllTest() {
-        assertTrue(VaccineType.findAll().size() == 2);
+    public void testFindAllSucessful() {
+        assertTrue(VaccineType.findAll().collect(Collectors.toSet()).size() == 2);
     }
 
     @Test
-    public void sucessfulFindByCodeTest() {
+    public void testFindByCodeSucessful() {
         assertTrue(VaccineType.findByCode("TET").isPresent());
         assertTrue(VaccineType.findByCode("HEPB").isEmpty());
     }
 
     @Test
-    public void successfulVaccineAdministrationCreationTest() {
-        administration1 = VaccineAdministration.createOrUpdate(type2, person, DateTime.now());
+    public void testCreateSucessful() {
+        VaccineAdministration.createOrUpdate(type2, person, DateTime.now());
         assertTrue(!person.getVaccineAdministrationsSet().isEmpty());
     }
 
     @Test
-    public void successfulVaccineAdministrationUpdateTest() {
-
+    public void testUpdateSucessful() {
         DateTime dateTime = DateTime.now().plusHours(7);
         VaccineAdministration.createOrUpdate(type2, person, dateTime);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
-        assertTrue(person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getValidityLimit() == dateTime)
+        assertTrue(person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getValidityLimit().equals(dateTime))
                 .collect(Collectors.toSet()).size() == 1);
     }
 
     @AfterAll
-    public void successfulDeletionTest() {
+    public void testDeleteSucessful() {
         VaccineType.findAll().forEach(vT -> vT.delete());
-        assertTrue(VaccineType.findAll().isEmpty());
+        assertTrue(VaccineType.findAll().collect(Collectors.toSet()).isEmpty());
 
         person.getVaccineAdministrationsSet().forEach(vA -> vA.delete());
         assertTrue(person.getVaccineAdministrationsSet().isEmpty());
