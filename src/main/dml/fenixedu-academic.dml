@@ -4573,6 +4573,51 @@ relation PersonCountryHighSchool {
     .org.fenixedu.academic.domain.Country playsRole countryHighSchool;
 }
 
+class person.vaccine.VaccineType {
+	LocalizedString name (REQUIRED);
+	String code (REQUIRED);
+}
+
+relation VaccineTypeRootDomainObject {
+	person.vaccine.VaccineType playsRole vaccineTypes{
+		multiplicity *;
+	}
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject{
+		multiplicity 1..1;
+	}
+}
+
+class person.vaccine.VaccineAdministration {
+	DateTime validityLimit (REQUIRED);
+}
+
+relation VaccineAdministrationRootDomainObject {
+	person.vaccine.VaccineAdministration playsRole vaccineAdministrations{
+		multiplicity *;
+	}
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject{
+		multiplicity 1..1;
+	}
+}
+
+relation VaccineTypeVaccineAdministration {
+	person.vaccine.VaccineType playsRole vaccineType {
+		multiplicity 1..1;	
+	}
+	person.vaccine.VaccineAdministration  playsRole vaccineAdministrations {
+		multiplicity *;
+	}
+}
+
+relation PersonVaccineAdministration {
+	Person playsRole person {
+		multiplicity 1..1;
+	}
+	person.vaccine.VaccineAdministration playsRole vaccineAdministrations {
+		multiplicity *;
+	}
+}
+
 /* RAIDES Domain */
 
 relation RootDomainObjectDegreeDesignation {
