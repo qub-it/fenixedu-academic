@@ -155,10 +155,10 @@ public class ExecutionsAndSchedulesTest {
 
         assertEquals(lesson3h00m.getUnitHours(), new BigDecimal("3.00"));
         assertEquals(lesson1h20m.getUnitHours(), new BigDecimal("1.33"));
-        
+
         assertEquals(lesson3h00m.getTotalHours(), new BigDecimal("39.00"));
         assertEquals(lesson1h20m.getTotalHours(), new BigDecimal("18.67"));
-        
+
         assertEquals(shift.getTotalHours(), new BigDecimal("57.67"));
     }
 
@@ -392,6 +392,21 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 11, 20)));
         assertFalse(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 11)));
         assertTrue(datesWithoutInstances.contains(new YearMonthDay(2023, 12, 18)));
+    }
+
+    @Test
+    public void testLesson_noValidDates() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.Lesson.create.noValidDates");
+
+        new Holiday(new Partial(new LocalDate(2023, 10, 5)));
+
+        int year = 2023;
+        final Interval interval1 = new Interval(new DateTime(year, 10, 5, 0, 0), new DateTime(year, 10, 5, 23, 59));
+
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(List.of(interval1).iterator());
+        createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY, occupationPeriod,
+                null);
     }
 
     @Test

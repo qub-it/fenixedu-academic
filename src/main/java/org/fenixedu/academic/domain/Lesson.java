@@ -71,6 +71,10 @@ public class Lesson extends Lesson_Base {
         setPeriod(period);
         setInitialFullPeriod(period);
 
+        if (getLessonDates().isEmpty()) {
+            throw new DomainException("error.Lesson.create.noValidDates");
+        }
+
         if (room != null) {
             new LessonSpaceOccupation(room, this);
         }
