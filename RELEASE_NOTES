@@ -1,3 +1,4 @@
+46.12.0 (03-07-2024)
 - New Feature: Adds the VaccineType and Administration entities, their relations with Person and Unit Tests [#qubIT-Fenix-5476]
 - Improvement: Changing the user of getExternalId to getOid in comparators used in enrolments to improve performance [#qubIT-Fenix-5453]
 - Improvement: Don't allow the creation of lessons without valid dates [#qubIT-Fenix-5483]
