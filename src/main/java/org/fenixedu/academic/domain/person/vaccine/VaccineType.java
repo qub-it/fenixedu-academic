@@ -37,6 +37,10 @@ public class VaccineType extends VaccineType_Base {
         return findAll().filter(vT -> Objects.equals(vT.getCode(), code)).findAny();
     }
 
+    public String getPresentationName() {
+        return getName().getContent();
+    }
+
     public void delete() {
         setName(null);
         setRootDomainObject(null);

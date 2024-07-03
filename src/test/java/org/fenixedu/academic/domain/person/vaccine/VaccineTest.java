@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
-import org.fenixedu.academic.domain.person.vaccine.VaccineType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
@@ -78,17 +76,37 @@ public class VaccineTest {
 
     @Test
     public void testCreateSucessful() {
-        VaccineAdministration.createOrUpdate(type2, person, DateTime.now());
+        VaccineAdministration.createOrUpdate(type2, person, null, DateTime.now());
         assertTrue(!person.getVaccineAdministrationsSet().isEmpty());
     }
 
     @Test
     public void testUpdateSucessful() {
-        DateTime dateTime = DateTime.now().plusHours(7);
-        VaccineAdministration.createOrUpdate(type2, person, dateTime);
+        DateTime updatedValidity = DateTime.now().plusHours(7);
+        VaccineAdministration.createOrUpdate(type2, person, null, updatedValidity);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
-        assertTrue(person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getValidityLimit().equals(dateTime))
-                .collect(Collectors.toSet()).size() == 1);
+        assertTrue(person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getValidityLimit().equals(updatedValidity))
+                .count() == 1);
+    }
+
+    @Test
+    public void testDateUpdates() {
+        //at the start this assertion is true(person.getVaccineAdministrationsSet().size() == 1);
+        final DateTime now = DateTime.now();
+
+        final DateTime administrationDate = now.minusDays(30);
+        VaccineAdministration vaccination = VaccineAdministration.createOrUpdate(type2, person, administrationDate, null);
+        assertTrue(person.getVaccineAdministrationsSet().size() == 1);
+        assertTrue(vaccination.getAdministrationDate().equals(administrationDate));
+        assertTrue(vaccination.getValidityLimit() == null);
+
+        final DateTime administrationDateUpdate = now;
+        final DateTime validity = now.plusYears(10);
+        VaccineAdministration vaccinationUpdated =
+                VaccineAdministration.createOrUpdate(type2, person, administrationDateUpdate, validity);
+        assertTrue(person.getVaccineAdministrationsSet().size() == 1);
+        assertTrue(vaccination.getAdministrationDate().equals(administrationDateUpdate));
+        assertTrue(vaccination.getValidityLimit().equals(validity));
     }
 
     @AfterAll
