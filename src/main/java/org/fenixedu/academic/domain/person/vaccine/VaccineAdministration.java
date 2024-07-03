@@ -13,18 +13,18 @@ public class VaccineAdministration extends VaccineAdministration_Base {
         setPerson(person);
     }
 
-    public static VaccineAdministration createOrUpdate(VaccineType type, Person person, DateTime validityLimit) {
-        VaccineAdministration result =
-                person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getVaccineType() == type).findAny()
-                        .orElseGet(() -> new VaccineAdministration(type, person));
-        result.setValidityLimit(validityLimit);
+    public static VaccineAdministration createOrUpdate(VaccineType type, Person person, DateTime administrationDate,
+            DateTime validityDate) {
+        VaccineAdministration result = person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getVaccineType() == type)
+                .findAny().orElseGet(() -> new VaccineAdministration(type, person));
+        result.setAdministrationDate(administrationDate);
+        result.setValidityDate(validityDate);
         return result;
     }
 
     public void delete() {
         setPerson(null);
         setVaccineType(null);
-        setValidityLimit(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
