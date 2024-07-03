@@ -4589,7 +4589,7 @@ relation VaccineTypeRootDomainObject {
 
 class person.vaccine.VaccineAdministration {
 	DateTime administrationDate;
-	DateTime validityLimit;
+	DateTime validityDate;
 }
 
 relation VaccineAdministrationRootDomainObject {

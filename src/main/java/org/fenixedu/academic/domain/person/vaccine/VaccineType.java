@@ -2,7 +2,6 @@ package org.fenixedu.academic.domain.person.vaccine;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -35,10 +34,6 @@ public class VaccineType extends VaccineType_Base {
 
     public static Optional<VaccineType> findByCode(String code) {
         return findAll().filter(vT -> Objects.equals(vT.getCode(), code)).findAny();
-    }
-
-    public String getPresentationName() {
-        return getName().getContent();
     }
 
     public void delete() {

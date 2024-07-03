@@ -85,8 +85,7 @@ public class VaccineTest {
         DateTime updatedValidity = DateTime.now().plusHours(7);
         VaccineAdministration.createOrUpdate(type2, person, null, updatedValidity);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
-        assertTrue(person.getVaccineAdministrationsSet().stream().filter(vA -> vA.getValidityLimit().equals(updatedValidity))
-                .count() == 1);
+        assertTrue(person.getVaccineAdministrationsSet().stream().allMatch(vA -> vA.getValidityDate().equals(updatedValidity)));
     }
 
     @Test
@@ -98,7 +97,7 @@ public class VaccineTest {
         VaccineAdministration vaccination = VaccineAdministration.createOrUpdate(type2, person, administrationDate, null);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
         assertTrue(vaccination.getAdministrationDate().equals(administrationDate));
-        assertTrue(vaccination.getValidityLimit() == null);
+        assertTrue(vaccination.getValidityDate() == null);
 
         final DateTime administrationDateUpdate = now;
         final DateTime validity = now.plusYears(10);
@@ -106,7 +105,7 @@ public class VaccineTest {
                 VaccineAdministration.createOrUpdate(type2, person, administrationDateUpdate, validity);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
         assertTrue(vaccination.getAdministrationDate().equals(administrationDateUpdate));
-        assertTrue(vaccination.getValidityLimit().equals(validity));
+        assertTrue(vaccination.getValidityDate().equals(validity));
     }
 
     @AfterAll
