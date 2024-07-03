@@ -34,7 +34,6 @@
         <version.javax.servlet.jsp.jsp-api>2.1</version.javax.servlet.jsp.jsp-api>
         <version.joda.time.joda.time>2.9.7</version.joda.time.joda.time>
         <version.net.sourceforge.htmlcleaner.htmlcleaner>2.18</version.net.sourceforge.htmlcleaner.htmlcleaner>
-        <version.org.apache.poi.poi>3.11</version.org.apache.poi.poi>
         <version.org.imgscalr.imgscalr-lib>4.2</version.org.imgscalr.imgscalr-lib>
         <version.org.jsoup.jsoup>1.7.3</version.org.jsoup.jsoup>
         <version.org.mnode.ical4j.ical4j>1.0.5.2</version.org.mnode.ical4j.ical4j>
@@ -187,11 +186,6 @@
             <version>${version.com.google.code.gson.gson}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>${version.org.apache.poi.poi}</version>
-        </dependency>
-        <dependency>
             <groupId>taglibs</groupId>
             <artifactId>string</artifactId>
             <version>${version.taglibs.strings}</version>
@@ -301,5 +295,9 @@
 		    <artifactId>metadata-extractor</artifactId>
 		    <version>2.18.0</version>
 		</dependency>
+        <dependency>
+            <groupId>com.qubit.terra</groupId>
+            <artifactId>qub-foundation-core-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
