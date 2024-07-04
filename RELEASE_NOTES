@@ -1,4 +1,6 @@
 - Refactor: Change VaccineAdministration dates to LocalDate [#qubIT-Fenix-5477]
+
+46.13.0 (03-07-2024)
 - Improvement: Replaces poi dependency with core api dependency [#qubIT-Omnis-6199]
 
 46.12.0 (03-07-2024)
