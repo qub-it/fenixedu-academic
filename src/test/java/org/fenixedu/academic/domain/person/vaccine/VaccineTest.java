@@ -12,7 +12,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterAll;
@@ -76,13 +76,13 @@ public class VaccineTest {
 
     @Test
     public void testCreateSucessful() {
-        VaccineAdministration.createOrUpdate(type2, person, null, DateTime.now());
+        VaccineAdministration.createOrUpdate(type2, person, null, LocalDate.now());
         assertTrue(!person.getVaccineAdministrationsSet().isEmpty());
     }
 
     @Test
     public void testUpdateSucessful() {
-        DateTime updatedValidity = DateTime.now().plusHours(7);
+        LocalDate updatedValidity = LocalDate.now().plusDays(1);
         VaccineAdministration.createOrUpdate(type2, person, null, updatedValidity);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
         assertTrue(person.getVaccineAdministrationsSet().stream().allMatch(vA -> vA.getValidityDate().equals(updatedValidity)));
@@ -91,16 +91,16 @@ public class VaccineTest {
     @Test
     public void testDateUpdates() {
         //at the start this assertion is true(person.getVaccineAdministrationsSet().size() == 1);
-        final DateTime now = DateTime.now();
+        final LocalDate now = LocalDate.now();
 
-        final DateTime administrationDate = now.minusDays(30);
+        final LocalDate administrationDate = now.minusDays(30);
         VaccineAdministration vaccination = VaccineAdministration.createOrUpdate(type2, person, administrationDate, null);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
         assertTrue(vaccination.getAdministrationDate().equals(administrationDate));
         assertTrue(vaccination.getValidityDate() == null);
 
-        final DateTime administrationDateUpdate = now;
-        final DateTime validity = now.plusYears(10);
+        final LocalDate administrationDateUpdate = now;
+        final LocalDate validity = now.plusYears(10);
         VaccineAdministration vaccinationUpdated =
                 VaccineAdministration.createOrUpdate(type2, person, administrationDateUpdate, validity);
         assertTrue(person.getVaccineAdministrationsSet().size() == 1);
