@@ -193,7 +193,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     protected void checkInitConstraints(final StudentCurricularPlan studentCurricularPlan,
             final CurricularCourse curricularCourse, final ExecutionInterval executionInterval) {
-        if (studentCurricularPlan.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourse, executionInterval) != null) {
+        if (studentCurricularPlan.isEnroledInExecutionPeriod(curricularCourse, executionInterval)) {
             throw new DomainException("error.Enrolment.duplicate.enrolment", curricularCourse.getName());
         }
 
@@ -1020,7 +1020,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     public boolean isEnroledInExecutionPeriod(final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval) {
-        return isValid(executionInterval) && this.getCurricularCourse().equals(curricularCourse);
+        return isValid(executionInterval) && getCurricularCourse().isEquivalent(curricularCourse);
     }
 
     @Override

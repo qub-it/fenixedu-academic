@@ -96,8 +96,8 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
 
     @Override
     final public boolean isEnroledInExecutionPeriod(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        return this.getExecutionInterval().equals(executionInterval) && (this.getCurricularCourse().equals(curricularCourse)
-                || this.getOptionalCurricularCourse().equals(curricularCourse));
+        return isValid(executionInterval) && (this.getCurricularCourse()
+                .isEquivalent(curricularCourse) || this.getOptionalCurricularCourse().equals(curricularCourse));
     }
 
     @Override
