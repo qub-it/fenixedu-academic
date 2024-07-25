@@ -1041,7 +1041,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public boolean canAdd(final CurriculumLine curriculumLine) {
-
         final CurricularCourse curricularCourse =
                 curriculumLine instanceof OptionalEnrolment ? ((OptionalEnrolment) curriculumLine)
                         .getOptionalCurricularCourse() : curriculumLine.getCurricularCourse();
@@ -1050,7 +1049,12 @@ public class CurriculumGroup extends CurriculumGroup_Base {
             return true;
         }
 
-        return getDegreeModule().hasDegreeModuleOnChilds(curricularCourse);
+        final CourseGroup courseGroup = getDegreeModule();
+        final Collection<CurricularCourse> curricularCourses =
+                curricularCourse.getCompetenceCourse() == null ? Set.of(curricularCourse) : curricularCourse.getCompetenceCourse()
+                        .getAssociatedCurricularCoursesSet();
+
+        return curricularCourses.stream().anyMatch(c -> courseGroup.hasDegreeModuleOnChilds(c));
     }
 
     public Collection<CurriculumGroup> getCurricularCoursePossibleGroups(final CurricularCourse curricularCourse) {
