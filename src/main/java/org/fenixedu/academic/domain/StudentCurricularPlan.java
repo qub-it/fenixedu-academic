@@ -69,6 +69,7 @@ import org.fenixedu.academic.domain.studentCurriculum.ExtraCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.InternalSubstitution;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroupType;
+import org.fenixedu.academic.domain.studentCurriculum.OptionalDismissal;
 import org.fenixedu.academic.domain.studentCurriculum.PropaedeuticsCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.StandaloneCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
@@ -1178,7 +1179,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             final CurriculumLine curriculumLine = curriculumLineLocationBean.getCurriculumLine();
 
             if (curriculumLine.getCurriculumGroup() != destination) {
-                if (!destination.canAdd(curriculumLine)) {
+                if (!destination.canAdd(curriculumLine) || !tryToMakeLineCompatibleWithTargetPlan(curriculumLine,
+                        destination.getDegreeCurricularPlanOfStudent())) {
                     throw new DomainException("error.StudentCurricularPlan.cannot.move.curriculum.line.to.curriculum.group",
                             curriculumLine.getFullPath(), destination.getFullPath());
                 }
@@ -1205,9 +1207,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
         if (runRules) {
             ExecutionYear.findCurrent(getDegree().getCalendar()).getChildIntervals().stream()
-                    .filter(interval -> interval.isCurrent())
-                    .forEach(interval -> checkEnrolmentRules(moveCurriculumLinesBean.getIDegreeModulesToEvaluate(interval),
-                            interval));
+                    .filter(interval -> interval.isCurrent()).forEach(
+                            interval -> checkEnrolmentRules(moveCurriculumLinesBean.getIDegreeModulesToEvaluate(interval), interval));
 
         }
     }
@@ -1215,11 +1216,12 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     public void moveCurriculumLinesWithoutRules(final Person responsiblePerson,
             final MoveCurriculumLinesBean moveCurriculumLinesBean) {
         for (final CurriculumLineLocationBean curriculumLineLocationBean : moveCurriculumLinesBean.getCurriculumLineLocations()) {
-
             final CurriculumGroup destination = curriculumLineLocationBean.getCurriculumGroup();
             final CurriculumLine curriculumLine = curriculumLineLocationBean.getCurriculumLine();
 
             if (curriculumLine.getCurriculumGroup() != destination) {
+                tryToMakeLineCompatibleWithTargetPlan(curriculumLine, destination.getDegreeCurricularPlanOfStudent());
+
                 if (curriculumLine.getExecutionInterval() != null && curriculumLine.getExecutionInterval().getExecutionYear()
                         .isBefore(destination.getRegistration().getStartExecutionYear())) {
                     throw new DomainException(
@@ -1233,9 +1235,48 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             }
 
             // if curriculum line is moved then change created by
-            curriculumLine
-                    .setCreatedBy(responsiblePerson != null ? responsiblePerson.getUsername() : curriculumLine.getCreatedBy());
+            curriculumLine.setCreatedBy(
+                    responsiblePerson != null ? responsiblePerson.getUsername() : curriculumLine.getCreatedBy());
         }
+    }
+
+    /**
+     * Tries to make line compatible with target plan
+     * @return true if it was possible to make line compatible with targetPlan or if it was already compatible, otherwise returns false
+     */
+    private static boolean tryToMakeLineCompatibleWithTargetPlan(CurriculumLine line, DegreeCurricularPlan targetPlan) {
+        final CurricularCourse curricularCourse = line.getCurricularCourse();
+
+        if (curricularCourse == null) {
+            return true; //nothing to do, since credits in group can alway be moved
+        }
+
+        if (line.isOptional()) {
+            final OptionalCurricularCourse optionalCourse =
+                    line.isEnrolment() ? ((OptionalEnrolment) line).getOptionalCurricularCourse() : ((OptionalDismissal) line).getCurricularCourse();
+            return optionalCourse.getDegreeCurricularPlan() == targetPlan; //for option courses only the one that belong to plan are valid, therefore nothing to do
+        }
+
+        if (curricularCourse.getDegreeCurricularPlan() == targetPlan) {
+            return true; //nothing to do, since course is already part o target plan
+        }
+
+        final CurricularCourse targetCourse = curricularCourse.getCompetenceCourse().getCurricularCourse(targetPlan);
+        if (targetCourse != null) {
+            final List<ExecutionCourse> targetExecutionCourses =
+                    targetCourse.getExecutionCoursesByExecutionPeriod(line.getExecutionInterval());
+            final List<ExecutionCourse> sourceExecutionCourses =
+                    curricularCourse.getExecutionCoursesByExecutionPeriod(line.getExecutionInterval());
+            final boolean hasCommonExecutionCourse = !Collections.disjoint(targetExecutionCourses, sourceExecutionCourses);
+            final boolean bothEmpty = targetExecutionCourses.isEmpty() && sourceExecutionCourses.isEmpty();
+
+            if (hasCommonExecutionCourse || bothEmpty) {
+                line.setCurricularCourse(targetCourse);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @SuppressWarnings("unchecked")

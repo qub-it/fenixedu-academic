@@ -1,4 +1,5 @@
 - Refactor: Delete unused services [#qubIT-Fenix-1607]
+- Improvement: When moving lines between groups/plans try to make it compatible with target plan [#qubIT-Fenix-5256]
 - Bug fix: Localize merge execution courses exceptions [#qubIT-Fenix-5167]
 
 46.13.2 (22-07-2024)
