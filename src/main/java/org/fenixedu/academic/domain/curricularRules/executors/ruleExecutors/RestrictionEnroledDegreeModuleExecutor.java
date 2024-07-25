@@ -18,9 +18,12 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.Collection;
 
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.RestrictionEnroledDegreeModule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -33,45 +36,35 @@ public class RestrictionEnroledDegreeModuleExecutor extends CurricularRuleExecut
 
     @Override
     protected RuleResult executeEnrolmentVerificationWithRules(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
+            final IDegreeModuleToEvaluate toEvaluate, final EnrolmentContext enrolmentContext) {
 
         final RestrictionEnroledDegreeModule rule = (RestrictionEnroledDegreeModule) curricularRule;
 
         if (!canApplyRule(enrolmentContext, rule)) {
-            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
+            return RuleResult.createNA(toEvaluate.getDegreeModule());
         }
 
-        final CurricularCourse curricularCourseToBeEnroled = rule.getPrecedenceDegreeModule();
-        if (isApproved(enrolmentContext, curricularCourseToBeEnroled) || isEnroled(enrolmentContext, curricularCourseToBeEnroled)
-                || isEnrolling(enrolmentContext, curricularCourseToBeEnroled)) {
-            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+        final CurricularCourse precedentCourse = rule.getPrecedenceDegreeModule();
+        if (isApproved(enrolmentContext, precedentCourse)
+                || isEnrolledOrEnrollingUntil(enrolmentContext, precedentCourse, toEvaluate.getExecutionInterval())) {
+            return RuleResult.createTrue(toEvaluate.getDegreeModule());
         }
 
         if (isEnroled(enrolmentContext, rule.getDegreeModuleToApplyRule())) {
-            return RuleResult
-                    .createImpossible(
-                            sourceDegreeModuleToEvaluate.getDegreeModule(),
-                            "curricularRules.ruleExecutors.RestrictionEnroledDegreeModuleExecutor.student.is.not.enroled.to.precendenceDegreeModule",
-                            rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
+            return RuleResult.createImpossible(toEvaluate.getDegreeModule(),
+                    "curricularRules.ruleExecutors.RestrictionEnroledDegreeModuleExecutor.student.is.not.enroled.to.precendenceDegreeModule",
+                    rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
         }
 
-        return RuleResult
-                .createFalse(
-                        sourceDegreeModuleToEvaluate.getDegreeModule(),
-                        "curricularRules.ruleExecutors.RestrictionEnroledDegreeModuleExecutor.student.is.not.enroled.to.precendenceDegreeModule",
-                        rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
+        return RuleResult.createFalse(toEvaluate.getDegreeModule(),
+                "curricularRules.ruleExecutors.RestrictionEnroledDegreeModuleExecutor.student.is.not.enroled.to.precendenceDegreeModule",
+                rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
     }
 
-    @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
-    }
-
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
+    private boolean isEnrolledOrEnrollingUntil(EnrolmentContext enrolmentContext, CurricularCourse precedentCourse,
+            ExecutionInterval maxInterval) {
+        return ofNullable(searchDegreeModuleToEvaluate(enrolmentContext, precedentCourse))
+                .map(dm -> dm.getExecutionInterval().isBeforeOrEquals(maxInterval)).orElse(false);
     }
 
     @Override

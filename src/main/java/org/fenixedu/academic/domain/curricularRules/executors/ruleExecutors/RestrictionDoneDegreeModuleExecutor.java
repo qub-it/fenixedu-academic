@@ -46,10 +46,10 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
             return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
-        final CurricularCourse curricularCourse = rule.getPrecedenceDegreeModule();
+        final CurricularCourse precedentCourse = rule.getPrecedenceDegreeModule();
         if (rule.getRequiresPrecedenceApprovalAtStartOfYear()) {
 
-            if (isApprovedAtStartOfYear(enrolmentContext, curricularCourse)) {
+            if (isApprovedAtStartOfYear(enrolmentContext, precedentCourse)) {
                 return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
             }
 
@@ -57,50 +57,59 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
                     "curricularRules.ruleExecutors.RestrictionDoneDegreeModuleExecutor.student.is.not.approved.to.precendenceDegreeModule");
         }
 
-        if (isApproved(enrolmentContext, curricularCourse)) {
+        if (isApproved(enrolmentContext, precedentCourse)) {
             return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
-        if (isEnrolledOrEnrollingInSameSemester(enrolmentContext, rule)) {
+        if (isEnrolledOrEnrollingInSameInterval(enrolmentContext, rule)) {
             return createFalseOrImpossibleResult(enrolmentContext, rule, sourceDegreeModuleToEvaluate,
                     "curricularRules.ruleExecutors.RestrictionDoneDegreeModuleExecutor.cannot.enrol.simultaneously.to.degreeModule.and.precedenceDegreeModule");
         }
 
         return enrolmentContext.isToEvaluateRulesByYear() ? evaluateByYear(sourceDegreeModuleToEvaluate, enrolmentContext, rule,
-                curricularCourse) : evaluateBySemester(sourceDegreeModuleToEvaluate, enrolmentContext, rule, curricularCourse);
+                precedentCourse) : evaluateBySemester(sourceDegreeModuleToEvaluate, enrolmentContext, rule, precedentCourse);
     }
 
-    private boolean isApprovedAtStartOfYear(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse) {
+    private boolean isApprovedAtStartOfYear(final EnrolmentContext enrolmentContext, final CurricularCourse precedentCourse) {
         final Curriculum curriculum =
                 enrolmentContext.getStudentCurricularPlan().getCurriculum(new DateTime(), enrolmentContext.getExecutionYear());
 
         return curriculum.getCurricularYearEntries().stream().filter(e -> e instanceof CurriculumLine)
-                .map(CurriculumLine.class::cast).anyMatch(cl -> cl.isApproved(curricularCourse, null));
+                .map(CurriculumLine.class::cast).anyMatch(cl -> cl.isApproved(precedentCourse, null));
     }
 
     private RuleResult evaluateByYear(IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext,
-            RestrictionDoneDegreeModule rule, CurricularCourse curricularCourse) {
-
-        if (isEnroled(enrolmentContext, curricularCourse)
-                && !hasEnrolmentWithEnroledState(enrolmentContext, curricularCourse, enrolmentContext.getExecutionYear())) {
+            RestrictionDoneDegreeModule rule, CurricularCourse precedentCourse) {
+/*To remove*/
+        if (isEnroled(enrolmentContext, precedentCourse)
+                && !hasEnrolmentWithEnroledState(enrolmentContext, precedentCourse, enrolmentContext.getExecutionYear())) {
             //not currently in enroled state
             return createFalseOrImpossibleResult(enrolmentContext, rule, sourceDegreeModuleToEvaluate,
                     "curricularRules.ruleExecutors.RestrictionDoneDegreeModuleExecutor.student.is.not.approved.to.precendenceDegreeModule");
         }
 
         //precedent must be approved first
-        if (isEnrolledOrEnrolling(enrolmentContext, curricularCourse,
+        if (isEnrolledOrEnrolling(enrolmentContext, precedentCourse,
                 enrolmentContext.getExecutionYear().getFirstExecutionPeriod())
                 && isEnrolledOrEnrolling(enrolmentContext, rule.getDegreeModuleToApplyRule(),
                         enrolmentContext.getExecutionYear().getLastExecutionPeriod())) {
             return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
 
+/*end of to remove */
+        
+//        final IDegreeModuleToEvaluate precedentDegreeModuleToEvaluate =
+//                searchDegreeModuleToEvaluate(enrolmentContext, precedentCourse);
+//        if (precedentDegreeModuleToEvaluate != null && precedentDegreeModuleToEvaluate.getExecutionInterval()
+//                .isBefore(sourceDegreeModuleToEvaluate.getExecutionInterval())) {
+//            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
+//        }
+
         return createFalseOrImpossibleResult(enrolmentContext, rule, sourceDegreeModuleToEvaluate,
                 "curricularRules.ruleExecutors.RestrictionDoneDegreeModuleExecutor.student.is.not.approved.to.precendenceDegreeModule");
     }
 
-    private boolean isEnrolledOrEnrollingInSameSemester(EnrolmentContext enrolmentContext, RestrictionDoneDegreeModule rule) {
+    private boolean isEnrolledOrEnrollingInSameInterval(EnrolmentContext enrolmentContext, RestrictionDoneDegreeModule rule) {
         for (final ExecutionInterval executionInterval : enrolmentContext.getExecutionYear().getChildIntervals()) {
             if (isEnrolledOrEnrolling(enrolmentContext, rule.getDegreeModuleToApplyRule(), executionInterval)
                     && isEnrolledOrEnrolling(enrolmentContext, rule.getPrecedenceDegreeModule(), executionInterval)) {
