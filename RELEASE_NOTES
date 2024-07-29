@@ -1,3 +1,5 @@
+- Bug fix: Localize merge execution courses exceptions [#qubIT-Fenix-5167]
+
 46.13.2 (22-07-2024)
 - Bug fix: Do not allow duplicate competence course enrolment in same period [#qubIT-Fenix-5528]
 

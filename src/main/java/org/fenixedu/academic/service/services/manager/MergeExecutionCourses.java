@@ -22,19 +22,7 @@
  */
 package org.fenixedu.academic.service.services.manager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
-
 import org.fenixedu.academic.domain.Attends;
-//import org.fenixedu.academic.domain.CourseLoad;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionCourseLog;
@@ -47,27 +35,30 @@ import org.fenixedu.academic.domain.Summary;
 import org.fenixedu.academic.domain.accessControl.PersistentSpecialCriteriaOverExecutionCourseGroup;
 import org.fenixedu.academic.domain.accessControl.PersistentStudentGroup;
 import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
 import org.fenixedu.academic.service.ServiceMonitoring;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
-import org.fenixedu.academic.service.services.exceptions.InvalidArgumentsServiceException;
-
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:joao.mota@ist.utl.pt"> João Mota </a> 29/Nov/2003
  * 
  */
 public class MergeExecutionCourses {
-    public static class SourceAndDestinationAreTheSameException extends FenixServiceException {
-        private static final long serialVersionUID = 3761968254943244338L;
-    }
-
-    public static class DuplicateShiftNameException extends FenixServiceException {
-        private static final long serialVersionUID = 3761968254943244338L;
-    }
 
     public static class MergeNotPossibleException extends FenixServiceException {
         private static final long serialVersionUID = 3761968254943244338L;
@@ -126,22 +117,23 @@ public class MergeExecutionCourses {
     public static void merge(ExecutionCourse executionCourseTo, ExecutionCourse executionCourseFrom)
             throws FenixServiceException {
         if (executionCourseFrom == null) {
-            throw new InvalidArgumentsServiceException();
+            throw new DomainException("error.ExecutionCourse.merge.executionCourseFromRequired");
         }
 
         if (executionCourseTo == null) {
-            throw new InvalidArgumentsServiceException();
+            throw new DomainException("error.ExecutionCourse.merge.executionCourseToRequired");
         }
 
         ServiceMonitoring.logService(MergeExecutionCourses.class, executionCourseTo.getExternalId(),
                 executionCourseFrom.getExternalId());
 
         if (executionCourseTo.equals(executionCourseFrom)) {
-            throw new SourceAndDestinationAreTheSameException();
+            throw new DomainException("message.merge.execution.courses.sourceIsSameAsDestination");
         }
 
         if (haveShiftsWithSameName(executionCourseFrom, executionCourseTo)) {
-            throw new DuplicateShiftNameException();
+            throw new DomainException("error.ExecutionCourse.merge.shiftsWithSameName", executionCourseFrom.getCode(),
+                    executionCourseFrom.getName());
         }
 
         for (SubDomainMergeHandler handler : handlers) {
