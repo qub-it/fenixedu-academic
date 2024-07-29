@@ -38,7 +38,6 @@ import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
-import org.fenixedu.academic.service.ServiceMonitoring;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -123,9 +122,6 @@ public class MergeExecutionCourses {
         if (executionCourseTo == null) {
             throw new DomainException("error.ExecutionCourse.merge.executionCourseToRequired");
         }
-
-        ServiceMonitoring.logService(MergeExecutionCourses.class, executionCourseTo.getExternalId(),
-                executionCourseFrom.getExternalId());
 
         if (executionCourseTo.equals(executionCourseFrom)) {
             throw new DomainException("message.merge.execution.courses.sourceIsSameAsDestination");
