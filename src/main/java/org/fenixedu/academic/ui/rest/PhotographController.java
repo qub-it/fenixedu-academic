@@ -18,42 +18,29 @@
  */
 package org.fenixedu.academic.ui.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.Photograph;
+import org.fenixedu.academic.domain.photograph.PictureMode;
+import org.fenixedu.bennu.core.domain.Avatar;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.apache.commons.lang3.StringUtils;
-import org.fenixedu.academic.domain.Photograph;
-import org.fenixedu.academic.domain.photograph.PictureMode;
-import org.fenixedu.academic.service.services.fileManager.UploadOwnPhoto;
-import org.fenixedu.academic.ui.spring.controller.PhotographForm;
-import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.ContentType;
-import org.fenixedu.bennu.core.domain.Avatar;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
-
-import com.google.common.base.Strings;
-import com.google.common.io.BaseEncoding;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 @Path("/user/photo")
 public class PhotographController {
