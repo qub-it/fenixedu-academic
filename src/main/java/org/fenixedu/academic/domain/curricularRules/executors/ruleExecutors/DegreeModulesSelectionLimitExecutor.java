@@ -105,50 +105,6 @@ public class DegreeModulesSelectionLimitExecutor extends CurricularRuleExecutor 
     }
 
     @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-
-        final DegreeModulesSelectionLimit rule = (DegreeModulesSelectionLimit) curricularRule;
-
-        if (!canApplyRule(enrolmentContext, rule)) {
-            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-
-        final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, rule);
-
-        if (degreeModuleToEvaluate.isEnroled()) {
-
-            final CourseGroup courseGroup = rule.getDegreeModuleToApplyRule();
-            final EnroledCurriculumModuleWrapper moduleEnroledWrapper = (EnroledCurriculumModuleWrapper) degreeModuleToEvaluate;
-            final CurriculumGroup curriculumGroup = (CurriculumGroup) moduleEnroledWrapper.getCurriculumModule();
-
-            int total = countTotalDegreeModules(enrolmentContext, courseGroup, curriculumGroup);
-
-            if (rule.numberOfDegreeModulesExceedMaximum(total)) {
-                if (sourceDegreeModuleToEvaluate.isEnroled() && sourceDegreeModuleToEvaluate.isLeaf()) {
-                    return createImpossibleRuleResult(rule, sourceDegreeModuleToEvaluate);
-                } else {
-                    return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate);
-                }
-            }
-
-            total += countPreviousPeriodNumberOfChildEnrolments(enrolmentContext, curriculumGroup);
-
-            return rule.numberOfDegreeModulesExceedMaximum(total) ? RuleResult.createTrue(EnrolmentResultType.TEMPORARY,
-                    sourceDegreeModuleToEvaluate.getDegreeModule()) : RuleResult
-                            .createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-        // is enrolling now
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
     protected RuleResult executeEnrolmentVerificationWithRules(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
         final DegreeModulesSelectionLimit rule = (DegreeModulesSelectionLimit) curricularRule;

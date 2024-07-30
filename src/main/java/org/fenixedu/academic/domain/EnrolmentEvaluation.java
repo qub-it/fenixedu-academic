@@ -96,6 +96,11 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         if (enrolment == null || season == null) {
             throw new DomainException("error.enrolmentEvaluation.invalid.parameters");
         }
+
+        if (enrolment.getEnrolmentEvaluationBySeason(season).count() > 0) {
+            throw new DomainException("error.enrolmentEvaluation.duplicate.season");
+        }
+
         setEnrolment(enrolment);
         setEvaluationSeason(season);
     }

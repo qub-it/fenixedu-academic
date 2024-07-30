@@ -60,30 +60,6 @@ public class ExclusivenessVerifier extends VerifyRuleExecutor {
         return RuleResult.createTrue(degreeModuleToVerify);
     }
 
-    @Override
-    protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup rootOrCycleCourseGroup) {
-
-        final Exclusiveness exclusiveness = (Exclusiveness) curricularRule;
-        final DegreeModule exclusiveDegreeModule = exclusiveness.getExclusiveDegreeModule();
-        final IDegreeModuleToEvaluate degreeModuleToEvaluate =
-                getDegreeModuleToEvaluate(enrolmentContext, exclusiveDegreeModule, rootOrCycleCourseGroup);
-
-        if (degreeModuleToEvaluate != null) {
-            if (!degreeModuleToEvaluate.isLeaf()) {
-                return RuleResult.createFalse(degreeModuleToVerify);
-            }
-
-            final CurricularCourse curricularCourse = (CurricularCourse) exclusiveDegreeModule;
-            if (isApproved(enrolmentContext, curricularCourse, rootOrCycleCourseGroup) || hasEnrolmentWithEnroledState(
-                    enrolmentContext, curricularCourse, enrolmentContext.getExecutionPeriod().getPrevious())) {
-                return RuleResult.createFalse(degreeModuleToVerify);
-            }
-        }
-
-        return RuleResult.createTrue(degreeModuleToVerify);
-    }
-
     private IDegreeModuleToEvaluate getDegreeModuleToEvaluate(final EnrolmentContext enrolmentContext,
             final DegreeModule degreeModule, final CourseGroup rootOrCycleCourseGroup) {
         for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext
@@ -97,28 +73,5 @@ public class ExclusivenessVerifier extends VerifyRuleExecutor {
 
         return null;
 
-    }
-
-    @Override
-    protected RuleResult verifyDegreeConclusionWithRules(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup rootOrCycleCourseGroup) {
-
-        final Exclusiveness exclusiveness = (Exclusiveness) curricularRule;
-        final DegreeModule exclusiveDegreeModule = exclusiveness.getExclusiveDegreeModule();
-
-        if (exclusiveDegreeModule.isCourseGroup()) {
-            if (isEnrolledIn(enrolmentContext, (CourseGroup) exclusiveDegreeModule)) {
-                return RuleResult.createFalse(degreeModuleToVerify);
-            }
-        } else if (exclusiveDegreeModule.isCurricularCourse()) {
-            if (isApproved(enrolmentContext, (CurricularCourse) exclusiveDegreeModule, rootOrCycleCourseGroup)) {
-                return RuleResult.createFalse(degreeModuleToVerify);
-            }
-        } else {
-            throw new DomainException(
-                    "error.org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.invalid.degree.module.to.verify");
-        }
-
-        return RuleResult.createTrue(degreeModuleToVerify);
     }
 }

@@ -40,19 +40,4 @@ public class RestrictionDoneDegreeModuleVerifier extends VerifyRuleExecutor {
         return RuleResult.createFalse(degreeModuleToVerify);
     }
 
-    @Override
-    protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
-        final RestrictionDoneDegreeModule restrictionDoneDegreeModule = (RestrictionDoneDegreeModule) curricularRule;
-
-        if (isApproved(enrolmentContext, restrictionDoneDegreeModule.getPrecedenceDegreeModule(), parentCourseGroup)
-                || hasEnrolmentWithEnroledState(enrolmentContext, restrictionDoneDegreeModule.getPrecedenceDegreeModule(),
-                        enrolmentContext.getExecutionPeriod().getPrevious())) {
-            return RuleResult.createTrue(degreeModuleToVerify);
-        }
-
-        return RuleResult.createFalse(degreeModuleToVerify);
-
-    }
-
 }

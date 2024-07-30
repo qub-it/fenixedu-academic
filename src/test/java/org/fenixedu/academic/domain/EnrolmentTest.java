@@ -24,12 +24,16 @@ import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,6 +59,15 @@ public class EnrolmentTest {
             initEnrolments();
             return null;
         });
+    }
+
+    @After
+    public void clearEnrolmentEvaluations() {
+        Bennu.getInstance().getEnrolmentEvaluationsSet().stream()
+                .forEach(e -> {
+                    e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+                    e.delete();
+                });
     }
 
     public static void initEnrolments() {
@@ -183,6 +196,15 @@ public class EnrolmentTest {
         createImprovementEvaluation(enrolment);
 
         assertEquals(true, enrolment.hasImprovementFor(enrolment.getExecutionYear()));
+    }
+
+    public void testEnrolment_duplicateSeasonEnrolment() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.enrolmentEvaluation.duplicate.season");
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        createImprovementEvaluation(enrolment);
+        createImprovementEvaluation(enrolment);
     }
 
     private void createImprovementEvaluation(final Enrolment enrolment) {

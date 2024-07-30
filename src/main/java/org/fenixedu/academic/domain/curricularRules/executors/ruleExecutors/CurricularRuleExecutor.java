@@ -86,15 +86,8 @@ abstract public class CurricularRuleExecutor {
         case ENROLMENT_VERIFICATION_WITH_RULES:
             return executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
-        case ENROLMENT_WITH_RULES_AND_TEMPORARY_ENROLMENT:
-            return executeEnrolmentWithRulesAndTemporaryEnrolment(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
-
         case ENROLMENT_NO_RULES:
             return executeEnrolmentWithNoRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
-
-        case IMPROVEMENT_ENROLMENT:
-        case SPECIAL_SEASON_ENROLMENT:
-            return executeEnrolmentInEnrolmentEvaluation(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         case ENROLMENT_PREFILTER:
             return executeEnrolmentPrefilter(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
@@ -294,18 +287,6 @@ abstract public class CurricularRuleExecutor {
             final RuleResult ruleResult) {
         return ruleResult.isTemporaryEnrolmentResultType(sourceDegreeModuleToEvaluate.getDegreeModule())
                 || ruleResult.isImpossibleEnrolmentResultType(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Deprecated
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return executeEnrolmentWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
-    }
-
-    @Deprecated
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
     }
 
     protected boolean canBeEvaluated(ICurricularRule curricularRule, IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,

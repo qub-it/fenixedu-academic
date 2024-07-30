@@ -22,18 +22,9 @@ public enum CurricularRuleLevel {
 
     ENROLMENT_WITH_RULES(true),
 
-    @Deprecated
-    ENROLMENT_WITH_RULES_AND_TEMPORARY_ENROLMENT(true),
-
     ENROLMENT_NO_RULES(true),
 
     ENROLMENT_VERIFICATION_WITH_RULES(true),
-
-    @Deprecated
-    IMPROVEMENT_ENROLMENT(false),
-
-    @Deprecated
-    SPECIAL_SEASON_ENROLMENT(false),
 
     EXTRA_ENROLMENT(false),
 
@@ -55,10 +46,6 @@ public enum CurricularRuleLevel {
 
     public String getName() {
         return name();
-    }
-
-    static public CurricularRuleLevel defaultLevel() {
-        return ENROLMENT_WITH_RULES_AND_TEMPORARY_ENROLMENT;
     }
 
     public boolean isNormal() {

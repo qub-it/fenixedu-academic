@@ -172,14 +172,6 @@ public class EnrolmentContext {
         return getCurricularRuleLevel().isNormal();
     }
 
-    public boolean isImprovement() {
-        return getCurricularRuleLevel() == CurricularRuleLevel.IMPROVEMENT_ENROLMENT;
-    }
-
-    public boolean isSpecialSeason() {
-        return getCurricularRuleLevel() == CurricularRuleLevel.SPECIAL_SEASON_ENROLMENT;
-    }
-
     public boolean isExtra() {
         return getCurricularRuleLevel() == CurricularRuleLevel.EXTRA_ENROLMENT;
     }

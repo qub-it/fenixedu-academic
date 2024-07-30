@@ -93,45 +93,6 @@ public class ExclusivenessExecutor extends CurricularRuleExecutor {
     }
 
     @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-
-        final Exclusiveness rule = (Exclusiveness) curricularRule;
-
-        if (!canApplyRule(enrolmentContext, rule)) {
-            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-
-        final DegreeModule degreeModule = rule.getExclusiveDegreeModule();
-        if (degreeModule.isLeaf()) {
-            final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
-
-            if (isApproved(enrolmentContext, curricularCourse)) {
-                if (isEnroled(enrolmentContext, (CurricularCourse) rule.getDegreeModuleToApplyRule())) {
-                    return createImpossibleRuleResult(rule, sourceDegreeModuleToEvaluate);
-                }
-                return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate);
-            }
-
-            if (hasPreviousPeriodEnrolmentWithEnroledState(enrolmentContext, curricularCourse)) {
-                return RuleResult.createTrue(EnrolmentResultType.TEMPORARY, sourceDegreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-
-        if (isEnroled(enrolmentContext, degreeModule) || isEnrolling(enrolmentContext, degreeModule)) {
-            return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate);
-        }
-
-        return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
     protected RuleResult executeEnrolmentPrefilter(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
         final Exclusiveness rule = (Exclusiveness) curricularRule;

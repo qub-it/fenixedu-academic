@@ -51,10 +51,4 @@ public class RestrictionEnroledDegreeModuleVerifier extends VerifyRuleExecutor {
 
     }
 
-    @Override
-    protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
-        return verifyEnrolmentWithRules(curricularRule, enrolmentContext, degreeModuleToVerify, parentCourseGroup);
-    }
-
 }

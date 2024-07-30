@@ -27,12 +27,6 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 public class EvenOddExecuter extends CurricularRuleExecutor {
 
     @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(ICurricularRule curricularRule,
-            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
     protected RuleResult executeEnrolmentVerificationWithRules(ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
         final EvenOddRule evenOddRule = (EvenOddRule) curricularRule;
@@ -45,12 +39,6 @@ public class EvenOddExecuter extends CurricularRuleExecutor {
             return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         }
         return createFalseRuleResult(evenOddRule, sourceDegreeModuleToEvaluate);
-    }
-
-    @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(ICurricularRule curricularRule,
-            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
-        return executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
     }
 
     private RuleResult createFalseRuleResult(final EvenOddRule rule, final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {

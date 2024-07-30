@@ -520,8 +520,7 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
     }
 
     private VerifyRuleLevel getVerifyRuleLevel(final EnrolmentContext enrolmentContext) {
-        return enrolmentContext
-                .getCurricularRuleLevel() == CurricularRuleLevel.ENROLMENT_WITH_RULES_AND_TEMPORARY_ENROLMENT ? VerifyRuleLevel.ENROLMENT_WITH_RULES_AND_TEMPORARY : VerifyRuleLevel.ENROLMENT_WITH_RULES;
+        return VerifyRuleLevel.ENROLMENT_WITH_RULES;
     }
 
     protected SortedSet<Context> getChildCurricularCoursesContextsToEvaluate(final CourseGroup courseGroup,

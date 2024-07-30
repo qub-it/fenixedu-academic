@@ -41,11 +41,6 @@ abstract public class VerifyRuleExecutor {
             return RuleResult.createNA(degreeModuleToVerify);
         }
 
-        @Override
-        protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule,
-                EnrolmentContext enrolmentContext, DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
-            return RuleResult.createNA(degreeModuleToVerify);
-        }
     }
 
     public static final VerifyRuleExecutor NULL_VERIFY_EXECUTOR = new NullVerifyExecutor();
@@ -61,12 +56,6 @@ abstract public class VerifyRuleExecutor {
 
         if (verifyRuleLevel == VerifyRuleLevel.ENROLMENT_WITH_RULES) {
             return verifyEnrolmentWithRules(curricularRule, enrolmentContext, degreeModuleToVerify, rootOrCycleCurriculumGroup);
-        } else if (verifyRuleLevel == VerifyRuleLevel.ENROLMENT_WITH_RULES_AND_TEMPORARY) {
-            return verifyEnrolmentWithTemporaryEnrolment(curricularRule, enrolmentContext, degreeModuleToVerify,
-                    rootOrCycleCurriculumGroup);
-        } else if (verifyRuleLevel == VerifyRuleLevel.DEGREE_CONCLUSION_WITH_RULES) {
-            return verifyDegreeConclusionWithRules(curricularRule, enrolmentContext, degreeModuleToVerify,
-                    rootOrCycleCurriculumGroup);
         } else {
             throw new DomainException(
                     "error.org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor.invalid.verify.level");
@@ -80,25 +69,7 @@ abstract public class VerifyRuleExecutor {
         return curriculumGroup != null ? curriculumGroup.isApproved(curricularCourse) : false;
     }
 
-    protected boolean isEnrolledIn(final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {
-        return enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(courseGroup) != null;
-    }
-
-    protected boolean hasEnrolmentWithEnroledState(final EnrolmentContext enrolmentContext,
-            final CurricularCourse curricularCourse, final ExecutionInterval executionInterval) {
-        return enrolmentContext.getStudentCurricularPlan().getRoot().hasEnrolmentWithEnroledState(curricularCourse,
-                executionInterval);
-    }
-
-    protected RuleResult verifyDegreeConclusionWithRules(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup rootOrCycleCourseGroup) {
-        return RuleResult.createNA(degreeModuleToVerify);
-    }
-
     abstract protected RuleResult verifyEnrolmentWithRules(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
             DegreeModule degreeModuleToVerify, CourseGroup rootOrCycleCourseGroup);
-
-    abstract protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule,
-            EnrolmentContext enrolmentContext, DegreeModule degreeModuleToVerify, CourseGroup rootOrCycleCourseGroup);
 
 }

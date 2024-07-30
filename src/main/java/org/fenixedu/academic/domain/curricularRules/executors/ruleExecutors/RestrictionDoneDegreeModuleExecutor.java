@@ -135,25 +135,6 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
         return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate, message);
     }
 
-    @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-
-        final RestrictionDoneDegreeModule rule = (RestrictionDoneDegreeModule) curricularRule;
-
-        final RuleResult ruleResult =
-                executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
-
-        if (ruleResult.isFalse() || ruleResult.isImpossibleEnrolmentResultType(sourceDegreeModuleToEvaluate.getDegreeModule())) {
-            if (hasPreviousPeriodEnrolmentWithEnroledState(enrolmentContext, rule.getPrecedenceDegreeModule())) {
-                return RuleResult.createTrue(EnrolmentResultType.TEMPORARY, sourceDegreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-
-        return ruleResult;
-
-    }
-
     private boolean hasPreviousPeriodEnrolmentWithEnroledState(EnrolmentContext enrolmentContext,
             CurricularCourse curricularCourse) {
 
@@ -178,11 +159,7 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
                 rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
     }
 
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
+
 
     @Override
     protected boolean canBeEvaluated(ICurricularRule curricularRule, IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,

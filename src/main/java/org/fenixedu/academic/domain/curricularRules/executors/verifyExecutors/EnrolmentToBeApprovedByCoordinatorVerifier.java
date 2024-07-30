@@ -33,10 +33,4 @@ public class EnrolmentToBeApprovedByCoordinatorVerifier extends VerifyRuleExecut
         return RuleResult.createFalse(degreeModuleToVerify);
     }
 
-    @Override
-    protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
-        return verifyEnrolmentWithRules(curricularRule, enrolmentContext, degreeModuleToVerify, parentCourseGroup);
-    }
-
 }

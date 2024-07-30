@@ -27,13 +27,11 @@ import org.fenixedu.academic.domain.curricularRules.AssertUniqueApprovalInCurric
 import org.fenixedu.academic.domain.curricularRules.AssertUniqueCurricularCourseEnrolmentForPeriod;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
-import org.fenixedu.academic.domain.curricularRules.EnrolmentInSpecialSeasonEvaluation;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictions;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentToBeApprovedByCoordinator;
 import org.fenixedu.academic.domain.curricularRules.EvenOddRule;
 import org.fenixedu.academic.domain.curricularRules.Exclusiveness;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
-import org.fenixedu.academic.domain.curricularRules.ImprovementOfApprovedEnrolment;
 import org.fenixedu.academic.domain.curricularRules.MinimumNumberOfCreditsToEnrol;
 import org.fenixedu.academic.domain.curricularRules.PreviousYearsEnrolmentCurricularRule;
 import org.fenixedu.academic.domain.curricularRules.RestrictionBetweenDegreeModules;
@@ -63,8 +61,6 @@ public class CurricularRuleExecutorFactory {
         executors.put(PreviousYearsEnrolmentCurricularRule.class, new PreviousYearsEnrolmentExecutor());
         executors.put(AssertUniqueApprovalInCurricularCourseContexts.class,
                 new AssertUniqueApprovalInCurricularCourseContextsExecutor());
-        executors.put(ImprovementOfApprovedEnrolment.class, new ImprovementOfApprovedEnrolmentExecutor());
-        executors.put(EnrolmentInSpecialSeasonEvaluation.class, new EnrolmentInSpecialSeasonEvaluationExecutor());
         executors.put(EvenOddRule.class, new EvenOddExecuter());
         executors.put(AssertUniqueCurricularCourseEnrolmentForPeriod.class,
                 new AssertUniqueCurricularCourseEnrolmentForPeriodExecutor());

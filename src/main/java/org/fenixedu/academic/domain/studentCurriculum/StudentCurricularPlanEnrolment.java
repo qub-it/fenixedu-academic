@@ -245,12 +245,6 @@ abstract public class StudentCurricularPlanEnrolment {
             if (enrolmentContext.isNormal()) {
                 return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
 
-            } else if (enrolmentContext.isImprovement()) {
-                return new StudentCurricularPlanImprovementOfApprovedEnrolmentManager(enrolmentContext);
-
-            } else if (enrolmentContext.isSpecialSeason()) {
-                return new StudentCurricularPlanEnrolmentInSpecialSeasonEvaluationManager(enrolmentContext);
-
             } else if (enrolmentContext.isExtra()) {
                 return new StudentCurricularPlanExtraEnrolmentManager(enrolmentContext);
 

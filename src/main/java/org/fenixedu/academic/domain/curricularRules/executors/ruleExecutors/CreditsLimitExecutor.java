@@ -133,59 +133,6 @@ public class CreditsLimitExecutor extends CurricularRuleExecutor {
         }
     }
 
-    @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-
-        final CreditsLimit rule = (CreditsLimit) curricularRule;
-
-        if (!canApplyRule(enrolmentContext, rule)) {
-            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-
-        final DegreeModule degreeModule = rule.getDegreeModuleToApplyRule();
-        if (degreeModule.isLeaf() && ((CurricularCourse) degreeModule).isOptionalCurricularCourse()) {
-            return evaluateIfCanEnrolToOptionalDegreeModule(enrolmentContext, rule, sourceDegreeModuleToEvaluate);
-
-        } else {
-
-            final IDegreeModuleToEvaluate degreeModuleToEvaluate = searchDegreeModuleToEvaluate(enrolmentContext, rule);
-            if (degreeModuleToEvaluate.isEnroled()) {
-                final EnroledCurriculumModuleWrapper moduleEnroledWrapper =
-                        (EnroledCurriculumModuleWrapper) degreeModuleToEvaluate;
-                final CurriculumModule curriculumModule = moduleEnroledWrapper.getCurriculumModule();
-
-                Double ectsCredits =
-                        curriculumModule.getAprovedEctsCredits() + calculateEnroledEctsCredits(enrolmentContext, curriculumModule)
-                                + calculateEctsCreditsFromToEnrolCurricularCourses(enrolmentContext, curriculumModule);
-
-                if (rule.creditsExceedMaximum(ectsCredits)) {
-                    if (sourceDegreeModuleToEvaluate.isEnroled() && sourceDegreeModuleToEvaluate.isLeaf()) {
-                        return createImpossibleResult(rule, sourceDegreeModuleToEvaluate, ectsCredits);
-                    } else {
-                        return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate, ectsCredits);
-                    }
-                }
-
-                ectsCredits = Double.valueOf(ectsCredits.doubleValue()
-                        + calculatePreviousPeriodEnroledEctsCredits(enrolmentContext, curriculumModule).doubleValue());
-
-                // TODO: remove duplicated ects from anual CurricularCourses
-
-                if (rule.creditsExceedMaximum(ectsCredits)) {
-                    return RuleResult.createTrue(EnrolmentResultType.TEMPORARY, sourceDegreeModuleToEvaluate.getDegreeModule(),
-                            "curricularRules.ruleExecutors.CreditsLimitExecutor.exceeded.maximum.credits.limit",
-                            ectsCredits.toString(), rule.getMaximumCredits().toString(), curriculumModule.getName().getContent());
-                } else {
-                    return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
-                }
-
-            } else { // is enrolling now
-                return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-            }
-        }
-    }
-
     private RuleResult createImpossibleResult(final CreditsLimit rule, final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
             final Double ectsCredits) {
         if (rule.getMinimumCredits().equals(rule.getMaximumCredits())) {
@@ -200,11 +147,7 @@ public class CreditsLimitExecutor extends CurricularRuleExecutor {
         }
     }
 
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
+
 
     @Override
     protected boolean canBeEvaluated(ICurricularRule curricularRule, IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,

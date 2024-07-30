@@ -55,41 +55,6 @@ public class AssertUniqueApprovalInCurricularCourseContextsExecutor extends Curr
     }
 
     @Override
-    protected RuleResult executeEnrolmentWithRulesAndTemporaryEnrolment(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        final CurricularCourse curricularCourse = (CurricularCourse) curricularRule.getDegreeModuleToApplyRule();
-        final ExecutionInterval executionInterval = enrolmentContext.getExecutionPeriod();
-
-        if (!curricularCourse.hasAnyActiveContext(enrolmentContext.getExecutionPeriod())) {
-            return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-
-        if (isApproved(enrolmentContext, curricularCourse, executionInterval.getPrevious())) {
-            if (sourceDegreeModuleToEvaluate.isEnroled()) {
-                return RuleResult.createImpossible(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                        "curricularRules.ruleExecutors.AssertUniqueApprovalInCurricularCourseContextsExecutor.already.approved",
-                        curricularCourse.getName());
-            } else {
-                return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
-                        "curricularRules.ruleExecutors.AssertUniqueApprovalInCurricularCourseContextsExecutor.already.approved",
-                        curricularCourse.getName());
-            }
-
-        } else if (hasEnrolmentWithEnroledState(enrolmentContext, curricularCourse, executionInterval.getPrevious())) {
-            return RuleResult.createTrue(EnrolmentResultType.TEMPORARY, sourceDegreeModuleToEvaluate.getDegreeModule());
-
-        } else {
-            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
-        }
-    }
-
-    @Override
-    protected RuleResult executeEnrolmentInEnrolmentEvaluation(final ICurricularRule curricularRule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
-        return RuleResult.createNA(sourceDegreeModuleToEvaluate.getDegreeModule());
-    }
-
-    @Override
     protected boolean canBeEvaluated(ICurricularRule curricularRule, IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
             EnrolmentContext enrolmentContext) {
         return true;
