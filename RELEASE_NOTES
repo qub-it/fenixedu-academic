@@ -1,3 +1,4 @@
+46.14.0 (30-07-2024)
 - Refactor: Delete unused services [#qubIT-Fenix-1607]
 - Bug fix: Localize merge execution courses exceptions [#qubIT-Fenix-5167]
 
