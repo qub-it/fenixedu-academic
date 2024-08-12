@@ -1,3 +1,5 @@
+- Refactor: Making compatible with new Guava API [#qubIT-Omnis-5869]
+
 46.15.0 (05-08-2024)
 - Refactor: Remove legacy evaluation season and temporary enrolment logic [#qubIT-Fenix-5554]
 

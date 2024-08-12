@@ -218,7 +218,7 @@ public class HumanName {
         if (name == null) {
             return null;
         }
-        return Strings.emptyToNull(CharMatcher.WHITESPACE.trimAndCollapseFrom(name, ' '));
+        return Strings.emptyToNull(CharMatcher.whitespace().trimAndCollapseFrom(name, ' '));
     }
 
     public static String nameCapitalization(String name) {
