@@ -1,3 +1,4 @@
+- Improvement: Updates guava from 21.0 to 33.2.1-jre [#qubIT-Omnis-5869]
 - Improvement: Add method to return code in AcademicPeriodOrder [#qubIT-Fenix-5174]
 
 46.15.1 (12-08-2024)
