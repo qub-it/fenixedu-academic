@@ -47,6 +47,10 @@ public class AcademicPeriodOrder extends AcademicPeriodOrder_Base {
         throw new DomainException("error.AcademicPeriodOrder.period.order.cannot.be.changed");
     }
 
+    public String getCode() {
+        return getAcademicPeriod().getCode() + getPeriodOrder();
+    }
+
     public void delete() {
         super.setRoot(null);
 

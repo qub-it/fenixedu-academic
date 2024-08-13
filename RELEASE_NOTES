@@ -1,3 +1,5 @@
+- Improvement: Add method to return code in AcademicPeriodOrder [#qubIT-Fenix-5174]
+
 46.15.1 (12-08-2024)
 - Refactor: Making compatible with new Guava API [#qubIT-Omnis-5869]
 
