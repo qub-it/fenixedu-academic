@@ -19,11 +19,13 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
+import java.util.Locale;
+import java.util.function.Function;
 
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
-import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 
 public class BibliographicReference extends BibliographicReference_Base {
 
@@ -36,6 +38,7 @@ public class BibliographicReference extends BibliographicReference_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
+    @Deprecated
     public static BibliographicReference create(final String title, final String authors, final String reference,
             final String year, final Boolean optional) {
         if (title == null || authors == null || year == null || optional == null) {
@@ -52,6 +55,62 @@ public class BibliographicReference extends BibliographicReference_Base {
         return result;
     }
 
+    public static BibliographicReference create(final LocalizedString title, final String authors,
+            final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
+            final Boolean optional) {
+        if (title == null || authors == null || year == null || optional == null) {
+            throw new IllegalArgumentException("Required fields not filled");
+        }
+
+        final BibliographicReference result = new BibliographicReference();
+        result.setTitleI18N(title);
+        result.setAuthors(authors);
+        result.setReferenceI18N(reference);
+        result.setYear(year);
+        result.setUrl(url);
+        result.setOptional(optional);
+        result.setReferenceOrder(referenceOrder);
+
+        return result;
+    }
+
+    public static BibliographicReference create(final CompetenceCourseInformation competenceCourseInformation,
+            final LocalizedString title, final String authors, final LocalizedString reference, final String year,
+            final String url, final Boolean optional) {
+        if (competenceCourseInformation == null) {
+            throw new IllegalArgumentException();
+        }
+
+        final BibliographicReference result = BibliographicReference.create(title, authors, reference, year, url,
+                competenceCourseInformation.getAssociatedBibliographicReferencesSet().size(), optional);
+        result.setCompetenceCourseInformation(competenceCourseInformation);
+
+        return result;
+    }
+
+    /**
+     * Copies the provided Bibliographic Reference.
+     * Note that this methods only copies the fields of this object. Not the relationships.
+     * 
+     * @param bibliographicReferenceToCopy
+     * @return copied BibliographicReference
+     */
+    public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
+
+        final Function<LocalizedString, LocalizedString> copyLocalizedString = ls -> {
+            LocalizedString copy = new LocalizedString(Locale.getDefault(), ls.getContent(Locale.getDefault()));
+            ls.getLocales().stream().filter(l -> l != Locale.getDefault()).forEach(l -> copy.with(l, ls.getContent(l)));
+            return copy;
+        };
+
+        return create(copyLocalizedString.apply(bibliographicReferenceToCopy.getTitleI18N()),
+                bibliographicReferenceToCopy.getAuthors(),
+                copyLocalizedString.apply(bibliographicReferenceToCopy.getReferenceI18N()),
+                bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
+                bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
+    }
+
+    @Deprecated
     public void edit(final String title, final String authors, final String reference, final String year, final String url,
             final Boolean optional) {
 
@@ -62,6 +121,21 @@ public class BibliographicReference extends BibliographicReference_Base {
         setTitle(title);
         setAuthors(authors);
         setReference(reference);
+        setYear(year);
+        setOptional(optional);
+        setUrl(url);
+    }
+
+    public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,
+            final String url, final Boolean optional) {
+
+        if (title == null || authors == null || year == null || optional == null) {
+            throw new IllegalArgumentException("Required fields not filled");
+        }
+
+        setTitleI18N(title);
+        setAuthors(authors);
+        setReferenceI18N(reference);
         setYear(year);
         setOptional(optional);
         setUrl(url);
@@ -79,8 +153,12 @@ public class BibliographicReference extends BibliographicReference_Base {
         setOptional(BibliographicReferenceType.SECONDARY.equals(type));
     }
 
+    public boolean isChangeProposal() {
+        return getCompetenceCourseInformation() == null;
+    }
+
     public void delete() {
-        setExecutionCourse(null);
+        setCompetenceCourseInformation(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
     }

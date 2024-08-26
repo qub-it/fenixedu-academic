@@ -166,9 +166,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         if (!getAssociatedSummariesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasSummaries"));
         }
-        if (!getAssociatedBibliographicReferencesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasBibliographyReferences"));
-        }
         if (!getAssociatedEvaluationsSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasEvaluations"));
         }
@@ -337,13 +334,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
     public ExecutionYear getExecutionYear() {
         return getExecutionInterval().getExecutionYear();
-    }
-
-    public SortedSet<BibliographicReference> getOrderedBibliographicReferences() {
-        TreeSet<BibliographicReference> references =
-                new TreeSet<BibliographicReference>(BibliographicReference.COMPARATOR_BY_ORDER);
-        references.addAll(getAssociatedBibliographicReferencesSet());
-        return references;
     }
 
     public Set<ExecutionDegree> getExecutionDegrees() {
