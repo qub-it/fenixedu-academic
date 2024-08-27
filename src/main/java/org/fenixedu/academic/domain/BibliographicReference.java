@@ -19,6 +19,7 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
+import java.util.function.Function;
 
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -80,15 +81,12 @@ public class BibliographicReference extends BibliographicReference_Base {
      */
     public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
 
-        return create(copyLocalizedString(bibliographicReferenceToCopy.getLocalizedTitle()),
-                bibliographicReferenceToCopy.getAuthors(),
-                copyLocalizedString(bibliographicReferenceToCopy.getLocalizedReference()), bibliographicReferenceToCopy.getYear(),
+        final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
+
+        return create(copy.apply(bibliographicReferenceToCopy.getLocalizedTitle()), bibliographicReferenceToCopy.getAuthors(),
+                copy.apply(bibliographicReferenceToCopy.getLocalizedReference()), bibliographicReferenceToCopy.getYear(),
                 bibliographicReferenceToCopy.getUrl(), bibliographicReferenceToCopy.getReferenceOrder(),
                 bibliographicReferenceToCopy.getOptional());
-    }
-
-    private static LocalizedString copyLocalizedString(LocalizedString ls) {
-        return ls.builder().build();
     }
 
     @Deprecated
