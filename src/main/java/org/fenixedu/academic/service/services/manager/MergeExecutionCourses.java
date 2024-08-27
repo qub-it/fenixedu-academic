@@ -101,7 +101,6 @@ public class MergeExecutionCourses {
 //        registerMergeHandler(MergeExecutionCourses::copyLessonsInstances);
         registerMergeHandler(MergeExecutionCourses::copyProfessorships);
         registerMergeHandler(MergeExecutionCourses::copyAttends);
-        registerMergeHandler(MergeExecutionCourses::copyBibliographicReference);
         registerMergeHandler(MergeExecutionCourses::copySummaries);
         registerMergeHandler(MergeExecutionCourses::removeEvaluations);
         registerMergeHandler(MergeExecutionCourses::copyExecutionCourseLogs);
@@ -178,15 +177,6 @@ public class MergeExecutionCourses {
             final Evaluation evaluation = executionCourseFrom.getAssociatedEvaluationsSet().iterator().next();
             executionCourseTo.getAssociatedEvaluationsSet().add(evaluation);
             executionCourseFrom.getAssociatedEvaluationsSet().remove(evaluation);
-        }
-    }
-
-    private static void copyBibliographicReference(final ExecutionCourse executionCourseFrom,
-            final ExecutionCourse executionCourseTo) {
-        for (; !executionCourseFrom.getAssociatedBibliographicReferencesSet().isEmpty(); executionCourseTo
-                .getAssociatedBibliographicReferencesSet()
-                .add(executionCourseFrom.getAssociatedBibliographicReferencesSet().iterator().next())) {
-            ;
         }
     }
 
