@@ -1,4 +1,4 @@
-- Refactor: Complete the BibliographicReference [#qubIT-Fenix-1595]
+- Refactor: Migrate the BibliographicReferences to BibliographicReference [#qubIT-Fenix-1595]
 - Refactor: Remove deprecated AuthorizationService [#qubIT-Fenix-1596]
 
 46.16.0 (16-08-2024)

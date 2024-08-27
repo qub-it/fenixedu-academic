@@ -63,27 +63,13 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         final BibliographicReference result = new BibliographicReference();
-        result.setTitleI18N(title);
+        result.setLocalizedTitle(title);
         result.setAuthors(authors);
-        result.setReferenceI18N(reference);
+        result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
         result.setOptional(optional);
         result.setReferenceOrder(referenceOrder);
-
-        return result;
-    }
-
-    public static BibliographicReference create(final CompetenceCourseInformation competenceCourseInformation,
-            final LocalizedString title, final String authors, final LocalizedString reference, final String year,
-            final String url, final Boolean optional) {
-        if (competenceCourseInformation == null) {
-            throw new IllegalArgumentException();
-        }
-
-        final BibliographicReference result = BibliographicReference.create(title, authors, reference, year, url,
-                competenceCourseInformation.getAssociatedBibliographicReferencesSet().size(), optional);
-        result.setCompetenceCourseInformation(competenceCourseInformation);
 
         return result;
     }
@@ -103,9 +89,9 @@ public class BibliographicReference extends BibliographicReference_Base {
             return copy;
         };
 
-        return create(copyLocalizedString.apply(bibliographicReferenceToCopy.getTitleI18N()),
+        return create(copyLocalizedString.apply(bibliographicReferenceToCopy.getLocalizedTitle()),
                 bibliographicReferenceToCopy.getAuthors(),
-                copyLocalizedString.apply(bibliographicReferenceToCopy.getReferenceI18N()),
+                copyLocalizedString.apply(bibliographicReferenceToCopy.getLocalizedReference()),
                 bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
                 bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
     }
@@ -133,9 +119,9 @@ public class BibliographicReference extends BibliographicReference_Base {
             throw new IllegalArgumentException("Required fields not filled");
         }
 
-        setTitleI18N(title);
+        setLocalizedTitle(title);
         setAuthors(authors);
-        setReferenceI18N(reference);
+        setLocalizedReference(reference);
         setYear(year);
         setOptional(optional);
         setUrl(url);
@@ -151,10 +137,6 @@ public class BibliographicReference extends BibliographicReference_Base {
 
     public void setType(BibliographicReferenceType type) {
         setOptional(BibliographicReferenceType.SECONDARY.equals(type));
-    }
-
-    public boolean isChangeProposal() {
-        return getCompetenceCourseInformation() == null;
     }
 
     public void delete() {

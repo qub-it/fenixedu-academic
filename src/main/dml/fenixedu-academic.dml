@@ -333,10 +333,10 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String authors;
         Boolean optional;
         String reference;
-        LocalizedString referenceI18N;
+        LocalizedString localizedReference;
         Integer referenceOrder;
         String title;
-        LocalizedString titleI18N;
+        LocalizedString localizedTitle;
         String year;
         String url;
     }
@@ -984,7 +984,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     	relation CompetenceCourseInformationBibliographicReference {
 		    degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformation;
-		    BibliographicReference playsRole associatedBibliographicReferences { multiplicity *; }
+		    BibliographicReference playsRole bibliographies { multiplicity *; }
 		}
 		
     class degreeStructure.CompetenceCourseLevelType  {
