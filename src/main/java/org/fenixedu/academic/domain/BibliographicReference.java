@@ -19,11 +19,8 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
-import java.util.Locale;
-import java.util.function.Function;
 
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -83,17 +80,15 @@ public class BibliographicReference extends BibliographicReference_Base {
      */
     public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
 
-        final Function<LocalizedString, LocalizedString> copyLocalizedString = ls -> {
-            LocalizedString copy = new LocalizedString(Locale.getDefault(), ls.getContent(Locale.getDefault()));
-            ls.getLocales().stream().filter(l -> l != Locale.getDefault()).forEach(l -> copy.with(l, ls.getContent(l)));
-            return copy;
-        };
-
-        return create(copyLocalizedString.apply(bibliographicReferenceToCopy.getLocalizedTitle()),
+        return create(copyLocalizedString(bibliographicReferenceToCopy.getLocalizedTitle()),
                 bibliographicReferenceToCopy.getAuthors(),
-                copyLocalizedString.apply(bibliographicReferenceToCopy.getLocalizedReference()),
-                bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
-                bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
+                copyLocalizedString(bibliographicReferenceToCopy.getLocalizedReference()), bibliographicReferenceToCopy.getYear(),
+                bibliographicReferenceToCopy.getUrl(), bibliographicReferenceToCopy.getReferenceOrder(),
+                bibliographicReferenceToCopy.getOptional());
+    }
+
+    private static LocalizedString copyLocalizedString(LocalizedString ls) {
+        return ls.builder().build();
     }
 
     @Deprecated
