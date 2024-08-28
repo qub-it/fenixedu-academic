@@ -139,7 +139,7 @@ public class BibliographicReferences implements Serializable {
 
         public BibliographicReference() {
         }
-        
+
         public BibliographicReference(String year, String title, String authors, String reference, String url,
                 BibliographicReferenceType type, int order) {
             if (Strings.isNullOrEmpty(title) || Strings.isNullOrEmpty(authors)) {
