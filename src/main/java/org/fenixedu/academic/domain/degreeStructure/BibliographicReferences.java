@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 
+@Deprecated
 public class BibliographicReferences implements Serializable {
     private static final long serialVersionUID = 1489616281219374804L;
 
@@ -120,6 +121,7 @@ public class BibliographicReferences implements Serializable {
         }
     }
 
+    @Deprecated
     public static class BibliographicReference implements Comparable<BibliographicReference>, Serializable {
         private static final long serialVersionUID = 7998864914358693747L;
 
@@ -213,6 +215,7 @@ public class BibliographicReferences implements Serializable {
         }
     }
 
+    @Deprecated
     public enum BibliographicReferenceType {
         MAIN, SECONDARY;
 
