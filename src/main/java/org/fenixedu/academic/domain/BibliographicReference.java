@@ -20,10 +20,12 @@ package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -153,6 +155,27 @@ public class BibliographicReference extends BibliographicReference_Base {
         setCompetenceCourseInformation(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
+    }
+
+    public static Set<BibliographicReference> createFromBibliographicReferences(BibliographicReferences bibliographicReferences) {
+        return bibliographicReferences.getBibliographicReferencesList().stream()
+                .map(br -> org.fenixedu.academic.domain.BibliographicReference.create(
+                        new LocalizedString(Locale.getDefault(), br.getTitle()), br.getAuthors(),
+                        new LocalizedString(Locale.getDefault(), br.getReference()), br.getYear(), br.getUrl(), br.getOrder(),
+                        BibliographicReferenceType.SECONDARY.equals(br.getType())))
+                .collect(Collectors.toSet());
+    }
+
+    public static BibliographicReferences createBibliographicReferences(Set<BibliographicReference> bibliographies) {
+        BibliographicReferences bibliographicReferences = new BibliographicReferences();
+        for (final BibliographicReference reference : bibliographies.stream().sorted(BibliographicReference.COMPARATOR_BY_ORDER)
+                .collect(Collectors.toList())) {
+            bibliographicReferences =
+                    bibliographicReferences.with(reference.getYear(), reference.getLocalizedTitle().getContent(),
+                            reference.getAuthors(), reference.getLocalizedReference().getContent(), reference.getUrl(),
+                            reference.isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN);
+        }
+        return bibliographicReferences;
     }
 
 }

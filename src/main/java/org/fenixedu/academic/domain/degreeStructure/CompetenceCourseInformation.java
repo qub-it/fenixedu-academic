@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +31,6 @@ import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReference;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -294,19 +292,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     @Deprecated
     public BibliographicReference getBibliographicReference(final Integer oid) {
         return getBibliographicReferences().getBibliographicReference(oid);
-    }
-
-    @Deprecated
-    @Override
-    public void setBibliographicReferences(BibliographicReferences bibliographicReferences) {
-        super.setBibliographicReferences(bibliographicReferences);
-        this.getBibliographiesSet().forEach(br -> br.delete());
-        this.getBibliographiesSet().addAll(bibliographicReferences.getBibliographicReferencesList().stream()
-                .map(br -> org.fenixedu.academic.domain.BibliographicReference.create(
-                        new LocalizedString(Locale.getDefault(), br.getTitle()), br.getAuthors(),
-                        new LocalizedString(Locale.getDefault(), br.getReference()), br.getYear(), br.getUrl(), br.getOrder(),
-                        BibliographicReferenceType.SECONDARY.equals(br.getType())))
-                .collect(Collectors.toSet()));
     }
 
     public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {

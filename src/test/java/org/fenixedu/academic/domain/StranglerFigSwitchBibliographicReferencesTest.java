@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -9,13 +8,9 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
-import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.junit.BeforeClass;
@@ -76,6 +71,10 @@ public class StranglerFigSwitchBibliographicReferencesTest {
                 "Sofia Nascimento", "qubIT", null, BibliographicReferenceType.MAIN);
         courseInformation.setBibliographicReferences(bibliographicReferences);
 
+        courseInformation.getBibliographiesSet().stream().forEach(br -> br.delete());
+        courseInformation.getBibliographiesSet()
+                .addAll(BibliographicReference.createFromBibliographicReferences(bibliographicReferences));
+
         assertTrue(courseInformation.getBibliographicReferences().getBibliographicReferencesList().size() == 1);
         assertTrue(courseInformation.getBibliographiesSet().size() == 1);
         assertTrue(equals(courseInformation.getBibliographicReferences().getBibliographicReferencesList().get(0),
@@ -86,6 +85,10 @@ public class StranglerFigSwitchBibliographicReferencesTest {
                 "Como a Qualidade do código cria Bem-Estar", "Sofia Nascimento", "qubIT", null, BibliographicReferenceType.MAIN);
         courseInformation.setBibliographicReferences(bibliographicReferences);
 
+        courseInformation.getBibliographiesSet().stream().forEach(br -> br.delete());
+        courseInformation.getBibliographiesSet()
+                .addAll(BibliographicReference.createFromBibliographicReferences(bibliographicReferences));
+
         assertTrue(courseInformation.getBibliographicReferences().getBibliographicReferencesList().size() == 1);
         assertTrue(courseInformation.getBibliographiesSet().size() == 1);
         assertTrue(equals(courseInformation.getBibliographicReferences().getBibliographicReferencesList().get(0),
@@ -94,6 +97,10 @@ public class StranglerFigSwitchBibliographicReferencesTest {
         //DELETE
         bibliographicReferences = courseInformation.getBibliographicReferences().without(0);
         courseInformation.setBibliographicReferences(bibliographicReferences);
+
+        courseInformation.getBibliographiesSet().stream().forEach(br -> br.delete());
+        courseInformation.getBibliographiesSet()
+                .addAll(BibliographicReference.createFromBibliographicReferences(bibliographicReferences));
 
         assertTrue(courseInformation.getBibliographicReferences().getBibliographicReferencesList().isEmpty());
         assertTrue(courseInformation.getBibliographiesSet().isEmpty());
