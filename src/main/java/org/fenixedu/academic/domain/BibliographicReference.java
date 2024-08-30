@@ -158,12 +158,14 @@ public class BibliographicReference extends BibliographicReference_Base {
     }
 
     public static Set<BibliographicReference> createFromBibliographicReferences(BibliographicReferences bibliographicReferences) {
-        return bibliographicReferences.getBibliographicReferencesList().stream()
-                .map(br -> org.fenixedu.academic.domain.BibliographicReference.create(
-                        new LocalizedString(Locale.getDefault(), br.getTitle()), br.getAuthors(),
-                        new LocalizedString(Locale.getDefault(), br.getReference()), br.getYear(), br.getUrl(), br.getOrder(),
-                        BibliographicReferenceType.SECONDARY.equals(br.getType())))
-                .collect(Collectors.toSet());
+        return bibliographicReferences.getBibliographicReferencesList().stream().map(br -> {
+            BibliographicReference bibliographicReference =
+                    org.fenixedu.academic.domain.BibliographicReference.create(br.getTitle(), br.getAuthors(), br.getReference(),
+                            br.getYear(), BibliographicReferenceType.SECONDARY.equals(br.getType()));
+            bibliographicReference.setUrl(br.getUrl());
+            bibliographicReference.setReferenceOrder(br.getOrder());
+            return bibliographicReference;
+        }).collect(Collectors.toSet());
     }
 
     public static BibliographicReferences createBibliographicReferences(Set<BibliographicReference> bibliographies) {
@@ -173,7 +175,8 @@ public class BibliographicReference extends BibliographicReference_Base {
             bibliographicReferences =
                     bibliographicReferences.with(reference.getYear(), reference.getLocalizedTitle().getContent(),
                             reference.getAuthors(), reference.getLocalizedReference().getContent(), reference.getUrl(),
-                            reference.isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN);
+                            reference.isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN,
+                            reference.getReferenceOrder());
         }
         return bibliographicReferences;
     }
