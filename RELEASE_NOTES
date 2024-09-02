@@ -1,4 +1,4 @@
-- Refactor: Migration of bibliographic references from value types to domain entities [#qubIT-Fenix-1595] 
+- Refactor: Prepare migration of bibliographic references from value types to domain entities [#qubIT-Fenix-1595] 
 
 46.16.1 (28-08-2024)
 - Refactor: Prepare migration of bibliographic references from value types to domain entities [#qubIT-Fenix-1595]
