@@ -144,31 +144,23 @@ public class BibliographicReference extends BibliographicReference_Base {
         setOptional(BibliographicReferenceType.SECONDARY.equals(type));
     }
 
-    @Override
-    public String toString() {
-        return Stream
-                .of(getYear(), getLocalizedTitle().getContent(), getAuthors(), getLocalizedReference().getContent(), getUrl())
-                .collect(Collectors.joining(" || "));
-    }
-
     public void delete() {
         setCompetenceCourseInformation(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
 
-    public static Set<BibliographicReference> createFromBibliographicReferences(BibliographicReferences bibliographicReferences) {
+    public static Set<BibliographicReference> createDomainEntitiesFrom(BibliographicReferences bibliographicReferences) {
         return bibliographicReferences.getBibliographicReferencesList().stream().map(br -> {
-            BibliographicReference bibliographicReference =
-                    org.fenixedu.academic.domain.BibliographicReference.create(br.getTitle(), br.getAuthors(), br.getReference(),
-                            br.getYear(), BibliographicReferenceType.SECONDARY.equals(br.getType()));
+            BibliographicReference bibliographicReference = BibliographicReference.create(br.getTitle(), br.getAuthors(),
+                    br.getReference(), br.getYear(), BibliographicReferenceType.SECONDARY.equals(br.getType()));
             bibliographicReference.setUrl(br.getUrl());
             bibliographicReference.setReferenceOrder(br.getOrder());
             return bibliographicReference;
         }).collect(Collectors.toSet());
     }
 
-    public static BibliographicReferences createBibliographicReferences(Set<BibliographicReference> bibliographies) {
+    public static BibliographicReferences createValueTypeFrom(Set<BibliographicReference> bibliographies) {
         BibliographicReferences bibliographicReferences = new BibliographicReferences();
         for (final BibliographicReference reference : bibliographies.stream().sorted(BibliographicReference.COMPARATOR_BY_ORDER)
                 .collect(Collectors.toList())) {
