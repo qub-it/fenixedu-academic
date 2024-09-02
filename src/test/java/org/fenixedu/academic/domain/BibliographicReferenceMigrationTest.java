@@ -150,7 +150,7 @@ public class BibliographicReferenceMigrationTest {
 
         //3
         bibliographicReferences = courseInformation.getBibliographicReferences();
-        bibliographicReferences = bibliographicReferences.with("2024", "Shezad is Amazing", "Me, Myself and I", "qubIT", null,
+        bibliographicReferences = bibliographicReferences.with("2024", "*Someone* is Amazing", "Me, Myself and I", "qubIT", null,
                 BibliographicReferenceType.MAIN);
         setBibliographicReferences(courseInformation, bibliographicReferences);
 
