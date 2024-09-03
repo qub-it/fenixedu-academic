@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -154,13 +155,24 @@ public class CurricularCourse extends CurricularCourse_Base {
         return StringUtils.lowerCase(stringBuffer.toString());
     }
 
-    @SuppressWarnings("unchecked")
+    public Stream<ExecutionCourse> findExecutionCourses(final ExecutionInterval executionInterval) {
+        return getAssociatedExecutionCoursesSet().stream()
+                .filter(ec -> ec.getExecutionInterval() == executionInterval || ec.getExecutionInterval()
+                        .getExecutionYear() == executionInterval);
+    }
+
+    /**
+     * @deprecated use {@link #findExecutionCourses(ExecutionInterval)}
+     */
+    @Deprecated
     public List<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
         return getAssociatedExecutionCoursesSet().stream().filter(ec -> ec.getExecutionInterval() == executionInterval)
                 .collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated use {@link #findExecutionCourses(ExecutionInterval)}
+     */
     public List<ExecutionCourse> getExecutionCoursesByExecutionYear(final ExecutionYear executionYear) {
         return (List<ExecutionCourse>) CollectionUtils.select(getAssociatedExecutionCoursesSet(), new Predicate() {
             @Override

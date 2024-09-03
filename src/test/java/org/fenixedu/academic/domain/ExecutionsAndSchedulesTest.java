@@ -13,12 +13,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -43,11 +45,15 @@ import pt.ist.fenixframework.FenixFramework;
 public class ExecutionsAndSchedulesTest {
 
     public static final String SCHOOL_CLASS_B_NAME = "School Class B";
+
     public static final String SCHOOL_CLASS_A_NAME = "School Class A";
 
     private static ExecutionCourse executionCourse;
+
     private static ExecutionDegree executionDegree;
+
     private static SpaceClassification classification;
+
     private static Shift shift;
 
     @BeforeClass
@@ -111,14 +117,43 @@ public class ExecutionsAndSchedulesTest {
         final Calendar endTimeCalendar = Calendar.getInstance();
         endTimeCalendar.setTimeInMillis(endTime.toDateTimeToday().getMillis());
 
-        final Lesson lesson = new Lesson(diaSemana, startTimeCalendar, endTimeCalendar, shift, frequency,
-                shift.getExecutionPeriod(), period, space);
+        final Lesson lesson =
+                new Lesson(diaSemana, startTimeCalendar, endTimeCalendar, shift, frequency, shift.getExecutionPeriod(), period,
+                        space);
         return lesson;
     }
 
     @Test
     public void testExecutionDegree_find() {
         assertTrue(ExecutionYear.findCurrent(null).getExecutionDegreesSet().size() == 1);
+    }
+
+    @Test
+    public void testExecutionCourse_findFromCurricularCourse() {
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+        final CurricularCourse curricularCourse = new CurricularCourse();
+
+        final String uuid = UUID.randomUUID().toString();
+
+        final ExecutionInterval firstInterval = executionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
+        final ExecutionCourse firstExecutionCourse = new ExecutionCourse(uuid + "1", uuid + "1", firstInterval);
+        curricularCourse.addAssociatedExecutionCourses(firstExecutionCourse);
+
+        final ExecutionInterval secondInterval = executionYear.getChildInterval(2, AcademicPeriod.SEMESTER);
+        final ExecutionCourse secondExecutionCourse = new ExecutionCourse(uuid + "2", uuid + "2", secondInterval);
+        curricularCourse.addAssociatedExecutionCourses(secondExecutionCourse);
+
+        assertEquals(curricularCourse.getAssociatedExecutionCoursesSet().size(), 2);
+
+        assertEquals(curricularCourse.findExecutionCourses(firstInterval).count(), 1);
+        assertEquals(curricularCourse.findExecutionCourses(firstInterval).findAny().get(), firstExecutionCourse);
+
+        assertEquals(curricularCourse.findExecutionCourses(secondInterval).count(), 1);
+        assertEquals(curricularCourse.findExecutionCourses(secondInterval).findAny().get(), secondExecutionCourse);
+
+        assertEquals(curricularCourse.findExecutionCourses(executionYear).count(), 2);
+        assertTrue(curricularCourse.findExecutionCourses(executionYear).anyMatch(ec -> ec == firstExecutionCourse));
+        assertTrue(curricularCourse.findExecutionCourses(executionYear).anyMatch(ec -> ec == secondExecutionCourse));
     }
 
     @Test
@@ -147,8 +182,9 @@ public class ExecutionsAndSchedulesTest {
 
         Lesson lesson3h00m = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson1h20m = createLesson(shift, WeekDay.TUESDAY, new LocalTime(10, 0), new LocalTime(11, 20),
-                FrequencyType.WEEKLY, occupationPeriod, null);
+        Lesson lesson1h20m =
+                createLesson(shift, WeekDay.TUESDAY, new LocalTime(10, 0), new LocalTime(11, 20), FrequencyType.WEEKLY,
+                        occupationPeriod, null);
 
         assertEquals(lesson3h00m.getLessonDates().size(), 13);
         assertEquals(lesson1h20m.getLessonDates().size(), 14);
@@ -218,8 +254,9 @@ public class ExecutionsAndSchedulesTest {
         Iterator<Interval> intervals =
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
-        final Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0),
-                FrequencyType.WEEKLY, occupationPeriod, space);
+        final Lesson lesson =
+                createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                        occupationPeriod, space);
 
         assertEquals(lesson.getAllLessonIntervals().size(), 12);
 
@@ -424,8 +461,9 @@ public class ExecutionsAndSchedulesTest {
         Lesson lesson2 = createLesson(shift, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
 
-        List<Lesson> sortedLessons = Stream.of(lesson3, lesson4, lesson1, lesson2)
-                .sorted(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME).collect(Collectors.toList());
+        List<Lesson> sortedLessons =
+                Stream.of(lesson3, lesson4, lesson1, lesson2).sorted(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME)
+                        .collect(Collectors.toList());
 
         assertEquals(sortedLessons.get(0), lesson1);
         assertEquals(sortedLessons.get(1), lesson2);
@@ -454,8 +492,9 @@ public class ExecutionsAndSchedulesTest {
                 occupationPeriod, null);
         Lesson lesson2 = createLesson(shift1, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, spaceY);
-        Lesson lessonExtra = createLesson(shift1, WeekDay.SATURDAY, new LocalTime(12, 0), new LocalTime(13, 0),
-                FrequencyType.WEEKLY, occupationPeriod, spaceY);
+        Lesson lessonExtra =
+                createLesson(shift1, WeekDay.SATURDAY, new LocalTime(12, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
+                        occupationPeriod, spaceY);
         lessonExtra.setExtraLesson(true);
 
         Shift shift2 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T101");
@@ -485,15 +524,11 @@ public class ExecutionsAndSchedulesTest {
 
         CompetenceCourseInformation nextInformation = competenceCourse.findInformationMostRecentUntil(nextInterval);
 
-        assertThrows(
-                () -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL))
-                        .ifPresent(d -> d.delete()),
-                DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+        assertThrows(() -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL))
+                .ifPresent(d -> d.delete()), DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
 
-        assertThrows(
-                () -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL))
-                        .ifPresent(d -> d.delete()),
-                DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
+        assertThrows(() -> nextInformation.findLoadDurationByType(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL))
+                .ifPresent(d -> d.delete()), DomainException.class, "error.CourseLoadDuration.delete.shiftsExistsForDuration");
 
         assertThrows(() -> nextInformation.delete(), DomainException.class,
                 "error.CourseLoadDuration.delete.shiftsExistsForDuration");
