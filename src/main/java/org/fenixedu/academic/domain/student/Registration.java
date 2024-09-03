@@ -1062,47 +1062,6 @@ public class Registration extends Registration_Base {
         return schoolClasses.isEmpty() ? executionCourse.getSchoolClasses() : schoolClasses;
     }
 
-    public void addAttendsTo(final ExecutionCourse executionCourse) {
-
-        if (getStudent().readAttendByExecutionCourse(executionCourse) == null) {
-            final Enrolment enrolment =
-                    findEnrolment(getActiveStudentCurricularPlan(), executionCourse, executionCourse.getExecutionPeriod());
-            if (enrolment != null) {
-                enrolment.createAttends(this, executionCourse);
-            } else {
-                Attends attends = getAttendsForExecutionCourse(executionCourse);
-                if (attends != null) {
-                    attends.delete();
-                }
-                new Attends(this, executionCourse);
-            }
-        }
-    }
-
-    private Attends getAttendsForExecutionCourse(final ExecutionCourse executionCourse) {
-        List<Attends> attendsInExecutionPeriod = getAttendsForExecutionPeriod(executionCourse.getExecutionPeriod());
-        for (Attends attends : attendsInExecutionPeriod) {
-            for (CurricularCourse curricularCourse : attends.getExecutionCourse().getAssociatedCurricularCoursesSet()) {
-                if (executionCourse.getAssociatedCurricularCoursesSet().contains(curricularCourse)) {
-                    return attends;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Enrolment findEnrolment(final StudentCurricularPlan studentCurricularPlan, final ExecutionCourse executionCourse,
-            final ExecutionInterval executionInterval) {
-        for (final CurricularCourse curricularCourse : executionCourse.getAssociatedCurricularCoursesSet()) {
-            final Enrolment enrolment =
-                    studentCurricularPlan.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourse, executionInterval);
-            if (enrolment != null) {
-                return enrolment;
-            }
-        }
-        return null;
-    }
-
     @Override
     final public Integer getNumber() {
         return super.getNumber() != null ? super.getNumber() : getStudent().getNumber();

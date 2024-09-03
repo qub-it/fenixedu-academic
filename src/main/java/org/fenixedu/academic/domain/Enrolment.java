@@ -3,18 +3,14 @@
  *
  * This file is part of FenixEdu Academic.
  *
- * FenixEdu Academic is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * FenixEdu Academic is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * FenixEdu Academic is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * FenixEdu Academic is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License along with FenixEdu Academic.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package org.fenixedu.academic.domain;
 
@@ -33,32 +29,22 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
-import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
-import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.enrolment.EnroledEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.ExternalDegreeEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EctsAndWeightProviderRegistry;
-import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
@@ -179,8 +165,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
             final EnrollmentCondition enrolmentCondition, final String createdBy) {
         this();
-        if (studentCurricularPlan == null || curriculumGroup == null || curricularCourse == null || executionInterval == null
-                || enrolmentCondition == null || createdBy == null) {
+        if (studentCurricularPlan == null || curriculumGroup == null || curricularCourse == null || executionInterval == null || enrolmentCondition == null || createdBy == null) {
             throw new DomainException("invalid arguments");
         }
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval);
@@ -213,18 +198,18 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
             final CurriculumGroup curriculumGroup, final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
-        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
         setCurriculumGroup(curriculumGroup);
+        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
     }
 
     // end
 
-    protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
-        initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition,
-                createdBy);
-        createEnrolmentEvaluationWithoutGrade();
-    }
+//    protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
+//            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
+//        initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition,
+//                createdBy);
+//        createEnrolmentEvaluationWithoutGrade();
+//    }
 
     private void initializeCommon(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
@@ -236,16 +221,17 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         setCreatedBy(createdBy);
         setCreationDateDateTime(new DateTime());
         setEnrolmentCondition(enrolmentCondition);
-        createAttend(studentCurricularPlan.getRegistration(), curricularCourse, executionInterval);
+        curricularCourse.findExecutionCourses(executionInterval).findAny().ifPresent(this::findOrCreateAttends);
+
         super.setIsExtraCurricular(Boolean.FALSE);
     }
 
-    protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
-            final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
-            final EnrollmentCondition enrolmentCondition, final String createdBy) {
-        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-        setStudentCurricularPlan(studentCurricularPlan);
-    }
+//    protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
+//            final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
+//            final EnrollmentCondition enrolmentCondition, final String createdBy) {
+//        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
+//        setStudentCurricularPlan(studentCurricularPlan);
+//    }
 
     @Override
     public void delete() {
@@ -383,57 +369,43 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     protected void createEnrolmentEvaluationWithoutGrade() {
-        boolean existing = getEnrolmentEvaluationBySeason(EvaluationConfiguration.getInstance().getDefaultEvaluationSeason())
-                .filter(e -> e.getGrade().equals(null)).findAny().isPresent();
+        boolean existing =
+                getEnrolmentEvaluationBySeason(EvaluationConfiguration.getInstance().getDefaultEvaluationSeason()).filter(
+                        e -> e.getGrade().equals(null)).findAny().isPresent();
         if (!existing) {
-            EnrolmentEvaluation evaluation = new EnrolmentEvaluation(this,
-                    EvaluationConfiguration.getInstance().getDefaultEvaluationSeason(), EnrolmentEvaluationState.TEMPORARY_OBJ);
+            EnrolmentEvaluation evaluation =
+                    new EnrolmentEvaluation(this, EvaluationConfiguration.getInstance().getDefaultEvaluationSeason(),
+                            EnrolmentEvaluationState.TEMPORARY_OBJ);
             evaluation.setWhenDateTime(new DateTime());
             addEvaluations(evaluation);
         }
     }
 
-    private void createAttend(final Registration registration, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval) {
+    public Attends findOrCreateAttends(final ExecutionCourse executionCourse) {
+        final Registration registration = getRegistration();
+        final Attends attends = executionCourse.getAttendsByStudent(registration.getStudent());
 
-        final List<ExecutionCourse> executionCourses = curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval);
-
-        ExecutionCourse executionCourse = null;
-        if (executionCourses.size() > 1) {
-            final Iterator<ExecutionCourse> iterator = executionCourses.iterator();
-            while (iterator.hasNext()) {
-                final ExecutionCourse each = iterator.next();
-                executionCourse = each;
+        if (attends != null) {
+            if (attends.getEnrolment() == this) {
+                return attends;
             }
-        } else if (executionCourses.size() == 1) {
-            executionCourse = executionCourses.iterator().next();
+            if (attends.getEnrolment() == null || attends.getEnrolment().isAnnulled()) {
+                attends.setRegistration(registration);
+                attends.setEnrolment(this);
+                return attends;
+            }
+            throw new DomainException("error.cannot.create.multiple.enrolments.for.student.in.execution.course",
+                    executionCourse.getName(), executionCourse.getExecutionInterval().getQualifiedName());
         }
 
-        if (executionCourse != null) {
-            final Attends attend = executionCourse.getAttendsByStudent(registration.getStudent());
-            if (attend == null) {
-                addAttends(new Attends(registration, executionCourse));
-            } else if (attend.getEnrolment() == null) {
-                attend.setRegistration(registration);
-                addAttends(attend);
-            } else {
-                throw new DomainException("error.cannot.create.multiple.enrolments.for.student.in.execution.course",
-                        executionCourse.getNome(), executionCourse.getExecutionInterval().getQualifiedName());
-            }
+        // create new attends
+        if (getAttendsFor(executionCourse.getExecutionInterval()) != null) {
+            throw new DomainException("error.Attends.enrolmentAlreadyHasAttendsForExecutionInterval",
+                    executionCourse.getExecutionInterval().getQualifiedName());
         }
-    }
-
-    final public void createAttends(final Registration registration, final ExecutionCourse executionCourse) {
-        final Attends attendsFor = this.getAttendsFor(executionCourse.getExecutionInterval());
-        if (attendsFor != null) {
-            try {
-                attendsFor.delete();
-            } catch (DomainException e) {
-                throw new DomainException("error.attends.cant.change.attends");
-            }
-        }
-
-        this.addAttends(new Attends(registration, executionCourse));
+        final Attends newAttends = new Attends(registration, executionCourse);
+        newAttends.setEnrolment(this);
+        return newAttends;
     }
 
     final public List<EnrolmentEvaluation> getAllFinalEnrolmentEvaluations() {
@@ -535,8 +507,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     @SuppressWarnings("unchecked")
     final public Curriculum getCurriculum(final DateTime when, final ExecutionYear year) {
-        if (wasCreated(when) && (year == null || getExecutionYear().isBefore(year)) && isApproved() && !isPropaedeutic()
-                && !isExtraCurricular()) {
+        if (wasCreated(when) && (year == null || getExecutionYear().isBefore(
+                year)) && isApproved() && !isPropaedeutic() && !isExtraCurricular()) {
             return new Curriculum(this, year, Collections.singleton((ICurriculumEntry) this), Collections.EMPTY_SET,
                     Collections.singleton((ICurriculumEntry) this));
         }
@@ -570,8 +542,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     final public int getNumberOfTotalEnrolmentsInThisCourse(final ExecutionInterval untilExecutionInterval) {
-        return this.getStudentCurricularPlan().countEnrolmentsByCurricularCourse(this.getCurricularCourse(),
-                untilExecutionInterval);
+        return this.getStudentCurricularPlan()
+                .countEnrolmentsByCurricularCourse(this.getCurricularCourse(), untilExecutionInterval);
     }
 
     @Override
@@ -664,8 +636,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     public boolean isValid(final ExecutionInterval executionInterval) {
-        return getExecutionInterval() == executionInterval || getCurricularCourse().isAnual()
-                && getExecutionInterval().getExecutionYear() == executionInterval.getExecutionYear();
+        return getExecutionInterval() == executionInterval || getCurricularCourse().isAnual() && getExecutionInterval().getExecutionYear() == executionInterval.getExecutionYear();
     }
 
     public boolean isValid(final ExecutionYear executionYear) {
@@ -808,8 +779,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
         if (isValid(executionInterval) && isEnroled()) {
             if (isFromExternalDegree()) {
-                return Collections
-                        .<IDegreeModuleToEvaluate> singleton(new ExternalDegreeEnrolmentWrapper(this, executionInterval));
+                return Collections.<IDegreeModuleToEvaluate> singleton(
+                        new ExternalDegreeEnrolmentWrapper(this, executionInterval));
             } else {
                 return Collections.<IDegreeModuleToEvaluate> singleton(new EnroledEnrolmentWrapper(this, executionInterval));
             }
@@ -869,13 +840,11 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     /**
-     *
-     * After create new Enrolment, must delete OptionalEnrolment (to delete
-     * OptionalEnrolment disconnect at least: ProgramCertificateRequests,
-     * CourseLoadRequests, ExamDateCertificateRequests)
+     * After create new Enrolment, must delete OptionalEnrolment (to delete OptionalEnrolment disconnect at least:
+     * ProgramCertificateRequests, CourseLoadRequests, ExamDateCertificateRequests)
      *
      * @param optionalEnrolment
-     * @param curriculumGroup : new CurriculumGroup for Enrolment
+     * @param curriculumGroup   : new CurriculumGroup for Enrolment
      * @return Enrolment
      */
     static Enrolment createBasedOn(final OptionalEnrolment optionalEnrolment, final CurriculumGroup curriculumGroup) {
@@ -943,10 +912,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     /**
-     * @deprecated
-     * 
      * @use {@link #isFinalWork()}
-     * 
+     * @deprecated
      */
     @Deprecated
     public boolean isDissertation() {

@@ -1,3 +1,5 @@
+- Refactor: New method for creating or adding existing attends to enrolment [#qubIT-Fenix-5598]
+
 46.16.2 (03-09-2024)
 - Refactor: Prepare migration of bibliographic references from value types to domain entities [#qubIT-Fenix-1595] 
 
