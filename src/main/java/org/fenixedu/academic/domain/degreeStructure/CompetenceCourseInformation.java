@@ -289,6 +289,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         super.deleteDomainObject();
     }
 
+    @Deprecated
     public BibliographicReference getBibliographicReference(final Integer oid) {
         return getBibliographicReferences().getBibliographicReference(oid);
     }

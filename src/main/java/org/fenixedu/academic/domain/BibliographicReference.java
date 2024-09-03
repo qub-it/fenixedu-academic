@@ -19,8 +19,13 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
+import java.util.Locale;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -44,9 +49,11 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         final BibliographicReference result = new BibliographicReference();
-        result.setTitle(title);
+        result.setTitle(title); //FIXME: remove me
+        result.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
         result.setAuthors(authors);
-        result.setReference(reference);
+        result.setReference(reference); //FIXME: remove me
+        result.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
         result.setYear(year);
         result.setOptional(optional);
 
@@ -61,8 +68,10 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         final BibliographicReference result = new BibliographicReference();
+        result.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
         result.setLocalizedTitle(title);
         result.setAuthors(authors);
+        result.setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
@@ -83,10 +92,13 @@ public class BibliographicReference extends BibliographicReference_Base {
 
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
 
-        return create(copy.apply(bibliographicReferenceToCopy.getLocalizedTitle()), bibliographicReferenceToCopy.getAuthors(),
-                copy.apply(bibliographicReferenceToCopy.getLocalizedReference()), bibliographicReferenceToCopy.getYear(),
-                bibliographicReferenceToCopy.getUrl(), bibliographicReferenceToCopy.getReferenceOrder(),
-                bibliographicReferenceToCopy.getOptional());
+        BibliographicReference copiedReference = create(copy.apply(bibliographicReferenceToCopy.getLocalizedTitle()),
+                bibliographicReferenceToCopy.getAuthors(), copy.apply(bibliographicReferenceToCopy.getLocalizedReference()),
+                bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
+                bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
+        copiedReference.setTitle(bibliographicReferenceToCopy.getTitle()); //FIXME: remove me
+        copiedReference.setReference(bibliographicReferenceToCopy.getReference()); //FIXME: remove me
+        return copiedReference;
     }
 
     @Deprecated
@@ -136,6 +148,29 @@ public class BibliographicReference extends BibliographicReference_Base {
         setCompetenceCourseInformation(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
+    }
+
+    public static Set<BibliographicReference> createDomainEntitiesFrom(BibliographicReferences bibliographicReferences) {
+        return bibliographicReferences.getBibliographicReferencesList().stream().map(br -> {
+            BibliographicReference bibliographicReference = BibliographicReference.create(br.getTitle(), br.getAuthors(),
+                    br.getReference(), br.getYear(), BibliographicReferenceType.SECONDARY.equals(br.getType()));
+            bibliographicReference.setUrl(br.getUrl());
+            bibliographicReference.setReferenceOrder(br.getOrder());
+            return bibliographicReference;
+        }).collect(Collectors.toSet());
+    }
+
+    public static BibliographicReferences createValueTypeFrom(Set<BibliographicReference> bibliographies) {
+        BibliographicReferences bibliographicReferences = new BibliographicReferences();
+        for (final BibliographicReference reference : bibliographies.stream().sorted(BibliographicReference.COMPARATOR_BY_ORDER)
+                .collect(Collectors.toList())) {
+            bibliographicReferences =
+                    bibliographicReferences.with(reference.getYear(), reference.getLocalizedTitle().getContent(),
+                            reference.getAuthors(), reference.getLocalizedReference().getContent(), reference.getUrl(),
+                            reference.isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN,
+                            reference.getReferenceOrder());
+        }
+        return bibliographicReferences;
     }
 
 }
