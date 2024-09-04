@@ -140,20 +140,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public Stream<BibliographicReference> findBibliographies() {
-        return Optional.ofNullable(findInformationMostRecentUntil(null)).map(info -> info.getBibliographiesSet().stream())
-                .orElse(null);
-    }
-
-    private List<BibliographicReference> getBibliographies(Boolean isOptional) {
-        return findBibliographies().collect(Collectors.partitioningBy(BibliographicReference::getOptional)).get(isOptional);
-    }
-
-    public List<BibliographicReference> getMainBibliographies() {
-        return getBibliographies(Boolean.FALSE);
-    }
-
-    public List<BibliographicReference> getSecondaryBibliographies() {
-        return getBibliographies(Boolean.TRUE);
+        return Optional.ofNullable(findInformationMostRecentUntil(null)).stream()
+                .flatMap(info -> info.getBibliographiesSet().stream());
     }
 
     public void delete() {

@@ -161,12 +161,12 @@ public class BibliographicReferenceMigrationTest {
         //test CompetenceCourse api
         final CompetenceCourse competenceCourse = courseInformation.getCompetenceCourse();
         assertTrue(competenceCourse.getMainBibliographicReferences().size() == 2);
-        assertTrue(competenceCourse.getMainBibliographies().size() == 2);
+        assertTrue(competenceCourse.findBibliographies().filter(br -> !br.isOptional()).count() == 2);
 
         assertTrue(competenceCourse.getSecondaryBibliographicReferences().size() == 1);
-        assertTrue(competenceCourse.getSecondaryBibliographies().size() == 1);
+        assertTrue(competenceCourse.findBibliographies().filter(br -> br.isOptional()).count() == 1);
         assertTrue(equals(competenceCourse.getSecondaryBibliographicReferences().get(0),
-                competenceCourse.getSecondaryBibliographies().get(0)));
+                competenceCourse.findBibliographies().filter(br -> br.isOptional()).findAny().get()));
 
         //Clear test data
         courseInformation.setBibliographicReferences(new BibliographicReferences());
