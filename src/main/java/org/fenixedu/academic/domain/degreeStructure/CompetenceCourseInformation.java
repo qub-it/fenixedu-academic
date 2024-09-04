@@ -373,4 +373,12 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                 .findFirst();
     }
 
+    @Override
+    public void setBibliographicReferences(BibliographicReferences bibliographicReferences) {
+        super.setBibliographicReferences(bibliographicReferences);
+        this.getBibliographiesSet().forEach(br -> br.delete());
+        this.getBibliographiesSet()
+                .addAll(org.fenixedu.academic.domain.BibliographicReference.createDomainEntitiesFrom(bibliographicReferences));
+    }
+
 }
