@@ -158,6 +158,16 @@ public class BibliographicReferenceMigrationTest {
         assertTrue(courseInformation.getBibliographiesSet().size() == 3);
         assertTrue(isOrderEqual.test(courseInformation.getBibliographicReferences(), courseInformation.getBibliographiesSet()));
 
+        //test CompetenceCourse api
+        final CompetenceCourse competenceCourse = courseInformation.getCompetenceCourse();
+        assertTrue(competenceCourse.getMainBibliographicReferences().size() == 2);
+        assertTrue(competenceCourse.findBibliographies().filter(br -> !br.isOptional()).count() == 2);
+
+        assertTrue(competenceCourse.getSecondaryBibliographicReferences().size() == 1);
+        assertTrue(competenceCourse.findBibliographies().filter(br -> br.isOptional()).count() == 1);
+        assertTrue(equals(competenceCourse.getSecondaryBibliographicReferences().get(0),
+                competenceCourse.findBibliographies().filter(br -> br.isOptional()).findAny().get()));
+
         //Clear test data
         courseInformation.setBibliographicReferences(new BibliographicReferences());
         courseInformation.getBibliographiesSet().stream().forEach(br -> br.delete());

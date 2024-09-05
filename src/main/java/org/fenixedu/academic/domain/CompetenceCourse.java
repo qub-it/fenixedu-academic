@@ -47,7 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReference;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -102,7 +101,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     }
 
-    public BibliographicReference getBibliographicReference(Integer oid) {
+    public BibliographicReferences.BibliographicReference getBibliographicReference(Integer oid) {
         return findInformationMostRecentUntil(null).getBibliographicReferences().getBibliographicReference(oid);
     }
 
@@ -138,6 +137,11 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         result.addAll(getMainBibliographicReferences(interval));
         result.addAll(getSecondaryBibliographicReferences(interval));
         return result;
+    }
+
+    public Stream<BibliographicReference> findBibliographies() {
+        return Optional.ofNullable(findInformationMostRecentUntil(null)).stream()
+                .flatMap(info -> info.getBibliographiesSet().stream());
     }
 
     public void delete() {
