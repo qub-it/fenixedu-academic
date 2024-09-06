@@ -98,10 +98,12 @@ public class Attends extends Attends_Base {
     protected void checkForDeletionBlockers(Collection<String> blockers) {
         super.checkForDeletionBlockers(blockers);
         if (hasAnyShiftEnrolments()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.attends.cant.delete"));
+            final String course = getExecutionCourse().getCode() + " - " + getExecutionCourse().getName();
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.attends.cant.delete.has.shiftEnrolments", course));
         }
         if (!getAssociatedMarksSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.attends.cant.delete.has.associated.marks"));
+            final String course = getExecutionCourse().getCode() + " - " + getExecutionCourse().getName();
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.attends.cant.delete.has.associated.marks", course));
         }
     }
 
