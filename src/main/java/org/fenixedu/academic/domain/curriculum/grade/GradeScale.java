@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,7 +28,7 @@ public class GradeScale extends GradeScale_Base {
     private Map<String, Object> CACHE_APPROVED_GRADE_VALUES = null;
     private Map<String, Object> CACHE_NOT_APPROVED_GRADE_VALUES = null;
 
-    private static final Map<GradeScale, Map<String, GradeScaleEntry>> internalCache = new HashMap<>();
+    private static final Map<GradeScale, Map<String, GradeScaleEntry>> INTERNAL_CACHE = new ConcurrentHashMap<>();
 
     public static final Comparator<GradeScale> COMPARE_BY_NAME = (o1, o2) -> {
         int c = o1.getName().compareTo(o2.getName());
@@ -336,7 +337,7 @@ public class GradeScale extends GradeScale_Base {
             this.CACHE_NOT_APPROVED_GRADE_VALUES.clear();
         }
 
-        internalCache.clear();
+        INTERNAL_CACHE.clear();
     }
 
     public LocalizedString getExtendedValue(Grade grade) {
@@ -355,7 +356,7 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private GradeScaleEntry of(final String value) {
-        final Map<String, GradeScaleEntry> entriesCache = internalCache.computeIfAbsent(this, c -> new HashMap<>());
+        final Map<String, GradeScaleEntry> entriesCache = INTERNAL_CACHE.computeIfAbsent(this, c -> new ConcurrentHashMap<>());
         return entriesCache.computeIfAbsent(value,
                 c -> getGradeScaleEntriesSet().stream().filter(e -> Objects.equals(e.getValue(), value)).findAny().orElse(null));
     }
