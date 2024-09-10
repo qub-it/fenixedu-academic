@@ -1,3 +1,4 @@
+46.16.4 (10-09-2024)
 - Improvement: On attends deletion error message, specify its course for better debug [#qubIT-Fenix-5551]
 - Bug fix: Add a human-friendly error message on calendar edition [#qubIT-Fenix-5551]
 - Bug fix: Fix concurrency issue in Grade Scale [#qubIT-Fenix-5120]
