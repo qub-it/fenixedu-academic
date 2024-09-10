@@ -109,7 +109,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     /**
      * @deprecated use {@link #COMPARATOR_BY_START_EXECUTION_AND_DATE}
-     * 
+     *
      */
     @Deprecated(forRemoval = true)
     static final public Comparator<StudentCurricularPlan> STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE =
@@ -1128,11 +1128,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 }
                 curriculumLine.setCurriculumGroup(destination);
             }
-
-            // if curriculum line is moved then change created by
-
-            curriculumLine.setCreatedBy(responsible != null ? responsible.getUsername() : curriculumLine.getCreatedBy());
         }
+
+        updateCreditsStudentCurricularPlan(moveCurriculumLinesBean);
 
         if (runRules) {
             ExecutionYear.findCurrent(getDegree().getCalendar()).getChildIntervals().stream()
@@ -1162,11 +1160,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
                 curriculumLine.setCurriculumGroup(destination);
             }
-
-            // if curriculum line is moved then change created by
-            curriculumLine.setCreatedBy(
-                    responsiblePerson != null ? responsiblePerson.getUsername() : curriculumLine.getCreatedBy());
         }
+
+        updateCreditsStudentCurricularPlan(moveCurriculumLinesBean);
     }
 
     /**
@@ -1206,6 +1202,32 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         }
 
         return false;
+    }
+
+    private static void updateCreditsStudentCurricularPlan(final MoveCurriculumLinesBean bean) {
+        final Set<Dismissal> dismissalsOfCreditsPartiallyMoved =
+                bean.getCurriculumLineLocations().stream().filter(cll -> cll.getCurriculumLine().isDismissal())
+                        .map(cll -> (Dismissal) cll.getCurriculumLine()).filter(d -> d.getCredits().getDismissalsSet().stream()
+                                .anyMatch(od -> od.getStudentCurricularPlan() != d.getStudentCurricularPlan()))
+                        .collect(Collectors.toSet());
+
+        //ensure all dismissals of credits are moved to same plan
+        if (!dismissalsOfCreditsPartiallyMoved.isEmpty()) {
+            throw new DomainException("error.StudentCurricularPlan.cannot.move.partial.credits.between.plans",
+                    dismissalsOfCreditsPartiallyMoved.stream()
+                            .map(d -> (d.getCurricularCourse() == null ? d.getFullPath() : d.getCurricularCourse()
+                                    .getCodeAndName(d.getExecutionInterval())) + " (" + d.getExecutionInterval()
+                                    .getQualifiedName() + ")").collect(Collectors.joining("; ")));
+        }
+
+        //update credits plan to target
+        bean.getCurriculumLineLocations().stream().filter(cll -> cll.getCurriculumLine().isDismissal()).forEach(cll -> {
+            final Dismissal dismissal = (Dismissal) cll.getCurriculumLine();
+            final Credits credits = dismissal.getCredits();
+            if (credits.getStudentCurricularPlan() != dismissal.getStudentCurricularPlan()) {
+                credits.setStudentCurricularPlan(dismissal.getStudentCurricularPlan());
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")

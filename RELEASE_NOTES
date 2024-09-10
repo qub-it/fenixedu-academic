@@ -2,6 +2,7 @@
 - Improvement: On attends deletion error message, specify its course for better debug [#qubIT-Fenix-5551]
 - Bug fix: Add a human-friendly error message on calendar edition [#qubIT-Fenix-5551]
 - Bug fix: Fix concurrency issue in Grade Scale [#qubIT-Fenix-5120]
+- Bug fix: Correctly handle move lines between plans (ensure credits transfer consistency) [#qubIT-Fenix-5256]
 
 46.16.3 (05-09-2024)
 - Refactor: New method for creating or adding existing attends to enrolment [#qubIT-Fenix-5598]
