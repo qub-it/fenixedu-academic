@@ -1,6 +1,7 @@
 - Refactor: Package protect attends constructor and add finder method [#qubIT-Fenix-5598]
 - Bug fix: Correctly handle move lines between plans (change attends) [#qubIT-Fenix-5256]
 - Bug fix: When accessing states of academic year, include states assigned in that year [#qubIT-Fenix-5785]
+- Bug fix: Correction of the create method of the Bibliographic Reference [#qubIT-Fenix-1595] 
 
 46.16.6 (12-09-2024)
 - Bug fix: Correction on the creation of Competence Course Change Proposal Workflows [#qubIT-Fenix-1595] 

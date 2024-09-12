@@ -67,10 +67,8 @@ public class BibliographicReference extends BibliographicReference_Base {
 //        }
 
         final BibliographicReference result = new BibliographicReference();
-        result.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
         result.setLocalizedTitle(title);
         result.setAuthors(authors);
-        result.setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
@@ -87,6 +85,7 @@ public class BibliographicReference extends BibliographicReference_Base {
      * @param bibliographicReferenceToCopy
      * @return copied BibliographicReference
      */
+    @Deprecated
     public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
 
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
@@ -97,6 +96,18 @@ public class BibliographicReference extends BibliographicReference_Base {
                 bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
         copiedReference.setTitle(bibliographicReferenceToCopy.getTitle()); //FIXME: remove me
         copiedReference.setReference(bibliographicReferenceToCopy.getReference()); //FIXME: remove me
+        return copiedReference;
+    }
+
+    public BibliographicReference copy() {
+
+        final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
+
+        BibliographicReference copiedReference =
+                create(copy.apply(this.getLocalizedTitle()), this.getAuthors(), copy.apply(this.getLocalizedReference()),
+                        this.getYear(), this.getUrl(), this.getReferenceOrder(), this.getOptional());
+        copiedReference.setTitle(this.getTitle()); //FIXME: remove me
+        copiedReference.setReference(this.getReference()); //FIXME: remove me
         return copiedReference;
     }
 
