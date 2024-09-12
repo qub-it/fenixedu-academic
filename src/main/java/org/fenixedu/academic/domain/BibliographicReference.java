@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
 import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
@@ -63,9 +62,9 @@ public class BibliographicReference extends BibliographicReference_Base {
     public static BibliographicReference create(final LocalizedString title, final String authors,
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
             final Boolean optional) {
-        if (title == null || authors == null || year == null || optional == null) {
-            throw new IllegalArgumentException("Required fields not filled");
-        }
+//        if (title == null || authors == null || year == null || optional == null) {
+//            throw new IllegalArgumentException("Required fields not filled");
+//        }
 
         final BibliographicReference result = new BibliographicReference();
         result.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me

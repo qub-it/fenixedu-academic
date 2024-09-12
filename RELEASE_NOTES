@@ -1,3 +1,5 @@
+- Bug fix: Correction on the creation of Competence Course Change Proposal Workflows [#qubIT-Fenix-1595] 
+
 46.16.5 (10-09-2024)
 - Bug fix: Correctly handle move lines between plans (ensure credits transfer consistency) [#qubIT-Fenix-5256]
 
