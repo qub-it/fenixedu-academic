@@ -77,7 +77,7 @@ public class Attends extends Attends_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public Attends(Registration registration, ExecutionCourse executionCourse) {
+    Attends(Registration registration, ExecutionCourse executionCourse) {
         this();
         setRegistration(registration);
         setDisciplinaExecucao(executionCourse);
