@@ -1126,7 +1126,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 if (!destination.isExtraCurriculum()) {
                     runRules = true;
                 }
+
                 curriculumLine.setCurriculumGroup(destination);
+                updateAttendsForRegistration(curriculumLine, destination);
             }
         }
 
@@ -1159,6 +1161,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 }
 
                 curriculumLine.setCurriculumGroup(destination);
+                updateAttendsForRegistration(curriculumLine, destination);
             }
         }
 
@@ -1167,7 +1170,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     /**
      * Tries to make line compatible with target plan
-     * @return true if it was possible to make line compatible with targetPlan or if it was already compatible, otherwise returns false
+     *
+     * @return true if it was possible to make line compatible with targetPlan or if it was already compatible, otherwise returns
+     *         false
      */
     private static boolean tryToMakeLineCompatibleWithTargetPlan(CurriculumLine line, DegreeCurricularPlan targetPlan) {
         final CurricularCourse curricularCourse = line.getCurricularCourse();
@@ -1228,6 +1233,13 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 credits.setStudentCurricularPlan(dismissal.getStudentCurricularPlan());
             }
         });
+    }
+
+    private static void updateAttendsForRegistration(CurriculumLine curriculumLine, CurriculumGroup destination) {
+        if (curriculumLine.isEnrolment()) {
+            final Enrolment enrolment = (Enrolment) curriculumLine;
+            enrolment.getAttendsSet().forEach(at -> at.setRegistration(destination.getRegistration()));
+        }
     }
 
     @SuppressWarnings("unchecked")

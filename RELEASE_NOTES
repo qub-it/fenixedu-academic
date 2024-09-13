@@ -1,4 +1,5 @@
 - Refactor: Package protect attends constructor [#qubIT-Fenix-5598]
+- Bug fix: Correctly handle move lines between plans (change attends) [#qubIT-Fenix-5256]
 
 46.16.6 (12-09-2024)
 - Bug fix: Correction on the creation of Competence Course Change Proposal Workflows [#qubIT-Fenix-1595] 
