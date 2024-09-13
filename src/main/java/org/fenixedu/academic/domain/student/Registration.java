@@ -1310,7 +1310,8 @@ public class Registration extends Registration_Base {
     }
 
     public Set<RegistrationState> getRegistrationStates(final ExecutionYear executionYear) {
-        return executionYear.getExecutionPeriodsSet().stream().flatMap(es -> getRegistrationStates(es).stream())
+        final Stream<ExecutionInterval> childIntervals = executionYear.getExecutionPeriodsSet().stream();
+        return Stream.concat(Stream.of(executionYear), childIntervals).flatMap(es -> getRegistrationStates(es).stream())
                 .collect(Collectors.toSet());
     }
 
