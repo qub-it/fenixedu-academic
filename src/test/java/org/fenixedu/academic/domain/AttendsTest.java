@@ -221,13 +221,13 @@ public class AttendsTest {
 
         assertEquals(enrolment.getAttendsSet().size(), 2);
 
-        final Attends attends = enrolment.getAttendsFor(executionInterval);
-        final Attends attendsNext = enrolment.getAttendsFor(executionIntervalNext);
+        final Attends attends = enrolment.findAttends(executionInterval).orElseThrow();
+        final Attends attendsNext = enrolment.findAttends(executionIntervalNext).orElseThrow();
 
         assertEquals(attends.getExecutionCourse(), executionCourse);
         assertEquals(attendsNext.getExecutionCourse(), executionCourseNext);
-        assertNull(enrolment.getAttendsFor(executionIntervalNext.getNext()));
-        assertNull(enrolment.getAttendsFor(executionInterval.getExecutionYear()));
+        assertTrue(enrolment.findAttends(executionIntervalNext.getNext()).isEmpty());
+        assertTrue(enrolment.findAttends(executionInterval.getExecutionYear()).isEmpty());
 
         assertEquals(enrolment.getExecutionCourseFor(executionInterval), executionCourse);
         assertEquals(enrolment.getExecutionCourseFor(executionIntervalNext), executionCourseNext);

@@ -399,13 +399,17 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
 
         // create new attends
-        if (getAttendsFor(executionCourse.getExecutionInterval()) != null) {
+        if (findAttends(executionCourse.getExecutionInterval()).isPresent()) {
             throw new DomainException("error.Attends.enrolmentAlreadyHasAttendsForExecutionInterval",
                     executionCourse.getExecutionInterval().getQualifiedName());
         }
         final Attends newAttends = new Attends(registration, executionCourse);
         newAttends.setEnrolment(this);
         return newAttends;
+    }
+
+    public Optional<Attends> findAttends(final ExecutionInterval interval) {
+        return getAttendsSet().stream().filter(a -> a.isFor(interval)).findAny();
     }
 
     final public List<EnrolmentEvaluation> getAllFinalEnrolmentEvaluations() {
@@ -570,6 +574,10 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return null;
     }
 
+    /**
+     * @deprecated use {@link #findAttends(ExecutionInterval)}
+     */
+    @Deprecated
     public Attends getAttendsFor(final ExecutionInterval interval) {
         Attends result = null;
 
