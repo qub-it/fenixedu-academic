@@ -67,7 +67,7 @@ public class BibliographicReference extends BibliographicReference_Base {
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
             final Boolean optional) {
 //        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "Required field, title, is not filled"));
+//            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
 //        }
 
         final BibliographicReference result = new BibliographicReference();
@@ -92,7 +92,8 @@ public class BibliographicReference extends BibliographicReference_Base {
     @Deprecated
     public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
         if (StringUtils.isBlank(bibliographicReferenceToCopy.getTitle())) {
-            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "Required field, title, is not filled"));
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
 
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
@@ -108,7 +109,8 @@ public class BibliographicReference extends BibliographicReference_Base {
 
     public BibliographicReference copy() {
         if (StringUtils.isBlank(this.getTitle())) {
-            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "Required field, title, is not filled"));
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
 
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
@@ -126,7 +128,8 @@ public class BibliographicReference extends BibliographicReference_Base {
             final Boolean optional) {
 
         if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "Required field, title, is not filled"));
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
 
         setTitle(title);
@@ -141,7 +144,7 @@ public class BibliographicReference extends BibliographicReference_Base {
             final String url, final Boolean optional) {
 
 //        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "Required field, title, is not filled"));
+//            throw new IllegalArgumentException (BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
 //        }
 
         setLocalizedTitle(title);
