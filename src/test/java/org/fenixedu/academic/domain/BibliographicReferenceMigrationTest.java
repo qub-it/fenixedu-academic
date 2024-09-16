@@ -65,6 +65,7 @@ public class BibliographicReferenceMigrationTest {
     public void test() { //to bypass concurrency problems while running tests
         testSwitch_crudOperationsAffectBothValueTypeAndEntity();
         testSwitch_referenceOrder();
+        testSwitch_copy();
     }
 
     public void testSwitch_crudOperationsAffectBothValueTypeAndEntity() {
