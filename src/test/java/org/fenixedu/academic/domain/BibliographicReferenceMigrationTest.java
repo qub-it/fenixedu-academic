@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Locale;
@@ -64,6 +65,7 @@ public class BibliographicReferenceMigrationTest {
     public void test() { //to bypass concurrency problems while running tests
         testSwitch_crudOperationsAffectBothValueTypeAndEntity();
         testSwitch_referenceOrder();
+        testSwitch_copy();
     }
 
     public void testSwitch_crudOperationsAffectBothValueTypeAndEntity() {
@@ -171,6 +173,39 @@ public class BibliographicReferenceMigrationTest {
         //Clear test data
         courseInformation.setBibliographicReferences(new BibliographicReferences());
         courseInformation.getBibliographiesSet().stream().forEach(br -> br.delete());
+    }
+
+    public void testSwitch_copy() {
+
+        final CompetenceCourseInformation courseInformation =
+                competenceCourseA.getCompetenceCourseInformationsSet().iterator().next();
+        assertTrue(courseInformation.getBibliographiesSet().isEmpty());
+
+        //1
+        BibliographicReference bibliographicReference =
+                BibliographicReference.create("Código Engraçado", "Me, Myself and I", "qubIT", "2024", false);
+        bibliographicReference.setCompetenceCourseInformation(courseInformation);
+
+        BibliographicReference copy = bibliographicReference.copy();
+        assertTrue(copy.getCompetenceCourseInformation() == null);
+        assertTrue(!bibliographicReference.equals(copy));
+
+        //2
+        BibliographicReference bibliographicReference1 =
+                BibliographicReference.create("Código Engraçado", null, null, null, false);
+        bibliographicReference1.setCompetenceCourseInformation(courseInformation);
+
+        BibliographicReference copy1 = bibliographicReference1.copy();
+        assertTrue(copy1.getCompetenceCourseInformation() == null);
+        assertTrue(!bibliographicReference1.equals(copy1));
+
+        //3
+        assertThrows(IllegalArgumentException.class,
+                () -> BibliographicReference.create(null, "Me, Myself and I", null, null, false));
+
+        //4
+        bibliographicReference.setTitle(null);
+        assertThrows(IllegalArgumentException.class, () -> bibliographicReference.copy());
     }
 
     private void setBibliographicReferences(final CompetenceCourseInformation courseInformation,
