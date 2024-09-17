@@ -11,7 +11,7 @@
 
 	<groupId>com.qubit.solution.fenixedu</groupId>
     <artifactId>fenixedu-academic-core</artifactId>
-    <version>46.16.7</version>
+    <version>46.16.8</version>
     <packaging>jar</packaging>
 
     <name>FenixEdu Academic</name>
@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>com.qubit.solution.fenixedu</groupId>
                 <artifactId>fenixedu-oss-dependency-management</artifactId>
-                <version>278</version>
+                <version>279</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
