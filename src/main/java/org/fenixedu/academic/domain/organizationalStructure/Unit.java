@@ -438,7 +438,7 @@ public class Unit extends Unit_Base {
         return getParentUnitsPresentationName(" - ");
     }
 
-    private String getParentUnitsPresentationName(String separator) {
+    public String getParentUnitsPresentationName(String separator) {
         StringBuilder builder = new StringBuilder();
         List<Unit> parentUnits = getParentUnitsPath();
         int index = 1;
