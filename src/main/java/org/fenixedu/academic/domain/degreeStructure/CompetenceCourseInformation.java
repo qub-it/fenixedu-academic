@@ -92,8 +92,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
         setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
-//        setBibliographicReferences(existingInformation.getBibliographicReferences());
-        getBibliographiesSet().addAll(getBibliographiesSet());
+
+        getBibliographiesSet().addAll(existingInformation.getBibliographiesSet());
 
         setEvaluationMethod(existingInformation.getEvaluationMethod());
         setEvaluationMethodEn(existingInformation.getEvaluationMethodEn());
@@ -116,7 +116,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setBasic(basic);
         setAcademicPeriod(academicPeriod);
         setLevelType(competenceCourseLevel);
-//        setBibliographicReferences(new BibliographicReferences());
         setExecutionInterval(interval);
         setCompetenceCourseGroupUnit(unit);
     }
