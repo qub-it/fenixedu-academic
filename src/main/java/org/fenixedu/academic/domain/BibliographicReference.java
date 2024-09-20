@@ -20,13 +20,9 @@ package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReferenceType;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -159,41 +155,10 @@ public class BibliographicReference extends BibliographicReference_Base {
         return getOptional() != null && getOptional();
     }
 
-    public BibliographicReferenceType getType() {
-        return isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN;
-    }
-
-    public void setType(BibliographicReferenceType type) {
-        setOptional(BibliographicReferenceType.SECONDARY.equals(type));
-    }
-
     public void delete() {
         setCompetenceCourseInformation(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
-    }
-
-    public static Set<BibliographicReference> createDomainEntitiesFrom(BibliographicReferences bibliographicReferences) {
-        return bibliographicReferences.getBibliographicReferencesList().stream().map(br -> {
-            BibliographicReference bibliographicReference = BibliographicReference.create(br.getTitle(), br.getAuthors(),
-                    br.getReference(), br.getYear(), BibliographicReferenceType.SECONDARY.equals(br.getType()));
-            bibliographicReference.setUrl(br.getUrl());
-            bibliographicReference.setReferenceOrder(br.getOrder());
-            return bibliographicReference;
-        }).collect(Collectors.toSet());
-    }
-
-    public static BibliographicReferences createValueTypeFrom(Set<BibliographicReference> bibliographies) {
-        BibliographicReferences bibliographicReferences = new BibliographicReferences();
-        for (final BibliographicReference reference : bibliographies.stream().sorted(BibliographicReference.COMPARATOR_BY_ORDER)
-                .collect(Collectors.toList())) {
-            bibliographicReferences =
-                    bibliographicReferences.with(reference.getYear(), reference.getLocalizedTitle().getContent(),
-                            reference.getAuthors(), reference.getLocalizedReference().getContent(), reference.getUrl(),
-                            reference.isOptional() ? BibliographicReferenceType.SECONDARY : BibliographicReferenceType.MAIN,
-                            reference.getReferenceOrder());
-        }
-        return bibliographicReferences;
     }
 
 }

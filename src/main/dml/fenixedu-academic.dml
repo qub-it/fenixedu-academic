@@ -108,14 +108,6 @@ valueType org.fenixedu.academic.domain.Grade as Grade {
     internalizeWith importFromString();
 }
 
-valueType org.fenixedu.academic.domain.degreeStructure.BibliographicReferences as BibliographicReferences {
-    externalizeWith {
-        String org.fenixedu.academic.domain.degreeStructure.Externalization.externalizeBibliographicReferences();
-    }
-
-    internalizeWith org.fenixedu.academic.domain.degreeStructure.Externalization.internalizeBibliographicReferences();
-}
-
 valueType org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval as AcademicInterval {
     externalizeWith {
         String getRepresentationInStringFormat();
@@ -969,7 +961,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String acronym;
         BigDecimal credits;
         Boolean basic;
-        BibliographicReferences bibliographicReferences;
         String evaluationMethod;
         String evaluationMethodEn;
         String name;

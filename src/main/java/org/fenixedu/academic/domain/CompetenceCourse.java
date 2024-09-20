@@ -31,7 +31,6 @@ import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.TUTORI
 import java.math.BigDecimal;
 import java.text.Collator;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -46,7 +45,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -99,44 +97,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final String initials = WordUtils.initials(capitalize);
         competenceCourseInformation.setAcronym(initials);
 
-    }
-
-    public BibliographicReferences.BibliographicReference getBibliographicReference(Integer oid) {
-        return findInformationMostRecentUntil(null).getBibliographicReferences().getBibliographicReference(oid);
-    }
-
-    public BibliographicReferences getBibliographicReferences() {
-        return getBibliographicReferences(null);
-    }
-
-    public BibliographicReferences getBibliographicReferences(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return (information != null) ? information.getBibliographicReferences() : null;
-    }
-
-    public List<BibliographicReferences.BibliographicReference> getMainBibliographicReferences() {
-        return getMainBibliographicReferences(null);
-    }
-
-    public List<BibliographicReferences.BibliographicReference> getMainBibliographicReferences(final ExecutionInterval interval) {
-        return this.getBibliographicReferences(interval).getMainBibliographicReferences();
-    }
-
-    public List<BibliographicReferences.BibliographicReference> getSecondaryBibliographicReferences() {
-        return getSecondaryBibliographicReferences(null);
-    }
-
-    public List<BibliographicReferences.BibliographicReference> getSecondaryBibliographicReferences(
-            final ExecutionInterval interval) {
-        return this.getBibliographicReferences(interval).getSecondaryBibliographicReferences();
-    }
-
-    public List<BibliographicReferences.BibliographicReference> getAllBibliographicReferences(final ExecutionInterval interval) {
-        final List<BibliographicReferences.BibliographicReference> result =
-                new ArrayList<BibliographicReferences.BibliographicReference>();
-        result.addAll(getMainBibliographicReferences(interval));
-        result.addAll(getSecondaryBibliographicReferences(interval));
-        return result;
     }
 
     public Stream<BibliographicReference> findBibliographies() {
