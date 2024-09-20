@@ -30,7 +30,6 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.degreeStructure.BibliographicReferences.BibliographicReference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -93,7 +92,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
         setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
-        setBibliographicReferences(existingInformation.getBibliographicReferences());
+
+        getBibliographiesSet().addAll(existingInformation.getBibliographiesSet());
 
         setEvaluationMethod(existingInformation.getEvaluationMethod());
         setEvaluationMethodEn(existingInformation.getEvaluationMethodEn());
@@ -116,7 +116,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setBasic(basic);
         setAcademicPeriod(academicPeriod);
         setLevelType(competenceCourseLevel);
-        setBibliographicReferences(new BibliographicReferences());
         setExecutionInterval(interval);
         setCompetenceCourseGroupUnit(unit);
     }
@@ -289,11 +288,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         super.deleteDomainObject();
     }
 
-    @Deprecated
-    public BibliographicReference getBibliographicReference(final Integer oid) {
-        return getBibliographicReferences().getBibliographicReference(oid);
-    }
-
     public Optional<BigDecimal> getLoadHours(final CourseLoadType courseLoadType) {
         return findLoadDurationByType(courseLoadType).map(CourseLoadDuration::getHours);
     }
@@ -371,14 +365,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return getCompetenceCourse().getCompetenceCourseInformationsSet().stream()
                 .sorted(COMPARATORY_BY_EXECUTION_INTERVAL.reversed()).dropWhile(cci -> cci != this).dropWhile(cci -> cci == this)
                 .findFirst();
-    }
-
-    @Override
-    public void setBibliographicReferences(BibliographicReferences bibliographicReferences) {
-        super.setBibliographicReferences(bibliographicReferences);
-        this.getBibliographiesSet().forEach(br -> br.delete());
-        this.getBibliographiesSet()
-                .addAll(org.fenixedu.academic.domain.BibliographicReference.createDomainEntitiesFrom(bibliographicReferences));
     }
 
 }
