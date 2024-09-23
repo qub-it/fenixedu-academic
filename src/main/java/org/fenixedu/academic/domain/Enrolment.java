@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -274,6 +275,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             }
         }
 
+//        getEvaluationsSet().forEach(EnrolmentEvaluation::delete);
         Iterator<EnrolmentEvaluation> evalsIter = getEvaluationsSet().iterator();
         while (evalsIter.hasNext()) {
             EnrolmentEvaluation eval = evalsIter.next();
@@ -347,7 +349,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
                     return false;
                 }
 
-                // testing isFinal is insuficient, other states are final
+                // testing isFinal is insufficient, other states are final
                 if (!assertFinal && !evaluation.isTemporary()) {
                     return false;
                 }
@@ -366,6 +368,10 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
 
         return supplier.get().findAny();
+    }
+
+    public Stream<EnrolmentEvaluation> findEnrolmentEvaluations(final ExecutionInterval executionInterval) {
+        return getEvaluationsSet().stream().filter(ee -> ee.getExecutionInterval() == executionInterval);
     }
 
     protected void createEnrolmentEvaluationWithoutGrade() {
@@ -524,6 +530,13 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     final public Grade getGrade() {
         final EnrolmentEvaluation enrolmentEvaluation = getFinalEnrolmentEvaluation();
         return enrolmentEvaluation == null ? Grade.createEmptyGrade() : enrolmentEvaluation.getGrade();
+    }
+
+    public Grade getGrade(final ExecutionInterval executionInterval) {
+        final Optional<EnrolmentEvaluation> enrolmentEvaluation =
+                findEnrolmentEvaluations(executionInterval)
+                        .filter(EnrolmentEvaluation::isFinal).max(EvaluationConfiguration.getEnrolmentEvaluationOrder());
+        return enrolmentEvaluation.map(EnrolmentEvaluation::getGrade).orElseGet(() -> Grade.createEmptyGrade());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain;
 
+import com.qubit.terra.framework.services.logging.loggers.SystemOutLogger;
 import org.fenixedu.academic.domain.accessControl.SchoolClassStudentsGroup;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -20,6 +21,7 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -29,15 +31,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.SPECIAL_SEASON_CODE;
 import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_A_NAME;
 import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_B_NAME;
 import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(FenixFrameworkRunner.class)
@@ -62,7 +66,7 @@ public class EnrolmentTest {
 
     @After
     public void clearEnrolmentEvaluations() {
-        Bennu.getInstance().getEnrolmentEvaluationsSet().stream().forEach(e -> {
+        registration.findEnrolments().flatMap(e -> e.getEvaluationsSet().stream()).forEach(e -> {
             e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             e.delete();
         });
@@ -171,11 +175,91 @@ public class EnrolmentTest {
     }
 
     @Test
-    public void testEnrolment_hasImprovementForDifferentInterval() {
+    public void testEnrolment_hasImprovementForNextIntervals() {
         final Enrolment enrolment =
                 registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
                         .iterator().next();
-        createImprovementEvaluation(enrolment);
+        final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+        final ExecutionInterval nextNextInterval = nextInterval.getNext();
+
+        final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
+        final ExecutionCourse executionCourse = findOrCreateExecutionCourse(curricularCourse, executionInterval);
+        final ExecutionCourse executionCourseNext = findOrCreateExecutionCourse(curricularCourse, nextInterval);
+        final ExecutionCourse executionCourseNextNext = findOrCreateExecutionCourse(curricularCourse, nextNextInterval);
+
+        final Optional<Attends> attendsEnrolment = enrolment.findAttends(executionInterval);
+        assertTrue(attendsEnrolment.isPresent());
+        assertEquals(attendsEnrolment.get().getExecutionCourse(), executionCourse);
+        assertFalse(enrolment.hasImprovementFor(executionInterval));
+        assertFalse(enrolment.hasImprovementFor(nextInterval));
+        assertEquals(1, registration.getRegistrationDataByExecutionYearSet().size());
+
+        final EnrolmentEvaluation improvementEvaluation = createImprovementEvaluation(enrolment, nextInterval);
+        assertTrue(enrolment.hasImprovementFor(nextInterval));
+        final Optional<Attends> attendsNext = enrolment.findAttends(nextInterval);
+        assertTrue(attendsNext.isPresent());
+        assertEquals(attendsNext.get().getExecutionCourse(), executionCourseNext);
+        assertNotEquals(attendsEnrolment, attendsNext);
+        assertEquals(attendsEnrolment, enrolment.findAttends(executionInterval));
+        assertEquals(1, registration.getRegistrationDataByExecutionYearSet().size()); // because it's the same year
+
+        final Optional<Attends> attendsNextNext = enrolment.findAttends(nextNextInterval);
+        assertFalse(attendsNextNext.isPresent());
+        improvementEvaluation.editImprovementExecutionInterval(nextNextInterval);
+        assertTrue(enrolment.hasImprovementFor(nextNextInterval));
+        assertFalse(enrolment.hasImprovementFor(nextInterval));
+        final Optional<Attends> attendsNextNextAfter = enrolment.findAttends(nextNextInterval);
+        assertTrue(attendsNextNextAfter.isPresent());
+        assertEquals(attendsNextNextAfter.get().getExecutionCourse(), executionCourseNextNext);
+        assertNotEquals(attendsEnrolment, attendsNextNextAfter);
+        assertFalse(enrolment.findAttends(nextInterval).isPresent());
+        assertEquals(2, registration.getRegistrationDataByExecutionYearSet().size()); // because it's next year
+    }
+
+    @Test
+    public void testEnrolment_deleteImprovement() {
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
+        final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+
+        final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
+        final ExecutionCourse executionCourse = findOrCreateExecutionCourse(curricularCourse, executionInterval);
+        final ExecutionCourse executionCourseNext = findOrCreateExecutionCourse(curricularCourse, nextInterval);
+
+        final Optional<Attends> attendsEnrolment = enrolment.findAttends(executionInterval);
+        assertTrue(attendsEnrolment.isPresent());
+        assertEquals(attendsEnrolment.get().getExecutionCourse(), executionCourse);
+
+        final EnrolmentEvaluation improvementEvaluation = createImprovementEvaluation(enrolment, nextInterval);
+        assertTrue(enrolment.hasImprovementFor(nextInterval));
+        final Optional<Attends> attendsNext = enrolment.findAttends(nextInterval);
+        assertTrue(attendsNext.isPresent());
+        assertEquals(attendsNext.get().getExecutionCourse(), executionCourseNext);
+
+        improvementEvaluation.delete();
+        assertFalse(enrolment.hasImprovementFor(nextInterval));
+        assertFalse(enrolment.findAttends(nextInterval).isPresent());
+    }
+
+    private static ExecutionCourse findOrCreateExecutionCourse(final CurricularCourse curricularCourse,
+            final ExecutionInterval executionInterval) {
+        return curricularCourse.findExecutionCourses(executionInterval).findAny().orElseGet(() -> {
+            final ExecutionCourse result =
+                    new ExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval);
+            result.addAssociatedCurricularCourses(curricularCourse);
+            return result;
+        });
+    }
+
+    @Test
+    public void testEnrolment_hasNotImprovementForInterval() {
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
         final ExecutionInterval otherInterval =
                 enrolment.getExecutionYear().getChildIntervals().stream().filter(ei -> ei != enrolment.getExecutionInterval())
                         .findFirst().get();
@@ -188,9 +272,12 @@ public class EnrolmentTest {
         final Enrolment enrolment =
                 registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
                         .iterator().next();
-        createImprovementEvaluation(enrolment);
+        final Optional<Attends> attendsBefore = enrolment.findAttends(enrolment.getExecutionInterval());
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
+        final Optional<Attends> attendsAfter = enrolment.findAttends(enrolment.getExecutionInterval());
 
-        assertEquals(true, enrolment.hasImprovementFor(enrolment.getExecutionInterval()));
+        assertTrue(enrolment.hasImprovementFor(enrolment.getExecutionInterval()));
+        assertEquals(attendsBefore, attendsAfter);
     }
 
     @Test
@@ -198,25 +285,61 @@ public class EnrolmentTest {
         final Enrolment enrolment =
                 registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
                         .iterator().next();
-        createImprovementEvaluation(enrolment);
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
 
-        assertEquals(true, enrolment.hasImprovementFor(enrolment.getExecutionYear()));
+        assertTrue(enrolment.hasImprovementFor(enrolment.getExecutionYear()));
     }
 
+    @Test
     public void testEnrolment_duplicateSeasonEnrolment() {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.enrolmentEvaluation.duplicate.season");
         final Enrolment enrolment =
                 registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
                         .iterator().next();
-        createImprovementEvaluation(enrolment);
-        createImprovementEvaluation(enrolment);
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
     }
 
-    private void createImprovementEvaluation(final Enrolment enrolment) {
+    @Test
+    public void testEnrolment_wrongImprovementSeason() {
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("Evaluation season is not of improvement");
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
+
+        final EvaluationSeason season = EvaluationSeason.findByCode(SPECIAL_SEASON_CODE).orElseThrow();
+        final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, season);
+        evaluation.editImprovementExecutionInterval(enrolment.getExecutionInterval());
+    }
+
+    @Test
+    public void testEnrolment_improvementWithoutInterval() {
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("Improvement period is required");
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
+        createImprovementEvaluation(enrolment, null);
+    }
+
+    @Test
+    public void testEnrolment_improvementInvalidInterval() {
+        exceptionRule.expect(IllegalArgumentException.class);
+        exceptionRule.expectMessage("Improvement period is invalid, before original enrolment");
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
+        createImprovementEvaluation(enrolment, enrolment.getExecutionInterval().getPrevious());
+    }
+
+    private EnrolmentEvaluation createImprovementEvaluation(final Enrolment enrolment,
+            final ExecutionInterval executionInterval) {
         final EvaluationSeason season = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
         final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, season);
-        evaluation.setExecutionPeriod(enrolment.getExecutionInterval());
+        evaluation.editImprovementExecutionInterval(executionInterval);
+        return evaluation;
     }
 
     @Test

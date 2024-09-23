@@ -58,6 +58,10 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
         ENROLMENT_EVALUATION_ORDER = order;
     }
 
+    public static Comparator<EnrolmentEvaluation> getEnrolmentEvaluationOrder() {
+        return ENROLMENT_EVALUATION_ORDER;
+    }
+
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment) {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         return enrolment.getEvaluationsSet().stream().filter(isFinal).max(ENROLMENT_EVALUATION_ORDER);

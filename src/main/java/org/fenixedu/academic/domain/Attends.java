@@ -30,6 +30,7 @@ import java.util.Comparator;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -81,6 +82,8 @@ public class Attends extends Attends_Base {
         this();
         setRegistration(registration);
         setDisciplinaExecucao(executionCourse);
+
+        RegistrationDataByExecutionYear.getOrCreateRegistrationDataByYear(registration, executionCourse.getExecutionYear());
     }
 
     public void delete() throws DomainException {

@@ -38,6 +38,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
 
+import static org.fenixedu.academic.util.Bundle.APPLICATION;
+
 public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
     public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN = new Comparator<EnrolmentEvaluation>() {
@@ -189,6 +191,37 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         generateCheckSum();
     }
 
+    public void editImprovementExecutionInterval(final ExecutionInterval newInterval) {
+        if (!getEvaluationSeason().isImprovement()) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(APPLICATION, "error.enrolmentEvaluation.improvement.invalidSeason"));
+        }
+
+        if (newInterval == null) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(APPLICATION, "error.enrolmentEvaluation.improvement.intervalIsRequired"));
+        }
+
+        final Enrolment enrolment = getEnrolment();
+
+        if (newInterval.isBefore(enrolment.getExecutionInterval())) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(APPLICATION, "error.enrolmentEvaluation.improvement.intervalIsBeforeEnrolment"));
+        }
+
+        final ExecutionInterval oldInterval = getExecutionInterval();
+
+        if (oldInterval != null && oldInterval != newInterval && oldInterval != enrolment.getExecutionInterval()) {
+            enrolment.findAttends(oldInterval).ifPresent(Attends::delete);
+        }
+
+        setExecutionPeriod(newInterval);
+
+        if (enrolment.getExecutionInterval() != newInterval) {
+            enrolment.getCurricularCourse().findExecutionCourses(newInterval).findAny().ifPresent(enrolment::findOrCreateAttends);
+        }
+    }
+
     public void removeGrade() {
         setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
         setGrade(Grade.createEmptyGrade());
@@ -229,7 +262,7 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         super.checkForDeletionBlockers(blockers);
         if (!isTemporary()) {
             blockers.add(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.enrolmentEvaluation.isTemporary.or.hasConfirmedMarksheet"));
+                    BundleUtil.getString(APPLICATION, "error.enrolmentEvaluation.isTemporary.or.hasConfirmedMarksheet"));
         }
     }
 
@@ -247,6 +280,10 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+
+        if (getEnrolment() != null && getExecutionInterval() != null && getExecutionInterval() != getEnrolment().getExecutionInterval()) {
+            getEnrolment().findAttends(getExecutionInterval()).ifPresent(Attends::delete);
+        }
 
         setPersonResponsibleForGrade(null);
         setPerson(null);
