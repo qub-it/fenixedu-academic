@@ -1,4 +1,4 @@
-- Refactor: Make getParentUnitsPresentationName method public [#ISCTE-FENIXEDU-471]
+- Refactor: Make getParentUnitsPresentationName method public [#qubIT-Fenix-5834]
 - Refactor: Remove BibliographicReferences value type [#qubIT-Fenix-1595]
 
 46.16.8 (17-09-2024)
