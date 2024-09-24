@@ -1,3 +1,4 @@
+47.0.0 (24-09-2024)
 - Refactor: Make getParentUnitsPresentationName method public [#qubIT-Fenix-5834]
 - Refactor: Remove BibliographicReferences value type [#qubIT-Fenix-1595]
 - Refactor: Better support of improvement enrolments [#qubIT-Fenix-5598]
