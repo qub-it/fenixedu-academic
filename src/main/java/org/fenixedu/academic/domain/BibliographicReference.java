@@ -34,9 +34,15 @@ public class BibliographicReference extends BibliographicReference_Base {
             Comparator.comparing(BibliographicReference::getReferenceOrder).thenComparing(BibliographicReference::getTitle)
                     .thenComparing(BibliographicReference::getYear).thenComparing(BibliographicReference::getExternalId);
 
-    public BibliographicReference() {
+    private BibliographicReference() {
         super();
         setRootDomainObject(Bennu.getInstance());
+    }
+
+    public BibliographicReference(final LocalizedString title) {
+        this();
+        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
+        setLocalizedTitle(title);
     }
 
     @Deprecated
@@ -48,10 +54,10 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         final BibliographicReference result = new BibliographicReference();
-        result.setTitle(title); //FIXME: remove me
+        result.setTitle(title);
         result.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
         result.setAuthors(authors);
-        result.setReference(reference); //FIXME: remove me
+        result.setReference(reference);
         result.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
         result.setYear(year);
         result.setOptional(optional);
@@ -62,9 +68,8 @@ public class BibliographicReference extends BibliographicReference_Base {
     public static BibliographicReference create(final LocalizedString title, final String authors,
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
             final Boolean optional) {
-//        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-//        }
+
+        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
 
         final BibliographicReference result = new BibliographicReference();
         result.setLocalizedTitle(title);
@@ -75,43 +80,29 @@ public class BibliographicReference extends BibliographicReference_Base {
         result.setOptional(optional);
         result.setReferenceOrder(referenceOrder);
 
+        result.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
+        result.setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
+
         return result;
+    }
+
+    private static void validateTitleNotEmpty(final LocalizedString title) {
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
+        }
     }
 
     /**
      * Copies the provided Bibliographic Reference.
-     * Note that this methods only copies the fields of this object. Not the relationships.
+     * Note that this method won't copy the relationships of the object, only the fields.
      * 
-     * @param bibliographicReferenceToCopy
      * @return copied BibliographicReference
      */
-    @Deprecated
-    public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
-        if (StringUtils.isBlank(bibliographicReferenceToCopy.getTitle())) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
-
-        final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
-
-        BibliographicReference copiedReference = create(copy.apply(bibliographicReferenceToCopy.getLocalizedTitle()),
-                bibliographicReferenceToCopy.getAuthors(), copy.apply(bibliographicReferenceToCopy.getLocalizedReference()),
-                bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
-                bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
-        copiedReference.setTitle(bibliographicReferenceToCopy.getTitle()); //FIXME: remove me
-        copiedReference.setReference(bibliographicReferenceToCopy.getReference()); //FIXME: remove me
-        return copiedReference;
-    }
-
     public BibliographicReference copy() {
-        if (StringUtils.isBlank(this.getTitle())) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
-
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
 
-        BibliographicReference copiedReference =
+        final BibliographicReference copiedReference =
                 create(copy.apply(this.getLocalizedTitle()), this.getAuthors(), copy.apply(this.getLocalizedReference()),
                         this.getYear(), this.getUrl(), this.getReferenceOrder(), this.getOptional());
         copiedReference.setTitle(this.getTitle()); //FIXME: remove me
@@ -129,8 +120,10 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         setTitle(title);
+        setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
         setAuthors(authors);
         setReference(reference);
+        setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
         setYear(year);
         setOptional(optional);
         setUrl(url);
@@ -139,9 +132,7 @@ public class BibliographicReference extends BibliographicReference_Base {
     public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,
             final String url, final Boolean optional) {
 
-//        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException (BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-//        }
+        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
 
         setLocalizedTitle(title);
         setAuthors(authors);
@@ -149,6 +140,9 @@ public class BibliographicReference extends BibliographicReference_Base {
         setYear(year);
         setOptional(optional);
         setUrl(url);
+
+        setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
+        setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
     }
 
     public boolean isOptional() {
