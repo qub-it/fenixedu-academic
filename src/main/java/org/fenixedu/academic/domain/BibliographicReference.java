@@ -55,10 +55,8 @@ public class BibliographicReference extends BibliographicReference_Base {
 
         final BibliographicReference result = new BibliographicReference();
         result.setTitle(title);
-        result.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
         result.setAuthors(authors);
         result.setReference(reference);
-        result.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
         result.setYear(year);
         result.setOptional(optional);
 
@@ -69,19 +67,13 @@ public class BibliographicReference extends BibliographicReference_Base {
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
             final Boolean optional) {
 
-        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
-
-        final BibliographicReference result = new BibliographicReference();
-        result.setLocalizedTitle(title);
+        final BibliographicReference result = new BibliographicReference(title);
         result.setAuthors(authors);
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
         result.setOptional(optional);
         result.setReferenceOrder(referenceOrder);
-
-        result.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
-        result.setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
 
         return result;
     }
@@ -91,6 +83,32 @@ public class BibliographicReference extends BibliographicReference_Base {
             throw new IllegalArgumentException(
                     BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
+    }
+
+    @Deprecated
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+        super.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
+    }
+
+    @Deprecated
+    @Override
+    public void setReference(String reference) {
+        super.setReference(reference);
+        super.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
+    }
+
+    @Override
+    public void setLocalizedReference(LocalizedString reference) { //FIXME: remove me
+        super.setReference(reference.getContent(Locale.getDefault()));
+        super.setLocalizedReference(reference);
+    }
+
+    @Override
+    public void setLocalizedTitle(LocalizedString title) { //FIXME: remove me
+        super.setTitle(title.getContent(Locale.getDefault()));
+        super.setLocalizedTitle(title);
     }
 
     /**
@@ -120,10 +138,8 @@ public class BibliographicReference extends BibliographicReference_Base {
         }
 
         setTitle(title);
-        setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
         setAuthors(authors);
         setReference(reference);
-        setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
         setYear(year);
         setOptional(optional);
         setUrl(url);
@@ -140,9 +156,6 @@ public class BibliographicReference extends BibliographicReference_Base {
         setYear(year);
         setOptional(optional);
         setUrl(url);
-
-        setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
-        setReference(reference.getContent(Locale.getDefault())); //FIXME: remove me
     }
 
     public boolean isOptional() {
