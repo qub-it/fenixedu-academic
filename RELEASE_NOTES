@@ -1,4 +1,5 @@
 - Refactor: Replace usages of deprecated RegistrationStateTypeEnum [#qubIT-Fenix-2587]
+- Refactor: Delete deprecated group used in old teacher ui [#qubIT-Fenix-1602]
 - Improvement: Improve grant owner EN labels [#qubIT-Fenix-5851]
 
 47.0.0 (24-09-2024)
