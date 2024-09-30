@@ -41,17 +41,12 @@ public class BibliographicReference extends BibliographicReference_Base {
 
     public BibliographicReference(final LocalizedString title) {
         this();
-        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
         setLocalizedTitle(title);
     }
 
     @Deprecated
     public static BibliographicReference create(final String title, final String authors, final String reference,
             final String year, final Boolean optional) {
-        if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
 
         final BibliographicReference result = new BibliographicReference();
         result.setTitle(title);
@@ -78,37 +73,39 @@ public class BibliographicReference extends BibliographicReference_Base {
         return result;
     }
 
-    private static void validateTitleNotEmpty(final LocalizedString title) {
-        if (title == null || title.isEmpty()) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
-    }
-
     @Deprecated
     @Override
     public void setTitle(String title) {
+        if (StringUtils.isBlank(title)) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
+        }
+
         super.setTitle(title);
-        super.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
+        super.setLocalizedTitle(StringUtils.isBlank(title) ? null : new LocalizedString(Locale.getDefault(), title));
     }
 
     @Deprecated
     @Override
     public void setReference(String reference) {
         super.setReference(reference);
-        super.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
+        super.setLocalizedReference(StringUtils.isBlank(reference) ? null : new LocalizedString(Locale.getDefault(), reference));
+    }
+
+    @Override
+    public void setLocalizedTitle(LocalizedString title) {
+        if (title == null || title.isEmpty()) {
+            throw new IllegalArgumentException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
+        }
+        super.setLocalizedTitle(title);
+        super.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
     }
 
     @Override
     public void setLocalizedReference(LocalizedString reference) { //FIXME: remove me
-        super.setReference(reference.getContent(Locale.getDefault()));
+        super.setReference(reference == null ? null : reference.getContent(Locale.getDefault()));
         super.setLocalizedReference(reference);
-    }
-
-    @Override
-    public void setLocalizedTitle(LocalizedString title) { //FIXME: remove me
-        super.setTitle(title.getContent(Locale.getDefault()));
-        super.setLocalizedTitle(title);
     }
 
     /**
@@ -132,11 +129,6 @@ public class BibliographicReference extends BibliographicReference_Base {
     public void edit(final String title, final String authors, final String reference, final String year, final String url,
             final Boolean optional) {
 
-        if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
-
         setTitle(title);
         setAuthors(authors);
         setReference(reference);
@@ -147,8 +139,6 @@ public class BibliographicReference extends BibliographicReference_Base {
 
     public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,
             final String url, final Boolean optional) {
-
-        validateTitleNotEmpty(title); //TODO: move this to the setLocalizedTitle 
 
         setLocalizedTitle(title);
         setAuthors(authors);
