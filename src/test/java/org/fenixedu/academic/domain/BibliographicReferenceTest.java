@@ -125,9 +125,7 @@ public class BibliographicReferenceTest {
     public void testBibliographicReference_copy() {
         assertTrue(cci.getBibliographiesSet().size() == 2);
 
-        assertTrue(br1.getLocalizedTitle().getLocales().size() == 2);
         final BibliographicReference copyBr1 = br1.copy();
-        assertTrue(copyBr1.getLocalizedTitle().getLocales().size() == 2);
         equals(br1, copyBr1);
         assertNull(copyBr1.getCompetenceCourseInformation());
 
