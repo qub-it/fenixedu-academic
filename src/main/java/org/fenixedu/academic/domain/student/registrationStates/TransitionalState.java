@@ -24,23 +24,9 @@ import org.joda.time.DateTime;
 
 public class TransitionalState extends TransitionalState_Base {
 
-    private TransitionalState() {
-        super();
-    }
-
     protected TransitionalState(final Registration registration, final Person responsiblePerson, final DateTime stateDate) {
-        this();
+        super();
         init(registration, responsiblePerson, stateDate);
-    }
-
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.TRANSITION;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.TRANSITION;
     }
 
 }

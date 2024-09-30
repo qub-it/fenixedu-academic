@@ -34,14 +34,4 @@ public class SchoolPartConcludedState extends SchoolPartConcludedState_Base {
         init(registration, person, dateTime);
     }
 
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.SCHOOLPARTCONCLUDED;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.SCHOOLPARTCONCLUDED;
-    }
-
 }

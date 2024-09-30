@@ -34,14 +34,4 @@ public class InterruptedState extends InterruptedState_Base {
         init(registration, person, dateTime);
     }
 
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.INTERRUPTED;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.INTERRUPTED;
-    }
-
 }

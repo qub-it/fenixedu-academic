@@ -23,25 +23,15 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.joda.time.DateTime;
 
 /**
- * 
+ *
  * @author - Shezad Anavarali (shezad@ist.utl.pt)
- * 
+ *
  */
 public class CanceledState extends CanceledState_Base {
 
     protected CanceledState(Registration registration, Person person, DateTime dateTime) {
         super();
         init(registration, person, dateTime);
-    }
-
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.CANCELED;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.CANCELED;
     }
 
 }

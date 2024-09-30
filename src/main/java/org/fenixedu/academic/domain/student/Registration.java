@@ -76,8 +76,6 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-//import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
@@ -1188,10 +1186,6 @@ public class Registration extends Registration_Base {
         return false;
     }
 
-    public Set<RegistrationStateTypeEnum> getRegistrationStatesTypesEnums(final ExecutionYear executionYear) {
-        return getRegistrationStates(executionYear).stream().map(RegistrationState::getStateTypeEnum).collect(Collectors.toSet());
-    }
-
     public boolean isRegistered(final ExecutionInterval executionInterval) {
         return hasAnyActiveState(executionInterval) || hasAnyEnrolmentsIn(executionInterval);
     }
@@ -1210,23 +1204,6 @@ public class Registration extends Registration_Base {
 
     private RegistrationState getLastState() {
         return getRegistrationStatesSet().stream().max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).orElse(null);
-    }
-
-//    @Deprecated
-//    public RegistrationStateType getLastStateType() {
-//        final RegistrationState registrationState = getLastState();
-//        return registrationState == null ? null : registrationState.getStateType();
-//    }
-
-    public RegistrationStateTypeEnum getLastStateTypeEnum() {
-        final RegistrationState registrationState = getLastState();
-        return registrationState == null ? null : registrationState.getStateTypeEnum();
-    }
-
-    @Deprecated
-    public RegistrationStateTypeEnum getActiveStateTypeEnum() {
-        final RegistrationState activeState = getActiveState();
-        return activeState != null ? activeState.getStateTypeEnum() : RegistrationStateTypeEnum.REGISTERED;
     }
 
     public RegistrationStateType getActiveStateType() {
@@ -1252,24 +1229,14 @@ public class Registration extends Registration_Base {
                 .isActive();
     }
 
-//    public boolean getInterruptedStudies() {
-//        return getActiveStateType() == RegistrationStateType.INTERRUPTED;
-//    }
-
-    public boolean getFlunked() {
-        return getActiveStateTypeEnum() == RegistrationStateTypeEnum.FLUNKED;
-    }
-
-//    public boolean isSchoolPartConcluded() {
-//        return getActiveStateType() == RegistrationStateType.SCHOOLPARTCONCLUDED;
-//    }
-
     public boolean isConcluded() {
-        return getActiveStateTypeEnum() == RegistrationStateTypeEnum.CONCLUDED;
+        final RegistrationStateType activeStateType = getActiveStateType();
+        return activeStateType != null && activeStateType.isConcluded();
     }
 
     public boolean isCanceled() {
-        return getActiveStateTypeEnum() == RegistrationStateTypeEnum.CANCELED;
+        final RegistrationStateType activeStateType = getActiveStateType();
+        return activeStateType != null && "CANCELED".equals(activeStateType.getCode());
     }
 
     public RegistrationState getStateInDate(final DateTime dateTime) {
@@ -1346,15 +1313,6 @@ public class Registration extends Registration_Base {
     public RegistrationState getLastRegistrationState(final ExecutionYear executionYear) {
         return getRegistrationStatesSet().stream().filter(s -> s.getExecutionYear().isBeforeOrEquals(executionYear))
                 .max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).orElse(null);
-    }
-
-//    @Deprecated
-//    public boolean hasStateType(final ExecutionYear executionYear, final RegistrationStateType registrationStateType) {
-//        return getRegistrationStatesTypes(executionYear).contains(registrationStateType);
-//    }
-
-    public boolean hasStateType(final ExecutionYear executionYear, final RegistrationStateTypeEnum registrationStateType) {
-        return getRegistrationStatesTypesEnums(executionYear).contains(registrationStateType);
     }
 
     final public double getEctsCredits() {
@@ -1680,7 +1638,8 @@ public class Registration extends Registration_Base {
     }
 
     final public boolean isInactive() {
-        return getActiveStateTypeEnum().isInactive();
+        final RegistrationStateType activeStateType = getActiveStateType();
+        return activeStateType != null && !activeStateType.getActive();
     }
 
 //    public Space getCampus() {

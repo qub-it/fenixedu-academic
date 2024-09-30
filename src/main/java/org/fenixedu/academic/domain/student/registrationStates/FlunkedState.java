@@ -34,14 +34,4 @@ public class FlunkedState extends FlunkedState_Base {
         init(registration, person, dateTime);
     }
 
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.FLUNKED;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.FLUNKED;
-    }
-
 }

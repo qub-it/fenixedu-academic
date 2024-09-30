@@ -34,14 +34,4 @@ public class ExternalAbandonState extends ExternalAbandonState_Base {
         init(registration, person, dateTime);
     }
 
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.EXTERNAL_ABANDON;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.EXTERNAL_ABANDON;
-    }
-
 }

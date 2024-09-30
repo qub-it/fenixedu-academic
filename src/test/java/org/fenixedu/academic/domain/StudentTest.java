@@ -83,13 +83,13 @@ public class StudentTest {
                 new LocalizedString.Builder().with(Locale.getDefault(), "Ingression").build());
 
         RegistrationStateType.create(RegistrationStateType.REGISTERED_CODE,
-                new LocalizedString.Builder().with(Locale.getDefault(), "Registered").build(), true, null);
+                new LocalizedString.Builder().with(Locale.getDefault(), "Registered").build(), true);
 
         RegistrationStateType.create(REGISTRATION_STATE_INTERRUPTED,
-                new LocalizedString.Builder().with(Locale.getDefault(), "Interrupted").build(), false, null);
+                new LocalizedString.Builder().with(Locale.getDefault(), "Interrupted").build(), false);
 
         RegistrationStateType.create(RegistrationStateType.CONCLUDED_CODE,
-                new LocalizedString.Builder().with(Locale.getDefault(), "Concluded").build(), false, null);
+                new LocalizedString.Builder().with(Locale.getDefault(), "Concluded").build(), false);
     }
 
     @Test

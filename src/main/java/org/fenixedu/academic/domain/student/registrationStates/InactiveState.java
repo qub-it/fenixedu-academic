@@ -29,14 +29,4 @@ public class InactiveState extends InactiveState_Base {
         init(registration, person, dateTime);
     }
 
-//    @Override
-//    public RegistrationStateType getStateType() {
-//        return RegistrationStateType.INACTIVE;
-//    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.INACTIVE;
-    }
-
 }

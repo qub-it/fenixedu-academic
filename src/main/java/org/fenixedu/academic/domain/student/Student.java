@@ -388,21 +388,7 @@ public class Student extends Student_Base {
     }
 
     public void updateStudentRole() {
-        if (shouldHaveStudentRole()) {
-            getPerson().ensureOpenUserAccount();
-        }
-    }
-
-    public boolean shouldHaveStudentRole() {
-        final boolean activeRegistration = getRegistrationStream().map(r -> r.getLastStateTypeEnum()).filter(st -> st != null)
-                .anyMatch(st -> st.isActive() && st != RegistrationStateTypeEnum.SCHOOLPARTCONCLUDED
-                        || st == RegistrationStateTypeEnum.FLUNKED || st == RegistrationStateTypeEnum.INTERRUPTED
-                        || st == RegistrationStateTypeEnum.MOBILITY);
-        if (activeRegistration) {
-            return true;
-        }
-
-        return false;
+        getPerson().ensureOpenUserAccount();
     }
 
     public PersonalIngressionData getLatestPersonalIngressionData() {

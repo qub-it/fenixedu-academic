@@ -31,14 +31,7 @@ public class ConcludedState extends ConcludedState_Base {
 
     protected ConcludedState(Registration registration, Person person, DateTime dateTime) {
         super();
-
         init(registration, person, dateTime);
-        registration.getPerson().getUser().openLoginPeriod();
-    }
-
-    @Override
-    public RegistrationStateTypeEnum getStateTypeEnum() {
-        return RegistrationStateTypeEnum.CONCLUDED;
     }
 
 }

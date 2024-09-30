@@ -17,20 +17,24 @@ public class RegistrationStateType extends RegistrationStateType_Base {
         setRoot(Bennu.getInstance());
     }
 
-    public static RegistrationStateType create(final String code, final LocalizedString name, final boolean active,
-            final RegistrationStateTypeEnum typeEnum) {
+    public static RegistrationStateType create(final String code, final LocalizedString name, final boolean active) {
         final RegistrationStateType result = new RegistrationStateType();
         result.setCode(code);
         result.setName(name);
         result.setActive(active);
-        result.setTypeEnum(typeEnum);
         return result;
+    }
+
+    @Deprecated
+    public static RegistrationStateType create(final String code, final LocalizedString name, final boolean active,
+            final RegistrationStateTypeEnum typeEnum) {
+        return create(code, name, active);
     }
 
     @Override
     public void setCode(String code) {
         if (findByCode(code).filter(type -> type != this).isPresent()) {
-            throw new IllegalStateException("RegistrationStateType already exists with same number");
+            throw new IllegalStateException("RegistrationStateType already exists with same code");
         }
 
         super.setCode(code);
