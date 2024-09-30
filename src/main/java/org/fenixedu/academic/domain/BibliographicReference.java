@@ -120,8 +120,12 @@ public class BibliographicReference extends BibliographicReference_Base {
         final BibliographicReference copiedReference =
                 create(copy.apply(this.getLocalizedTitle()), this.getAuthors(), copy.apply(this.getLocalizedReference()),
                         this.getYear(), this.getUrl(), this.getReferenceOrder(), this.getOptional());
-        copiedReference.setTitle(this.getTitle()); //FIXME: remove me
-        copiedReference.setReference(this.getReference()); //FIXME: remove me
+        if (getLocalizedTitle() == null && this.getTitle() != null) { //FIXME: remove me
+            copiedReference.setTitle(this.getTitle());
+        }
+        if (getLocalizedReference() == null && this.getReference() != null) { //FIXME: remove me
+            copiedReference.setReference(this.getReference());
+        }
         return copiedReference;
     }
 

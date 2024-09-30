@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
@@ -30,15 +31,6 @@ public class BibliographicReferenceTest {
             cci = new CompetenceCourseInformation();
             return null;
         });
-    }
-
-    @Test
-    public void testLocalizedString_copy() {
-        LocalizedString ls = new LocalizedString(Locale.ENGLISH, "abc").with(Locale.GERMAN, "edf");
-
-        LocalizedString copy = ls.builder().build();
-        assertTrue(copy.getLocales().size() == 2);
-        assertEquals(ls.json().toString(), copy.json().toString());
     }
 
     @Test
@@ -133,7 +125,9 @@ public class BibliographicReferenceTest {
     public void testBibliographicReference_copy() {
         assertTrue(cci.getBibliographiesSet().size() == 2);
 
+        assertTrue(br1.getLocalizedTitle().getLocales().size() == 2);
         final BibliographicReference copyBr1 = br1.copy();
+        assertTrue(copyBr1.getLocalizedTitle().getLocales().size() == 2);
         equals(br1, copyBr1);
         assertNull(copyBr1.getCompetenceCourseInformation());
 
@@ -142,6 +136,13 @@ public class BibliographicReferenceTest {
         assertNull(copyBr2.getCompetenceCourseInformation());
 
         assertTrue(cci.getBibliographiesSet().size() == 2);
+
+        copyBr2.setLocalizedReference(new LocalizedString(Locale.getDefault(), "abc"));
+        assertNotEquals(br2.getLocalizedReference() == null ? null : br2.getLocalizedReference().json().toString(),
+                copyBr2.getLocalizedReference() == null ? null : copyBr2.getLocalizedReference().json().toString());
+
+        copyBr2.setAuthors(".hP phesoJ");
+        assertNotEquals(br2.getAuthors(), copyBr2.getAuthors());
     }
 
     private static void equals(BibliographicReference a, BibliographicReference b) {
@@ -155,7 +156,8 @@ public class BibliographicReferenceTest {
         assertEquals(a.getReference(), b.getReference());
         assertEquals(a.getReference(), getContent.apply(b.getLocalizedReference()));
         assertEquals(getContent.apply(a.getLocalizedReference()), b.getReference());
-        assertEquals(a.getLocalizedReference().json().toString(), b.getLocalizedReference().json().toString());
+        assertEquals(a.getLocalizedReference() == null ? null : a.getLocalizedReference().json().toString(),
+                b.getLocalizedReference() == null ? null : b.getLocalizedReference().json().toString());
 
         assertEquals(a.getAuthors(), b.getAuthors());
         assertEquals(a.getYear(), b.getYear());
