@@ -39,11 +39,6 @@ public class BibliographicReference extends BibliographicReference_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public BibliographicReference(final LocalizedString title) {
-        this();
-        setLocalizedTitle(title);
-    }
-
     @Deprecated
     public static BibliographicReference create(final String title, final String authors, final String reference,
             final String year, final Boolean optional) {
@@ -58,16 +53,24 @@ public class BibliographicReference extends BibliographicReference_Base {
         return result;
     }
 
+    public static BibliographicReference create(final LocalizedString title, final Boolean isOptional) {
+
+        final BibliographicReference result = new BibliographicReference();
+        result.setLocalizedTitle(title);
+        result.setOptional(isOptional);
+
+        return result;
+    }
+
     public static BibliographicReference create(final LocalizedString title, final String authors,
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
-            final Boolean optional) {
+            final Boolean isOptional) {
 
-        final BibliographicReference result = new BibliographicReference(title);
+        final BibliographicReference result = BibliographicReference.create(title, isOptional);
         result.setAuthors(authors);
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
-        result.setOptional(optional);
         result.setReferenceOrder(referenceOrder);
 
         return result;

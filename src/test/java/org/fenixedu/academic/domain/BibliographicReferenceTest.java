@@ -7,12 +7,17 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -21,45 +26,34 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class BibliographicReferenceTest {
 
-    private static CompetenceCourseInformation cci;
-    private static BibliographicReference br1;
-    private static BibliographicReference br2;
-
-    @BeforeClass
-    public static void init() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            cci = new CompetenceCourseInformation();
-            return null;
-        });
-    }
-
     @Test
-    public void testBibliograpicReferences_main() {
-        testBibliographicReference_create();
-        testBibliographicReference_edit();
-        testBibliographicReference_copy();
-
-        testBibliographicReference_createExceptions();
-        testBibliographicReference_editExceptions();
-    }
-
     public void testBibliographicReference_create() {
+        final CompetenceCourseInformation cci = new CompetenceCourseInformation();
         assertTrue(cci.getBibliographiesSet().isEmpty());
 
-        br1 = BibliographicReference.create(
-                new LocalizedString(Locale.getDefault(), "Workplace Etiquette").with(Locale.GERMAN, "Etikette am Arbeitsplatz"),
-                "Junior", new LocalizedString(Locale.getDefault(), "For the People"), "2004", "www.url.com", 1, false);
+        final BibliographicReference br1 = createFilledBibliographicReference();
 
         assertTrue(cci.getBibliographiesSet().isEmpty());
         br1.setCompetenceCourseInformation(cci);
         assertTrue(cci.getBibliographiesSet().size() == 1);
 
-        br2 = BibliographicReference.create(new LocalizedString(Locale.getDefault(), "Discovering Safety, Joseph Ph., 2000"),
-                null, null, null, null, null, null);
+        final BibliographicReference br2 = createMostNullsBibliographicReference();
         br2.setCompetenceCourseInformation(cci);
         assertTrue(cci.getBibliographiesSet().size() == 2);
     }
 
+    private static BibliographicReference createFilledBibliographicReference() {
+        return BibliographicReference.create(
+                new LocalizedString(Locale.getDefault(), "Workplace Etiquette").with(Locale.GERMAN, "Etikette am Arbeitsplatz"),
+                "Junior", new LocalizedString(Locale.getDefault(), "For the People"), "2004", "www.url.com", 1, false);
+    }
+
+    private static BibliographicReference createMostNullsBibliographicReference() {
+        return BibliographicReference.create(new LocalizedString(Locale.getDefault(), "Discovering Safety, Joseph Ph., 2000"),
+                null, null, null, null, null, null);
+    }
+
+    @Test
     public void testBibliographicReference_createExceptions() {
         assertThrows(IllegalArgumentException.class,
                 () -> BibliographicReference.create(null, null, null, null, null, null, null));
@@ -69,8 +63,11 @@ public class BibliographicReferenceTest {
                 .create(new LocalizedString(Locale.getDefault(), ""), null, null, null, null, null, null));
     }
 
+    @Test
     public void testBibliographicReference_edit() {
-        assertTrue(cci.getBibliographiesSet().size() == 2);
+        final BibliographicReference br1 = createFilledBibliographicReference();
+        final BibliographicReference br2 = createMostNullsBibliographicReference();
+
         final String referenceDefault = "Referência 1";
         final String titleDefault = "Title 1"; //default Locale in test env is ENGLISH
 
@@ -107,11 +104,12 @@ public class BibliographicReferenceTest {
         assertNull(br2.getOptional());
 
         assertNull(br2.getReferenceOrder()); //doesn't reorder
-
-        assertTrue(cci.getBibliographiesSet().size() == 2);
     }
 
+    @Test
     public void testBibliographicReference_editExceptions() {
+        final BibliographicReference br1 = createFilledBibliographicReference();
+        final CompetenceCourseInformation cci = new CompetenceCourseInformation();
         assertThrows(IllegalArgumentException.class, () -> br1.edit((LocalizedString) null, null, null, null, null, null));
         assertThrows(IllegalArgumentException.class, () -> br1.edit(new LocalizedString(), null, null, null, null, null));
         assertThrows(IllegalArgumentException.class,
@@ -122,7 +120,13 @@ public class BibliographicReferenceTest {
         assertThrows(IllegalArgumentException.class, () -> br1.setLocalizedTitle(new LocalizedString(Locale.getDefault(), "")));
     }
 
+    @Test
     public void testBibliographicReference_copy() {
+        final CompetenceCourseInformation cci = new CompetenceCourseInformation();
+        final BibliographicReference br1 = createFilledBibliographicReference();
+        final BibliographicReference br2 = createMostNullsBibliographicReference();
+        cci.getBibliographiesSet().addAll(Set.of(br1, br2));
+
         assertTrue(cci.getBibliographiesSet().size() == 2);
 
         final BibliographicReference copyBr1 = br1.copy();
@@ -141,6 +145,8 @@ public class BibliographicReferenceTest {
 
         copyBr2.setAuthors(".hP phesoJ");
         assertNotEquals(br2.getAuthors(), copyBr2.getAuthors());
+
+        cci.delete();
     }
 
     private static void equals(BibliographicReference a, BibliographicReference b) {
@@ -162,6 +168,22 @@ public class BibliographicReferenceTest {
         assertEquals(a.getUrl(), b.getUrl());
         assertEquals(a.getReferenceOrder(), b.getReferenceOrder());
         assertEquals(a.getOptional(), b.getOptional());
+    }
+
+    @Test
+    public void testBibliographicReference_delete() {
+        final BibliographicReference br2 = createMostNullsBibliographicReference();
+        br2.delete();
+
+        final CompetenceCourseInformation cci = new CompetenceCourseInformation();
+        final BibliographicReference br1 = createFilledBibliographicReference();
+        br1.setCompetenceCourseInformation(cci);
+        br1.delete();
+
+        final BibliographicReference br3 = createMostNullsBibliographicReference();
+        br3.setCompetenceCourseInformation(cci);
+        br3.delete();
+        cci.delete();
     }
 
 }
