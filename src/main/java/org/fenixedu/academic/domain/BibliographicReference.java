@@ -53,10 +53,12 @@ public class BibliographicReference extends BibliographicReference_Base {
         return result;
     }
 
-    public static BibliographicReference create(final LocalizedString title, final Boolean isOptional) {
+    public static BibliographicReference create(final LocalizedString title, final Integer referenceOrder,
+            final Boolean isOptional) {
 
         final BibliographicReference result = new BibliographicReference();
         result.setLocalizedTitle(title);
+        result.setReferenceOrder(referenceOrder);
         result.setOptional(isOptional);
 
         return result;
@@ -66,12 +68,11 @@ public class BibliographicReference extends BibliographicReference_Base {
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
             final Boolean isOptional) {
 
-        final BibliographicReference result = BibliographicReference.create(title, isOptional);
+        final BibliographicReference result = BibliographicReference.create(title, referenceOrder, isOptional);
         result.setAuthors(authors);
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
-        result.setReferenceOrder(referenceOrder);
 
         return result;
     }
@@ -145,13 +146,13 @@ public class BibliographicReference extends BibliographicReference_Base {
     }
 
     public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,
-            final String url, final Boolean optional) {
+            final String url, final Boolean isOptional) {
 
         setLocalizedTitle(title);
         setAuthors(authors);
         setLocalizedReference(reference);
         setYear(year);
-        setOptional(optional);
+        setOptional(isOptional);
         setUrl(url);
     }
 
