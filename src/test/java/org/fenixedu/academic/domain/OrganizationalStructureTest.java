@@ -128,11 +128,12 @@ public class OrganizationalStructureTest {
         final Unit universityUnit = UnitUtils.readInstitutionUnit();
         final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+        
         String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
-        final String expectedResult = universityUnit.getNameWithAcronym() + " > " + schoolUnit.getNameWithAcronym();
 
         assertTrue(StringUtils.countMatches(parentUnitsPresentationName,
                 ">") == coursesUnit.getParentUnitsPath().stream().filter(parent -> !parent.isAggregateUnit()).count() - 1);
-        assertTrue(expectedResult.equals(parentUnitsPresentationName));
+        assertTrue(parentUnitsPresentationName
+                .equals(universityUnit.getNameWithAcronym() + " > " + schoolUnit.getNameWithAcronym()));
     }
 }
