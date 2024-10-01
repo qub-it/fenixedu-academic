@@ -132,10 +132,9 @@ public class OrganizationalStructureTest {
         String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
 
         assertTrue(StringUtils.isBlank(earthUnit.getParentUnitsPresentationName(" > ")));
-        assertTrue(StringUtils.equals(universityUnit.getParentUnitsPresentationName(" : "), "Earth (E) : Portugal (PT)"));
-
-        assertTrue(StringUtils.countMatches(parentUnitsPresentationName,
-                ">") == coursesUnit.getParentUnitsPath().stream().filter(parent -> !parent.isAggregateUnit()).count() - 1);
-        assertTrue(StringUtils.equals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)"));
+        assertEquals(universityUnit.getParentUnitsPresentationName(" : "), "Earth (E) : Portugal (PT)");
+        
+        assertEquals(StringUtils.countMatches(parentUnitsPresentationName, ">"), 1);
+        assertEquals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)");
     }
 }
