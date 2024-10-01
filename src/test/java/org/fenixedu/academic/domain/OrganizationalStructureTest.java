@@ -124,16 +124,18 @@ public class OrganizationalStructureTest {
     }
 
     @Test
-    public void testUnits_isParentUnitsPresentationNameValid() {
+    public void testUnits_getParentUnitsPresentationName() {
         final Unit universityUnit = UnitUtils.readInstitutionUnit();
-        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
-        
+        final Unit earthUnit = UnitUtils.readEarthUnit();
+
         String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
+
+        assertTrue(StringUtils.isBlank(earthUnit.getParentUnitsPresentationName(" > ")));
+        assertTrue(StringUtils.equals(universityUnit.getParentUnitsPresentationName(" : "), "Earth (E) : Portugal (PT)"));
 
         assertTrue(StringUtils.countMatches(parentUnitsPresentationName,
                 ">") == coursesUnit.getParentUnitsPath().stream().filter(parent -> !parent.isAggregateUnit()).count() - 1);
-        assertTrue(parentUnitsPresentationName
-                .equals(universityUnit.getNameWithAcronym() + " > " + schoolUnit.getNameWithAcronym()));
+        assertTrue(StringUtils.equals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)"));
     }
 }
