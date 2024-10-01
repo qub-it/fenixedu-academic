@@ -1,3 +1,4 @@
+- Refactor: Update logic in getParentUnitsPresentationName Unit method [#qubIT-Fenix-5834]
 - Refactor: Replace usages of deprecated RegistrationStateTypeEnum [#qubIT-Fenix-2587]
 - Refactor: Delete deprecated group used in old teacher ui [#qubIT-Fenix-1602]
 - Refactor: Convert the Title and Reference Fields of BibliographicReference to LocalizedString [#qubIT-Fenix-5850]

@@ -439,22 +439,8 @@ public class Unit extends Unit_Base {
     }
 
     public String getParentUnitsPresentationName(String separator) {
-        StringBuilder builder = new StringBuilder();
-        List<Unit> parentUnits = getParentUnitsPath();
-        int index = 1;
-
-        for (Unit unit : parentUnits) {
-            if (!unit.isAggregateUnit()) {
-                if (index == 1) {
-                    builder.append(unit.getNameWithAcronym());
-                } else {
-                    builder.append(separator + unit.getNameWithAcronym());
-                }
-            }
-            index++;
-        }
-
-        return builder.toString();
+        return getParentUnitsPath().stream().filter(u -> !u.isAggregateUnit()).map(u -> u.getNameWithAcronym())
+                .collect(Collectors.joining(separator));
     }
 
     public List<Unit> getParentUnitsPath() {

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
@@ -120,5 +121,20 @@ public class OrganizationalStructureTest {
 
         assertTrue(!schoolUnit.isSubUnitOf(List.of(coursesUnit)));
         assertTrue(!coursesUnit.isSubUnitOf(List.of(degreesAgregatorUnit)));
+    }
+
+    @Test
+    public void testUnits_getParentUnitsPresentationName() {
+        final Unit universityUnit = UnitUtils.readInstitutionUnit();
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+        final Unit earthUnit = UnitUtils.readEarthUnit();
+
+        String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
+
+        assertTrue(StringUtils.isBlank(earthUnit.getParentUnitsPresentationName(" > ")));
+        assertEquals(universityUnit.getParentUnitsPresentationName(" : "), "Earth (E) : Portugal (PT)");
+        
+        assertEquals(StringUtils.countMatches(parentUnitsPresentationName, ">"), 1);
+        assertEquals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)");
     }
 }
