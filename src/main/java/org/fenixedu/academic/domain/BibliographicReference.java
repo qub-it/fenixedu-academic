@@ -34,7 +34,7 @@ public class BibliographicReference extends BibliographicReference_Base {
             Comparator.comparing(BibliographicReference::getReferenceOrder).thenComparing(BibliographicReference::getTitle)
                     .thenComparing(BibliographicReference::getYear).thenComparing(BibliographicReference::getExternalId);
 
-    public BibliographicReference() {
+    private BibliographicReference() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
@@ -42,91 +42,100 @@ public class BibliographicReference extends BibliographicReference_Base {
     @Deprecated
     public static BibliographicReference create(final String title, final String authors, final String reference,
             final String year, final Boolean optional) {
-        if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
 
         final BibliographicReference result = new BibliographicReference();
-        result.setTitle(title); //FIXME: remove me
-        result.setLocalizedTitle(new LocalizedString(Locale.getDefault(), title));
+        result.setTitle(title);
         result.setAuthors(authors);
-        result.setReference(reference); //FIXME: remove me
-        result.setLocalizedReference(new LocalizedString(Locale.getDefault(), reference));
+        result.setReference(reference);
         result.setYear(year);
         result.setOptional(optional);
+
+        return result;
+    }
+
+    public static BibliographicReference create(final LocalizedString title, final Integer referenceOrder,
+            final Boolean isOptional) {
+
+        final BibliographicReference result = new BibliographicReference();
+        result.setLocalizedTitle(title);
+        result.setReferenceOrder(referenceOrder);
+        result.setOptional(isOptional);
 
         return result;
     }
 
     public static BibliographicReference create(final LocalizedString title, final String authors,
             final LocalizedString reference, final String year, final String url, final Integer referenceOrder,
-            final Boolean optional) {
-//        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException(BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-//        }
+            final Boolean isOptional) {
 
-        final BibliographicReference result = new BibliographicReference();
-        result.setLocalizedTitle(title);
+        final BibliographicReference result = BibliographicReference.create(title, referenceOrder, isOptional);
         result.setAuthors(authors);
         result.setLocalizedReference(reference);
         result.setYear(year);
         result.setUrl(url);
-        result.setOptional(optional);
-        result.setReferenceOrder(referenceOrder);
 
         return result;
     }
 
-    /**
-     * Copies the provided Bibliographic Reference.
-     * Note that this methods only copies the fields of this object. Not the relationships.
-     * 
-     * @param bibliographicReferenceToCopy
-     * @return copied BibliographicReference
-     */
     @Deprecated
-    public static BibliographicReference copy(BibliographicReference bibliographicReferenceToCopy) {
-        if (StringUtils.isBlank(bibliographicReferenceToCopy.getTitle())) {
+    @Override
+    public void setTitle(String title) {
+        if (StringUtils.isBlank(title)) {
             throw new IllegalArgumentException(
                     BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
 
-        final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
-
-        BibliographicReference copiedReference = create(copy.apply(bibliographicReferenceToCopy.getLocalizedTitle()),
-                bibliographicReferenceToCopy.getAuthors(), copy.apply(bibliographicReferenceToCopy.getLocalizedReference()),
-                bibliographicReferenceToCopy.getYear(), bibliographicReferenceToCopy.getUrl(),
-                bibliographicReferenceToCopy.getReferenceOrder(), bibliographicReferenceToCopy.getOptional());
-        copiedReference.setTitle(bibliographicReferenceToCopy.getTitle()); //FIXME: remove me
-        copiedReference.setReference(bibliographicReferenceToCopy.getReference()); //FIXME: remove me
-        return copiedReference;
+        super.setTitle(title);
+        super.setLocalizedTitle(StringUtils.isBlank(title) ? null : new LocalizedString(Locale.getDefault(), title));
     }
 
-    public BibliographicReference copy() {
-        if (StringUtils.isBlank(this.getTitle())) {
+    @Deprecated
+    @Override
+    public void setReference(String reference) {
+        super.setReference(reference);
+        super.setLocalizedReference(StringUtils.isBlank(reference) ? null : new LocalizedString(Locale.getDefault(), reference));
+    }
+
+    @Override
+    public void setLocalizedTitle(LocalizedString title) {
+        if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException(
                     BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
+        super.setLocalizedTitle(title);
+        super.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
+    }
 
+    @Override
+    public void setLocalizedReference(LocalizedString reference) { //FIXME: remove me
+        super.setReference(reference == null ? null : reference.getContent(Locale.getDefault()));
+        super.setLocalizedReference(reference);
+    }
+
+    /**
+     * Copies the provided Bibliographic Reference.
+     * Note that this method won't copy the relationships of the object, only the fields.
+     * 
+     * @return copied BibliographicReference
+     */
+    public BibliographicReference copy() {
         final Function<LocalizedString, LocalizedString> copy = ls -> ls == null ? null : ls.builder().build();
 
-        BibliographicReference copiedReference =
+        final BibliographicReference copiedReference =
                 create(copy.apply(this.getLocalizedTitle()), this.getAuthors(), copy.apply(this.getLocalizedReference()),
                         this.getYear(), this.getUrl(), this.getReferenceOrder(), this.getOptional());
-        copiedReference.setTitle(this.getTitle()); //FIXME: remove me
-        copiedReference.setReference(this.getReference()); //FIXME: remove me
+        if (getLocalizedTitle() == null && this.getTitle() != null) { //FIXME: remove me
+            copiedReference.setTitle(this.getTitle());
+        }
+        if (getLocalizedReference() == null && this.getReference() != null) { //FIXME: remove me
+            copiedReference.setReference(this.getReference());
+        }
         return copiedReference;
     }
 
     @Deprecated
     public void edit(final String title, final String authors, final String reference, final String year, final String url,
             final Boolean optional) {
-
-        if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
 
         setTitle(title);
         setAuthors(authors);
@@ -137,17 +146,13 @@ public class BibliographicReference extends BibliographicReference_Base {
     }
 
     public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,
-            final String url, final Boolean optional) {
-
-//        if (title == null || authors == null || year == null || optional == null) {
-//            throw new IllegalArgumentException (BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-//        }
+            final String url, final Boolean isOptional) {
 
         setLocalizedTitle(title);
         setAuthors(authors);
         setLocalizedReference(reference);
         setYear(year);
-        setOptional(optional);
+        setOptional(isOptional);
         setUrl(url);
     }
 
