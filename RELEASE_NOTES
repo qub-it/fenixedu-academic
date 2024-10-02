@@ -1,3 +1,4 @@
+47.1.0 (02-10-2024)
 - Refactor: Update logic in getParentUnitsPresentationName Unit method [#qubIT-Fenix-5834]
 - Refactor: Replace usages of deprecated RegistrationStateTypeEnum [#qubIT-Fenix-2587]
 - Refactor: Delete deprecated group used in old teacher ui [#qubIT-Fenix-1602]
