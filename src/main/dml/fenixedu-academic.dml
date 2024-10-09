@@ -80,6 +80,7 @@ enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as Schoo
 enum org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum                                 as RegistrationStateTypeEnum;
 enum org.fenixedu.academic.domain.candidacy.CandidacySituationType                                                     as CandidacySituationType;
 enum java.math.RoundingMode 																							as RoundingMode;
+enum org.fenixedu.academic.domain.log.EnrolmentActionType															as EnrolmentActionType;
 
 
 /*
@@ -1117,6 +1118,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     
     class log.CurriculumLineLog  {
+		EnrolmentActionType type;
         EnrolmentAction action;
         DateTime dateDateTime;
         String who;
@@ -1487,8 +1489,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class student.registrationStates.RegistrationStateLog  {
         DateTime whenCreated;
         DateTime stateDate;
-        String stateType; 
-        EnrolmentAction action;
+        String stateType;
+    	EnrolmentAction action;
         String who;
     }
 
@@ -5160,4 +5162,3 @@ class dml.DynamicField {
 	}
 
 // ==================== END: DynamicField ====================
-
