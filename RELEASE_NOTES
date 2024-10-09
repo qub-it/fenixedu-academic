@@ -1,3 +1,4 @@
+47.1.1 (09-10-2024)
 - Refactor: Move the DynamicField classes to the Academic-core module [#qubIT-Fenix-5889]
 - Refactor: Add enrolment action type enumerator to curriculum logs [#qubIT-Fenix-5876]
 
