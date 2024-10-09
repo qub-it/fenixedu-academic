@@ -5102,4 +5102,62 @@ class curricularRules.DegreeModuleSetApprovalRule extends curricularRules.Rule {
 		degreeStructure.CourseGroup playsRole courseGroupForApprovals { multiplicity 0..1; }
 		curricularRules.DegreeModuleSetApprovalRule playsRole degreeModuleSetApprovalRulesAsApprovalGroup { multiplicity *; }
 	}
+	
+// ==================== BEGIN: DynamicField ====================
+
+class dml.DynamicFieldDescriptor {
+	String domainObjectClassName (REQUIRED);
+	String code (REQUIRED);
+	LocalizedString name (REQUIRED);
+	String fieldValueClassName (REQUIRED);
+	boolean required;
+	Integer minLength;
+	Integer maxLength;
+	BigDecimal minNumber;
+	BigDecimal maxNumber;
+	boolean largeSize;
+	boolean richText;
+	int order;
+} 
+
+	relation DynamicFieldDescriptorRoot {
+		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+		dml.DynamicFieldDescriptor playsRole dynamicFieldDescriptor { multiplicity *; }
+	}
+
+class dml.DynamicField {
+	String value;
+} 
+
+    relation DynamicFieldsDescriptors {
+        dml.DynamicField playsRole fields { multiplicity *; }
+        dml.DynamicFieldDescriptor playsRole descriptor { multiplicity 1..1; }
+    }    
+	
+	relation DynamicFieldRoot {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+	}
+
+	relation DynamicFieldsForCompetenceCourseInformation {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformation { multiplicity 0..1; }
+	}
+
+	relation DynamicFieldsForDegreeInfo {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.academic.domain.DegreeInfo playsRole degreeInfo { multiplicity 0..1; }
+	}
+	
+	relation DynamicFieldsForParty {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.academic.domain.organizationalStructure.Party playsRole party { multiplicity 0..1; }
+	}
+	
+	relation DynamicFieldsForRegistration {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		.org.fenixedu.academic.domain.student.Registration playsRole registration { multiplicity 0..1; }
+	}
+
+// ==================== END: DynamicField ====================
 
