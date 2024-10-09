@@ -98,6 +98,16 @@ abstract public class CurriculumLineLog extends CurriculumLineLog_Base {
             setDateDateTime(new org.joda.time.DateTime(date.getTime()));
         }
     }
+    
+    @Override
+    public void setAction(EnrolmentAction action) {
+        if(action == EnrolmentAction.ENROL) {
+            setType(EnrolmentActionType.ENROL);
+        }else {
+            setType(EnrolmentActionType.UNENROL);
+        }     
+        super.setAction(action);
+    }
 
     /**
      * @deprecated use {@link #getExecutionInterval()} instead.
