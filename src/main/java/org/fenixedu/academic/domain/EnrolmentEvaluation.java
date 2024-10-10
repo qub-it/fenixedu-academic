@@ -281,8 +281,9 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
-        if (getEnrolment() != null && getExecutionInterval() != null && getExecutionInterval() != getEnrolment().getExecutionInterval()) {
-            getEnrolment().findAttends(getExecutionInterval()).ifPresent(Attends::delete);
+        if (getEnrolment() != null && getExecutionInterval() != null && getExecutionInterval() != getEnrolment().getExecutionInterval() && getEnrolment().findEnrolmentEvaluations(
+                getExecutionInterval()).count() == 1) {
+            getEnrolment().findAttends(getExecutionInterval()).filter(Attends::isDeletable).ifPresent(Attends::delete);
         }
 
         setPersonResponsibleForGrade(null);

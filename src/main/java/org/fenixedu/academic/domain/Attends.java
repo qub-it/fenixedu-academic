@@ -42,6 +42,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
  */
 public class Attends extends Attends_Base {
 
+
+
     public static enum StudentAttendsStateType {
         ENROLED, NOT_ENROLED, IMPROVEMENT, SPECIAL_SEASON;
 
@@ -95,6 +97,10 @@ public class Attends extends Attends_Base {
 
         setRootDomainObject(null);
         deleteDomainObject();
+    }
+
+    public boolean isDeletable() {
+        return getDeletionBlockers().isEmpty();
     }
 
     @Override
