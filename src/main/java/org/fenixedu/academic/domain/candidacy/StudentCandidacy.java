@@ -130,7 +130,7 @@ public class StudentCandidacy extends StudentCandidacy_Base {
     @Override
     public void setAdmissionPhase(Integer admissionPhase) {
         if (admissionPhase != null && admissionPhase <= 0) {
-            throw new DomainException("error.candidacy.admission.phase.has.to.be.positive.number");
+            throw new DomainException("error.StudentCandidacy.admission.phase.has.to.be.positive.number");
         }
         super.setAdmissionPhase(admissionPhase);
         super.setEntryPhase(admissionPhase == null ? null : EntryPhase.valueOf(admissionPhase));
