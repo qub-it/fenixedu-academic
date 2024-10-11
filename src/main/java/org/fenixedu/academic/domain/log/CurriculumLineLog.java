@@ -34,23 +34,23 @@ abstract public class CurriculumLineLog extends CurriculumLineLog_Base {
         setDateDateTime(new DateTime());
     }
 
-    protected void init(final EnrolmentAction action, final Registration registration, final DegreeModule degreeModule,
+    protected void init(final EnrolmentActionType type, final Registration registration, final DegreeModule degreeModule,
             final ExecutionInterval executionInterval, final String who) {
 
-        checkParameters(action, registration, degreeModule, executionInterval);
+        checkParameters(type, registration, degreeModule, executionInterval);
 
-        setAction(action);
+        setType(type);
         setStudent(registration);
         setDegreeModule(degreeModule);
         setExecutionPeriod(executionInterval);
         setWho(who);
     }
 
-    private void checkParameters(final EnrolmentAction action, final Registration registration, final DegreeModule degreeModule,
+    private void checkParameters(final EnrolmentActionType type, final Registration registration, final DegreeModule degreeModule,
             final ExecutionInterval executionInterval) {
         String[] args = {};
-        if (action == null) {
-            throw new DomainException("error.log.EnrolmentLog.invalid.action", args);
+        if (type == null) {
+            throw new DomainException("error.log.EnrolmentLog.invalid.type", args);
         }
         String[] args1 = {};
         if (registration == null) {

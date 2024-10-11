@@ -28,9 +28,9 @@ import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.enrolment.EnroledOptionalEnrolment;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.domain.log.OptionalEnrolmentLog;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -54,7 +54,7 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
         initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
                 createdBy);
         setOptionalCurricularCourse(optionalCurricularCourse);
-        createCurriculumLineLog(EnrolmentAction.ENROL);
+        createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
     protected void checkInitConstraints(StudentCurricularPlan studentCurricularPlan, CurricularCourse curricularCourse,
@@ -74,8 +74,8 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
     }
 
     @Override
-    protected void createCurriculumLineLog(final EnrolmentAction action) {
-        new OptionalEnrolmentLog(action, getRegistration(), getCurricularCourse(), getOptionalCurricularCourse(),
+    protected void createCurriculumLineLog(final EnrolmentActionType type) {
+        new OptionalEnrolmentLog(type, getRegistration(), getCurricularCourse(), getOptionalCurricularCourse(),
                 getExecutionInterval(), getCurrentUser());
     }
 
@@ -194,7 +194,7 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
         optionalEnrolment.getEvaluationsSet().addAll(enrolment.getEvaluationsSet());
         optionalEnrolment.getEnrolmentWrappersSet().addAll(enrolment.getEnrolmentWrappersSet());
         changeAttends(enrolment, optionalEnrolment);
-        optionalEnrolment.createCurriculumLineLog(EnrolmentAction.ENROL);
+        optionalEnrolment.createCurriculumLineLog(EnrolmentActionType.ENROL);
 
         return optionalEnrolment;
     }

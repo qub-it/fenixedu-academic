@@ -36,10 +36,10 @@ public class EnrolmentLog extends EnrolmentLog_Base {
         super();
     }
 
-    public EnrolmentLog(final EnrolmentAction action, final Registration registration, final CurricularCourse curricularCourse,
+    public EnrolmentLog(final EnrolmentActionType type, final Registration registration, final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval, final String who) {
         this();
-        init(action, registration, curricularCourse, executionInterval, who);
+        init(type, registration, curricularCourse, executionInterval, who);
     }
 
     @Override

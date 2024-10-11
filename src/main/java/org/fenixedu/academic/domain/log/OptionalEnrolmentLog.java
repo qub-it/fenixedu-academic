@@ -23,7 +23,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.util.EnrolmentAction;
 
 public class OptionalEnrolmentLog extends OptionalEnrolmentLog_Base {
 
@@ -31,7 +30,7 @@ public class OptionalEnrolmentLog extends OptionalEnrolmentLog_Base {
         super();
     }
 
-    public OptionalEnrolmentLog(final EnrolmentAction action, final Registration registration,
+    public OptionalEnrolmentLog(final EnrolmentActionType type, final Registration registration,
             final CurricularCourse curricularCourse, final OptionalCurricularCourse optionalCurricularCourse,
             final ExecutionInterval executionInterval, final String who) {
 
@@ -40,7 +39,7 @@ public class OptionalEnrolmentLog extends OptionalEnrolmentLog_Base {
         if (optionalCurricularCourse == null) {
             throw new DomainException("error.OptionalEnrolmentLog.invalid.optionalCurricularCourse", args);
         }
-        init(action, registration, curricularCourse, executionInterval, who);
+        init(type, registration, curricularCourse, executionInterval, who);
         setOptionalCurricularCourse(optionalCurricularCourse);
     }
 

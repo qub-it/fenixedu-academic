@@ -25,8 +25,8 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CreditsDismissalLog;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -44,7 +44,7 @@ public class CreditsDismissal extends CreditsDismissal_Base {
         if (noEnrolCurricularCourses != null) {
             getNoEnrolCurricularCoursesSet().addAll(noEnrolCurricularCourses);
         }
-        createCurriculumLineLog(EnrolmentAction.ENROL);
+        createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
     private void checkIfCanCreate(final Credits credits, final Collection<CurricularCourse> noEnrolCurricularCourses,
@@ -146,8 +146,8 @@ public class CreditsDismissal extends CreditsDismissal_Base {
     }
 
     @Override
-    protected void createCurriculumLineLog(final EnrolmentAction action) {
-        new CreditsDismissalLog(action, getRegistration(), getCurriculumGroup(), getCredits(), getExecutionPeriod(),
+    protected void createCurriculumLineLog(final EnrolmentActionType type) {
+        new CreditsDismissalLog(type, getRegistration(), getCurriculumGroup(), getCredits(), getExecutionPeriod(),
                 getCurrentUser());
     }
 

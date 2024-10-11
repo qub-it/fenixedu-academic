@@ -25,7 +25,6 @@ import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
-import org.fenixedu.academic.util.EnrolmentAction;
 
 public class OptionalDismissalLog extends OptionalDismissalLog_Base {
 
@@ -33,7 +32,7 @@ public class OptionalDismissalLog extends OptionalDismissalLog_Base {
         super();
     }
 
-    public OptionalDismissalLog(final EnrolmentAction action, final Registration registration,
+    public OptionalDismissalLog(final EnrolmentActionType action, final Registration registration,
             final OptionalCurricularCourse optionalCurricularCourse, final Credits credits, final Double ectsCredits,
             final ExecutionInterval executionInterval, final String who) {
         this();
