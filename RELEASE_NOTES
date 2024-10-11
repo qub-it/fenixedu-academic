@@ -1,3 +1,5 @@
+- Refactor: migrate EntryPhase enum to Integer [#qubIT-Fenix-5905]
+
 47.1.2 (10-10-2024)
 - Bug fix: Correctly handle delete of improvement attends [#qubIT-Fenix-5598]
 

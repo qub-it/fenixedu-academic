@@ -50,6 +50,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -91,6 +92,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
+import org.fenixedu.commons.i18n.I18N;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -256,7 +258,7 @@ public class Registration extends Registration_Base {
     private void setStudentCandidacyInformation(final StudentCandidacy studentCandidacy) {
         setStudentCandidacy(studentCandidacy);
         if (studentCandidacy != null) {
-            super.setEntryPhase(studentCandidacy.getEntryPhase());
+            setEntryPhase(studentCandidacy.getEntryPhase());
             super.setIngressionType(studentCandidacy.getIngressionType());
         }
     }
@@ -1977,6 +1979,21 @@ public class Registration extends Registration_Base {
 
     public Optional<SchoolClass> findSchoolClass(final ExecutionInterval interval) {
         return super.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionInterval() == interval).findAny();
+    }
+
+    @Override
+    public void setEntryPhase(EntryPhase entryPhase) {
+        setAdmissionPhase(entryPhase == null ? null : entryPhase.getPhaseNumber());
+        super.setEntryPhase(entryPhase);
+    }
+
+    @Override
+    public void setAdmissionPhase(Integer admissionPhase) {
+        if (admissionPhase != null && admissionPhase <= 0) {
+            throw new DomainException("error.Registration.admission.phase.has.to.be.positive.number");
+        }
+        super.setAdmissionPhase(admissionPhase);
+        super.setEntryPhase(admissionPhase == null ? null : EntryPhase.valueOf(admissionPhase));
     }
 
 }
