@@ -1,4 +1,4 @@
-package org.fenixedu.academic.domain;
+package org.fenixedu.academic.domain.student.registration;
 
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertNull;
@@ -6,6 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
 
+import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DegreeTest;
+import org.fenixedu.academic.domain.EntryPhase;
+import org.fenixedu.academic.domain.ExecutionDegree;
+import org.fenixedu.academic.domain.ExecutionIntervalTest;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
