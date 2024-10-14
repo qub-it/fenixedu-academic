@@ -1,6 +1,5 @@
 package org.fenixedu.academic.domain.student.registration;
 
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -8,14 +7,14 @@ import java.util.Locale;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.DegreeTest;
 import org.fenixedu.academic.domain.EntryPhase;
-import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionIntervalTest;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
@@ -40,6 +39,12 @@ public class EntryPhaseToAdmissionPhaseTest {
 
     public static final String DCP_NAME_V1 = "DCP_NAME_V1";
 
+    public static final String DEGREE_A_CODE = "DA";
+
+    public static final String DEGREE_TYPE_CODE = "DEGREE";
+
+    public static final String MASTER_DEGREE_TYPE_CODE = "MASTER";
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
@@ -50,8 +55,17 @@ public class EntryPhaseToAdmissionPhaseTest {
     }
 
     static void initRegistration() {
-        DegreeTest.initDegree();
-        final Degree degree = Degree.find(DEGREE_A_CODE);
+        final DegreeType degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
+        degreeType.setCode(DEGREE_TYPE_CODE);
+
+        final DegreeType masterDegreeType =
+                new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Master Degree").build());
+        masterDegreeType.setCode(MASTER_DEGREE_TYPE_CODE);
+
+        ExecutionIntervalTest.initRootCalendarAndExecutionYears();
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+
+        final Degree degree = createDegree(degreeType, DEGREE_A_CODE, "Degree A", executionYear);
 
         final UserProfile userProfile =
                 new UserProfile("Fenix", "Admin", "Fenix Admin", "fenix.admin@fenixedu.com", Locale.getDefault());
@@ -61,15 +75,13 @@ public class EntryPhaseToAdmissionPhaseTest {
                 degree.createDegreeCurricularPlan(DCP_NAME_V1, person, AcademicPeriod.THREE_YEAR);
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
 
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-
         final UserProfile studentProfile =
                 new UserProfile("Josefa", "Ferreira", "Josefa Ferreira", "josefa.ferreira@fenixedu.com", Locale.getDefault());
         new User("student", userProfile);
         Person personForStudent = new Person(studentProfile);
         Student student = new Student(personForStudent);
 
-        ExecutionDegree executionDegree = new ExecutionDegree(degreeCurricularPlan, executionYear, false);
+        degreeCurricularPlan.createExecutionDegree(executionYear);
 
         RegistrationStateType.create("REGISTERED", new LocalizedString(Locale.getDefault(), "Registado"), true);
 
@@ -82,6 +94,14 @@ public class EntryPhaseToAdmissionPhaseTest {
 
         studentCandidacy = registration.getStudentCandidacy();
 
+    }
+
+    public static Degree createDegree(final DegreeType degreeType, String code, String name, final ExecutionYear executionYear) {
+        final Degree result = new Degree(name, name, code, degreeType, new GradeScale(), new GradeScale(), executionYear);
+        result.setCode(code);
+        result.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
+
+        return result;
     }
 
     @Test
