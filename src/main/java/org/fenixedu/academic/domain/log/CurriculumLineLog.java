@@ -102,11 +102,21 @@ abstract public class CurriculumLineLog extends CurriculumLineLog_Base {
     @Override
     public void setAction(EnrolmentAction action) {
         if(action == EnrolmentAction.ENROL) {
-            setType(EnrolmentActionType.ENROL);
+            super.setType(EnrolmentActionType.ENROL);
         }else {
-            setType(EnrolmentActionType.UNENROL);
+            super.setType(EnrolmentActionType.UNENROL);
         }     
         super.setAction(action);
+    }
+    
+    @Override
+    public void setType(EnrolmentActionType type) {
+        if(type == EnrolmentActionType.ENROL) {
+            super.setAction(EnrolmentAction.ENROL);
+        }else {
+            super.setAction(EnrolmentAction.UNENROL);
+        }   
+        super.setType(type);
     }
 
     /**
