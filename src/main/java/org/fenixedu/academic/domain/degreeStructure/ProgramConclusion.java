@@ -30,7 +30,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.util.Bundle;
@@ -58,32 +57,11 @@ public class ProgramConclusion extends ProgramConclusion_Base {
         setRoot(Bennu.getInstance());
     }
 
-    @Deprecated
-    public ProgramConclusion(LocalizedString name, LocalizedString description, LocalizedString graduationTitle,
-            LocalizedString graduationLevel, boolean isAverageEditable, boolean isAlumniProvider, boolean isSkipValidation,
-            RegistrationStateTypeEnum targetState) {
-        this();
-        edit(name, description, graduationTitle, graduationLevel, isAverageEditable, isAlumniProvider, isSkipValidation,
-                targetState);
-    }
-
     public ProgramConclusion(String code, LocalizedString name, LocalizedString description, LocalizedString graduationTitle,
             LocalizedString graduationLevel, boolean isAverageEditable, boolean isAlumniProvider, boolean isSkipValidation,
             RegistrationStateType targetStateType) {
         this();
         edit(code, name, description, graduationTitle, graduationLevel, isAverageEditable, isAlumniProvider, isSkipValidation,
-                targetStateType);
-    }
-
-    @Deprecated
-    public void edit(LocalizedString name, LocalizedString description, LocalizedString graduationTitle,
-            LocalizedString graduationLevel, boolean isAverageEditable, boolean isAlumniProvider, boolean isSkipValidation,
-            RegistrationStateTypeEnum targetState) {
-
-        final RegistrationStateType targetStateType =
-                targetState != null ? RegistrationStateType.findByCode(targetState.name()).orElse(null) : null;
-
-        edit(null, name, description, graduationTitle, graduationLevel, isAverageEditable, isAlumniProvider, isSkipValidation,
                 targetStateType);
     }
 

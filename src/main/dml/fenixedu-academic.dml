@@ -77,7 +77,6 @@ enum org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext         
 enum org.fenixedu.academic.domain.OperationType																		  as OperationType;
 enum org.fenixedu.academic.domain.contacts.PartyContactValidationState 									              as PartyContactValidationState;
 enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as SchoolPeriodDuration;
-enum org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum                                 as RegistrationStateTypeEnum;
 enum org.fenixedu.academic.domain.candidacy.CandidacySituationType                                                     as CandidacySituationType;
 enum java.math.RoundingMode 																							as RoundingMode;
 enum org.fenixedu.academic.domain.log.EnrolmentActionType															as EnrolmentActionType;
@@ -1429,7 +1428,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
     	boolean active;
-    	RegistrationStateTypeEnum typeEnum;
     }   
 		relation RegistrationStateTypeRoot {
 		    student.registrationStates.RegistrationStateType playsRole registrationStateTypes { multiplicity *; }

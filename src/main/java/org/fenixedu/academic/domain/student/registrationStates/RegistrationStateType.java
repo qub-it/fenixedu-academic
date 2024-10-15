@@ -25,12 +25,6 @@ public class RegistrationStateType extends RegistrationStateType_Base {
         return result;
     }
 
-    @Deprecated
-    public static RegistrationStateType create(final String code, final LocalizedString name, final boolean active,
-            final RegistrationStateTypeEnum typeEnum) {
-        return create(code, name, active);
-    }
-
     @Override
     public void setCode(String code) {
         if (findByCode(code).filter(type -> type != this).isPresent()) {
