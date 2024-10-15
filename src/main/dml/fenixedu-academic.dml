@@ -778,6 +778,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String contigent;
         Double entryGrade;
         EntryPhase entryPhase;
+        Integer admissionPhase;
         Integer placingOption;
         Integer numberOfCandidaciesToHigherSchool;
         Boolean firstTimeCandidacy;
@@ -1359,6 +1360,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         YearMonthDay startDate;
         YearMonthDay studiesStartDate;
         EntryPhase entryPhase;
+        Integer admissionPhase;
     }
 
     class student.RegistrationDataByExecutionYear  {
