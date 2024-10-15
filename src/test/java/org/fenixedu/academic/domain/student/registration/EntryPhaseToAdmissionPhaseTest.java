@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DegreeTest;
 import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionIntervalTest;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -39,12 +40,6 @@ public class EntryPhaseToAdmissionPhaseTest {
 
     public static final String DCP_NAME_V1 = "DCP_NAME_V1";
 
-    public static final String DEGREE_A_CODE = "DA";
-
-    public static final String DEGREE_TYPE_CODE = "DEGREE";
-
-    public static final String MASTER_DEGREE_TYPE_CODE = "MASTER";
-
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
@@ -55,17 +50,7 @@ public class EntryPhaseToAdmissionPhaseTest {
     }
 
     static void initRegistration() {
-        final DegreeType degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
-        degreeType.setCode(DEGREE_TYPE_CODE);
-
-        final DegreeType masterDegreeType =
-                new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Master Degree").build());
-        masterDegreeType.setCode(MASTER_DEGREE_TYPE_CODE);
-
-        ExecutionIntervalTest.initRootCalendarAndExecutionYears();
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-
-        final Degree degree = createDegree(degreeType, DEGREE_A_CODE, "Degree A", executionYear);
+        Degree degree = DegreeTest.initDegree();
 
         final UserProfile userProfile =
                 new UserProfile("Fenix", "Admin", "Fenix Admin", "fenix.admin@fenixedu.com", Locale.getDefault());
@@ -80,6 +65,8 @@ public class EntryPhaseToAdmissionPhaseTest {
         new User("student", userProfile);
         Person personForStudent = new Person(studentProfile);
         Student student = new Student(personForStudent);
+
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
 
         degreeCurricularPlan.createExecutionDegree(executionYear);
 

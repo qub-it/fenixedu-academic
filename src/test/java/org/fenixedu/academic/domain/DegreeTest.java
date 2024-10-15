@@ -35,7 +35,7 @@ public class DegreeTest {
         });
     }
 
-    static Degree initDegree() {
+    public static Degree initDegree() {
         final DegreeType degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
         degreeType.setCode(DEGREE_TYPE_CODE);
 
