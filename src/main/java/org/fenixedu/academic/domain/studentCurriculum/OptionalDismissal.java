@@ -21,8 +21,8 @@ package org.fenixedu.academic.domain.studentCurriculum;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.domain.log.OptionalDismissalLog;
-import org.fenixedu.academic.util.EnrolmentAction;
 
 public class OptionalDismissal extends OptionalDismissal_Base {
 
@@ -33,7 +33,7 @@ public class OptionalDismissal extends OptionalDismissal_Base {
     public OptionalDismissal(Credits credits, CurriculumGroup curriculumGroup, OptionalCurricularCourse optionalCurricularCourse,
             Double ectsCredits) {
         init(credits, curriculumGroup, optionalCurricularCourse, ectsCredits);
-        createCurriculumLineLog(EnrolmentAction.ENROL);
+        createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
     protected void init(Credits credits, CurriculumGroup curriculumGroup, OptionalCurricularCourse optionalCurricularCourse,
@@ -83,8 +83,8 @@ public class OptionalDismissal extends OptionalDismissal_Base {
     }
 
     @Override
-    protected void createCurriculumLineLog(final EnrolmentAction action) {
-        new OptionalDismissalLog(action, getRegistration(), getCurricularCourse(), getCredits(), getEctsCredits(),
+    protected void createCurriculumLineLog(final EnrolmentActionType type) {
+        new OptionalDismissalLog(type, getRegistration(), getCurricularCourse(), getCredits(), getEctsCredits(),
                 getExecutionPeriod(), getCurrentUser());
     }
 

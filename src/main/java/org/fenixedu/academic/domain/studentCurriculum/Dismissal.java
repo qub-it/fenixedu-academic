@@ -41,11 +41,11 @@ import org.fenixedu.academic.domain.enrolment.DismissalCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.DismissalLog;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.dto.DomainObjectDeletionBean;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
@@ -66,7 +66,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     public Dismissal(Credits credits, CurriculumGroup curriculumGroup, CurricularCourse curricularCourse) {
         init(credits, curriculumGroup, curricularCourse);
-        createCurriculumLineLog(EnrolmentAction.ENROL);
+        createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
     protected void init(Credits credits, CurriculumGroup curriculumGroup) {
@@ -287,7 +287,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     }
 
     void deleteFromCredits() {
-        createCurriculumLineLog(EnrolmentAction.UNENROL);
+        createCurriculumLineLog(EnrolmentActionType.UNENROL);
         emitDeleteSignal();
 
         setCredits(null);
@@ -296,7 +296,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     @Override
     public void delete() {
-        createCurriculumLineLog(EnrolmentAction.UNENROL);
+        createCurriculumLineLog(EnrolmentActionType.UNENROL);
         emitDeleteSignal();
 
         final Credits credits = getCredits();
@@ -433,8 +433,8 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     }
 
     @Override
-    protected void createCurriculumLineLog(final EnrolmentAction action) {
-        new DismissalLog(action, getRegistration(), getCurricularCourse(), getCredits(), getExecutionPeriod(), getCurrentUser());
+    protected void createCurriculumLineLog(final EnrolmentActionType type) {
+        new DismissalLog(type, getRegistration(), getCurricularCourse(), getCredits(), getExecutionPeriod(), getCurrentUser());
     }
 
     public String getEnrolmentTypeName() {

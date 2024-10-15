@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +37,7 @@ import org.fenixedu.academic.domain.enrolment.EnroledEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.ExternalDegreeEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
@@ -47,7 +47,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EctsAndWeightProviderRegistry;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -174,7 +173,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         // validateDegreeModuleLink(curriculumGroup, curricularCourse);
         initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
                 createdBy);
-        createCurriculumLineLog(EnrolmentAction.ENROL);
+        createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
     protected void checkInitConstraints(final StudentCurricularPlan studentCurricularPlan,
@@ -237,7 +236,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     public void delete() {
         checkRulesToDelete();
-        createCurriculumLineLog(EnrolmentAction.UNENROL);
+        createCurriculumLineLog(EnrolmentActionType.UNENROL);
         deleteInformation();
         setEvaluationSeason(null);
 
@@ -564,8 +563,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     @Override
-    protected void createCurriculumLineLog(final EnrolmentAction action) {
-        new EnrolmentLog(action, getRegistration(), getCurricularCourse(), getExecutionInterval(), getCurrentUser());
+    protected void createCurriculumLineLog(final EnrolmentActionType type) {
+        new EnrolmentLog(type, getRegistration(), getCurricularCourse(), getExecutionInterval(), getCurrentUser());
     }
 
     @Override
@@ -885,7 +884,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         enrolment.getEvaluationsSet().addAll(optionalEnrolment.getEvaluationsSet());
         enrolment.getEnrolmentWrappersSet().addAll(optionalEnrolment.getEnrolmentWrappersSet());
         changeAttends(optionalEnrolment, enrolment);
-        enrolment.createCurriculumLineLog(EnrolmentAction.ENROL);
+        enrolment.createCurriculumLineLog(EnrolmentActionType.ENROL);
 
         return enrolment;
     }

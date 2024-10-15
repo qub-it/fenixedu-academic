@@ -26,7 +26,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.util.EnrolmentAction;
 
 public class CreditsDismissalLog extends CreditsDismissalLog_Base {
 
@@ -34,7 +33,7 @@ public class CreditsDismissalLog extends CreditsDismissalLog_Base {
         super();
     }
 
-    public CreditsDismissalLog(final EnrolmentAction action, final Registration registration,
+    public CreditsDismissalLog(final EnrolmentActionType type, final Registration registration,
             final CurriculumGroup curriculumGroup, final Credits credits, final ExecutionInterval executionInterval,
             final String who) {
         this();
@@ -45,7 +44,7 @@ public class CreditsDismissalLog extends CreditsDismissalLog_Base {
             throw new DomainException("error.CreditsDismissalLog.invalid.courseGroup", args);
         }
 
-        init(action, registration, courseGroup, executionInterval, who);
+        init(type, registration, courseGroup, executionInterval, who);
         setCredits(BigDecimal.valueOf(credits.getGivenCredits()));
         setSourceDescription(buildSourceDescription(credits));
     }

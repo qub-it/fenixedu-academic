@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public class DismissalLog extends DismissalLog_Base {
@@ -36,10 +35,10 @@ public class DismissalLog extends DismissalLog_Base {
         super();
     }
 
-    public DismissalLog(final EnrolmentAction action, final Registration registration, final CurricularCourse curricularCourse,
+    public DismissalLog(final EnrolmentActionType type, final Registration registration, final CurricularCourse curricularCourse,
             final Credits credits, final ExecutionInterval executionInterval, final String who) {
         this();
-        init(action, registration, curricularCourse, executionInterval, who);
+        init(type, registration, curricularCourse, executionInterval, who);
         setCredits(BigDecimal.valueOf(credits.getGivenCredits()));
         setSourceDescription(buildSourceDescription(credits));
     }

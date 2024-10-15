@@ -35,7 +35,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.util.EnrolmentAction;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
 import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -305,7 +305,7 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
         return Collections.emptySet();
     }
 
-    abstract protected void createCurriculumLineLog(final EnrolmentAction action);
+    abstract protected void createCurriculumLineLog(final EnrolmentActionType type);
 
     abstract public BigDecimal getEctsCreditsForCurriculum();
 
