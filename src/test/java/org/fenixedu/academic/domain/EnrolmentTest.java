@@ -1,31 +1,14 @@
 package org.fenixedu.academic.domain;
 
-import com.qubit.terra.framework.services.logging.loggers.SystemOutLogger;
-import org.fenixedu.academic.domain.accessControl.SchoolClassStudentsGroup;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
-import org.fenixedu.academic.domain.degreeStructure.Context;
-import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
-import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
-import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
-import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
-import org.fenixedu.academic.util.EnrolmentEvaluationState;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.FenixFrameworkRunner;
-import pt.ist.fenixframework.FenixFramework;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.SPECIAL_SEASON_CODE;
+import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_A_NAME;
+import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_B_NAME;
+import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,13 +19,34 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
-import static org.fenixedu.academic.domain.EvaluationSeasonTest.SPECIAL_SEASON_CODE;
-import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_A_NAME;
-import static org.fenixedu.academic.domain.ExecutionsAndSchedulesTest.SCHOOL_CLASS_B_NAME;
-import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORETICAL;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertTrue;
+import org.fenixedu.academic.domain.accessControl.SchoolClassStudentsGroup;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
+import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
+import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
+import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.log.CurriculumLineLog;
+import org.fenixedu.academic.domain.log.EnrolmentActionType;
+import org.fenixedu.academic.domain.log.EnrolmentLog;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
+import org.fenixedu.academic.util.EnrolmentAction;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.junit.runners.FenixFrameworkRunner;
+
+import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class EnrolmentTest {
@@ -402,5 +406,37 @@ public class EnrolmentTest {
         assertTrue(schoolClassAStudentsGroup.getMembers().anyMatch(u -> u == registrationUser));
         assertTrue(schoolClassAStudentsGroup.isMember(registrationUser));
         assertTrue(schoolClassBStudentsGroup.getMembers().findAny().isEmpty());
+    }
+
+    @Test
+    public void testEnrolmentLog_createCurriculumLineLog() {
+        final int registrationLogCounter = registration.getCurriculumLineLogs(executionInterval).size();
+        final int curricularCourseLogCounter = curricularCourse.getCurriculumLineLogsSet().size();
+        final int executionIntervalLogCounter = executionInterval.getCurriculumLineLogsSet().size();
+
+        final Enrolment enrolment = registration
+                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+
+        enrolment.createCurriculumLineLog(EnrolmentActionType.UNENROL);
+
+        assertEquals(registration.getCurriculumLineLogs(executionInterval).size(), registrationLogCounter + 1);
+        assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 1);
+        assertEquals(executionInterval.getCurriculumLineLogsSet().size(), executionIntervalLogCounter + 1);
+    }
+
+    @Test
+    public void testCurriculumLineLog_setType() {
+        final CurriculumLineLog unenrolLog =
+                new EnrolmentLog(EnrolmentActionType.UNENROL, registration, curricularCourse, executionInterval, "testWho");
+
+        final CurriculumLineLog enrolLog =
+                new EnrolmentLog(EnrolmentActionType.ENROL, registration, curricularCourse, executionInterval, "testWho");
+
+        assertEquals(unenrolLog.getType(), EnrolmentActionType.UNENROL);
+        assertEquals(enrolLog.getType(), EnrolmentActionType.ENROL);
+
+        // Remove assertions below once EnrolmentAction refactoring is completed
+        assertEquals(unenrolLog.getAction(), EnrolmentAction.UNENROL);
+        assertEquals(enrolLog.getAction(), EnrolmentAction.ENROL);
     }
 }
