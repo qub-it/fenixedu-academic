@@ -5,7 +5,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public enum EnrolmentActionType {
     
-    ENROL, UNENROL; // ANNUL_ENROLMENT, ACTIVATE_ENROLMENT;
+    ENROL, UNENROL, ANNUL_ENROLMENT, ACTIVATE_ENROLMENT;
     
     public String getName() {
         return name();

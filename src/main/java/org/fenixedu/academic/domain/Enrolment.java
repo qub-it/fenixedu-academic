@@ -952,6 +952,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     public void annul() {
         setEnrollmentState(EnrollmentState.ANNULED);
         setAnnulmentDate(new DateTime());
+        createCurriculumLineLog(EnrolmentActionType.ANNUL_ENROLMENT);
     }
 
     public void activate() {
@@ -959,6 +960,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             final Grade finalGrade = getGrade();
             setEnrollmentState(finalGrade.isEmpty() ? EnrollmentState.ENROLLED : finalGrade.getEnrolmentState());
             setAnnulmentDate(null);
+            createCurriculumLineLog(EnrolmentActionType.ACTIVATE_ENROLMENT);
         }
     }
 

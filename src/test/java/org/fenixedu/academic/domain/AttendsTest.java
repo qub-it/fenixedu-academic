@@ -33,6 +33,8 @@ public class AttendsTest {
 
     private static ExecutionInterval executionInterval;
 
+    private static StudentCurricularPlan studentCurricularPlan;
+
     private static final String ADMIN_USERNAME = "admin";
 
     @Rule
@@ -49,9 +51,10 @@ public class AttendsTest {
 
     private static void initLocalVars() {
         registration = Student.readStudentByNumber(1).getRegistrationStream().findAny().orElseThrow();
-        final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
-        executionInterval = ExecutionInterval.findFirstCurrentChild(scp.getDegree().getCalendar());
-        curricularCourse = scp.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
+        studentCurricularPlan = registration.getLastStudentCurricularPlan();
+        executionInterval = ExecutionInterval.findFirstCurrentChild(studentCurricularPlan.getDegree().getCalendar());
+        curricularCourse =
+                studentCurricularPlan.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
     }
 
     @Test
@@ -123,6 +126,10 @@ public class AttendsTest {
             final Enrolment enrolment = attends.getEnrolment();
 
             final Enrolment newEnrolment = new Enrolment();
+            newEnrolment.setStudentCurricularPlan(studentCurricularPlan);
+            newEnrolment.setDegreeModule(curricularCourse);
+            newEnrolment.setExecutionPeriod(executionInterval);
+            
             newEnrolment.annul();
             attends.setEnrolment(newEnrolment);
 
@@ -247,9 +254,8 @@ public class AttendsTest {
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
         final String uuid = UUID.randomUUID().toString();
         final AcademicPeriod academicPeriod = executionInterval.getAcademicPeriod();
-        final CompetenceCourse competenceCourse =
-                CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN, academicPeriod, executionInterval,
-                        coursesUnit);
+        final CompetenceCourse competenceCourse = CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN,
+                academicPeriod, executionInterval, coursesUnit);
 
         final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
         final DegreeCurricularPlan dcp = scp.getDegreeCurricularPlan();
