@@ -123,6 +123,10 @@ public class AttendsTest {
             final Enrolment enrolment = attends.getEnrolment();
 
             final Enrolment newEnrolment = new Enrolment();
+            newEnrolment.setStudentCurricularPlan(registration.getLastStudentCurricularPlan());
+            newEnrolment.setDegreeModule(curricularCourse);
+            newEnrolment.setExecutionPeriod(executionInterval);
+
             newEnrolment.annul();
             attends.setEnrolment(newEnrolment);
 
@@ -247,9 +251,8 @@ public class AttendsTest {
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
         final String uuid = UUID.randomUUID().toString();
         final AcademicPeriod academicPeriod = executionInterval.getAcademicPeriod();
-        final CompetenceCourse competenceCourse =
-                CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN, academicPeriod, executionInterval,
-                        coursesUnit);
+        final CompetenceCourse competenceCourse = CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN,
+                academicPeriod, executionInterval, coursesUnit);
 
         final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
         final DegreeCurricularPlan dcp = scp.getDegreeCurricularPlan();
