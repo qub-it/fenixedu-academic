@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain.student.registrationStates;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -28,40 +27,11 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
 
-import pt.ist.fenixframework.dml.runtime.RelationAdapter;
-
 public class RegistrationState extends RegistrationState_Base {
-
-    static {
-        getRelationRegistrationStateRegistration().addListener(new RelationAdapter<RegistrationState, Registration>() {
-
-            @Override
-            public void afterAdd(RegistrationState state, Registration registration) {
-                super.afterAdd(state, registration);
-
-                if (registration != null && state != null) {
-                    new RegistrationStateLog(state, EnrolmentAction.ENROL, AccessControl.getPerson());
-                }
-            }
-
-            @Override
-            public void beforeRemove(RegistrationState state, Registration registration) {
-                super.beforeRemove(state, registration);
-
-                if (registration != null && state != null) {
-                    new RegistrationStateLog(state, EnrolmentAction.UNENROL, AccessControl.getPerson());
-                }
-            }
-
-        });
-    }
 
     public static Comparator<RegistrationState> DATE_COMPARATOR = new Comparator<RegistrationState>() {
         @Override
@@ -84,9 +54,9 @@ public class RegistrationState extends RegistrationState_Base {
             RegistrationStateType stateType, ExecutionInterval executionInterval) {
 
         final RegistrationState createdState = new RegistrationState();
-        createdState.setStateDate(creation != null ? creation : new DateTime());
         createdState.setRegistration(registration);
         createdState.setResponsiblePerson(responsible != null ? responsible : AccessControl.getPerson());
+        createdState.setStateDate(creation != null ? creation : new DateTime());
         createdState.setType(stateType);
         createdState.setExecutionInterval(executionInterval);
 
@@ -100,11 +70,6 @@ public class RegistrationState extends RegistrationState_Base {
     }
 
     public void delete() {
-
-        org.fenixedu.academic.domain.student.RegistrationStateLog.createRegistrationStateLog(getRegistration(), Bundle.MESSAGING,
-                "log.registration.registrationstate.removed",
-                Optional.ofNullable(getType()).map(RegistrationStateType::getName).map(LocalizedString::getContent).orElse("-"),
-                getRemarks());
         setExecutionInterval(null);
         setRegistration(null);
         setResponsiblePerson(null);

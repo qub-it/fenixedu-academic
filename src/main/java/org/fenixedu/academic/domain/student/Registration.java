@@ -318,12 +318,6 @@ public class Registration extends Registration_Base {
         for (; !getCurriculumLineLogsSet().isEmpty(); getCurriculumLineLogsSet().iterator().next().delete()) {
             ;
         }
-        for (; !getRegistrationStateLogsSet().isEmpty(); getRegistrationStateLogsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getRegistrationStateLogSet().isEmpty(); getRegistrationStateLogSet().iterator().next().delete()) {
-            ;
-        }
 
 //        getPrecedentDegreesInformationsSet().forEach(pd -> pd.delete());
 

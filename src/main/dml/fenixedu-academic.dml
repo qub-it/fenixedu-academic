@@ -1395,9 +1395,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         RegistrationRegimeType regimeType;
     }
     
-    class  student.RegistrationStateLog extends DomainOperationLog {
-    }
-
     class student.Student  {
         Integer number;
     }
@@ -1485,14 +1482,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
         class student.registrationStates.InactiveState extends student.registrationStates.RegistrationState {
         }
-
-    class student.registrationStates.RegistrationStateLog  {
-        DateTime whenCreated;
-        DateTime stateDate;
-        String stateType;
-    	EnrolmentAction action;
-        String who;
-    }
 
     class studentCurriculum.Credits  {
         Double givenCredits;
@@ -3116,20 +3105,6 @@ relation RegistrationStateExecutionInterval {
     ExecutionInterval playsRole executionInterval;
 }
 
-relation RegistrationStateLogRegistration {
-    student.registrationStates.RegistrationStateLog playsRole registrationStateLogs {
-        multiplicity *;
-    }
-    student.Registration playsRole registration;
-}
-
-relation RegistrationStateLog {
-    student.RegistrationStateLog playsRole registrationStateLog {
-        multiplicity *;
-    }
-    student.Registration playsRole registration;
-}
-
 relation RegistrationStudent {
     student.Registration playsRole registrations {
         multiplicity *;
@@ -3662,13 +3637,6 @@ relation RootDomainObjectRegistrationNumber {
 relation RootDomainObjectRegistrationState {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     student.registrationStates.RegistrationState playsRole registrationStates {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectRegistrationStateLog {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    student.registrationStates.RegistrationStateLog playsRole registrationStateLogs {
         multiplicity *;
     }
 }
