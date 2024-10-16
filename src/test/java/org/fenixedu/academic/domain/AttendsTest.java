@@ -33,8 +33,6 @@ public class AttendsTest {
 
     private static ExecutionInterval executionInterval;
 
-    private static StudentCurricularPlan studentCurricularPlan;
-
     private static final String ADMIN_USERNAME = "admin";
 
     @Rule
@@ -51,10 +49,9 @@ public class AttendsTest {
 
     private static void initLocalVars() {
         registration = Student.readStudentByNumber(1).getRegistrationStream().findAny().orElseThrow();
-        studentCurricularPlan = registration.getLastStudentCurricularPlan();
-        executionInterval = ExecutionInterval.findFirstCurrentChild(studentCurricularPlan.getDegree().getCalendar());
-        curricularCourse =
-                studentCurricularPlan.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
+        final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
+        executionInterval = ExecutionInterval.findFirstCurrentChild(scp.getDegree().getCalendar());
+        curricularCourse = scp.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
     }
 
     @Test
@@ -126,10 +123,10 @@ public class AttendsTest {
             final Enrolment enrolment = attends.getEnrolment();
 
             final Enrolment newEnrolment = new Enrolment();
-            newEnrolment.setStudentCurricularPlan(studentCurricularPlan);
+            newEnrolment.setStudentCurricularPlan(registration.getLastStudentCurricularPlan());
             newEnrolment.setDegreeModule(curricularCourse);
             newEnrolment.setExecutionPeriod(executionInterval);
-            
+
             newEnrolment.annul();
             attends.setEnrolment(newEnrolment);
 
