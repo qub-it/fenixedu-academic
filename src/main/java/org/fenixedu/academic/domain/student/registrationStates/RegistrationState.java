@@ -75,28 +75,24 @@ public class RegistrationState extends RegistrationState_Base {
             Comparator.comparing(RegistrationState::getExecutionInterval, ExecutionInterval.COMPARATOR_BY_BEGIN_DATE)
                     .thenComparing(DATE_COMPARATOR);
 
-    public RegistrationState() {
+    protected RegistrationState() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
 
-    private static RegistrationState createState(Registration registration, Person person, DateTime dateTime,
-            RegistrationStateType stateType) {
-        final RegistrationState newState = new RegistrationState();
-        newState.init(registration, person, dateTime);
-        newState.setType(stateType);
+    public static RegistrationState createRegistrationState(Registration registration, Person responsible, DateTime creation,
+            RegistrationStateType stateType, ExecutionInterval executionInterval) {
 
-        return newState;
-    }
+        final RegistrationState createdState = new RegistrationState();
+        createdState.setStateDate(creation != null ? creation : new DateTime());
+        createdState.setRegistration(registration);
+        createdState.setResponsiblePerson(responsible != null ? responsible : AccessControl.getPerson());
+        createdState.setType(stateType);
+        createdState.setExecutionInterval(executionInterval);
 
-    protected void init(Registration registration, Person responsiblePerson, DateTime stateDate) {
-        setStateDate(stateDate != null ? stateDate : new DateTime());
-        setRegistration(registration);
-        setResponsiblePerson(responsiblePerson != null ? responsiblePerson : AccessControl.getPerson());
-    }
+        registration.getStudent().updateStudentRole();
 
-    protected void init(Registration registration) {
-        init(registration, null, null);
+        return createdState;
     }
 
     public ExecutionYear getExecutionYear() {
@@ -104,26 +100,17 @@ public class RegistrationState extends RegistrationState_Base {
     }
 
     public void delete() {
-        deleteWithoutCheckRules();
-    }
 
-    public void deleteWithoutCheckRules() {
-        final Registration registration = getRegistration();
-        try {
-
-            org.fenixedu.academic.domain.student.RegistrationStateLog.createRegistrationStateLog(getRegistration(),
-                    Bundle.MESSAGING, "log.registration.registrationstate.removed", Optional.ofNullable(getType())
-                            .map(RegistrationStateType::getName).map(LocalizedString::getContent).orElse("-"),
-                    getRemarks());
-            setExecutionInterval(null);
-            setRegistration(null);
-            setResponsiblePerson(null);
-            setType(null);
-            setRootDomainObject(null);
-            super.deleteDomainObject();
-        } finally {
-            registration.getStudent().updateStudentRole();
-        }
+        org.fenixedu.academic.domain.student.RegistrationStateLog.createRegistrationStateLog(getRegistration(), Bundle.MESSAGING,
+                "log.registration.registrationstate.removed",
+                Optional.ofNullable(getType()).map(RegistrationStateType::getName).map(LocalizedString::getContent).orElse("-"),
+                getRemarks());
+        setExecutionInterval(null);
+        setRegistration(null);
+        setResponsiblePerson(null);
+        setType(null);
+        setRootDomainObject(null);
+        super.deleteDomainObject();
     }
 
     public RegistrationState getNext() {
@@ -147,14 +134,6 @@ public class RegistrationState extends RegistrationState_Base {
 
     public void setStateDate(YearMonthDay yearMonthDay) {
         super.setStateDate(yearMonthDay.toDateTimeAtMidnight());
-    }
-
-    public static RegistrationState createRegistrationState(Registration registration, Person responsible, DateTime creation,
-            RegistrationStateType stateType, ExecutionInterval executionInterval) {
-        RegistrationState createdState = RegistrationState.createState(registration, responsible, creation, stateType);
-        createdState.setExecutionInterval(executionInterval);
-        registration.getStudent().updateStudentRole();
-        return createdState;
     }
 
     public boolean isActive() {

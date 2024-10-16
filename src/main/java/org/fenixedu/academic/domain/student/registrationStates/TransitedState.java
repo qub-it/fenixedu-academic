@@ -18,15 +18,10 @@
  */
 package org.fenixedu.academic.domain.student.registrationStates;
 
-import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.student.Registration;
-import org.joda.time.DateTime;
-
 public class TransitedState extends TransitedState_Base {
 
-    protected TransitedState(final Registration registration, final Person responsiblePerson, final DateTime stateDate) {
+    protected TransitedState() {
         super();
-        init(registration, responsiblePerson, stateDate);
     }
 
 }

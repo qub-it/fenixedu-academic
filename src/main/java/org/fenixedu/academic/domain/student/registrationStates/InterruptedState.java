@@ -18,10 +18,6 @@
  */
 package org.fenixedu.academic.domain.student.registrationStates;
 
-import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.student.Registration;
-import org.joda.time.DateTime;
-
 /**
  * 
  * @author - Shezad Anavarali (shezad@ist.utl.pt)
@@ -29,9 +25,8 @@ import org.joda.time.DateTime;
  */
 public class InterruptedState extends InterruptedState_Base {
 
-    protected InterruptedState(Registration registration, Person person, DateTime dateTime) {
+    protected InterruptedState() {
         super();
-        init(registration, person, dateTime);
     }
 
 }
