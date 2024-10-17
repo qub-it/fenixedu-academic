@@ -1,6 +1,7 @@
 - Refactor: Cleanup RegistrationState domain class API [#qubIT-Fenix-5935]
 - Refactor: Remove deprecated subclasses of RegistrationState [#qubIT-Fenix-5944] 
 - Refactor: Remove deprecated RegistrationStateLog [#qubIT-Fenix-5935]
+- Improvement: Better dismissal log description [#qubIT-Fenix-5984]
 
 47.2.0 (16-10-2024)
 - Refactor: Delete deprecated RegistrationStateTypeEnum [#qubIT-Fenix-2590]

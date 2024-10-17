@@ -61,10 +61,10 @@ public class DismissalLog extends DismissalLog_Base {
             description.append(getDegreeModuleName());
         }
         if (hasCredits()) {
-            description.append(" ; ").append(getCredits().toString());
+            description.append("; ").append(getCredits().toString());
         }
         if (hasSourceDescription()) {
-            description.append(" ; ").append(getSourceDescription());
+            description.append("; ").append(getSourceDescription());
         }
         return description.toString();
     }
@@ -82,7 +82,7 @@ public class DismissalLog extends DismissalLog_Base {
     }
 
     protected String getLabel() {
-        return BundleUtil.getString(Bundle.APPLICATION, "label.dismissal");
+        return BundleUtil.getString(Bundle.APPLICATION, "label.dismissalLog");
     }
 
 }
