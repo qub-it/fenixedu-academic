@@ -90,8 +90,9 @@ public class EnrolmentTest {
         executionInterval = ExecutionInterval.findFirstCurrentChild(scp.getDegree().getCalendar());
 
         curricularCourse = scp.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
-        final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
-                .findAny().orElseThrow();
+        final Context context =
+                curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny()
+                        .orElseThrow();
 
         createEnrolment(scp, executionInterval, context, StudentTest.STUDENT_A_USERNAME);
 
@@ -162,16 +163,17 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolment_path() {
-        final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
-                .findAny().orElseThrow();
+        final Context context =
+                curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny()
+                        .orElseThrow();
 
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
 
-        final List<CourseGroup> contextPath = Stream
-                .concat(context.getParentCourseGroup().getAllParentCourseGroups().stream(),
-                        Stream.of(context.getParentCourseGroup()))
-                .sorted(Comparator.comparing(CourseGroup::getOneFullName)).collect(Collectors.toList());
+        final List<CourseGroup> contextPath = Stream.concat(context.getParentCourseGroup().getAllParentCourseGroups().stream(),
+                        Stream.of(context.getParentCourseGroup())).sorted(Comparator.comparing(CourseGroup::getOneFullName))
+                .collect(Collectors.toList());
 
         final List<CourseGroup> enrolmentPath = enrolment.getCurriculumGroup().getPath().stream()
                 .map(cg -> (CourseGroup) cg.getDegreeModule()).collect(Collectors.toList());
@@ -181,8 +183,9 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolment_hasImprovementForNextIntervals() {
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
         final ExecutionInterval nextInterval = executionInterval.getNext();
         final ExecutionInterval nextNextInterval = nextInterval.getNext();
@@ -223,8 +226,9 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolment_deleteImprovement() {
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
         final ExecutionInterval nextInterval = executionInterval.getNext();
 
@@ -259,19 +263,22 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolment_hasNotImprovementForInterval() {
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
-        final ExecutionInterval otherInterval = enrolment.getExecutionYear().getChildIntervals().stream()
-                .filter(ei -> ei != enrolment.getExecutionInterval()).findFirst().get();
+        final ExecutionInterval otherInterval =
+                enrolment.getExecutionYear().getChildIntervals().stream().filter(ei -> ei != enrolment.getExecutionInterval())
+                        .findFirst().get();
 
         assertEquals(false, enrolment.hasImprovementFor(otherInterval));
     }
 
     @Test
     public void testEnrolment_hasImprovementForSameInterval() {
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         final Optional<Attends> attendsBefore = enrolment.findAttends(enrolment.getExecutionInterval());
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
         final Optional<Attends> attendsAfter = enrolment.findAttends(enrolment.getExecutionInterval());
@@ -282,8 +289,9 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolment_hasImprovementForExecutionYear() {
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
 
         assertTrue(enrolment.hasImprovementFor(enrolment.getExecutionYear()));
@@ -293,8 +301,9 @@ public class EnrolmentTest {
     public void testEnrolment_duplicateSeasonEnrolment() {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.enrolmentEvaluation.duplicate.season");
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval());
     }
@@ -303,8 +312,9 @@ public class EnrolmentTest {
     public void testEnrolment_wrongImprovementSeason() {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("Evaluation season is not of improvement");
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
 
         final EvaluationSeason season = EvaluationSeason.findByCode(SPECIAL_SEASON_CODE).orElseThrow();
         final EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolment, season);
@@ -315,8 +325,9 @@ public class EnrolmentTest {
     public void testEnrolment_improvementWithoutInterval() {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("Improvement period is required");
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         createImprovementEvaluation(enrolment, null);
     }
 
@@ -324,8 +335,9 @@ public class EnrolmentTest {
     public void testEnrolment_improvementInvalidInterval() {
         exceptionRule.expect(IllegalArgumentException.class);
         exceptionRule.expectMessage("Improvement period is invalid, before original enrolment");
-        final Enrolment enrolment = registration
-                .getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar())).iterator().next();
+        final Enrolment enrolment =
+                registration.getEnrolments(ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar()))
+                        .iterator().next();
         createImprovementEvaluation(enrolment, enrolment.getExecutionInterval().getPrevious());
     }
 
@@ -374,10 +386,12 @@ public class EnrolmentTest {
     public void testSchoolClass_enrolments() {
         final ExecutionDegree executionDegree =
                 registration.getLastDegreeCurricularPlan().findExecutionDegree(executionInterval).orElseThrow();
-        final SchoolClass schoolClassA = SchoolClass.findBy(executionDegree, executionInterval, 1)
-                .filter(sc -> sc.getName().equals(SCHOOL_CLASS_A_NAME)).findAny().orElseThrow();
-        final SchoolClass schoolClassB = SchoolClass.findBy(executionDegree, executionInterval, 1)
-                .filter(sc -> sc.getName().equals(SCHOOL_CLASS_B_NAME)).findAny().orElseThrow();
+        final SchoolClass schoolClassA =
+                SchoolClass.findBy(executionDegree, executionInterval, 1).filter(sc -> sc.getName().equals(SCHOOL_CLASS_A_NAME))
+                        .findAny().orElseThrow();
+        final SchoolClass schoolClassB =
+                SchoolClass.findBy(executionDegree, executionInterval, 1).filter(sc -> sc.getName().equals(SCHOOL_CLASS_B_NAME))
+                        .findAny().orElseThrow();
 
         assertTrue(registration.findSchoolClass(executionInterval).isEmpty());
 
