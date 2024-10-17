@@ -175,8 +175,9 @@ public class EnrolmentTest {
                         Stream.of(context.getParentCourseGroup())).sorted(Comparator.comparing(CourseGroup::getOneFullName))
                 .collect(Collectors.toList());
 
-        final List<CourseGroup> enrolmentPath = enrolment.getCurriculumGroup().getPath().stream()
-                .map(cg -> (CourseGroup) cg.getDegreeModule()).collect(Collectors.toList());
+        final List<CourseGroup> enrolmentPath =
+                enrolment.getCurriculumGroup().getPath().stream().map(cg -> (CourseGroup) cg.getDegreeModule())
+                        .collect(Collectors.toList());
 
         assertEquals(contextPath, enrolmentPath);
     }
