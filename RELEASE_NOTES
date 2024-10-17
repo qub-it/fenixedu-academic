@@ -1,3 +1,4 @@
+48.0.0 (17-10-2024)
 - Refactor: Cleanup RegistrationState domain class API [#qubIT-Fenix-5935]
 - Refactor: Remove deprecated subclasses of RegistrationState [#qubIT-Fenix-5944] 
 - Refactor: Remove deprecated RegistrationStateLog [#qubIT-Fenix-5935]
