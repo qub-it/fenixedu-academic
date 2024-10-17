@@ -1444,44 +1444,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    student.registrationStates.RegistrationState playsRole registrationStates { multiplicity *; }
 		}    
 
-        class student.registrationStates.CanceledState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.ConcludedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.ExternalAbandonState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.FlunkedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.InternalAbandonState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.InterruptedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.MobilityState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.RegisteredState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.SchoolPartConcludedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.StudyPlanConcludedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.TransitionalState extends student.registrationStates.RegistrationState {
-        }
-        
-        class student.registrationStates.TransitedState extends student.registrationStates.RegistrationState {
-        }
-
-        class student.registrationStates.InactiveState extends student.registrationStates.RegistrationState {
-        }
 
     class studentCurriculum.Credits  {
         Double givenCredits;
