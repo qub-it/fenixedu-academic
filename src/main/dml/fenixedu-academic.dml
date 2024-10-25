@@ -5035,8 +5035,8 @@ class curricularRules.DegreeModuleSetApprovalRule extends curricularRules.Rule {
 		curricularRules.DegreeModuleSetApprovalRule playsRole degreeModuleSetApprovalRulesAsApprovalGroup { multiplicity *; }
 	}
 	
-// ==================== BEGIN: DynamicField ====================
-
+// ==================== BEGIN: DynamicField ====================   
+	
 class dml.DynamicFieldDescriptor {
 	String domainObjectClassName (REQUIRED);
 	String code (REQUIRED);
@@ -5090,5 +5090,21 @@ class dml.DynamicField {
 		dml.DynamicField playsRole dynamicField { multiplicity *; }
 		.org.fenixedu.academic.domain.student.Registration playsRole registration { multiplicity 0..1; }
 	}
+	
+class dml.DynamicFieldTag {
+	String code;
+	LocalizedString name;
+	String domainObjectClassName;
+}
+	
+	relation DynamicFieldTagRoot {
+		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+		dml.DynamicFieldTag playsRole dynamicFieldTag { multiplicity *; }
+	}
+	
+	relation DynamicFieldTagDescriptor {
+        dml.DynamicFieldTag playsRole tag { multiplicity 1; }
+        dml.DynamicFieldDescriptor playsRole descriptor { multiplicity *; }
+    } 
 
 // ==================== END: DynamicField ====================

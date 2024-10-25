@@ -1,3 +1,4 @@
+
 package org.fenixedu.academic.domain.dml;
 
 import java.lang.reflect.Method;
@@ -5,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,6 +22,7 @@ import pt.ist.fenixframework.DomainObject;
 @SuppressWarnings("rawtypes")
 public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
+    private static final String DEFAULT = "DEFAULT";
     static final private String DOMAIN_OBJECT_FIELD_NAME = "DynamicField";
     static final private String DOMAIN_OBJECT_METHOD_NAME_ADD = "add" + DOMAIN_OBJECT_FIELD_NAME;
     static final private String DOMAIN_OBJECT_METHOD_NAME_GET = "get" + DOMAIN_OBJECT_FIELD_NAME + "Set";
@@ -186,13 +189,22 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             return;
         }
 
+        if (findAtPosition(getDomainObjectClassName(), currentIndex - 1).getTag() != getTag()) {
+            return;
+        }
+
         final DynamicFieldDescriptor toChange = findAtPosition(getDomainObjectClassName(), currentIndex - 1);
         toChange.changeOrder(currentIndex);
         changeOrder(currentIndex - 1);
     }
 
     public void moveTop() {
+        int currentIndex;
         while (getOrder() != 0) {
+            currentIndex = getOrder();
+            if (findAtPosition(getDomainObjectClassName(), currentIndex - 1).getTag() != getTag()) {
+                break;
+            }
             moveUp();
         }
     }
@@ -203,13 +215,22 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             return;
         }
 
+        if (findAtPosition(getDomainObjectClassName(), currentIndex + 1).getTag() != getTag()) {
+            return;
+        }
+
         final DynamicFieldDescriptor toChange = findAtPosition(getDomainObjectClassName(), currentIndex + 1);
         toChange.changeOrder(currentIndex);
         changeOrder(currentIndex + 1);
     }
 
     public void moveBottom() {
+        int currentIndex;
         while (getOrder() < find(getDomainObjectClassName()).size() - 1) {
+            currentIndex = getOrder();
+            if (findAtPosition(getDomainObjectClassName(), currentIndex + 1).getTag() != getTag()) {
+                break;
+            }
             moveDown();
         }
     }
@@ -230,6 +251,8 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         if (!getFieldsSet().isEmpty()) {
             throw new IllegalArgumentException("error.DynamicFieldDescriptor.cannot.delete.with.field.instances");
         }
+
+        setTag(null);
 
         super.setRoot(null);
 
@@ -297,4 +320,21 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         return result;
     }
 
+    @Override
+    public void setTag(DynamicFieldTag tag) {
+        super.setTag(tag);
+    }
+
+    public void setOrCreateDefaultTag() {
+        DynamicFieldTag defaultTag = DynamicFieldTag.findByDomainObjectClassName(getDomainObjectClassName()).stream()
+                .filter(tag -> StringUtils.equals(tag.getCode(), DEFAULT)).findAny().orElse(null);
+
+        if (defaultTag == null) {
+            LocalizedString ls = new LocalizedString(Locale.ENGLISH, "Additional Information");
+            defaultTag = DynamicFieldTag.create(DEFAULT, ls.with(Locale.getDefault(), "Informação Adicional"),
+                    getDomainObjectClassName());
+        }
+
+        setTag(defaultTag);
+    }
 }
