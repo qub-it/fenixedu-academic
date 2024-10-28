@@ -189,22 +189,13 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             return;
         }
 
-        if (findAtPosition(getDomainObjectClassName(), currentIndex - 1).getTag() != getTag()) {
-            return;
-        }
-
         final DynamicFieldDescriptor toChange = findAtPosition(getDomainObjectClassName(), currentIndex - 1);
         toChange.changeOrder(currentIndex);
         changeOrder(currentIndex - 1);
     }
 
     public void moveTop() {
-        int currentIndex;
         while (getOrder() != 0) {
-            currentIndex = getOrder();
-            if (findAtPosition(getDomainObjectClassName(), currentIndex - 1).getTag() != getTag()) {
-                break;
-            }
             moveUp();
         }
     }
@@ -215,22 +206,13 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             return;
         }
 
-        if (findAtPosition(getDomainObjectClassName(), currentIndex + 1).getTag() != getTag()) {
-            return;
-        }
-
         final DynamicFieldDescriptor toChange = findAtPosition(getDomainObjectClassName(), currentIndex + 1);
         toChange.changeOrder(currentIndex);
         changeOrder(currentIndex + 1);
     }
 
     public void moveBottom() {
-        int currentIndex;
         while (getOrder() < find(getDomainObjectClassName()).size() - 1) {
-            currentIndex = getOrder();
-            if (findAtPosition(getDomainObjectClassName(), currentIndex + 1).getTag() != getTag()) {
-                break;
-            }
             moveDown();
         }
     }
