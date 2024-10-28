@@ -291,7 +291,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         }
     }
 
-    private static DynamicFieldDescriptor findAtPosition(final String domainClass, final int order) {
+    public static DynamicFieldDescriptor findAtPosition(final String domainClass, final int order) {
         return find(domainClass).stream().filter(df -> df.getOrder() == order).findFirst().orElse(null);
     }
 
