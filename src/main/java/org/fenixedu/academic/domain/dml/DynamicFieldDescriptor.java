@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,7 +21,6 @@ import pt.ist.fenixframework.DomainObject;
 @SuppressWarnings("rawtypes")
 public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
-    private static final String DEFAULT = "DEFAULT";
     static final private String DOMAIN_OBJECT_FIELD_NAME = "DynamicField";
     static final private String DOMAIN_OBJECT_METHOD_NAME_ADD = "add" + DOMAIN_OBJECT_FIELD_NAME;
     static final private String DOMAIN_OBJECT_METHOD_NAME_GET = "get" + DOMAIN_OBJECT_FIELD_NAME + "Set";
@@ -40,6 +38,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         setName(name);
         setFieldValueClassName(fieldValueClass);
         setRequired(required);
+        DynamicFieldTag.setOrCreateDefaultTag(this);
 
         checkRules();
 
@@ -300,23 +299,5 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         }
 
         return result;
-    }
-
-    @Override
-    public void setTag(DynamicFieldTag tag) {
-        super.setTag(tag);
-    }
-
-    public void setOrCreateDefaultTag() {
-        DynamicFieldTag defaultTag = DynamicFieldTag.findByDomainObjectClassName(getDomainObjectClassName()).stream()
-                .filter(tag -> StringUtils.equals(tag.getCode(), DEFAULT)).findAny().orElse(null);
-
-        if (defaultTag == null) {
-            LocalizedString ls = new LocalizedString(Locale.ENGLISH, "Additional Information");
-            defaultTag = DynamicFieldTag.create(DEFAULT, ls.with(Locale.getDefault(), "Informação Adicional"),
-                    getDomainObjectClassName());
-        }
-
-        setTag(defaultTag);
     }
 }

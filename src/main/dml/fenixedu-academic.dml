@@ -5092,9 +5092,9 @@ class dml.DynamicField {
 	}
 	
 class dml.DynamicFieldTag {
-	String code;
-	LocalizedString name;
-	String domainObjectClassName;
+	String code (REQUIRED);
+	LocalizedString name (REQUIRED);
+	String domainObjectClassName (REQUIRED);
 }
 	
 	relation DynamicFieldTagRoot {
