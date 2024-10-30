@@ -41,14 +41,9 @@ public class DynamicFieldTag extends DynamicFieldTag_Base {
     }
 
     public static DynamicFieldTag getOrCreateDefaultTag(String domainObjectClassName) {
-        Optional<DynamicFieldTag> optional = DynamicFieldTag.findByDomainObjectClassName(domainObjectClassName)
-                .filter(tag -> tag.getCode().equals(DEFAULT_CODE)).findAny();
-        if (optional.isEmpty()) {
-            return DynamicFieldTag.create(DEFAULT_CODE,
-                    BundleUtil.getLocalizedString(Bundle.APPLICATION, "dynamicFieldTag.defaultName"), domainObjectClassName);
-        } else {
-            return optional.get();
-        }
+        return DynamicFieldTag.findByDomainObjectClassName(domainObjectClassName)
+                .filter(tag -> tag.getCode().equals(DEFAULT_CODE)).findAny().orElseGet(() -> DynamicFieldTag.create(DEFAULT_CODE,
+                        BundleUtil.getLocalizedString(Bundle.APPLICATION, "dynamicFieldTag.defaultName"), domainObjectClassName));
     }
 
     public static Stream<DynamicFieldTag> findByDomainObjectClassName(String domainObjectClassName) {
