@@ -1,4 +1,4 @@
-- Feature: Adds DynamicFieldTag and relations with DynamicFieldDescriptor [#qubIT-Fenix-5940]
+- New feature: Adds DynamicFieldTag and relations with DynamicFieldDescriptor [#qubIT-Fenix-5940]
 
 48.0.0 (17-10-2024)
 - Refactor: Cleanup RegistrationState domain class API [#qubIT-Fenix-5935]

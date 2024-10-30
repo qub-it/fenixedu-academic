@@ -38,7 +38,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         setName(name);
         setFieldValueClassName(fieldValueClass);
         setRequired(required);
-        DynamicFieldTag.setOrCreateDefaultTag(this);
+        setTag(DynamicFieldTag.getOrCreateDefaultTag(domainObjectClass));
 
         checkRules();
 

@@ -5099,12 +5099,12 @@ class dml.DynamicFieldTag {
 	
 	relation DynamicFieldTagRoot {
 		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
-		dml.DynamicFieldTag playsRole dynamicFieldTag { multiplicity *; }
+		dml.DynamicFieldTag playsRole dynamicFieldTags { multiplicity *; }
 	}
 	
 	relation DynamicFieldTagDescriptor {
         dml.DynamicFieldTag playsRole tag { multiplicity 1; }
-        dml.DynamicFieldDescriptor playsRole descriptor { multiplicity *; }
+        dml.DynamicFieldDescriptor playsRole descriptors { multiplicity *; }
     } 
 
 // ==================== END: DynamicField ====================
