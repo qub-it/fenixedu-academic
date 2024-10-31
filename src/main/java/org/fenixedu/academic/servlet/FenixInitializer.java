@@ -29,9 +29,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Installation;
+import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
+import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.rest.Healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +63,18 @@ public class FenixInitializer implements ServletContextListener {
         registerHealthchecks();
 
         initializeAcademicPeriodOrder();
+
+        initializeDynamicFieldTags();
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeDynamicFieldTags() {
+        Bennu.getInstance().getDynamicFieldDescriptorSet().forEach((DynamicFieldDescriptor d) -> {
+            if (d.getTag() == null) {
+
+                d.setTag(DynamicFieldTag.getOrCreateDefaultTag(d.getDomainObjectClassName()));
+            }
+        });
     }
 
     private void registerHealthchecks() {
@@ -105,17 +120,17 @@ public class FenixInitializer implements ServletContextListener {
                 if (uri.indexOf("/student/fillInquiries.do") >= 0) {
                     return false;
                 }
-                if ((uri.indexOf("/teacher/executionCourseForumManagement.do") >= 0 || uri.indexOf(
-                        "/student/viewExecutionCourseForuns.do") >= 0) && request.getQueryString()
-                        .indexOf("method=viewThread") >= 0) {
+                if ((uri.indexOf("/teacher/executionCourseForumManagement.do") >= 0
+                        || uri.indexOf("/student/viewExecutionCourseForuns.do") >= 0)
+                        && request.getQueryString().indexOf("method=viewThread") >= 0) {
                     return false;
                 }
                 if (uri.indexOf("notAuthorized.do") >= 0) {
                     return false;
                 }
-                return (uri.indexOf("external/") == -1) && (uri.indexOf("login.do") == -1) && (uri.indexOf(
-                        "loginCAS.do") == -1) && (uri.indexOf("logoff.do") == -1) && (uri.indexOf(
-                        "publico/") == -1) && (uri.indexOf("siteMap.do") == -1);
+                return (uri.indexOf("external/") == -1) && (uri.indexOf("login.do") == -1) && (uri.indexOf("loginCAS.do") == -1)
+                        && (uri.indexOf("logoff.do") == -1) && (uri.indexOf("publico/") == -1)
+                        && (uri.indexOf("siteMap.do") == -1);
             }
 
         });

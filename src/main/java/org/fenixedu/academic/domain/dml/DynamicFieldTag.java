@@ -1,9 +1,7 @@
 package org.fenixedu.academic.domain.dml;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -31,9 +29,9 @@ public class DynamicFieldTag extends DynamicFieldTag_Base {
 
     @Override
     public void setCode(String code) {
-        Stream<DynamicFieldTag> tagsSet = DynamicFieldTag.findByDomainObjectClassName(getDomainObjectClassName());
 
-        if (code != getCode() && tagsSet.anyMatch(tag -> StringUtils.equals(tag.getCode(), code))) {
+        if (DynamicFieldTag.findByDomainObjectClassName(getDomainObjectClassName()).filter(tag -> tag != this)
+                .anyMatch(tag -> tag.getCode().equals(code))) {
             throw new DomainException("error.dynamicFieldTag.duplicated.code");
         }
 
