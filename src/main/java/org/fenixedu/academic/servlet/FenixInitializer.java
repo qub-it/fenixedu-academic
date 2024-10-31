@@ -19,6 +19,7 @@
 package org.fenixedu.academic.servlet;
 
 import java.util.Properties;
+import java.util.Set;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -39,6 +40,7 @@ import org.fenixedu.bennu.core.rest.Healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.qubit.terra.framework.services.logging.Log;
 import com.sun.mail.smtp.SMTPTransport;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.RequestChecksumFilter;
@@ -69,12 +71,20 @@ public class FenixInitializer implements ServletContextListener {
 
     @Atomic(mode = TxMode.WRITE)
     private void initializeDynamicFieldTags() {
-        Bennu.getInstance().getDynamicFieldDescriptorSet().forEach((DynamicFieldDescriptor d) -> {
-            if (d.getTag() == null) {
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of DynamicFieldTag");
+        Log.warn("---------------------------------------");
+        long start = System.currentTimeMillis();
 
+        Set<DynamicFieldDescriptor> dynamicFieldDescriptorSet = Bennu.getInstance().getDynamicFieldDescriptorSet();
+        dynamicFieldDescriptorSet.forEach((DynamicFieldDescriptor d) -> {
+            if (d.getTag() == null) {
                 d.setTag(DynamicFieldTag.getOrCreateDefaultTag(d.getDomainObjectClassName()));
             }
         });
+        
+        Log.warn("Finished population of DynamicFieldTag in DynamicFieldDescriptors in " + (System.currentTimeMillis() - start)
+                + " ms. Migrated " + dynamicFieldDescriptorSet.size() + " DynamicFieldDescriptor instances.");
     }
 
     private void registerHealthchecks() {
