@@ -29,7 +29,6 @@ import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CurriculumLineLog;
 import org.fenixedu.academic.domain.log.EnrolmentActionType;
-import org.fenixedu.academic.domain.log.EnrolmentLog;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -50,6 +49,10 @@ import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class EnrolmentTest {
+
+    private static final String STUDENT_B_USERNAME = "STUDENT_B_USERNAME";
+
+    private static final String STUDENT_B = "Student B";
 
     private static Registration registration;
 
@@ -395,7 +398,7 @@ public class EnrolmentTest {
 
     @Test
     public void testEnrolmentLog_createCurriculumLineLog() {
-        Student student = StudentTest.createStudent("Student B", "STUDENT_B_USERNAME");
+        Student student = StudentTest.createStudent(STUDENT_B, STUDENT_B_USERNAME);
         final Degree degree = Degree.find(DegreeTest.DEGREE_A_CODE);
         final DegreeCurricularPlan degreeCurricularPlan = degree.getDegreeCurricularPlansSet().stream()
                 .filter(dcp -> DegreeCurricularPlanTest.DCP_NAME_V1.equals(dcp.getName())).findAny().orElseThrow();
@@ -404,30 +407,28 @@ public class EnrolmentTest {
         final Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval))
                 .findAny().orElseThrow();
 
-        final int registrationLogCounter = newRegistration.getCurriculumLineLogs(executionInterval).size();
         final int curricularCourseLogCounter = curricularCourse.getCurriculumLineLogsSet().size();
         final int executionIntervalLogCounter = executionInterval.getCurriculumLineLogsSet().size();
 
-        createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "STUDENT_B_USERNAME");
+        createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, STUDENT_B_USERNAME);
 
-        assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), registrationLogCounter + 1);
+        CurriculumLineLog enrolLog = newRegistration.getCurriculumLineLogs(executionInterval).stream().findAny().get();
+        assertEquals(enrolLog.getType(), EnrolmentActionType.ENROL);
+        assertEquals(enrolLog.getAction(), EnrolmentAction.ENROL);
+
+        assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), 1);
         assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 1);
         assertEquals(executionInterval.getCurriculumLineLogsSet().size(), executionIntervalLogCounter + 1);
-    }
 
-    @Test
-    public void testCurriculumLineLog_setType() {
-        final CurriculumLineLog unenrolLog =
-                new EnrolmentLog(EnrolmentActionType.UNENROL, registration, curricularCourse, executionInterval, "testWho");
+        newRegistration.getEnrolments(executionInterval).stream().findAny().get().delete();
 
-        final CurriculumLineLog enrolLog =
-                new EnrolmentLog(EnrolmentActionType.ENROL, registration, curricularCourse, executionInterval, "testWho");
-
+        CurriculumLineLog unenrolLog =
+                newRegistration.getCurriculumLineLogs(executionInterval).stream().filter(l -> l != enrolLog).findAny().get();
         assertEquals(unenrolLog.getType(), EnrolmentActionType.UNENROL);
-        assertEquals(enrolLog.getType(), EnrolmentActionType.ENROL);
-
-        // Remove assertions below once EnrolmentAction refactoring is completed
         assertEquals(unenrolLog.getAction(), EnrolmentAction.UNENROL);
-        assertEquals(enrolLog.getAction(), EnrolmentAction.ENROL);
+
+        assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), 2);
+        assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 2);
+        assertEquals(executionInterval.getCurriculumLineLogsSet().size(), executionIntervalLogCounter + 2);
     }
 }
