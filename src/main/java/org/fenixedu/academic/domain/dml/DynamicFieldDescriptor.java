@@ -1,3 +1,4 @@
+
 package org.fenixedu.academic.domain.dml;
 
 import java.lang.reflect.Method;
@@ -37,6 +38,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         setName(name);
         setFieldValueClassName(fieldValueClass);
         setRequired(required);
+        setTag(DynamicFieldTag.getOrCreateDefaultTag(domainObjectClass));
 
         checkRules();
 
@@ -231,6 +233,8 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
             throw new IllegalArgumentException("error.DynamicFieldDescriptor.cannot.delete.with.field.instances");
         }
 
+        setTag(null);
+
         super.setRoot(null);
 
         super.deleteDomainObject();
@@ -268,7 +272,7 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
         }
     }
 
-    private static DynamicFieldDescriptor findAtPosition(final String domainClass, final int order) {
+    public static DynamicFieldDescriptor findAtPosition(final String domainClass, final int order) {
         return find(domainClass).stream().filter(df -> df.getOrder() == order).findFirst().orElse(null);
     }
 
@@ -296,5 +300,4 @@ public class DynamicFieldDescriptor extends DynamicFieldDescriptor_Base {
 
         return result;
     }
-
 }
