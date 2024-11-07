@@ -18,14 +18,11 @@
  */
 package org.fenixedu.academic.ui.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.fenixedu.academic.domain.Photograph;
-import org.fenixedu.academic.domain.photograph.PictureMode;
-import org.fenixedu.bennu.core.domain.Avatar;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -36,11 +33,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.Photograph;
+import org.fenixedu.academic.domain.photograph.PictureMode;
+import org.fenixedu.bennu.core.domain.Avatar;
+import org.fenixedu.bennu.core.domain.User;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Path("/user/photo")
 public class PhotographController {
@@ -61,6 +62,13 @@ public class PhotographController {
             size = 512;
         }
 
+        CacheControl cacheControl = new CacheControl();
+        cacheControl.setMaxAge(1209600);
+
+        // ChronoUnit.WEEKS was not supported so I used 14 days
+        Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK)
+                .expires(Date.from(Instant.now().plus(14, ChronoUnit.DAYS))).cacheControl(cacheControl);
+
         User user = User.findByUsername(username);
 
         if (user != null && user.getPerson() != null) {
@@ -74,27 +82,21 @@ public class PhotographController {
                 return Response.status(Response.Status.NOT_MODIFIED).build();
             }
 
-            CacheControl cacheControl = new CacheControl();
-            cacheControl.setMaxAge(1209600);
-
-            // ChronoUnit.WEEKS was not supported so I used 14 days
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK)
-                    .expires(Date.from(Instant.now().plus(14, ChronoUnit.DAYS))).cacheControl(cacheControl).tag(entityTag);
             if (personalPhoto != null) {
                 responseBuilder.type(personalPhoto.getOriginal().getPictureFileFormat().getMimeType());
                 responseBuilder.entity(personalPhoto.getCustomAvatar(size, size, PictureMode.ZOOM));
+                responseBuilder.tag(new EntityTag(personalPhoto.getExternalId() + "-" + size, true));
                 return responseBuilder.build();
-            } else {
-                try (InputStream mm = PhotographController.class.getClassLoader()
-                        .getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
-                    responseBuilder.type("image/png");
-                    responseBuilder.entity(Avatar.process(mm, "image/png", size));
-                    return responseBuilder.build();
-                }
             }
         }
 
-        throw BennuCoreDomainException.resourceNotFound(username);
+        try (InputStream mm =
+                PhotographController.class.getClassLoader().getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
+            responseBuilder.type("image/png");
+            responseBuilder.entity(Avatar.process(mm, "image/png", size));
+            responseBuilder.tag(new EntityTag("mm-av", true));
+            return responseBuilder.build();
+        }
     }
 
     @GET
