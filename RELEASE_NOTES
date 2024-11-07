@@ -1,6 +1,7 @@
 - Refactor: Cleanup deprecated methods in student entity [#qubIT-Fenix-1603]
 - Refactor: Improve student creation constructor [#qubIT-Fenix-6315]
 - Refactor: Deletes UnitBasedSender [#qubIT-Omnis-7780]
+- Improvement: PhotographController now never returns 404 [#qubIT-Fenix-6024]
 
 48.5.0 (13-01-2025)
 - Refactor: Remove deprecated class EnrolmentAction [#qubIT-Fenix-5876]
