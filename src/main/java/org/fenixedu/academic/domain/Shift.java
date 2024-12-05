@@ -112,6 +112,14 @@ public class Shift extends Shift_Base {
         setComment(comment);
     }
 
+    @Override
+    public void setCourseLoadType(final CourseLoadType courseLoadType) {
+        if (getCourseLoadType() != courseLoadType && !getShiftEnrolmentsSet().isEmpty()) {
+            throw new DomainException("error.Shift.cannotChangeLoadType.enrolmentsExists");
+        }
+        super.setCourseLoadType(courseLoadType);
+    }
+
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
