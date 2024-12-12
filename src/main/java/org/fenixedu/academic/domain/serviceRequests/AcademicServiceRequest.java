@@ -43,9 +43,6 @@ import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicT
 import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.academic.domain.util.email.Message;
-import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.domain.util.email.Sender;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -373,32 +370,11 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
         conclude(AccessControl.getPerson(), situationDate, justification);
         if (sendEmail) {
-            sendConcludeEmail();
+            Signal.emit("academicServiceRequest.sendConcludeEmailEvent", new DomainObjectEvent<AcademicServiceRequest>(this));
         }
 
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
                 new DomainObjectEvent<AcademicServiceRequest>(this));
-    }
-
-    private void sendConcludeEmail() {
-        String body = BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message1");
-        body += " " + getServiceRequestNumberYear();
-        body += " " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message2");
-        body += " '" + getDescription();
-        body += "' " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message3");
-
-        if (getAcademicServiceRequestType() == AcademicServiceRequestType.SPECIAL_SEASON_REQUEST) {
-            body += "\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR4B");
-            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR5");
-        } else {
-
-            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message4");
-
-        }
-
-        final Sender sender = getAdministrativeOffice().getUnit().getUnitBasedSenderSet().iterator().next();
-        final Recipient recipient = new Recipient(getPerson().getUser().groupOf());
-        new Message(sender, sender.getReplyTosSet(), recipient.asCollection(), getDescription(), body, "");
     }
 
     @Atomic
@@ -873,7 +849,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         if (PermissionService.hasAccess("ACADEMIC_REQUISITIONS", Authenticate.getUser())) {
             programs.addAll(Degree.findAll().collect(Collectors.toSet()));
         }
-        
+
         Collection<AcademicServiceRequest> possible = null;
         if (year != null) {
             possible = AcademicServiceRequestYear.getAcademicServiceRequests(year);

@@ -40,7 +40,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.util.email.UnitBasedSender;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -48,8 +47,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.YearMonthDay;
-
-import pt.ist.fenixframework.Atomic;
 
 public class Unit extends Unit_Base {
 
@@ -349,18 +346,6 @@ public class Unit extends Unit_Base {
 
     public Collection<Unit> getSubUnits(final PartyTypeEnum type) {
         return (Collection<Unit>) getChildParties(type, Unit.class);
-    }
-
-    @Atomic
-    /*
-     * @See UnitMailSenderAction
-     */
-    public UnitBasedSender getOneUnitBasedSender() {
-        if (!getUnitBasedSenderSet().isEmpty()) {
-            return getUnitBasedSenderSet().iterator().next();
-        } else {
-            return UnitBasedSender.newInstance(this);
-        }
     }
 
     public Accountability addParentUnit(Unit parentUnit, AccountabilityType accountabilityType) {
