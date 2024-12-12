@@ -19,7 +19,9 @@
 package org.fenixedu.academic.domain.util.email;
 
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.bennu.core.domain.Bennu;
+
+import com.qubit.terra.framework.services.ServiceProvider;
+import com.qubit.terra.framework.services.communication.SystemSenderEmailSupplier;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -27,7 +29,7 @@ public class PersonSender extends PersonSender_Base {
 
     public PersonSender() {
         super();
-        setFromAddress(Bennu.getInstance().getSystemSender().getFromAddress());
+        setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
         addReplyTos(new CurrentUserReplyTo());
     }
 
