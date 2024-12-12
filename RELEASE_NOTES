@@ -1,3 +1,5 @@
+- Refactor: Completely removes SystemSender from fenixedu-academic [#qubIT-Omnis-8405]
+
 49.1.0 (29-01-2025)
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
 - Improvement: Replaces all code that sends academic-core Messages and replaces with signals that will send CommunicationMessage [#qubIT-Omnis-8403] 
@@ -8,7 +10,6 @@
 - Refactor: Delete deprecated OccupationPeriodType enum [#qubIT-Fenix-1783]
 - Refactor: Drops usages of SystemSender [#qubIT-Omnis-7786]
 - Improvement: Removes JobQueueDispatcher.java [#qubIT-Omnis-7802]
-- Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
 - Bug fix: Set first scp start date the same as the registration [#UL-FL-12151]
 
 48.7.0 (20-01-2025)
