@@ -5091,6 +5091,11 @@ class dml.DynamicField {
 		.org.fenixedu.academic.domain.student.Registration playsRole registration { multiplicity 0..1; }
 	}
 	
+	relation DynamicFieldsForTeacher {
+		dml.DynamicField playsRole dynamicField { multiplicity *; }
+		Teacher playsRole teacher { multiplicity 0..1; }
+	}
+	
 class dml.DynamicFieldTag {
 	String code (REQUIRED);
 	LocalizedString name (REQUIRED);

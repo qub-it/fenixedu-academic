@@ -1,3 +1,4 @@
+- New feature: Add dynamic fields to teacher [#UL-FC-5015]
 - Improvement: Prevent changing shift load type when students are already enrolled [#qubIT-Fenix-6234]
 
 48.1.0 (05-11-2024)
