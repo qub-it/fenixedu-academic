@@ -100,14 +100,14 @@ public class ExecutionsAndSchedulesTest {
         new SchoolClass(executionDegree, executionInterval, SCHOOL_CLASS_B_NAME, 1);
     }
 
-    static OccupationPeriod createDefaultOccupationPeriod(Iterator<Interval> intervals) {
+    public static OccupationPeriod createDefaultOccupationPeriod(Iterator<Interval> intervals) {
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
         final OccupationPeriod occupationPeriod = new OccupationPeriod(intervals);
         new OccupationPeriodReference(occupationPeriod, executionDegree, executionInterval, new CurricularYearList(List.of(-1)));
         return occupationPeriod;
     }
 
-    static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime, final LocalTime endTime,
+    public static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime, final LocalTime endTime,
             final FrequencyType frequency, final OccupationPeriod period, final Space space) {
 
         final DiaSemana diaSemana = DiaSemana.fromWeekDay(weekDay);
