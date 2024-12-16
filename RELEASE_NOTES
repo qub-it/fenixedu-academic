@@ -1,3 +1,5 @@
+- New feature: Add Person Identifier [#UL-REIT-4156]
+
 48.2.0 (16-12-2024)
 - Refactor: Deletes DepartmentMemberBasedSender [#qubIT-Omnis-7772]
 - New feature: Add dynamic fields to teacher [#UL-FC-5015]
