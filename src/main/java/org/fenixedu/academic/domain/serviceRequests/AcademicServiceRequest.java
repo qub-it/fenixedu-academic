@@ -43,9 +43,6 @@ import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicT
 import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.academic.domain.util.email.Message;
-import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.domain.util.email.Sender;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -265,26 +262,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     }
 
     @Atomic
-    final public void process() throws DomainException {
-        process(AccessControl.getPerson());
-
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
-    }
-
-    final public void process(final Person responsible) throws DomainException {
-        edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.PROCESSING, responsible));
-    }
-
-    final public void process(final Person responsible, final YearMonthDay situationDate) throws DomainException {
-        edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.PROCESSING, responsible, situationDate, ""));
-    }
-
-    final public void process(final YearMonthDay situationDate) throws DomainException {
-        process(AccessControl.getPerson(), situationDate);
-    }
-
-    @Atomic
     public void sendToExternalEntity(final YearMonthDay sendDate, final String description) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.SENT_TO_EXTERNAL_ENTITY,
                 AccessControl.getPerson(), sendDate, description));
@@ -315,90 +292,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
                 new DomainObjectEvent<AcademicServiceRequest>(this));
-    }
-
-    final public void concludeServiceRequest() {
-        conclude(AccessControl.getPerson());
-    }
-
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude() {
-        conclude(AccessControl.getPerson());
-    }
-
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible) {
-        edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible));
-    }
-
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final YearMonthDay situationDate, final String justification) {
-        conclude(AccessControl.getPerson(), situationDate, justification);
-
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
-    }
-
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible, final YearMonthDay situationDate) {
-        conclude(responsible, situationDate, "");
-    }
-
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible, final YearMonthDay situationDate, final String justification) {
-        edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible, situationDate,
-                justification));
-    }
-
-    @Atomic
-    @Deprecated
-    /**
-     * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
-        conclude(AccessControl.getPerson(), situationDate, justification);
-        if (sendEmail) {
-            sendConcludeEmail();
-        }
-
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
-    }
-
-    private void sendConcludeEmail() {
-        String body = BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message1");
-        body += " " + getServiceRequestNumberYear();
-        body += " " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message2");
-        body += " '" + getDescription();
-        body += "' " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message3");
-
-        if (getAcademicServiceRequestType() == AcademicServiceRequestType.SPECIAL_SEASON_REQUEST) {
-            body += "\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR4B");
-            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR5");
-        } else {
-
-            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message4");
-
-        }
-
-        final Sender sender = getAdministrativeOffice().getUnit().getUnitBasedSenderSet().iterator().next();
-        final Recipient recipient = new Recipient(getPerson().getUser().groupOf());
-        new Message(sender, sender.getReplyTosSet(), recipient.asCollection(), getDescription(), body, "");
     }
 
     @Atomic
@@ -873,7 +766,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         if (PermissionService.hasAccess("ACADEMIC_REQUISITIONS", Authenticate.getUser())) {
             programs.addAll(Degree.findAll().collect(Collectors.toSet()));
         }
-        
+
         Collection<AcademicServiceRequest> possible = null;
         if (year != null) {
             possible = AcademicServiceRequestYear.getAcademicServiceRequests(year);
