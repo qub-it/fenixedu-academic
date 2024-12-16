@@ -1,3 +1,4 @@
+48.2.0 (16-12-2024)
 - Refactor: Deletes DepartmentMemberBasedSender [#qubIT-Omnis-7772]
 - New feature: Add dynamic fields to teacher [#UL-FC-5015]
 - Improvement: Prevent changing shift load type when students are already enrolled [#qubIT-Fenix-6234]
