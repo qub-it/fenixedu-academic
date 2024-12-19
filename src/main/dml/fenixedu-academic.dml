@@ -1252,6 +1252,51 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class person.IdDocumentTypeObject  {
         IDDocumentType value;
     }
+    
+    class person.personIdentifier.PersonIdentifier {
+    	String identifier (REQUIRED);
+    }
+    
+    class person.personIdentifier.PersonIdentifierType {
+    	String code (REQUIRED);
+    	LocalizedString name (REQUIRED);
+    }
+    
+	relation PersonPersonIdentifier {
+		Person playsRole person {
+			multiplicity 1;
+		}
+		person.personIdentifier.PersonIdentifier playsRole identifiers {
+			multiplicity *;
+		}
+	}
+	
+	relation PersonIdentifierTypePersonIdentifier{
+		person.personIdentifier.PersonIdentifierType playsRole type {
+			multiplicity 1;
+		}
+		person.personIdentifier.PersonIdentifier playsRole identifiers {
+			multiplicity *;
+		}
+	}
+	
+	relation RootDomainObjectPersonIdentifier {
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject{
+			multiplicity 1..1;
+		}
+	    person.personIdentifier.PersonIdentifier playsRole personIdentifiers {
+	        multiplicity *;
+	    }
+	}
+
+	relation RootDomainObjectPersonIdentifierType {
+	    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject{
+			multiplicity 1..1;
+		}
+	    person.personIdentifier.PersonIdentifierType playsRole personIdentifierTypes {
+	        multiplicity *;
+	    }
+	}
 
     class space.EventSpaceOccupation extends .org.fenixedu.spaces.domain.occupation.Occupation {                
     }
