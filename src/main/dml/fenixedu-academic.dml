@@ -1254,12 +1254,12 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     
     class person.personIdentifier.PersonIdentifier {
-    	String identifier;
+    	String identifier (REQUIRED);
     }
     
     class person.personIdentifier.PersonIdentifierType {
-    	String code;
-    	LocalizedString name;
+    	String code (REQUIRED);
+    	LocalizedString name (REQUIRED);
     }
 
     class space.EventSpaceOccupation extends .org.fenixedu.spaces.domain.occupation.Occupation {                
