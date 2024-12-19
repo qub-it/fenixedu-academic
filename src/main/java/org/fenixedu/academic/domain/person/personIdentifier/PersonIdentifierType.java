@@ -16,7 +16,7 @@ import com.qubit.terra.qubAccessControl.domain.AccessControlProfile;
 
 public class PersonIdentifierType extends PersonIdentifierType_Base {
 
-    public PersonIdentifierType() {
+    protected PersonIdentifierType() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
