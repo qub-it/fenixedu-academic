@@ -24,9 +24,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.BibliographicReference;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -93,7 +96,10 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setCredits(existingInformation.getCredits());
         setAcronym(existingInformation.getAcronym());
 
-        getBibliographiesSet().addAll(existingInformation.getBibliographiesSet());
+        Set<BibliographicReference> copyBibliographies =
+                existingInformation.getBibliographiesSet().stream().map(b -> b.copy()).collect(Collectors.toSet());
+
+        getBibliographiesSet().addAll(copyBibliographies);
 
         setEvaluationMethod(existingInformation.getEvaluationMethod());
         setEvaluationMethodEn(existingInformation.getEvaluationMethodEn());
