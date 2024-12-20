@@ -1625,10 +1625,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class util.email.ReplyTo  {
     }
     
-    class util.email.ConcreteReplyTo extends util.email.ReplyTo {
-        String replyToAddress;
-    }
-
     class util.email.PersonReplyTo extends util.email.ReplyTo { }
     
     class util.email.ExecutionCourseReplyTo extends util.email.ReplyTo { }
