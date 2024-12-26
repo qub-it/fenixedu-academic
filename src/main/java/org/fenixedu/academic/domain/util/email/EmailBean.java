@@ -38,7 +38,6 @@ public class EmailBean implements Serializable {
     private Set<Recipient> recipients;
     private String tos, ccs, bccs;
     private String subject, message, htmlMessage;
-    private Set<ReplyTo> replyTos;
     private DateTime createdDate;
 
     public EmailBean() {
@@ -77,27 +76,6 @@ public class EmailBean implements Serializable {
             this.recipients = new HashSet<Recipient>();
             for (final Recipient recipient : recipients) {
                 this.recipients.add(recipient);
-            }
-        }
-    }
-
-    public List<ReplyTo> getReplyTos() {
-        final List<ReplyTo> result = new ArrayList<ReplyTo>();
-        if (replyTos != null) {
-            for (final ReplyTo replyTo : replyTos) {
-                result.add(replyTo);
-            }
-        }
-        return result;
-    }
-
-    public void setReplyTos(List<ReplyTo> replyTos) {
-        if (replyTos == null) {
-            this.replyTos = null;
-        } else {
-            this.replyTos = new HashSet<ReplyTo>();
-            for (final ReplyTo replyTo : replyTos) {
-                this.replyTos.add(replyTo);
             }
         }
     }
@@ -208,7 +186,7 @@ public class EmailBean implements Serializable {
 
         final String bccs = getBccs() == null ? null : getBccs().replace(" ", "");
         final String htmlMessage = getHtmlMessage();
-        return new Message(getSender(), getReplyTos(), getRecipients(), getSubject(), message.toString(), bccs, htmlMessage);
+        return new Message(getSender(), getRecipients(), getSubject(), message.toString(), bccs, htmlMessage);
     }
 
     @Atomic
