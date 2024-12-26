@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accessControl.StudentGroup;
 import org.fenixedu.academic.domain.accessControl.TeacherGroup;
 import org.fenixedu.academic.domain.accessControl.TeacherResponsibleOfExecutionCourseGroup;
@@ -41,7 +42,7 @@ public class ExecutionCourseSender extends ExecutionCourseSender_Base {
         super();
         setCourse(Objects.requireNonNull(executionCourse));
         setFromAddress(Bennu.getInstance().getSystemSender().getFromAddress());
-        addReplyTos(new ExecutionCourseReplyTo());
+//        addReplyTos(new ExecutionCourseReplyTo());
         addReplyTos(new CurrentUserReplyTo());
         setMembers(TeacherGroup.get(executionCourse));
         final String labelECTeachers = BundleUtil.getString(Bundle.SITE,
@@ -84,4 +85,7 @@ public class ExecutionCourseSender extends ExecutionCourseSender_Base {
         return sender == null ? new ExecutionCourseSender(ec) : sender;
     }
 
+    public String getReplyToAddress(final Person person) {
+        return this.getCourse().getEmail();
+    }
 }

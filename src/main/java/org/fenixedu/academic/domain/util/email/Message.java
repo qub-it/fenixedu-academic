@@ -31,10 +31,10 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
+import com.google.common.base.Strings;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
-
-import com.google.common.base.Strings;
 
 public class Message extends Message_Base {
 
@@ -60,13 +60,12 @@ public class Message extends Message_Base {
     }
 
     public Message(final Sender sender, String to, String subject, String body) {
-        this(sender, sender.getReplyTosSet(), null, subject, body, to);
+        this(sender, null, subject, body, to);
     }
 
-    public Message(final Sender sender, final Collection<? extends ReplyTo> replyTos, final Collection<Recipient> tos,
-            final Collection<Recipient> ccs, final Collection<Recipient> recipientsBccs, final String subject, final String body,
-            final Set<String> bccs) {
-        this(sender, replyTos, recipientsBccs, subject, body, bccs);
+    public Message(final Sender sender, final Collection<Recipient> tos, final Collection<Recipient> ccs,
+            final Collection<Recipient> recipientsBccs, final String subject, final String body, final Set<String> bccs) {
+        this(sender, recipientsBccs, subject, body, bccs);
         if (tos != null) {
             for (final Recipient recipient : tos) {
                 addTos(recipient);
@@ -79,10 +78,10 @@ public class Message extends Message_Base {
         }
     }
 
-    public Message(final Sender sender, final Collection<? extends ReplyTo> replyTos, final Collection<Recipient> tos,
-            final Collection<Recipient> ccs, final Collection<Recipient> recipientsBccs, final String subject, final String body,
-            final Set<String> bccs, final String htmlBody) {
-        this(sender, replyTos, recipientsBccs, subject, body, bccs);
+    public Message(final Sender sender, final Collection<Recipient> tos, final Collection<Recipient> ccs,
+            final Collection<Recipient> recipientsBccs, final String subject, final String body, final Set<String> bccs,
+            final String htmlBody) {
+        this(sender, recipientsBccs, subject, body, bccs);
         if (tos != null) {
             for (final Recipient recipient : tos) {
                 addTos(recipient);
@@ -96,27 +95,21 @@ public class Message extends Message_Base {
     }
 
     public Message(final Sender sender, final Recipient recipient, final String subject, final String body) {
-        this(sender, sender.getConcreteReplyTos(), Collections.singleton(recipient), subject, body, new EmailAddressList(
-                Collections.EMPTY_LIST).toString());
+        this(sender, Collections.singleton(recipient), subject, body, new EmailAddressList(Collections.EMPTY_LIST).toString());
     }
 
-    public Message(final Sender sender, final Collection<? extends ReplyTo> replyTos, final Collection<Recipient> recipients,
-            final String subject, final String body, final Set<String> bccs) {
-        this(sender, replyTos, recipients, subject, body, new EmailAddressList(bccs).toString());
+    public Message(final Sender sender, final Collection<Recipient> recipients, final String subject, final String body,
+            final Set<String> bccs) {
+        this(sender, recipients, subject, body, new EmailAddressList(bccs).toString());
     }
 
-    public Message(final Sender sender, final Collection<? extends ReplyTo> replyTos, final Collection<Recipient> recipients,
-            final String subject, final String body, final String bccs) {
+    public Message(final Sender sender, final Collection<Recipient> recipients, final String subject, final String body,
+            final String bccs) {
         super();
         final Bennu rootDomainObject = Bennu.getInstance();
         setRootDomainObject(rootDomainObject);
         setRootDomainObjectFromPendingRelation(rootDomainObject);
         setSender(sender);
-        if (replyTos != null) {
-            for (final ReplyTo replyTo : replyTos) {
-                addReplyTos(replyTo);
-            }
-        }
         if (recipients != null) {
             for (final Recipient recipient : recipients) {
                 addRecipients(recipient);
@@ -130,18 +123,13 @@ public class Message extends Message_Base {
         setCreated(new DateTime());
     }
 
-    public Message(final Sender sender, final Collection<? extends ReplyTo> replyTos, final Collection<Recipient> recipients,
-            final String subject, final String body, final String bccs, final String htmlBody) {
+    public Message(final Sender sender, final Collection<Recipient> recipients, final String subject, final String body,
+            final String bccs, final String htmlBody) {
         super();
         final Bennu rootDomainObject = Bennu.getInstance();
         setRootDomainObject(rootDomainObject);
         setRootDomainObjectFromPendingRelation(rootDomainObject);
         setSender(sender);
-        if (replyTos != null) {
-            for (final ReplyTo replyTo : replyTos) {
-                addReplyTos(replyTo);
-            }
-        }
         if (recipients != null) {
             for (final Recipient recipient : recipients) {
                 addRecipients(recipient);
@@ -171,9 +159,6 @@ public class Message extends Message_Base {
         }
         for (final Recipient recipient : getCcsSet()) {
             removeCcs(recipient);
-        }
-        for (final ReplyTo replyTo : getReplyTosSet()) {
-            replyTo.safeDelete();
         }
         for (final Email email : getEmailsSet()) {
             email.delete();

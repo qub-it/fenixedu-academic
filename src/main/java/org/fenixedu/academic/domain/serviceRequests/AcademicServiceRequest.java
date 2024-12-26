@@ -398,7 +398,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
         final Sender sender = getAdministrativeOffice().getUnit().getUnitBasedSenderSet().iterator().next();
         final Recipient recipient = new Recipient(getPerson().getUser().groupOf());
-        new Message(sender, sender.getReplyTosSet(), recipient.asCollection(), getDescription(), body, "");
+        new Message(sender, recipient.asCollection(), getDescription(), body, "");
     }
 
     @Atomic
@@ -873,7 +873,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         if (PermissionService.hasAccess("ACADEMIC_REQUISITIONS", Authenticate.getUser())) {
             programs.addAll(Degree.findAll().collect(Collectors.toSet()));
         }
-        
+
         Collection<AcademicServiceRequest> possible = null;
         if (year != null) {
             possible = AcademicServiceRequestYear.getAcademicServiceRequests(year);

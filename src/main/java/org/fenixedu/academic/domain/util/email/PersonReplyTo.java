@@ -34,11 +34,6 @@ public class PersonReplyTo extends PersonReplyTo_Base {
     }
 
     @Override
-    public String getReplyToAddress() {
-        return getPerson().getEmail();
-    }
-
-    @Override
     public void safeDelete() {
         if (getPerson() == null) {
             super.safeDelete();
