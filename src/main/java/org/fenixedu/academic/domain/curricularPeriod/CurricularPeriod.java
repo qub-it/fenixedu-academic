@@ -71,15 +71,9 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
         return sortedChilds;
     }
 
-    private CurricularPeriod findChild(AcademicPeriod academicPeriod, Integer order) {
-
-        for (CurricularPeriod curricularPeriod : getChildsSet()) {
-            if (curricularPeriod.getChildOrder().equals(order) && curricularPeriod.getAcademicPeriod().equals(academicPeriod)) {
-                return curricularPeriod;
-            }
-        }
-
-        return null;
+    public Optional<CurricularPeriod> findChild(AcademicPeriod academicPeriod, int order) {
+        return getChildsSet().stream().filter(cp -> cp.getChildOrder().intValue() == order)
+                .filter(cp -> cp.getAcademicPeriod().equals(academicPeriod)).findAny();
     }
 
     public CurricularPeriod getCurricularPeriod(CurricularPeriodInfoDTO... curricularPeriodsPaths) {
@@ -89,7 +83,7 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
         CurricularPeriod curricularPeriod = this;
 
         for (CurricularPeriodInfoDTO path : curricularPeriodsPaths) {
-            curricularPeriod = curricularPeriod.findChild(path.getPeriodType(), path.getOrder());
+            curricularPeriod = curricularPeriod.findChild(path.getPeriodType(), path.getOrder().intValue()).orElse(null);
 
             if (curricularPeriod == null) {
                 return null;
@@ -132,7 +126,7 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     public void delete() {
 
         if (!getContextsSet().isEmpty()) {
-            throw new DomainException("error.delete.CurricularPeriod.existingContexts");
+            throw new DomainException("error.delete.CurricularPeriod.existingContexts", getFullLabel());
         }
 
         setDegreeCurricularPlan(null);

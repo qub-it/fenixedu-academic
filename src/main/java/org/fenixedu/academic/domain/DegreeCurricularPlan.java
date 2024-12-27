@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -141,6 +142,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super.setName(name);
     }
 
+    @Deprecated(forRemoval = true)
     protected DegreeCurricularPlan(final Degree degree, final String name, final DegreeCurricularPlanState state,
             final Date inicialDate, final Date endDate, final Integer degreeDuration, final Integer minimalYearForOptionalCourses,
             final Double neededCredits, final Integer numerusClausus, final String annotation) {
@@ -153,6 +155,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 numerusClausus, annotation);
     }
 
+    @Deprecated(forRemoval = true)
     private void oldStructureFieldsChange(final Date inicialDate, final Date endDate, final Integer degreeDuration,
             final Integer minimalYearForOptionalCourses, final Double neededCredits, final Integer numerusClausus,
             final String annotation) {
@@ -174,6 +177,15 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         this.setAnotation(annotation);
     }
 
+    public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration) {
+        this(degree, name);
+        createDefaultCourseGroups();
+        editDuration(duration);
+        setState(DegreeCurricularPlanState.ACTIVE);
+        newStructureFieldsChange(CurricularStage.DRAFT, null);
+    }
+
+    @Deprecated(forRemoval = true)
     public DegreeCurricularPlan(final Degree degree, final String name, final CurricularPeriod curricularPeriod) {
         this(degree, name);
 
@@ -182,7 +194,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
         createDefaultCourseGroups();
 
-        setDegreeStructure(curricularPeriod);
+        super.setDegreeStructure(curricularPeriod);
         setState(DegreeCurricularPlanState.ACTIVE);
 
         newStructureFieldsChange(CurricularStage.DRAFT, null);
@@ -225,6 +237,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         this.setName(name);
     }
 
+    @Deprecated(forRemoval = true)
     public void edit(final String name, final DegreeCurricularPlanState state, final Date inicialDate, final Date endDate,
             final Integer degreeDuration, final Integer minimalYearForOptionalCourses, final Double neededCredits,
             final Integer numerusClausus, final String annotation) {
@@ -711,41 +724,55 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 || executionDegrees.iterator().next().getExecutionYear().isCurrent();
     }
 
-    @Atomic
-    public void editDuration(final AcademicPeriod duration) {
-
-        if (duration == null) {
-            throw new DomainException("error.degreeCurricularPlan.duration.cannot.be.null");
+    public void editDuration(final AcademicPeriod newDuration) {
+        if (!(newDuration instanceof AcademicYears)) {
+            throw new DomainException("error.degreeCurricularPlan.duration.must.be.specified.in.years");
         }
 
-        if (!getDegreeStructure().getAcademicPeriod().equals(duration)) {
-            setDegreeStructure(new CurricularPeriod(duration));
+        final CurricularPeriod currentStructure = getDegreeStructure();
+        if (currentStructure == null) {
+            super.setDegreeStructure(new CurricularPeriod(newDuration));
+            return;
         }
+
+        final AcademicPeriod currentDuration = currentStructure.getAcademicPeriod();
+        if (currentDuration.equals(newDuration)) {
+            return;
+        }
+
+        if (newDuration.getWeight() == 1) { // periods tree will shrink from three to two levels
+            currentStructure.findChild(AcademicPeriod.YEAR, 1).ifPresentOrElse(existing1stYearPeriod -> {
+                existing1stYearPeriod.setParent(null);
+                super.setDegreeStructure(existing1stYearPeriod);
+                existing1stYearPeriod.setChildOrder(null);
+                currentStructure.delete();
+            }, () -> {
+                super.setDegreeStructure(new CurricularPeriod(newDuration));
+                currentStructure.delete();
+            });
+
+            return;
+        }
+
+        if (newDuration.getWeight() > 1 && currentDuration.getWeight() == 1) { // periods tree will grow from two to three levels
+            final CurricularPeriod newStructure = new CurricularPeriod(newDuration);
+            super.setDegreeStructure(newStructure);
+            currentStructure.setParent(newStructure);
+            return;
+        }
+
+        if (newDuration.getWeight() < currentDuration.getWeight()) {
+            IntStream.rangeClosed((int) newDuration.getWeight() + 1, (int) currentDuration.getWeight()).boxed()
+                    .flatMap(outerYear -> currentStructure.findChild(AcademicPeriod.YEAR, outerYear).stream())
+                    .forEach(CurricularPeriod::delete);
+        }
+
+        currentStructure.setAcademicPeriod(newDuration);
     }
 
     @Override
     public void setDegreeStructure(final CurricularPeriod degreeStructure) {
-
-        if (degreeStructure == null || !(degreeStructure.getAcademicPeriod() instanceof AcademicYears)) {
-            throw new DomainException("error.degreeCurricularPlan.degreeStructure.must.be.specified.in.years");
-        }
-
-        final CurricularPeriod currentDegreeStructure = super.getDegreeStructure();
-        if (currentDegreeStructure != degreeStructure) {
-
-            if (!getAllCurricularCourses().isEmpty()) {
-                throw new DomainException(
-                        "error.degreeCurricularPlan.degreeStructure.cannot.be.changed.when.already.has.curricular.courses");
-            }
-
-            //not the most elegant solution but avoids breaking API
-            if (currentDegreeStructure != null) {
-                currentDegreeStructure.delete();
-            }
-
-        }
-
-        super.setDegreeStructure(degreeStructure);
+        throw new DomainException("error.degreeCurricularPlan.degreeStructure.cannot.be.invoked.publicly");
     }
 
     public String getPresentationName() {

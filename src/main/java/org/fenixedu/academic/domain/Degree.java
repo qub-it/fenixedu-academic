@@ -310,9 +310,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
             throw new DomainException("DEGREE.degree.curricular.plan.creator.cannot.be.null");
         }
 
-        CurricularPeriod curricularPeriod = new CurricularPeriod(duration);
-
-        return new DegreeCurricularPlan(this, name, creator, curricularPeriod);
+        return new DegreeCurricularPlan(this, name, duration);
     }
 
     @Override
