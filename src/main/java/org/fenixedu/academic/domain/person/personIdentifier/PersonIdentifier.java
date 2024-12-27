@@ -26,7 +26,7 @@ public class PersonIdentifier extends PersonIdentifier_Base {
 
     @Override
     public void setType(PersonIdentifierType type) {
-        if (getPerson().getIdentifiersSet().stream().anyMatch(id -> id.getType() == type)) {
+        if (getPerson().getIdentifiersSet().stream().anyMatch(id -> id.getType() == type && id != this)) {
             throw new DomainException("error.person.personIdentifier.type");
         }
         super.setType(type);
@@ -45,9 +45,8 @@ public class PersonIdentifier extends PersonIdentifier_Base {
         return type.getIdentifiersSet().stream().filter(pI -> StringUtils.equals(pI.getIdentifier(), identifier)).findAny();
     }
 
-    public static Optional<Person> findPersonByIdentifierAndType(String identifier, PersonIdentifierType type) {
-        return type.getIdentifiersSet().stream().filter(pI -> StringUtils.equals(pI.getIdentifier(), identifier))
-                .map(i -> i.getPerson()).findAny();
+    public static Optional<Person> findPerson(String identifier, PersonIdentifierType type) {
+        return findByIdentifierAndType(identifier, type).map(i -> i.getPerson());
     }
 
     public void delete() {
