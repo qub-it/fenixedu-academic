@@ -23,7 +23,7 @@ public class PersonIdentifier extends PersonIdentifier_Base {
 
         return id;
     }
-    
+
     @Override
     public void setType(PersonIdentifierType type) {
         if (getPerson().getIdentifiersSet().stream().anyMatch(id -> id.getType() == type)) {
@@ -42,8 +42,12 @@ public class PersonIdentifier extends PersonIdentifier_Base {
     }
 
     public static Optional<PersonIdentifier> findByIdentifierAndType(String identifier, PersonIdentifierType type) {
-        return Bennu.getInstance().getPersonIdentifiersSet().stream()
-                .filter(pI -> StringUtils.equals(pI.getIdentifier(), identifier) && pI.getType() == type).findAny();
+        return type.getIdentifiersSet().stream().filter(pI -> StringUtils.equals(pI.getIdentifier(), identifier)).findAny();
+    }
+
+    public static Optional<Person> findPersonByIdentifierAndType(String identifier, PersonIdentifierType type) {
+        return type.getIdentifiersSet().stream().filter(pI -> StringUtils.equals(pI.getIdentifier(), identifier))
+                .map(i -> i.getPerson()).findAny();
     }
 
     public void delete() {
