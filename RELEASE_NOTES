@@ -1,6 +1,8 @@
+- Refactor: Unify and remove unused degree curricular plan constructors [#qubIT-Fenix-1603]
+- Bug fix: Add missing registration start edition labels [#qubIT-Fenix-5551]
+
 48.2.2 (27-12-2024)
 - Refactor: Degree curricular plan duration edition full support [#qubIT-Fenix-6406]
-- Refactor: Unify and remove unused degree curricular plan constructors [#qubIT-Fenix-1603]
 
 48.2.1 (19-12-2024)
 - Bug fix: Correctly copy the bibliography when creating a new version of the competence course [#UL-FC-5364]
