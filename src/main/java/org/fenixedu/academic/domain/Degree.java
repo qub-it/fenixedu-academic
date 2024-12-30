@@ -297,19 +297,9 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
     public DegreeCurricularPlan createDegreeCurricularPlan(final String name, final Person creator,
             final AcademicPeriod duration) {
-        if (name == null) {
-            throw new DomainException("DEGREE.degree.curricular.plan.name.cannot.be.null");
-        }
-        for (DegreeCurricularPlan dcp : this.getDegreeCurricularPlansSet()) {
-            if (dcp.getName().equalsIgnoreCase(name)) {
-                throw new DomainException("DEGREE.degreeCurricularPlan.existing.name.and.degree");
-            }
-        }
-
         if (creator == null) {
             throw new DomainException("DEGREE.degree.curricular.plan.creator.cannot.be.null");
         }
-
         return new DegreeCurricularPlan(this, name, duration);
     }
 

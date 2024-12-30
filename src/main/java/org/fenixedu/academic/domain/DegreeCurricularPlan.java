@@ -130,80 +130,19 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super.setCurricularRuleValidationType(EnrolmentModel.SEMESTER);
     }
 
-    private DegreeCurricularPlan(final Degree degree, final String name) {
-        this();
-        if (degree == null) {
-            throw new DomainException("degreeCurricularPlan.degree.not.null");
-        }
-        if (name == null) {
-            throw new DomainException("degreeCurricularPlan.name.not.null");
-        }
-        super.setDegree(degree);
-        super.setName(name);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected DegreeCurricularPlan(final Degree degree, final String name, final DegreeCurricularPlanState state,
-            final Date inicialDate, final Date endDate, final Integer degreeDuration, final Integer minimalYearForOptionalCourses,
-            final Double neededCredits, final Integer numerusClausus, final String annotation) {
-
-        this(degree, name);
-        super.setCurricularStage(CurricularStage.DRAFT);
-        super.setState(state);
-
-        oldStructureFieldsChange(inicialDate, endDate, degreeDuration, minimalYearForOptionalCourses, neededCredits,
-                numerusClausus, annotation);
-    }
-
-    @Deprecated(forRemoval = true)
-    private void oldStructureFieldsChange(final Date inicialDate, final Date endDate, final Integer degreeDuration,
-            final Integer minimalYearForOptionalCourses, final Double neededCredits, final Integer numerusClausus,
-            final String annotation) {
-
-        if (inicialDate == null) {
-            throw new DomainException("degreeCurricularPlan.inicialDate.not.null");
-        } else if (degreeDuration == null) {
-            throw new DomainException("degreeCurricularPlan.degreeDuration.not.null");
-        } else if (minimalYearForOptionalCourses == null) {
-            throw new DomainException("degreeCurricularPlan.minimalYearForOptionalCourses.not.null");
-        }
-
-        this.setInitialDateYearMonthDay(new YearMonthDay(inicialDate));
-        this.setEndDateYearMonthDay(endDate != null ? new YearMonthDay(endDate) : null);
-        this.setDegreeDuration(degreeDuration);
-        this.setMinimalYearForOptionalCourses(minimalYearForOptionalCourses);
-        this.setNeededCredits(neededCredits);
-        this.setNumerusClausus(numerusClausus);
-        this.setAnotation(annotation);
-    }
-
     public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration) {
-        this(degree, name);
+        this();
+
+        if (degree == null) {
+            throw new DomainException("error.degreeCurricularPlan.degree.not.null");
+        }
+
+        setDegree(degree);
+        setName(name);
         createDefaultCourseGroups();
         editDuration(duration);
         setState(DegreeCurricularPlanState.ACTIVE);
         newStructureFieldsChange(CurricularStage.DRAFT, null);
-    }
-
-    @Deprecated(forRemoval = true)
-    public DegreeCurricularPlan(final Degree degree, final String name, final CurricularPeriod curricularPeriod) {
-        this(degree, name);
-
-        if (curricularPeriod == null) {
-            throw new DomainException("degreeCurricularPlan.curricularPeriod.not.null");
-        }
-        createDefaultCourseGroups();
-
-        super.setDegreeStructure(curricularPeriod);
-        setState(DegreeCurricularPlanState.ACTIVE);
-
-        newStructureFieldsChange(CurricularStage.DRAFT, null);
-    }
-
-    @Deprecated
-    public DegreeCurricularPlan(final Degree degree, final String name, final Person creator,
-            final CurricularPeriod curricularPeriod) {
-        this(degree, name, curricularPeriod);
     }
 
     private void createDefaultCourseGroups() {
@@ -223,47 +162,13 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
     }
 
-    private void commonFieldsChange(final String name) {
-        if (name == null) {
-            throw new DomainException("degreeCurricularPlan.name.not.null");
-        }
-
-        // assert unique pair name/degree
-        for (final DegreeCurricularPlan dcp : this.getDegree().getDegreeCurricularPlansSet()) {
-            if (dcp != this && dcp.getName().equalsIgnoreCase(name)) {
-                throw new DomainException("error.degreeCurricularPlan.existing.name.and.degree");
-            }
-        }
-        this.setName(name);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void edit(final String name, final DegreeCurricularPlanState state, final Date inicialDate, final Date endDate,
-            final Integer degreeDuration, final Integer minimalYearForOptionalCourses, final Double neededCredits,
-            final Integer numerusClausus, final String annotation) {
-
-        commonFieldsChange(name);
-        oldStructureFieldsChange(inicialDate, endDate, degreeDuration, minimalYearForOptionalCourses, neededCredits,
-                numerusClausus, annotation);
-
-        this.setState(state);
-    }
-
     public void edit(final String name, final CurricularStage stage, final DegreeCurricularPlanState state,
             final ExecutionYear beginExecutionInterval) {
-
-        /*
-         * Allow degree curricular plans approved without program conclusion 
-        if (stage.equals(CurricularStage.APPROVED)
-                && !getAllCoursesGroups().stream().map(CourseGroup::getProgramConclusion).anyMatch(Objects::nonNull)) {
-            throw new DomainException("error.degreeCurricularPlan.missing.program.conclusion");
-        }
-        */
 
         if (isApproved() && (name != null && !getName().equals(name))) {
             throw new DomainException("error.degreeCurricularPlan.already.approved");
         } else {
-            commonFieldsChange(name);
+            setName(name);
         }
 
         newStructureFieldsChange(stage, beginExecutionInterval);
@@ -330,6 +235,24 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                         beginExecutionPeriod);
             }
         }
+    }
+
+    @Override
+    public void setName(final String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new DomainException("error.degreeCurricularPlan.name.not.null");
+        }
+
+        if (getDegree() == null) {
+            throw new DomainException("error.degreeCurricularPlan.degree.not.null");
+        }
+
+        if (getDegree().getDegreeCurricularPlansSet().stream().filter(dcp -> dcp != this)
+                .anyMatch(dcp -> name.equalsIgnoreCase(dcp.getName()))) {
+            throw new DomainException("error.degreeCurricularPlan.existing.name.and.degree");
+        }
+
+        super.setName(name);
     }
 
     @Deprecated
