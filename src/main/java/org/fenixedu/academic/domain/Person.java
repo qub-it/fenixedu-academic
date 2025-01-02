@@ -50,6 +50,7 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.IdDocument;
 import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.academic.domain.person.MaritalStatus;
+import org.fenixedu.academic.domain.person.personIdentifier.PersonIdentifier;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.util.Bundle;
@@ -398,7 +399,7 @@ public class Person extends Person_Base {
         for (; !getIdDocumentsSet().isEmpty(); getIdDocumentsSet().iterator().next().delete()) {
             ;
         }
-        
+
         for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
             ;
         }
@@ -414,6 +415,8 @@ public class Person extends Person_Base {
         if (getPersonalPhoto() != null) {
             getPersonalPhoto().delete();
         }
+
+        getIdentifiersSet().forEach(id -> id.delete());
 
         final UserProfile profile = getProfile();
         if (profile != null) {
