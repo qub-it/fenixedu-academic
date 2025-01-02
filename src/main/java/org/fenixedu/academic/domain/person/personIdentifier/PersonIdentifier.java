@@ -49,6 +49,24 @@ public class PersonIdentifier extends PersonIdentifier_Base {
         return findByIdentifierAndType(identifier, type).map(i -> i.getPerson());
     }
 
+    public static Optional<PersonIdentifier> findByTypeAndPerson(PersonIdentifierType type, Person person) {
+        return person.getIdentifiersSet().stream().filter(i -> i.getType() == type).findAny();
+    }
+
+    public static void updateIdentifier(PersonIdentifierType type, Person person, String value) {
+        PersonIdentifier.findByTypeAndPerson(type, person).ifPresentOrElse(id -> {
+            if (StringUtils.isBlank(value)) {
+                id.delete();
+            } else {
+                id.setIdentifier(value);
+            }
+        }, () -> {
+            if (StringUtils.isNotBlank(value)) {
+                PersonIdentifier.create(type, value, person);
+            }
+        });
+    }
+
     public void delete() {
         setType(null);
         setPerson(null);
