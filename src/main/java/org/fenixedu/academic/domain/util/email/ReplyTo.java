@@ -18,8 +18,6 @@
  */
 package org.fenixedu.academic.domain.util.email;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
@@ -62,11 +60,5 @@ public abstract class ReplyTo extends ReplyTo_Base {
     }
 
     public abstract String getReplyToAddress(final Person person);
-
-    public abstract String getReplyToAddress();
-
-    public Collection<? extends ReplyTo> asCollection() {
-        return Collections.singletonList(this);
-    }
 
 }

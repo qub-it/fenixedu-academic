@@ -32,10 +32,4 @@ public class ExecutionCourseReplyTo extends ExecutionCourseReplyTo_Base {
         return executionCourseSender.getCourse().getEmail();
     }
 
-    @Override
-    public String getReplyToAddress() {
-        ExecutionCourseSender executionCourseSender = (ExecutionCourseSender) getSender();
-        return executionCourseSender.getCourse().getEmail();
-    }
-
 }
