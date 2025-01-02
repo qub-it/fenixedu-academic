@@ -1,3 +1,4 @@
+48.3.0 (02-01-2025)
 - Refactor: Unify and remove unused degree curricular plan constructors [#qubIT-Fenix-1603]
 - New feature: Add Person Identifier [#UL-REIT-4156]
 - Bug fix: Add missing registration start edition labels [#qubIT-Fenix-5551]
