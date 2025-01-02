@@ -1,3 +1,5 @@
+- Improvement: PhotographController now never returns 404 [#qubIT-Fenix-6024]
+
 48.3.0 (02-01-2025)
 - Refactor: Unify and remove unused degree curricular plan constructors [#qubIT-Fenix-1603]
 - New feature: Add Person Identifier [#UL-REIT-4156]

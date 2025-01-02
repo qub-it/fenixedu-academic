@@ -18,14 +18,12 @@
  */
 package org.fenixedu.academic.ui.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.fenixedu.academic.domain.Photograph;
-import org.fenixedu.academic.domain.photograph.PictureMode;
-import org.fenixedu.bennu.core.domain.Avatar;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.domain.exceptions.BennuCoreDomainException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Optional;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -36,65 +34,65 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.Photograph;
+import org.fenixedu.academic.domain.photograph.PictureMode;
+import org.fenixedu.bennu.core.domain.Avatar;
+import org.fenixedu.bennu.core.domain.User;
 
 @Path("/user/photo")
 public class PhotographController {
 
-    public static int MAX_PHOTO_SIZE = 1048576; //1M
-    private Gson gson = new GsonBuilder().create();
+    private static int MAX_PHOTO_SIZE = 512;
+    private static int DEFAULT_PHOTO_SIZE = 100;
 
     @GET
     @Path("/{username:.+}")
     @Produces("image/*")
-    public Response get(@PathParam("username") String username, @QueryParam(value = "s") Integer size,
+    public Response get(@PathParam("username") String username, @QueryParam(value = "s") Integer providedSize,
             @HeaderParam(value = "If-None-Match") String ifNoneMatch) throws IOException {
-
-        if (size == null || size <= 0) {
-            size = 100;
-        }
-        if (size > 512) {
-            size = 512;
-        }
+        int size = (providedSize == null
+                || providedSize <= 0) ? DEFAULT_PHOTO_SIZE : (providedSize > MAX_PHOTO_SIZE ? MAX_PHOTO_SIZE : providedSize);
 
         User user = User.findByUsername(username);
 
-        if (user != null && user.getPerson() != null) {
-            final Photograph personalPhoto =
-                    user.getPerson().isPhotoAvailableToCurrentUser() ? user.getPerson().getPersonalPhoto() : null;
+        Optional<Photograph> personalPhoto = Optional.ofNullable(user).map(u -> u.getPerson())
+                .filter(p -> p.isPhotoAvailableToCurrentUser()).map(p -> p.getPersonalPhoto());
 
-            EntityTag entityTag =
-                    new EntityTag(personalPhoto == null ? "mm-av" : personalPhoto.getExternalId() + "-" + size, true);
-            if (!StringUtils.isBlank(ifNoneMatch)
-                    && entityTag.getValue().equals(ifNoneMatch.substring(3, ifNoneMatch.length() - 1))) {
-                return Response.status(Response.Status.NOT_MODIFIED).build();
-            }
+        Response.ResponseBuilder responseBuilder;
 
+        EntityTag entityTag =
+                personalPhoto.map(p -> new EntityTag(p.getExternalId() + "-" + size, true)).orElse(new EntityTag("mm-av", true));
+
+        if (!StringUtils.isBlank(ifNoneMatch)
+                && entityTag.getValue().equals(ifNoneMatch.substring(3, ifNoneMatch.length() - 1))) {
+            responseBuilder = Response.status(Response.Status.NOT_MODIFIED);
+        } else {
             CacheControl cacheControl = new CacheControl();
             cacheControl.setMaxAge(1209600);
 
             // ChronoUnit.WEEKS was not supported so I used 14 days
-            Response.ResponseBuilder responseBuilder = Response.status(Response.Status.OK)
-                    .expires(Date.from(Instant.now().plus(14, ChronoUnit.DAYS))).cacheControl(cacheControl).tag(entityTag);
-            if (personalPhoto != null) {
-                responseBuilder.type(personalPhoto.getOriginal().getPictureFileFormat().getMimeType());
-                responseBuilder.entity(personalPhoto.getCustomAvatar(size, size, PictureMode.ZOOM));
-                return responseBuilder.build();
-            } else {
-                try (InputStream mm = PhotographController.class.getClassLoader()
+            responseBuilder = Response.status(Response.Status.OK).expires(Date.from(Instant.now().plus(14, ChronoUnit.DAYS)))
+                    .cacheControl(cacheControl);
+
+            String mimeType = personalPhoto.map(p -> p.getOriginal().getPictureFileFormat().getMimeType()).orElse("image/png");
+
+            byte[] entity = personalPhoto.map(p -> p.getCustomAvatar(size, size, PictureMode.ZOOM)).orElseGet(() -> {
+                try (InputStream mysteryMan = PhotographController.class.getClassLoader()
                         .getResourceAsStream("META-INF/resources/img/mysteryman.png")) {
-                    responseBuilder.type("image/png");
-                    responseBuilder.entity(Avatar.process(mm, "image/png", size));
-                    return responseBuilder.build();
+                    return Avatar.process(mysteryMan, mimeType, size);
+                } catch (IOException e) {
+                    return new byte[] {};
                 }
-            }
+            });
+
+            responseBuilder.type(mimeType);
+            responseBuilder.entity(entity);
+            responseBuilder.tag(entityTag);
         }
 
-        throw BennuCoreDomainException.resourceNotFound(username);
+        return responseBuilder.build();
     }
 
     @GET
