@@ -38,10 +38,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
-import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -350,6 +348,10 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     public List<ExecutionYear> getDegreeCurricularPlansExecutionYears() {
         return getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.getExecutionDegreesSet().stream())
                 .map(ExecutionDegree::getExecutionYear).distinct().sorted().collect(Collectors.toUnmodifiableList());
+    }
+
+    public String getSenderFromName() {
+        return String.format("%s - %s (%s)", getCode(), getNameI18N().getContent(), "Coordenação");
     }
 
     @Deprecated
