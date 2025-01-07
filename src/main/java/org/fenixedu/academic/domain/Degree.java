@@ -38,10 +38,8 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
-import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -267,12 +265,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
             DegreeInfo degreeInfo = degreeInfosIterator.next();
             degreeInfosIterator.remove();
             degreeInfo.delete();
-        }
-
-        // checkDeletion assures that site is deletable
-        if (getSender() != null) {
-            getSender().setFromName(getSender().getFromName()); // persist from name in sender
-            setSender(null);
         }
 
         getDegreeLogsSet().forEach(DegreeLog::delete);
