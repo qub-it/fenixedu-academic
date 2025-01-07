@@ -91,7 +91,7 @@ public class BibliographicReferenceTest {
 
         br2.edit(new LocalizedString(Locale.GERMAN, "Sicherheit entdecken (Band 2), Joseph Ph., 2000"), null, null, null, null,
                 null);
-        assertNull(br2.getTitle());
+        assertEquals(br2.getTitle(), br2.getLocalizedTitle().getContent());
         assertTrue(new LocalizedString(Locale.GERMAN, "Sicherheit entdecken (Band 2), Joseph Ph., 2000")
                 .equals(br2.getLocalizedTitle()));
 

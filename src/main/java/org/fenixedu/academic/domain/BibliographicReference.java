@@ -19,10 +19,8 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -37,20 +35,6 @@ public class BibliographicReference extends BibliographicReference_Base {
     private BibliographicReference() {
         super();
         setRootDomainObject(Bennu.getInstance());
-    }
-
-    @Deprecated
-    public static BibliographicReference create(final String title, final String authors, final String reference,
-            final String year, final Boolean optional) {
-
-        final BibliographicReference result = new BibliographicReference();
-        result.setTitle(title);
-        result.setAuthors(authors);
-        result.setReference(reference);
-        result.setYear(year);
-        result.setOptional(optional);
-
-        return result;
     }
 
     public static BibliographicReference create(final LocalizedString title, final Integer referenceOrder,
@@ -77,23 +61,12 @@ public class BibliographicReference extends BibliographicReference_Base {
         return result;
     }
 
-    @Deprecated
-    @Override
-    public void setTitle(String title) {
-        if (StringUtils.isBlank(title)) {
-            throw new IllegalArgumentException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
-        }
-
-        super.setTitle(title);
-        super.setLocalizedTitle(StringUtils.isBlank(title) ? null : new LocalizedString(Locale.getDefault(), title));
+    public String getTitle() {
+        return super.getLocalizedTitle() == null ? null : super.getLocalizedTitle().getContent();
     }
 
-    @Deprecated
-    @Override
-    public void setReference(String reference) {
-        super.setReference(reference);
-        super.setLocalizedReference(StringUtils.isBlank(reference) ? null : new LocalizedString(Locale.getDefault(), reference));
+    public String getReference() {
+        return super.getLocalizedReference() == null ? null : super.getLocalizedReference().getContent();
     }
 
     @Override
@@ -103,13 +76,6 @@ public class BibliographicReference extends BibliographicReference_Base {
                     BundleUtil.getString(Bundle.APPLICATION, "error.required.field.title.is.not.filled"));
         }
         super.setLocalizedTitle(title);
-        super.setTitle(title.getContent(Locale.getDefault())); //FIXME: remove me
-    }
-
-    @Override
-    public void setLocalizedReference(LocalizedString reference) { //FIXME: remove me
-        super.setReference(reference == null ? null : reference.getContent(Locale.getDefault()));
-        super.setLocalizedReference(reference);
     }
 
     /**
@@ -124,25 +90,7 @@ public class BibliographicReference extends BibliographicReference_Base {
         final BibliographicReference copiedReference =
                 create(copy.apply(this.getLocalizedTitle()), this.getAuthors(), copy.apply(this.getLocalizedReference()),
                         this.getYear(), this.getUrl(), this.getReferenceOrder(), this.getOptional());
-        if (getLocalizedTitle() == null && this.getTitle() != null) { //FIXME: remove me
-            copiedReference.setTitle(this.getTitle());
-        }
-        if (getLocalizedReference() == null && this.getReference() != null) { //FIXME: remove me
-            copiedReference.setReference(this.getReference());
-        }
         return copiedReference;
-    }
-
-    @Deprecated
-    public void edit(final String title, final String authors, final String reference, final String year, final String url,
-            final Boolean optional) {
-
-        setTitle(title);
-        setAuthors(authors);
-        setReference(reference);
-        setYear(year);
-        setOptional(optional);
-        setUrl(url);
     }
 
     public void edit(final LocalizedString title, final String authors, final LocalizedString reference, final String year,

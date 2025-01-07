@@ -324,10 +324,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class BibliographicReference  {
         String authors;
         Boolean optional;
-        String reference;
         LocalizedString localizedReference;
         Integer referenceOrder;
-        String title;
         LocalizedString localizedTitle;
         String year;
         String url;
