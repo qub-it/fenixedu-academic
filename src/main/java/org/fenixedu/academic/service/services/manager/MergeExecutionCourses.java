@@ -22,6 +22,18 @@
  */
 package org.fenixedu.academic.service.services.manager;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -37,21 +49,11 @@ import org.fenixedu.academic.domain.accessControl.PersistentStudentGroup;
 import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
+import org.fenixedu.bennu.core.signals.Signal;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:joao.mota@ist.utl.pt"> João Mota </a> 29/Nov/2003
@@ -288,10 +290,7 @@ public class MergeExecutionCourses {
     }
 
     private static void copySenderMessages(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
-        if (executionCourseFrom.getSender() != null) {
-            ExecutionCourseSender courseSenderTo = ExecutionCourseSender.newInstance(executionCourseTo);
-            courseSenderTo.getMessagesSet().addAll(executionCourseFrom.getSender().getMessagesSet());
-        }
+        Signal.emit("mergeExecutionCourses.copySenderMessages", Pair.of(executionCourseFrom, executionCourseTo));
     }
 
 }
