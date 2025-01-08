@@ -1,4 +1,5 @@
 - Refactor: Remove deprecated fields from BibliographicReference [#qubIT-Fenix-5850]
+- Refactor: Replace references to discontinued ExecutionCourseSender [#qubIT-Omnis-8013]
 
 48.3.1 (02-01-2025)
 - Improvement: Add static update and search for PersonIdentifier [#UL-REIT-4156]
