@@ -1654,8 +1654,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class util.email.UnitBasedSender extends util.email.Sender {}
     
-    class util.email.ExecutionCourseSender extends util.email.Sender { }
-
     class util.email.CoordinatorSender extends util.email.Sender {}
     
     class util.email.PersonSender extends util.email.Sender {}
@@ -2530,13 +2528,6 @@ relation ExecutionCourseSummary {
         multiplicity *;
     }
     ExecutionCourse playsRole executionCourse { multiplicity 1..1; }
-}
-
-relation ExecutionCourseSender {
-    ExecutionCourse playsRole course {
-        multiplicity 1..1;
-    }
-    util.email.ExecutionCourseSender playsRole sender;
 }
 
 relation CoordinatorSender {
