@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -97,26 +96,6 @@ abstract public class CurriculumLineLog extends CurriculumLineLog_Base {
         } else {
             setDateDateTime(new org.joda.time.DateTime(date.getTime()));
         }
-    }
-    
-    @Override
-    public void setAction(EnrolmentAction action) {
-        if(action == EnrolmentAction.ENROL) {
-            super.setType(EnrolmentActionType.ENROL);
-        }else {
-            super.setType(EnrolmentActionType.UNENROL);
-        }     
-        super.setAction(action);
-    }
-    
-    @Override
-    public void setType(EnrolmentActionType type) {
-        if(type == EnrolmentActionType.ENROL) {
-            super.setAction(EnrolmentAction.ENROL);
-        }else {
-            super.setAction(EnrolmentAction.UNENROL);
-        }   
-        super.setType(type);
     }
 
     /**

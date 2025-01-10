@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
-import org.fenixedu.academic.util.EnrolmentAction;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -414,7 +413,6 @@ public class EnrolmentTest {
 
         CurriculumLineLog enrolLog = newRegistration.getCurriculumLineLogs(executionInterval).stream().findAny().get();
         assertEquals(enrolLog.getType(), EnrolmentActionType.ENROL);
-        assertEquals(enrolLog.getAction(), EnrolmentAction.ENROL);
 
         assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), 1);
         assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 1);
@@ -425,7 +423,6 @@ public class EnrolmentTest {
         CurriculumLineLog unenrolLog =
                 newRegistration.getCurriculumLineLogs(executionInterval).stream().filter(l -> l != enrolLog).findAny().get();
         assertEquals(unenrolLog.getType(), EnrolmentActionType.UNENROL);
-        assertEquals(unenrolLog.getAction(), EnrolmentAction.UNENROL);
 
         assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), 2);
         assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 2);
