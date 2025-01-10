@@ -98,11 +98,6 @@ abstract public class CurriculumLineLog extends CurriculumLineLog_Base {
         }
     }
 
-    @Override
-    public void setType(EnrolmentActionType type) {
-        super.setType(type);
-    }
-
     /**
      * @deprecated use {@link #getExecutionInterval()} instead.
      */
