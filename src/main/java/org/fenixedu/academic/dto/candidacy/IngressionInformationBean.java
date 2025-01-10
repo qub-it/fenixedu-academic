@@ -21,7 +21,6 @@ package org.fenixedu.academic.dto.candidacy;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -41,7 +40,7 @@ public class IngressionInformationBean implements Serializable {
 
     private IngressionType ingressionType;
 
-    private EntryPhase entryPhase;
+    private Integer admissionPhase;
 
     private YearMonthDay studiesStartDate;
 
@@ -54,7 +53,7 @@ public class IngressionInformationBean implements Serializable {
     private LocalDate reingressionDate;
 
     public IngressionInformationBean(Registration registration) {
-        setEntryPhase(registration.getStudentCandidacy().getEntryPhase());
+        setAdmissionPhase(registration.getStudentCandidacy().getAdmissionPhase());
         setRegistration(registration);
     }
 
@@ -126,16 +125,16 @@ public class IngressionInformationBean implements Serializable {
         this.ingressionType = ingressionType;
     }
 
-    public EntryPhase getEntryPhase() {
-        return entryPhase;
+    public Integer getAdmissionPhase() {
+        return admissionPhase;
     }
 
-    public void setEntryPhase(EntryPhase entryPhase) {
-        this.entryPhase = entryPhase;
+    public void setAdmissionPhase(Integer admissionPhase) {
+        this.admissionPhase = admissionPhase;
     }
 
     public void clearEntryPhase() {
-        this.entryPhase = null;
+        this.admissionPhase = null;
         this.studiesStartDate = null;
         this.homologationDate = null;
     }

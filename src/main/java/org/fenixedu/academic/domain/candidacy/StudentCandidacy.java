@@ -22,7 +22,6 @@ import java.util.Comparator;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -122,18 +121,11 @@ public class StudentCandidacy extends StudentCandidacy_Base {
     }
 
     @Override
-    public void setEntryPhase(EntryPhase entryPhase) {
-        setAdmissionPhase(entryPhase == null ? null : entryPhase.getPhaseNumber());
-        super.setEntryPhase(entryPhase);
-    }
-
-    @Override
     public void setAdmissionPhase(Integer admissionPhase) {
         if (admissionPhase != null && admissionPhase <= 0) {
             throw new DomainException("error.StudentCandidacy.admission.phase.has.to.be.positive.number");
         }
         super.setAdmissionPhase(admissionPhase);
-        super.setEntryPhase(admissionPhase == null ? null : EntryPhase.valueOf(admissionPhase));
     }
 
 }

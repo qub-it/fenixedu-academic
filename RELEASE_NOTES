@@ -1,4 +1,5 @@
 - Refactor: Remove deprecated class EnrolmentAction [#qubIT-Fenix-5876]
+- Refactor: Remove EntryPhase enum [#qubIT-Fenix-5905]
 
 48.4.0 (09-01-2025)
 - Refactor: Remove deprecated fields from BibliographicReference [#qubIT-Fenix-5850]
