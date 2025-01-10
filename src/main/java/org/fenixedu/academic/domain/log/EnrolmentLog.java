@@ -24,7 +24,6 @@ package org.fenixedu.academic.domain.log;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.util.EnrolmentAction;
 
 /**
  * @author nmgo

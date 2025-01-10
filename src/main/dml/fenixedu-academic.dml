@@ -151,14 +151,6 @@ valueType org.fenixedu.academic.util.DiaSemana as DiaSemana {
     }
 }
 
-valueType org.fenixedu.academic.util.EnrolmentAction as EnrolmentAction {
-    externalizeWith {
-        int getValue();
-    }
-
-    internalizeWith getEnum();
-}
-
 valueType org.fenixedu.academic.util.EnrolmentEvaluationState as EnrolmentEvaluationState {
     externalizeWith {
         Integer getState();
@@ -1117,7 +1109,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     
     class log.CurriculumLineLog  {
 		EnrolmentActionType type;
-        EnrolmentAction action;
         DateTime dateDateTime;
         String who;
     }
