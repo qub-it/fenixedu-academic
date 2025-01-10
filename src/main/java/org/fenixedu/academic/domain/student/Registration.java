@@ -50,7 +50,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.EntryPhase;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -193,7 +192,7 @@ public class Registration extends Registration_Base {
             throw new DomainException("error.Registration.ingressionType.cannot.be.null");
         }
 
-        //TODO: remove entryGrade, entryPhase and ingressionType from StudentCandidacy
+        //TODO: remove entryGrade, admissionPhase and ingressionType from StudentCandidacy
         final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);
         if (executionDegree == null) {
             throw new DomainException("error.Registration.execution.degree.for.year.was.not.found");
@@ -257,7 +256,7 @@ public class Registration extends Registration_Base {
     private void setStudentCandidacyInformation(final StudentCandidacy studentCandidacy) {
         setStudentCandidacy(studentCandidacy);
         if (studentCandidacy != null) {
-            setEntryPhase(studentCandidacy.getEntryPhase());
+            setAdmissionPhase(studentCandidacy.getAdmissionPhase());
             super.setIngressionType(studentCandidacy.getIngressionType());
         }
     }
@@ -1975,18 +1974,11 @@ public class Registration extends Registration_Base {
     }
 
     @Override
-    public void setEntryPhase(EntryPhase entryPhase) {
-        setAdmissionPhase(entryPhase == null ? null : entryPhase.getPhaseNumber());
-        super.setEntryPhase(entryPhase);
-    }
-
-    @Override
     public void setAdmissionPhase(Integer admissionPhase) {
         if (admissionPhase != null && admissionPhase <= 0) {
             throw new DomainException("error.Registration.admission.phase.has.to.be.positive.number");
         }
         super.setAdmissionPhase(admissionPhase);
-        super.setEntryPhase(admissionPhase == null ? null : EntryPhase.valueOf(admissionPhase));
     }
 
 }
