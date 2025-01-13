@@ -4,8 +4,7 @@ import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V3;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Locale;
 import java.util.Map;
@@ -63,11 +62,14 @@ public class StudentTest {
     }
 
     public static Student createStudent(String name, String username) {
+        final Person person = createPerson(name, username);
+        return new Student(person);
+    }
+
+    private static Person createPerson(final String name, final String username) {
         final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
         new User(username, userProfile);
-        final Person person = new Person(userProfile);
-
-        return new Student(person);
+        return new Person(userProfile);
     }
 
     public static Registration createRegistration(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
@@ -93,8 +95,25 @@ public class StudentTest {
     }
 
     @Test
-    public void testStudent_find() {
-        assertEquals(Student.readStudentByNumber(1), student);
+    public void testStudent_createAndFind() {
+        final Student studentA = new Student(createPerson("test_createAndFind.A", "test_createAndFind.a"));
+        final Student studentB = new Student(createPerson("test_createAndFind.B", "test_createAndFind.b"));
+        final Student studentC = new Student(createPerson("test_createAndFind.C", "test_createAndFind.c"));
+
+        assertEquals(Student.readStudentByNumber(studentA.getNumber()), studentA);
+        assertEquals(Student.readStudentByNumber(studentB.getNumber()), studentB);
+        assertEquals(Student.readStudentByNumber(studentC.getNumber()), studentC);
+    }
+
+    @Test
+    public void testStudent_createAndFindWithUsedNumber() {
+        final Student studentA = new Student(createPerson("test_withUsedNumber.A", "test_withUsedNumber.a"));
+        final Student studentB =
+                new Student(createPerson("test_withUsedNumber.B", "test_withUsedNumber.b"), studentA.getNumber());
+
+        assertNotEquals(studentA.getNumber(), studentB.getNumber());
+        assertEquals(Student.readStudentByNumber(studentA.getNumber()), studentA);
+        assertEquals(Student.readStudentByNumber(studentB.getNumber()), studentB);
     }
 
     @Test

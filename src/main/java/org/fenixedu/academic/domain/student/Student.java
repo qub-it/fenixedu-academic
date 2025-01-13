@@ -84,25 +84,6 @@ public class Student extends Student_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public static Student createStudentWithCustomNumber(final Person person, final Integer number) {
-        if (number == null) {
-            return new Student(person, null);
-        }
-
-        if (readStudentByNumber(number) != null) {
-            throw new DomainException("error.custom.student.creation.student.number.already.set");
-        }
-
-        if (number >= Student.generateStudentNumber()) {
-            throw new DomainException("error.custom.student.creation.student.number.higher.than.generated");
-        }
-
-        Student student = new Student(person, number);
-        student.setNumber(number);
-
-        return student;
-    }
-
     public Student(final Person person) {
         this(person, null);
     }
@@ -124,11 +105,7 @@ public class Student extends Student_Base {
         return getPerson().getName();
     }
 
-    public Registration readRegistrationByDegreeCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan) {
-        return getRegistrationStream().filter(r -> r.getStudentCurricularPlan(degreeCurricularPlan) != null).findAny()
-                .orElse(null);
-    }
-
+    @Deprecated(forRemoval = true)
     public Collection<Registration> getRegistrationsByDegreeTypes(final DegreeType... degreeTypes) {
         List<DegreeType> degreeTypesList = Arrays.asList(degreeTypes);
         List<Registration> result = new ArrayList<>();
@@ -168,16 +145,6 @@ public class Student extends Student_Base {
         return result;
     }
 
-    public Registration getLastRegistration() {
-        Collection<Registration> activeRegistrations = getRegistrationsSet();
-        return activeRegistrations
-                .isEmpty() ? null : (Registration) Collections.max(activeRegistrations, Registration.COMPARATOR_BY_START_DATE);
-    }
-
-//    public boolean hasAnyRegistrationInState(final RegistrationStateType stateType) {
-//        return getRegistrationStream().anyMatch(r -> r.getActiveStateType() == stateType);
-//    }
-
     public static Integer generateStudentNumber() {
         int max = 0;
         for (final StudentNumber studentNumber : Bennu.getInstance().getStudentNumbersSet()) {
@@ -188,15 +155,6 @@ public class Student extends Student_Base {
         }
         return Integer.valueOf(max + 1);
     }
-
-//    public boolean attends(final ExecutionCourse executionCourse) {
-//        for (final Registration registration : getRegistrationsSet()) {
-//            if (registration.attends(executionCourse)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     public void delete() {
         DomainObjectDeletionBean domainObjectDeletionBean = new DomainObjectDeletionBean();
@@ -222,18 +180,6 @@ public class Student extends Student_Base {
         deleteDomainObject();
     }
 
-    public Set<ExecutionInterval> getEnroledExecutionPeriods() {
-        Set<ExecutionInterval> result = new TreeSet<>(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE);
-        for (Registration registration : getRegistrationsSet()) {
-            result.addAll(registration.getEnrolmentsExecutionPeriods());
-        }
-        return result;
-    }
-
-    public Collection<StudentStatuteBean> getCurrentStatutes() {
-        return getStatutesValidOnAnyExecutionSemesterFor(ExecutionYear.findCurrent(null));
-    }
-
     public Collection<StudentStatuteBean> getStatutes(final ExecutionInterval executionInterval) {
         final List<StudentStatuteBean> result = new ArrayList<>();
         for (final StudentStatute statute : getStudentStatutesSet()) {
@@ -256,15 +202,6 @@ public class Student extends Student_Base {
             if (statute.isValidOnAnyExecutionPeriodFor(executionYear)) {
                 result.add(new StudentStatuteBean(statute));
             }
-        }
-
-        return result;
-    }
-
-    public Collection<StudentStatuteBean> getAllStatutes() {
-        List<StudentStatuteBean> result = new ArrayList<>();
-        for (StudentStatute statute : getStudentStatutesSet()) {
-            result.add(new StudentStatuteBean(statute));
         }
 
         return result;
@@ -342,14 +279,6 @@ public class Student extends Student_Base {
             }
         }
         return false;
-    }
-
-    public SortedSet<ExternalEnrolment> getSortedExternalEnrolments() {
-        final SortedSet<ExternalEnrolment> result = new TreeSet<>(ExternalEnrolment.COMPARATOR_BY_NAME);
-        for (final Registration registration : getRegistrationsSet()) {
-            result.addAll(registration.getExternalEnrolmentsSet());
-        }
-        return result;
     }
 
     public boolean hasWorkingStudentStatuteInPeriod(final ExecutionInterval executionInterval) {
