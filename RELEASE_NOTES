@@ -4,6 +4,7 @@
 - Refactor: Delete unused methods from Registration [#qubIT-Fenix-6558]
 - Refactor: Delete deprecated GradeScaleEnum and related domain [#qubIT-Fenix-1784]
 - Refactor: Delete deprecated OccupationPeriodType enum [#qubIT-Fenix-1783]
+- Refactor: Replace references to discontinued ExecutionCourseSender [#qubIT-Omnis-8013]
 - Refactor: Drops usages of SystemSender [#qubIT-Omnis-7786]
 - Improvement: Removes JobQueueDispatcher.java [#qubIT-Omnis-7802]
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
@@ -28,7 +29,6 @@
 
 48.4.0 (09-01-2025)
 - Refactor: Remove deprecated fields from BibliographicReference [#qubIT-Fenix-5850]
-- Refactor: Replace references to discontinued ExecutionCourseSender [#qubIT-Omnis-8013]
 
 48.3.1 (02-01-2025)
 - Improvement: Add static update and search for PersonIdentifier [#UL-REIT-4156]
