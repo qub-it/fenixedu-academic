@@ -116,11 +116,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             deleteGroup(g);
         });
 
-        if (getSender() != null) {
-            getSender().getRecipientsSet().clear();
-            getSender().delete();
-        }
-
         for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
             ;
         }
@@ -417,10 +412,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             }
         }
         return null;
-    }
-
-    public boolean isHasSender() {
-        return getSender() != null;
     }
 
     /*
