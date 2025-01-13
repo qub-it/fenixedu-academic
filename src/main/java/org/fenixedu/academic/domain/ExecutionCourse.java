@@ -58,6 +58,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
     public static final String ACRONYM_CHANGED_SIGNAL = "academic.executionCourse.acronym.edit";
 
+    public static final String DELETED_SIGNAL = "academic.executionCourse.delete";
+
     public static final Comparator<ExecutionCourse> EXECUTION_COURSE_EXECUTION_PERIOD_COMPARATOR =
             Comparator.comparing(ExecutionCourse::getExecutionInterval);
 
