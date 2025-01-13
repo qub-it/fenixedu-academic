@@ -1,3 +1,4 @@
+48.5.0 (13-01-2025)
 - Refactor: Remove deprecated class EnrolmentAction [#qubIT-Fenix-5876]
 - Refactor: Remove EntryPhase enum [#qubIT-Fenix-5905]
 
