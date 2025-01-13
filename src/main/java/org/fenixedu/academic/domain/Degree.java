@@ -269,12 +269,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
             degreeInfo.delete();
         }
 
-        // checkDeletion assures that site is deletable
-        if (getSender() != null) {
-            getSender().setFromName(getSender().getFromName()); // persist from name in sender
-            setSender(null);
-        }
-
         getDegreeLogsSet().forEach(DegreeLog::delete);
 
         if (getUnit() != null) {
