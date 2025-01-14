@@ -145,6 +145,12 @@ public class Student extends Student_Base {
         return result;
     }
 
+    public Registration getLastRegistration() {
+        Collection<Registration> activeRegistrations = getRegistrationsSet();
+        return activeRegistrations.isEmpty() ? null : (Registration) Collections.max(activeRegistrations,
+                Registration.COMPARATOR_BY_START_DATE);
+    }
+
     public static Integer generateStudentNumber() {
         int max = 0;
         for (final StudentNumber studentNumber : Bennu.getInstance().getStudentNumbersSet()) {
