@@ -74,13 +74,15 @@ public class Student extends Student_Base {
 
     };
 
-    public Student(final Person person, Integer number) {
+    public Student(final Person person, final Integer number) {
         super();
         setPerson(person);
-        if (number == null || readStudentByNumber(number) != null) {
-            number = Student.generateStudentNumber();
+
+        if (number != null && readStudentByNumber(number) != null) {
+            throw new DomainException("error.Student.number.already.exists", String.valueOf(number));
         }
-        setNumber(number);
+
+        setNumber(number != null ? number : Student.generateStudentNumber());
         setRootDomainObject(Bennu.getInstance());
     }
 
@@ -152,14 +154,8 @@ public class Student extends Student_Base {
     }
 
     public static Integer generateStudentNumber() {
-        int max = 0;
-        for (final StudentNumber studentNumber : Bennu.getInstance().getStudentNumbersSet()) {
-            int n = studentNumber.getNumber().intValue();
-            if (n > max) {
-                max = n;
-            }
-        }
-        return Integer.valueOf(max + 1);
+        return Bennu.getInstance().getStudentNumbersSet().stream().map(StudentNumber::getNumber).max(Integer::compareTo)
+                .orElse(0) + 1;
     }
 
     public void delete() {

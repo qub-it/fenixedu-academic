@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.Student;
@@ -19,7 +20,9 @@ import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -36,6 +39,9 @@ public class StudentTest {
 
     private static Student student;
     private static Registration registration;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @BeforeClass
     public static void init() {
@@ -106,14 +112,26 @@ public class StudentTest {
     }
 
     @Test
-    public void testStudent_createAndFindWithUsedNumber() {
-        final Student studentA = new Student(createPerson("test_withUsedNumber.A", "test_withUsedNumber.a"));
-        final Student studentB =
-                new Student(createPerson("test_withUsedNumber.B", "test_withUsedNumber.b"), studentA.getNumber());
+    public void testStudent_createWithExistingNumber() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.Student.number.already.exists");
 
-        assertNotEquals(studentA.getNumber(), studentB.getNumber());
-        assertEquals(Student.readStudentByNumber(studentA.getNumber()), studentA);
-        assertEquals(Student.readStudentByNumber(studentB.getNumber()), studentB);
+        final Student studentA = new Student(createPerson("test_withExistingNumber.A", "test_withExistingNumber.a"));
+        new Student(createPerson("test_withExistingNumber.B", "test_withExistingNumber.b"), studentA.getNumber());
+    }
+
+    @Test
+    public void testStudent_generateNumber() {
+        final Student studentA = new Student(createPerson("test_generateNumber.A", "test_generateNumber.a"));
+        assertEquals(Student.generateStudentNumber(), Integer.valueOf(studentA.getNumber() + 1));
+
+        final Student studentB = new Student(createPerson("test_generateNumber.B", "test_generateNumber.b"));
+        assertEquals(Student.generateStudentNumber(), Integer.valueOf(studentB.getNumber() + 1));
+
+        final Student studentC =
+                new Student(createPerson("test_generateNumber.C", "test_generateNumber.c"), studentB.getNumber() + 10);
+        assertEquals(Student.generateStudentNumber(), Integer.valueOf(studentC.getNumber() + 1));
+        assertEquals(studentC.getNumber(), Integer.valueOf(studentB.getNumber() + 10));
     }
 
     @Test
