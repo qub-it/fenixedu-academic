@@ -1,3 +1,4 @@
+48.6.0 (15-01-2025)
 - Refactor: Cleanup deprecated methods in student entity [#qubIT-Fenix-1603]
 - Refactor: Improve student creation constructor [#qubIT-Fenix-6315]
 - Refactor: Deletes UnitBasedSender [#qubIT-Omnis-7780]
