@@ -1640,8 +1640,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String fromAddress;
     }
 
-    class util.email.UnitBasedSender extends util.email.Sender {}
-    
     class util.email.ExecutionCourseSender extends util.email.Sender { }
 
     class util.email.CoordinatorSender extends util.email.Sender {}
@@ -4193,13 +4191,6 @@ relation PersonUtilEmailReplyTo {
 relation RootDomainObjectPendingUtilEmailMessage {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectFromPendingRelation;
     util.email.Message playsRole pendingUtilEmailMessages {
-        multiplicity *;
-    }
-}
-
-relation UnitUnitBasedSender {
-    organizationalStructure.Unit playsRole unit;
-    util.email.UnitBasedSender playsRole unitBasedSender {
         multiplicity *;
     }
 }
