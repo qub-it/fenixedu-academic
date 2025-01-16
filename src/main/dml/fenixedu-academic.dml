@@ -1639,6 +1639,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String fromName;
         String fromAddress;
     }
+    
+    class util.email.UnitBasedSender extends util.email.Sender {}
 
     class util.email.ExecutionCourseSender extends util.email.Sender { }
 
