@@ -1,3 +1,5 @@
+- Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
+
 49.0.0 (28-01-2025)
 - Refactor: Delete unused methods from Registration [#qubIT-Fenix-6558]
 - Refactor: Delete deprecated GradeScaleEnum and related domain [#qubIT-Fenix-1784]
