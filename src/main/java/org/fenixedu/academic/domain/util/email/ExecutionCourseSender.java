@@ -41,7 +41,6 @@ public class ExecutionCourseSender extends ExecutionCourseSender_Base {
         super();
         setCourse(Objects.requireNonNull(executionCourse));
         setFromAddress(Bennu.getInstance().getSystemSender().getFromAddress());
-        addReplyTos(new ExecutionCourseReplyTo());
         addReplyTos(new CurrentUserReplyTo());
         setMembers(TeacherGroup.get(executionCourse));
         final String labelECTeachers = BundleUtil.getString(Bundle.SITE,

@@ -14,6 +14,20 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.text.Collator;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
@@ -34,21 +48,8 @@ import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
-import java.text.Collator;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
 public class ExecutionCourse extends ExecutionCourse_Base {
     public static final String CREATED_SIGNAL = "academic.executionCourse.create";
@@ -56,6 +57,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     public static final String EDITED_SIGNAL = "academic.executionCourse.create";
 
     public static final String ACRONYM_CHANGED_SIGNAL = "academic.executionCourse.acronym.edit";
+
+    public static final String DELETED_SIGNAL = "academic.executionCourse.delete";
 
     public static final Comparator<ExecutionCourse> EXECUTION_COURSE_EXECUTION_PERIOD_COMPARATOR =
             Comparator.comparing(ExecutionCourse::getExecutionInterval);
@@ -120,11 +123,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             g.setExecutionCourse(null);
             deleteGroup(g);
         });
-
-        if (getSender() != null) {
-            getSender().getRecipientsSet().clear();
-            getSender().delete();
-        }
 
         for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
             ;
@@ -220,8 +218,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             }
 
             final Attends attendsByStudent = executionCourse.getAttendsByStudent(enrolment.getRegistration().getStudent());
-            return attendsByStudent != null && attendsByStudent.getEnrolment() != null && !attendsByStudent.getEnrolment()
-                    .isAnnulled();
+            return attendsByStudent != null && attendsByStudent.getEnrolment() != null
+                    && !attendsByStudent.getEnrolment().isAnnulled();
         }
 
     }
@@ -269,8 +267,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         final Set<SchoolClass> result = new HashSet<SchoolClass>();
         for (final Shift shift : getAssociatedShifts()) {
             for (final SchoolClass schoolClass : shift.getAssociatedClassesSet()) {
-                if (degreeCurricularPlan == null || schoolClass.getExecutionDegree()
-                        .getDegreeCurricularPlan() == degreeCurricularPlan) {
+                if (degreeCurricularPlan == null
+                        || schoolClass.getExecutionDegree().getDegreeCurricularPlan() == degreeCurricularPlan) {
                     result.add(schoolClass);
                 }
             }
@@ -309,9 +307,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public void updateName() {
-        final String newName =
-                getCompetenceCoursesInformations().stream().map(cci -> cci.getName()).filter(Objects::nonNull).distinct().sorted()
-                        .collect(Collectors.joining(" / "));
+        final String newName = getCompetenceCoursesInformations().stream().map(cci -> cci.getName()).filter(Objects::nonNull)
+                .distinct().sorted().collect(Collectors.joining(" / "));
         setNome(newName);
     }
 
@@ -356,10 +353,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         final Function<DegreeCurricularPlan, Stream<ExecutionDegree>> dcpToExecutionDegree =
                 dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream();
 
-        final Collection<Interval> allIntervals =
-                getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
-                        .flatMap(dcpToExecutionDegree).flatMap(executionDegreeToPeriods)
-                        .map(OccupationPeriod::getIntervalWithNextPeriods).collect(Collectors.toSet());
+        final Collection<Interval> allIntervals = getAssociatedCurricularCoursesSet().stream()
+                .map(CurricularCourse::getDegreeCurricularPlan).flatMap(dcpToExecutionDegree).flatMap(executionDegreeToPeriods)
+                .map(OccupationPeriod::getIntervalWithNextPeriods).collect(Collectors.toSet());
 
         if (!allIntervals.isEmpty()) {
             final DateTime start = allIntervals.stream().map(Interval::getStart).min(Comparator.naturalOrder()).get();
@@ -424,10 +420,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             }
         }
         return null;
-    }
-
-    public boolean isHasSender() {
-        return getSender() != null;
     }
 
     /*
