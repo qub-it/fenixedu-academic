@@ -1628,8 +1628,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String fromAddress;
     }
 
-    class util.email.PersonSender extends util.email.Sender {}
-
 class QueueJob  {
                Boolean done;
                Integer failedCounter;
@@ -2502,10 +2500,6 @@ relation ExecutionCourseSummary {
     ExecutionCourse playsRole executionCourse { multiplicity 1..1; }
 }
 
-relation PersonSender {
-    Person playsRole person;
-    util.email.PersonSender playsRole sender;
-}
 
 relation ExecutionDegreeCoordinator {
     ExecutionDegree playsRole executionDegree;
