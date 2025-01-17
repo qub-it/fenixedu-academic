@@ -1,19 +1,5 @@
 package org.fenixedu.academic.domain.curricularRules.util;
 
-import static org.fenixedu.academic.domain.CompetenceCourseTest.createCompetenceCourse;
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
-import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
-
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -56,16 +42,34 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
-
 import pt.ist.fenixframework.FenixFramework;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.fenixedu.academic.domain.CompetenceCourseTest.createCompetenceCourse;
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
+import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 
 public class ConclusionRulesTestUtil {
 
     public static final String CYCLE_GROUP = "Cycle";
+
     public static final String OPTIONAL_GROUP = "Optional";
+
     public static final String MANDATORY_GROUP = "Mandatory";
+
     public static final String ADMIN_USERNAME = "admin";
+
     public static final String STUDENT_CONCLUSION_A_USERNAME = "student.test.conclusion.a";
+
     public static final String GRADE_SCALE_NUMERIC = "TYPE20";
 
     @BeforeClass
@@ -88,8 +92,9 @@ public class ConclusionRulesTestUtil {
     public static DegreeCurricularPlan createDegreeCurricularPlan(ExecutionYear executionYear) {
         final ExecutionInterval firstExecutionPeriod = executionYear.getFirstExecutionPeriod();
         final DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
-        final Degree degree = DegreeTest.createDegree(degreeType, "D" + System.currentTimeMillis(),
-                "D" + System.currentTimeMillis(), executionYear);
+        final Degree degree =
+                DegreeTest.createDegree(degreeType, "D" + System.currentTimeMillis(), "D" + System.currentTimeMillis(),
+                        executionYear);
         final User user = User.findByUsername(ADMIN_USERNAME);
 
         final DegreeCurricularPlan degreeCurricularPlan =
@@ -157,6 +162,11 @@ public class ConclusionRulesTestUtil {
     public static Registration createRegistration(final DegreeCurricularPlan degreeCurricularPlan,
             final ExecutionYear executionYear) {
         final Student student = User.findByUsername(STUDENT_CONCLUSION_A_USERNAME).getPerson().getStudent();
+        return createRegistration(student, degreeCurricularPlan, executionYear);
+    }
+
+    public static Registration createRegistration(Student student, final DegreeCurricularPlan degreeCurricularPlan,
+            final ExecutionYear executionYear) {
         return StudentTest.createRegistration(student, degreeCurricularPlan, executionYear);
     }
 
@@ -164,10 +174,21 @@ public class ConclusionRulesTestUtil {
         final DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
         Stream.of(codes).forEach(c -> {
             final Context context = degreeCurricularPlan.getCurricularCourseByCode(c).getParentContextsSet().iterator().next();
-            final ExecutionInterval enrolmentInterval = executionYear.getChildInterval(
-                    context.getCurricularPeriod().getChildOrder(), context.getCurricularPeriod().getAcademicPeriod());
+            final ExecutionInterval enrolmentInterval =
+                    executionYear.getChildInterval(context.getCurricularPeriod().getChildOrder(),
+                            context.getCurricularPeriod().getAcademicPeriod());
             EnrolmentTest.createEnrolment(studentCurricularPlan, enrolmentInterval, context, ADMIN_USERNAME);
         });
+    }
+
+    public static void setEnrolmentGrade(StudentCurricularPlan plan, ExecutionYear executionYear, String code, String grade) {
+        final Enrolment enrolment = plan.getEnrolmentsSet().stream().filter(e -> e.getExecutionYear() == executionYear)
+                .filter(e -> Objects.equals(e.getCode(), code)).findFirst().get();
+        final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
+        evaluation.setGrade(Grade.createGrade(grade, GradeScale.findUniqueByCode(GRADE_SCALE_NUMERIC).get()));
+        evaluation.setExamDateYearMonthDay(new YearMonthDay());
+        evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+        enrolment.setEnrollmentState(evaluation.getGrade().getEnrolmentState());
     }
 
     public static void enrolInNoCourseGroup(StudentCurricularPlan curricularPlan, ExecutionYear executionYear,
@@ -249,8 +270,9 @@ public class ConclusionRulesTestUtil {
         Stream.of(codes).forEach(c -> {
             final CurricularCourse curricularCourse = degreeCurricularPlan.getCurricularCourseByCode(c);
             final Context context = curricularCourse.getParentContextsSet().iterator().next();
-            final ExecutionInterval executionInterval = executionYear.getChildInterval(
-                    context.getCurricularPeriod().getChildOrder(), context.getCurricularPeriod().getAcademicPeriod());
+            final ExecutionInterval executionInterval =
+                    executionYear.getChildInterval(context.getCurricularPeriod().getChildOrder(),
+                            context.getCurricularPeriod().getAcademicPeriod());
             final SelectedCurricularCourse dismissalDTO = new SelectedCurricularCourse(curricularCourse, studentCurricularPlan);
             dismissalDTO.setCurriculumGroup(studentCurricularPlan.findCurriculumGroupFor(context.getParentCourseGroup()));
 
