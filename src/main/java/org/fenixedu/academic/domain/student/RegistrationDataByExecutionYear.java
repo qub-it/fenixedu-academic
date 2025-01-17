@@ -107,7 +107,6 @@ public class RegistrationDataByExecutionYear extends RegistrationDataByExecution
 
     public void edit(LocalDate enrolmentDate) {
         setEnrolmentDate(enrolmentDate);
-        setActive(enrolmentDate != null);
         checkRules();
     }
 
