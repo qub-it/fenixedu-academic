@@ -1644,8 +1644,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class util.email.CoordinatorSender extends util.email.Sender {}
     
-    class util.email.PersonSender extends util.email.Sender {}
-
     class util.email.SystemSender extends util.email.Sender {}
 
 class QueueJob  {
@@ -2528,11 +2526,6 @@ relation ExecutionCourseSender {
 relation CoordinatorSender {
     Degree playsRole degree;
     util.email.CoordinatorSender playsRole sender;
-}
-
-relation PersonSender {
-    Person playsRole person;
-    util.email.PersonSender playsRole sender;
 }
 
 relation ExecutionDegreeCoordinator {
