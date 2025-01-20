@@ -1967,6 +1967,7 @@ public class Registration extends Registration_Base {
             final Enrolment firstEnrolment = enrolments.stream().min(comparing(Enrolment::getCreationDateDateTime)).orElseThrow();
             registrationData.edit(firstEnrolment.getCreationDateDateTime().toLocalDate());
         }
+        registrationData.setActive(!enrolments.isEmpty());
     }
 
     public Optional<SchoolClass> findSchoolClass(final ExecutionInterval interval) {
