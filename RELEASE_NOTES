@@ -1,5 +1,5 @@
-- New feature: Adds Active state to RegistrationDataByExecutionYear [#qubIT-Fenix-4927]
 - Refactor: Delete EntryPhase Enum [#qubIT-Fenix-5905]
+- New feature: Adds Active state to RegistrationDataByExecutionYear [#qubIT-Fenix-4927]
 
 48.6.1 (16-01-2025)
 - Bug fix: Brings back UnitBasedSender [#qubIT-Omnis-8289]
