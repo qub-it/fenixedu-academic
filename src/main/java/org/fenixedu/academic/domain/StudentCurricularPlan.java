@@ -82,6 +82,7 @@ import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Sets;
@@ -188,11 +189,16 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public void editStart(final ExecutionInterval startInterval) {
-        final YearMonthDay startDate = startInterval.getBeginDateYearMonthDay();
+        if (startInterval != getStartExecutionInterval()) {
+            final YearMonthDay startDate = startInterval.getBeginDateYearMonthDay();
+            editStart(startInterval, startDate);
+        }
+    }
 
+    public void editStart(final ExecutionInterval startInterval, final YearMonthDay startDate) {
         if (getRegistration().getStudentCurricularPlansSet().stream().filter(scp -> scp != this).anyMatch(
-                scp -> (scp.getStartExecutionInterval() == startInterval || scp.getStartExecutionYear() == startInterval)
-                        && scp.getStartDateYearMonthDay().equals(startDate))) {
+                scp -> (scp.getStartExecutionInterval() == startInterval || scp.getStartExecutionYear() == startInterval) && scp.getStartDateYearMonthDay()
+                        .equals(startDate))) {
             throw new DomainException("error.registrationAlreadyHasSCPWithGivenStartIntervalAndDates");
         }
 
@@ -303,9 +309,13 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public void setStartDate(YearMonthDay startDate) {
-        if (startDate != null && getStartExecutionInterval() != null
-                && !getStartExecutionInterval().getAcademicInterval().contains(startDate.toDateTimeAtMidnight())) {
-            throw new DomainException("error.StudentCurricularPlan.setting.startDate.outsideExecutionInterval");
+        if (startDate != null && getStartExecutionInterval() != null) {
+            final Interval startDateInterval =
+                    new Interval(startDate.toDateTimeAtMidnight(), startDate.plusDays(1).toDateTimeAtMidnight());
+            if (!getStartExecutionInterval().getAcademicInterval().overlaps(startDateInterval)) {
+                throw new DomainException("error.StudentCurricularPlan.setting.startDate.outsideExecutionInterval",
+                        startDate.toString(), getStartExecutionInterval().getQualifiedName());
+            }
         }
         super.setStartDateYearMonthDay(startDate);
     }
