@@ -4,7 +4,6 @@
 - Refactor: Delete unused methods from Registration [#qubIT-Fenix-6558]
 - Refactor: Delete deprecated GradeScaleEnum and related domain [#qubIT-Fenix-1784]
 - Refactor: Delete deprecated OccupationPeriodType enum [#qubIT-Fenix-1783]
-- Refactor: Replace references to discontinued ExecutionCourseSender [#qubIT-Omnis-8013]
 - Refactor: Drops usages of SystemSender [#qubIT-Omnis-7786]
 - Improvement: Removes JobQueueDispatcher.java [#qubIT-Omnis-7802]
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
@@ -46,7 +45,6 @@
 
 48.2.0 (16-12-2024)
 - Refactor: Deletes DepartmentMemberBasedSender [#qubIT-Omnis-7772]
-- Refactor: Drops usages of SystemSender [#qubIT-Omnis-7786]
 - New feature: Add dynamic fields to teacher [#UL-FC-5015]
 - Improvement: Prevent changing shift load type when students are already enrolled [#qubIT-Fenix-6234]
 - Improvement: Add further testing for enrolment creation [#qubIT-Fenix-5876]
