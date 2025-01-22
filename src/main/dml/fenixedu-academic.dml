@@ -29,7 +29,6 @@ enum org.fenixedu.academic.domain.FrequencyType                                 
 enum org.fenixedu.academic.domain.GradeScaleEnum                                                                       as GradeScaleEnum;
 enum org.fenixedu.academic.domain.GrantOwnerType                                                                       as GrantOwnerType;
 enum org.fenixedu.academic.domain.JobApplicationType                                                                   as JobApplicationType;
-enum org.fenixedu.academic.domain.OccupationPeriodType                                                                 as OccupationPeriodType;
 enum org.fenixedu.academic.domain.PhotoState                                                                           as PhotoState;
 enum org.fenixedu.academic.domain.PhotoType                                                                            as PhotoType;
 enum org.fenixedu.academic.domain.photograph.AspectRatio																  as AspectRatio;
@@ -668,7 +667,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
      */
     
     class OccupationPeriodReference  {
-    	OccupationPeriodType periodType;
     	Integer semester;
     	CurricularYearList curricularYears;
     }

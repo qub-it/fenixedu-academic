@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public class OccupationPeriodReference extends OccupationPeriodReference_Base {
+    
     private OccupationPeriodReference() {
         super();
         setRootDomainObject(Bennu.getInstance());
@@ -37,21 +38,8 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
         }
         setOccupationPeriod(period);
         setExecutionDegree(degree);
-        setPeriodType(OccupationPeriodType.LESSONS);
         setExecutionInterval(interval);
         setCurricularYears(curricularYears);
-    }
-
-    @Deprecated
-    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, OccupationPeriodType type,
-            ExecutionInterval interval, CurricularYearList curricularYears) {
-        this(period, degree, interval, curricularYears);
-    }
-
-    @Deprecated
-    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, OccupationPeriodType type, Integer semester,
-            CurricularYearList curricularYears) {
-        this(period, degree, type, degree.getExecutionYear().getExecutionSemesterFor(semester), curricularYears);
     }
 
     public void delete() {
