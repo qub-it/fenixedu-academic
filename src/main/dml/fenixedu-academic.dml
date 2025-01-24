@@ -26,7 +26,6 @@ enum org.fenixedu.academic.domain.CompetenceCourseType                          
 enum org.fenixedu.academic.domain.ContractType                                                                         as ContractType;
 enum org.fenixedu.academic.domain.ExecutionCourseBoardPermittedGroupType                                               as ExecutionCourseBoardPermittedGroupType;
 enum org.fenixedu.academic.domain.FrequencyType                                                                        as FrequencyType;
-enum org.fenixedu.academic.domain.GradeScaleEnum                                                                       as GradeScaleEnum;
 enum org.fenixedu.academic.domain.GrantOwnerType                                                                       as GrantOwnerType;
 enum org.fenixedu.academic.domain.JobApplicationType                                                                   as JobApplicationType;
 enum org.fenixedu.academic.domain.PhotoState                                                                           as PhotoState;
@@ -259,7 +258,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		}
 	
 	class curriculum.grade.GradeScaleEntry {
-		GradeScaleEnum gradeScaleEnum;
 		String value (REQUIRED);
 		LocalizedString description (REQUIRED);
 		/* if true this grade is an approval */
@@ -327,7 +325,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         CurricularStage curricularStage;
         String name;
         CompetenceCourseType type;
-        GradeScaleEnum gradeScaleEnum;
     }
     
     	relation CompetenceCourseGradeScale {
@@ -540,7 +537,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class Evaluation  {
         String publishmentMessage;
-        GradeScaleEnum gradeScaleEnum;
     }
 
     	relation GradeScaleEvaluation {
