@@ -41,14 +41,12 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -94,8 +92,6 @@ import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 
@@ -105,7 +101,7 @@ public class Registration extends Registration_Base {
 
     public static final String REGISTRATION_CREATE_SIGNAL = "academic.registration.create";
 
-    private static final Logger logger = LoggerFactory.getLogger(Registration.class);
+//    private static final Logger logger = LoggerFactory.getLogger(Registration.class);
 
     static final public Comparator<Registration> NUMBER_COMPARATOR = new Comparator<Registration>() {
         @Override
@@ -122,11 +118,11 @@ public class Registration extends Registration_Base {
         }
     };
 
-    static public final ComparatorChain COMPARATOR_BY_NUMBER_AND_ID = new ComparatorChain();
-    static {
-        COMPARATOR_BY_NUMBER_AND_ID.addComparator(NUMBER_COMPARATOR);
-        COMPARATOR_BY_NUMBER_AND_ID.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
-    }
+//    static public final ComparatorChain COMPARATOR_BY_NUMBER_AND_ID = new ComparatorChain();
+//    static {
+//        COMPARATOR_BY_NUMBER_AND_ID.addComparator(NUMBER_COMPARATOR);
+//        COMPARATOR_BY_NUMBER_AND_ID.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
+//    }
 
     private Registration() {
         super();
@@ -1345,9 +1341,9 @@ public class Registration extends Registration_Base {
     }
 
     @Deprecated
-    public YearMonthDay getConclusionDateForBolonha() {
-        return getConclusionDate();
-    }
+//    public YearMonthDay getConclusionDateForBolonha() {
+//        return getConclusionDate();
+//    }
 
     final public YearMonthDay getConclusionDate(final CycleType cycleType) {
         if (!getDegreeType().hasAnyCycleTypes()) {
@@ -1630,19 +1626,6 @@ public class Registration extends Registration_Base {
         return activeStateType != null && !activeStateType.getActive();
     }
 
-//    public Space getCampus() {
-//        return getLastStudentCurricularPlan().getLastCampus();
-//    }
-//
-//    public Space getCampus(final ExecutionYear executionYear) {
-//        final StudentCurricularPlan scp = getStudentCurricularPlan(executionYear);
-//        return scp == null ? getLastStudentCurricularPlan().getCampus(executionYear) : scp.getCampus(executionYear);
-//    }
-
-//    final public String getIstUniversity() {
-//        return getCampus().getName();
-//    }
-
     @Override
     final public void setStudentCandidacy(final StudentCandidacy studentCandidacy) {
         if (getStudentCandidacy() != null) {
@@ -1725,11 +1708,12 @@ public class Registration extends Registration_Base {
         return null;
     }
 
-    final public SortedSet<ExternalEnrolment> getSortedExternalEnrolments() {
-        final SortedSet<ExternalEnrolment> result = new TreeSet<>(ExternalEnrolment.COMPARATOR_BY_NAME);
-        result.addAll(getExternalEnrolmentsSet());
-        return result;
-    }
+    //removed and compiled with success in admin/iscte/iseg
+//    final public SortedSet<ExternalEnrolment> getSortedExternalEnrolments() {
+//        final SortedSet<ExternalEnrolment> result = new TreeSet<>(ExternalEnrolment.COMPARATOR_BY_NAME);
+//        result.addAll(getExternalEnrolmentsSet());
+//        return result;
+//    }
 
     public void editStartDates(final ExecutionYear registrationYear, final YearMonthDay startDate,
             final YearMonthDay homologationDate, final YearMonthDay studiesStartDate) {
@@ -1868,15 +1852,16 @@ public class Registration extends Registration_Base {
         dataByExecutionYear.deleteReingression();
     }
 
-    public int getNumberEnroledCurricularCoursesInCurrentYear() {
-        final StudentCurricularPlan lastStudentCurricularPlan = getLastStudentCurricularPlan();
-        if (lastStudentCurricularPlan == null) {
-            return 0;
-        }
-        long result = lastStudentCurricularPlan.getEnrolmentsSet().stream()
-                .filter(e -> e.getExecutionInterval().getExecutionYear().isCurrent()).count();
-        return Math.toIntExact(result);
-    }
+    //removed and compiled iseg/iscte-ext/admin-office with success
+//    public int getNumberEnroledCurricularCoursesInCurrentYear() {
+//        final StudentCurricularPlan lastStudentCurricularPlan = getLastStudentCurricularPlan();
+//        if (lastStudentCurricularPlan == null) {
+//            return 0;
+//        }
+//        long result = lastStudentCurricularPlan.getEnrolmentsSet().stream()
+//                .filter(e -> e.getExecutionInterval().getExecutionYear().isCurrent()).count();
+//        return Math.toIntExact(result);
+//    }
 
     public List<CycleCurriculumGroup> getInternalCycleCurriculumGrops() {
         return getLastStudentCurricularPlan().getInternalCycleCurriculumGrops();
