@@ -6,7 +6,6 @@
 - Refactor: Delete deprecated OccupationPeriodType enum [#qubIT-Fenix-1783]
 - Refactor: Drops usages of SystemSender [#qubIT-Omnis-7786]
 - Improvement: Removes JobQueueDispatcher.java [#qubIT-Omnis-7802]
-- Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
 - Bug fix: Set first scp start date the same as the registration [#UL-FL-12151]
 
 48.7.0 (20-01-2025)

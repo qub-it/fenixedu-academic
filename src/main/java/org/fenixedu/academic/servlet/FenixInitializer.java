@@ -53,6 +53,8 @@ public class FenixInitializer implements ServletContextListener {
 
     private static final Logger logger = LoggerFactory.getLogger(FenixInitializer.class);
 
+    public static final String SEND_EMAIL_SIGNAL = "email.send.SystemSenderEmail";
+
     @Override
     @Atomic(mode = TxMode.READ)
     public void contextInitialized(ServletContextEvent event) {
@@ -82,7 +84,7 @@ public class FenixInitializer implements ServletContextListener {
                 d.setTag(DynamicFieldTag.getOrCreateDefaultTag(d.getDomainObjectClassName()));
             }
         });
-        
+
         Log.warn("Finished population of DynamicFieldTag in DynamicFieldDescriptors in " + (System.currentTimeMillis() - start)
                 + " ms. Migrated " + dynamicFieldDescriptorSet.size() + " DynamicFieldDescriptor instances.");
     }
