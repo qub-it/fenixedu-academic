@@ -1,7 +1,6 @@
 package org.fenixedu.academic.dto;
 
 import java.io.Serializable;
-import java.util.Set;
 
 import org.fenixedu.academic.domain.Person;
 
@@ -13,16 +12,19 @@ public class CommunicationMessageDTO implements Serializable {
 
     private LocalizedString subject;
     private LocalizedString contents;
-    private Set<Person> personSet;
+    private Person person;
 
-    public CommunicationMessageDTO(LocalizedString subject, LocalizedString contents, Set<Person> personSet) {
-        this.subject = subject;
-        this.contents = contents;
-        this.personSet = personSet;
+    public CommunicationMessageDTO() {
     }
 
-    public CommunicationMessageDTO(String subject, String contents, Set<Person> personSet) {
-        this.personSet = personSet;
+    public CommunicationMessageDTO(LocalizedString subject, LocalizedString contents, Person person) {
+        this.subject = subject;
+        this.contents = contents;
+        this.person = person;
+    }
+
+    public CommunicationMessageDTO(String subject, String contents, Person person) {
+        this.person = person;
 
         LocalizedString localizedSubject = new LocalizedString();
         LocalizedString localizedContents = new LocalizedString();
@@ -43,8 +45,8 @@ public class CommunicationMessageDTO implements Serializable {
         return contents;
     }
 
-    public Set<Person> getPersonSet() {
-        return personSet;
+    public Person getPerson() {
+        return person;
     }
 
 }
