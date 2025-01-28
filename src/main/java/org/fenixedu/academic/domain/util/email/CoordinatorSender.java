@@ -23,8 +23,10 @@ import org.fenixedu.academic.domain.accessControl.CoordinatorGroup;
 import org.fenixedu.academic.domain.accessControl.StudentGroup;
 import org.fenixedu.academic.domain.accessControl.TeacherGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.Group;
+
+import com.qubit.terra.framework.services.ServiceProvider;
+import com.qubit.terra.framework.services.communication.SystemSenderEmailSupplier;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -36,7 +38,7 @@ public class CoordinatorSender extends CoordinatorSender_Base {
     public CoordinatorSender(Degree degree) {
         super();
         setDegree(degree);
-        setFromAddress(Bennu.getInstance().getSystemSender().getFromAddress());
+        setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
         addReplyTos(new CurrentUserReplyTo());
         setMembers(CoordinatorGroup.get(degree));
         Group current = CoordinatorGroup.get(degree);

@@ -26,8 +26,10 @@ import org.fenixedu.academic.domain.accessControl.StudentGroup;
 import org.fenixedu.academic.domain.accessControl.TeacherGroup;
 import org.fenixedu.academic.domain.accessControl.TeacherResponsibleOfExecutionCourseGroup;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+
+import com.qubit.terra.framework.services.ServiceProvider;
+import com.qubit.terra.framework.services.communication.SystemSenderEmailSupplier;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -40,7 +42,7 @@ public class ExecutionCourseSender extends ExecutionCourseSender_Base {
     public ExecutionCourseSender(ExecutionCourse executionCourse) {
         super();
         setCourse(Objects.requireNonNull(executionCourse));
-        setFromAddress(Bennu.getInstance().getSystemSender().getFromAddress());
+        setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
         addReplyTos(new ExecutionCourseReplyTo());
         addReplyTos(new CurrentUserReplyTo());
         setMembers(TeacherGroup.get(executionCourse));
