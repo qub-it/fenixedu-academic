@@ -1,4 +1,5 @@
 - Refactor: Completely removes SystemSender from fenixedu-academic [#qubIT-Omnis-8405]
+- Refactor: Replaces call to ProfileBuilder's deprecated provide method with call to associate in PersonIdentifierType [#qubIT-Omnis-7949]
 
 49.1.0 (29-01-2025)
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
