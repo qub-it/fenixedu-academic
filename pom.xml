@@ -292,7 +292,6 @@
         <dependency>
             <groupId>com.qubit.terra</groupId>
             <artifactId>qub-foundation-core-api</artifactId>
-            <version>7.14.0</version>
         </dependency>
     </dependencies>
 </project>
