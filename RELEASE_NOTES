@@ -1,4 +1,5 @@
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
+- Improvement: Replaces all code that sends academic-core Messages and replaces with signals that will send CommunicationMessage [#qubIT-Omnis-8403] 
 
 49.0.0 (28-01-2025)
 - Refactor: Delete unused methods from Registration [#qubIT-Fenix-6558]

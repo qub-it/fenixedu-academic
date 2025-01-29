@@ -43,9 +43,11 @@ import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicT
 import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.servlet.FenixInitializer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -370,7 +372,23 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
         conclude(AccessControl.getPerson(), situationDate, justification);
         if (sendEmail) {
-            Signal.emit("academicServiceRequest.sendConcludeEmailEvent", new DomainObjectEvent<AcademicServiceRequest>(this));
+            String body = BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message1");
+            body += " " + this.getServiceRequestNumberYear();
+            body += " " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message2");
+            body += " '" + this.getDescription();
+            body += "' " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message3");
+
+            if (this.getAcademicServiceRequestType() == AcademicServiceRequestType.SPECIAL_SEASON_REQUEST) {
+                body += "\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR4B");
+                body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR5");
+            } else {
+
+                body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message4");
+
+            }
+
+            Signal.emit(FenixInitializer.SEND_EMAIL_SIGNAL,
+                    new CommunicationMessageDTO(this.getDescription(), body, this.getPerson()));
         }
 
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,

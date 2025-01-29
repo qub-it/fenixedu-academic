@@ -231,7 +231,7 @@ public class Email extends Email_Base {
         }
 
         public void send(final Email email) throws MessagingException {
-            if (email.getMessage().getSender().getFromName() == null) {
+            if (email.getMessage().getFromName() == null) {
                 logProblem("error.from.address.cannot.be.null");
                 abort();
                 return;
