@@ -34,11 +34,15 @@ public class PersonIdentifier extends PersonIdentifier_Base {
 
     @Override
     public void setIdentifier(String identifier) {
-        Optional<PersonIdentifier> findByIdentifierAndType = findByIdentifierAndType(identifier, getType());
-        if (findByIdentifierAndType.isPresent() && findByIdentifierAndType.get() != this) {
+        if (this.getType().getUnique() && isIdentifierRepeated(identifier, this)) {
             throw new DomainException("error.person.personIdentifier.identifier");
         }
         super.setIdentifier(identifier);
+    }
+
+    public static boolean isIdentifierRepeated(String newIdentifier, PersonIdentifier id) {
+        Optional<PersonIdentifier> findByIdentifierAndType = findByIdentifierAndType(newIdentifier, id.getType());
+        return findByIdentifierAndType.isPresent() && findByIdentifierAndType.get() != id;
     }
 
     public static Optional<PersonIdentifier> findByIdentifierAndType(String identifier, PersonIdentifierType type) {
