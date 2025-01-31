@@ -31,15 +31,13 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import com.qubit.terra.framework.services.ServiceProvider;
 import com.qubit.terra.framework.services.communication.SystemSenderEmailSupplier;
 
-import pt.ist.fenixframework.Atomic;
-
 public class ExecutionCourseSender extends ExecutionCourseSender_Base {
 
     public static Comparator<ExecutionCourseSender> COMPARATOR_BY_EXECUTION_COURSE_SENDER = Comparator.nullsFirst(
             Comparator.comparing(ExecutionCourseSender::getCourse, ExecutionCourse.EXECUTION_COURSE_EXECUTION_PERIOD_COMPARATOR
                     .thenComparing(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR)));
 
-    public ExecutionCourseSender(ExecutionCourse executionCourse) {
+    private ExecutionCourseSender(ExecutionCourse executionCourse) {
         super();
         setCourse(Objects.requireNonNull(executionCourse));
         setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
@@ -78,12 +76,6 @@ public class ExecutionCourseSender extends ExecutionCourseSender_Base {
     public void delete() {
         setCourse(null);
         super.delete();
-    }
-
-    @Atomic
-    public static ExecutionCourseSender newInstance(ExecutionCourse ec) {
-        ExecutionCourseSender sender = ec.getSender();
-        return sender == null ? new ExecutionCourseSender(ec) : sender;
     }
 
 }

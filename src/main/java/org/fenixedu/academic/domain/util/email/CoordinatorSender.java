@@ -28,14 +28,12 @@ import org.fenixedu.bennu.core.groups.Group;
 import com.qubit.terra.framework.services.ServiceProvider;
 import com.qubit.terra.framework.services.communication.SystemSenderEmailSupplier;
 
-import pt.ist.fenixframework.Atomic;
-
 public class CoordinatorSender extends CoordinatorSender_Base {
     private Recipient createRecipient(Group group) {
         return new Recipient(null, group);
     }
 
-    public CoordinatorSender(Degree degree) {
+    private CoordinatorSender(Degree degree) {
         super();
         setDegree(degree);
         setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
@@ -66,12 +64,6 @@ public class CoordinatorSender extends CoordinatorSender_Base {
     public void delete() {
         setDegree(null);
         super.delete();
-    }
-
-    @Atomic
-    public static CoordinatorSender newInstance(Degree degree) {
-        CoordinatorSender sender = degree.getSender();
-        return sender == null ? new CoordinatorSender(degree) : sender;
     }
 
 }
