@@ -3,18 +3,14 @@
  *
  * This file is part of FenixEdu Academic.
  *
- * FenixEdu Academic is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * FenixEdu Academic is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * FenixEdu Academic is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * FenixEdu Academic is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License along with FenixEdu Academic.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 package org.fenixedu.academic.domain.serviceRequests;
 
@@ -41,7 +37,6 @@ import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
-import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
@@ -66,6 +61,9 @@ import pt.ist.fenixframework.Atomic;
 abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base implements IAcademicServiceRequest {
 
     private static final String SERVICE_REQUEST_NUMBER_YEAR_SEPARATOR = "/";
+
+    public static String ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT = "ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT";
+    public static String ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT = "ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT";
 
     public static final Comparator<AcademicServiceRequest> COMPARATOR_BY_NUMBER = new Comparator<AcademicServiceRequest>() {
         @Override
@@ -230,7 +228,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
     /**
      * Return the URL for debt account of this student
-     *
      */
     public String getPaymentURL() {
         final IAcademicServiceRequestAndAcademicTaxTreasuryEvent event =
@@ -267,8 +264,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void process() throws DomainException {
         process(AccessControl.getPerson());
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void process(final Person responsible) throws DomainException {
@@ -294,8 +290,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.RECEIVED_FROM_EXTERNAL_ENTITY,
                 AccessControl.getPerson(), receivedDate, description));
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
@@ -303,8 +298,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.REJECTED, AccessControl.getPerson(),
                 justification));
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
@@ -312,8 +306,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CANCELLED, AccessControl.getPerson(),
                 justification));
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void concludeServiceRequest() {
@@ -323,43 +316,37 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude() {
+     */ final public void conclude() {
         conclude(AccessControl.getPerson());
     }
 
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible) {
+     */ final public void conclude(final Person responsible) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible));
     }
 
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final YearMonthDay situationDate, final String justification) {
+     */ final public void conclude(final YearMonthDay situationDate, final String justification) {
         conclude(AccessControl.getPerson(), situationDate, justification);
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible, final YearMonthDay situationDate) {
+     */ final public void conclude(final Person responsible, final YearMonthDay situationDate) {
         conclude(responsible, situationDate, "");
     }
 
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final Person responsible, final YearMonthDay situationDate, final String justification) {
+     */ final public void conclude(final Person responsible, final YearMonthDay situationDate, final String justification) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.CONCLUDED, responsible, situationDate,
                 justification));
     }
@@ -368,8 +355,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     @Deprecated
     /**
      * There are many conclude methods. It should be simplified
-     */
-    final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
+     */ final public void conclude(final YearMonthDay situationDate, final String justification, boolean sendEmail) {
         conclude(AccessControl.getPerson(), situationDate, justification);
         if (sendEmail) {
             String body = BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message1");
@@ -391,16 +377,14 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
                     new CommunicationMessageDTO(this.getDescription(), body, this.getPerson()));
         }
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     @Atomic
     final public void delivered() {
         delivered(AccessControl.getPerson());
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final private void delivered(final Person responsible) {
@@ -410,8 +394,7 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     final public void delivered(final Person responsible, final YearMonthDay situationDate) {
         edit(new AcademicServiceRequestBean(AcademicServiceRequestSituationType.DELIVERED, responsible, situationDate, ""));
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT,
-                new DomainObjectEvent<AcademicServiceRequest>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<AcademicServiceRequest>(this));
     }
 
     final public void delete() {
@@ -594,28 +577,32 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     }
 
     protected List<AcademicServiceRequestSituationType> getNewSituationAcceptedSituationsTypes() {
-        return Collections.unmodifiableList(Arrays.asList(AcademicServiceRequestSituationType.CANCELLED,
-                AcademicServiceRequestSituationType.REJECTED, AcademicServiceRequestSituationType.PROCESSING));
+        return Collections.unmodifiableList(
+                Arrays.asList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED,
+                        AcademicServiceRequestSituationType.PROCESSING));
     }
 
     protected List<AcademicServiceRequestSituationType> getProcessingSituationAcceptedSituationsTypes() {
         if (isPossibleToSendToOtherEntity()) {
-            return Collections.unmodifiableList(Arrays.asList(AcademicServiceRequestSituationType.CANCELLED,
-                    AcademicServiceRequestSituationType.REJECTED, AcademicServiceRequestSituationType.SENT_TO_EXTERNAL_ENTITY));
+            return Collections.unmodifiableList(
+                    Arrays.asList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED,
+                            AcademicServiceRequestSituationType.SENT_TO_EXTERNAL_ENTITY));
         } else {
-            return Collections.unmodifiableList(Arrays.asList(AcademicServiceRequestSituationType.CANCELLED,
-                    AcademicServiceRequestSituationType.REJECTED, AcademicServiceRequestSituationType.CONCLUDED));
+            return Collections.unmodifiableList(
+                    Arrays.asList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED,
+                            AcademicServiceRequestSituationType.CONCLUDED));
         }
     }
 
     protected List<AcademicServiceRequestSituationType> getSentToExternalEntitySituationAcceptedSituationsTypes() {
-        return Collections
-                .unmodifiableList(Collections.singletonList(AcademicServiceRequestSituationType.RECEIVED_FROM_EXTERNAL_ENTITY));
+        return Collections.unmodifiableList(
+                Collections.singletonList(AcademicServiceRequestSituationType.RECEIVED_FROM_EXTERNAL_ENTITY));
     }
 
     protected List<AcademicServiceRequestSituationType> getReceivedFromExternalEntitySituationAcceptedSituationsTypes() {
-        return Collections.unmodifiableList(Arrays.asList(AcademicServiceRequestSituationType.CANCELLED,
-                AcademicServiceRequestSituationType.REJECTED, AcademicServiceRequestSituationType.CONCLUDED));
+        return Collections.unmodifiableList(
+                Arrays.asList(AcademicServiceRequestSituationType.CANCELLED, AcademicServiceRequestSituationType.REJECTED,
+                        AcademicServiceRequestSituationType.CONCLUDED));
     }
 
     protected List<AcademicServiceRequestSituationType> getConcludedSituationAcceptedSituationsTypes() {
@@ -725,25 +712,21 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     abstract public boolean isToPrint();
 
     /**
-     * Indicates if is possible to AdministrativeOffice send this request to another
-     * entity
+     * Indicates if is possible to AdministrativeOffice send this request to another entity
      */
     abstract public boolean isPossibleToSendToOtherEntity();
 
     /**
-     * Indicates that the document external shipping to rectorate is done using the
-     * rectorate batches. The
+     * Indicates that the document external shipping to rectorate is done using the rectorate batches. The
      * {@link AcademicServiceRequestSituationType#SENT_TO_EXTERNAL_ENTITY} and
-     * {@link AcademicServiceRequestSituationType#RECEIVED_FROM_EXTERNAL_ENTITY}
-     * states are handled through this system.
+     * {@link AcademicServiceRequestSituationType#RECEIVED_FROM_EXTERNAL_ENTITY} states are handled through this system.
      *
      * @return true if managed by batch, false otherwise.
      */
     abstract public boolean isManagedWithRectorateSubmissionBatch();
 
     /**
-     * Special condition for pre-existing documents that are able to consume a
-     * registry number.
+     * Special condition for pre-existing documents that are able to consume a registry number.
      */
     public boolean isCanGenerateRegistryCode() {
         return false;
@@ -796,8 +779,9 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     abstract public boolean hasPersonalInfo();
 
     protected boolean hasMissingPersonalInfo() {
-        return Strings.isNullOrEmpty(getPerson().getName()) || getPerson().getDateOfBirthYearMonthDay() == null
-                || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber()) || getPerson().getIdDocumentType() == null;
+        return Strings.isNullOrEmpty(
+                getPerson().getName()) || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(
+                getPerson().getDocumentIdNumber()) || getPerson().getIdDocumentType() == null;
     }
 
     public void revertToProcessingState() {

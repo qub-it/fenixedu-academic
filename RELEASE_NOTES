@@ -1,3 +1,5 @@
+- Refactor: Remove unused and deprecated classes and methods of ITreasuryBridgeAPI [#qubIT-Fenix-6565]
+
 49.1.1 (30-01-2025)
 - Refactor: Completely removes SystemSender from fenixedu-academic [#qubIT-Omnis-8405]
 - Refactor: Replaces call to ProfileBuilder's deprecated provide method with call to associate in PersonIdentifierType [#qubIT-Omnis-7949]
