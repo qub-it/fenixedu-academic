@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -50,7 +49,6 @@ import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
-import org.fenixedu.bennu.core.signals.Signal;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -107,7 +105,6 @@ public class MergeExecutionCourses {
         registerMergeHandler(MergeExecutionCourses::removeEvaluations);
         registerMergeHandler(MergeExecutionCourses::copyExecutionCourseLogs);
         registerMergeHandler(MergeExecutionCourses::copyPersistentGroups);
-        registerMergeHandler(MergeExecutionCourses::copySenderMessages);
         registerMergeHandler(
                 (from, to) -> to.getAssociatedCurricularCoursesSet().addAll(from.getAssociatedCurricularCoursesSet()));
         registerMergeHandler((from, to) -> LessonPlanning.copyLessonPlanningsFrom(from, to));
@@ -288,9 +285,4 @@ public class MergeExecutionCourses {
             group.setExecutionCourse(executionCourseTo);
         }
     }
-
-    private static void copySenderMessages(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
-        Signal.emit("mergeExecutionCourses.copySenderMessages", Pair.of(executionCourseFrom, executionCourseTo));
-    }
-
 }
