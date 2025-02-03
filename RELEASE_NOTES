@@ -1,3 +1,4 @@
+49.1.2-RC-Refactor_20250108_RemovesExecutionCourseSenderReferences.20250203_1645 (03-02-2025)
 - Refactor: Replace references to soon to be discontinued Senders on ExecutionCourse and Degree classes [#qubIT-Omnis-8013]
 
 49.1.2 (31-01-2025)
