@@ -22,6 +22,17 @@
  */
 package org.fenixedu.academic.service.services.manager;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -37,21 +48,10 @@ import org.fenixedu.academic.domain.accessControl.PersistentStudentGroup;
 import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.util.email.ExecutionCourseSender;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:joao.mota@ist.utl.pt"> João Mota </a> 29/Nov/2003
@@ -105,7 +105,6 @@ public class MergeExecutionCourses {
         registerMergeHandler(MergeExecutionCourses::removeEvaluations);
         registerMergeHandler(MergeExecutionCourses::copyExecutionCourseLogs);
         registerMergeHandler(MergeExecutionCourses::copyPersistentGroups);
-        registerMergeHandler(MergeExecutionCourses::copySenderMessages);
         registerMergeHandler(
                 (from, to) -> to.getAssociatedCurricularCoursesSet().addAll(from.getAssociatedCurricularCoursesSet()));
         registerMergeHandler((from, to) -> LessonPlanning.copyLessonPlanningsFrom(from, to));
@@ -286,12 +285,4 @@ public class MergeExecutionCourses {
             group.setExecutionCourse(executionCourseTo);
         }
     }
-
-    private static void copySenderMessages(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
-        if (executionCourseFrom.getSender() != null) {
-            ExecutionCourseSender courseSenderTo = ExecutionCourseSender.newInstance(executionCourseTo);
-            courseSenderTo.getMessagesSet().addAll(executionCourseFrom.getSender().getMessagesSet());
-        }
-    }
-
 }
