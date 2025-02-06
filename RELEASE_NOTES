@@ -1,3 +1,4 @@
+- Refactor: Deletes CoordinatorSender, ExecutionCourseSender and ExecutionCourseReplyTo [#qubIT-Omnis-8498]
 - Bug fix: Conclusion process should use last approvement interval instead of last period of year [#qubIT-Fenix-5224]
 
 49.2.0 (05-02-2025)
