@@ -102,6 +102,7 @@ public class UnitNamePart extends UnitNamePart_Base {
 
     public void deleteIfEmpty() {
         if (getUnitNameSet().isEmpty()) {
+            unitNamePartIndexMap.remove(getNamePart());
             setRootDomainObject(null);
             deleteDomainObject();
         }

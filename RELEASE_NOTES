@@ -1,3 +1,5 @@
+- Bug fix: When deleting a unit, remove its name part from cached index [#UL-REIT-4225]
+
 49.2.1 (06-02-2025)
 - Refactor: Deletes CoordinatorSender, ExecutionCourseSender and ExecutionCourseReplyTo [#qubIT-Omnis-8498]
 - Bug fix: Conclusion process should use last approvement interval instead of last period of year [#qubIT-Fenix-5224]
