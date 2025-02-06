@@ -1492,9 +1492,9 @@ public class Registration extends Registration_Base {
 
         if (conclusion != null && conclusion.getTargetStateType() != null
                 && !conclusion.getTargetStateType().equals(getActiveStateType())) {
-            final ExecutionYear conclusionYear = curriculumGroup.getConclusionYear();
+            final ExecutionInterval conclusionInterval = curriculumGroup.getLastApprovement().getExecutionInterval();
             RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(),
-                    conclusion.getTargetStateType(), conclusionYear != null ? conclusionYear.getLastExecutionPeriod() : null);
+                    conclusion.getTargetStateType(), conclusionInterval);
         }
 
     }
