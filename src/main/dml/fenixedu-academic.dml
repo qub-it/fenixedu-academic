@@ -1626,8 +1626,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class util.email.PersonReplyTo extends util.email.ReplyTo { }
     
-    class util.email.ExecutionCourseReplyTo extends util.email.ReplyTo { }
-    
     class util.email.CurrentUserReplyTo extends util.email.ReplyTo { }
     
     class util.email.Sender  {
@@ -1635,10 +1633,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String fromAddress;
     }
 
-    class util.email.ExecutionCourseSender extends util.email.Sender { }
-
-    class util.email.CoordinatorSender extends util.email.Sender {}
-    
     class util.email.PersonSender extends util.email.Sender {}
 
 class QueueJob  {
@@ -2509,18 +2503,6 @@ relation ExecutionCourseSummary {
         multiplicity *;
     }
     ExecutionCourse playsRole executionCourse { multiplicity 1..1; }
-}
-
-relation ExecutionCourseSender {
-    ExecutionCourse playsRole course {
-        multiplicity 1..1;
-    }
-    util.email.ExecutionCourseSender playsRole sender;
-}
-
-relation CoordinatorSender {
-    Degree playsRole degree;
-    util.email.CoordinatorSender playsRole sender;
 }
 
 relation PersonSender {
