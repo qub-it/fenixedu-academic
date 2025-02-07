@@ -1,3 +1,4 @@
+- Improvement: Remove error pages from the web fragment [#qubIT-Omnis-8309]
 - Bug fix: When deleting a unit, remove its name part from cached index [#UL-REIT-4225]
 
 49.2.1 (06-02-2025)
@@ -16,7 +17,7 @@
 
 49.1.0 (29-01-2025)
 - Improvement: At last removes UnitBasedSender [#qubIT-Omnis-7780]
-- Improvement: Replaces all code that sends academic-core Messages and replaces with signals that will send CommunicationMessage [#qubIT-Omnis-8403] 
+- Improvement: Replaces all code that sends academic-core Messages and replaces with signals that will send CommunicationMessage [#qubIT-Omnis-8403]
 
 49.0.0 (28-01-2025)
 - Refactor: Delete unused methods from Registration [#qubIT-Fenix-6558]
