@@ -1,3 +1,5 @@
+- Refactor: Remove OriginInformationBean [#qubIT-Fenix-6559]
+
 49.2.2 (07-02-2025)
 - Improvement: Remove error pages from the web fragment [#qubIT-Omnis-8309]
 - Bug fix: When deleting a unit, remove its name part from cached index [#UL-REIT-4225]

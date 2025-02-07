@@ -21,12 +21,8 @@ package org.fenixedu.academic.domain.student;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.academic.domain.candidacy.PersonalInformationBean;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType;
-import org.fenixedu.academic.dto.candidacy.OriginInformationBean;
-import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -46,71 +42,15 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         setRootDomainObject(Bennu.getInstance());
         setLastModifiedDate(new DateTime());
     }
-    
+
     public PersonalIngressionData(ExecutionYear executionYear) {
         this();
         setExecutionYear(executionYear);
-    }    
-
+    }
 
     public PersonalIngressionData(Student student, ExecutionYear executionYear) {
         this(executionYear);
         setStudent(student);
-    }
-
-    public PersonalIngressionData(OriginInformationBean originInformationBean, PersonBean personBean, Student student,
-            ExecutionYear executionYear) {
-        this();
-        setStudent(student);
-        setExecutionYear(executionYear);
-        setDistrictSubdivisionOfResidence(personBean.getDistrictSubdivisionOfResidenceObject());
-        setCountryOfResidence(personBean.getCountryOfResidence());
-        setSchoolTimeDistrictSubDivisionOfResidence(originInformationBean.getSchoolTimeDistrictSubdivisionOfResidence());
-        setDislocatedFromPermanentResidence(originInformationBean.getDislocatedFromPermanentResidence());
-        setGrantOwnerType(originInformationBean.getGrantOwnerType());
-        if (getGrantOwnerType() != null && getGrantOwnerType() == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER
-                && originInformationBean.getGrantOwnerProvider() == null) {
-            throw new DomainException(
-                    "error.CandidacyInformationBean.grantOwnerProviderInstitutionUnitName.is.required.for.other.institution.grant.ownership");
-        }
-        setGrantOwnerProvider(originInformationBean.getGrantOwnerProvider());
-        setHighSchoolType(originInformationBean.getHighSchoolType());
-        setMaritalStatus(personBean.getMaritalStatus());
-        setProfessionType(personBean.getProfessionType());
-        setProfessionalCondition(personBean.getProfessionalCondition());
-
-        setMotherSchoolLevel(originInformationBean.getMotherSchoolLevel());
-        setMotherProfessionType(originInformationBean.getMotherProfessionType());
-        setMotherProfessionalCondition(originInformationBean.getMotherProfessionalCondition());
-        setFatherSchoolLevel(originInformationBean.getFatherSchoolLevel());
-        setFatherProfessionType(originInformationBean.getFatherProfessionType());
-        setFatherProfessionalCondition(originInformationBean.getFatherProfessionalCondition());
-    }
-
-    public void edit(OriginInformationBean originInformationBean, PersonBean personBean) {
-        setDistrictSubdivisionOfResidence(personBean.getDistrictSubdivisionOfResidenceObject());
-        setCountryOfResidence(personBean.getCountryOfResidence());
-        setSchoolTimeDistrictSubDivisionOfResidence(originInformationBean.getSchoolTimeDistrictSubdivisionOfResidence());
-        setDislocatedFromPermanentResidence(originInformationBean.getDislocatedFromPermanentResidence());
-        setGrantOwnerType(originInformationBean.getGrantOwnerType());
-        if (getGrantOwnerType() != null && getGrantOwnerType() == GrantOwnerType.OTHER_INSTITUTION_GRANT_OWNER
-                && originInformationBean.getGrantOwnerProvider() == null) {
-            throw new DomainException(
-                    "error.CandidacyInformationBean.grantOwnerProviderInstitutionUnitName.is.required.for.other.institution.grant.ownership");
-        }
-        setGrantOwnerProvider(originInformationBean.getGrantOwnerProvider());
-        setHighSchoolType(originInformationBean.getHighSchoolType());
-        setMaritalStatus(personBean.getMaritalStatus());
-        setProfessionType(personBean.getProfessionType());
-        setProfessionalCondition(personBean.getProfessionalCondition());
-
-        setMotherSchoolLevel(originInformationBean.getMotherSchoolLevel());
-        setMotherProfessionType(originInformationBean.getMotherProfessionType());
-        setMotherProfessionalCondition(originInformationBean.getMotherProfessionalCondition());
-        setFatherSchoolLevel(originInformationBean.getFatherSchoolLevel());
-        setFatherProfessionType(originInformationBean.getFatherProfessionType());
-        setFatherProfessionalCondition(originInformationBean.getFatherProfessionalCondition());
-        setLastModifiedDate(new DateTime());
     }
 
     public void edit(final PersonalInformationBean bean) {
@@ -166,7 +106,6 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
     }
 
     public void delete() {
-        // TODO: Make this method safe.	
         setStudent(null);
         setExecutionYear(null);
         setRootDomainObject(null);
@@ -186,20 +125,5 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
     public boolean checkHasStudent() {
         return getStudent() != null;
     }
-
-//    @ConsistencyPredicate
-//    public boolean checkMultiplicityOfPrecedentDegreesInformations() {
-//        return getPrecedentDegreesInformationsSet().size() > 0;
-//    }
-
-    @Override
-    public void setHighSchoolType(AcademicalInstitutionType highSchoolType) {
-        super.setHighSchoolType(highSchoolType);
-//        getPrecedentDegreesInformationsSet().forEach(pdi -> pdi.setInstitutionType(highSchoolType));
-    }
-
-//    public void migrateHighSchoolType2PDI() {
-//        getPrecedentDegreesInformationsSet().forEach(pdi -> pdi.setInstitutionType(super.getHighSchoolType()));
-//    }
 
 }
