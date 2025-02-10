@@ -116,18 +116,14 @@ public class Registration extends Registration_Base {
         }
     };
 
-    private Registration() {
+    private Registration(final Person person, final Integer registrationNumber, final Degree degree,
+            final ExecutionYear executionYear) {
         super();
         setRootDomainObject(Bennu.getInstance());
         setRegistrationProtocol(RegistrationProtocol.getDefault());
 
         //Emit the Signal
         Signal.emit(REGISTRATION_CREATE_SIGNAL, new DomainObjectEvent<>(this));
-    }
-
-    private Registration(final Person person, final Integer registrationNumber, final Degree degree,
-            final ExecutionYear executionYear) {
-        this();
 
         if (executionYear == null) {
             throw new DomainException("error.creation.Registration.executionYearIsRequired");
@@ -143,22 +139,6 @@ public class Registration extends Registration_Base {
         final RegistrationStateType registeredState = RegistrationStateType.findByCode(REGISTERED_CODE).orElseThrow();
         RegistrationState.createRegistrationState(this, AccessControl.getPerson(), now, registeredState,
                 executionYear.getFirstExecutionPeriod());
-    }
-
-    @Deprecated
-    public static Registration createRegistrationWithCustomStudentNumber(final Person person,
-            final DegreeCurricularPlan degreeCurricularPlan, final StudentCandidacy studentCandidacy,
-            final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear,
-            final Integer studentNumber) {
-
-        final Degree degree = degreeCurricularPlan == null ? null : degreeCurricularPlan.getDegree();
-        Registration registration = new Registration(person, studentNumber, degree, executionYear);
-        registration.setRegistrationProtocol(protocol == null ? RegistrationProtocol.getDefault() : protocol);
-        registration.createStudentCurricularPlan(degreeCurricularPlan, executionYear, cycleType);
-        registration.setStudentCandidacyInformation(studentCandidacy);
-
-        TreasuryBridgeAPIFactory.implementation().createCustomerIfMissing(registration.getStudent().getPerson());
-        return registration;
     }
 
     public static Registration create(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
@@ -276,31 +256,21 @@ public class Registration extends Registration_Base {
         }
     }
 
-    @Deprecated
     public void delete() {
 
-        for (; !getRegistrationStatesSet().isEmpty(); getRegistrationStatesSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getStudentCurricularPlansSet().isEmpty(); getStudentCurricularPlansSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getAssociatedAttendsSet().isEmpty(); getAssociatedAttendsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getExternalEnrolmentsSet().isEmpty(); getExternalEnrolmentsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getRegistrationDataByExecutionYearSet().isEmpty(); getRegistrationDataByExecutionYearSet().iterator().next()
-                .delete()) {
-            ;
-        }
-        for (; !getRegistrationRegimesSet().isEmpty(); getRegistrationRegimesSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getCurriculumLineLogsSet().isEmpty(); getCurriculumLineLogsSet().iterator().next().delete()) {
-            ;
-        }
+        getRegistrationStatesSet().forEach(rs -> rs.delete());
+
+        getStudentCurricularPlansSet().forEach(scp -> scp.delete());
+
+        getAssociatedAttendsSet().forEach(a -> a.delete());
+
+        getExternalEnrolmentsSet().forEach(ee -> ee.delete());
+
+        getRegistrationDataByExecutionYearSet().forEach(rsey -> rsey.delete());
+
+        getRegistrationRegimesSet().forEach(rr -> rr.delete());
+
+        getCurriculumLineLogsSet().forEach(cll -> cll.delete());
 
         if (getRegistrationNumber() != null) {
             getRegistrationNumber().delete();
