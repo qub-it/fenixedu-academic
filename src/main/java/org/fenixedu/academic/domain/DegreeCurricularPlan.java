@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
@@ -67,8 +66,6 @@ import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.YearMonthDay;
-
-import pt.ist.fenixframework.Atomic;
 
 public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
@@ -1112,21 +1109,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     public ExecutionYear getLastExecutionYear() {
         return getExecutionDegreesSet().stream().max(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)
                 .map(ExecutionDegree::getExecutionYear).orElse(null);
-    }
-
-    @Deprecated
-    public java.util.Date getEndDate() {
-        org.joda.time.YearMonthDay ymd = getEndDateYearMonthDay();
-        return ymd == null ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
-    @Deprecated
-    public void setEndDate(final java.util.Date date) {
-        if (date == null) {
-            setEndDateYearMonthDay(null);
-        } else {
-            setEndDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
     }
 
     @Deprecated

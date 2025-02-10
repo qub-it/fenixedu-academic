@@ -420,17 +420,12 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
 
     class DegreeCurricularPlan  {
-        String anotation;
         CurricularStage curricularStage;
         Integer degreeDuration;
         String description;
         String descriptionEn;
-        YearMonthDay endDateYearMonthDay;
         YearMonthDay initialDateYearMonthDay;
-        Integer minimalYearForOptionalCourses;
         String name;
-        Double neededCredits;
-        Integer numerusClausus;
         DegreeCurricularPlanState state;
         Boolean applyPreviousYearsEnrolmentRule;
         EnrolmentModel curricularRuleValidationType;
