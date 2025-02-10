@@ -1,3 +1,4 @@
+- Refactor: Clean creation methods in Registration [#qubIT-Fenix-6558]
 - Refactor: Remove OriginInformationBean [#qubIT-Fenix-6559]
 
 49.2.2 (07-02-2025)
