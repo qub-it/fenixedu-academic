@@ -1,5 +1,6 @@
 - Refactor: Clean creation methods in Registration [#qubIT-Fenix-6558]
 - Refactor: Remove OriginInformationBean [#qubIT-Fenix-6559]
+- Refactor: Remove legacy class variables from DegreeCurricularPlan [#qubIT-Fenix-6588]
 
 49.2.2 (07-02-2025)
 - Improvement: Remove error pages from the web fragment [#qubIT-Omnis-8309]

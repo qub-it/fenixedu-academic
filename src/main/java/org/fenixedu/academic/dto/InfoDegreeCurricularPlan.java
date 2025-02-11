@@ -19,14 +19,9 @@
 package org.fenixedu.academic.dto;
 
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.util.DateFormatUtil;
 import org.fenixedu.commons.i18n.I18N;
@@ -77,20 +72,6 @@ public class InfoDegreeCurricularPlan extends InfoObject implements Comparable {
     }
 
     /**
-     * @return Needed Credtis to Finish the Degree
-     */
-    public Double getNeededCredits() {
-        return getDegreeCurricularPlan().getNeededCredits();
-    }
-
-    /**
-     * @return Date
-     */
-    public Date getEndDate() {
-        return getDegreeCurricularPlan().getEndDate();
-    }
-
-    /**
      * @return Date
      */
     public Date getInitialDate() {
@@ -117,17 +98,6 @@ public class InfoDegreeCurricularPlan extends InfoObject implements Comparable {
 
     public Integer getDegreeDuration() {
         return getDegreeCurricularPlan().getDegreeDuration();
-    }
-
-    public Integer getMinimalYearForOptionalCourses() {
-        return getDegreeCurricularPlan().getMinimalYearForOptionalCourses();
-    }
-
-    /**
-     * @return
-     */
-    public Integer getNumerusClausus() {
-        return getDegreeCurricularPlan().getNumerusClausus();
     }
 
     // alphabetical order
@@ -169,10 +139,6 @@ public class InfoDegreeCurricularPlan extends InfoObject implements Comparable {
      */
     public static InfoDegreeCurricularPlan newInfoFromDomain(DegreeCurricularPlan plan) {
         return plan == null ? null : new InfoDegreeCurricularPlan(plan);
-    }
-
-    public String getAnotation() {
-        return getDegreeCurricularPlan().getAnotation();
     }
 
 //    public List<InfoExecutionDegree> getInfoExecutionDegrees() {
