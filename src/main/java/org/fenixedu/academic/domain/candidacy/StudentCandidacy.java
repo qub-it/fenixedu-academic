@@ -27,6 +27,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -128,4 +129,46 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         super.setAdmissionPhase(admissionPhase);
     }
 
+    /**
+     * Please use Registration.getCompletedDegreeInformation()
+     */
+    @Deprecated
+    @Override
+    public PrecedentDegreeInformation getCompletedDegreeInformation() {
+        return super.getCompletedDegreeInformation();
+    }
+
+    /**
+     * Please use Registration.getPreviousDegreeInformation()
+     */
+    @Deprecated
+    @Override
+    public PrecedentDegreeInformation getPreviousDegreeInformation() {
+        return super.getPreviousDegreeInformation();
+    }
+
+    @Override
+    public void setCompletedDegreeInformation(PrecedentDegreeInformation completedDegreeInformation) {
+        super.setCompletedDegreeInformation(completedDegreeInformation);
+        if (getRegistration() != null) {
+            getRegistration().setCompletedDegreeInformation(completedDegreeInformation);
+        }
+    }
+
+    @Override
+    public void setPreviousDegreeInformation(PrecedentDegreeInformation previousDegreeInformation) {
+        super.setPreviousDegreeInformation(previousDegreeInformation);
+        if (getRegistration() != null) {
+            getRegistration().setPreviousDegreeInformation(previousDegreeInformation);
+        }
+    }
+
+    @Override
+    public void setRegistration(Registration registration) {
+        super.setRegistration(registration);
+        if (registration != null) {
+            registration.setPreviousDegreeInformation(getPreviousDegreeInformation());
+            registration.setCompletedDegreeInformation(getCompletedDegreeInformation());
+        }
+    }
 }
