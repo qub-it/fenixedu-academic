@@ -116,14 +116,18 @@ public class Registration extends Registration_Base {
         }
     };
 
-    private Registration(final Person person, final Integer registrationNumber, final Degree degree,
-            final ExecutionYear executionYear) {
+    private Registration() {
         super();
         setRootDomainObject(Bennu.getInstance());
         setRegistrationProtocol(RegistrationProtocol.getDefault());
 
         //Emit the Signal
         Signal.emit(REGISTRATION_CREATE_SIGNAL, new DomainObjectEvent<>(this));
+    }
+
+    private Registration(final Person person, final Integer registrationNumber, final Degree degree,
+            final ExecutionYear executionYear) {
+        this();
 
         if (executionYear == null) {
             throw new DomainException("error.creation.Registration.executionYearIsRequired");
