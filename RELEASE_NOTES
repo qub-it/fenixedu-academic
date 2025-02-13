@@ -1,3 +1,4 @@
+49.2.3 (13-02-2025)
 - Refactor: Clean creation methods in Registration [#qubIT-Fenix-6558]
 - Refactor: Remove OriginInformationBean [#qubIT-Fenix-6559]
 - Refactor: Remove legacy class variables from DegreeCurricularPlan [#qubIT-Fenix-6588]
