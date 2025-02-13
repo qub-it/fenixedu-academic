@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
-import org.fenixedu.academic.domain.util.email.Recipient;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.LocaleUtils;
@@ -138,8 +137,6 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private void deleteGroup(PersistentGroup group) {
-        group.getRecipientAsMembersSet().forEach(Recipient::delete); // initialized on teacher sender creation, 'safe' to delete
-
         if (!group.isDeletable()) {
             throw new IllegalStateException(BundleUtil.getString(Bundle.APPLICATION,
                     "error.executionCourse.cannotDeleteExecutionCourseUsedInAccessControl"));

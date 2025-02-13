@@ -1,4 +1,6 @@
 - Improvement: Discontinue PersonSender [#qubIT-Omnis-8285]
+- Improvement: Remove Recipient class [#qubIT-Omnis-8556]
+- Improvement: Remove Recipient usages [#qubIT-Omnis-8555]
 
 49.2.5 (14-02-2025)
 - Bug fix: Ensures PersistentTeachersWithGradesToSubmitGroup can be read by FenixFramework [#qubIT-Omnis-8563]
