@@ -1,3 +1,5 @@
+- Refactor: Add support for extra parameters in enrolment context [#qubIT-Fenix-6563]
+
 49.2.3 (13-02-2025)
 - Refactor: Clean creation methods in Registration [#qubIT-Fenix-6558]
 - Refactor: Remove OriginInformationBean [#qubIT-Fenix-6559]

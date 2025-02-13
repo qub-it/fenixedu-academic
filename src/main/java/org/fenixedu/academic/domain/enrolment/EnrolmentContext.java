@@ -19,8 +19,10 @@
 package org.fenixedu.academic.domain.enrolment;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -58,6 +60,8 @@ public class EnrolmentContext {
     private EvaluationSeason evaluationSeason;
 
     private final User userView;
+
+    private Map<String, Object> extraParameters = new HashMap<>();
 
     public EnrolmentContext(final StudentCurricularPlan studentCurricularPlan, final ExecutionInterval executionInterval,
             final Set<IDegreeModuleToEvaluate> degreeModulesToEnrol, final List<CurriculumModule> curriculumModulesToRemove,
@@ -207,6 +211,14 @@ public class EnrolmentContext {
                 isToEvaluateRulesByYear() ? getExecutionYear().getChildIntervals() : Collections.singleton(getExecutionPeriod()));
 
         return result;
+    }
+
+    public void addExtraParameter(String key, Object value) {
+        extraParameters.put(key, value);
+    }
+
+    public <T> T getExtraParameter(String key) {
+        return (T) extraParameters.get(key);
     }
 
     @SuppressWarnings("unchecked")
