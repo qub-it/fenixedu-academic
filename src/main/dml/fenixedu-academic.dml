@@ -1623,10 +1623,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     
     class util.email.CurrentUserReplyTo extends util.email.ReplyTo { }
     
-    class util.email.Sender  {
-        String fromName;
-        String fromAddress;
-    }
 
 class QueueJob  {
                Boolean done;
@@ -4052,20 +4048,6 @@ relation RootDomainObjectUtilEmailRecipient {
     }
 }
 
-relation RootDomainObjectUtilEmailSender {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    util.email.Sender playsRole utilEmailSenders {
-        multiplicity *;
-    }
-}
-
-
-relation UtilEmailSenderUtilEmailMessage {
-    util.email.Sender playsRole sender;
-    util.email.Message playsRole messages {
-        multiplicity *;
-    }
-}
 
 relation UtilEmailUtilEmailMessage {
     util.Email playsRole emails {
@@ -4108,13 +4090,6 @@ relation RootDomainObjectUtilEmailReplyTo {
     }
 }
 
-relation UtilEmailSenderUtilEmailReplyTo {
-    util.email.Sender playsRole sender;
-    util.email.ReplyTo playsRole replyTos {
-        multiplicity *;
-    }
-}
-
 relation UtilEmailReplyToUtilEmailMessage {
     util.email.ReplyTo playsRole replyTos {
         multiplicity *;
@@ -4127,15 +4102,6 @@ relation UtilEmailReplyToUtilEmailMessage {
 relation PersonUtilEmailMessage {
     Person playsRole person;
     util.email.Message playsRole messages {
-        multiplicity *;
-    }
-}
-
-relation UtilEmailSenderUtilEmailRecipient {
-    util.email.Sender playsRole senders {
-        multiplicity *;
-    }
-    util.email.Recipient playsRole recipients {
         multiplicity *;
     }
 }
@@ -4793,15 +4759,6 @@ relation RecipientMembers {
 	}
 	protected .org.fenixedu.bennu.core.domain.groups.PersistentGroup playsRole membersGroup {
 		multiplicity 0..1;
-	}
-}
-
-relation SenderMembers {
-	protected util.email.Sender playsRole senderAsMembers {
-		multiplicity *;
-	}
-	protected .org.fenixedu.bennu.core.domain.groups.PersistentGroup playsRole membersGroup {
-		multiplicity 1..1;
 	}
 }
 
