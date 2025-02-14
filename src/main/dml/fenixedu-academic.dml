@@ -1711,6 +1711,8 @@ class accessControl.PersistentRoleGroup extends .org.fenixedu.bennu.core.domain.
     protected String targetGroup;
 }
 
+class accessControl.PersistentTeachersWithGradesToSubmitGroup extends .org.fenixedu.bennu.core.domain.groups.PersistentGroup;
+
 class accessControl.FenixPredicateGroup extends .org.fenixedu.bennu.core.domain.groups.PersistentGroup;
 
 class accessControl.PersistentStudentGroup extends accessControl.FenixPredicateGroup {
