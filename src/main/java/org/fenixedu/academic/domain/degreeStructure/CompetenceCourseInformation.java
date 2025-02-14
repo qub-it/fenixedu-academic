@@ -283,6 +283,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public void delete() {
+        getBibliographiesSet().forEach(bb -> bb.delete());
         getCourseLoadDurationsSet().forEach(CourseLoadDuration::deleteTriggeredByCompetenceCourseInformation); // must be the initial instruction, in order to perform validations
 
         setExecutionPeriod(null);
