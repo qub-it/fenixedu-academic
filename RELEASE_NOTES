@@ -1,3 +1,5 @@
+- Bug fix: Ensures PersistentTeachersWithGradesToSubmitGroup can be read by FenixFramework [#qubIT-Omnis-8563]
+
 49.2.4 (13-02-2025)
 - Refactor: Add support for extra parameters in enrolment context [#qubIT-Fenix-6563]
 
