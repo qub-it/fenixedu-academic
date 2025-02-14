@@ -1,6 +1,6 @@
-- Improvement: Discontinue PersonSender [#qubIT-Omnis-8285]
-- Improvement: Remove Recipient class [#qubIT-Omnis-8556]
-- Improvement: Remove Recipient usages [#qubIT-Omnis-8555]
+- Refactor: Deletes Recipient class [#qubIT-Omnis-8556]
+- Refactor: Deletes PersistentTeachersWithGradesToSubmitGroup [#qubIT-Omnis-8565]
+- Refactor: Deletes EmailTask and MessageTask [#qubIT-Omnis-8593]
 
 49.3.1 (17-02-2025)
 - Bug fix: Allow deletion of school classes with restricted shifts capacities [#ISCTE-FENIXEDU-1038]
