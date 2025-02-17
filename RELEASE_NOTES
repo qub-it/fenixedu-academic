@@ -1,3 +1,5 @@
+- Bug fix: Allow deletion of school classes with restricted shifts capacities [#ISCTE-FENIXEDU-1038]
+
 49.3.0 (17-02-2025)
 - Refactor: Removes ways to create soon to be discontinued PersonSender [#qubIT-Omnis-7779]
 

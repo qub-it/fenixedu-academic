@@ -58,6 +58,7 @@ public class SchoolClass extends SchoolClass_Base {
 
     public void delete() {
         getAssociatedShiftsSet().clear();
+        getShiftCapacitiesSet().clear();
         super.setExecutionDegree(null);
         super.setExecutionPeriod(null);
         setRootDomainObject(null);
