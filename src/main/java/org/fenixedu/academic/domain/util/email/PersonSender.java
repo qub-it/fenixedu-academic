@@ -27,13 +27,13 @@ import pt.ist.fenixframework.Atomic;
 
 public class PersonSender extends PersonSender_Base {
 
-    public PersonSender() {
+    private PersonSender() {
         super();
         setFromAddress(ServiceProvider.getService(SystemSenderEmailSupplier.class).getFromAddress());
         addReplyTos(new CurrentUserReplyTo());
     }
 
-    public PersonSender(final Person person) {
+    private PersonSender(final Person person) {
         this();
         setPerson(person);
         setMembers(person.getUser().groupOf());
@@ -48,11 +48,6 @@ public class PersonSender extends PersonSender_Base {
     public void delete() {
         setPerson(null);
         super.delete();
-    }
-
-    @Atomic
-    public static PersonSender newInstance(final Person person) {
-        return person.getSender() != null ? person.getSender() : new PersonSender(person);
     }
 
 }
