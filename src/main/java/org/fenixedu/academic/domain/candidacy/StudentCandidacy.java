@@ -27,6 +27,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -126,6 +127,24 @@ public class StudentCandidacy extends StudentCandidacy_Base {
             throw new DomainException("error.StudentCandidacy.admission.phase.has.to.be.positive.number");
         }
         super.setAdmissionPhase(admissionPhase);
+    }
+
+    /**
+     * Please use Registration.getCompletedDegreeInformation()
+     */
+    @Deprecated
+    @Override
+    public PrecedentDegreeInformation getCompletedDegreeInformation() {
+        return super.getCompletedDegreeInformation();
+    }
+
+    /**
+     * Please use Registration.getPreviousDegreeInformation()
+     */
+    @Deprecated
+    @Override
+    public PrecedentDegreeInformation getPreviousDegreeInformation() {
+        return super.getPreviousDegreeInformation();
     }
 
 }

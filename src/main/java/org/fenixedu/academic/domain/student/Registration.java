@@ -1853,4 +1853,11 @@ public class Registration extends Registration_Base {
         super.setAdmissionPhase(admissionPhase);
     }
 
+    public PrecedentDegreeInformation getCompletedDegreeInformation() {
+        return getStudentCandidacy().getCompletedDegreeInformation();
+    }
+
+    public PrecedentDegreeInformation getPreviousDegreeInformation() {
+        return getStudentCandidacy().getPreviousDegreeInformation();
+    }
 }

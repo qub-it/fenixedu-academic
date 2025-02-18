@@ -1,3 +1,5 @@
+- Refactor: Adds proxy methods for PrecedentDegreeInformation in Registration [#qubIT-Fenix-6617]
+
 49.3.1 (17-02-2025)
 - Bug fix: Allow deletion of school classes with restricted shifts capacities [#ISCTE-FENIXEDU-1038]
 
