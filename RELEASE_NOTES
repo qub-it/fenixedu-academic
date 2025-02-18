@@ -1,3 +1,4 @@
+49.3.2 (18-02-2025)
 - Refactor: Adds proxy methods for PrecedentDegreeInformation in Registration [#qubIT-Fenix-6617]
 - Bug fix: Delete associated bibliographic references when deleting a competence course information [#ISCTE-FENIXEDU-1034]
 
