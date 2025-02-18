@@ -283,11 +283,6 @@ public class Registration extends Registration_Base {
             getStudentCandidacy().delete();
         }
 
-//        Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(pdi -> pdi.delete());
-//        Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(pdi -> pdi.delete());
-        setCompletedDegreeInformation(null);
-        setPreviousDegreeInformation(null);
-
         setSourceRegistration(null);
         setRegistrationYear(null);
         setDegree(null);
@@ -1858,12 +1853,10 @@ public class Registration extends Registration_Base {
         super.setAdmissionPhase(admissionPhase);
     }
 
-    @Override
     public PrecedentDegreeInformation getCompletedDegreeInformation() {
         return getStudentCandidacy().getCompletedDegreeInformation();
     }
 
-    @Override
     public PrecedentDegreeInformation getPreviousDegreeInformation() {
         return getStudentCandidacy().getPreviousDegreeInformation();
     }

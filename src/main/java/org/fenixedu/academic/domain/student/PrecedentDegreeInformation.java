@@ -87,9 +87,6 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
         setCompletedStudentCandidacy(null);
         setPreviousStudentCandidacy(null);
 
-        setCompletedRegistration(null);
-        setPreviousRegistration(null);
-
         setRootDomainObject(null);
         deleteDomainObject();
     }
