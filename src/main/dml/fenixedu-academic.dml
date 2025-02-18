@@ -129,13 +129,6 @@ valueType org.fenixedu.academic.domain.CurricularYearList as CurricularYearList 
     internalizeWith internalize();
 }
 
-valueType org.fenixedu.academic.domain.util.EmailAddressList as EmailAddressList {
-    externalizeWith {
-        String toString();
-    }
-}
-
-
 valueType org.fenixedu.academic.util.CurricularCourseExecutionScope as CurricularCourseExecutionScope {
     externalizeWith {
         Integer getType();
@@ -1587,37 +1580,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    time.calendarStructure.AcademicPeriodOrder playsRole academicPeriodOrders { multiplicity *; }
 		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
 		}
-
-        
-    class util.Email  {
-        EmailAddressList bccAddresses;
-        EmailAddressList ccAddresses;
-        EmailAddressList replyTos;
-        EmailAddressList toAddresses;
-        EmailAddressList confirmedAddresses;
-        EmailAddressList failedAddresses;
-    }
-
-    class util.email.Message  {
-        String subject;
-        String body;
-        String htmlBody;
-        DateTime created;
-        DateTime sent;
-        String bccs;
-    }
-
-    class util.email.ReplyTo  {
-    }
-    
-    class util.email.ConcreteReplyTo extends util.email.ReplyTo {
-        String replyToAddress;
-    }
-
-    class util.email.PersonReplyTo extends util.email.ReplyTo { }
-    
-    class util.email.CurrentUserReplyTo extends util.email.ReplyTo { }
-    
 
 class QueueJob  {
                Boolean done;
@@ -4029,56 +3991,6 @@ relation RootDomainObjectBusinessArea {
     }
 }
 
-relation RootDomainObjectUtilEmailMessage {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    util.email.Message playsRole utilEmailMessages {
-        multiplicity *;
-    }
-}
-
-
-relation UtilEmailUtilEmailMessage {
-    util.Email playsRole emails {
-        multiplicity *;
-    }
-    util.email.Message playsRole message;
-}
-
-relation RootDomainObjectUtilEmailReplyTo {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    util.email.ReplyTo playsRole replyTos {
-        multiplicity *;
-    }
-}
-
-relation UtilEmailReplyToUtilEmailMessage {
-    util.email.ReplyTo playsRole replyTos {
-        multiplicity *;
-    }
-    util.email.Message playsRole messages {
-        multiplicity *;
-    }
-}
-
-relation PersonUtilEmailMessage {
-    Person playsRole person;
-    util.email.Message playsRole messages {
-        multiplicity *;
-    }
-}
-
-relation PersonUtilEmailReplyTo {
-    Person playsRole person;
-    util.email.PersonReplyTo playsRole replyTo;
-}
-
-relation RootDomainObjectPendingUtilEmailMessage {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectFromPendingRelation;
-    util.email.Message playsRole pendingUtilEmailMessages {
-        multiplicity *;
-    }
-}
-
 relation QueueJobPerson {
        Person playsRole person;
        QueueJob playsRole job {
@@ -4174,13 +4086,6 @@ relation RootDomainObjectEnrolmentInstructions {
 relation ExecutionSemesterEnrolmentInstructions {
 	ExecutionInterval playsRole executionSemester;
 	EnrolmentInstructions playsRole enrolmentInstructions;
-}
-
-relation RootDomainObjectEmailQueue {
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectFromEmailQueue;
-	util.Email playsRole emailQueue {
-		multiplicity *;
-	}
 }
 
 relation RootDomainObjectCoordinatorLog {
