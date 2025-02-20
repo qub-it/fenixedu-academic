@@ -79,45 +79,6 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         }
     }
 
-    /*
-     * Deprecated Constructors
-     */
-
-    @Deprecated
-    public OccupationPeriod(YearMonthDay startDate, YearMonthDay endDate) {
-        this();
-        if (startDate == null || endDate == null || startDate.isAfter(endDate)) {
-            throw new DomainException("error.occupationPeriod.invalid.dates");
-        }
-        this.setPeriodInterval(IntervalTools.getInterval(startDate, endDate));
-    }
-
-    @Deprecated
-    public OccupationPeriod(final YearMonthDay... yearMonthDays) {
-        this(null, yearMonthDays);
-    }
-
-    @Deprecated
-    protected OccupationPeriod(final OccupationPeriod previous, final YearMonthDay... yearMonthDays) {
-        this();
-        final int l = yearMonthDays.length;
-        if (yearMonthDays == null || l < 2) {
-            throw new DomainException("error.occupationPeriod.invalid.dates");
-        }
-
-        final YearMonthDay start = yearMonthDays[0];
-        final YearMonthDay end = yearMonthDays[1];
-        this.setPeriodInterval(IntervalTools.getInterval(start, end));
-
-        if (l > 2) {
-            final YearMonthDay[] nextYearMonthDays = new YearMonthDay[l - 2];
-            System.arraycopy(yearMonthDays, 2, nextYearMonthDays, 0, l - 2);
-            new OccupationPeriod(this, nextYearMonthDays);
-        }
-
-        setPreviousPeriod(previous);
-    }
-
     public void setNextPeriodWithoutChecks(OccupationPeriod nextPeriod) {
         if (nextPeriod != null && !nextPeriod.getPeriodInterval().isAfter(getPeriodInterval())) {
             throw new DomainException("error.occupationPeriod.invalid.nextPeriod");
@@ -174,16 +135,6 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     @Deprecated
     public Date getEnd() {
         return this.getPeriodInterval().getEnd().toDate();
-    }
-
-    public Calendar getEndDateOfComposite() {
-        Calendar end = this.getEndDate();
-        OccupationPeriod period = this.getNextPeriod();
-        while (period != null) {
-            end = period.getEndDate();
-            period = period.getNextPeriod();
-        }
-        return end;
     }
 
     private boolean intersectPeriods(YearMonthDay start, YearMonthDay end) {
@@ -252,64 +203,6 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         return occupationPeriod;
     }
 
-    public static OccupationPeriod createOccupationPeriodForLesson(final ExecutionCourse executionCourse,
-            final YearMonthDay beginDate, final YearMonthDay endDate) {
-        OccupationPeriod result = null;
-        boolean ok = true;
-        for (final CurricularCourse curricularCourse : executionCourse.getAssociatedCurricularCoursesSet()) {
-            final DegreeCurricularPlan degreeCurricularPlan = curricularCourse.getDegreeCurricularPlan();
-            for (final ExecutionDegree executionDegree : degreeCurricularPlan.getExecutionDegreesSet()) {
-                if (executionCourse.getExecutionYear() == executionDegree.getExecutionYear()) {
-                    for (OccupationPeriod occupationPeriod : executionDegree
-                            .getPeriodLessons(executionCourse.getExecutionInterval())) {
-                        if (result == null) {
-                            result = occupationPeriod;
-                        } else if (!result.isEqualTo(occupationPeriod)) {
-                            ok = false;
-                        }
-                    }
-                }
-            }
-        }
-        if (ok && result != null) {
-            if (result.getStartYearMonthDay().equals(beginDate) && result.getEndYearMonthDayWithNextPeriods().equals(endDate)) {
-                return result;
-            }
-            return createNewPeriodWithExclusions(beginDate, endDate, result);
-        }
-        for (final OccupationPeriod occupationPeriod : Bennu.getInstance().getOccupationPeriodsSet()) {
-            if (occupationPeriod.getNextPeriod() == null && occupationPeriod.getPreviousPeriod() == null
-                    && occupationPeriod.getStartYearMonthDay().equals(beginDate)
-                    && occupationPeriod.getEndYearMonthDay().equals(endDate)) {
-                return occupationPeriod;
-            }
-        }
-        return new OccupationPeriod(beginDate, endDate);
-    }
-
-    private static OccupationPeriod createNewPeriodWithExclusions(final YearMonthDay beginDate, final YearMonthDay endDate,
-            final OccupationPeriod existingPeriod) {
-
-        final Interval newInterval = IntervalTools.getInterval(beginDate, endDate);
-
-        final List<Interval> result =
-                existingPeriod.getIntervals().stream().map(existingInterval -> existingInterval.overlap(newInterval))
-                        .filter(i -> i != null).sorted(Comparator.comparing(Interval::getStart)).collect(Collectors.toList());
-
-        return new OccupationPeriod(result.iterator());
-    }
-
-    public boolean nestedOccupationPeriodsIntersectDates(YearMonthDay start, YearMonthDay end) {
-        OccupationPeriod firstOccupationPeriod = this;
-        while (firstOccupationPeriod != null) {
-            if (firstOccupationPeriod.intersectPeriods(start, end)) {
-                return true;
-            }
-            firstOccupationPeriod = firstOccupationPeriod.getNextPeriod();
-        }
-        return false;
-    }
-
     public boolean nestedOccupationPeriodsContainsDay(YearMonthDay day) {
         OccupationPeriod firstOccupationPeriod = this;
         while (firstOccupationPeriod != null) {
@@ -321,33 +214,8 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         return false;
     }
 
-    public boolean isGreater(OccupationPeriod period) {
-        return this.getPeriodInterval().toDuration().isLongerThan(period.getPeriodInterval().toDuration());
-    }
-
-    public boolean isEqualTo(OccupationPeriod period) {
-        if (getNextPeriod() != null && period.getNextPeriod() != null) {
-            return isEqualTo(period.getStartYearMonthDay(), period.getEndYearMonthDay(),
-                    period.getNextPeriod().getStartYearMonthDay(), period.getNextPeriod().getEndYearMonthDay());
-        }
-        return getPeriodInterval().equals(period.getPeriodInterval());
-    }
-
-    public boolean isEqualTo(YearMonthDay start, YearMonthDay end, final YearMonthDay startPart2, final YearMonthDay endPart2) {
-        final boolean eqStart = getStartYearMonthDay().equals(start);
-        final boolean eqEnd = getEndYearMonthDay().equals(end);
-        final boolean eqNextPeriod = getNextPeriod() != null ? (getNextPeriod().getStartYearMonthDay().equals(startPart2)
-                && getNextPeriod().getEndYearMonthDay().equals(endPart2) ? true : false) : true;
-        return eqStart && eqEnd && eqNextPeriod;
-    }
-
     public YearMonthDay getEndYearMonthDayWithNextPeriods() {
         return getNextPeriod() != null ? getNextPeriod().getEndYearMonthDayWithNextPeriods() : getEndYearMonthDay();
-    }
-
-    public String asString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        return String.format("[%s,%s]", sdf.format(getStartDate().getTime()), sdf.format(getEndDate().getTime()));
     }
 
     public Interval getIntervalWithNextPeriods() {

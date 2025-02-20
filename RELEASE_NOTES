@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated methods of OccupationPeriod [#qubIT-Fenix-1603]
+
 50.0.0 (19-02-2025)
 - Refactor: Deletes Recipient class [#qubIT-Omnis-8556]
 - Refactor: Deletes PersistentTeachersWithGradesToSubmitGroup [#qubIT-Omnis-8565]
