@@ -2,8 +2,11 @@ package org.fenixedu.academic.domain.curricularRules;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -31,13 +34,14 @@ public class EnrolmentModelConfigEntry extends EnrolmentModelConfigEntry_Base {
         getAcademicPeriodOrdersSet().addAll(periods);
     }
 
-//    public boolean isFor(ExecutionInterval executionInterval) {
-//        return getAcademicPeriodOrdersSet().stream().anyMatch(apo -> apo.isFor(executionInterval));
-//    }
-//
-//    public Collection<ExecutionInterval> getIntervalsFrom(final ExecutionYear executionYear) {
-//        return executionYear.getChildIntervals().stream().filter(ei -> isFor(ei)).collect(Collectors.toSet());
-//    }
+    public Collection<ExecutionInterval> getIntervalsFrom(final ExecutionYear executionYear) {
+        return executionYear.getChildIntervals().stream().filter(ei -> isFor(ei)).collect(Collectors.toSet());
+    }
+
+    private boolean isFor(ExecutionInterval executionInterval) {
+        return getAcademicPeriodOrdersSet().stream()
+                .anyMatch(apo -> apo.isFor(executionInterval.getAcademicPeriod(), executionInterval.getChildOrder()));
+    }
 
     public void delete() {
         setRoot(null);

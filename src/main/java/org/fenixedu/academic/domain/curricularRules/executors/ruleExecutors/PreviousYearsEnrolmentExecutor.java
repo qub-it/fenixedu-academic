@@ -29,18 +29,26 @@ public class PreviousYearsEnrolmentExecutor extends CurricularRuleExecutor {
 
     private PreviousYearsEnrolmentByYearExecutor YEAR_EXECUTOR = new PreviousYearsEnrolmentByYearExecutor();
 
+    private PreviousYearsEnrolmentByYearExecutor YEAR_WITH_PERIODS_EXECUTOR =
+            new PreviousYearsEnrolmentByYearWithPeriodsExecutor();
+
     @Override
     protected RuleResult executeEnrolmentVerificationWithRules(final ICurricularRule curricularRule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final EnrolmentContext enrolmentContext) {
 
         if (enrolmentContext.isToEvaluateRulesByYear()) {
-            return YEAR_EXECUTOR.executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate,
-                    enrolmentContext);
+            if (enrolmentContext.getStudentCurricularPlan().getDegreeCurricularPlan().getEnrolmentModelConfigEntriesSet()
+                    .isEmpty()) {
+                return YEAR_EXECUTOR.executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate,
+                        enrolmentContext);
+            } else {
+                return YEAR_WITH_PERIODS_EXECUTOR.executeEnrolmentVerificationWithRules(curricularRule,
+                        sourceDegreeModuleToEvaluate, enrolmentContext);
+            }
         }
 
         return SEMESTER_EXECUTOR.executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate,
                 enrolmentContext);
-
     }
 
     @Override

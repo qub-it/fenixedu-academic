@@ -124,7 +124,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super();
         super.setRootDomainObject(Bennu.getInstance());
         super.setApplyPreviousYearsEnrolmentRule(Boolean.TRUE);
-        super.setCurricularRuleValidationType(EnrolmentModel.SEMESTER);
+        super.setCurricularRuleValidationType(EnrolmentModel.YEAR);
     }
 
     public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration) {

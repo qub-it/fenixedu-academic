@@ -33,7 +33,7 @@ public class AcademicPeriodOrder extends AcademicPeriodOrder_Base {
         }
     }
 
-    private boolean isFor(final AcademicPeriod academicPeriod, final Integer periodOrder) {
+    public boolean isFor(final AcademicPeriod academicPeriod, final Integer periodOrder) {
         return getAcademicPeriod().equals(academicPeriod) && Objects.equals(getPeriodOrder(), periodOrder);
     }
 
