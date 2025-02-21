@@ -86,7 +86,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         super.setNextPeriod(nextPeriod);
     }
 
-    public void setPreviousPeriodWithoutChecks(OccupationPeriod previousPeriod) {
+    private void setPreviousPeriodWithoutChecks(OccupationPeriod previousPeriod) {
         if (previousPeriod != null && !previousPeriod.getPeriodInterval().isBefore(getPeriodInterval())) {
             throw new DomainException("error.occupationPeriod.invalid.previousPeriod");
         }
@@ -107,38 +107,6 @@ public class OccupationPeriod extends OccupationPeriod_Base {
             throw new DomainException("error.occupationPeriod.next.periods.not.empty");
         }
         this.setPreviousPeriodWithoutChecks(previousPeriod);
-    }
-
-    public Calendar getStartDate() {
-        if (this.getStart() != null) {
-            Calendar result = Calendar.getInstance();
-            result.setTime(this.getStart());
-            return result;
-        }
-        return null;
-    }
-
-    public Calendar getEndDate() {
-        if (this.getEnd() != null) {
-            Calendar result = Calendar.getInstance();
-            result.setTime(this.getEnd());
-            return result;
-        }
-        return null;
-    }
-
-    @Deprecated
-    public Date getStart() {
-        return this.getPeriodInterval().getStart().toDate();
-    }
-
-    @Deprecated
-    public Date getEnd() {
-        return this.getPeriodInterval().getEnd().toDate();
-    }
-
-    private boolean intersectPeriods(YearMonthDay start, YearMonthDay end) {
-        return !getStartYearMonthDay().isAfter(end) && !getEndYearMonthDay().isBefore(start);
     }
 
     private boolean containsDay(YearMonthDay day) {
@@ -214,7 +182,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         return false;
     }
 
-    public YearMonthDay getEndYearMonthDayWithNextPeriods() {
+    private YearMonthDay getEndYearMonthDayWithNextPeriods() {
         return getNextPeriod() != null ? getNextPeriod().getEndYearMonthDayWithNextPeriods() : getEndYearMonthDay();
     }
 
