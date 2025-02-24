@@ -147,4 +147,31 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         return super.getPreviousDegreeInformation();
     }
 
+    @Override
+    public void setCompletedDegreeInformation(PrecedentDegreeInformation completedDegreeInformation) {
+        super.setCompletedDegreeInformation(completedDegreeInformation);
+        if (getRegistration() != null) {
+            getRegistration().setCompletedDegreeInformation(completedDegreeInformation);
+        }
+    }
+
+    @Override
+    public void setPreviousDegreeInformation(PrecedentDegreeInformation previousDegreeInformation) {
+        super.setPreviousDegreeInformation(previousDegreeInformation);
+        if (getRegistration() != null) {
+            getRegistration().setPreviousDegreeInformation(previousDegreeInformation);
+        }
+    }
+
+    @Override
+    public void setRegistration(Registration registration) {
+        if (registration != null) {
+            registration.setCompletedDegreeInformation(getCompletedDegreeInformation());
+            registration.setPreviousDegreeInformation(getPreviousDegreeInformation());
+        } else {
+            getRegistration().setCompletedDegreeInformation(null);
+            getRegistration().setPreviousDegreeInformation(null);
+        }
+        super.setRegistration(registration);
+    }
 }

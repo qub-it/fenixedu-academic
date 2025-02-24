@@ -2870,6 +2870,16 @@ relation PreviousPrecedentDegreeInformationStudentCandidacy {
     candidacy.StudentCandidacy playsRole previousStudentCandidacy;
 }
 
+relation CompletedPrecedentDegreeInformationRegistration {
+    student.PrecedentDegreeInformation playsRole completedDegreeInformation;
+    student.Registration playsRole completedRegistration;
+}
+
+relation PreviousPrecedentDegreeInformationRegistration {
+    student.PrecedentDegreeInformation playsRole previousDegreeInformation;
+    student.Registration playsRole previousRegistration;
+}
+
 relation PrecedentDegreeInformationDistrict{
 	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
 	.org.fenixedu.academic.domain.District playsRole district;
