@@ -143,6 +143,9 @@ public class Registration extends Registration_Base {
         final RegistrationStateType registeredState = RegistrationStateType.findByCode(REGISTERED_CODE).orElseThrow();
         RegistrationState.createRegistrationState(this, AccessControl.getPerson(), now, registeredState,
                 executionYear.getFirstExecutionPeriod());
+
+        setCompletedDegreeInformation(new PrecedentDegreeInformation());
+        setPreviousDegreeInformation(new PrecedentDegreeInformation());
     }
 
     public static Registration create(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
@@ -282,6 +285,9 @@ public class Registration extends Registration_Base {
         if (getStudentCandidacy() != null) {
             getStudentCandidacy().delete();
         }
+
+        Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(pdi -> pdi.delete());
+        Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(pdi -> pdi.delete());
 
         setSourceRegistration(null);
         setRegistrationYear(null);
@@ -1832,11 +1838,4 @@ public class Registration extends Registration_Base {
         super.setAdmissionPhase(admissionPhase);
     }
 
-    public PrecedentDegreeInformation getCompletedDegreeInformation() {
-        return getStudentCandidacy().getCompletedDegreeInformation();
-    }
-
-    public PrecedentDegreeInformation getPreviousDegreeInformation() {
-        return getStudentCandidacy().getPreviousDegreeInformation();
-    }
 }
