@@ -1488,13 +1488,8 @@ public class Registration extends Registration_Base {
         return getDegreeType().isAdvancedSpecializationDiploma();
     }
 
-    private RegistrationDataByExecutionYear getRegistrationDataByExecutionYear(final ExecutionYear year) {
-        for (RegistrationDataByExecutionYear registrationData : getRegistrationDataByExecutionYearSet()) {
-            if (registrationData.getExecutionYear().equals(year)) {
-                return registrationData;
-            }
-        }
-        return null;
+    public Optional<RegistrationDataByExecutionYear> getDataByExecutionYear(final ExecutionYear year) {
+        return getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getExecutionYear() == year).findAny();
     }
 
     public boolean isFirstTime(final ExecutionYear executionYear) {
@@ -1773,12 +1768,7 @@ public class Registration extends Registration_Base {
     }
 
     public boolean hasReingression(final ExecutionYear executionYear) {
-        RegistrationDataByExecutionYear data = getRegistrationDataByExecutionYear(executionYear);
-        if (data != null) {
-            return data.isReingression();
-        }
-
-        return false;
+        return getDataByExecutionYear(executionYear).stream().anyMatch(rd -> rd.isReingression());
     }
 
     public Set<RegistrationDataByExecutionYear> getReingressions() {
@@ -1789,17 +1779,6 @@ public class Registration extends Registration_Base {
             }
         }
         return reingressions;
-    }
-
-    @Atomic
-    public void deleteReingression(final ExecutionYear executionYear) {
-        RegistrationDataByExecutionYear dataByExecutionYear = getRegistrationDataByExecutionYear(executionYear);
-
-        if (dataByExecutionYear == null || dataByExecutionYear.getExecutionYear() != executionYear) {
-            throw new DomainException("error.Registration.reingression.not.marked.in.execution.year");
-        }
-
-        dataByExecutionYear.deleteReingression();
     }
 
     public List<CycleCurriculumGroup> getInternalCycleCurriculumGrops() {
@@ -1825,7 +1804,7 @@ public class Registration extends Registration_Base {
     public void updateEnrolmentDate(final ExecutionYear executionYear) {
         final Collection<Enrolment> enrolments = getEnrolments(executionYear);
 
-        if (enrolments.isEmpty() && getRegistrationDataByExecutionYear(executionYear) == null) {
+        if (enrolments.isEmpty() && getDataByExecutionYear(executionYear).isEmpty()) {
             return;
         }
 

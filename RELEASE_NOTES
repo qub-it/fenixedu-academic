@@ -1,3 +1,4 @@
+- Refactor: Improve registration data by year API [#qubIT-Fenix-1603]
 - Refactor: Prepare for deprecation of semester enrolment model [#qubIT-Fenix-4901]
 - Refactor: Remove deprecated methods of OccupationPeriod [#qubIT-Fenix-1603]
 
