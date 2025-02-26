@@ -36,6 +36,11 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
         if (period == null || degree == null) {
             throw new DomainException("exception.null.arguments");
         }
+
+        if (period.getExecutionDegreesSet().stream().anyMatch(opr -> opr.getExecutionInterval() != interval)) {
+            throw new DomainException("error.OccupationPeriodReference.multipleExecutionIntervals");
+        }
+
         setOccupationPeriod(period);
         setExecutionDegree(degree);
         setExecutionInterval(interval);

@@ -1,3 +1,5 @@
+- Refactor: Restrict creation of lesson periods of distinct execution intervals [#qubIT-Fenix-6667]
+
 50.0.1 (25-02-2025)
 - Refactor: Improve registration data by year API [#qubIT-Fenix-1603]
 - Refactor: Prepare for deprecation of semester enrolment model [#qubIT-Fenix-4901]
