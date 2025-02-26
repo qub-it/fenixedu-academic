@@ -1,3 +1,4 @@
+- Refactor: Move PrecedentDegreeInformation relations from the StudentCandidacy to Registration [#qubIT-Fenix-6617]
 - Refactor: Restrict creation of lesson periods of distinct execution intervals [#qubIT-Fenix-6667]
 
 50.0.1 (25-02-2025)
