@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -71,8 +70,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         }
         setExecutionDegree(executionDegree);
         setPerson(person);
-        setCompletedDegreeInformation(new PrecedentDegreeInformation());
-        setPreviousDegreeInformation(new PrecedentDegreeInformation());
     }
 
     /**

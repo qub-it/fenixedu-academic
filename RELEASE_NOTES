@@ -1,3 +1,4 @@
+- Refactor: Removes initializer of PrecedentDegreeInformation from StudentCandidacy [#qubIT-Fenix-6617]
 - Refactor: Prepare for deprecation of semester enrolment model (add unit tests to previous year enrolment rule) [#qubIT-Fenix-4901]
 
 50.0.2 (26-02-2025)
