@@ -1,3 +1,5 @@
+- Refactor: Prepare for deprecation of semester enrolment model (add unit tests to previous year enrolment rule) [#qubIT-Fenix-4901]
+
 50.0.2 (26-02-2025)
 - Refactor: Move PrecedentDegreeInformation relations from the StudentCandidacy to Registration [#qubIT-Fenix-6617]
 - Refactor: Restrict creation of lesson periods of distinct execution intervals [#qubIT-Fenix-6667]

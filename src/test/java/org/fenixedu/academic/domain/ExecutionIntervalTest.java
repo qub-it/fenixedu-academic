@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicIntervalCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -91,6 +92,7 @@ public class ExecutionIntervalTest {
         createCivilYearIntervalAndMonths(civilCalendar, year + 1);
         createCivilYearIntervalAndMonths(civilCalendar, year + 2);
 
+        AcademicPeriodOrder.initialize();
     }
 
     private static AcademicYearCE createStandardYearInterval(final AcademicCalendarRootEntry calendar, final int year) {
