@@ -72,20 +72,6 @@ public class PreviousYearsEnrolmentCurricularRuleTest {
     }
 
     @Test
-    public void givenModelBySemester_whenEnrollingIn2YS1WithoutEnrollingIn1YS2_thenSuccess() {
-        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
-        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
-        degreeCurricularPlan.setCurricularRuleValidationType(EnrolmentModel.SEMESTER);
-
-        final StudentCurricularPlan curricularPlan =
-                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
-        enrol(curricularPlan, executionYear, "C1");
-        enrol(curricularPlan, executionYear, "C3");
-
-//        System.out.println(curricularPlan.getRoot().print("\t"));
-    }
-
-    @Test
     public void givenModelByYearWithPeriodsSplitByS1AndS2_whenEnrollingIn2YS1WithoutEnrollingIn1YS2_thenSuccess() {
         final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
         final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
@@ -165,6 +151,20 @@ public class PreviousYearsEnrolmentCurricularRuleTest {
                 createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
 
         exceptionRule.expect(EnrollmentDomainException.class);
+        enrol(curricularPlan, executionYear, "C3");
+
+//        System.out.println(curricularPlan.getRoot().print("\t"));
+    }
+
+    @Test
+    public void givenModelBySemester_whenEnrollingIn2YS1WithoutEnrollingIn1YS2_thenSuccess() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+        degreeCurricularPlan.setCurricularRuleValidationType(EnrolmentModel.SEMESTER);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1");
         enrol(curricularPlan, executionYear, "C3");
 
 //        System.out.println(curricularPlan.getRoot().print("\t"));
