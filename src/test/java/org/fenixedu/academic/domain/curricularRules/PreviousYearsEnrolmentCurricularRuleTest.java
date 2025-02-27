@@ -16,8 +16,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 import pt.ist.fenixframework.FenixFramework;
 
+import java.math.BigDecimal;
+
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.CYCLE_GROUP;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.MANDATORY_GROUP;
+import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.createCredits;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.createDegreeCurricularPlan;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.createRegistration;
 import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.enrol;
@@ -67,6 +70,45 @@ public class PreviousYearsEnrolmentCurricularRuleTest {
                 createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
         enrol(curricularPlan, executionYear, "C1", "C2");
         enrol(curricularPlan, executionYear, "C3");
+
+//        System.out.println(curricularPlan.getRoot().print("\t"));
+    }
+
+    @Test
+    public void givenModelByYear_whenEnrollingIs2Y1SOptionalAndMandatoryIsConcluded_thenSuccess() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new CreditsLimit(mandatoryGroup, null, executionYear, null, 18d, 18d);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        createCredits(curricularPlan, executionYear, mandatoryGroup, new BigDecimal(18));
+
+        enrol(curricularPlan, executionYear, "C4");
+
+//        System.out.println(curricularPlan.getRoot().print("\t"));
+    }
+
+    @Test
+    public void givenModelByYear_whenEnrollingIs2Y1SOptionalAndMandatoryIsNotConcluded_thenFail() {
+        final ExecutionYear executionYear = ExecutionYear.readExecutionYearByName("2020/2021");
+        final DegreeCurricularPlan degreeCurricularPlan = createDegreeCurricularPlan(executionYear);
+
+        final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), CYCLE_GROUP);
+
+        final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
+        new CreditsLimit(mandatoryGroup, null, executionYear, null, 24d, 24d);
+
+        final StudentCurricularPlan curricularPlan =
+                createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        createCredits(curricularPlan, executionYear, mandatoryGroup, new BigDecimal(18));
+
+        exceptionRule.expect(EnrollmentDomainException.class);
+        enrol(curricularPlan, executionYear, "C4");
 
 //        System.out.println(curricularPlan.getRoot().print("\t"));
     }
