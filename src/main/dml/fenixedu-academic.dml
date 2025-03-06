@@ -4914,3 +4914,22 @@ class dml.DynamicFieldTag {
     } 
 
 // ==================== END: DynamicField ====================
+
+class schedule.lesson.LessonPeriod {
+}
+	relation LessonPeriodRoot {
+		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+		schedule.lesson.LessonPeriod playsRole lessonPeriods { multiplicity *; }
+	}
+    relation LessonPeriodExecutionInterval {
+        ExecutionInterval playsRole executionInterval { multiplicity 1..1; }
+        schedule.lesson.LessonPeriod playsRole lessonPeriods { multiplicity *; }
+    }
+    relation LessonPeriodOccupationPeriod {
+        OccupationPeriod playsRole occupationPeriod { multiplicity 1..1; }
+        schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 0..1; }
+    }
+    relation LessonPeriodOccupationPeriodReference {
+        OccupationPeriodReference playsRole occupationPeriodReferences { multiplicity *; }
+        schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 1..1; }
+    }

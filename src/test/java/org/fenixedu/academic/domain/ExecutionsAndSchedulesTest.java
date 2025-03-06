@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
@@ -103,7 +104,8 @@ public class ExecutionsAndSchedulesTest {
     public static OccupationPeriod createDefaultOccupationPeriod(Iterator<Interval> intervals) {
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
         final OccupationPeriod occupationPeriod = new OccupationPeriod(intervals);
-        new OccupationPeriodReference(occupationPeriod, executionDegree, executionInterval, new CurricularYearList(List.of(-1)));
+        final LessonPeriod lessonPeriod = LessonPeriod.create(executionInterval, occupationPeriod);
+        new OccupationPeriodReference(lessonPeriod, executionDegree, new CurricularYearList(List.of(-1)));
         return occupationPeriod;
     }
 

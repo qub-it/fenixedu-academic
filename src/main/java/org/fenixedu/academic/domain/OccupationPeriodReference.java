@@ -21,6 +21,7 @@ package org.fenixedu.academic.domain;
 import java.util.List;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public class OccupationPeriodReference extends OccupationPeriodReference_Base {
@@ -30,25 +31,34 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, ExecutionInterval interval,
-            CurricularYearList curricularYears) {
+    public OccupationPeriodReference(LessonPeriod lessonPeriod, ExecutionDegree degree, CurricularYearList curricularYears) {
         this();
+        final OccupationPeriod period = lessonPeriod.getOccupationPeriod();
         if (period == null || degree == null) {
             throw new DomainException("exception.null.arguments");
         }
 
-        if (period.getExecutionDegreesSet().stream().anyMatch(opr -> opr.getExecutionInterval() != interval)) {
+        final ExecutionInterval executionInterval = lessonPeriod.getExecutionInterval();
+        if (period.getExecutionDegreesSet().stream().anyMatch(opr -> opr.getExecutionInterval() != executionInterval)) {
             throw new DomainException("error.OccupationPeriodReference.multipleExecutionIntervals");
         }
 
+        setLessonPeriod(lessonPeriod);
         setOccupationPeriod(period);
         setExecutionDegree(degree);
-        setExecutionInterval(interval);
+        setExecutionInterval(executionInterval);
         setCurricularYears(curricularYears);
+    }
+
+    @Deprecated
+    public OccupationPeriodReference(OccupationPeriod period, ExecutionDegree degree, ExecutionInterval interval,
+            CurricularYearList curricularYears) {
+        this(period.getLessonPeriod(), degree, curricularYears);
     }
 
     public void delete() {
         setOccupationPeriod(null);
+        setLessonPeriod(null);
         setExecutionDegree(null);
         setRootDomainObject(null);
         setExecutionInterval(null);
