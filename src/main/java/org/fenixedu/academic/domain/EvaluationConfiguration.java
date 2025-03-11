@@ -67,6 +67,12 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
         return enrolment.getEvaluationsSet().stream().filter(isFinal).max(ENROLMENT_EVALUATION_ORDER);
     }
 
+    public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment, ExecutionInterval executionInterval) {
+        Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
+        return enrolment.getEvaluationsSet().stream().filter(isFinal).filter(ev -> ev.getExecutionInterval() == executionInterval)
+                .max(ENROLMENT_EVALUATION_ORDER);
+    }
+
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season) {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         Predicate<EnrolmentEvaluation> isSeason = e -> e.getEvaluationSeason().equals(season);

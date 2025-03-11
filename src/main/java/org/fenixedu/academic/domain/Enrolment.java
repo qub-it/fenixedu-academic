@@ -533,8 +533,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     public Grade getGrade(final ExecutionInterval executionInterval) {
         final Optional<EnrolmentEvaluation> enrolmentEvaluation =
-                findEnrolmentEvaluations(executionInterval)
-                        .filter(EnrolmentEvaluation::isFinal).max(EvaluationConfiguration.getEnrolmentEvaluationOrder());
+                EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this, executionInterval);
         return enrolmentEvaluation.map(EnrolmentEvaluation::getGrade).orElseGet(() -> Grade.createEmptyGrade());
     }
 
