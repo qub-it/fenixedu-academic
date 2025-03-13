@@ -91,24 +91,14 @@ abstract public class StudentCurricularPlanEnrolment {
     }
 
     protected void assertEnrolmentPreConditions() {
-        if (isResponsiblePersonStudent()) {
-            assertStudentEnrolmentPreConditions();
-        }
     }
 
     protected Person getPerson() {
         return getStudent().getPerson();
     }
 
+    @Deprecated(forRemoval = true)
     protected void assertStudentEnrolmentPreConditions() {
-        final CurricularRuleLevel ruleLevel = getCurricularRuleLevel();
-        if (ruleLevel != ENROLMENT_WITH_RULES && ruleLevel != EXTRA_ENROLMENT && ruleLevel != STANDALONE_ENROLMENT) {
-            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
-        }
-
-        if (!getRegistration().hasActiveLastState(getExecutionInterval())) {
-            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
-        }
     }
 
     private RuleResult evaluateDegreeModules(
@@ -207,10 +197,6 @@ abstract public class StudentCurricularPlanEnrolment {
 
     protected Person getResponsiblePerson() {
         return enrolmentContext.getResponsiblePerson();
-    }
-
-    protected boolean isResponsiblePersonStudent() {
-        return getRegistration().getStudent().getPerson() == getResponsiblePerson();
     }
 
     abstract protected void unEnrol();

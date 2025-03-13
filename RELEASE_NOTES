@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated student enrolment pre-condition asserts [#qubIT-Fenix-6603]
+
 50.1.1 (11-03-2025)
 - Bug fix: Correctly display enrolment final grade by execution interval [#UL-FD-2187]
 
