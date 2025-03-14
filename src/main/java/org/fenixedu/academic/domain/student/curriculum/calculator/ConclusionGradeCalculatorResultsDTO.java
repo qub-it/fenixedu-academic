@@ -33,7 +33,7 @@ public class ConclusionGradeCalculatorResultsDTO {
         return description;
     }
 
-    public void setDescription(String htmlDescription) {
-        this.description = htmlDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
