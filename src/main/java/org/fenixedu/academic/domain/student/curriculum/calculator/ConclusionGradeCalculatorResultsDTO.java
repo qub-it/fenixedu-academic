@@ -8,10 +8,13 @@ public class ConclusionGradeCalculatorResultsDTO {
     private final Grade intermediateRoundedGrade;
     private final Grade finalGrade;
 
+    private String description;
+
     public ConclusionGradeCalculatorResultsDTO(Grade unroundedGrade, Grade intermediateRoundedGrade, Grade finalGrade) {
         this.unroundedGrade = unroundedGrade;
         this.intermediateRoundedGrade = intermediateRoundedGrade;
         this.finalGrade = finalGrade;
+        this.description = null;
     }
 
     public Grade getUnroundedGrade() {
@@ -24,5 +27,13 @@ public class ConclusionGradeCalculatorResultsDTO {
 
     public Grade getFinalGrade() {
         return finalGrade;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
