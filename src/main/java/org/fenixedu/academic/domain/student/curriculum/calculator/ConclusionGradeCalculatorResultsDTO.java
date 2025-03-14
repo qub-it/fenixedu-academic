@@ -8,10 +8,19 @@ public class ConclusionGradeCalculatorResultsDTO {
     private final Grade intermediateRoundedGrade;
     private final Grade finalGrade;
 
+    private String htmlDescription;
+
     public ConclusionGradeCalculatorResultsDTO(Grade unroundedGrade, Grade intermediateRoundedGrade, Grade finalGrade) {
         this.unroundedGrade = unroundedGrade;
         this.intermediateRoundedGrade = intermediateRoundedGrade;
         this.finalGrade = finalGrade;
+        this.htmlDescription = null;
+    }
+
+    public ConclusionGradeCalculatorResultsDTO(Grade unroundedGrade, Grade intermediateRoundedGrade, Grade finalGrade,
+            String htmlDescription) {
+        this(unroundedGrade, intermediateRoundedGrade, finalGrade);
+        this.htmlDescription = htmlDescription;
     }
 
     public Grade getUnroundedGrade() {
@@ -24,5 +33,9 @@ public class ConclusionGradeCalculatorResultsDTO {
 
     public Grade getFinalGrade() {
         return finalGrade;
+    }
+
+    public String getDescription() {
+        return htmlDescription;
     }
 }
