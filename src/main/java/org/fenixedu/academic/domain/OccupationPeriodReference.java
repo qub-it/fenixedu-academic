@@ -19,9 +19,12 @@
 package org.fenixedu.academic.domain;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
+import org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCurricularYears;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public class OccupationPeriodReference extends OccupationPeriodReference_Base {
@@ -63,7 +66,19 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
         setRootDomainObject(null);
         setExecutionInterval(null);
 
+        Optional.ofNullable(getExecutionDegreeLessonPeriodToMigrate()).ifPresent(p -> p.delete());
+
         deleteDomainObject();
+    }
+
+    @Override
+    public void setCurricularYears(final CurricularYearList curricularYears) {
+        super.setCurricularYears(curricularYears);
+
+        if (getExecutionDegreeLessonPeriodToMigrate() != null) {
+            getExecutionDegreeLessonPeriodToMigrate().setCurricularYears(
+                    new LessonPeriodCurricularYears(curricularYears.getYears()));
+        }
     }
 
     public String getCurricularYearsString() {
@@ -118,6 +133,17 @@ public class OccupationPeriodReference extends OccupationPeriodReference_Base {
     @Override
     public Integer getSemester() {
         return super.getExecutionInterval() != null ? super.getExecutionInterval().getChildOrder() : super.getSemester();
+    }
+
+    public ExecutionDegreeLessonPeriod createCorrespondingExecutionDegreeLessonPeriodIfMissing() {
+        if (getExecutionDegreeLessonPeriodToMigrate() != null) {
+            return null;
+        }
+
+        final ExecutionDegreeLessonPeriod result = ExecutionDegreeLessonPeriod.create(getExecutionDegree(), getLessonPeriod());
+        result.setCurricularYears(new LessonPeriodCurricularYears(getCurricularYears().getYears()));
+        result.setOccupationPeriodReferenceFromMigration(this);
+        return result;
     }
 
 }

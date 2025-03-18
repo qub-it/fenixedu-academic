@@ -1,3 +1,5 @@
+- Refactor: Add proper domain entity to represent lesson period of an execution degree [#qubIT-Fenix-6667]
+
 50.1.2 (14-03-2025)
 - Refactor: Remove deprecated student enrolment pre-condition asserts [#qubIT-Fenix-6603]
 - Improvement: Adds a description to the results DTO for Conclusion Grade Calculators [#qubIT-Fenix-6619] 

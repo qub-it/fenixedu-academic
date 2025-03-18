@@ -129,6 +129,11 @@ valueType org.fenixedu.academic.domain.CurricularYearList as CurricularYearList 
     internalizeWith internalize();
 }
 
+valueType org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCurricularYears as LessonPeriodCurricularYears {
+    externalizeWith { String toString(); }
+    internalizeWith internalize();
+}
+
 valueType org.fenixedu.academic.util.CurricularCourseExecutionScope as CurricularCourseExecutionScope {
     externalizeWith {
         Integer getType();
@@ -4932,4 +4937,24 @@ class schedule.lesson.LessonPeriod {
     relation LessonPeriodOccupationPeriodReference {
         OccupationPeriodReference playsRole occupationPeriodReferences { multiplicity *; }
         schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 1..1; }
+    }
+
+class schedule.lesson.ExecutionDegreeLessonPeriod  {
+    LessonPeriodCurricularYears curricularYears;
+}
+    relation ExecutionDegreeLessonPeriodExecutionDegree {
+        schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriods { multiplicity *; }
+        ExecutionDegree playsRole executionDegree { multiplicity 1..1; }
+    }
+    relation ExecutionDegreeLessonPeriodLessonPeriod {
+        schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriods { multiplicity *; }
+        schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 1..1; }
+    }
+    relation ExecutionDegreeLessonPeriodRoot {
+        schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriods { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
+    }
+    relation ExecutionDegreeLessonPeriodOccupationPeriodReference { // temp relation, during migration
+        schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriodToMigrate;
+        OccupationPeriodReference playsRole occupationPeriodReferenceFromMigration;
     }

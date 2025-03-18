@@ -21,6 +21,7 @@ package org.fenixedu.academic.servlet;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,6 +42,7 @@ import org.fenixedu.academic.domain.OccupationPeriodReference;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
+import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
@@ -80,6 +82,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeDynamicFieldTags();
 
         initializeLessonPeriods();
+
+        initializeExecutionDegreeLessonPeriods();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -188,4 +192,15 @@ public class FenixInitializer implements ServletContextListener {
         Log.warn("---------------------------------------");
     }
 
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeExecutionDegreeLessonPeriods() {
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Execution Degree Lesson Periods");
+
+        final List<ExecutionDegreeLessonPeriod> newPeriods = Bennu.getInstance().getOccupationPeriodReferencesSet().stream()
+                .map(opr -> opr.createCorrespondingExecutionDegreeLessonPeriodIfMissing()).filter(Objects::nonNull).toList();
+
+        Log.warn("Finished population of Execution Degree Lesson Periods. Created: " + newPeriods.size());
+        Log.warn("---------------------------------------");
+    }
 }
