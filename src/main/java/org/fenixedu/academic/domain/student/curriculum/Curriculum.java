@@ -530,6 +530,12 @@ public class Curriculum implements Serializable, ICurriculum {
                 .orElseGet(() -> getGradeCalculator().unroundedGrade(this));
     }
 
+    public String getDescription() {
+        updateConclusionGradeCalculatorResult();
+
+        return ofNullable(conclusionGradeCalculatorResult).map(r -> r.getDescription()).orElse(null);
+    }
+
     private void updateConclusionGradeCalculatorResult() {
         if (this.conclusionGradeCalculatorResult == null) {
             final ConclusionGradeCalculator conclusionGradeCalculator =

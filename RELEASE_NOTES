@@ -1,3 +1,5 @@
+- Improvement: Adds View Description button to CurriculumComponent [#qubIT-Fenix-6621]
+
 50.2.0 (18-03-2025)
 - Refactor: Add proper domain entity to represent lesson period of an execution degree [#qubIT-Fenix-6667]
 
