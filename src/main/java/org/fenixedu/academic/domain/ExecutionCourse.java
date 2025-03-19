@@ -53,7 +53,7 @@ import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 public class ExecutionCourse extends ExecutionCourse_Base {
     public static final String CREATED_SIGNAL = "academic.executionCourse.create";
 
-    public static final String EDITED_SIGNAL = "academic.executionCourse.create";
+    public static final String EDITED_SIGNAL = "academic.executionCourse.edit";
 
     public static final String ACRONYM_CHANGED_SIGNAL = "academic.executionCourse.acronym.edit";
 
@@ -77,6 +77,25 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         setSigla(initials);
 
         Signal.emit(ExecutionCourse.CREATED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
+    }
+
+    @Override
+    public void setNome(final String nome) {
+        super.setNome(nome);
+        Signal.emit(ExecutionCourse.EDITED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
+    }
+
+    @Override
+    public void setExecutionPeriod(final ExecutionInterval executionPeriod) {
+        super.setExecutionPeriod(executionPeriod);
+        Signal.emit(ExecutionCourse.EDITED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
+    }
+
+    @Override
+    public void removeAssociatedCurricularCourses(final CurricularCourse associatedCurricularCourses) {
+        super.removeAssociatedCurricularCourses(associatedCurricularCourses);
+        Signal.emit(ExecutionCourse.EDITED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
+
     }
 
     public List<Professorship> responsibleFors() {
@@ -207,8 +226,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             }
 
             final Attends attendsByStudent = executionCourse.getAttendsByStudent(enrolment.getRegistration().getStudent());
-            return attendsByStudent != null && attendsByStudent.getEnrolment() != null
-                    && !attendsByStudent.getEnrolment().isAnnulled();
+            return attendsByStudent != null && attendsByStudent.getEnrolment() != null && !attendsByStudent.getEnrolment()
+                    .isAnnulled();
         }
 
     }
@@ -296,8 +315,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public void updateName() {
-        final String newName = getCompetenceCoursesInformations().stream().map(cci -> cci.getName()).filter(Objects::nonNull)
-                .distinct().sorted().collect(Collectors.joining(" / "));
+        final String newName =
+                getCompetenceCoursesInformations().stream().map(cci -> cci.getName()).filter(Objects::nonNull).distinct().sorted()
+                        .collect(Collectors.joining(" / "));
         setNome(newName);
     }
 
@@ -342,9 +362,10 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         final Function<DegreeCurricularPlan, Stream<ExecutionDegree>> dcpToExecutionDegree =
                 dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream();
 
-        final Collection<Interval> allIntervals = getAssociatedCurricularCoursesSet().stream()
-                .map(CurricularCourse::getDegreeCurricularPlan).flatMap(dcpToExecutionDegree).flatMap(executionDegreeToPeriods)
-                .map(OccupationPeriod::getIntervalWithNextPeriods).collect(Collectors.toSet());
+        final Collection<Interval> allIntervals =
+                getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
+                        .flatMap(dcpToExecutionDegree).flatMap(executionDegreeToPeriods)
+                        .map(OccupationPeriod::getIntervalWithNextPeriods).collect(Collectors.toSet());
 
         if (!allIntervals.isEmpty()) {
             final DateTime start = allIntervals.stream().map(Interval::getStart).min(Comparator.naturalOrder()).get();
@@ -448,6 +469,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
         }
 
         super.addAssociatedCurricularCourses(curricularCourse);
+        Signal.emit(ExecutionCourse.EDITED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
     }
 
     public ExecutionInterval getExecutionInterval() {

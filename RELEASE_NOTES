@@ -3,6 +3,7 @@
 - Refactor: Add direct professorship shifts getter [#qubIT-Fenix-4690]
 - Refactor: Refactors SchoolLevelType, ProfessionType and ProfessionalSituationConditionType enums to domain entities [#qubIT-Fenix-7009]
 - Improvement: Add Degree Curricular Plan and Groups to AnyCurricularCourse Rule [#UL-FBA-1957]
+- Improvement: Emits Edition of ExecutionCourse signal to change respective CommunicationSender [#qubIT-Omnis-8831]
 
 50.4.2 (11-06-2025)
 - Refactor: Adds StudentCandidacy constructor excluding Execution Degree [#qubIT-Fenix-6696]
