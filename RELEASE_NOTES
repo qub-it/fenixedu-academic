@@ -1,3 +1,5 @@
+- Bug fix: Prevent removal of program conclusion of group when this already has conclusion processes associated [#UCP-FENIXEDU-345]
+
 50.2.0 (18-03-2025)
 - Refactor: Add proper domain entity to represent lesson period of an execution degree [#qubIT-Fenix-6667]
 

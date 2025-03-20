@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.util.StringFormatter;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.I18N;
@@ -296,8 +297,20 @@ public class CourseGroup extends CourseGroup_Base {
 
     @Override
     public void setProgramConclusion(ProgramConclusion programConclusion) {
+        checkIfAlreadyHasConclusionProcesses(programConclusion);
         checkDuplicateProgramConclusion(programConclusion);
         super.setProgramConclusion(programConclusion);
+    }
+
+    private void checkIfAlreadyHasConclusionProcesses(ProgramConclusion programConclusion) {
+        if (getProgramConclusion() == null || getProgramConclusion() == programConclusion) {
+            return;
+        }
+
+        if (getCurriculumModulesSet().stream().map(CurriculumGroup.class::cast)
+                .anyMatch(cg -> cg.getConclusionProcess() != null)) {
+            throw new DomainException("error.CourseGroup.cannot.change.program.conclusion.with.existing.conclusions");
+        }
     }
 
     private void checkDuplicateProgramConclusion(ProgramConclusion programConclusion) {
