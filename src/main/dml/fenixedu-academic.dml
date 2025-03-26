@@ -2230,6 +2230,15 @@ relation CurriculumGroupStudentCurricularPlan {
     StudentCurricularPlan playsRole parentStudentCurricularPlan;
 }
 
+relation CurriculumLineStudentCurricularPlan {
+    studentCurriculum.CurriculumLine playsRole excludedCurriculumLinesFromAverage {
+        multiplicity *;
+    }
+    StudentCurricularPlan playsRole excludedFromAverage {
+        multiplicity *;
+    }
+}
+
 relation CurriculumModuleCurriculumGroup {
     studentCurriculum.CurriculumGroup playsRole curriculumGroup;
     studentCurriculum.CurriculumModule playsRole curriculumModules {
