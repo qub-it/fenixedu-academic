@@ -218,6 +218,8 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             ;
         }
 
+        getExcludedCurriculumLinesFromAverageSet().clear();
+
         setStartExecutionInterval(null);
         setDegreeCurricularPlan(null);
         setStudent(null);

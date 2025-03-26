@@ -285,6 +285,18 @@ public class CreditsWeightedCalculatorTest {
 
     }
 
+    @Test
+    public void calculateAvgGrade_testDeleteSCP() {
+        ExecutionYear year = ExecutionYear.readExecutionYearByName("2021/2022");
+        StudentCurricularPlan scp = ConclusionGradeCalculatorTestUtil.createStudentCurricularPlan(year);
+
+        ConclusionGradeCalculatorTestUtil.enrol(scp, year, "C1", "C2", "C3");
+        assertEquals(true, scp.getAllCurriculumLines().size() == 3);
+
+        scp.addExcludedCurriculumLinesFromAverage(scp.getEnrolmentsSet().iterator().next());
+        scp.delete();
+    }
+
     private static Grade grade(String confirm) {
         return ConclusionGradeCalculatorTestUtil.createGrade(confirm);
     }

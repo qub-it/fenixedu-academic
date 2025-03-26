@@ -1,3 +1,5 @@
+- Improvement: Adds exclusion of Curriculum Lines from Conclusion Average [#qubIT-Fenix-6622]
+
 50.3.0 (27-03-2025)
 - Refactor: Remove deprecated propadeutics enrolment manager [#qubIT-Fenix-6775]
 - Improvement: Adds View Description button to CurriculumComponent [#qubIT-Fenix-6621]
