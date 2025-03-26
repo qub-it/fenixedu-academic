@@ -1,3 +1,5 @@
+- Improvement: Adds View Description button to CurriculumComponent [#qubIT-Fenix-6621]
+
 50.2.1 (20-03-2025)
 - Bug fix: Prevent removal of program conclusion of group when this already has conclusion processes associated [#UCP-FENIXEDU-345]
 
