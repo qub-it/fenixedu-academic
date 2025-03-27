@@ -2235,7 +2235,7 @@ relation CurriculumLineStudentCurricularPlan {
         multiplicity *;
     }
     StudentCurricularPlan playsRole excludedFromAverage {
-        multiplicity *;
+        multiplicity 0..1;
     }
 }
 
