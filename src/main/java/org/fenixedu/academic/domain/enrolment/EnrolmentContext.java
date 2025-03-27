@@ -180,10 +180,6 @@ public class EnrolmentContext {
         return getCurricularRuleLevel() == CurricularRuleLevel.EXTRA_ENROLMENT;
     }
 
-    public boolean isPropaeudeutics() {
-        return getCurricularRuleLevel() == CurricularRuleLevel.PROPAEUDEUTICS_ENROLMENT;
-    }
-
     public boolean isStandalone() {
         return getCurricularRuleLevel() == CurricularRuleLevel.STANDALONE_ENROLMENT
                 || getCurricularRuleLevel() == CurricularRuleLevel.STANDALONE_ENROLMENT_NO_RULES;

@@ -20,34 +20,20 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Locale;
 
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
 
 public enum NoCourseGroupCurriculumGroupType {
 
-    PROPAEDEUTICS(CurricularRuleLevel.PROPAEUDEUTICS_ENROLMENT),
+    @Deprecated
+    PROPAEDEUTICS,
 
-    EXTRA_CURRICULAR(CurricularRuleLevel.EXTRA_ENROLMENT),
+    EXTRA_CURRICULAR,
 
-    STANDALONE(CurricularRuleLevel.STANDALONE_ENROLMENT),
+    STANDALONE,
 
-    INTERNAL_CREDITS_SOURCE_GROUP(CurricularRuleLevel.NULL_LEVEL);
-
-    private CurricularRuleLevel level;
-
-    private NoCourseGroupCurriculumGroupType() {
-        level = null;
-    }
-
-    private NoCourseGroupCurriculumGroupType(final CurricularRuleLevel level) {
-        this.level = level;
-    }
-
-    public CurricularRuleLevel getCurricularRuleLevel() {
-        return level;
-    }
+    INTERNAL_CREDITS_SOURCE_GROUP;
 
     public String getLocalizedName() {
         return getLocalizedName(I18N.getLocale());

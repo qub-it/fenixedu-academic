@@ -916,14 +916,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 Authenticate.getUser().getUsername(), optionalCurricularCourse);
     }
 
-    @Atomic
-    public RuleResult removeCurriculumModulesFromNoCourseGroupCurriculumGroup(final List<CurriculumModule> curriculumModules,
-            final ExecutionInterval executionInterval, final NoCourseGroupCurriculumGroupType groupType) {
-        final EnrolmentContext context = new EnrolmentContext(this, executionInterval, Collections.EMPTY_SET, curriculumModules,
-                groupType.getCurricularRuleLevel());
-        return org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment.createManager(context).manage();
-    }
-
     final public NoCourseGroupCurriculumGroup getNoCourseGroupCurriculumGroup(final NoCourseGroupCurriculumGroupType groupType) {
         return getRoot().getNoCourseGroupCurriculumGroup(groupType);
     }

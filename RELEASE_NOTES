@@ -1,3 +1,4 @@
+- Refactor: Remove deprecated propadeutics enrolment manager [#qubIT-Fenix-6775]
 - Improvement: Adds View Description button to CurriculumComponent [#qubIT-Fenix-6621]
 
 50.2.1 (20-03-2025)

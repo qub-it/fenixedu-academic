@@ -234,9 +234,6 @@ abstract public class StudentCurricularPlanEnrolment {
             } else if (enrolmentContext.isExtra()) {
                 return new StudentCurricularPlanExtraEnrolmentManager(enrolmentContext);
 
-            } else if (enrolmentContext.isPropaeudeutics()) {
-                return new StudentCurricularPlanPropaeudeuticsEnrolmentManager(enrolmentContext);
-
             } else if (enrolmentContext.isStandalone()) {
                 return new StudentCurricularPlanStandaloneEnrolmentManager(enrolmentContext);
             }
