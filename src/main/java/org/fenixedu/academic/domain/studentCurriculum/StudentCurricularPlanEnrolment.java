@@ -18,10 +18,6 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.ENROLMENT_WITH_RULES;
-import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.EXTRA_ENROLMENT;
-import static org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel.STANDALONE_ENROLMENT;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -230,12 +226,8 @@ abstract public class StudentCurricularPlanEnrolment {
 
             if (enrolmentContext.isNormal()) {
                 return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
-
-            } else if (enrolmentContext.isExtra()) {
-                return new StudentCurricularPlanExtraEnrolmentManager(enrolmentContext);
-
-            } else if (enrolmentContext.isStandalone()) {
-                return new StudentCurricularPlanStandaloneEnrolmentManager(enrolmentContext);
+            } else if (enrolmentContext.isExtra() || enrolmentContext.isStandalone()) {
+                return new StudentCurricularPlanNoCourseGroupEnrolmentManager(enrolmentContext);
             }
 
             throw new DomainException("StudentCurricularPlanEnrolment");

@@ -81,12 +81,15 @@ abstract public class CurricularRuleExecutor {
 
         switch (enrolmentContext.getCurricularRuleLevel()) {
         case ENROLMENT_WITH_RULES:
+        case STANDALONE_ENROLMENT:
+        case EXTRA_ENROLMENT:
             return executeEnrolmentWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         case ENROLMENT_VERIFICATION_WITH_RULES:
             return executeEnrolmentVerificationWithRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         case ENROLMENT_NO_RULES:
+        case STANDALONE_ENROLMENT_NO_RULES:
             return executeEnrolmentWithNoRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         case ENROLMENT_PREFILTER:

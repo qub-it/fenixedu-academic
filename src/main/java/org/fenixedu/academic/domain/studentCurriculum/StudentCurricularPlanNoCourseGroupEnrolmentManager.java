@@ -18,18 +18,17 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.EnrolmentResultType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
@@ -42,16 +41,16 @@ import org.fenixedu.bennu.core.signals.Signal;
 
 import com.google.common.collect.Sets;
 
-public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurricularPlanEnrolment {
+public class StudentCurricularPlanNoCourseGroupEnrolmentManager extends StudentCurricularPlanEnrolment {
 
-    public StudentCurricularPlanStandaloneEnrolmentManager(final EnrolmentContext enrolmentContext) {
+    public StudentCurricularPlanNoCourseGroupEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
     }
 
     @Override
     protected void assertEnrolmentPreConditions() {
         super.assertEnrolmentPreConditions();
-        
+
         checkEnrolingDegreeModules();
     }
 
@@ -81,38 +80,28 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
     @Override
     protected void addEnroled() {
         addEnroledFromStudentCurricularPlan();
-        addEnroledFromStandaloneGroup();
-        changeCurricularRuleLevel();
-    }
-
-    /*
-     * Change level accordding to current level
-     */
-    private void changeCurricularRuleLevel() {
-        final CurricularRuleLevel currentLevel = enrolmentContext.getCurricularRuleLevel();
-
-        if (currentLevel.equals(CurricularRuleLevel.STANDALONE_ENROLMENT_NO_RULES)) {
-            enrolmentContext.setCurricularRuleLevel(CurricularRuleLevel.ENROLMENT_NO_RULES);
-        } else {
-            enrolmentContext.setCurricularRuleLevel(CurricularRuleLevel.ENROLMENT_WITH_RULES);
-        }
+        addEnroledFromNoCourseGroups();
     }
 
     private void addEnroledFromStudentCurricularPlan() {
         for (final ExecutionInterval interval : enrolmentContext.getExecutionIntervalsToEvaluate()) {
-            for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan()
-                    .getDegreeModulesToEvaluate(interval)) {
+            for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : getStudentCurricularPlan().getDegreeModulesToEvaluate(
+                    interval)) {
                 enrolmentContext.addDegreeModuleToEvaluate(degreeModuleToEvaluate);
             }
         }
     }
 
-    private void addEnroledFromStandaloneGroup() {
-        final StandaloneCurriculumGroup group = getStudentCurricularPlan().getStandaloneCurriculumGroup();
-        for (final CurriculumLine curriculumLine : group.getChildCurriculumLines()) {
-            for (final ExecutionInterval interval : enrolmentContext.getExecutionIntervalsToEvaluate()) {
-                for (final IDegreeModuleToEvaluate module : curriculumLine.getDegreeModulesToEvaluate(interval)) {
-                    enrolmentContext.addDegreeModuleToEvaluate(module);
+    private void addEnroledFromNoCourseGroups() {
+        final Set<NoCourseGroupCurriculumGroup> groupsToEvaluate =
+                getStudentCurricularPlan().getNoCourseGroupCurriculumGroups().stream()
+                        .filter(cg -> cg.isStandalone() || cg.isExtraCurriculum()).collect(Collectors.toSet());
+        for (final CurriculumGroup group : groupsToEvaluate) {
+            for (final CurriculumLine curriculumLine : group.getChildCurriculumLines()) {
+                for (final ExecutionInterval interval : enrolmentContext.getExecutionIntervalsToEvaluate()) {
+                    for (final IDegreeModuleToEvaluate module : curriculumLine.getDegreeModulesToEvaluate(interval)) {
+                        enrolmentContext.addDegreeModuleToEvaluate(module);
+                    }
                 }
             }
         }
@@ -120,15 +109,13 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
 
     @Override
     protected Map<IDegreeModuleToEvaluate, Set<ICurricularRule>> getRulesToEvaluate() {
-        if (!enrolmentContext.hasDegreeModulesToEvaluate()) {
-            return Collections.emptyMap();
-        }
-
         final Map<IDegreeModuleToEvaluate, Set<ICurricularRule>> result =
                 new HashMap<IDegreeModuleToEvaluate, Set<ICurricularRule>>();
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isEnroling() && degreeModuleToEvaluate.getDegreeModule().isCurricularCourse()) {
-                result.put(degreeModuleToEvaluate, Collections.<ICurricularRule> emptySet());
+        for (final IDegreeModuleToEvaluate toEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
+            if (toEvaluate.canCollectRules() || (toEvaluate.getCurriculumGroup() != null && (
+                    toEvaluate.getCurriculumGroup().isStandalone() || toEvaluate.getCurriculumGroup().isExtraCurriculum()))) {
+                result.put(toEvaluate, toEvaluate.getCurriculumGroup().getRootCurriculumGroup()
+                        .getCurricularRules(toEvaluate.getExecutionInterval()));
             }
         }
 
@@ -145,9 +132,10 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
                     final CurricularCourse curricularCourse = (CurricularCourse) degreeModuleToEvaluate.getDegreeModule();
 
                     checkIDegreeModuleToEvaluate(curricularCourse);
-                    final Enrolment enrolment = new Enrolment(getStudentCurricularPlan(),
-                            degreeModuleToEvaluate.getCurriculumGroup(), curricularCourse, getExecutionSemester(),
-                            EnrollmentCondition.VALIDATED, getResponsiblePerson().getUsername());
+                    final Enrolment enrolment =
+                            new Enrolment(getStudentCurricularPlan(), degreeModuleToEvaluate.getCurriculumGroup(),
+                                    curricularCourse, getExecutionSemester(), EnrollmentCondition.VALIDATED,
+                                    getResponsiblePerson().getUsername());
 
                     enrolmentsToNotify.add(enrolment);
                 }
@@ -155,8 +143,13 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
         }
 
         for (final Enrolment enrolment : enrolmentsToNotify) {
-            Signal.emit(ITreasuryBridgeAPI.STANDALONE_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
+            if (enrolment.isStandalone()) {
+                Signal.emit(ITreasuryBridgeAPI.STANDALONE_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
+            } else if (enrolment.isExtraCurricular()) {
+                Signal.emit(ITreasuryBridgeAPI.EXTRACURRICULAR_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
+            }
         }
+
         getRegistration().updateEnrolmentDate(getExecutionYear());
     }
 
@@ -166,10 +159,12 @@ public class StudentCurricularPlanStandaloneEnrolmentManager extends StudentCurr
         // First remove Enrolments
         for (final CurriculumModule curriculumModule : enrolmentContext.getToRemove()) {
             if (curriculumModule.isLeaf()) {
-                TreasuryBridgeAPIFactory.implementation().standaloneUnenrolment((Enrolment) curriculumModule);
+                if (curriculumModule.getCurriculumGroup().isStandalone()) {
+                    TreasuryBridgeAPIFactory.implementation().standaloneUnenrolment((Enrolment) curriculumModule);
+                } else if (curriculumModule.getCurriculumGroup().isExtraCurriculum()) {
+                    TreasuryBridgeAPIFactory.implementation().extracurricularUnenrolment((Enrolment) curriculumModule);
+                }
 
-                // Signal.emit(ITreasuryBridgeAPI.STANDALONE_UNENROLMENT, new
-                // DomainObjectEvent<Enrolment>((Enrolment) curriculumModule));
                 curriculumModule.delete();
             }
         }

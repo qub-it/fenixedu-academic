@@ -1,5 +1,6 @@
 - Refactor: Remove deprecated propadeutics enrolment manager [#qubIT-Fenix-6775]
 - Improvement: Adds View Description button to CurriculumComponent [#qubIT-Fenix-6621]
+- Bug fix: Evaluate rules on enrolment of extra-curricular/standalone courses [#qubIT-Fenix-6775]
 
 50.2.1 (20-03-2025)
 - Bug fix: Prevent removal of program conclusion of group when this already has conclusion processes associated [#UCP-FENIXEDU-345]
