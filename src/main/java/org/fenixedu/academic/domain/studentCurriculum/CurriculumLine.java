@@ -58,6 +58,12 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
         setUsedInSeparationCycle(false);
     }
 
+    @Override
+    public void delete() {
+        setExcludedFromAverage(null);
+        super.delete();
+    }
+
     public ExecutionYear getExecutionYear() {
         final ExecutionInterval executionInterval = getExecutionInterval();
         return executionInterval == null ? null : executionInterval.getExecutionYear();
