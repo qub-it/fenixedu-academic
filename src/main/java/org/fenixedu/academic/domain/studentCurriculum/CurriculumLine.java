@@ -60,7 +60,7 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
 
     @Override
     public void delete() {
-        getExcludedFromAverageSet().clear();
+        setExcludedFromAverage(null);
         super.delete();
     }
 
