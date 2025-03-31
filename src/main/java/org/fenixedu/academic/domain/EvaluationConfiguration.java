@@ -32,6 +32,12 @@ import pt.ist.fenixframework.Atomic.TxMode;
 
 public class EvaluationConfiguration extends EvaluationConfiguration_Base {
 
+    private static Predicate<EnrolmentEvaluation> ENROLMENT_EVALUATION_FILTER = (e) -> true;
+
+    static public void setEnrolmentEvaluationFilter(Predicate<EnrolmentEvaluation> predicate) {
+        ENROLMENT_EVALUATION_FILTER = predicate;
+    }
+
     protected EvaluationConfiguration() {
         super();
         setRoot(Bennu.getInstance());
@@ -64,12 +70,12 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
 
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment) {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
-        return enrolment.getEvaluationsSet().stream().filter(isFinal).max(ENROLMENT_EVALUATION_ORDER);
+        return enrolment.getEvaluationsSet().stream().filter(isFinal.and(ENROLMENT_EVALUATION_FILTER)).max(ENROLMENT_EVALUATION_ORDER);
     }
 
     public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluation(Enrolment enrolment, ExecutionInterval executionInterval) {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
-        return enrolment.getEvaluationsSet().stream().filter(isFinal).filter(ev -> ev.getExecutionInterval() == executionInterval)
+        return enrolment.getEvaluationsSet().stream().filter(isFinal.and(ENROLMENT_EVALUATION_FILTER)).filter(ev -> ev.getExecutionInterval() == executionInterval)
                 .max(ENROLMENT_EVALUATION_ORDER);
     }
 
@@ -83,7 +89,7 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
         Predicate<EnrolmentEvaluation> isFinal = EnrolmentEvaluation::isFinal;
         Predicate<EnrolmentEvaluation> isImprovement = e -> e.getEvaluationSeason().isImprovement();
         Predicate<EnrolmentEvaluation> hasExam = e -> e.getExamDateYearMonthDay() != null;
-        return enrolment.getEvaluationsSet().stream().filter(isFinal.and(isImprovement.negate()).and(hasExam))
+        return enrolment.getEvaluationsSet().stream().filter(isFinal.and(ENROLMENT_EVALUATION_FILTER).and(isImprovement.negate()).and(hasExam))
                 .max(ENROLMENT_EVALUATION_ORDER);
     }
 
