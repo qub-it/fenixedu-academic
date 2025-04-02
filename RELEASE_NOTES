@@ -1,3 +1,5 @@
+- Refactor: Add lesson period finder methods [#qubIT-Fenix-6667]
+
 50.3.1 (31-03-2025)
 - Refactor: Allow to register final enrolment evaluation filters in evaluation configuration [#qubIT-Fenix-6779]
 
