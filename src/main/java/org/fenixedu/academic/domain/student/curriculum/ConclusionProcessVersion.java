@@ -77,6 +77,7 @@ public class ConclusionProcessVersion extends ConclusionProcessVersion_Base {
         final Double ectsCredits = bean.calculateCredits();
         final ExecutionYear ingressionYear = bean.calculateIngressionYear();
         final ExecutionYear conclusionYear = bean.calculateConclusionYear();
+        final String calculusDescription = bean.calculateDescription();
 
         if (finalGrade == null || rawGrade == null || ectsCredits == null || ingressionYear == null || conclusionYear == null) {
             throw new DomainException("error.ConclusionProcessVersion.argument.must.not.be.null");
@@ -89,6 +90,7 @@ public class ConclusionProcessVersion extends ConclusionProcessVersion_Base {
         super.setCurriculum(bean.getCurriculumForConclusion().toString());
         super.setIngressionYear(ingressionYear);
         super.setConclusionYear(conclusionYear);
+        super.setCalculusDescription(calculusDescription);
         super.setActive(true);
         Signal.emit(ConclusionProcessVersion.CREATE_SIGNAL, new DomainObjectEvent<ConclusionProcessVersion>(this));
     }
