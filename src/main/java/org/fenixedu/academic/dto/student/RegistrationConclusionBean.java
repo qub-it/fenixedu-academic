@@ -358,4 +358,8 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
         }
         return null;
     }
+
+    public String calculateDescription() {
+        return getCurriculumGroup().getCurriculum().getDescription();
+    }
 }
