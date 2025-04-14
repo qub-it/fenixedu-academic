@@ -1345,6 +1345,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String notes;
         protected boolean active (REQUIRED);
         String number;
+        String calculusDescription;
     }
 
     class student.curriculum.ExtraCurricularActivity  {
