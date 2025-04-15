@@ -28,6 +28,9 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -157,6 +160,17 @@ public interface ICurriculumEntry {
             return c == 0 ? COMPARATOR_BY_ID.compare(curriculumEntry1, curriculumEntry2) : c;
         }
     };
+
+    default String getApprovalTypeDescription(StudentCurricularPlan studentCurricularPlan) {
+        if (this instanceof Dismissal dismissal) {
+            return dismissal.getCredits().getDescription();
+        }
+
+        return this.getCurriculumLinesForCurriculum(studentCurricularPlan).stream().filter(l -> l.isDismissal())
+                .map(Dismissal.class::cast).map(d -> d.getCredits()).filter(c -> c.isSubstitution()).map(c -> c.getDescription())
+                .distinct().findFirst()
+                .orElseGet(() -> BundleUtil.getLocalizedString(Bundle.APPLICATION, "label.ApprovalType.Enrolment").getContent());
+    }
 
     String getExternalId();
 
