@@ -137,4 +137,23 @@ public class OrganizationalStructureTest {
         assertEquals(StringUtils.countMatches(parentUnitsPresentationName, ">"), 1);
         assertEquals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)");
     }
+
+    @Test
+    public void testPartyType_findByCode() {
+        PartyType partyType = PartyType.create("AD_HOC_CODE", new LocalizedString(Locale.getDefault(), "Ad Hoc Type"));
+        Optional<PartyType> result = PartyType.findByCode("AD_HOC_CODE");
+        assertTrue(result.isPresent());
+        assertEquals("AD_HOC_CODE", result.get().getCode());
+
+        result = PartyType.findByCode("NON_EXISTENT");
+        assertTrue(result.isEmpty());
+
+        result = PartyType.findByCode("SCHOOL");
+        assertTrue(result.isPresent());
+        assertEquals(PartyTypeEnum.SCHOOL, result.get().getType());
+
+        result = PartyType.findByCode("  ");
+        assertTrue(result.isEmpty());
+    }
+
 }

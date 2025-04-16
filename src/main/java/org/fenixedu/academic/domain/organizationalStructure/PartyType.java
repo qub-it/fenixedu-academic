@@ -66,8 +66,24 @@ public class PartyType extends PartyType_Base {
     }
 
     public static Optional<PartyType> findByCode(final String code) {
-        return StringUtils.isNotBlank(code) ? Bennu.getInstance().getPartyTypesSet().stream()
-                .filter(pt -> code.equals(pt.getCode())).findAny() : Optional.empty();
+        if (StringUtils.isBlank(code)) {
+            return Optional.empty();
+        }
+
+        final Optional<PartyType> byCode =
+                Bennu.getInstance().getPartyTypesSet().stream().filter(pt -> code.equals(pt.getCode())).findAny();
+        if (byCode.isPresent()) {
+            return byCode;
+        }
+
+        try {
+            PartyTypeEnum partyTypeEnum = PartyTypeEnum.valueOf(code);
+            return PartyType.of(partyTypeEnum);
+        } catch (IllegalArgumentException e) {
+        }
+
+        return Optional.empty();
+
     }
 
     public String getName() {
