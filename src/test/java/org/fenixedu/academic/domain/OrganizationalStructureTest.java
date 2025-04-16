@@ -3,9 +3,11 @@ package org.fenixedu.academic.domain;
 import static org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum.GEOGRAPHIC;
 import static org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -136,6 +138,18 @@ public class OrganizationalStructureTest {
         
         assertEquals(StringUtils.countMatches(parentUnitsPresentationName, ">"), 1);
         assertEquals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)");
+    }
+
+    @Test
+    public void testUnits_findInternalUnitsByPartyType() {
+        final PartyType schoolType = PartyType.findByCode("SCHOOL").orElseThrow();
+        final Collection<Unit> schools = Unit.findInternalUnitsByPartyType(schoolType).toList();
+        assertFalse(schools.isEmpty());
+        assertTrue(schools.stream().allMatch(unit -> unit.getPartyType() == schoolType));
+
+        final PartyType countryType = PartyType.findByCode(PartyTypeEnum.COUNTRY.name()).orElseThrow();
+        final Stream<Unit> countries = Unit.findInternalUnitsByPartyType(countryType);
+        assertTrue(countries.findAny().isEmpty());
     }
 
     @Test

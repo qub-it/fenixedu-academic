@@ -404,6 +404,11 @@ public class Unit extends Unit_Base {
         return Optional.of(unit);
     }
 
+    public static Stream<Unit> findInternalUnitsByPartyType(final PartyType type) {
+        return type == null ? Stream.empty() : type.getPartiesSet().stream().filter(Unit.class::isInstance).map(Unit.class::cast)
+                .filter(Unit::isInternal);
+    }
+
     public String getNameWithAcronym() {
         String name = getName().trim();
         return (getAcronym() == null || StringUtils.isEmpty(getAcronym().trim())) ? name : name + " (" + getAcronym().trim()
