@@ -421,11 +421,11 @@ public class Unit extends Unit_Base {
 
     public String getPresentationNameWithParents() {
         String parentUnits = getParentUnitsPresentationName();
-        return (!StringUtils.isEmpty(parentUnits.trim())) ? parentUnits + " - " + getPresentationName() : getPresentationName();
+        return (!StringUtils.isEmpty(parentUnits.trim())) ? parentUnits + " > " + getPresentationName() : getPresentationName();
     }
 
     public String getParentUnitsPresentationName() {
-        return getParentUnitsPresentationName(" - ");
+        return getParentUnitsPresentationName(" > ");
     }
 
     public String getParentUnitsPresentationName(String separator) {

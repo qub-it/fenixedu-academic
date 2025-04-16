@@ -1,5 +1,6 @@
 - Refactor: Find party types by code now takes also into account the enum values [#qubIT-Fenix-6848]
 - Refactor: Add method to find internal units by party types [#qubIT-Fenix-6848]
+- Refactor: Change default unit parents presentation name separator [#qubIT-Fenix-6848]
 
 50.3.3 (15-04-2025)
 - Refactor: Adds method to get the description of the type of curriculum line [#qubIT-Fenix-6839]
