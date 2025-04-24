@@ -1,3 +1,5 @@
+- Refactor: Delete occupation period on lesson period delete [#qubIT-Fenix-6667]
+
 50.3.4 (16-04-2025)
 - Refactor: Find party types by code now takes also into account the enum values [#qubIT-Fenix-6848]
 - Refactor: Add method to find internal units by party types [#qubIT-Fenix-6848]

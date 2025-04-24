@@ -63,11 +63,13 @@ public class LessonPeriod extends LessonPeriod_Base {
 
     public void delete() {
         setRoot(null);
-        if (!getOccupationPeriod().allNestedPeriodsAreEmpty()) {
-            setOccupationPeriod(null);
-//        } else {
-            // getOccupationPeriod().delete(); //TODO: activate delete, after domain migration
+
+        final OccupationPeriod occupationPeriod = getOccupationPeriod();
+        setOccupationPeriod(null);
+        if (occupationPeriod.allNestedPeriodsAreEmpty()) {
+            occupationPeriod.delete();
         }
+
         setExecutionInterval(null);
         setOccupationPeriod(null);
         deleteDomainObject();
