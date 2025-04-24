@@ -23,6 +23,7 @@
 package org.fenixedu.academic.domain;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -135,6 +136,24 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         if (nextPeriod != null) {
             nextPeriod.delete();
         }
+    }
+
+    public void deleteFromNestedPeriods(final OccupationPeriod period) {
+        if (getPreviousPeriod() != null) { // not a 'root' period
+            getPreviousPeriod().setNextPeriodWithoutChecks(getNextPeriod());
+        }
+        delete();
+    }
+
+    public List<OccupationPeriod> getAllNestedPeriods() {
+        final List<OccupationPeriod> periods = new ArrayList<>();
+        OccupationPeriod occupationPeriod = this;
+        periods.add(occupationPeriod);
+        while (occupationPeriod.getNextPeriod() != null) {
+            occupationPeriod = occupationPeriod.getNextPeriod();
+            periods.add(occupationPeriod);
+        }
+        return periods;
     }
 
     public boolean allNestedPeriodsAreEmpty() {
