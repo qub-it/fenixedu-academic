@@ -2373,6 +2373,19 @@ relation EnrolmentEvaluationEvaluationSeason {
     }
 }
 
+
+//Direct enrolment means this season allows automatic course enrolment before enrolling in season.
+//Usually means that there will be an automatic course enrolment for that period simultaneously with the process of enrolling in the season
+relation EvaluationSeasonUnitAllowDirectEnrolment {
+    public EvaluationSeason playsRole evaluationSeasonsForDirectEnrolment {
+        multiplicity *;
+    }
+
+    public organizationalStructure.Unit playsRole unitsAllowedForDirectEnrolment {
+        multiplicity *;
+    }
+}
+
 relation EnrolmentEvaluationPerson {
     EnrolmentEvaluation playsRole enrolmentEvaluationsConfirmations {
         multiplicity *;
