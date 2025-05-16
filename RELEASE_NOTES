@@ -1,3 +1,5 @@
+- Improvement: Handle distinct lesson periods for annual courses [#UL-FMD-1146]
+
 50.3.6 (15-05-2025)
 - Improvement: Allow to enrolment in season without course enrolment [#qubIT-Fenix-6890]
 

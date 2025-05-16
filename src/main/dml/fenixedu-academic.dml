@@ -77,6 +77,7 @@ enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as Schoo
 enum org.fenixedu.academic.domain.candidacy.CandidacySituationType                                                     as CandidacySituationType;
 enum java.math.RoundingMode 																							as RoundingMode;
 enum org.fenixedu.academic.domain.log.EnrolmentActionType															as EnrolmentActionType;
+enum org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCoursesDuration                                       as LessonPeriodCoursesDuration;
 
 
 /*
@@ -4935,6 +4936,7 @@ class dml.DynamicFieldTag {
 // ==================== END: DynamicField ====================
 
 class schedule.lesson.LessonPeriod {
+    LessonPeriodCoursesDuration coursesDuration;
 }
 	relation LessonPeriodRoot {
 		.org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }

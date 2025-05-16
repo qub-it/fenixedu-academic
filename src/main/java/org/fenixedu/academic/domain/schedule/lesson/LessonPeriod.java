@@ -28,6 +28,11 @@ public class LessonPeriod extends LessonPeriod_Base {
         return result;
     }
 
+    @Override
+    public LessonPeriodCoursesDuration getCoursesDuration() {
+        return super.getCoursesDuration() != null ? super.getCoursesDuration() : LessonPeriodCoursesDuration.ALL;
+    }
+
     public static Stream<LessonPeriod> findAll() {
         return Bennu.getInstance().getLessonPeriodsSet().stream();
     }
@@ -40,10 +45,6 @@ public class LessonPeriod extends LessonPeriod_Base {
     public static Stream<LessonPeriod> findFor(final ExecutionDegree executionDegree, final ExecutionCourse executionCourse) {
         final ExecutionInterval interval = executionCourse.getExecutionInterval();
 
-        final boolean isAnual = executionCourse.getAssociatedCurricularCoursesSet().stream()
-                .filter(cc -> cc.getDegreeCurricularPlan() == executionDegree.getDegreeCurricularPlan())
-                .anyMatch(cc -> cc.isAnual(executionDegree.getExecutionYear()));
-
         final Set<Integer> courseYears = executionCourse.getAssociatedCurricularCoursesSet().stream()
                 .filter(cc -> cc.getDegreeCurricularPlan() == executionDegree.getDegreeCurricularPlan())
                 .flatMap(cc -> cc.getParentContexts(interval).stream()).map(Context::getCurricularYear).distinct()
@@ -52,13 +53,13 @@ public class LessonPeriod extends LessonPeriod_Base {
         final Predicate<ExecutionDegreeLessonPeriod> yearsPredicate = p -> Optional.ofNullable(p.getCurricularYears())
                 .map(years -> years.hasAll() || !Collections.disjoint(years.getYears(), courseYears)).orElse(true);
 
-        // if course is anual, show all periods of that year
-        final Predicate<LessonPeriod> intervalPredicate = lp -> isAnual ?
-                interval.getExecutionYear() == lp.getExecutionInterval().getExecutionYear() :
-                interval == lp.getExecutionInterval();
+        final Predicate<LessonPeriod> intervalPredicate = lp -> interval == lp.getExecutionInterval();
+
+        final Predicate<LessonPeriod> annualsPredicate =
+                lp -> lp.getCoursesDuration() == null || lp.getCoursesDuration().isFor(executionCourse, executionDegree);
 
         return executionDegree.getExecutionDegreeLessonPeriodsSet().stream().filter(yearsPredicate)
-                .map(ExecutionDegreeLessonPeriod::getLessonPeriod).filter(intervalPredicate);
+                .map(ExecutionDegreeLessonPeriod::getLessonPeriod).filter(intervalPredicate).filter(annualsPredicate);
     }
 
     public void delete() {
