@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.candidacy;
 
-import java.util.Comparator;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -35,7 +34,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
 
     protected StudentCandidacy() {
         super();
-        setNumber(createCandidacyNumber());
         setRootDomainObject(Bennu.getInstance());
         setStartDate(new YearMonthDay());
     }
@@ -43,12 +41,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
     public StudentCandidacy(final Person person, final ExecutionDegree executionDegree) {
         this();
         init(person, executionDegree);
-    }
-
-    public Integer createCandidacyNumber() {
-        Integer max = Bennu.getInstance().getCandidaciesSet().stream().map(sc -> sc.getNumber()).max(Comparator.naturalOrder())
-                .orElse(0);
-        return max + 1;
     }
 
     protected void init(Person person, ExecutionDegree executionDegree) {

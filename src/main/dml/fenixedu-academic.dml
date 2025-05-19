@@ -747,7 +747,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
 
     class candidacy.StudentCandidacy{
-        Integer number;
         YearMonthDay startDate;
     	CandidacySituationType state;
     	DateTime stateDate;
@@ -755,7 +754,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         Double entryGrade;
         Integer admissionPhase;
         Integer placingOption;
-        Integer numberOfCandidaciesToHigherSchool;
         Boolean firstTimeCandidacy;
     }
 
