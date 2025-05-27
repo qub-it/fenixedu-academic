@@ -536,6 +536,11 @@ public class Curriculum implements Serializable, ICurriculum {
         return ofNullable(conclusionGradeCalculatorResult).map(r -> r.getDescription()).orElse(null);
     }
 
+    public boolean showDescriptionToStudents() {
+        return ofNullable(getStudentCurricularPlan().getDegreeCurricularPlan().getConclusionGradeCalculator()).map(
+                c -> c.getShowDescriptionToStudents()).orElse(false);
+    }
+
     private void updateConclusionGradeCalculatorResult() {
         if (this.conclusionGradeCalculatorResult == null) {
             final ConclusionGradeCalculator conclusionGradeCalculator =
