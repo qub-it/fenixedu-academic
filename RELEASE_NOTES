@@ -1,5 +1,6 @@
 - Refactor: Removes StudentCandidacy methods getDegreeCurricularPlan and getExecutionYear [#qubIT-Fenix-6696]
 - Refactor: Add direct professorship shifts getter [#qubIT-Fenix-4690]
+- Refactor: Refactors SchoolLevelType, ProfessionType and ProfessionalSituationConditionType enums to domain entities [#qubIT-Fenix-7009]
 
 50.4.2 (11-06-2025)
 - Refactor: Adds StudentCandidacy constructor excluding Execution Degree [#qubIT-Fenix-6696]
