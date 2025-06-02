@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.util.Bundle;
@@ -85,4 +86,9 @@ public enum ProfessionalSituationConditionType {
         return Stream.of(ProfessionalSituationConditionType.values()).filter(ProfessionalSituationConditionType::isActive);
     }
 
+    public static Optional<ProfessionalSituationConditionType> findByCode(String code) {
+        return Stream.of(values())
+                .filter(professionalConditionType -> code != null && code.equals(professionalConditionType.getName()))
+                .findFirst();
+    }
 }

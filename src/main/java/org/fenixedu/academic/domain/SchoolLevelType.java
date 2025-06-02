@@ -20,6 +20,8 @@ package org.fenixedu.academic.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -367,5 +369,9 @@ public enum SchoolLevelType implements IPresentableEnum {
     @Override
     public String getLocalizedName() {
         return BundleUtil.getString(Bundle.ENUMERATION, getQualifiedName());
+    }
+
+    public static Optional<SchoolLevelType> findByCode(String code) {
+        return Stream.of(values()).filter(schoolLevelType -> code != null && code.equals(schoolLevelType.getName())).findFirst();
     }
 }

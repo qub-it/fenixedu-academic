@@ -14,7 +14,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -24,7 +24,9 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ProfessionalStatusTypeTest {
 
-    private static ProfessionalStatusType professionalStatusType;
+    private static final String EXAMPLE_CODE = "exampleCode";
+    private static final String OTHER_EXAMPLE_CODE = "exampleCode2";
+
     private static PersonalIngressionData personalIngressionData;
 
     // Example professionalSituationConditionType, can be any valid value
@@ -33,9 +35,8 @@ public class ProfessionalStatusTypeTest {
     private static final String CODE = professionalSituationConditionType.getName();
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Unemployed");
 
-    @Before
-    public void init() {
-        // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
+    @BeforeClass
+    public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             personalIngressionData = new PersonalIngressionData();
 
@@ -44,32 +45,26 @@ public class ProfessionalStatusTypeTest {
     }
 
     private ProfessionalStatusType create(String code, LocalizedString name, boolean active) {
-        return FenixFramework.getTransactionManager().withTransaction(() -> ProfessionalStatusType.create(code, name, active));
+        return ProfessionalStatusType.create(code, name, active);
     }
 
-    private void initializeProfessionalStatusTypeRelations() {
+    private void initializeProfessionalStatusTypeRelations(ProfessionalStatusType professionalStatusType) {
         // Initialize relations for the created ProfessionalStatusType
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            personalIngressionData.setProfessionalStatusType(professionalStatusType);
-            personalIngressionData.setMotherProfessionalStatusType(professionalStatusType);
-            personalIngressionData.setFatherProfessionalStatusType(professionalStatusType);
-            personalIngressionData.setSpouseProfessionalStatusType(professionalStatusType);
-
-            return null;
-        });
+        personalIngressionData.setProfessionalStatusType(professionalStatusType);
+        personalIngressionData.setMotherProfessionalStatusType(professionalStatusType);
+        personalIngressionData.setFatherProfessionalStatusType(professionalStatusType);
+        personalIngressionData.setSpouseProfessionalStatusType(professionalStatusType);
     }
 
     @After
     public void cleanup() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearProfessionalStatusTypeRelations();
-            Bennu.getInstance().getProfessionalStatusTypesSet().forEach(ProfessionalStatusType::delete);
-            personalIngressionData.delete();
-            return null;
+        Bennu.getInstance().getProfessionalStatusTypesSet().forEach(t -> {
+            clearProfessionalStatusTypeRelations(t);
+            t.delete();
         });
     }
 
-    private void clearProfessionalStatusTypeRelations() {
+    private void clearProfessionalStatusTypeRelations(ProfessionalStatusType professionalStatusType) {
         professionalStatusType.getPersonalIngressionDatasSet().clear();
         professionalStatusType.getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().clear();
         professionalStatusType.getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().clear();
@@ -78,7 +73,7 @@ public class ProfessionalStatusTypeTest {
 
     @Test
     public void testProfessionalStatusType_create() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
 
         assertNotNull(professionalStatusType);
         assertEquals(CODE, professionalStatusType.getCode());
@@ -87,7 +82,7 @@ public class ProfessionalStatusTypeTest {
 
     @Test
     public void testProfessionalStatusType_createDuplicate() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
 
         assertThrows(DomainException.class, () -> ProfessionalStatusType.create(CODE, QUALIFIED_NAME, true));
     }
@@ -97,8 +92,8 @@ public class ProfessionalStatusTypeTest {
         // Tests deletion of ProfessionalStatusType and its relations
 
         // Create a new ProfessionalStatusType and its relations
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
-        initializeProfessionalStatusTypeRelations();
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionalStatusTypeRelations(professionalStatusType);
 
         // Verify initial state before deletion
         assertEquals(false, Bennu.getInstance().getProfessionalStatusTypesSet().isEmpty());
@@ -112,7 +107,7 @@ public class ProfessionalStatusTypeTest {
                 .contains(personalIngressionData));
 
         // Perform deletion
-        clearProfessionalStatusTypeRelations();
+        clearProfessionalStatusTypeRelations(professionalStatusType);
         professionalStatusType.delete();
 
         // Verify deletion
@@ -126,16 +121,16 @@ public class ProfessionalStatusTypeTest {
 
     @Test
     public void testProfessionalStatusType_deleteFailsBecauseRelationsNotCleared() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
-        initializeProfessionalStatusTypeRelations();
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionalStatusTypeRelations(professionalStatusType);
 
         assertThrows(DomainException.class, () -> professionalStatusType.delete());
     }
 
     @Test
     public void testProfessionalStatusType_personalIngressionDataRelations() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
-        initializeProfessionalStatusTypeRelations();
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionalStatusTypeRelations(professionalStatusType);
 
         // Verify initial relations with PersonalIngressionData
         assertEquals(true, professionalStatusType.getPersonalIngressionDatasSet().contains(personalIngressionData));
@@ -158,7 +153,7 @@ public class ProfessionalStatusTypeTest {
 
     @Test
     public void testProfessionalStatusType_findByCode() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
 
         Optional<ProfessionalStatusType> found = ProfessionalStatusType.findByCode(CODE);
         assertEquals(true, found.isPresent());
@@ -173,23 +168,110 @@ public class ProfessionalStatusTypeTest {
 
     @Test
     public void testProfessionalStatusType_findAll() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
 
-        ProfessionalStatusType p = create("exampleCode", QUALIFIED_NAME, true);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
         assertEquals(2, ProfessionalStatusType.findAll().count());
-        p.delete();
     }
 
     @Test
     public void testProfessionalStatusType_findActive() {
-        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
 
-        ProfessionalStatusType p1 = create("exampleCode2", QUALIFIED_NAME, true);
-        ProfessionalStatusType p2 = create("exampleCode3", QUALIFIED_NAME, false);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
+        create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, ProfessionalStatusType.findActive().count());
+    }
 
-        p1.delete();
-        p2.delete();
+    @Test
+    public void testProfessionalStatusType_personalIngressionDataSettersAreSynced() {
+        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionalStatusTypeRelations(professionalStatusType);
+
+        ProfessionalSituationConditionType other = ProfessionalSituationConditionType.OTHER;
+        ProfessionalStatusType pst = create(other.getName(), QUALIFIED_NAME, true);
+
+        // Assert initial state of PersonalIngressionData
+        PersonalIngressionData pid = new PersonalIngressionData();
+        assertEquals(null, pid.getProfessionalCondition());
+        assertEquals(null, pid.getProfessionalStatusType());
+        assertEquals(null, pid.getMotherProfessionalCondition());
+        assertEquals(null, pid.getMotherProfessionalStatusType());
+        assertEquals(null, pid.getFatherProfessionalCondition());
+        assertEquals(null, pid.getFatherProfessionalStatusType());
+        assertEquals(null, pid.getSpouseProfessionalCondition());
+        assertEquals(null, pid.getSpouseProfessionalStatusType());
+
+        // Call setter in ProfessionalSituationConditionType Enum to trigger the sync in ProfessionalStatusType
+        pid.setProfessionalCondition(other);
+        pid.setMotherProfessionalCondition(other);
+        pid.setFatherProfessionalCondition(other);
+        pid.setSpouseProfessionalCondition(other);
+
+        // Assert ProfessionalSituationConditionType and ProfessionalStatusType have the same value
+        // (edge case: they can be both null instead of the correct value, next assert will verify that)
+        assertEquals(pid.getProfessionalCondition().getName(), pid.getProfessionalStatusType().getCode());
+
+        // Assert ProfessionalStatusType is set to the correct value (instead of being null for example)
+        assertEquals(pst, pid.getProfessionalStatusType());
+
+        assertEquals(pid.getMotherProfessionalCondition().getName(), pid.getMotherProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getMotherProfessionalStatusType());
+
+        assertEquals(pid.getFatherProfessionalCondition().getName(), pid.getFatherProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getFatherProfessionalStatusType());
+
+        assertEquals(pid.getSpouseProfessionalCondition().getName(), pid.getSpouseProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getSpouseProfessionalStatusType());
+
+        // Set to null with Enum Setter
+        pid.setProfessionalCondition(null);
+        pid.setMotherProfessionalCondition(null);
+        pid.setFatherProfessionalCondition(null);
+        pid.setSpouseProfessionalCondition(null);
+
+        assertEquals(null, pid.getProfessionalCondition());
+        assertEquals(null, pid.getProfessionalStatusType());
+        assertEquals(null, pid.getMotherProfessionalCondition());
+        assertEquals(null, pid.getMotherProfessionalStatusType());
+        assertEquals(null, pid.getFatherProfessionalCondition());
+        assertEquals(null, pid.getFatherProfessionalStatusType());
+        assertEquals(null, pid.getSpouseProfessionalCondition());
+        assertEquals(null, pid.getSpouseProfessionalStatusType());
+
+        // Call setter in ProfessionalStatusType to trigger the sync in PersonalIngressionData
+        pid.setProfessionalStatusType(pst);
+        pid.setMotherProfessionalStatusType(pst);
+        pid.setFatherProfessionalStatusType(pst);
+        pid.setSpouseProfessionalStatusType(pst);
+
+        // Assert ProfessionalSituationConditionType and ProfessionalStatusType have the same value
+        assertEquals(pid.getProfessionalCondition().getName(), pid.getProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getProfessionalStatusType());
+
+        assertEquals(pid.getMotherProfessionalCondition().getName(), pid.getMotherProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getMotherProfessionalStatusType());
+
+        assertEquals(pid.getFatherProfessionalCondition().getName(), pid.getFatherProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getFatherProfessionalStatusType());
+
+        assertEquals(pid.getSpouseProfessionalCondition().getName(), pid.getSpouseProfessionalStatusType().getCode());
+        assertEquals(pst, pid.getSpouseProfessionalStatusType());
+
+        // Set to null with ProfessionalStatusType Setter
+        pid.setProfessionalStatusType(null);
+        pid.setMotherProfessionalStatusType(null);
+        pid.setFatherProfessionalStatusType(null);
+        pid.setSpouseProfessionalStatusType(null);
+
+        assertEquals(null, pid.getProfessionalCondition());
+        assertEquals(null, pid.getProfessionalStatusType());
+        assertEquals(null, pid.getMotherProfessionalCondition());
+        assertEquals(null, pid.getMotherProfessionalStatusType());
+        assertEquals(null, pid.getFatherProfessionalCondition());
+        assertEquals(null, pid.getFatherProfessionalStatusType());
+        assertEquals(null, pid.getSpouseProfessionalCondition());
+        assertEquals(null, pid.getSpouseProfessionalStatusType());
     }
 }
