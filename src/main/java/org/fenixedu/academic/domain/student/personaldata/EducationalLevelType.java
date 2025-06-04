@@ -1,12 +1,11 @@
 package org.fenixedu.academic.domain.student.personaldata;
 
-import org.fenixedu.academic.util.Bundle;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -23,7 +22,7 @@ public class EducationalLevelType extends EducationalLevelType_Base {
     {
         if (findByCode(code).isPresent()) {
             throw new DomainException(
-                    BundleUtil.getString(Bundle.DOMAIN_EXCEPTION,"error.code.already.exists", code));
+                    BundleUtil.getString(Bundle.APPLICATION, "error.EducationalLevelType.code.already.exists", code));
         }
 
         EducationalLevelType educationalLevelType = new EducationalLevelType();

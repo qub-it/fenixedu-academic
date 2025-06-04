@@ -18,7 +18,7 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
     public static ProfessionalStatusType create(String code, LocalizedString name, boolean active) {
         if (findByCode(code).isPresent()) {
             throw new DomainException(
-                    BundleUtil.getString(Bundle.DOMAIN_EXCEPTION,"error.code.already.exists", code));
+                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionalStatusType.code.already.exists", code));
         }
 
         ProfessionalStatusType type = new ProfessionalStatusType();

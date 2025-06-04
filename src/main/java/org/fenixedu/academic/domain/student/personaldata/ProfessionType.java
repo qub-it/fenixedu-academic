@@ -19,7 +19,7 @@ public class ProfessionType extends ProfessionType_Base {
     public static ProfessionType create(String code, LocalizedString name, boolean active) {
         if (findByCode(code).isPresent()) {
             throw new DomainException(
-                    BundleUtil.getString(Bundle.DOMAIN_EXCEPTION,"error.code.already.exists", code));
+                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionCategoryType.code.already.exists", code));
         }
 
         ProfessionType professionType = new ProfessionType();

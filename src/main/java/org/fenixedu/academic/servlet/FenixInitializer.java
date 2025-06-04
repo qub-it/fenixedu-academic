@@ -93,7 +93,12 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeExecutionDegreeLessonPeriods();
 
-        initializePersonalDataDomainTypes();
+        if (EducationalLevelType.findAll().findAny().isEmpty() && ProfessionType.findAll().findAny().isEmpty()
+                && ProfessionalStatusType.findAll().findAny().isEmpty()) {
+            initializeEducationalLevelTypes();
+            initializeProfessionTypes();
+            initializeProfessionalStatusType();
+        }
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -215,9 +220,10 @@ public class FenixInitializer implements ServletContextListener {
     }
 
     @Atomic(mode = TxMode.WRITE)
-    private void initializePersonalDataDomainTypes() {
+    private void initializeEducationalLevelTypes() {
         Log.warn("---------------------------------------");
-        Log.warn("Starting population of Personal Data Domain Types");
+        Log.warn("Starting population of Educational Level Types");
+
         for (SchoolLevelType schoolLevelType : SchoolLevelType.values()) {
             String code = schoolLevelType.getName();
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, schoolLevelType.getQualifiedName());
@@ -237,6 +243,15 @@ public class FenixInitializer implements ServletContextListener {
             }
         }
 
+        Log.warn("Finished population of Educational Level Types. Instances created: " + EducationalLevelType.findAll().count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeProfessionTypes() {
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Profession Types");
+
         for (org.fenixedu.academic.domain.ProfessionType professionType : org.fenixedu.academic.domain.ProfessionType.values()) {
             String code = professionType.getName();
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionType.getQualifiedName());
@@ -245,6 +260,15 @@ public class FenixInitializer implements ServletContextListener {
                 ProfessionType.create(code, name, true);
             }
         }
+
+        Log.warn("Finished population of Profession Types. Instances created: " + ProfessionType.findAll().count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeProfessionalStatusType() {
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Professional Status Types");
 
         for (ProfessionalSituationConditionType professionalSituation : ProfessionalSituationConditionType.values()) {
             String code = professionalSituation.getName();
@@ -255,10 +279,8 @@ public class FenixInitializer implements ServletContextListener {
             }
         }
 
-        Log.warn("Finished population of Personal Data Domain Types. Instances created:");
-        Log.warn("EducationalLevelType: " + EducationalLevelType.findAll().count());
-        Log.warn("ProfessionType: " + ProfessionType.findAll().count());
-        Log.warn("ProfessionalStatusType: " + ProfessionalStatusType.findAll().count());
+        Log.warn("Finished population of Professional Status Types. Instances created: " + ProfessionalStatusType.findAll()
+                .count());
         Log.warn("---------------------------------------");
     }
 }

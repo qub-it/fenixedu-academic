@@ -4441,7 +4441,7 @@ relation DegreeDesignationDegreeClassification {
 }
 
 relation EducationalLevelTypeDegreeClassification {
-	student.personaldata.EducationalLevelType playsRole educationalLevelType { multiplicity *; }
+	student.personaldata.EducationalLevelType playsRole educationalLevelTypes { multiplicity *; }
 	raides.DegreeClassification playsRole degreeClassifications { multiplicity *; }
 }
 
