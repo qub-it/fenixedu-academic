@@ -1356,43 +1356,43 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         LocalizedString name (REQUIRED);
     }
 
-	class student.personaldata.EducationalLevelType {
-		String code (REQUIRED);
-		LocalizedString name (REQUIRED);
-		boolean active;
-		boolean forStudent;
-		boolean forStudentHousehold;
-		boolean forMobilityStudent;
-		boolean other;
-		boolean phDDegree;
-		boolean schoolLevelBasicCycle;
-		boolean highSchoolOrEquivalent;
-		boolean higherEducation;
-	}
-		relation EducationalLevelTypeRootDomainObject {
-			student.personaldata.EducationalLevelType playsRole educationalLevelTypes { multiplicity *; }
-			.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-		}
+    class student.personaldata.EducationalLevelType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+        boolean active;
+        boolean forStudent;
+        boolean forStudentHousehold;
+        boolean forMobilityStudent;
+        boolean other;
+        boolean phDDegree;
+        boolean schoolLevelBasicCycle;
+        boolean highSchoolOrEquivalent;
+        boolean higherEducation;
+    }
+        relation EducationalLevelTypeRootDomainObject {
+            student.personaldata.EducationalLevelType playsRole educationalLevelTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
 
-	class student.personaldata.ProfessionalStatusType {
+    class student.personaldata.ProfessionalStatusType {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
         boolean active;
     }
-		relation ProfessionalStatusTypeRootDomainObject {
-			student.personaldata.ProfessionalStatusType playsRole professionalStatusTypes { multiplicity *; }
-			.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-		}
+        relation ProfessionalStatusTypeRootDomainObject {
+            student.personaldata.ProfessionalStatusType playsRole professionalStatusTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
 
-	class student.personaldata.ProfessionType {
+    class student.personaldata.ProfessionCategoryType {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
         boolean active;
     }
-		relation ProfessionTypeRootDomainObject {
-			student.personaldata.ProfessionType playsRole professionTypes { multiplicity *; }
-			.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-		}
+        relation ProfessionCategoryTypeRootDomainObject {
+            student.personaldata.ProfessionCategoryType playsRole professionCategoryTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
 
     class student.PrecedentDegreeInformation  {
         String degreeDesignation;

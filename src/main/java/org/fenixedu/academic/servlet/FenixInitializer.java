@@ -47,7 +47,7 @@ import org.fenixedu.academic.domain.raides.DegreeClassification;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.student.personaldata.EducationalLevelType;
-import org.fenixedu.academic.domain.student.personaldata.ProfessionType;
+import org.fenixedu.academic.domain.student.personaldata.ProfessionCategoryType;
 import org.fenixedu.academic.domain.student.personaldata.ProfessionalStatusType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.util.Bundle;
@@ -93,10 +93,10 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeExecutionDegreeLessonPeriods();
 
-        if (EducationalLevelType.findAll().findAny().isEmpty() && ProfessionType.findAll().findAny().isEmpty()
+        if (EducationalLevelType.findAll().findAny().isEmpty() && ProfessionCategoryType.findAll().findAny().isEmpty()
                 && ProfessionalStatusType.findAll().findAny().isEmpty()) {
             initializeEducationalLevelTypes();
-            initializeProfessionTypes();
+            initializeProfessionCategoryTypes();
             initializeProfessionalStatusType();
         }
     }
@@ -248,20 +248,21 @@ public class FenixInitializer implements ServletContextListener {
     }
 
     @Atomic(mode = TxMode.WRITE)
-    private void initializeProfessionTypes() {
+    private void initializeProfessionCategoryTypes() {
         Log.warn("---------------------------------------");
-        Log.warn("Starting population of Profession Types");
+        Log.warn("Starting population of Profession Category Types");
 
         for (org.fenixedu.academic.domain.ProfessionType professionType : org.fenixedu.academic.domain.ProfessionType.values()) {
             String code = professionType.getName();
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionType.getQualifiedName());
 
-            if (ProfessionType.findByCode(code).isEmpty()) {
-                ProfessionType.create(code, name, true);
+            if (ProfessionCategoryType.findByCode(code).isEmpty()) {
+                ProfessionCategoryType.create(code, name, true);
             }
         }
 
-        Log.warn("Finished population of Profession Types. Instances created: " + ProfessionType.findAll().count());
+        Log.warn("Finished population of Profession Category Types. Instances created: " + ProfessionCategoryType.findAll()
+                .count());
         Log.warn("---------------------------------------");
     }
 
