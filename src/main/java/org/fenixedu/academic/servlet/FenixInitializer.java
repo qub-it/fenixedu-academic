@@ -238,7 +238,10 @@ public class FenixInitializer implements ServletContextListener {
 
                 schoolLevelType.getEquivalentDegreeClassifications().forEach(c -> {
                     DegreeClassification classification = DegreeClassification.readByCode(c);
-                    educationalLevelType.addDegreeClassifications(classification);
+
+                    if (classification != null) {
+                        educationalLevelType.addDegreeClassifications(classification);
+                    }
                 });
             }
         }
