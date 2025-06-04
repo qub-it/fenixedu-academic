@@ -38,29 +38,23 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         setStartDate(new YearMonthDay());
     }
 
+    @Deprecated
     public StudentCandidacy(final Person person, final ExecutionDegree executionDegree) {
         this();
-        init(person, executionDegree);
+        init(person);
+        setExecutionDegree(executionDegree);
     }
 
-    protected void init(Person person, ExecutionDegree executionDegree) {
-        String[] args = {};
-        if (executionDegree == null) {
-            throw new DomainException("execution degree cannot be null", args);
-        }
-        String[] args1 = {};
+    public StudentCandidacy(final Person person) {
+        this();
+        init(person);
+    }
+
+    protected void init(Person person) {
         if (person == null) {
-            throw new DomainException("person cannot be null", args1);
+            throw new DomainException("person cannot be null");
         }
 
-        final StudentCandidacy existentCandidacy = person.getCandidaciesSet().stream()
-                .filter(c -> c.isActive() && c.getExecutionDegree() == executionDegree).findFirst().orElse(null);
-        if (existentCandidacy != null) {
-            if (existentCandidacy.getRegistration() == null || existentCandidacy.getRegistration().isActive()) {
-                throw new DomainException("error.candidacy.already.created");
-            }
-        }
-        setExecutionDegree(executionDegree);
         setPerson(person);
     }
 
@@ -91,12 +85,17 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         deleteDomainObject();
     }
 
+    @Override
+    public ExecutionDegree getExecutionDegree() {
+        return getDegreeCurricularPlan().findExecutionDegree(getRegistration().getRegistrationYear()).orElse(null);
+    }
+
     public DegreeCurricularPlan getDegreeCurricularPlan() {
-        return getExecutionDegree().getDegreeCurricularPlan();
+        return getRegistration().getFirstStudentCurricularPlan().getDegreeCurricularPlan();
     }
 
     public ExecutionYear getExecutionYear() {
-        return getExecutionDegree().getExecutionYear();
+        return getRegistration().getRegistrationYear();
     }
 
     @Override
