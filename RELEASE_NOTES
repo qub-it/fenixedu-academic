@@ -1,3 +1,5 @@
+- Refactor: Removes PrecedentDegreeInformation relation from the StudentCandidacy [#qubIT-Fenix-6617]
+
 50.4.1 (28-05-2025)
 - Refactor: Remove number and numberOfCandidaciesToHigherSchool fields from StudentCandidacy [#qubIT-Fenix-6559]
 - Improvement: Adds student access control to showing the description of the Conclusion Grade Calculator results [#qubIT-Fenix-6574]
@@ -50,7 +52,6 @@
 50.0.3 (27-02-2025)
 - Refactor: Removes initializer of PrecedentDegreeInformation from StudentCandidacy [#qubIT-Fenix-6617]
 - Refactor: Prepare for deprecation of semester enrolment model (add unit tests to previous year enrolment rule) [#qubIT-Fenix-4901]
-- Refactor: Removes PrecedentDegreeInformation relation from the StudentCandidacy [#qubIT-Fenix-6617]
 
 50.0.2 (26-02-2025)
 - Refactor: Move PrecedentDegreeInformation relations from the StudentCandidacy to Registration [#qubIT-Fenix-6617]
