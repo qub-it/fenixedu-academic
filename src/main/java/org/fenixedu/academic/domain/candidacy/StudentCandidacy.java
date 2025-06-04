@@ -85,9 +85,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         setIngressionType(null);
         setExecutionDegree(null);
 
-        Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(pdi -> pdi.delete());
-        Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(pdi -> pdi.delete());
-
         deleteDomainObject();
     }
 
@@ -116,24 +113,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
             throw new DomainException("error.StudentCandidacy.admission.phase.has.to.be.positive.number");
         }
         super.setAdmissionPhase(admissionPhase);
-    }
-
-    /**
-     * Please use Registration.getCompletedDegreeInformation()
-     */
-    @Deprecated
-    @Override
-    public PrecedentDegreeInformation getCompletedDegreeInformation() {
-        return super.getCompletedDegreeInformation();
-    }
-
-    /**
-     * Please use Registration.getPreviousDegreeInformation()
-     */
-    @Deprecated
-    @Override
-    public PrecedentDegreeInformation getPreviousDegreeInformation() {
-        return super.getPreviousDegreeInformation();
     }
 
 }

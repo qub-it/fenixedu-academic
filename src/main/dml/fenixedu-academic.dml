@@ -2879,16 +2879,6 @@ relation PrecedentDegreeInformationInstitution {
     organizationalStructure.Unit playsRole institution;
 }
 
-relation CompletedPrecedentDegreeInformationStudentCandidacy {
-    student.PrecedentDegreeInformation playsRole completedDegreeInformation;
-    candidacy.StudentCandidacy playsRole completedStudentCandidacy;
-}
-
-relation PreviousPrecedentDegreeInformationStudentCandidacy {
-    student.PrecedentDegreeInformation playsRole previousDegreeInformation;
-    candidacy.StudentCandidacy playsRole previousStudentCandidacy;
-}
-
 relation CompletedPrecedentDegreeInformationRegistration {
     student.PrecedentDegreeInformation playsRole completedDegreeInformation;
     student.Registration playsRole completedRegistration;
