@@ -29,6 +29,10 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
     }
 
     public void delete() {
+        getPersonalIngressionDatasSet().clear();
+        getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().clear();
+        getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().clear();
+        getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().clear();
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
