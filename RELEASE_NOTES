@@ -1,4 +1,4 @@
-- Refactor: Logic of methods of StudentCandidacy referencing Execution Degree redirected to registration [#qubIT-Fenix-6696]
+- Refactor: Adds StudentCandidacy constructor excluding Execution Degree [#qubIT-Fenix-6696]
 
 50.4.1 (28-05-2025)
 - Refactor: Remove number and numberOfCandidaciesToHigherSchool fields from StudentCandidacy [#qubIT-Fenix-6559]

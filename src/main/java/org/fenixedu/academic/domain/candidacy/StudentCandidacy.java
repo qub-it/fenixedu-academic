@@ -38,6 +38,11 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         setStartDate(new YearMonthDay());
     }
 
+    public StudentCandidacy(final Person person) {
+        this();
+        init(person);
+    }
+
     @Deprecated
     public StudentCandidacy(final Person person, final ExecutionDegree executionDegree) {
         this();
@@ -45,14 +50,10 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         setExecutionDegree(executionDegree);
     }
 
-    public StudentCandidacy(final Person person) {
-        this();
-        init(person);
-    }
-
     protected void init(Person person) {
+        String[] args1 = {};
         if (person == null) {
-            throw new DomainException("person cannot be null");
+            throw new DomainException("person cannot be null", args1);
         }
 
         setPerson(person);
@@ -85,17 +86,12 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         deleteDomainObject();
     }
 
-    @Override
-    public ExecutionDegree getExecutionDegree() {
-        return getDegreeCurricularPlan().findExecutionDegree(getRegistration().getRegistrationYear()).orElse(null);
-    }
-
     public DegreeCurricularPlan getDegreeCurricularPlan() {
-        return getRegistration().getFirstStudentCurricularPlan().getDegreeCurricularPlan();
+        return getExecutionDegree().getDegreeCurricularPlan();
     }
 
     public ExecutionYear getExecutionYear() {
-        return getRegistration().getRegistrationYear();
+        return getExecutionDegree().getExecutionYear();
     }
 
     @Override
