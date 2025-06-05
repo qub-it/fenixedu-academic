@@ -2947,6 +2947,11 @@ relation PrecedentDegreeInformationDistrictSubdivision{
 	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision;
 }
 
+relation PrecedentDegreeInformationEducationLevelType {
+	student.personaldata.EducationLevelType playsRole educationLevelType { multiplicity 0..1; }
+	student.PrecedentDegreeInformation playsRole precedentDegreeInformations { multiplicity *; }
+}
+
 relation ProfessorshipShiftProfessorship {
     Professorship playsRole professorship;
     ShiftProfessorship playsRole associatedShiftProfessorship {
@@ -4492,6 +4497,61 @@ relation StudentPrecedentDegreeInformation {
         multiplicity *;
     }
     student.Student playsRole student;
+}
+
+relation PersonalIngressionDataProfessionCategoryType {
+    student.PersonalIngressionData playsRole personalIngressionDatas { multiplicity *; }
+    student.personaldata.ProfessionCategoryType playsRole professionCategoryType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataMotherProfessionCategoryType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsMotherProfessionCategoryType { multiplicity *; }
+    student.personaldata.ProfessionCategoryType playsRole motherProfessionCategoryType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataFatherProfessionCategoryType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsFatherProfessionCategoryType { multiplicity *; }
+    student.personaldata.ProfessionCategoryType playsRole fatherProfessionCategoryType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataSpouseProfessionCategoryType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsSpouseProfessionCategoryType { multiplicity *; }
+    student.personaldata.ProfessionCategoryType playsRole spouseProfessionCategoryType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataProfessionalStatusType {
+    student.PersonalIngressionData playsRole personalIngressionDatas { multiplicity *; }
+    student.personaldata.ProfessionalStatusType playsRole professionalStatusType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataMotherProfessionalStatusType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsMotherProfessionalStatusType { multiplicity *; }
+    student.personaldata.ProfessionalStatusType playsRole motherProfessionalStatusType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataFatherProfessionalStatusType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsFatherProfessionalStatusType { multiplicity *; }
+    student.personaldata.ProfessionalStatusType playsRole fatherProfessionalStatusType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataSpouseProfessionalStatusType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsSpouseProfessionalStatusType { multiplicity *; }
+    student.personaldata.ProfessionalStatusType playsRole spouseProfessionalStatusType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataMotherEducationLevelType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsMotherEducationLevelType { multiplicity *; }
+    student.personaldata.EducationLevelType playsRole motherEducationLevelType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataFatherEducationLevelType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsFatherEducationLevelType { multiplicity *; }
+    student.personaldata.EducationLevelType playsRole fatherEducationLevelType { multiplicity 0..1; }
+}
+
+relation PersonalIngressionDataSpouseEducationLevelType {
+    student.PersonalIngressionData playsRole personalIngressionDatasAsSpouseEducationLevelType { multiplicity *; }
+    student.personaldata.EducationLevelType playsRole spouseEducationLevelType { multiplicity 0..1; }
 }
 
 /* End of RAIDES Domain */
