@@ -44,6 +44,10 @@ public class EducationalLevelType extends EducationalLevelType_Base {
 
     public void delete() {
         getDegreeClassificationsSet().clear();
+        getPersonalIngressionDatasAsMotherEducationalLevelTypeSet().clear();
+        getPersonalIngressionDatasAsFatherEducationalLevelTypeSet().clear();
+        getPersonalIngressionDatasAsSpouseEducationalLevelTypeSet().clear();
+        getPrecedentDegreeInformationsSet().clear();
         setRootDomainObject(null);
         super.deleteDomainObject();
     }

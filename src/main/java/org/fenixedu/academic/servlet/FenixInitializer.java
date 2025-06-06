@@ -43,7 +43,6 @@ import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
-import org.fenixedu.academic.domain.raides.DegreeClassification;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.student.personaldata.EducationalLevelType;
@@ -97,7 +96,7 @@ public class FenixInitializer implements ServletContextListener {
                 && ProfessionalStatusType.findAll().findAny().isEmpty()) {
             initializeEducationalLevelTypes();
             initializeProfessionCategoryTypes();
-            initializeProfessionalStatusType();
+            initializeProfessionalStatusTypes();
         }
     }
 
@@ -229,20 +228,11 @@ public class FenixInitializer implements ServletContextListener {
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, schoolLevelType.getQualifiedName());
 
             if (EducationalLevelType.findByCode(code).isEmpty()) {
-                EducationalLevelType educationalLevelType =
-                        EducationalLevelType.create(code, name, true, schoolLevelType.isForStudent(),
+                EducationalLevelType.create(code, name, true, schoolLevelType.isForStudent(),
                                 schoolLevelType.isForStudentHousehold(), schoolLevelType.isForMobilityStudent(),
                                 schoolLevelType.isOther(), schoolLevelType.isPhDDegree(),
                                 schoolLevelType.isSchoolLevelBasicCycle(), schoolLevelType.isHighSchoolOrEquivalent(),
                                 schoolLevelType.isHigherEducation());
-
-                schoolLevelType.getEquivalentDegreeClassifications().forEach(c -> {
-                    DegreeClassification classification = DegreeClassification.readByCode(c);
-
-                    if (classification != null) {
-                        educationalLevelType.addDegreeClassifications(classification);
-                    }
-                });
             }
         }
 
@@ -270,7 +260,7 @@ public class FenixInitializer implements ServletContextListener {
     }
 
     @Atomic(mode = TxMode.WRITE)
-    private void initializeProfessionalStatusType() {
+    private void initializeProfessionalStatusTypes() {
         Log.warn("---------------------------------------");
         Log.warn("Starting population of Professional Status Types");
 

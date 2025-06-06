@@ -30,6 +30,10 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
     }
 
     public void delete() {
+        getPersonalIngressionDatasSet().clear();
+        getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().clear();
+        getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().clear();
+        getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().clear();
         setRootDomainObject(null);
         super.deleteDomainObject();
     }

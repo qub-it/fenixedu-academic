@@ -90,6 +90,8 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
         setCompletedRegistration(null);
         setPreviousRegistration(null);
 
+        setEducationalLevelType(null);
+
         setRootDomainObject(null);
         deleteDomainObject();
     }

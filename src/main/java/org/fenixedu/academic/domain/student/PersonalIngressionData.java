@@ -113,6 +113,17 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         setGrantOwnerProvider(null);
         setDistrictSubdivisionOfResidence(null);
         setSchoolTimeDistrictSubDivisionOfResidence(null);
+        setProfessionCategoryType(null);
+        setMotherProfessionCategoryType(null);
+        setFatherProfessionCategoryType(null);
+        setSpouseProfessionCategoryType(null);
+        setProfessionalStatusType(null);
+        setMotherProfessionalStatusType(null);
+        setFatherProfessionalStatusType(null);
+        setSpouseProfessionalStatusType(null);
+        setMotherEducationalLevelType(null);
+        setFatherEducationalLevelType(null);
+        setSpouseEducationalLevelType(null);
         deleteDomainObject();
     }
 
