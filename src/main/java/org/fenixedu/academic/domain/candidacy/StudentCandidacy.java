@@ -38,29 +38,24 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         setStartDate(new YearMonthDay());
     }
 
-    public StudentCandidacy(final Person person, final ExecutionDegree executionDegree) {
+    public StudentCandidacy(final Person person) {
         this();
-        init(person, executionDegree);
+        init(person);
     }
 
-    protected void init(Person person, ExecutionDegree executionDegree) {
-        String[] args = {};
-        if (executionDegree == null) {
-            throw new DomainException("execution degree cannot be null", args);
-        }
+    @Deprecated
+    public StudentCandidacy(final Person person, final ExecutionDegree executionDegree) {
+        this();
+        init(person);
+        setExecutionDegree(executionDegree);
+    }
+
+    protected void init(Person person) {
         String[] args1 = {};
         if (person == null) {
             throw new DomainException("person cannot be null", args1);
         }
 
-        final StudentCandidacy existentCandidacy = person.getCandidaciesSet().stream()
-                .filter(c -> c.isActive() && c.getExecutionDegree() == executionDegree).findFirst().orElse(null);
-        if (existentCandidacy != null) {
-            if (existentCandidacy.getRegistration() == null || existentCandidacy.getRegistration().isActive()) {
-                throw new DomainException("error.candidacy.already.created");
-            }
-        }
-        setExecutionDegree(executionDegree);
         setPerson(person);
     }
 
