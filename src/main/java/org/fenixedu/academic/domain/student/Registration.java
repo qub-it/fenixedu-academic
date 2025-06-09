@@ -180,7 +180,7 @@ public class Registration extends Registration_Base {
 
         result.createStudentCurricularPlan(degreeCurricularPlan, executionYear, (CycleType) null);
 
-        final StudentCandidacy studentCandidacy = new StudentCandidacy(student.getPerson());
+        final StudentCandidacy studentCandidacy = new StudentCandidacy(student.getPerson(), executionDegree);
         studentCandidacy.setState(CandidacySituationType.REGISTERED);
         studentCandidacy.setIngressionType(ingressionType);
         result.setStudentCandidacyInformation(studentCandidacy);
