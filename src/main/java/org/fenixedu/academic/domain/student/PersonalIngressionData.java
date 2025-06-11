@@ -21,8 +21,13 @@ package org.fenixedu.academic.domain.student;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.candidacy.PersonalInformationBean;
+import org.fenixedu.academic.domain.ProfessionType;
+import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
+import org.fenixedu.academic.domain.student.personaldata.ProfessionCategoryType;
+import org.fenixedu.academic.domain.student.personaldata.ProfessionalStatusType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -53,26 +58,6 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         setStudent(student);
     }
 
-    public void edit(final PersonalInformationBean bean) {
-        setCountryOfResidence(bean.getCountryOfResidence());
-        setDistrictSubdivisionOfResidence(bean.getDistrictSubdivisionOfResidence());
-        setDislocatedFromPermanentResidence(bean.getDislocatedFromPermanentResidence());
-        setSchoolTimeDistrictSubDivisionOfResidence(bean.getSchoolTimeDistrictSubdivisionOfResidence());
-        setGrantOwnerType(bean.getGrantOwnerType());
-        setGrantOwnerProvider(bean.getGrantOwnerProvider());
-        setHighSchoolType(bean.getHighSchoolType());
-        setMaritalStatus(bean.getMaritalStatus());
-        setProfessionType(bean.getProfessionType());
-        setProfessionalCondition(bean.getProfessionalCondition());
-        setMotherSchoolLevel(bean.getMotherSchoolLevel());
-        setMotherProfessionType(bean.getMotherProfessionType());
-        setMotherProfessionalCondition(bean.getMotherProfessionalCondition());
-        setFatherSchoolLevel(bean.getFatherSchoolLevel());
-        setFatherProfessionType(bean.getFatherProfessionType());
-        setFatherProfessionalCondition(bean.getFatherProfessionalCondition());
-        setLastModifiedDate(new DateTime());
-    }
-
     @Override
     public void setExecutionYear(ExecutionYear executionYear) {
         super.setExecutionYear(executionYear);
@@ -89,6 +74,72 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         if (student != null && getExecutionYear() != null && studentHasRepeatedPID(student, getExecutionYear())) {
             throw new DomainException("A Student cannot have two PersonalIngressionData objects for the same ExecutionYear.");
         }
+    }
+
+    @Override
+    public void setProfessionType(ProfessionType professionType) {
+        ProfessionCategoryType.findByCode(professionType.getName()).ifPresent(this::setProfessionCategoryType);
+        super.setProfessionType(professionType);
+    }
+
+    @Override
+    public void setMotherProfessionType(ProfessionType motherProfessionType) {
+        ProfessionCategoryType.findByCode(motherProfessionType.getName()).ifPresent(this::setMotherProfessionCategoryType);
+        super.setMotherProfessionType(motherProfessionType);
+    }
+
+    @Override
+    public void setFatherProfessionType(ProfessionType fatherProfessionType) {
+        ProfessionCategoryType.findByCode(fatherProfessionType.getName()).ifPresent(this::setFatherProfessionCategoryType);
+        super.setFatherProfessionType(fatherProfessionType);
+    }
+
+    @Override
+    public void setSpouseProfessionType(ProfessionType spouseProfessionType) {
+        ProfessionCategoryType.findByCode(spouseProfessionType.getName()).ifPresent(this::setSpouseProfessionCategoryType);
+        super.setSpouseProfessionType(spouseProfessionType);
+    }
+
+    @Override
+    public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
+        ProfessionalStatusType.findByCode(professionalCondition.getName()).ifPresent(this::setProfessionalStatusType);
+        super.setProfessionalCondition(professionalCondition);
+    }
+
+    @Override
+    public void setMotherProfessionalCondition(ProfessionalSituationConditionType motherProfessionalCondition) {
+        ProfessionalStatusType.findByCode(motherProfessionalCondition.getName()).ifPresent(this::setMotherProfessionalStatusType);
+        super.setMotherProfessionalCondition(motherProfessionalCondition);
+    }
+
+    @Override
+    public void setFatherProfessionalCondition(ProfessionalSituationConditionType fatherProfessionalCondition) {
+        ProfessionalStatusType.findByCode(fatherProfessionalCondition.getName()).ifPresent(this::setFatherProfessionalStatusType);
+        super.setFatherProfessionalCondition(fatherProfessionalCondition);
+    }
+
+    @Override
+    public void setSpouseProfessionalCondition(ProfessionalSituationConditionType spouseProfessionalCondition) {
+        ProfessionalStatusType.findByCode(spouseProfessionalCondition.getName()).ifPresent(this::setSpouseProfessionalStatusType);
+        super.setSpouseProfessionalCondition(spouseProfessionalCondition);
+    }
+
+    @Override
+    public void setMotherSchoolLevel(SchoolLevelType motherSchoolLevel) {
+        EducationLevelType.findByCode(motherSchoolLevel.getName()).ifPresent(this::setMotherEducationLevelType);
+        super.setMotherSchoolLevel(motherSchoolLevel);
+    }
+
+    @Override
+    public void setFatherSchoolLevel(SchoolLevelType fatherSchoolLevel) {
+        EducationLevelType.findByCode(fatherSchoolLevel.getName()).ifPresent(this::setFatherEducationLevelType);
+        super.setFatherSchoolLevel(fatherSchoolLevel);
+    }
+
+    @Override
+    public void setSpouseSchoolLevel(SchoolLevelType spouseSchoolLevel) {
+        EducationLevelType.findByCode(spouseSchoolLevel.getName()).ifPresent(this::setSpouseEducationLevelType);
+        super.setSpouseSchoolLevel(spouseSchoolLevel);
     }
 
     private static boolean studentHasRepeatedPID(Student student, ExecutionYear executionYear) {
