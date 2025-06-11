@@ -95,7 +95,7 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeEducationLevelTypes();
         initializeProfessionCategoryTypes();
-        initializeProfessionalStatusType();
+        initializeProfessionalStatusTypes();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -275,7 +275,7 @@ public class FenixInitializer implements ServletContextListener {
     }
 
     @Atomic(mode = TxMode.WRITE)
-    private void initializeProfessionalStatusType() {
+    private void initializeProfessionalStatusTypes() {
         if (ProfessionalStatusType.findAll().findAny().isPresent()) {
             return;
         }
