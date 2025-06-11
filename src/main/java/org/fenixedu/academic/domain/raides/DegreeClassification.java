@@ -45,6 +45,7 @@ public class DegreeClassification extends DegreeClassification_Base {
         for (DegreeDesignation designation : getDegreeDesignationsSet()) {
             removeDegreeDesignations(designation);
         }
+        getEducationLevelTypesSet().clear();
         setRootDomainObject(null);
         deleteDomainObject();
     }
