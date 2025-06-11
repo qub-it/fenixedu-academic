@@ -20,9 +20,7 @@ package org.fenixedu.academic.domain.candidacy;
 
 import java.util.Optional;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
@@ -84,14 +82,6 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(pdi -> pdi.delete());
 
         deleteDomainObject();
-    }
-
-    public DegreeCurricularPlan getDegreeCurricularPlan() {
-        return getExecutionDegree().getDegreeCurricularPlan();
-    }
-
-    public ExecutionYear getExecutionYear() {
-        return getExecutionDegree().getExecutionYear();
     }
 
     @Override
