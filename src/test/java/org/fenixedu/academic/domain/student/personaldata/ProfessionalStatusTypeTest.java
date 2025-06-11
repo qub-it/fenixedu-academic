@@ -62,18 +62,18 @@ public class ProfessionalStatusTypeTest {
     @After
     public void cleanup() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearProfessionalStatusTypeRelations();
+            clearProfessionalStatusTypeRelations(professionalStatusType);
             Bennu.getInstance().getProfessionalStatusTypesSet().forEach(ProfessionalStatusType::delete);
             personalIngressionData.delete();
             return null;
         });
     }
 
-    private void clearProfessionalStatusTypeRelations() {
-        professionalStatusType.getPersonalIngressionDatasSet().clear();
-        professionalStatusType.getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().clear();
-        professionalStatusType.getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().clear();
-        professionalStatusType.getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().clear();
+    private void clearProfessionalStatusTypeRelations(ProfessionalStatusType pst) {
+        pst.getPersonalIngressionDatasSet().clear();
+        pst.getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().clear();
+        pst.getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().clear();
+        pst.getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().clear();
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ProfessionalStatusTypeTest {
                 .contains(personalIngressionData));
 
         // Perform deletion
-        clearProfessionalStatusTypeRelations();
+        clearProfessionalStatusTypeRelations(professionalStatusType);
         professionalStatusType.delete();
 
         // Verify deletion
@@ -191,5 +191,43 @@ public class ProfessionalStatusTypeTest {
 
         p1.delete();
         p2.delete();
+    }
+
+    @Test
+    public void testProfessionalStatusType_personalIngressionDataSettersAreSynced() {
+        professionalStatusType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionalStatusTypeRelations();
+
+        ProfessionalSituationConditionType other = ProfessionalSituationConditionType.OTHER;
+        ProfessionalStatusType pst = create(other.getName(), QUALIFIED_NAME, true);
+
+        // Call setter in ProfessionalSituationConditionType Enum to trigger the sync in ProfessionalStatusType
+        personalIngressionData.setProfessionalCondition(other);
+        personalIngressionData.setMotherProfessionalCondition(other);
+        personalIngressionData.setFatherProfessionalCondition(other);
+        personalIngressionData.setSpouseProfessionalCondition(other);
+
+        // Assert ProfessionalSituationConditionType and ProfessionalStatusType have the same value
+        // (edge case: they can be both null instead of the correct value, next assert will verify that)
+        assertEquals(personalIngressionData.getProfessionalCondition().getName(),
+                personalIngressionData.getProfessionalStatusType().getCode());
+
+        // Assert ProfessionalStatusType is set to the correct value (instead of being null for example)
+        assertEquals(pst, personalIngressionData.getProfessionalStatusType());
+
+        assertEquals(personalIngressionData.getMotherProfessionalCondition().getName(),
+                personalIngressionData.getMotherProfessionalStatusType().getCode());
+        assertEquals(pst, personalIngressionData.getMotherProfessionalStatusType());
+
+        assertEquals(personalIngressionData.getFatherProfessionalCondition().getName(),
+                personalIngressionData.getFatherProfessionalStatusType().getCode());
+        assertEquals(pst, personalIngressionData.getFatherProfessionalStatusType());
+
+        assertEquals(personalIngressionData.getSpouseProfessionalCondition().getName(),
+                personalIngressionData.getSpouseProfessionalStatusType().getCode());
+        assertEquals(pst, personalIngressionData.getSpouseProfessionalStatusType());
+
+        clearProfessionalStatusTypeRelations(pst);
+        pst.delete();
     }
 }

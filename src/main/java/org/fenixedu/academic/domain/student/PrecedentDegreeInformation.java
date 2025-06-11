@@ -18,10 +18,8 @@
  */
 package org.fenixedu.academic.domain.student;
 
-import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
-import org.fenixedu.academic.dto.candidacy.PrecedentDegreeInformationBean;
+import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -31,48 +29,6 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
         super();
         setRootDomainObject(Bennu.getInstance());
         setLastModifiedDate(new DateTime());
-    }
-
-    public void edit(PrecedentDegreeInformationBean precedentDegreeInformationBean) {
-        Unit institution = precedentDegreeInformationBean.getInstitution();
-        if (institution == null && !StringUtils.isEmpty(precedentDegreeInformationBean.getInstitutionName())) {
-            institution = UnitUtils.readExternalInstitutionUnitByName(precedentDegreeInformationBean.getInstitutionName());
-            if (institution == null) {
-                institution = Unit.createNewNoOfficialExternalInstitution(precedentDegreeInformationBean.getInstitutionName());
-            }
-        }
-        setInstitution(institution);
-        setDegreeDesignation(precedentDegreeInformationBean.getDegreeDesignation());
-        setConclusionGrade(precedentDegreeInformationBean.getConclusionGrade());
-        setConclusionYear(precedentDegreeInformationBean.getConclusionYear());
-        setCountry(precedentDegreeInformationBean.getCountry());
-        setCountryHighSchool(precedentDegreeInformationBean.getCountryWhereFinishedHighSchoolLevel());
-        setSchoolLevel(precedentDegreeInformationBean.getSchoolLevel());
-        setOtherSchoolLevel(precedentDegreeInformationBean.getOtherSchoolLevel());
-
-        setLastModifiedDate(new DateTime());
-    }
-
-    public void editPreviousPrecedentInformation(PrecedentDegreeInformationBean precedentDegreeInformationBean) {
-        if (precedentDegreeInformationBean.isDegreeChangeOrTransferOrErasmusStudent()) {
-            Unit precedentInstitution = precedentDegreeInformationBean.getPrecedentInstitution();
-            if (precedentInstitution == null
-                    && !StringUtils.isEmpty(precedentDegreeInformationBean.getPrecedentInstitutionName())) {
-                precedentInstitution =
-                        UnitUtils.readExternalInstitutionUnitByName(precedentDegreeInformationBean.getPrecedentInstitutionName());
-                if (precedentInstitution == null) {
-                    precedentInstitution = Unit
-                            .createNewNoOfficialExternalInstitution(precedentDegreeInformationBean.getPrecedentInstitutionName());
-                }
-            }
-            setInstitution(precedentInstitution);
-            setDegreeDesignation(precedentDegreeInformationBean.getPrecedentDegreeDesignation());
-            setSchoolLevel(precedentDegreeInformationBean.getPrecedentSchoolLevel());
-            setOtherSchoolLevel(precedentDegreeInformationBean.getOtherPrecedentSchoolLevel());
-            setNumberOfEnrolmentsInPreviousDegrees(
-                    precedentDegreeInformationBean.getNumberOfPreviousYearEnrolmentsInPrecedentDegree());
-            setMobilityProgramDuration(precedentDegreeInformationBean.getMobilityProgramDuration());
-        }
     }
 
     public String getInstitutionName() {
@@ -96,4 +52,9 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
         deleteDomainObject();
     }
 
+    @Override
+    public void setSchoolLevel(SchoolLevelType schoolLevel) {
+        EducationLevelType.findByCode(schoolLevel.getName()).ifPresent(this::setEducationLevelType);
+        super.setSchoolLevel(schoolLevel);
+    }
 }

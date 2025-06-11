@@ -69,7 +69,7 @@ public class EducationLevelTypeTest {
     @After
     public void cleanup() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearEducationLevelTypeRelations();
+            clearEducationLevelTypeRelations(educationLevelType);
             Bennu.getInstance().getEducationLevelTypesSet().forEach(EducationLevelType::delete);
             degreeClassification.delete();
             personalIngressionData.delete();
@@ -79,11 +79,11 @@ public class EducationLevelTypeTest {
         });
     }
 
-    private void clearEducationLevelTypeRelations() {
-        educationLevelType.getPersonalIngressionDatasAsMotherEducationLevelTypeSet().clear();
-        educationLevelType.getPersonalIngressionDatasAsFatherEducationLevelTypeSet().clear();
-        educationLevelType.getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().clear();
-        educationLevelType.getPrecedentDegreeInformationsSet().clear();
+    private void clearEducationLevelTypeRelations(EducationLevelType elt) {
+        elt.getPersonalIngressionDatasAsMotherEducationLevelTypeSet().clear();
+        elt.getPersonalIngressionDatasAsFatherEducationLevelTypeSet().clear();
+        elt.getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().clear();
+        elt.getPrecedentDegreeInformationsSet().clear();
     }
 
     @Test
@@ -123,7 +123,7 @@ public class EducationLevelTypeTest {
         assertEquals(true, educationLevelType.getPrecedentDegreeInformationsSet().contains(precedentDegreeInformation));
 
         // Perform deletion
-        clearEducationLevelTypeRelations();
+        clearEducationLevelTypeRelations(educationLevelType);
         educationLevelType.delete();
 
         // Verify deletion
@@ -232,4 +232,58 @@ public class EducationLevelTypeTest {
         e1.delete();
         e2.delete();
     }
+
+    @Test
+    public void testEducationLevelType_personalIngressionDataSettersAreSynced() {
+        educationLevelType = create(CODE, QUALIFIED_NAME, true);
+        initializeEducationLevelTypeRelations();
+
+        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
+        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
+
+        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
+        personalIngressionData.setMotherSchoolLevel(otherSituation);
+        personalIngressionData.setFatherSchoolLevel(otherSituation);
+        personalIngressionData.setSpouseSchoolLevel(otherSituation);
+
+        // Assert SchoolLevelType and EducationLevelType have the same value
+        // (edge case: they can be both null instead of the correct value, next assert will verify that)
+        assertEquals(personalIngressionData.getMotherSchoolLevel().getName(),
+                personalIngressionData.getMotherEducationLevelType().getCode());
+
+        // Assert EducationLevelType is set to the correct value (instead of being null for example)
+        assertEquals(elt, personalIngressionData.getMotherEducationLevelType());
+
+        assertEquals(personalIngressionData.getFatherSchoolLevel().getName(),
+                personalIngressionData.getFatherEducationLevelType().getCode());
+        assertEquals(elt, personalIngressionData.getFatherEducationLevelType());
+
+        assertEquals(personalIngressionData.getSpouseSchoolLevel().getName(),
+                personalIngressionData.getSpouseEducationLevelType().getCode());
+        assertEquals(elt, personalIngressionData.getSpouseEducationLevelType());
+
+        clearEducationLevelTypeRelations(elt);
+        elt.delete();
+    }
+
+    @Test
+    public void testEducationLevelType_precedentDegreeInformationSettersAreSynced() {
+        educationLevelType = create(CODE, QUALIFIED_NAME, true);
+        initializeEducationLevelTypeRelations();
+        
+        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
+        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
+
+        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
+        precedentDegreeInformation.setSchoolLevel(otherSituation);
+
+        assertEquals(precedentDegreeInformation.getSchoolLevel().getName(),
+                precedentDegreeInformation.getEducationLevelType().getCode());
+
+        assertEquals(elt, precedentDegreeInformation.getEducationLevelType());
+
+        clearEducationLevelTypeRelations(elt);
+        elt.delete();
+    }
+
 }
