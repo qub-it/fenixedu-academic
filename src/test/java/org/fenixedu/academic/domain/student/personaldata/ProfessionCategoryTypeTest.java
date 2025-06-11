@@ -47,18 +47,18 @@ public class ProfessionCategoryTypeTest {
     @After
     public void cleanup() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearProfessionCategoryTypeRelations();
+            clearProfessionCategoryTypeRelations(professionCategoryType);
             professionCategoryType.delete();
             personalIngressionData.delete();
             return null;
         });
     }
 
-    private void clearProfessionCategoryTypeRelations() {
-        professionCategoryType.getPersonalIngressionDatasSet().clear();
-        professionCategoryType.getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().clear();
-        professionCategoryType.getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().clear();
-        professionCategoryType.getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().clear();
+    private void clearProfessionCategoryTypeRelations(ProfessionCategoryType pct) {
+        pct.getPersonalIngressionDatasSet().clear();
+        pct.getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().clear();
+        pct.getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().clear();
+        pct.getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().clear();
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ProfessionCategoryTypeTest {
                 .contains(personalIngressionData));
 
         // Perform deletion
-        clearProfessionCategoryTypeRelations();
+        clearProfessionCategoryTypeRelations(professionCategoryType);
         professionCategoryType.delete();
 
         // Verify deletion
@@ -162,5 +162,40 @@ public class ProfessionCategoryTypeTest {
 
         p1.delete();
         p2.delete();
+    }
+
+    @Test
+    public void testProfessionCategoryType_PersonalIngressionDataSettersAreSynced() {
+        ProfessionType other = ProfessionType.OTHER;
+        ProfessionCategoryType pct = ProfessionCategoryType.create(other.getName(), QUALIFIED_NAME, true);
+
+        // Call setter in ProfessionType Enum to trigger the sync in ProfessionCategoryType
+        personalIngressionData.setProfessionType(other);
+        personalIngressionData.setMotherProfessionType(other);
+        personalIngressionData.setFatherProfessionType(other);
+        personalIngressionData.setSpouseProfessionType(other);
+
+        // Assert ProfessionType and ProfessionCategoryType have the same value
+        // (edge case: they can be both null instead of the correct value, next assert will verify that)
+        assertEquals(personalIngressionData.getProfessionType().getName(),
+                personalIngressionData.getProfessionCategoryType().getCode());
+
+        // Assert ProfessionCategoryType is set to the correct value (instead of being null for example)
+        assertEquals(pct, personalIngressionData.getProfessionCategoryType());
+
+        assertEquals(personalIngressionData.getMotherProfessionType().getName(),
+                personalIngressionData.getMotherProfessionCategoryType().getCode());
+        assertEquals(pct, personalIngressionData.getMotherProfessionCategoryType());
+
+        assertEquals(personalIngressionData.getFatherProfessionType().getName(),
+                personalIngressionData.getFatherProfessionCategoryType().getCode());
+        assertEquals(pct, personalIngressionData.getFatherProfessionCategoryType());
+
+        assertEquals(personalIngressionData.getSpouseProfessionType().getName(),
+                personalIngressionData.getSpouseProfessionCategoryType().getCode());
+        assertEquals(pct, personalIngressionData.getSpouseProfessionCategoryType());
+
+        clearProfessionCategoryTypeRelations(pct);
+        pct.delete();
     }
 }
