@@ -15,28 +15,12 @@ public class EducationLevelType extends EducationLevelType_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public static EducationLevelType create(String code, LocalizedString name, boolean active, boolean isForStudent,
-            boolean isForStudentHousehold, boolean isForMobilityStudent, boolean isOther, boolean isPhDDegree,
-            boolean isSchoolLevelBasicCycle, boolean isHighSchoolOrEquivalent, boolean isHigherEducation)
+    public static EducationLevelType create(String code, LocalizedString name, boolean active)
     {
-        if (findByCode(code).isPresent()) {
-            throw new DomainException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.EducationLevelType.code.already.exists", code));
-        }
-
         EducationLevelType educationLevelType = new EducationLevelType();
-
         educationLevelType.setCode(code);
         educationLevelType.setName(name);
         educationLevelType.setActive(active);
-        educationLevelType.setForStudent(isForStudent);
-        educationLevelType.setForStudentHousehold(isForStudentHousehold);
-        educationLevelType.setForMobilityStudent(isForMobilityStudent);
-        educationLevelType.setOther(isOther);
-        educationLevelType.setPhDDegree(isPhDDegree);
-        educationLevelType.setSchoolLevelBasicCycle(isSchoolLevelBasicCycle);
-        educationLevelType.setHighSchoolOrEquivalent(isHighSchoolOrEquivalent);
-        educationLevelType.setHigherEducation(isHigherEducation);
 
         return educationLevelType;
     }
@@ -47,8 +31,22 @@ public class EducationLevelType extends EducationLevelType_Base {
         super.deleteDomainObject();
     }
 
+    @Override
+    public void setCode(String code) {
+        if (isDuplicateCode(code)) {
+            throw new DomainException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.EducationLevelType.code.already.exists", code));
+        }
+
+        super.setCode(code);
+    }
+
+    private boolean isDuplicateCode(String code) {
+        return code != null && !code.equals(getCode()) && findByCode(code).isPresent();
+    }
+
     public static Optional<EducationLevelType> findByCode(String code) {
-        return findAll().filter(t -> code.equals(t.getCode())).findFirst();
+        return findAll().filter(t -> code != null && code.equals(t.getCode())).findFirst();
     }
 
     public static Stream<EducationLevelType> findAll() {

@@ -230,12 +230,7 @@ public class FenixInitializer implements ServletContextListener {
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, schoolLevelType.getQualifiedName());
 
             if (EducationLevelType.findByCode(code).isEmpty()) {
-                EducationLevelType educationLevelType =
-                        EducationLevelType.create(code, name, true, schoolLevelType.isForStudent(),
-                                schoolLevelType.isForStudentHousehold(), schoolLevelType.isForMobilityStudent(),
-                                schoolLevelType.isOther(), schoolLevelType.isPhDDegree(),
-                                schoolLevelType.isSchoolLevelBasicCycle(), schoolLevelType.isHighSchoolOrEquivalent(),
-                                schoolLevelType.isHigherEducation());
+                EducationLevelType educationLevelType = EducationLevelType.create(code, name, true);
 
                 schoolLevelType.getEquivalentDegreeClassifications().forEach(c -> {
                     DegreeClassification classification = DegreeClassification.readByCode(c);
@@ -265,7 +260,7 @@ public class FenixInitializer implements ServletContextListener {
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionType.getQualifiedName());
 
             if (ProfessionCategoryType.findByCode(code).isEmpty()) {
-                ProfessionCategoryType.create(code, name, true);
+                ProfessionCategoryType.create(code, name, professionType.isActive());
             }
         }
 
@@ -288,7 +283,7 @@ public class FenixInitializer implements ServletContextListener {
             LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionalSituation.getQualifiedName());
 
             if (ProfessionalStatusType.findByCode(code).isEmpty()) {
-                ProfessionalStatusType.create(code, name, true);
+                ProfessionalStatusType.create(code, name, professionalSituation.isActive());
             }
         }
 

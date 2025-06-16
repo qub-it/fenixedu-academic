@@ -17,11 +17,6 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
     }
 
     public static ProfessionCategoryType create(String code, LocalizedString name, boolean active) {
-        if (findByCode(code).isPresent()) {
-            throw new DomainException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionCategoryType.code.already.exists", code));
-        }
-
         ProfessionCategoryType professionCategoryType = new ProfessionCategoryType();
         professionCategoryType.setCode(code);
         professionCategoryType.setName(name);
@@ -34,8 +29,22 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
         super.deleteDomainObject();
     }
 
+    @Override
+    public void setCode(String code) {
+        if (isDuplicateCode(code)) {
+            throw new DomainException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionCategoryType.code.already.exists", code));
+        }
+
+        super.setCode(code);
+    }
+
+    private boolean isDuplicateCode(String code) {
+        return code != null && !code.equals(getCode()) && findByCode(code).isPresent();
+    }
+
     public static Optional<ProfessionCategoryType> findByCode(String code) {
-        return findAll().filter(t -> code.equals(t.getCode())).findFirst();
+        return findAll().filter(t -> code != null && code.equals(t.getCode())).findFirst();
     }
 
     public static Stream<ProfessionCategoryType> findAll() {

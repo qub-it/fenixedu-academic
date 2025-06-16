@@ -16,11 +16,6 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
     }
 
     public static ProfessionalStatusType create(String code, LocalizedString name, boolean active) {
-        if (findByCode(code).isPresent()) {
-            throw new DomainException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionalStatusType.code.already.exists", code));
-        }
-
         ProfessionalStatusType type = new ProfessionalStatusType();
         type.setCode(code);
         type.setName(name);
@@ -33,8 +28,22 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
         super.deleteDomainObject();
     }
 
+    @Override
+    public void setCode(String code) {
+        if (isDuplicateCode(code)) {
+            throw new DomainException(
+                    BundleUtil.getString(Bundle.APPLICATION, "error.ProfessionalStatusType.code.already.exists", code));
+        }
+
+        super.setCode(code);
+    }
+
+    private boolean isDuplicateCode(String code) {
+        return code != null && !code.equals(getCode()) && findByCode(code).isPresent();
+    }
+
     public static Optional<ProfessionalStatusType> findByCode(String code) {
-        return findAll().filter(t -> code.equals(t.getCode())).findFirst();
+        return findAll().filter(t -> code != null && code.equals(t.getCode())).findFirst();
     }
 
     public static Stream<ProfessionalStatusType> findAll() {
