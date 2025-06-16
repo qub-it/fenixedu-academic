@@ -1,4 +1,5 @@
 - Refactor: Removes StudentCandidacy methods getDegreeCurricularPlan and getExecutionYear [#qubIT-Fenix-6696]
+- Improvement: Add error labels for competence course deletion [#qubIT-Fenix-6445]
 
 50.4.2 (11-06-2025)
 - Refactor: Adds StudentCandidacy constructor excluding Execution Degree [#qubIT-Fenix-6696]
