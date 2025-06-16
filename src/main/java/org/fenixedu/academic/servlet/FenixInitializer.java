@@ -302,7 +302,7 @@ public class FenixInitializer implements ServletContextListener {
     @Atomic(mode = TxMode.WRITE)
     private void migratePidData() {
         Log.warn("---------------------------------------");
-        Log.warn("Migrating PID Data to new entities");
+        Log.warn("Migrating Personal Ingression Data fields to new entities");
 
         Bennu.getInstance().getPersonalIngressionsDataSet().forEach(pid -> {
             if (pid.getProfessionType() != null && pid.getProfessionCategoryType() == null) {
@@ -357,14 +357,15 @@ public class FenixInitializer implements ServletContextListener {
             }
         });
 
-        Log.warn("Finished migrating PID Data to new entities");
+        Log.warn("Finished migrating Personal Ingression Data fields to new entities. Processed " + Bennu.getInstance()
+                .getPersonalIngressionsDataSet().size() + " Personal Ingression Data instances.");
         Log.warn("---------------------------------------");
     }
 
     @Atomic(mode = TxMode.WRITE)
     private void migratePrecedentDegreeInformationData() {
         Log.warn("---------------------------------------");
-        Log.warn("Migrating Precedent Degree Information Data to new entities");
+        Log.warn("Migrating Precedent Degree Information fields to new entities");
 
         Bennu.getInstance().getPrecedentDegreeInformationSet().forEach(pdi -> {
             if (pdi.getSchoolLevel() != null && pdi.getEducationLevelType() == null) {
@@ -372,7 +373,8 @@ public class FenixInitializer implements ServletContextListener {
             }
         });
 
-        Log.warn("Finished migrating Precedent Degree Information Data to new entities");
+        Log.warn("Finished migrating Precedent Degree Information fields to new entities. Processed " + Bennu.getInstance()
+                .getPrecedentDegreeInformationSet().size() + " Precedent Degree Information instances.");
         Log.warn("---------------------------------------");
     }
 }
