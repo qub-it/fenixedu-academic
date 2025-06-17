@@ -145,7 +145,19 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
             labelList.add(new GenericPair<Object, Boolean>("º ", false));
             labelList.add(new GenericPair<Object, Boolean>("SEMESTER", true));
         }
-
+        if (!getCourseGroupsSet().isEmpty()) {
+            labelList.add(new GenericPair<Object, Boolean>(", ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.restricted", true));
+            labelList.add(new GenericPair<Object, Boolean>(" " + getCourseGroupsSet().size() + " ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.toCourseGroup", true));
+            labelList.add(new GenericPair<Object, Boolean>(" " + getDegreeCurricularPlansSet().size() + " ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.toDegreeCurricularPlans", true));
+        } else if (!getDegreeCurricularPlansSet().isEmpty()) {
+            labelList.add(new GenericPair<Object, Boolean>(", ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.restricted", true));
+            labelList.add(new GenericPair<Object, Boolean>(" " + getDegreeCurricularPlansSet().size() + " ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.toDegreeCurricularPlans", true));
+        }
         if (!getDegreesSet().isEmpty()) {
             labelList.add(new GenericPair<Object, Boolean>(", ", false));
             labelList.add(new GenericPair<Object, Boolean>("label.ofDegrees", true));
@@ -216,6 +228,8 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
         getDegreeTypesSet().clear();
         getDegreesSet().clear();
         getUnitsSet().clear();
+        getDegreeCurricularPlansSet().clear();
+        getCourseGroupsSet().clear();
     }
 
     public boolean hasCredits() {
