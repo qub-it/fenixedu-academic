@@ -40,7 +40,7 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
     }
 
     private boolean isDuplicateCode(String code) {
-        return code != null && !code.equals(getCode()) && findByCode(code).isPresent();
+        return findByCode(code).filter(t -> t != this).isPresent();
     }
 
     public static Optional<ProfessionCategoryType> findByCode(String code) {

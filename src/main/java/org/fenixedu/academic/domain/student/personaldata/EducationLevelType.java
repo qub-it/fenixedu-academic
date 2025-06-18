@@ -42,7 +42,7 @@ public class EducationLevelType extends EducationLevelType_Base {
     }
 
     private boolean isDuplicateCode(String code) {
-        return code != null && !code.equals(getCode()) && findByCode(code).isPresent();
+        return findByCode(code).filter(t -> t != this).isPresent();
     }
 
     public static Optional<EducationLevelType> findByCode(String code) {
