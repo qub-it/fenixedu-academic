@@ -108,8 +108,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         setGradeScale(null);
         if (!getAssociatedCurricularCoursesSet().isEmpty()) {
             throw new DomainException("mustDeleteCurricularCoursesFirst");
-        } else if (this.getCurricularStage().equals(CurricularStage.APPROVED)) {
-            throw new DomainException("competenceCourse.approved");
         }
         for (; !getCompetenceCourseInformationsSet().isEmpty(); getCompetenceCourseInformationsSet().iterator().next().delete()) {
             ;
