@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -104,7 +105,7 @@ public class StudentCandidacy extends StudentCandidacy_Base {
     }
 
     /**
-     * Please use Registration.getCompletedDegreeInformation()
+     * @deprecated use {@link Registration#getCompletedDegreeInformation()}
      */
     @Deprecated
     @Override
@@ -113,7 +114,16 @@ public class StudentCandidacy extends StudentCandidacy_Base {
     }
 
     /**
-     * Please use Registration.getPreviousDegreeInformation()
+     * @deprecated use {@link Registration#setCompletedDegreeInformation(PrecedentDegreeInformation)}
+     */
+    @Deprecated
+    @Override
+    public void setCompletedDegreeInformation(final PrecedentDegreeInformation completedDegreeInformation) {
+        super.setCompletedDegreeInformation(completedDegreeInformation);
+    }
+
+    /**
+     * @deprecated use {@link Registration#getPreviousDegreeInformation()}
      */
     @Deprecated
     @Override
@@ -121,4 +131,63 @@ public class StudentCandidacy extends StudentCandidacy_Base {
         return super.getPreviousDegreeInformation();
     }
 
+    /**
+     * @deprecated use {@link Registration#setPreviousDegreeInformation(PrecedentDegreeInformation)}
+     */
+    @Deprecated
+    @Override
+    public void setPreviousDegreeInformation(final PrecedentDegreeInformation previousDegreeInformation) {
+        super.setPreviousDegreeInformation(previousDegreeInformation);
+    }
+
+    /**
+     * @deprecated use {@link Registration#getFirstStudentCurricularPlan().getExecutionDegree()}
+     */
+    @Deprecated
+    @Override
+    public ExecutionDegree getExecutionDegree() {
+        return super.getExecutionDegree();
+    }
+
+    @Deprecated
+    @Override
+    public void setExecutionDegree(final ExecutionDegree executionDegree) {
+        super.setExecutionDegree(executionDegree);
+    }
+
+    /**
+     * @deprecated use {@link Registration#getEntryGrade()}
+     */
+    @Deprecated
+    @Override
+    public Double getEntryGrade() {
+        return super.getEntryGrade();
+    }
+
+    /**
+     * @deprecated use {@link Registration#setEntryGrade(Double)}
+     */
+    @Deprecated
+    @Override
+    public void setEntryGrade(final Double entryGrade) {
+        super.setEntryGrade(entryGrade);
+    }
+
+    /**
+     * @deprecated use {@link Registration#getPlacingOption()}
+     */
+    @Deprecated
+    @Override
+    public Integer getPlacingOption() {
+        return super.getPlacingOption();
+    }
+
+    /**
+     * @deprecated use {@link Registration#setPlacingOption(Integer)}
+     */
+    @Deprecated
+    @Override
+    public void setPlacingOption(final Integer placingOption) {
+        super.setPlacingOption(placingOption);
+    }
 }

@@ -1,3 +1,4 @@
+- Refactor: Adds proxy methods PlacingOption to Registration [#qubIT-Fenix-6559]
 - Refactor: Removes StudentCandidacy methods getDegreeCurricularPlan and getExecutionYear [#qubIT-Fenix-6696]
 - Refactor: Add direct professorship shifts getter [#qubIT-Fenix-4690]
 - Refactor: Refactors SchoolLevelType, ProfessionType and ProfessionalSituationConditionType enums to domain entities [#qubIT-Fenix-7009]
