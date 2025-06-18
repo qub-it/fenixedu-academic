@@ -53,7 +53,7 @@ public class IngressionInformationBean implements Serializable {
     private LocalDate reingressionDate;
 
     public IngressionInformationBean(Registration registration) {
-        setAdmissionPhase(registration.getStudentCandidacy().getAdmissionPhase());
+        setAdmissionPhase(registration.getAdmissionPhase());
         setRegistration(registration);
     }
 

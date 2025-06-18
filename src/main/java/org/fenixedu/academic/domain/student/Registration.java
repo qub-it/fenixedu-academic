@@ -1034,15 +1034,19 @@ public class Registration extends Registration_Base {
     }
 
     final public Double getEntryGrade() {
-        return getStudentCandidacy() != null ? getStudentCandidacy().getEntryGrade() : null;
+        return Optional.ofNullable(getStudentCandidacy()).map(StudentCandidacy::getEntryGrade).orElse(null);
     }
 
     final public void setEntryGrade(final Double entryGrade) {
-        if (getStudentCandidacy() != null) {
-            getStudentCandidacy().setEntryGrade(entryGrade);
-        } else {
-            throw new DomainException("error.registration.withou.student.candidacy");
-        }
+        Optional.ofNullable(getStudentCandidacy()).ifPresent(sc -> sc.setEntryGrade(entryGrade));
+    }
+
+    final public Integer getPlacingOption() {
+        return Optional.ofNullable(getStudentCandidacy()).map(StudentCandidacy::getPlacingOption).orElse(null);
+    }
+
+    final public void setPlacingOption(final Integer placingOption) {
+        Optional.ofNullable(getStudentCandidacy()).ifPresent(sc -> sc.setPlacingOption(placingOption));
     }
 
     public ExecutionYear getIngressionYear() {
