@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.lang.StringUtils;
@@ -216,4 +217,9 @@ public class Professorship extends Professorship_Base {
         }
         return StringUtils.join(degreeSiglas, ", ");
     }
+
+    public Stream<Shift> getShifts() {
+        return getAssociatedShiftProfessorshipSet().stream().map(ShiftProfessorship::getShift);
+    }
+
 }
