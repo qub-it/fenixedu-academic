@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.servlet;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -39,15 +38,24 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.OccupationPeriod;
 import org.fenixedu.academic.domain.OccupationPeriodReference;
+import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
+import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
+import org.fenixedu.academic.domain.raides.DegreeClassification;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
+import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
+import org.fenixedu.academic.domain.student.personaldata.ProfessionCategoryType;
+import org.fenixedu.academic.domain.student.personaldata.ProfessionalStatusType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.rest.Healthcheck;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +92,10 @@ public class FenixInitializer implements ServletContextListener {
         initializeLessonPeriods();
 
         initializeExecutionDegreeLessonPeriods();
+
+        initializeEducationLevelTypes();
+        initializeProfessionCategoryTypes();
+        initializeProfessionalStatusType();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -201,6 +213,82 @@ public class FenixInitializer implements ServletContextListener {
                 .map(opr -> opr.createCorrespondingExecutionDegreeLessonPeriodIfMissing()).filter(Objects::nonNull).toList();
 
         Log.warn("Finished population of Execution Degree Lesson Periods. Created: " + newPeriods.size());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeEducationLevelTypes() {
+        if (EducationLevelType.findAll().findAny().isPresent()) {
+            return;
+        }
+
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Education Level Types");
+
+        for (SchoolLevelType schoolLevelType : SchoolLevelType.values()) {
+            String code = schoolLevelType.getName();
+            LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, schoolLevelType.getQualifiedName());
+
+            if (EducationLevelType.findByCode(code).isEmpty()) {
+                EducationLevelType educationLevelType = EducationLevelType.create(code, name, true);
+
+                schoolLevelType.getEquivalentDegreeClassifications().forEach(c -> {
+                    DegreeClassification classification = DegreeClassification.readByCode(c);
+
+                    if (classification != null) {
+                        educationLevelType.addDegreeClassifications(classification);
+                    }
+                });
+            }
+        }
+
+        Log.warn("Finished population of Education Level Types. Instances created: " + EducationLevelType.findAll().count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeProfessionCategoryTypes() {
+        if (ProfessionCategoryType.findAll().findAny().isPresent()) {
+            return;
+        }
+
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Profession Category Types");
+
+        for (org.fenixedu.academic.domain.ProfessionType professionType : org.fenixedu.academic.domain.ProfessionType.values()) {
+            String code = professionType.getName();
+            LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionType.getQualifiedName());
+
+            if (ProfessionCategoryType.findByCode(code).isEmpty()) {
+                ProfessionCategoryType.create(code, name, professionType.isActive());
+            }
+        }
+
+        Log.warn("Finished population of Profession Category Types. Instances created: " + ProfessionCategoryType.findAll()
+                .count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeProfessionalStatusType() {
+        if (ProfessionalStatusType.findAll().findAny().isPresent()) {
+            return;
+        }
+
+        Log.warn("---------------------------------------");
+        Log.warn("Starting population of Professional Status Types");
+
+        for (ProfessionalSituationConditionType professionalSituation : ProfessionalSituationConditionType.values()) {
+            String code = professionalSituation.getName();
+            LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, professionalSituation.getQualifiedName());
+
+            if (ProfessionalStatusType.findByCode(code).isEmpty()) {
+                ProfessionalStatusType.create(code, name, professionalSituation.isActive());
+            }
+        }
+
+        Log.warn("Finished population of Professional Status Types. Instances created: " + ProfessionalStatusType.findAll()
+                .count());
         Log.warn("---------------------------------------");
     }
 }

@@ -1356,6 +1356,44 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         LocalizedString name (REQUIRED);
     }
 
+    class student.personaldata.EducationLevelType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+        boolean active;
+        boolean forStudent;
+        boolean forStudentHousehold;
+        boolean forMobilityStudent;
+        boolean other;
+        boolean phDDegree;
+        boolean schoolLevelBasicCycle;
+        boolean highSchoolOrEquivalent;
+        boolean higherEducation;
+    }
+        relation EducationLevelTypeRootDomainObject {
+            student.personaldata.EducationLevelType playsRole educationLevelTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
+
+    class student.personaldata.ProfessionalStatusType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+        boolean active;
+    }
+        relation ProfessionalStatusTypeRootDomainObject {
+            student.personaldata.ProfessionalStatusType playsRole professionalStatusTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
+
+    class student.personaldata.ProfessionCategoryType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+        boolean active;
+    }
+        relation ProfessionCategoryTypeRootDomainObject {
+            student.personaldata.ProfessionCategoryType playsRole professionCategoryTypes { multiplicity *; }
+            .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+        }
+
     class student.PrecedentDegreeInformation  {
         String degreeDesignation;
         SchoolLevelType schoolLevel;
@@ -4400,6 +4438,11 @@ relation DegreeDesignationDegreeClassification {
     raides.DegreeDesignation playsRole degreeDesignations {
         multiplicity *;
     }
+}
+
+relation EducationLevelTypeDegreeClassification {
+	student.personaldata.EducationLevelType playsRole educationLevelTypes { multiplicity *; }
+	raides.DegreeClassification playsRole degreeClassifications { multiplicity *; }
 }
 
 relation RootDomainObjectPersonalIngressionData {
