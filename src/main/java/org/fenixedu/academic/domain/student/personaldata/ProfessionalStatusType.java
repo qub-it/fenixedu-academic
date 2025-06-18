@@ -24,24 +24,11 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
     }
 
     public void delete() {
-        if (!getPersonalIngressionDatasSet().isEmpty()) {
+        if (!getPersonalIngressionDatasSet().isEmpty() || !getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().isEmpty()) {
             throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
                     "error.ProfessionalStatusType.cannot.delete.related.to.PersonalIngressionData"));
-        }
-
-        if (!getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionalStatusType.cannot.delete.related.to.PersonalIngressionData.as.mother"));
-        }
-
-        if (!getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionalStatusType.cannot.delete.related.to.PersonalIngressionData.as.father"));
-        }
-
-        if (!getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionalStatusType.cannot.delete.related.to.PersonalIngressionData.as.spouse"));
         }
 
         setRootDomainObject(null);

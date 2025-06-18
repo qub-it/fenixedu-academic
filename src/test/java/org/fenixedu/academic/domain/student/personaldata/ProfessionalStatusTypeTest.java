@@ -1,6 +1,9 @@
 package org.fenixedu.academic.domain.student.personaldata;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -63,21 +66,21 @@ public class ProfessionalStatusTypeTest {
     }
 
     @Test
-    public void testProfessionalStatusType_Create() {
+    public void testProfessionalStatusType_create() {
         assertNotNull(professionalStatusType);
         assertEquals(CODE, professionalStatusType.getCode());
         assertEquals(QUALIFIED_NAME, professionalStatusType.getName());
     }
 
     @Test
-    public void testProfessionalStatusType_CreateDuplicate() {
+    public void testProfessionalStatusType_createDuplicate() {
         assertThrows(DomainException.class, () -> {
             ProfessionalStatusType.create(CODE, QUALIFIED_NAME, true);
         });
     }
 
     @Test
-    public void testProfessionalStatusType_Delete() {
+    public void testProfessionalStatusType_delete() {
         // Tests deletion of ProfessionalStatusType and its relations
 
         // Verify initial state before deletion
@@ -108,12 +111,12 @@ public class ProfessionalStatusTypeTest {
     }
 
     @Test
-    public void testProfessionalStatusType_DeleteFailsBecauseRelationsNotCleared() {
+    public void testProfessionalStatusType_deleteFailsBecauseRelationsNotCleared() {
         assertThrows(DomainException.class, () -> professionalStatusType.delete());
     }
 
     @Test
-    public void testProfessionalStatusType_PersonalIngressionDataRelations() {
+    public void testProfessionalStatusType_personalIngressionDataRelations() {
 
         // Verify initial relations with PersonalIngressionData
         assertEquals(true, professionalStatusType.getPersonalIngressionDatasSet().contains(personalIngressionData));
@@ -135,27 +138,27 @@ public class ProfessionalStatusTypeTest {
     }
 
     @Test
-    public void testProfessionalStatusType_FindByCode() {
+    public void testProfessionalStatusType_findByCode() {
         Optional<ProfessionalStatusType> found = ProfessionalStatusType.findByCode(CODE);
         assertEquals(true, found.isPresent());
         assertEquals(CODE, found.get().getCode());
     }
 
     @Test
-    public void testProfessionalStatusType_FindByCodeNotFound() {
+    public void testProfessionalStatusType_findByCodeNotFound() {
         Optional<ProfessionalStatusType> found = ProfessionalStatusType.findByCode("NON_EXISTENT_CODE");
         assertEquals(false, found.isPresent());
     }
 
     @Test
-    public void testProfessionalStatusType_FindAll() {
+    public void testProfessionalStatusType_findAll() {
         ProfessionalStatusType p = ProfessionalStatusType.create("exampleCode", QUALIFIED_NAME, true);
         assertEquals(2, ProfessionalStatusType.findAll().count());
         p.delete();
     }
 
     @Test
-    public void testProfessionalStatusType_FindActive() {
+    public void testProfessionalStatusType_findActive() {
         ProfessionalStatusType p1 = ProfessionalStatusType.create("exampleCode2", QUALIFIED_NAME, true);
         ProfessionalStatusType p2 = ProfessionalStatusType.create("exampleCode3", QUALIFIED_NAME, false);
 

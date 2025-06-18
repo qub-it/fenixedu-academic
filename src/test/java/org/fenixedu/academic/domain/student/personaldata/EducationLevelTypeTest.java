@@ -1,6 +1,8 @@
 package org.fenixedu.academic.domain.student.personaldata;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -79,7 +81,7 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_Create() {
+    public void testEducationLevelType_create() {
         assertNotEquals(null, educationLevelType);
         assertEquals(CODE, educationLevelType.getCode());
         assertEquals(QUALIFIED_NAME, educationLevelType.getName());
@@ -94,14 +96,14 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_CreateDuplicateCode() {
+    public void testEducationLevelType_createDuplicateCode() {
         assertThrows(DomainException.class, () -> {
             EducationLevelType.create(CODE, QUALIFIED_NAME, true, true, true, true, true, true, true, true, true);
         });
     }
 
     @Test
-    public void testEducationLevelType_Delete() {
+    public void testEducationLevelType_delete() {
         // Tests deletion of EducationLevelType and its relations
 
         // Verify initial state before deletion
@@ -135,12 +137,12 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_DeleteFailsBecauseRelationsNotCleared() {
+    public void testEducationLevelType_deleteFailsBecauseRelationsNotCleared() {
         assertThrows(DomainException.class, () -> educationLevelType.delete());
     }
 
     @Test
-    public void testEducationLevelType_DegreeClassificationRelations() {
+    public void testEducationLevelType_degreeClassificationRelations() {
 
         // Verify initial relation with DegreeClassification
         assertEquals(true, educationLevelType.getDegreeClassificationsSet().contains(degreeClassification));
@@ -153,7 +155,7 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_PersonalIngressionDataRelations() {
+    public void testEducationLevelType_personalIngressionDataRelations() {
 
         // Verify initial relations with PersonalIngressionData
         assertEquals(true, educationLevelType.getPersonalIngressionDatasAsMotherEducationLevelTypeSet()
@@ -173,7 +175,7 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_PrecedentDegreeInformationRelations() {
+    public void testEducationLevelType_precedentDegreeInformationRelations() {
 
         // Verify initial relation with PrecedentDegreeInformation
         assertEquals(true, educationLevelType.getPrecedentDegreeInformationsSet().contains(precedentDegreeInformation));
@@ -186,20 +188,20 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_FindByCode() {
+    public void testEducationLevelType_findByCode() {
         Optional<EducationLevelType> found = EducationLevelType.findByCode(CODE);
         assertEquals(true, found.isPresent());
         assertEquals(CODE, found.get().getCode());
     }
 
     @Test
-    public void testEducationLevelType_FindByCodeNotFound() {
+    public void testEducationLevelType_findByCodeNotFound() {
         Optional<EducationLevelType> found = EducationLevelType.findByCode("NON_EXISTENT_CODE");
         assertEquals(false, found.isPresent());
     }
 
     @Test
-    public void testEducationLevelType_FindAll() {
+    public void testEducationLevelType_findAll() {
         EducationLevelType e =
                 EducationLevelType.create("exampleCode2", QUALIFIED_NAME, true, true, true, true, true, true, true, true, true);
         assertEquals(2, EducationLevelType.findAll().count());
@@ -207,7 +209,7 @@ public class EducationLevelTypeTest {
     }
 
     @Test
-    public void testEducationLevelType_FindActive() {
+    public void testEducationLevelType_findActive() {
         EducationLevelType e1 =
                 EducationLevelType.create("exampleCode3", QUALIFIED_NAME, true, true, true, true, true, true, true, true, true);
         EducationLevelType e2 =

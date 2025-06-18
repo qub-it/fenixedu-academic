@@ -26,19 +26,11 @@ public class EducationLevelType extends EducationLevelType_Base {
     }
 
     public void delete() {
-        if (!getPersonalIngressionDatasAsMotherEducationLevelTypeSet().isEmpty()) {
+        if (!getPersonalIngressionDatasAsMotherEducationLevelTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsFatherEducationLevelTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().isEmpty()) {
             throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.EducationLevelType.cannot.delete.related.to.PersonalIngressionData.as.mother"));
-        }
-
-        if (!getPersonalIngressionDatasAsFatherEducationLevelTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.EducationLevelType.cannot.delete.related.to.PersonalIngressionData.as.father"));
-        }
-
-        if (!getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.EducationLevelType.cannot.delete.related.to.PersonalIngressionData.as.spouse"));
+                    "error.EducationLevelType.cannot.delete.related.to.PersonalIngressionData"));
         }
 
         if (!getPrecedentDegreeInformationsSet().isEmpty()) {

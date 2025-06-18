@@ -1,6 +1,8 @@
 package org.fenixedu.academic.domain.student.personaldata;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -62,21 +64,21 @@ public class ProfessionCategoryTypeTest {
     }
 
     @Test
-    public void testProfessionCategoryType_Create() {
+    public void testProfessionCategoryType_create() {
         assertNotEquals(null, professionCategoryType);
         assertEquals(CODE, professionCategoryType.getCode());
         assertEquals(QUALIFIED_NAME, professionCategoryType.getName());
     }
 
     @Test
-    public void testProfessionCategoryType_CreateDuplicate() {
+    public void testProfessionCategoryType_createDuplicate() {
         assertThrows(DomainException.class, () -> {
             ProfessionCategoryType.create(CODE, QUALIFIED_NAME, true);
         });
     }
 
     @Test
-    public void testProfessionCategoryType_Delete() {
+    public void testProfessionCategoryType_delete() {
         // Tests deletion of ProfessionCategoryType and its relations
 
         // Verify initial state before deletion
@@ -107,12 +109,12 @@ public class ProfessionCategoryTypeTest {
     }
 
     @Test
-    public void testProfessionCategoryType_DeleteFailsBecauseRelationsNotCleared() {
+    public void testProfessionCategoryType_deleteFailsBecauseRelationsNotCleared() {
         assertThrows(DomainException.class, () -> professionCategoryType.delete());
     }
 
     @Test
-    public void testProfessionCategoryType_PersonalIngressionDataRelations() {
+    public void testProfessionCategoryType_personalIngressionDataRelations() {
 
         // Verify initial relations with PersonalIngressionData
         assertEquals(true, professionCategoryType.getPersonalIngressionDatasSet().contains(personalIngressionData));
@@ -134,27 +136,27 @@ public class ProfessionCategoryTypeTest {
     }
 
     @Test
-    public void testProfessionCategoryType_FindByCode() {
+    public void testProfessionCategoryType_findByCode() {
         Optional<ProfessionCategoryType> found = ProfessionCategoryType.findByCode(CODE);
         assertEquals(true, found.isPresent());
         assertEquals(CODE, found.get().getCode());
     }
 
     @Test
-    public void testProfessionCategoryType_FindByCodeNotFound() {
+    public void testProfessionCategoryType_findByCodeNotFound() {
         Optional<ProfessionCategoryType> found = ProfessionCategoryType.findByCode("NON_EXISTENT_CODE");
         assertEquals(false, found.isPresent());
     }
 
     @Test
-    public void testProfessionCategoryType_FindAll() {
+    public void testProfessionCategoryType_findAll() {
         ProfessionCategoryType p = ProfessionCategoryType.create("exampleCode", QUALIFIED_NAME, true);
         assertEquals(2, ProfessionCategoryType.findAll().count());
         p.delete();
     }
 
     @Test
-    public void testProfessionCategoryType_FindActive() {
+    public void testProfessionCategoryType_findActive() {
         ProfessionCategoryType p1 = ProfessionCategoryType.create("exampleCode2", QUALIFIED_NAME, true);
         ProfessionCategoryType p2 = ProfessionCategoryType.create("exampleCode3", QUALIFIED_NAME, false);
 

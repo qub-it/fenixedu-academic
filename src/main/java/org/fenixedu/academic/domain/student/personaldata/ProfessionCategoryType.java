@@ -25,24 +25,11 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
     }
 
     public void delete() {
-        if (!getPersonalIngressionDatasSet().isEmpty()) {
+        if (!getPersonalIngressionDatasSet().isEmpty() || !getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().isEmpty()) {
             throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
                     "error.ProfessionCategoryType.cannot.delete.related.to.PersonalIngressionData"));
-        }
-
-        if (!getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionCategoryType.cannot.delete.related.to.PersonalIngressionData.as.mother"));
-        }
-
-        if (!getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionCategoryType.cannot.delete.related.to.PersonalIngressionData.as.father"));
-        }
-
-        if (!getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.ProfessionCategoryType.cannot.delete.related.to.PersonalIngressionData.as.spouse"));
         }
 
         setRootDomainObject(null);
