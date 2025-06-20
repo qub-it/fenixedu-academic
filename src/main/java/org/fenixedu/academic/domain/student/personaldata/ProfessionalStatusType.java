@@ -24,6 +24,13 @@ public class ProfessionalStatusType extends ProfessionalStatusType_Base {
     }
 
     public void delete() {
+        if (!getPersonalIngressionDatasSet().isEmpty() || !getPersonalIngressionDatasAsMotherProfessionalStatusTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsFatherProfessionalStatusTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsSpouseProfessionalStatusTypeSet().isEmpty()) {
+            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
+                    "error.ProfessionalStatusType.cannot.delete.related.to.PersonalIngressionData"));
+        }
+
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
