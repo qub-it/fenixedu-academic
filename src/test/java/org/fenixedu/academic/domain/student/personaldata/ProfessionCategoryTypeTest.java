@@ -33,10 +33,21 @@ public class ProfessionCategoryTypeTest {
 
     @Before
     public void init() {
+        // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            professionCategoryType = ProfessionCategoryType.create(CODE, QUALIFIED_NAME, true);
-
             personalIngressionData = new PersonalIngressionData();
+
+            return null;
+        });
+    }
+
+    private ProfessionCategoryType create(String code, LocalizedString name, boolean active) {
+        return FenixFramework.getTransactionManager().withTransaction(() -> ProfessionCategoryType.create(code, name, active));
+    }
+
+    private void initializeProfessionCategoryTypeRelations() {
+        // Initialize relations for the created ProfessionCategoryType
+        FenixFramework.getTransactionManager().withTransaction(() -> {
             personalIngressionData.setProfessionCategoryType(professionCategoryType);
             personalIngressionData.setMotherProfessionCategoryType(professionCategoryType);
             personalIngressionData.setFatherProfessionCategoryType(professionCategoryType);
@@ -50,7 +61,7 @@ public class ProfessionCategoryTypeTest {
     public void cleanup() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             clearProfessionCategoryTypeRelations();
-            professionCategoryType.delete();
+            Bennu.getInstance().getProfessionCategoryTypesSet().forEach(ProfessionCategoryType::delete);
             personalIngressionData.delete();
             return null;
         });
@@ -65,6 +76,8 @@ public class ProfessionCategoryTypeTest {
 
     @Test
     public void testProfessionCategoryType_create() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
         assertNotEquals(null, professionCategoryType);
         assertEquals(CODE, professionCategoryType.getCode());
         assertEquals(QUALIFIED_NAME, professionCategoryType.getName());
@@ -72,14 +85,18 @@ public class ProfessionCategoryTypeTest {
 
     @Test
     public void testProfessionCategoryType_createDuplicate() {
-        assertThrows(DomainException.class, () -> {
-            ProfessionCategoryType.create(CODE, QUALIFIED_NAME, true);
-        });
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
+        assertThrows(DomainException.class, () -> ProfessionCategoryType.create(CODE, QUALIFIED_NAME, true));
     }
 
     @Test
     public void testProfessionCategoryType_delete() {
         // Tests deletion of ProfessionCategoryType and its relations
+
+        // Create a new ProfessionalStatusType and its relations
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionCategoryTypeRelations();
 
         // Verify initial state before deletion
         assertEquals(false, Bennu.getInstance().getProfessionCategoryTypesSet().isEmpty());
@@ -103,18 +120,20 @@ public class ProfessionCategoryTypeTest {
         assertEquals(null, personalIngressionData.getMotherProfessionCategoryType());
         assertEquals(null, personalIngressionData.getFatherProfessionCategoryType());
         assertEquals(null, personalIngressionData.getSpouseProfessionCategoryType());
-
-        // create ProfessionCategoryType again so cleanup doesn't fail
-        professionCategoryType = ProfessionCategoryType.create(CODE, QUALIFIED_NAME, true);
     }
 
     @Test
     public void testProfessionCategoryType_deleteFailsBecauseRelationsNotCleared() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionCategoryTypeRelations();
+
         assertThrows(DomainException.class, () -> professionCategoryType.delete());
     }
 
     @Test
     public void testProfessionCategoryType_personalIngressionDataRelations() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+        initializeProfessionCategoryTypeRelations();
 
         // Verify initial relations with PersonalIngressionData
         assertEquals(true, professionCategoryType.getPersonalIngressionDatasSet().contains(personalIngressionData));
@@ -137,6 +156,8 @@ public class ProfessionCategoryTypeTest {
 
     @Test
     public void testProfessionCategoryType_findByCode() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
         Optional<ProfessionCategoryType> found = ProfessionCategoryType.findByCode(CODE);
         assertEquals(true, found.isPresent());
         assertEquals(CODE, found.get().getCode());
@@ -144,12 +165,16 @@ public class ProfessionCategoryTypeTest {
 
     @Test
     public void testProfessionCategoryType_findByCodeNotFound() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
         Optional<ProfessionCategoryType> found = ProfessionCategoryType.findByCode("NON_EXISTENT_CODE");
         assertEquals(false, found.isPresent());
     }
 
     @Test
     public void testProfessionCategoryType_findAll() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
         ProfessionCategoryType p = ProfessionCategoryType.create("exampleCode", QUALIFIED_NAME, true);
         assertEquals(2, ProfessionCategoryType.findAll().count());
         p.delete();
@@ -157,6 +182,8 @@ public class ProfessionCategoryTypeTest {
 
     @Test
     public void testProfessionCategoryType_findActive() {
+        professionCategoryType = create(CODE, QUALIFIED_NAME, true);
+
         ProfessionCategoryType p1 = ProfessionCategoryType.create("exampleCode2", QUALIFIED_NAME, true);
         ProfessionCategoryType p2 = ProfessionCategoryType.create("exampleCode3", QUALIFIED_NAME, false);
 
