@@ -15,7 +15,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -24,6 +24,9 @@ import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class EducationLevelTypeTest {
+
+    private static final String EXAMPLE_CODE = "exampleCode";
+    private static final String OTHER_EXAMPLE_CODE = "exampleCode2";
 
     private static EducationLevelType educationLevelType;
     private static DegreeClassification degreeClassification;
@@ -35,11 +38,10 @@ public class EducationLevelTypeTest {
     private static final String CODE = schoolLevelType.getName();
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Bachelor's Degree");
 
-    @Before
-    public void init() {
-        // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
+    @BeforeClass
+    public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            degreeClassification = new DegreeClassification("exampleCode", "description1", "description2", "exampleAbbreviation");
+            degreeClassification = new DegreeClassification("code1", "description1", "description2", "exampleAbbreviation");
             personalIngressionData = new PersonalIngressionData();
             precedentDegreeInformation = new PrecedentDegreeInformation();
 
@@ -48,34 +50,25 @@ public class EducationLevelTypeTest {
     }
 
     private EducationLevelType create(String code, LocalizedString name, boolean active) {
-        return FenixFramework.getTransactionManager().withTransaction(() -> EducationLevelType.create(code, name, active));
+        return EducationLevelType.create(code, name, active);
     }
 
     private void initializeEducationLevelTypeRelations() {
         // Initialize relations for the created EducationLevelType
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            educationLevelType.addDegreeClassifications(degreeClassification);
+        educationLevelType.addDegreeClassifications(degreeClassification);
 
-            personalIngressionData.setMotherEducationLevelType(educationLevelType);
-            personalIngressionData.setFatherEducationLevelType(educationLevelType);
-            personalIngressionData.setSpouseEducationLevelType(educationLevelType);
+        personalIngressionData.setMotherEducationLevelType(educationLevelType);
+        personalIngressionData.setFatherEducationLevelType(educationLevelType);
+        personalIngressionData.setSpouseEducationLevelType(educationLevelType);
 
-            precedentDegreeInformation.setEducationLevelType(educationLevelType);
-
-            return null;
-        });
+        precedentDegreeInformation.setEducationLevelType(educationLevelType);
     }
 
     @After
     public void cleanup() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearEducationLevelTypeRelations(educationLevelType);
-            Bennu.getInstance().getEducationLevelTypesSet().forEach(EducationLevelType::delete);
-            degreeClassification.delete();
-            personalIngressionData.delete();
-            precedentDegreeInformation.delete();
-
-            return null;
+        Bennu.getInstance().getEducationLevelTypesSet().forEach(t -> {
+            clearEducationLevelTypeRelations(t);
+            t.delete();
         });
     }
 
@@ -215,22 +208,18 @@ public class EducationLevelTypeTest {
     public void testEducationLevelType_findAll() {
         educationLevelType = create(CODE, QUALIFIED_NAME, true);
 
-        EducationLevelType e = create("exampleCode2", QUALIFIED_NAME, true);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
         assertEquals(2, EducationLevelType.findAll().count());
-        e.delete();
     }
 
     @Test
     public void testEducationLevelType_findActive() {
         educationLevelType = create(CODE, QUALIFIED_NAME, true);
 
-        EducationLevelType e1 = create("exampleCode3", QUALIFIED_NAME, true);
-        EducationLevelType e2 = create("exampleCode4", QUALIFIED_NAME, false);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
+        create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, EducationLevelType.findActive().count());
-
-        e1.delete();
-        e2.delete();
     }
 
     @Test
@@ -261,9 +250,6 @@ public class EducationLevelTypeTest {
         assertEquals(personalIngressionData.getSpouseSchoolLevel().getName(),
                 personalIngressionData.getSpouseEducationLevelType().getCode());
         assertEquals(elt, personalIngressionData.getSpouseEducationLevelType());
-
-        clearEducationLevelTypeRelations(elt);
-        elt.delete();
     }
 
     @Test
@@ -281,9 +267,6 @@ public class EducationLevelTypeTest {
                 precedentDegreeInformation.getEducationLevelType().getCode());
 
         assertEquals(elt, precedentDegreeInformation.getEducationLevelType());
-
-        clearEducationLevelTypeRelations(elt);
-        elt.delete();
     }
 
 }

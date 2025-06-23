@@ -13,7 +13,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -23,6 +23,9 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ProfessionCategoryTypeTest {
 
+    private static final String EXAMPLE_CODE = "exampleCode";
+    private static final String OTHER_EXAMPLE_CODE = "exampleCode2";
+
     private static ProfessionCategoryType professionCategoryType;
     private static PersonalIngressionData personalIngressionData;
 
@@ -31,9 +34,8 @@ public class ProfessionCategoryTypeTest {
     private static final String CODE = professionType.getName();
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Armed Forces Officers");
 
-    @Before
-    public void init() {
-        // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
+    @BeforeClass
+    public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             personalIngressionData = new PersonalIngressionData();
 
@@ -42,28 +44,22 @@ public class ProfessionCategoryTypeTest {
     }
 
     private ProfessionCategoryType create(String code, LocalizedString name, boolean active) {
-        return FenixFramework.getTransactionManager().withTransaction(() -> ProfessionCategoryType.create(code, name, active));
+        return ProfessionCategoryType.create(code, name, active);
     }
 
     private void initializeProfessionCategoryTypeRelations() {
         // Initialize relations for the created ProfessionCategoryType
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            personalIngressionData.setProfessionCategoryType(professionCategoryType);
-            personalIngressionData.setMotherProfessionCategoryType(professionCategoryType);
-            personalIngressionData.setFatherProfessionCategoryType(professionCategoryType);
-            personalIngressionData.setSpouseProfessionCategoryType(professionCategoryType);
-
-            return null;
-        });
+        personalIngressionData.setProfessionCategoryType(professionCategoryType);
+        personalIngressionData.setMotherProfessionCategoryType(professionCategoryType);
+        personalIngressionData.setFatherProfessionCategoryType(professionCategoryType);
+        personalIngressionData.setSpouseProfessionCategoryType(professionCategoryType);
     }
 
     @After
     public void cleanup() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearProfessionCategoryTypeRelations(professionCategoryType);
-            Bennu.getInstance().getProfessionCategoryTypesSet().forEach(ProfessionCategoryType::delete);
-            personalIngressionData.delete();
-            return null;
+        Bennu.getInstance().getProfessionCategoryTypesSet().forEach(t -> {
+            clearProfessionCategoryTypeRelations(t);
+            t.delete();
         });
     }
 
@@ -175,22 +171,18 @@ public class ProfessionCategoryTypeTest {
     public void testProfessionCategoryType_findAll() {
         professionCategoryType = create(CODE, QUALIFIED_NAME, true);
 
-        ProfessionCategoryType p = ProfessionCategoryType.create("exampleCode", QUALIFIED_NAME, true);
+        ProfessionCategoryType.create(EXAMPLE_CODE, QUALIFIED_NAME, true);
         assertEquals(2, ProfessionCategoryType.findAll().count());
-        p.delete();
     }
 
     @Test
     public void testProfessionCategoryType_findActive() {
         professionCategoryType = create(CODE, QUALIFIED_NAME, true);
 
-        ProfessionCategoryType p1 = ProfessionCategoryType.create("exampleCode2", QUALIFIED_NAME, true);
-        ProfessionCategoryType p2 = ProfessionCategoryType.create("exampleCode3", QUALIFIED_NAME, false);
+        ProfessionCategoryType.create(EXAMPLE_CODE, QUALIFIED_NAME, true);
+        ProfessionCategoryType.create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, ProfessionCategoryType.findActive().count());
-
-        p1.delete();
-        p2.delete();
     }
 
     @Test
@@ -226,8 +218,5 @@ public class ProfessionCategoryTypeTest {
         assertEquals(personalIngressionData.getSpouseProfessionType().getName(),
                 personalIngressionData.getSpouseProfessionCategoryType().getCode());
         assertEquals(pct, personalIngressionData.getSpouseProfessionCategoryType());
-
-        clearProfessionCategoryTypeRelations(pct);
-        pct.delete();
     }
 }
