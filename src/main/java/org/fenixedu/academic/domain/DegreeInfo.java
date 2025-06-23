@@ -562,7 +562,7 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public Double getMarkAverage() {
-        return Optional.ofNullable(DynamicField.findField(this, "markAvg")).map(dF -> {
+        return Optional.ofNullable(DynamicField.findField(this, "markAverage")).map(dF -> {
             final BigDecimal value = dF.getValue(BigDecimal.class);
             return value != null ? value.doubleValue() : null;
         }).orElseGet(super::getMarkAverage);
