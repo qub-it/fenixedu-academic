@@ -25,6 +25,13 @@ public class ProfessionCategoryType extends ProfessionCategoryType_Base {
     }
 
     public void delete() {
+        if (!getPersonalIngressionDatasSet().isEmpty() || !getPersonalIngressionDatasAsMotherProfessionCategoryTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsFatherProfessionCategoryTypeSet().isEmpty()
+                || !getPersonalIngressionDatasAsSpouseProfessionCategoryTypeSet().isEmpty()) {
+            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
+                    "error.ProfessionCategoryType.cannot.delete.related.to.PersonalIngressionData"));
+        }
+
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
