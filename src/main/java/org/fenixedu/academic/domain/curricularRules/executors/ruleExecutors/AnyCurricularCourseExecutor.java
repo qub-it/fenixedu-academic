@@ -18,20 +18,28 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnroledOptionalEnrolment;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
+
+import com.google.common.collect.Sets;
 
 public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
 
@@ -70,12 +78,16 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
 
         final ExecutionInterval executionInterval = enrolmentContext.getExecutionPeriod();
         final Degree degree = curricularCourseToEnrol.getDegree();
+        final DegreeCurricularPlan degreeCurricularPlan = curricularCourseToEnrol.getDegreeCurricularPlan();
+        final Set<CourseGroup> allParentCourseGroups =
+                curricularCourseToEnrol.getParentContexts(executionInterval).stream().map(ctx -> ctx.getParentCourseGroup())
+                        .collect(Collectors.toSet());
 
         boolean result = true;
 
         result &= matchesMinCredits(rule, curricularCourseToEnrol, executionInterval);
         result &= matchesMaxCredits(rule, curricularCourseToEnrol, executionInterval);
-        result &= matchesDegreesAndDegreeTypes(rule, degree);
+        result &= matchesCourseGroupDcpDegreesAndDegreeTypes(rule, degree, degreeCurricularPlan, allParentCourseGroups);
         result &= matchesCompetenceCoursesAndLevels(rule, curricularCourseToEnrol, executionInterval);
         result &= matchesUnits(rule, curricularCourseToEnrol, executionInterval);
 
@@ -136,7 +148,18 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                 || (levelType != null && rule.getCompetenceCourseLevelTypesSet().contains(levelType));
     }
 
-    private boolean matchesDegreesAndDegreeTypes(AnyCurricularCourse rule, Degree degree) {
+    private boolean matchesCourseGroupDcpDegreesAndDegreeTypes(AnyCurricularCourse rule, Degree degree,
+            DegreeCurricularPlan degreeCurricularPlan, Set<CourseGroup> courseGroups) {
+        if (!rule.getCourseGroupsSet().isEmpty()) {
+
+            final Set<CourseGroup> ancestorGroups = Stream.concat(courseGroups.stream(),
+                    courseGroups.stream().flatMap(cg -> cg.getAllParentCourseGroups().stream())).collect(Collectors.toSet());
+
+            return !Sets.intersection(rule.getCourseGroupsSet(), ancestorGroups).isEmpty();
+        }
+        if (!rule.getDegreeCurricularPlansSet().isEmpty()) {
+            return rule.getDegreeCurricularPlansSet().contains(degreeCurricularPlan);
+        }
         if (!rule.getDegreesSet().isEmpty()) {
             return rule.getDegreesSet().contains(degree);
         }

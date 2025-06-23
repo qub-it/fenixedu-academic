@@ -2040,6 +2040,24 @@ relation AnyCurricularCourseDegreeType {
     }
 }
 
+relation AnyCurricularCourseCourseGroup {
+        curricularRules.AnyCurricularCourse playsRole anyCurricularCourse {
+            multiplicity *;
+        }
+        .org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole courseGroups {
+            multiplicity *;
+        }
+}
+
+relation AnyCurricularCourseDegreeCurricularPlan {
+        curricularRules.AnyCurricularCourse playsRole anyCurricularCourse {
+            multiplicity *;
+        }
+        DegreeCurricularPlan playsRole degreeCurricularPlans {
+            multiplicity *;
+        }
+}
+
 relation AttendsEnrolment {
     Attends playsRole attends {
         multiplicity *;
