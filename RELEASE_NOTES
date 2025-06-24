@@ -2,6 +2,7 @@
 - Refactor: Removes StudentCandidacy methods getDegreeCurricularPlan and getExecutionYear [#qubIT-Fenix-6696]
 - Refactor: Add direct professorship shifts getter [#qubIT-Fenix-4690]
 - Refactor: Refactors SchoolLevelType, ProfessionType and ProfessionalSituationConditionType enums to domain entities [#qubIT-Fenix-7009]
+- Refactor: Join hardcoded and dynamicField setters/getters for DegreeInfo refactor [#qubIT-Fenix-6512]
 - Improvement: Add Degree Curricular Plan and Groups to AnyCurricularCourse Rule [#UL-FBA-1957]
 - Improvement: Emits Edition of ExecutionCourse signal to change respective CommunicationSender [#qubIT-Omnis-8831]
 
