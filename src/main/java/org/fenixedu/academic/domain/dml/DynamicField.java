@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain.dml;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -82,9 +83,14 @@ public class DynamicField extends DynamicField_Base {
         field.edit(value);
     }
 
+    @Deprecated
     public static DynamicField findField(final DomainObject domainObject, final String code) {
         return findOrCreateFields(domainObject).stream().filter(i -> StringUtils.equals(i.getCode(), code)).findFirst()
                 .orElse(null);
+    }
+
+    public static Optional<DynamicField> find(final DomainObject domainObject, final String code) {
+        return findOrCreateFields(domainObject).stream().filter(i -> StringUtils.equals(i.getCode(), code)).findFirst();
     }
 
     @Atomic

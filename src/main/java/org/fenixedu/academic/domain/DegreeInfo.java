@@ -21,7 +21,6 @@ package org.fenixedu.academic.domain;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Optional;
 
 import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -210,12 +209,12 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getAccessRequisites() {
-        return findFieldByCode(ACCESS_REQUISITES).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, ACCESS_REQUISITES).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoCandidacy().getAccessRequisites());
     }
 
     public LocalizedString getCandidacyDocuments() {
-        return findFieldByCode(CANDIDACY_DOCUMENTS).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, CANDIDACY_DOCUMENTS).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoCandidacy().getCandidacyDocuments());
     }
 
@@ -224,12 +223,12 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getClassifications() {
-        return findFieldByCode(CLASSIFICATIONS).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, CLASSIFICATIONS).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getClassifications());
     }
 
     public LocalizedString getDesignedFor() {
-        return findFieldByCode(DESIGNED_FOR).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, DESIGNED_FOR).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getDesignedFor());
     }
 
@@ -246,7 +245,7 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getObjectives() {
-        return findFieldByCode(OBJECTIVES).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, OBJECTIVES).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getObjectives());
     }
 
@@ -259,7 +258,7 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getProfessionalExits() {
-        return findFieldByCode(PROFESSIONAL_EXITS).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, PROFESSIONAL_EXITS).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getProfessionalExits());
     }
 
@@ -272,12 +271,12 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getQualificationLevel() {
-        return findFieldByCode(QUALIFICATION_LEVEL).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, QUALIFICATION_LEVEL).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getQualificationLevel());
     }
 
     public LocalizedString getRecognitions() {
-        return findFieldByCode(RECOGNITIONS).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, RECOGNITIONS).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoFuture().getRecognitions());
     }
 
@@ -286,17 +285,17 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public LocalizedString getTestIngression() {
-        return findFieldByCode(TEST_INGRESSION).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, TEST_INGRESSION).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(() -> getDegreeInfoCandidacy().getTestIngression());
     }
 
     public void setAccessRequisites(final LocalizedString accessRequisites) {
-        findFieldByCode(ACCESS_REQUISITES).ifPresent(dF -> dF.edit(accessRequisites));
+        DynamicField.find(this, ACCESS_REQUISITES).ifPresent(dF -> dF.edit(accessRequisites));
         getDegreeInfoCandidacy().setAccessRequisites(accessRequisites);
     }
 
     public void setCandidacyDocuments(final LocalizedString candidacyDocuments) {
-        findFieldByCode(CANDIDACY_DOCUMENTS).ifPresent(dF -> dF.edit(candidacyDocuments));
+        DynamicField.find(this, CANDIDACY_DOCUMENTS).ifPresent(dF -> dF.edit(candidacyDocuments));
         getDegreeInfoCandidacy().setCandidacyDocuments(candidacyDocuments);
     }
 
@@ -305,12 +304,12 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public void setClassifications(final LocalizedString classifications) {
-        findFieldByCode(CLASSIFICATIONS).ifPresent(dF -> dF.edit(classifications));
+        DynamicField.find(this, CLASSIFICATIONS).ifPresent(dF -> dF.edit(classifications));
         getDegreeInfoFuture().setClassifications(classifications);
     }
 
     public void setDesignedFor(final LocalizedString designedFor) {
-        findFieldByCode(DESIGNED_FOR).ifPresent(dF -> dF.edit(designedFor));
+        DynamicField.find(this, DESIGNED_FOR).ifPresent(dF -> dF.edit(designedFor));
         getDegreeInfoFuture().setDesignedFor(designedFor);
     }
 
@@ -319,22 +318,22 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public void setObjectives(final LocalizedString objectives) {
-        findFieldByCode(OBJECTIVES).ifPresent(dF -> dF.edit(objectives));
+        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(objectives));
         getDegreeInfoFuture().setObjectives(objectives);
     }
 
     public void setProfessionalExits(final LocalizedString professionalExits) {
-        findFieldByCode(PROFESSIONAL_EXITS).ifPresent(dF -> dF.edit(professionalExits));
+        DynamicField.find(this, PROFESSIONAL_EXITS).ifPresent(dF -> dF.edit(professionalExits));
         getDegreeInfoFuture().setProfessionalExits(professionalExits);
     }
 
     public void setQualificationLevel(final LocalizedString qualificationLevel) {
-        findFieldByCode(QUALIFICATION_LEVEL).ifPresent(dF -> dF.edit(qualificationLevel));
+        DynamicField.find(this, QUALIFICATION_LEVEL).ifPresent(dF -> dF.edit(qualificationLevel));
         getDegreeInfoFuture().setQualificationLevel(qualificationLevel);
     }
 
     public void setRecognitions(final LocalizedString recognitions) {
-        findFieldByCode(RECOGNITIONS).ifPresent(dF -> dF.edit(recognitions));
+        DynamicField.find(this, RECOGNITIONS).ifPresent(dF -> dF.edit(recognitions));
         getDegreeInfoFuture().setRecognitions(recognitions);
     }
 
@@ -343,7 +342,7 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public void setTestIngression(final LocalizedString testIngression) {
-        findFieldByCode(TEST_INGRESSION).ifPresent(dF -> dF.edit(testIngression));
+        DynamicField.find(this, TEST_INGRESSION).ifPresent(dF -> dF.edit(testIngression));
         getDegreeInfoCandidacy().setTestIngression(testIngression);
     }
 
@@ -353,13 +352,13 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setOperationalRegime(final LocalizedString operationalRegime) {
-        findFieldByCode(OPERATIONAL_REGIME).ifPresent(dF -> dF.edit(operationalRegime));
+        DynamicField.find(this, OPERATIONAL_REGIME).ifPresent(dF -> dF.edit(operationalRegime));
         super.setOperationalRegime(operationalRegime);
     }
 
     @Override
     public LocalizedString getOperationalRegime() {
-        return findFieldByCode(OPERATIONAL_REGIME).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, OPERATIONAL_REGIME).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(super::getOperationalRegime);
     }
 
@@ -373,13 +372,14 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setAdditionalInfo(final LocalizedString additionalInfo) {
-        findFieldByCode(ADDITIONAL_INFO).ifPresent(dF -> dF.edit(additionalInfo));
+        DynamicField.find(this, ADDITIONAL_INFO).ifPresent(dF -> dF.edit(additionalInfo));
         super.setAdditionalInfo(additionalInfo);
     }
 
     @Override
     public LocalizedString getAdditionalInfo() {
-        return findFieldByCode(ADDITIONAL_INFO).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getAdditionalInfo);
+        return DynamicField.find(this, ADDITIONAL_INFO).map(dF -> dF.getValue(LocalizedString.class))
+                .orElseGet(super::getAdditionalInfo);
     }
 
     public String getAdditionalInfo(final Locale language) {
@@ -459,96 +459,97 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setDescription(final LocalizedString description) {
-        findFieldByCode(DESCRIPTION).ifPresent(dF -> dF.edit(description));
+        DynamicField.find(this, DESCRIPTION).ifPresent(dF -> dF.edit(description));
         super.setDescription(description);
     }
 
     @Override
     public LocalizedString getDescription() {
-        return findFieldByCode(DESCRIPTION).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getDescription);
+        return DynamicField.find(this, DESCRIPTION).map(dF -> dF.getValue(LocalizedString.class))
+                .orElseGet(super::getDescription);
     }
 
     @Override
     public void setHistory(final LocalizedString history) {
-        findFieldByCode(HISTORY).ifPresent(dF -> dF.edit(history));
+        DynamicField.find(this, HISTORY).ifPresent(dF -> dF.edit(history));
         super.setHistory(history);
     }
 
     @Override
     public LocalizedString getHistory() {
-        return findFieldByCode(HISTORY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getHistory);
+        return DynamicField.find(this, HISTORY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getHistory);
     }
 
     @Override
     public LocalizedString getGratuity() {
-        return findFieldByCode(GRATUITY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getHistory);
+        return DynamicField.find(this, GRATUITY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getHistory);
     }
 
     @Override
     public void setGratuity(final LocalizedString gratuity) {
-        findFieldByCode(GRATUITY).ifPresent(dF -> dF.edit(gratuity));
+        DynamicField.find(this, GRATUITY).ifPresent(dF -> dF.edit(gratuity));
         super.setGratuity(gratuity);
     }
 
     @Override
     public LocalizedString getLearningLanguages() {
-        return findFieldByCode(LEARNING_LANGUAGES).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, LEARNING_LANGUAGES).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(super::getLearningLanguages);
     }
 
     @Override
     public void setLearningLanguages(final LocalizedString learningLanguages) {
-        findFieldByCode(LEARNING_LANGUAGES).ifPresent(dF -> dF.edit(learningLanguages));
+        DynamicField.find(this, LEARNING_LANGUAGES).ifPresent(dF -> dF.edit(learningLanguages));
         super.setLearningLanguages(learningLanguages);
     }
 
     @Override
     public LocalizedString getLinks() {
-        return findFieldByCode(LINKS).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getLinks);
+        return DynamicField.find(this, LINKS).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getLinks);
     }
 
     @Override
     public void setLinks(final LocalizedString links) {
-        findFieldByCode(LINKS).ifPresent(dF -> dF.edit(links));
+        DynamicField.find(this, LINKS).ifPresent(dF -> dF.edit(links));
         super.setLinks(links);
     }
 
     @Override
     public Integer getDriftsInitial() {
-        return findFieldByCode(DRIFTS_INITIAL).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsInitial);
+        return DynamicField.find(this, DRIFTS_INITIAL).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsInitial);
     }
 
     @Override
     public void setDriftsInitial(final Integer driftsInitial) {
-        findFieldByCode(DRIFTS_INITIAL).ifPresent(dF -> dF.edit(driftsInitial));
+        DynamicField.find(this, DRIFTS_INITIAL).ifPresent(dF -> dF.edit(driftsInitial));
         super.setDriftsInitial(driftsInitial);
     }
 
     @Override
     public Integer getDriftsFirst() {
-        return findFieldByCode(DRIFTS_FIRST).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsFirst);
+        return DynamicField.find(this, DRIFTS_FIRST).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsFirst);
     }
 
     @Override
     public void setDriftsFirst(final Integer driftsFirst) {
-        findFieldByCode(DRIFTS_FIRST).ifPresent(dF -> dF.edit(driftsFirst));
+        DynamicField.find(this, DRIFTS_FIRST).ifPresent(dF -> dF.edit(driftsFirst));
         super.setDriftsFirst(driftsFirst);
     }
 
     @Override
     public Integer getDriftsSecond() {
-        return findFieldByCode(DRIFTS_SECOND).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsSecond);
+        return DynamicField.find(this, DRIFTS_SECOND).map(dF -> dF.getValue(Integer.class)).orElseGet(super::getDriftsSecond);
     }
 
     @Override
     public void setDriftsSecond(final Integer driftsSecond) {
-        findFieldByCode(DRIFTS_SECOND).ifPresent(dF -> dF.edit(driftsSecond));
+        DynamicField.find(this, DRIFTS_SECOND).ifPresent(dF -> dF.edit(driftsSecond));
         super.setDriftsSecond(driftsSecond);
     }
 
     @Override
     public Double getMarkMin() {
-        return findFieldByCode(MARK_MIN).map(dF -> {
+        return DynamicField.find(this, MARK_MIN).map(dF -> {
             final BigDecimal value = dF.getValue(BigDecimal.class);
             return value != null ? value.doubleValue() : null;
         }).orElseGet(super::getMarkMin);
@@ -556,13 +557,13 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setMarkMin(final Double markMin) {
-        findFieldByCode(MARK_MIN).ifPresent(dF -> dF.edit(markMin == null ? null : BigDecimal.valueOf(markMin)));
+        DynamicField.find(this, MARK_MIN).ifPresent(dF -> dF.edit(markMin == null ? null : BigDecimal.valueOf(markMin)));
         super.setMarkMin(markMin);
     }
 
     @Override
     public Double getMarkMax() {
-        return findFieldByCode(MARK_MAX).map(dF -> {
+        return DynamicField.find(this, MARK_MAX).map(dF -> {
             final BigDecimal value = dF.getValue(BigDecimal.class);
             return value != null ? value.doubleValue() : null;
         }).orElseGet(super::getMarkMax);
@@ -570,13 +571,13 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setMarkMax(final Double markMax) {
-        findFieldByCode(MARK_MAX).ifPresent(dF -> dF.edit(markMax == null ? null : BigDecimal.valueOf(markMax)));
+        DynamicField.find(this, MARK_MAX).ifPresent(dF -> dF.edit(markMax == null ? null : BigDecimal.valueOf(markMax)));
         super.setMarkMax(markMax);
     }
 
     @Override
     public Double getMarkAverage() {
-        return findFieldByCode(MARK_AVERAGE).map(dF -> {
+        return DynamicField.find(this, MARK_AVERAGE).map(dF -> {
             final BigDecimal value = dF.getValue(BigDecimal.class);
             return value != null ? value.doubleValue() : null;
         }).orElseGet(super::getMarkAverage);
@@ -584,23 +585,20 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public void setMarkAverage(final Double markAverage) {
-        findFieldByCode(MARK_AVERAGE).ifPresent(dF -> dF.edit(markAverage == null ? null : BigDecimal.valueOf(markAverage)));
+        DynamicField.find(this, MARK_AVERAGE)
+                .ifPresent(dF -> dF.edit(markAverage == null ? null : BigDecimal.valueOf(markAverage)));
         super.setMarkAverage(markAverage);
     }
 
     @Override
     public void setPrevailingScientificArea(final LocalizedString prevailingScientificArea) {
-        findFieldByCode(PREVAILING_SCIENTIFIC_AREA).ifPresent(dF -> dF.edit(prevailingScientificArea));
+        DynamicField.find(this, PREVAILING_SCIENTIFIC_AREA).ifPresent(dF -> dF.edit(prevailingScientificArea));
         super.setPrevailingScientificArea(prevailingScientificArea);
     }
 
     @Override
     public LocalizedString getPrevailingScientificArea() {
-        return findFieldByCode(PREVAILING_SCIENTIFIC_AREA).map(dF -> dF.getValue(LocalizedString.class))
+        return DynamicField.find(this, PREVAILING_SCIENTIFIC_AREA).map(dF -> dF.getValue(LocalizedString.class))
                 .orElseGet(super::getPrevailingScientificArea);
-    }
-
-    private Optional<DynamicField> findFieldByCode(final String code) {
-        return Optional.ofNullable(DynamicField.findField(this, code));
     }
 }
