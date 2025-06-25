@@ -193,30 +193,86 @@ public class ProfessionCategoryTypeTest {
         ProfessionType other = ProfessionType.OTHER;
         ProfessionCategoryType pct = create(other.getName(), QUALIFIED_NAME, true);
 
+        // Assert initial state of PersonalIngressionData
+        PersonalIngressionData pid = new PersonalIngressionData();
+        assertEquals(null, pid.getProfessionType());
+        assertEquals(null, pid.getProfessionCategoryType());
+        assertEquals(null, pid.getMotherProfessionType());
+        assertEquals(null, pid.getMotherProfessionCategoryType());
+        assertEquals(null, pid.getFatherProfessionType());
+        assertEquals(null, pid.getFatherProfessionCategoryType());
+        assertEquals(null, pid.getSpouseProfessionType());
+        assertEquals(null, pid.getSpouseProfessionCategoryType());
+
         // Call setter in ProfessionType Enum to trigger the sync in ProfessionCategoryType
-        personalIngressionData.setProfessionType(other);
-        personalIngressionData.setMotherProfessionType(other);
-        personalIngressionData.setFatherProfessionType(other);
-        personalIngressionData.setSpouseProfessionType(other);
+        pid.setProfessionType(other);
+        pid.setMotherProfessionType(other);
+        pid.setFatherProfessionType(other);
+        pid.setSpouseProfessionType(other);
 
         // Assert ProfessionType and ProfessionCategoryType have the same value
         // (edge case: they can be both null instead of the correct value, next assert will verify that)
-        assertEquals(personalIngressionData.getProfessionType().getName(),
-                personalIngressionData.getProfessionCategoryType().getCode());
+        assertEquals(pid.getProfessionType().getName(), pid.getProfessionCategoryType().getCode());
 
         // Assert ProfessionCategoryType is set to the correct value (instead of being null for example)
-        assertEquals(pct, personalIngressionData.getProfessionCategoryType());
+        assertEquals(pct, pid.getProfessionCategoryType());
 
-        assertEquals(personalIngressionData.getMotherProfessionType().getName(),
-                personalIngressionData.getMotherProfessionCategoryType().getCode());
-        assertEquals(pct, personalIngressionData.getMotherProfessionCategoryType());
+        assertEquals(pid.getMotherProfessionType().getName(), pid.getMotherProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getMotherProfessionCategoryType());
 
-        assertEquals(personalIngressionData.getFatherProfessionType().getName(),
-                personalIngressionData.getFatherProfessionCategoryType().getCode());
-        assertEquals(pct, personalIngressionData.getFatherProfessionCategoryType());
+        assertEquals(pid.getFatherProfessionType().getName(), pid.getFatherProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getFatherProfessionCategoryType());
 
-        assertEquals(personalIngressionData.getSpouseProfessionType().getName(),
-                personalIngressionData.getSpouseProfessionCategoryType().getCode());
-        assertEquals(pct, personalIngressionData.getSpouseProfessionCategoryType());
+        assertEquals(pid.getSpouseProfessionType().getName(), pid.getSpouseProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getSpouseProfessionCategoryType());
+
+        // Set to null with Enum setter
+        pid.setProfessionType(null);
+        pid.setMotherProfessionType(null);
+        pid.setFatherProfessionType(null);
+        pid.setSpouseProfessionType(null);
+
+        assertEquals(null, pid.getProfessionType());
+        assertEquals(null, pid.getProfessionCategoryType());
+        assertEquals(null, pid.getMotherProfessionType());
+        assertEquals(null, pid.getMotherProfessionCategoryType());
+        assertEquals(null, pid.getFatherProfessionType());
+        assertEquals(null, pid.getFatherProfessionCategoryType());
+        assertEquals(null, pid.getSpouseProfessionType());
+        assertEquals(null, pid.getSpouseProfessionCategoryType());
+
+        // Call setter in ProfessionCategoryType to trigger the sync in ProfessionType
+        pid.setProfessionCategoryType(pct);
+        pid.setMotherProfessionCategoryType(pct);
+        pid.setFatherProfessionCategoryType(pct);
+        pid.setSpouseProfessionCategoryType(pct);
+
+        // Assert ProfessionType and ProfessionCategoryType have the same value
+        assertEquals(pid.getProfessionType().getName(), pid.getProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getProfessionCategoryType());
+
+        assertEquals(pid.getMotherProfessionType().getName(), pid.getMotherProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getMotherProfessionCategoryType());
+
+        assertEquals(pid.getFatherProfessionType().getName(), pid.getFatherProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getFatherProfessionCategoryType());
+
+        assertEquals(pid.getSpouseProfessionType().getName(), pid.getSpouseProfessionCategoryType().getCode());
+        assertEquals(pct, pid.getSpouseProfessionCategoryType());
+
+        // Set to null with ProfessionCategoryType setter
+        pid.setProfessionCategoryType(null);
+        pid.setMotherProfessionCategoryType(null);
+        pid.setFatherProfessionCategoryType(null);
+        pid.setSpouseProfessionCategoryType(null);
+
+        assertEquals(null, pid.getProfessionType());
+        assertEquals(null, pid.getProfessionCategoryType());
+        assertEquals(null, pid.getMotherProfessionType());
+        assertEquals(null, pid.getMotherProfessionCategoryType());
+        assertEquals(null, pid.getFatherProfessionType());
+        assertEquals(null, pid.getFatherProfessionCategoryType());
+        assertEquals(null, pid.getSpouseProfessionType());
+        assertEquals(null, pid.getSpouseProfessionCategoryType());
     }
 }

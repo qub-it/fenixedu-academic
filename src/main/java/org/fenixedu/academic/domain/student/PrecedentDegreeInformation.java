@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.domain.student;
 
+import java.util.Arrays;
+
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -54,7 +56,25 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
 
     @Override
     public void setSchoolLevel(SchoolLevelType schoolLevel) {
-        EducationLevelType.findByCode(schoolLevel.getName()).ifPresent(this::setEducationLevelType);
+        if (schoolLevel == null) {
+            super.setEducationLevelType(null);
+        } else {
+            EducationLevelType.findByCode(schoolLevel.getName()).ifPresent(super::setEducationLevelType);
+        }
+
         super.setSchoolLevel(schoolLevel);
+    }
+
+    @Override
+    public void setEducationLevelType(EducationLevelType educationLevelType) {
+        if (educationLevelType == null) {
+            super.setSchoolLevel(null);
+        } else {
+            Arrays.stream(SchoolLevelType.values())
+                    .filter(schoolLevelType -> schoolLevelType.getName().equals(educationLevelType.getCode())).findFirst()
+                    .ifPresent(super::setSchoolLevel);
+        }
+
+        super.setEducationLevelType(educationLevelType);
     }
 }
