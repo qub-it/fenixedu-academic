@@ -61,7 +61,7 @@ public class DynamicField extends DynamicField_Base {
         final DynamicField field = findField(domainObject, code);
         if (field == null) {
             throw new IllegalArgumentException(
-                    "Cannot dynamic find field with code " + code + " in " + domainObject.getClass().getName());
+                    "Cannot find dynamic field with code " + code + " in " + domainObject.getClass().getName());
         }
 
         final Class<T> type = field.getDescriptor().getFieldValueClass();
@@ -77,7 +77,7 @@ public class DynamicField extends DynamicField_Base {
         final DynamicField field = findField(domainObject, code);
         if (field == null) {
             throw new IllegalArgumentException(
-                    "Cannot dynamic find field with code " + code + " in " + domainObject.getClass().getName());
+                    "Cannot find dynamic field with code " + code + " in " + domainObject.getClass().getName());
         }
 
         field.edit(value);
