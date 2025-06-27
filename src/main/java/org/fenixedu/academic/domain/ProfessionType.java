@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.util.Bundle;
@@ -178,4 +179,7 @@ public enum ProfessionType {
         return Stream.of(ProfessionType.values()).filter(ProfessionType::isActive);
     }
 
+    public static Optional<ProfessionType> findByCode(String code) {
+        return Stream.of(values()).filter(professionType -> code != null && code.equals(professionType.getName())).findFirst();
+    }
 }

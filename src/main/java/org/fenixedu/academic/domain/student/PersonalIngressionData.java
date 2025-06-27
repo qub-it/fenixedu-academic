@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.student;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -79,268 +78,133 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
 
     @Override
     public void setProfessionType(ProfessionType professionType) {
-        if (professionType == null) {
-            super.setProfessionCategoryType(null);
-        } else {
-            ProfessionCategoryType.findByCode(professionType.getName()).ifPresent(this::setProfessionCategoryType);
-        }
-
+        super.setProfessionCategoryType(findProfessionCategoryType(professionType));
         super.setProfessionType(professionType);
     }
 
     @Override
     public void setProfessionCategoryType(ProfessionCategoryType professionCategoryType) {
-        if (professionCategoryType == null) {
-            super.setProfessionType(null);
-        } else {
-            Arrays.stream(ProfessionType.values())
-                    .filter(professionType -> professionType.getName().equals(professionCategoryType.getCode())).findFirst()
-                    .ifPresent(super::setProfessionType);
-        }
-
+        super.setProfessionType(findProfessionType(professionCategoryType));
         super.setProfessionCategoryType(professionCategoryType);
     }
 
     @Override
     public void setMotherProfessionType(ProfessionType motherProfessionType) {
-        if (motherProfessionType == null) {
-            super.setMotherProfessionCategoryType(null);
-        } else {
-            ProfessionCategoryType.findByCode(motherProfessionType.getName()).ifPresent(this::setMotherProfessionCategoryType);
-        }
-
+        super.setMotherProfessionCategoryType(findProfessionCategoryType(motherProfessionType));
         super.setMotherProfessionType(motherProfessionType);
     }
 
     @Override
     public void setMotherProfessionCategoryType(ProfessionCategoryType motherProfessionCategoryType) {
-        if (motherProfessionCategoryType == null) {
-            super.setMotherProfessionType(null);
-        } else {
-            Arrays.stream(ProfessionType.values())
-                    .filter(professionType -> professionType.getName().equals(motherProfessionCategoryType.getCode())).findFirst()
-                    .ifPresent(super::setMotherProfessionType);
-        }
-
+        super.setMotherProfessionType(findProfessionType(motherProfessionCategoryType));
         super.setMotherProfessionCategoryType(motherProfessionCategoryType);
     }
 
     @Override
     public void setFatherProfessionType(ProfessionType fatherProfessionType) {
-        if (fatherProfessionType == null) {
-            super.setFatherProfessionCategoryType(null);
-        } else {
-            ProfessionCategoryType.findByCode(fatherProfessionType.getName()).ifPresent(this::setFatherProfessionCategoryType);
-        }
-
+        super.setFatherProfessionCategoryType(findProfessionCategoryType(fatherProfessionType));
         super.setFatherProfessionType(fatherProfessionType);
     }
 
     @Override
     public void setFatherProfessionCategoryType(ProfessionCategoryType fatherProfessionCategoryType) {
-        if (fatherProfessionCategoryType == null) {
-            super.setFatherProfessionType(null);
-        } else {
-            Arrays.stream(ProfessionType.values())
-                    .filter(professionType -> professionType.getName().equals(fatherProfessionCategoryType.getCode())).findFirst()
-                    .ifPresent(super::setFatherProfessionType);
-        }
-
+        super.setFatherProfessionType(findProfessionType(fatherProfessionCategoryType));
         super.setFatherProfessionCategoryType(fatherProfessionCategoryType);
     }
 
     @Override
     public void setSpouseProfessionType(ProfessionType spouseProfessionType) {
-        if (spouseProfessionType == null) {
-            super.setSpouseProfessionCategoryType(null);
-        } else {
-            ProfessionCategoryType.findByCode(spouseProfessionType.getName()).ifPresent(this::setSpouseProfessionCategoryType);
-        }
-
+        super.setSpouseProfessionCategoryType(findProfessionCategoryType(spouseProfessionType));
         super.setSpouseProfessionType(spouseProfessionType);
     }
 
     @Override
     public void setSpouseProfessionCategoryType(ProfessionCategoryType spouseProfessionCategoryType) {
-        if (spouseProfessionCategoryType == null) {
-            super.setSpouseProfessionType(null);
-        } else {
-            Arrays.stream(ProfessionType.values())
-                    .filter(professionType -> professionType.getName().equals(spouseProfessionCategoryType.getCode())).findFirst()
-                    .ifPresent(super::setSpouseProfessionType);
-        }
-
+        super.setSpouseProfessionType(findProfessionType(spouseProfessionCategoryType));
         super.setSpouseProfessionCategoryType(spouseProfessionCategoryType);
     }
 
     @Override
     public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
-        if (professionalCondition == null) {
-            super.setProfessionalStatusType(null);
-        } else {
-            ProfessionalStatusType.findByCode(professionalCondition.getName()).ifPresent(this::setProfessionalStatusType);
-        }
-
+        super.setProfessionalStatusType(findProfessionalStatusType(professionalCondition));
         super.setProfessionalCondition(professionalCondition);
     }
 
     @Override
     public void setProfessionalStatusType(ProfessionalStatusType professionalStatusType) {
-        if (professionalStatusType == null) {
-            super.setProfessionalCondition(null);
-        } else {
-            Arrays.stream(ProfessionalSituationConditionType.values())
-                    .filter(conditionType -> conditionType.getName().equals(professionalStatusType.getCode())).findFirst()
-                    .ifPresent(super::setProfessionalCondition);
-        }
-
+        super.setProfessionalCondition(findProfessionalCondition(professionalStatusType));
         super.setProfessionalStatusType(professionalStatusType);
     }
 
     @Override
     public void setMotherProfessionalCondition(ProfessionalSituationConditionType motherProfessionalCondition) {
-        if (motherProfessionalCondition == null) {
-            super.setMotherProfessionalStatusType(null);
-        } else {
-            ProfessionalStatusType.findByCode(motherProfessionalCondition.getName())
-                    .ifPresent(this::setMotherProfessionalStatusType);
-        }
-
+        super.setMotherProfessionalStatusType(findProfessionalStatusType(motherProfessionalCondition));
         super.setMotherProfessionalCondition(motherProfessionalCondition);
     }
 
     @Override
     public void setMotherProfessionalStatusType(ProfessionalStatusType motherProfessionalStatusType) {
-        if (motherProfessionalStatusType == null) {
-            super.setMotherProfessionalCondition(null);
-        } else {
-            Arrays.stream(ProfessionalSituationConditionType.values())
-                    .filter(conditionType -> conditionType.getName().equals(motherProfessionalStatusType.getCode())).findFirst()
-                    .ifPresent(super::setMotherProfessionalCondition);
-        }
-
+        super.setMotherProfessionalCondition(findProfessionalCondition(motherProfessionalStatusType));
         super.setMotherProfessionalStatusType(motherProfessionalStatusType);
     }
 
     @Override
     public void setFatherProfessionalCondition(ProfessionalSituationConditionType fatherProfessionalCondition) {
-        if (fatherProfessionalCondition == null) {
-            super.setFatherProfessionalStatusType(null);
-        } else {
-            ProfessionalStatusType.findByCode(fatherProfessionalCondition.getName())
-                    .ifPresent(this::setFatherProfessionalStatusType);
-        }
-
+        super.setFatherProfessionalStatusType(findProfessionalStatusType(fatherProfessionalCondition));
         super.setFatherProfessionalCondition(fatherProfessionalCondition);
     }
 
     @Override
     public void setFatherProfessionalStatusType(ProfessionalStatusType fatherProfessionalStatusType) {
-        if (fatherProfessionalStatusType == null) {
-            super.setFatherProfessionalCondition(null);
-        } else {
-            Arrays.stream(ProfessionalSituationConditionType.values())
-                    .filter(conditionType -> conditionType.getName().equals(fatherProfessionalStatusType.getCode())).findFirst()
-                    .ifPresent(super::setFatherProfessionalCondition);
-        }
-
+        super.setFatherProfessionalCondition(findProfessionalCondition(fatherProfessionalStatusType));
         super.setFatherProfessionalStatusType(fatherProfessionalStatusType);
     }
 
     @Override
     public void setSpouseProfessionalCondition(ProfessionalSituationConditionType spouseProfessionalCondition) {
-        if (spouseProfessionalCondition == null) {
-            super.setSpouseProfessionalStatusType(null);
-        } else {
-            ProfessionalStatusType.findByCode(spouseProfessionalCondition.getName())
-                    .ifPresent(this::setSpouseProfessionalStatusType);
-        }
-
+        super.setSpouseProfessionalStatusType(findProfessionalStatusType(spouseProfessionalCondition));
         super.setSpouseProfessionalCondition(spouseProfessionalCondition);
     }
 
     @Override
     public void setSpouseProfessionalStatusType(ProfessionalStatusType spouseProfessionalStatusType) {
-        if (spouseProfessionalStatusType == null) {
-            super.setSpouseProfessionalCondition(null);
-        } else {
-            Arrays.stream(ProfessionalSituationConditionType.values())
-                    .filter(conditionType -> conditionType.getName().equals(spouseProfessionalStatusType.getCode())).findFirst()
-                    .ifPresent(super::setSpouseProfessionalCondition);
-        }
-
+        super.setSpouseProfessionalCondition(findProfessionalCondition(spouseProfessionalStatusType));
         super.setSpouseProfessionalStatusType(spouseProfessionalStatusType);
     }
 
     @Override
     public void setMotherSchoolLevel(SchoolLevelType motherSchoolLevel) {
-        if (motherSchoolLevel == null) {
-            super.setMotherEducationLevelType(null);
-        } else {
-            EducationLevelType.findByCode(motherSchoolLevel.getName()).ifPresent(this::setMotherEducationLevelType);
-        }
-
+        super.setMotherEducationLevelType(findEducationLevelType(motherSchoolLevel));
         super.setMotherSchoolLevel(motherSchoolLevel);
     }
 
     @Override
     public void setMotherEducationLevelType(EducationLevelType motherEducationLevelType) {
-        if (motherEducationLevelType == null) {
-            super.setMotherSchoolLevel(null);
-        } else {
-            Arrays.stream(SchoolLevelType.values())
-                    .filter(schoolLevelType -> schoolLevelType.getName().equals(motherEducationLevelType.getCode())).findFirst()
-                    .ifPresent(super::setMotherSchoolLevel);
-        }
-
+        super.setMotherSchoolLevel(findSchoolLevel(motherEducationLevelType));
         super.setMotherEducationLevelType(motherEducationLevelType);
     }
 
     @Override
     public void setFatherSchoolLevel(SchoolLevelType fatherSchoolLevel) {
-        if (fatherSchoolLevel == null) {
-            super.setFatherEducationLevelType(null);
-        } else {
-            EducationLevelType.findByCode(fatherSchoolLevel.getName()).ifPresent(this::setFatherEducationLevelType);
-        }
-
+        super.setFatherEducationLevelType(findEducationLevelType(fatherSchoolLevel));
         super.setFatherSchoolLevel(fatherSchoolLevel);
     }
 
     @Override
     public void setFatherEducationLevelType(EducationLevelType fatherEducationLevelType) {
-        if (fatherEducationLevelType == null) {
-            super.setFatherSchoolLevel(null);
-        } else {
-            Arrays.stream(SchoolLevelType.values())
-                    .filter(schoolLevelType -> schoolLevelType.getName().equals(fatherEducationLevelType.getCode())).findFirst()
-                    .ifPresent(super::setFatherSchoolLevel);
-        }
-
+        super.setFatherSchoolLevel(findSchoolLevel(fatherEducationLevelType));
         super.setFatherEducationLevelType(fatherEducationLevelType);
     }
 
     @Override
     public void setSpouseSchoolLevel(SchoolLevelType spouseSchoolLevel) {
-        if (spouseSchoolLevel == null) {
-            super.setSpouseEducationLevelType(null);
-        } else {
-            EducationLevelType.findByCode(spouseSchoolLevel.getName()).ifPresent(this::setSpouseEducationLevelType);
-        }
-
+        super.setSpouseEducationLevelType(findEducationLevelType(spouseSchoolLevel));
         super.setSpouseSchoolLevel(spouseSchoolLevel);
     }
 
     @Override
     public void setSpouseEducationLevelType(EducationLevelType spouseEducationLevelType) {
-        if (spouseEducationLevelType == null) {
-            super.setSpouseSchoolLevel(null);
-        } else {
-            Arrays.stream(SchoolLevelType.values())
-                    .filter(schoolLevelType -> schoolLevelType.getName().equals(spouseEducationLevelType.getCode())).findFirst()
-                    .ifPresent(super::setSpouseSchoolLevel);
-        }
-
+        super.setSpouseSchoolLevel(findSchoolLevel(spouseEducationLevelType));
         super.setSpouseEducationLevelType(spouseEducationLevelType);
     }
 
@@ -390,4 +254,51 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         return getStudent() != null;
     }
 
+    private ProfessionType findProfessionType(ProfessionCategoryType professionCategoryType) {
+        if (professionCategoryType == null) {
+            return null;
+        }
+        return ProfessionType.findByCode(professionCategoryType.getCode()).orElseThrow(
+                () -> new DomainException("error.ProfessionCategoryType.not.found", professionCategoryType.getCode()));
+    }
+
+    private ProfessionCategoryType findProfessionCategoryType(ProfessionType professionType) {
+        if (professionType == null) {
+            return null;
+        }
+        return ProfessionCategoryType.findByCode(professionType.getName())
+                .orElseThrow(() -> new DomainException("error.ProfessionType.not.found", professionType.getName()));
+    }
+
+    private ProfessionalSituationConditionType findProfessionalCondition(ProfessionalStatusType professionalStatusType) {
+        if (professionalStatusType == null) {
+            return null;
+        }
+        return ProfessionalSituationConditionType.findByCode(professionalStatusType.getCode()).orElseThrow(
+                () -> new DomainException("error.ProfessionalStatusType.not.found", professionalStatusType.getCode()));
+    }
+
+    private ProfessionalStatusType findProfessionalStatusType(ProfessionalSituationConditionType professionalCondition) {
+        if (professionalCondition == null) {
+            return null;
+        }
+        return ProfessionalStatusType.findByCode(professionalCondition.getName())
+                .orElseThrow(() -> new DomainException("error.ProfessionalCondition.not.found", professionalCondition.getName()));
+    }
+
+    private SchoolLevelType findSchoolLevel(EducationLevelType educationLevelType) {
+        if (educationLevelType == null) {
+            return null;
+        }
+        return SchoolLevelType.findByCode(educationLevelType.getCode())
+                .orElseThrow(() -> new DomainException("error.EducationLevelType.not.found", educationLevelType.getCode()));
+    }
+
+    private EducationLevelType findEducationLevelType(SchoolLevelType schoolLevel) {
+        if (schoolLevel == null) {
+            return null;
+        }
+        return EducationLevelType.findByCode(schoolLevel.getName())
+                .orElseThrow(() -> new DomainException("error.SchoolLevelType.not.found", schoolLevel.getName()));
+    }
 }

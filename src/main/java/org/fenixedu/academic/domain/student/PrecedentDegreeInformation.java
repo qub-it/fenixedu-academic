@@ -18,9 +18,8 @@
  */
 package org.fenixedu.academic.domain.student;
 
-import java.util.Arrays;
-
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
@@ -56,25 +55,29 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
 
     @Override
     public void setSchoolLevel(SchoolLevelType schoolLevel) {
-        if (schoolLevel == null) {
-            super.setEducationLevelType(null);
-        } else {
-            EducationLevelType.findByCode(schoolLevel.getName()).ifPresent(super::setEducationLevelType);
-        }
-
+        super.setEducationLevelType(findEducationLevelType(schoolLevel));
         super.setSchoolLevel(schoolLevel);
     }
 
     @Override
     public void setEducationLevelType(EducationLevelType educationLevelType) {
-        if (educationLevelType == null) {
-            super.setSchoolLevel(null);
-        } else {
-            Arrays.stream(SchoolLevelType.values())
-                    .filter(schoolLevelType -> schoolLevelType.getName().equals(educationLevelType.getCode())).findFirst()
-                    .ifPresent(super::setSchoolLevel);
-        }
-
+        super.setSchoolLevel(findSchoolLevel(educationLevelType));
         super.setEducationLevelType(educationLevelType);
+    }
+
+    private SchoolLevelType findSchoolLevel(EducationLevelType educationLevelType) {
+        if (educationLevelType == null) {
+            return null;
+        }
+        return SchoolLevelType.findByCode(educationLevelType.getCode())
+                .orElseThrow(() -> new DomainException("error.EducationLevelType.not.found", educationLevelType.getCode()));
+    }
+
+    private EducationLevelType findEducationLevelType(SchoolLevelType schoolLevel) {
+        if (schoolLevel == null) {
+            return null;
+        }
+        return EducationLevelType.findByCode(schoolLevel.getName())
+                .orElseThrow(() -> new DomainException("error.SchoolLevelType.not.found", schoolLevel.getName()));
     }
 }
