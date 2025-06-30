@@ -20,9 +20,10 @@ package org.fenixedu.academic.domain.raides;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public class DegreeDesignation extends DegreeDesignation_Base {
@@ -35,18 +36,13 @@ public class DegreeDesignation extends DegreeDesignation_Base {
         setDegreeClassification(degreeClassification);
     }
 
-    public static DegreeDesignation readByNameAndSchoolLevel(String degreeDesignationName, SchoolLevelType schoolLevel) {
-        if ((schoolLevel == null) || (degreeDesignationName == null)) {
+    public static DegreeDesignation readByNameAndEducationLevelType(String degreeDesignationName,
+            EducationLevelType educationLevelType) {
+        if ((educationLevelType == null) || (degreeDesignationName == null)) {
             return null;
         }
 
-        List<DegreeClassification> possibleClassifications = new ArrayList<DegreeClassification>();
-        for (String code : schoolLevel.getEquivalentDegreeClassifications()) {
-            final DegreeClassification degreeClassification = DegreeClassification.readByCode(code);
-            if (degreeClassification != null) {
-                possibleClassifications.add(degreeClassification);
-            }
-        }
+        Set<DegreeClassification> possibleClassifications = educationLevelType.getDegreeClassificationsSet();
 
         List<DegreeDesignation> possibleDesignations = new ArrayList<DegreeDesignation>();
         for (DegreeClassification classification : possibleClassifications) {
