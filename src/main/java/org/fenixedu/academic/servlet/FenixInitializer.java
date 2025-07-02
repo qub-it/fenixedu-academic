@@ -96,6 +96,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeEducationLevelTypes();
         initializeProfessionCategoryTypes();
         initializeProfessionalStatusTypes();
+        migratePidData();
+        migratePrecedentDegreeInformationData();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -289,6 +291,85 @@ public class FenixInitializer implements ServletContextListener {
 
         Log.warn("Finished population of Professional Status Types. Instances created: " + ProfessionalStatusType.findAll()
                 .count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migratePidData() {
+        Log.warn("---------------------------------------");
+        Log.warn("Migrating Personal Ingression Data fields to new entities");
+
+        Bennu.getInstance().getPersonalIngressionsDataSet().forEach(pid -> {
+            if (pid.getProfessionType() != null && pid.getProfessionCategoryType() == null) {
+                ProfessionCategoryType.findByCode(pid.getProfessionType().getName()).ifPresent(pid::setProfessionCategoryType);
+            }
+
+            if (pid.getMotherProfessionType() != null && pid.getMotherProfessionCategoryType() == null) {
+                ProfessionCategoryType.findByCode(pid.getMotherProfessionType().getName())
+                        .ifPresent(pid::setMotherProfessionCategoryType);
+            }
+
+            if (pid.getFatherProfessionType() != null && pid.getFatherProfessionCategoryType() == null) {
+                ProfessionCategoryType.findByCode(pid.getFatherProfessionType().getName())
+                        .ifPresent(pid::setFatherProfessionCategoryType);
+            }
+
+            if (pid.getSpouseProfessionType() != null && pid.getSpouseProfessionCategoryType() == null) {
+                ProfessionCategoryType.findByCode(pid.getSpouseProfessionType().getName())
+                        .ifPresent(pid::setSpouseProfessionCategoryType);
+            }
+
+            if (pid.getProfessionalCondition() != null && pid.getProfessionalStatusType() == null) {
+                ProfessionalStatusType.findByCode(pid.getProfessionalCondition().getName())
+                        .ifPresent(pid::setProfessionalStatusType);
+            }
+
+            if (pid.getMotherProfessionalCondition() != null && pid.getMotherProfessionalStatusType() == null) {
+                ProfessionalStatusType.findByCode(pid.getMotherProfessionalCondition().getName())
+                        .ifPresent(pid::setMotherProfessionalStatusType);
+            }
+
+            if (pid.getFatherProfessionalCondition() != null && pid.getFatherProfessionalStatusType() == null) {
+                ProfessionalStatusType.findByCode(pid.getFatherProfessionalCondition().getName())
+                        .ifPresent(pid::setFatherProfessionalStatusType);
+            }
+
+            if (pid.getSpouseProfessionalCondition() != null && pid.getSpouseProfessionalStatusType() == null) {
+                ProfessionalStatusType.findByCode(pid.getSpouseProfessionalCondition().getName())
+                        .ifPresent(pid::setSpouseProfessionalStatusType);
+            }
+
+            if (pid.getMotherSchoolLevel() != null && pid.getMotherEducationLevelType() == null) {
+                EducationLevelType.findByCode(pid.getMotherSchoolLevel().getName()).ifPresent(pid::setMotherEducationLevelType);
+            }
+
+            if (pid.getFatherSchoolLevel() != null && pid.getFatherEducationLevelType() == null) {
+                EducationLevelType.findByCode(pid.getFatherSchoolLevel().getName()).ifPresent(pid::setFatherEducationLevelType);
+            }
+
+            if (pid.getSpouseSchoolLevel() != null && pid.getSpouseEducationLevelType() == null) {
+                EducationLevelType.findByCode(pid.getSpouseSchoolLevel().getName()).ifPresent(pid::setSpouseEducationLevelType);
+            }
+        });
+
+        Log.warn("Finished migrating Personal Ingression Data fields to new entities. Processed " + Bennu.getInstance()
+                .getPersonalIngressionsDataSet().size() + " Personal Ingression Data instances.");
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migratePrecedentDegreeInformationData() {
+        Log.warn("---------------------------------------");
+        Log.warn("Migrating Precedent Degree Information fields to new entities");
+
+        Bennu.getInstance().getPrecedentDegreeInformationSet().forEach(pdi -> {
+            if (pdi.getSchoolLevel() != null && pdi.getEducationLevelType() == null) {
+                EducationLevelType.findByCode(pdi.getSchoolLevel().getName()).ifPresent(pdi::setEducationLevelType);
+            }
+        });
+
+        Log.warn("Finished migrating Precedent Degree Information fields to new entities. Processed " + Bennu.getInstance()
+                .getPrecedentDegreeInformationSet().size() + " Precedent Degree Information instances.");
         Log.warn("---------------------------------------");
     }
 }
