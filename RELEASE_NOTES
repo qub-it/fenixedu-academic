@@ -1,3 +1,4 @@
+- Refactor: Synchronizes SchoolLevelType, ProfessionType and ProfessionalSituationConditionType setters with new classes [#qubIT-Fenix-7009]
 - Bug fix: DynamicField - spelling errors [#qubIT-Fenix-7129]
 
 50.5.1 (25-06-2025)

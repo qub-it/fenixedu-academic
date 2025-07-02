@@ -15,7 +15,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -24,6 +24,9 @@ import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class EducationLevelTypeTest {
+
+    private static final String EXAMPLE_CODE = "exampleCode";
+    private static final String OTHER_EXAMPLE_CODE = "exampleCode2";
 
     private static EducationLevelType educationLevelType;
     private static DegreeClassification degreeClassification;
@@ -35,11 +38,10 @@ public class EducationLevelTypeTest {
     private static final String CODE = schoolLevelType.getName();
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Bachelor's Degree");
 
-    @Before
-    public void init() {
-        // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
+    @BeforeClass
+    public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            degreeClassification = new DegreeClassification("exampleCode", "description1", "description2", "exampleAbbreviation");
+            degreeClassification = new DegreeClassification("code1", "description1", "description2", "exampleAbbreviation");
             personalIngressionData = new PersonalIngressionData();
             precedentDegreeInformation = new PrecedentDegreeInformation();
 
@@ -48,42 +50,33 @@ public class EducationLevelTypeTest {
     }
 
     private EducationLevelType create(String code, LocalizedString name, boolean active) {
-        return FenixFramework.getTransactionManager().withTransaction(() -> EducationLevelType.create(code, name, active));
+        return EducationLevelType.create(code, name, active);
     }
 
     private void initializeEducationLevelTypeRelations() {
         // Initialize relations for the created EducationLevelType
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            educationLevelType.addDegreeClassifications(degreeClassification);
+        educationLevelType.addDegreeClassifications(degreeClassification);
 
-            personalIngressionData.setMotherEducationLevelType(educationLevelType);
-            personalIngressionData.setFatherEducationLevelType(educationLevelType);
-            personalIngressionData.setSpouseEducationLevelType(educationLevelType);
+        personalIngressionData.setMotherEducationLevelType(educationLevelType);
+        personalIngressionData.setFatherEducationLevelType(educationLevelType);
+        personalIngressionData.setSpouseEducationLevelType(educationLevelType);
 
-            precedentDegreeInformation.setEducationLevelType(educationLevelType);
-
-            return null;
-        });
+        precedentDegreeInformation.setEducationLevelType(educationLevelType);
     }
 
     @After
     public void cleanup() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            clearEducationLevelTypeRelations();
-            Bennu.getInstance().getEducationLevelTypesSet().forEach(EducationLevelType::delete);
-            degreeClassification.delete();
-            personalIngressionData.delete();
-            precedentDegreeInformation.delete();
-
-            return null;
+        Bennu.getInstance().getEducationLevelTypesSet().forEach(t -> {
+            clearEducationLevelTypeRelations(t);
+            t.delete();
         });
     }
 
-    private void clearEducationLevelTypeRelations() {
-        educationLevelType.getPersonalIngressionDatasAsMotherEducationLevelTypeSet().clear();
-        educationLevelType.getPersonalIngressionDatasAsFatherEducationLevelTypeSet().clear();
-        educationLevelType.getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().clear();
-        educationLevelType.getPrecedentDegreeInformationsSet().clear();
+    private void clearEducationLevelTypeRelations(EducationLevelType elt) {
+        elt.getPersonalIngressionDatasAsMotherEducationLevelTypeSet().clear();
+        elt.getPersonalIngressionDatasAsFatherEducationLevelTypeSet().clear();
+        elt.getPersonalIngressionDatasAsSpouseEducationLevelTypeSet().clear();
+        elt.getPrecedentDegreeInformationsSet().clear();
     }
 
     @Test
@@ -123,7 +116,7 @@ public class EducationLevelTypeTest {
         assertEquals(true, educationLevelType.getPrecedentDegreeInformationsSet().contains(precedentDegreeInformation));
 
         // Perform deletion
-        clearEducationLevelTypeRelations();
+        clearEducationLevelTypeRelations(educationLevelType);
         educationLevelType.delete();
 
         // Verify deletion
@@ -215,21 +208,128 @@ public class EducationLevelTypeTest {
     public void testEducationLevelType_findAll() {
         educationLevelType = create(CODE, QUALIFIED_NAME, true);
 
-        EducationLevelType e = create("exampleCode2", QUALIFIED_NAME, true);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
         assertEquals(2, EducationLevelType.findAll().count());
-        e.delete();
     }
 
     @Test
     public void testEducationLevelType_findActive() {
         educationLevelType = create(CODE, QUALIFIED_NAME, true);
 
-        EducationLevelType e1 = create("exampleCode3", QUALIFIED_NAME, true);
-        EducationLevelType e2 = create("exampleCode4", QUALIFIED_NAME, false);
+        create(EXAMPLE_CODE, QUALIFIED_NAME, true);
+        create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, EducationLevelType.findActive().count());
+    }
 
-        e1.delete();
-        e2.delete();
+    @Test
+    public void testEducationLevelType_personalIngressionDataSettersAreSynced() {
+        educationLevelType = create(CODE, QUALIFIED_NAME, true);
+        initializeEducationLevelTypeRelations();
+
+        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
+        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
+
+        // Assert initial state of PersonalIngressionData
+        PersonalIngressionData pid = new PersonalIngressionData();
+        assertEquals(null, pid.getMotherSchoolLevel());
+        assertEquals(null, pid.getMotherEducationLevelType());
+        assertEquals(null, pid.getFatherSchoolLevel());
+        assertEquals(null, pid.getFatherEducationLevelType());
+        assertEquals(null, pid.getSpouseSchoolLevel());
+        assertEquals(null, pid.getSpouseEducationLevelType());
+
+        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
+        pid.setMotherSchoolLevel(otherSituation);
+        pid.setFatherSchoolLevel(otherSituation);
+        pid.setSpouseSchoolLevel(otherSituation);
+
+        // Assert SchoolLevelType and EducationLevelType have the same value
+        // (edge case: they can be both null instead of the correct value, next assert will verify that)
+        assertEquals(pid.getMotherSchoolLevel().getName(), pid.getMotherEducationLevelType().getCode());
+
+        // Assert EducationLevelType is set to the correct value (instead of being null for example)
+        assertEquals(elt, pid.getMotherEducationLevelType());
+
+        assertEquals(pid.getFatherSchoolLevel().getName(), pid.getFatherEducationLevelType().getCode());
+        assertEquals(elt, pid.getFatherEducationLevelType());
+
+        assertEquals(pid.getSpouseSchoolLevel().getName(), pid.getSpouseEducationLevelType().getCode());
+        assertEquals(elt, pid.getSpouseEducationLevelType());
+
+        // Set to null with Enum setter
+        pid.setMotherSchoolLevel(null);
+        pid.setFatherSchoolLevel(null);
+        pid.setSpouseSchoolLevel(null);
+
+        assertEquals(null, pid.getMotherSchoolLevel());
+        assertEquals(null, pid.getMotherEducationLevelType());
+        assertEquals(null, pid.getFatherSchoolLevel());
+        assertEquals(null, pid.getFatherEducationLevelType());
+        assertEquals(null, pid.getSpouseSchoolLevel());
+        assertEquals(null, pid.getSpouseEducationLevelType());
+
+        // Call setter in EducationLevelType to trigger the sync in SchoolLevelType
+        pid.setMotherEducationLevelType(elt);
+        pid.setFatherEducationLevelType(elt);
+        pid.setSpouseEducationLevelType(elt);
+
+        // Assert SchoolLevelType and EducationLevelType have the same value
+        assertEquals(pid.getMotherSchoolLevel().getName(), pid.getMotherEducationLevelType().getCode());
+        assertEquals(elt, pid.getMotherEducationLevelType());
+
+        assertEquals(pid.getFatherSchoolLevel().getName(), pid.getFatherEducationLevelType().getCode());
+        assertEquals(elt, pid.getFatherEducationLevelType());
+
+        assertEquals(pid.getSpouseSchoolLevel().getName(), pid.getSpouseEducationLevelType().getCode());
+        assertEquals(elt, pid.getSpouseEducationLevelType());
+
+        // Set to null with EducationLevelType setter
+        pid.setMotherEducationLevelType(null);
+        pid.setFatherEducationLevelType(null);
+        pid.setSpouseEducationLevelType(null);
+
+        assertEquals(null, pid.getMotherSchoolLevel());
+        assertEquals(null, pid.getMotherEducationLevelType());
+        assertEquals(null, pid.getFatherSchoolLevel());
+        assertEquals(null, pid.getFatherEducationLevelType());
+        assertEquals(null, pid.getSpouseSchoolLevel());
+        assertEquals(null, pid.getSpouseEducationLevelType());
+    }
+
+    @Test
+    public void testEducationLevelType_precedentDegreeInformationSettersAreSynced() {
+        educationLevelType = create(CODE, QUALIFIED_NAME, true);
+        initializeEducationLevelTypeRelations();
+        
+        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
+        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
+
+        // Assert initial state of PrecedentDegreeInformation
+        PrecedentDegreeInformation pdi = new PrecedentDegreeInformation();
+        assertEquals(null, pdi.getSchoolLevel());
+        assertEquals(null, pdi.getEducationLevelType());
+
+        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
+        pdi.setSchoolLevel(otherSituation);
+        assertEquals(pdi.getSchoolLevel().getName(), pdi.getEducationLevelType().getCode());
+        assertEquals(elt, pdi.getEducationLevelType());
+
+        // Set to null with Enum setter
+        pdi.setSchoolLevel(null);
+
+        assertEquals(null, pdi.getSchoolLevel());
+        assertEquals(null, pdi.getEducationLevelType());
+
+        // Call setter in EducationLevelType to trigger the sync in SchoolLevelType
+        pdi.setEducationLevelType(elt);
+        assertEquals(pdi.getSchoolLevel().getName(), pdi.getEducationLevelType().getCode());
+        assertEquals(elt, pdi.getEducationLevelType());
+
+        // Set to null with EducationLevelType setter
+        pdi.setEducationLevelType(null);
+
+        assertEquals(null, pdi.getSchoolLevel());
+        assertEquals(null, pdi.getEducationLevelType());
     }
 }
