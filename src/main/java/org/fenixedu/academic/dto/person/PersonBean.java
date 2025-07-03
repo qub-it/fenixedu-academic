@@ -28,8 +28,6 @@ import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.ProfessionType;
-import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.Phone;
@@ -85,10 +83,6 @@ public class PersonBean implements Serializable {
     private String socialSecurityNumber;
     
     private String healthCardNumber;
-
-    private ProfessionType professionType;
-
-    private ProfessionalSituationConditionType professionalCondition;
 
     private String profession;
 
@@ -586,22 +580,6 @@ public class PersonBean implements Serializable {
 
     public void setWorkPhone(final String workPhone) {
         this.workPhone = workPhone;
-    }
-
-    public ProfessionType getProfessionType() {
-        return professionType;
-    }
-
-    public void setProfessionType(final ProfessionType professionType) {
-        this.professionType = professionType;
-    }
-
-    public ProfessionalSituationConditionType getProfessionalCondition() {
-        return professionalCondition;
-    }
-
-    public void setProfessionalCondition(final ProfessionalSituationConditionType professionalCondition) {
-        this.professionalCondition = professionalCondition;
     }
 
     public String getProfession() {
