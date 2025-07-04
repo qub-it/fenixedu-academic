@@ -40,12 +40,14 @@ import org.fenixedu.academic.domain.OccupationPeriod;
 import org.fenixedu.academic.domain.OccupationPeriodReference;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.SchoolLevelType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.raides.DegreeClassification;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.academic.domain.student.personaldata.ProfessionCategoryType;
 import org.fenixedu.academic.domain.student.personaldata.ProfessionalStatusType;
@@ -98,6 +100,32 @@ public class FenixInitializer implements ServletContextListener {
         initializeProfessionalStatusTypes();
         migratePidData();
         migratePrecedentDegreeInformationData();
+
+        migrateStudentCandidacyFieldsToRegistration();
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migrateStudentCandidacyFieldsToRegistration() {
+        Log.warn("---------------------------------------");
+        Log.warn("Starting migration of StudentCandidacy fields (placingOption & entryGrade) to Registration");
+        Log.warn("---------------------------------------");
+
+        long start = System.currentTimeMillis();
+        final Set<Registration> allRegistrations = Bennu.getInstance().getRegistrationsSet();
+
+        int excluded = 0;
+        for (Registration r : allRegistrations) {
+            final StudentCandidacy candidacy = r.getStudentCandidacy();
+            if (candidacy == null) {
+                excluded++;
+                continue;
+            }
+            r.setPlacingOption(candidacy.getPlacingOption());
+            r.setEntryGrade(candidacy.getEntryGrade());
+        }
+        Log.warn("Finished migration StudentCandidacy fields to Registration in " + (System.currentTimeMillis() - start)
+                + " ms. Migrated " + (allRegistrations.size() - excluded) + " StudentCandidacy instances of "
+                + Bennu.getInstance().getCandidaciesSet().size() + ".");
     }
 
     @Atomic(mode = TxMode.WRITE)
