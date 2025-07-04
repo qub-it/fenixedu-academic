@@ -1412,6 +1412,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         YearMonthDay startDate;
         YearMonthDay studiesStartDate;
         Integer admissionPhase;
+        Integer placingOption;
+        Double entryGrade;
     }
 
     class student.RegistrationDataByExecutionYear  {
