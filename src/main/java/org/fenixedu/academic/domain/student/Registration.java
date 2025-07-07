@@ -1033,22 +1033,6 @@ public class Registration extends Registration_Base {
         return getPerson().getEmail();
     }
 
-    final public Double getEntryGrade() {
-        return Optional.ofNullable(getStudentCandidacy()).map(StudentCandidacy::getEntryGrade).orElse(null);
-    }
-
-    final public void setEntryGrade(final Double entryGrade) {
-        Optional.ofNullable(getStudentCandidacy()).ifPresent(sc -> sc.setEntryGrade(entryGrade));
-    }
-
-    final public Integer getPlacingOption() {
-        return Optional.ofNullable(getStudentCandidacy()).map(StudentCandidacy::getPlacingOption).orElse(null);
-    }
-
-    final public void setPlacingOption(final Integer placingOption) {
-        Optional.ofNullable(getStudentCandidacy()).ifPresent(sc -> sc.setPlacingOption(placingOption));
-    }
-
     public ExecutionYear getIngressionYear() {
         return calculateIngressionYear();
     }
