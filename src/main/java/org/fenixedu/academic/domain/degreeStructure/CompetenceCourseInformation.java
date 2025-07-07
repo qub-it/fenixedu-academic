@@ -37,7 +37,6 @@ import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -222,27 +221,31 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     @Override
     public String getObjectives() {
-        return DynamicField.find(this, OBJECTIVES).map(dF -> dF.getValue(LocalizedString.class).getContent(LocaleUtils.PT))
+        return DynamicField.find(this, OBJECTIVES).flatMap(
+                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
                 .orElse(super.getObjectives());
     }
 
     @Override
     public void setObjectives(final String objectives) {
-        DynamicField.find(this, OBJECTIVES)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(LocaleUtils.PT, objectives)));
+        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.getDefault(), objectives)));
         super.setObjectives(objectives);
     }
 
     @Override
     public String getObjectivesEn() {
-        return DynamicField.find(this, OBJECTIVES).map(dF -> dF.getValue(LocalizedString.class).getContent(LocaleUtils.EN))
+        return DynamicField.find(this, OBJECTIVES)
+                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
                 .orElse(super.getObjectivesEn());
     }
 
     @Override
     public void setObjectivesEn(final String objectivesEn) {
-        DynamicField.find(this, OBJECTIVES)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(LocaleUtils.EN, objectivesEn)));
+        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.ENGLISH, objectivesEn)));
         super.setObjectivesEn(objectivesEn);
     }
 
@@ -251,10 +254,10 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
             LocalizedString result = new LocalizedString();
 
             if (!StringUtils.isEmpty(super.getObjectives())) {
-                result = result.with(org.fenixedu.academic.util.LocaleUtils.PT, super.getObjectives());
+                result = result.with(Locale.getDefault(), super.getObjectives());
             }
             if (!StringUtils.isEmpty(super.getObjectivesEn())) {
-                result = result.with(org.fenixedu.academic.util.LocaleUtils.EN, super.getObjectivesEn());
+                result = result.with(Locale.ENGLISH, super.getObjectivesEn());
             }
             return result;
         });
@@ -273,27 +276,31 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     @Override
     public String getProgram() {
-        return DynamicField.find(this, PROGRAM).map(dF -> dF.getValue(LocalizedString.class).getContent(LocaleUtils.PT))
+        return DynamicField.find(this, PROGRAM).flatMap(
+                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
                 .orElse(super.getProgram());
     }
 
     @Override
     public void setProgram(final String program) {
-        DynamicField.find(this, PROGRAM)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(LocaleUtils.PT, program)));
+        DynamicField.find(this, PROGRAM).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.getDefault(), program)));
         super.setProgram(program);
     }
 
     @Override
     public String getProgramEn() {
-        return DynamicField.find(this, PROGRAM).map(dF -> dF.getValue(LocalizedString.class).getContent(LocaleUtils.EN))
+        return DynamicField.find(this, PROGRAM)
+                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
                 .orElse(super.getProgramEn());
     }
 
     @Override
     public void setProgramEn(final String programEn) {
-        DynamicField.find(this, PROGRAM)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(LocaleUtils.EN, programEn)));
+        DynamicField.find(this, PROGRAM).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.ENGLISH, programEn)));
         super.setProgramEn(programEn);
     }
 
@@ -305,7 +312,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                 result = result.with(Locale.getDefault(), getProgram());
             }
             if (!StringUtils.isEmpty(super.getProgramEn())) {
-                result = result.with(LocaleUtils.EN, getProgramEn());
+                result = result.with(Locale.ENGLISH, getProgramEn());
             }
 
             return result;
@@ -325,28 +332,31 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     @Override
     public String getEvaluationMethod() {
-        return DynamicField.find(this, EVALUATION_METHOD)
-                .map(dF -> dF.getValue(LocalizedString.class).getContent(Locale.getDefault()))
+        return DynamicField.find(this, EVALUATION_METHOD).flatMap(
+                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
                 .orElse(super.getEvaluationMethod());
     }
 
     @Override
     public void setEvaluationMethod(final String evaluationMethod) {
-        DynamicField.find(this, EVALUATION_METHOD)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(Locale.getDefault(), evaluationMethod)));
+        DynamicField.find(this, EVALUATION_METHOD).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.getDefault(), evaluationMethod)));
         super.setEvaluationMethod(evaluationMethod);
     }
 
     @Override
     public String getEvaluationMethodEn() {
-        return DynamicField.find(this, EVALUATION_METHOD).map(dF -> dF.getValue(LocalizedString.class).getContent(LocaleUtils.EN))
+        return DynamicField.find(this, EVALUATION_METHOD)
+                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
                 .orElse(super.getEvaluationMethodEn());
     }
 
     @Override
     public void setEvaluationMethodEn(final String evaluationMethodEn) {
-        DynamicField.find(this, EVALUATION_METHOD)
-                .ifPresent(dF -> dF.edit(dF.getValue(LocalizedString.class).with(LocaleUtils.EN, evaluationMethodEn)));
+        DynamicField.find(this, EVALUATION_METHOD).ifPresent(dF -> dF.edit(
+                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
+                        .with(Locale.ENGLISH, evaluationMethodEn)));
         super.setEvaluationMethodEn(evaluationMethodEn);
     }
 
@@ -358,7 +368,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                 result = result.with(Locale.getDefault(), getEvaluationMethod());
             }
             if (!StringUtils.isEmpty(getEvaluationMethodEn())) {
-                result = result.with(org.fenixedu.academic.util.LocaleUtils.EN, getEvaluationMethodEn());
+                result = result.with(Locale.ENGLISH, getEvaluationMethodEn());
             }
             return result;
         });
