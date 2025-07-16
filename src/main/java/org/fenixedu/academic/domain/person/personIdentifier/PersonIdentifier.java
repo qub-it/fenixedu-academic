@@ -35,7 +35,7 @@ public class PersonIdentifier extends PersonIdentifier_Base {
     @Override
     public void setIdentifier(String identifier) {
         String regexExpression = getType().getExpression();
-        if (!StringUtils.isBlank(regexExpression) && !identifier.matches(regexExpression)) {
+        if (StringUtils.isNotBlank(regexExpression) && !identifier.matches(regexExpression)) {
             throw new DomainException("error.person.personIdentifier.identifier.invalidFormat");
         }
 
