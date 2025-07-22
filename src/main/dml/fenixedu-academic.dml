@@ -1360,12 +1360,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
         boolean active;
-        boolean forStudent;
-        boolean forStudentHousehold;
-        boolean forMobilityStudent;
         boolean other;
-        boolean phDDegree;
-        boolean schoolLevelBasicCycle;
         boolean highSchoolOrEquivalent;
         boolean higherEducation;
     }
