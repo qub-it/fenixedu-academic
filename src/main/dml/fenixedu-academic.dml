@@ -33,11 +33,8 @@ enum org.fenixedu.academic.domain.PhotoType                                     
 enum org.fenixedu.academic.domain.photograph.AspectRatio																  as AspectRatio;
 enum org.fenixedu.academic.domain.photograph.PictureMode																  as PictureMode;
 enum org.fenixedu.academic.domain.photograph.PictureSize																  as PictureSize;
-enum org.fenixedu.academic.domain.ProfessionType                                                                       as ProfessionType;
-enum org.fenixedu.academic.domain.ProfessionalSituationConditionType                                                   as ProfessionalSituationConditionType;
 enum org.fenixedu.academic.domain.RequestState                                                                         as RequestState;
 enum org.fenixedu.academic.domain.SalaryType                                                                           as SalaryType;
-enum org.fenixedu.academic.domain.SchoolLevelType                                                                      as SchoolLevelType;
 enum org.fenixedu.academic.domain.UnitBoardPermittedGroupType                                                          as UnitBoardPermittedGroupType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType				  			  as AcademicOperationType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType.Scope                     as AcademicOperationTypeScope;
@@ -1376,7 +1373,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class student.PrecedentDegreeInformation  {
         String degreeDesignation;
-        SchoolLevelType schoolLevel;
         String otherSchoolLevel;
         
         String conclusionGrade; // completed
@@ -1661,17 +1657,6 @@ class student.PersonalIngressionData  {
 	AcademicalInstitutionType highSchoolType;
     GrantOwnerType grantOwnerType;    
     MaritalStatus maritalStatus;
-    ProfessionType professionType;
-    ProfessionalSituationConditionType professionalCondition;
-    SchoolLevelType motherSchoolLevel;
-    ProfessionType motherProfessionType;
-    ProfessionalSituationConditionType motherProfessionalCondition;
-    SchoolLevelType fatherSchoolLevel;
-    ProfessionType fatherProfessionType;
-    ProfessionalSituationConditionType fatherProfessionalCondition;
-    SchoolLevelType spouseSchoolLevel;
-    ProfessionType spouseProfessionType;
-    ProfessionalSituationConditionType spouseProfessionalCondition;
     DateTime lastModifiedDate;
 }
 
