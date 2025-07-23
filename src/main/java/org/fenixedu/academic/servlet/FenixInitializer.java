@@ -93,7 +93,7 @@ public class FenixInitializer implements ServletContextListener {
     private void migrateStudentCandidacyFieldsToRegistration() {
 
         final Set<Registration> allRegistrations = Bennu.getInstance().getRegistrationsSet();
-        if (allRegistrations.stream().anyMatch(r -> r.getPlacingOption() != null)) {
+        if (allRegistrations.stream().anyMatch(r -> r.getPlacingOption() != null || r.getEntryGrade() != null)) {
             return;
         }
 
