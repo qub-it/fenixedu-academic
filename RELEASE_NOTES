@@ -1,3 +1,4 @@
+50.6.0 (23-07-2025)
 - Refactor: Adds placing option and entry grade fields to Registration [#qubIT-Fenix-6559]
 - Refactor: Deletes unused booleans from EducationLevelType [#qubIT-Fenix-7009]
 - Refactor: Removes deprecated RAIDES enum fields from PersonBean [#qubIT-Fenix-7009]
