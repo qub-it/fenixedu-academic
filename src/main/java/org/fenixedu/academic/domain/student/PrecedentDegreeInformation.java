@@ -18,9 +18,6 @@
  */
 package org.fenixedu.academic.domain.student;
 
-import org.fenixedu.academic.domain.SchoolLevelType;
-import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -51,33 +48,5 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
 
         setRootDomainObject(null);
         deleteDomainObject();
-    }
-
-    @Override
-    public void setSchoolLevel(SchoolLevelType schoolLevel) {
-        super.setEducationLevelType(findEducationLevelType(schoolLevel));
-        super.setSchoolLevel(schoolLevel);
-    }
-
-    @Override
-    public void setEducationLevelType(EducationLevelType educationLevelType) {
-        super.setSchoolLevel(findSchoolLevel(educationLevelType));
-        super.setEducationLevelType(educationLevelType);
-    }
-
-    private SchoolLevelType findSchoolLevel(EducationLevelType educationLevelType) {
-        if (educationLevelType == null) {
-            return null;
-        }
-        return SchoolLevelType.findByCode(educationLevelType.getCode())
-                .orElseThrow(() -> new DomainException("error.EducationLevelType.not.found", educationLevelType.getCode()));
-    }
-
-    private EducationLevelType findEducationLevelType(SchoolLevelType schoolLevel) {
-        if (schoolLevel == null) {
-            return null;
-        }
-        return EducationLevelType.findByCode(schoolLevel.getName())
-                .orElseThrow(() -> new DomainException("error.SchoolLevelType.not.found", schoolLevel.getName()));
     }
 }

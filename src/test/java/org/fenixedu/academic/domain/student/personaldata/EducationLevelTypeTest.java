@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.raides.DegreeClassification;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -33,9 +32,7 @@ public class EducationLevelTypeTest {
     private static PersonalIngressionData personalIngressionData;
     private static PrecedentDegreeInformation precedentDegreeInformation;
 
-    // Example school level type, can be any valid value
-    private static final SchoolLevelType schoolLevelType = SchoolLevelType.BACHELOR_DEGREE;
-    private static final String CODE = schoolLevelType.getName();
+    private static final String CODE = "BACHELOR_DEGREE";
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Bachelor's Degree");
 
     @BeforeClass
@@ -220,116 +217,5 @@ public class EducationLevelTypeTest {
         create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, EducationLevelType.findActive().count());
-    }
-
-    @Test
-    public void testEducationLevelType_personalIngressionDataSettersAreSynced() {
-        educationLevelType = create(CODE, QUALIFIED_NAME, true);
-        initializeEducationLevelTypeRelations();
-
-        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
-        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
-
-        // Assert initial state of PersonalIngressionData
-        PersonalIngressionData pid = new PersonalIngressionData();
-        assertEquals(null, pid.getMotherSchoolLevel());
-        assertEquals(null, pid.getMotherEducationLevelType());
-        assertEquals(null, pid.getFatherSchoolLevel());
-        assertEquals(null, pid.getFatherEducationLevelType());
-        assertEquals(null, pid.getSpouseSchoolLevel());
-        assertEquals(null, pid.getSpouseEducationLevelType());
-
-        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
-        pid.setMotherSchoolLevel(otherSituation);
-        pid.setFatherSchoolLevel(otherSituation);
-        pid.setSpouseSchoolLevel(otherSituation);
-
-        // Assert SchoolLevelType and EducationLevelType have the same value
-        // (edge case: they can be both null instead of the correct value, next assert will verify that)
-        assertEquals(pid.getMotherSchoolLevel().getName(), pid.getMotherEducationLevelType().getCode());
-
-        // Assert EducationLevelType is set to the correct value (instead of being null for example)
-        assertEquals(elt, pid.getMotherEducationLevelType());
-
-        assertEquals(pid.getFatherSchoolLevel().getName(), pid.getFatherEducationLevelType().getCode());
-        assertEquals(elt, pid.getFatherEducationLevelType());
-
-        assertEquals(pid.getSpouseSchoolLevel().getName(), pid.getSpouseEducationLevelType().getCode());
-        assertEquals(elt, pid.getSpouseEducationLevelType());
-
-        // Set to null with Enum setter
-        pid.setMotherSchoolLevel(null);
-        pid.setFatherSchoolLevel(null);
-        pid.setSpouseSchoolLevel(null);
-
-        assertEquals(null, pid.getMotherSchoolLevel());
-        assertEquals(null, pid.getMotherEducationLevelType());
-        assertEquals(null, pid.getFatherSchoolLevel());
-        assertEquals(null, pid.getFatherEducationLevelType());
-        assertEquals(null, pid.getSpouseSchoolLevel());
-        assertEquals(null, pid.getSpouseEducationLevelType());
-
-        // Call setter in EducationLevelType to trigger the sync in SchoolLevelType
-        pid.setMotherEducationLevelType(elt);
-        pid.setFatherEducationLevelType(elt);
-        pid.setSpouseEducationLevelType(elt);
-
-        // Assert SchoolLevelType and EducationLevelType have the same value
-        assertEquals(pid.getMotherSchoolLevel().getName(), pid.getMotherEducationLevelType().getCode());
-        assertEquals(elt, pid.getMotherEducationLevelType());
-
-        assertEquals(pid.getFatherSchoolLevel().getName(), pid.getFatherEducationLevelType().getCode());
-        assertEquals(elt, pid.getFatherEducationLevelType());
-
-        assertEquals(pid.getSpouseSchoolLevel().getName(), pid.getSpouseEducationLevelType().getCode());
-        assertEquals(elt, pid.getSpouseEducationLevelType());
-
-        // Set to null with EducationLevelType setter
-        pid.setMotherEducationLevelType(null);
-        pid.setFatherEducationLevelType(null);
-        pid.setSpouseEducationLevelType(null);
-
-        assertEquals(null, pid.getMotherSchoolLevel());
-        assertEquals(null, pid.getMotherEducationLevelType());
-        assertEquals(null, pid.getFatherSchoolLevel());
-        assertEquals(null, pid.getFatherEducationLevelType());
-        assertEquals(null, pid.getSpouseSchoolLevel());
-        assertEquals(null, pid.getSpouseEducationLevelType());
-    }
-
-    @Test
-    public void testEducationLevelType_precedentDegreeInformationSettersAreSynced() {
-        educationLevelType = create(CODE, QUALIFIED_NAME, true);
-        initializeEducationLevelTypeRelations();
-        
-        SchoolLevelType otherSituation = SchoolLevelType.OTHER_SITUATION;
-        EducationLevelType elt = create(otherSituation.getName(), QUALIFIED_NAME, true);
-
-        // Assert initial state of PrecedentDegreeInformation
-        PrecedentDegreeInformation pdi = new PrecedentDegreeInformation();
-        assertEquals(null, pdi.getSchoolLevel());
-        assertEquals(null, pdi.getEducationLevelType());
-
-        // Call setter in SchoolLevelType Enum to trigger the sync in EducationLevelType
-        pdi.setSchoolLevel(otherSituation);
-        assertEquals(pdi.getSchoolLevel().getName(), pdi.getEducationLevelType().getCode());
-        assertEquals(elt, pdi.getEducationLevelType());
-
-        // Set to null with Enum setter
-        pdi.setSchoolLevel(null);
-
-        assertEquals(null, pdi.getSchoolLevel());
-        assertEquals(null, pdi.getEducationLevelType());
-
-        // Call setter in EducationLevelType to trigger the sync in SchoolLevelType
-        pdi.setEducationLevelType(elt);
-        assertEquals(pdi.getSchoolLevel().getName(), pdi.getEducationLevelType().getCode());
-        assertEquals(elt, pdi.getEducationLevelType());
-
-        // Set to null with EducationLevelType setter
-        pdi.setEducationLevelType(null);
-
-        assertEquals(null, pdi.getSchoolLevel());
-        assertEquals(null, pdi.getEducationLevelType());
     }
 }
