@@ -1,6 +1,7 @@
 - Refactor: Deletes unused booleans from EducationLevelType [#qubIT-Fenix-7009]
 - Refactor: Removes deprecated RAIDES enum fields from PersonBean [#qubIT-Fenix-7009]
 - Refactor: Join hardcoded and dynamicField setters/getters for CompetenceCourseInformation refactor [#qubIT-Fenix-6448]
+- Refactor: Removes new RAIDES entities initializers and data migration [#qubIT-Fenix-7009]
 
 50.5.2 (02-07-2025)
 - Refactor: Synchronizes SchoolLevelType, ProfessionType and ProfessionalSituationConditionType setters with new classes [#qubIT-Fenix-7009]
