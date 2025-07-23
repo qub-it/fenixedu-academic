@@ -34,10 +34,17 @@ public class PersonIdentifier extends PersonIdentifier_Base {
 
     @Override
     public void setIdentifier(String identifier) {
+        String regexExpression = getType().getExpression();
+
+        if (StringUtils.isNotBlank(regexExpression) && !identifier.matches(regexExpression)) {
+            throw new DomainException("error.person.personIdentifier.identifier.invalidFormat", getType().getName().getContent());
+        }
+
         Optional<PersonIdentifier> findByIdentifierAndType = findByIdentifierAndType(identifier, getType());
         if (findByIdentifierAndType.isPresent() && findByIdentifierAndType.get() != this) {
             throw new DomainException("error.person.personIdentifier.identifier");
         }
+
         super.setIdentifier(identifier);
     }
 

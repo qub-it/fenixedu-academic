@@ -3,6 +3,8 @@ package org.fenixedu.academic.domain.person.personIdentifier;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +43,18 @@ public class PersonIdentifierType extends PersonIdentifierType_Base {
         }
 
         super.setCode(code);
+    }
+
+    @Override
+    public void setExpression(final String expression) {
+        if (expression != null) {
+            try {
+                Pattern.compile(expression);
+            } catch (PatternSyntaxException e) {
+                throw new DomainException("error.person.personIdentifier.type.invalidRegex");
+            }
+        }
+        super.setExpression(expression);
     }
 
     private void initAccessControlProfiles() {
