@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -35,34 +34,6 @@ public class DegreeDesignation extends DegreeDesignation_Base {
         setCode(code);
         setDescription(description);
         setDegreeClassification(degreeClassification);
-    }
-
-    public static DegreeDesignation readByNameAndSchoolLevel(String degreeDesignationName, SchoolLevelType schoolLevel) {
-        if ((schoolLevel == null) || (degreeDesignationName == null)) {
-            return null;
-        }
-
-        List<DegreeClassification> possibleClassifications = new ArrayList<DegreeClassification>();
-        for (String code : schoolLevel.getEquivalentDegreeClassifications()) {
-            final DegreeClassification degreeClassification = DegreeClassification.readByCode(code);
-            if (degreeClassification != null) {
-                possibleClassifications.add(degreeClassification);
-            }
-        }
-
-        List<DegreeDesignation> possibleDesignations = new ArrayList<DegreeDesignation>();
-        for (DegreeClassification classification : possibleClassifications) {
-            if (!classification.getDegreeDesignationsSet().isEmpty()) {
-                possibleDesignations.addAll(classification.getDegreeDesignationsSet());
-            }
-        }
-
-        for (DegreeDesignation degreeDesignation : possibleDesignations) {
-            if (degreeDesignation.getDescription().equalsIgnoreCase(degreeDesignationName)) {
-                return degreeDesignation;
-            }
-        }
-        return null;
     }
 
     public static DegreeDesignation readByNameAndEducationLevelType(String degreeDesignationName,
@@ -96,5 +67,4 @@ public class DegreeDesignation extends DegreeDesignation_Base {
         setRootDomainObject(null);
         deleteDomainObject();
     }
-
 }
