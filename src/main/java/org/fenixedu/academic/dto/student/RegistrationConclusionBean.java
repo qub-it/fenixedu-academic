@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
@@ -188,6 +189,10 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
 
     public ExecutionYear getCalculatedConclusionYear() {
         return calculateConclusionYear();
+    }
+
+    public ExecutionInterval getConclusionExecutionInterval() {
+        return getCurriculumForConclusion().getLastExecutionInterval();
     }
 
     public double getEctsCredits() {

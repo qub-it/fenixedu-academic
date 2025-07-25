@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -34,6 +35,8 @@ public interface ICurriculum {
     abstract public Set<ICurriculumEntry> getCurricularYearEntries();
 
     abstract public ExecutionYear getLastExecutionYear();
+
+    abstract public ExecutionInterval getLastExecutionInterval();
 
     abstract public YearMonthDay getLastApprovementDate();
 

@@ -49,6 +49,7 @@ public class RegistrationConclusionProcess {
 
         registration.conclude(curriculumGroup);
 
+        //TODO: clean this logic and move to domain using only conclusion bean
         if (conclusionBean.hasEnteredConclusionDate() || conclusionBean.hasEnteredFinalAverageGrade()
                 || conclusionBean.hasEnteredAverageGrade() || conclusionBean.hasEnteredDescriptiveGrade()) {
             GradeScale gradeScale = registration.getDegree().getNumericGradeScale();

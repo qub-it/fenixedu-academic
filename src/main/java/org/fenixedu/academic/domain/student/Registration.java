@@ -83,6 +83,7 @@ import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.studentCurriculum.StandaloneCurriculumGroup;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -1458,13 +1459,14 @@ public class Registration extends Registration_Base {
 
         ProgramConclusion conclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
 
-        if (conclusion != null && conclusion.getTargetStateType() != null
-                && !conclusion.getTargetStateType().equals(getActiveStateType())) {
-            final ExecutionInterval conclusionInterval = curriculumGroup.getLastApprovement().getExecutionInterval();
+        if (conclusion != null && conclusion.getTargetStateType() != null && !conclusion.getTargetStateType()
+                .equals(getActiveStateType())) {
+            final ExecutionInterval conclusionInterval =
+                    new RegistrationConclusionBean(curriculumGroup.getStudentCurricularPlan(),
+                            curriculumGroup.getDegreeModule().getProgramConclusion()).getConclusionExecutionInterval();
             RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(),
                     conclusion.getTargetStateType(), conclusionInterval);
         }
-
     }
 
     public boolean hasApprovement(final ExecutionYear executionYear) {

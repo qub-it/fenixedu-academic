@@ -1,3 +1,5 @@
+- Bug fix: Correctly calculate last execution interval of conclusion [#UCP-FENIXEDU-439]
+
 50.6.0 (23-07-2025)
 - Refactor: Adds placing option and entry grade fields to Registration [#qubIT-Fenix-6559]
 - Refactor: Deletes unused booleans from EducationLevelType [#qubIT-Fenix-7009]

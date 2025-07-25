@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.IEnrolment;
@@ -490,6 +491,12 @@ public class Curriculum implements Serializable, ICurriculum {
             return true;
 
         }).map(i -> i.getExecutionYear()).max(ExecutionYear::compareTo).orElse(null);
+    }
+
+    @Override
+    public ExecutionInterval getLastExecutionInterval() {
+        return getCurricularYearEntries().stream().map(e -> e.getExecutionInterval()).max(ExecutionInterval::compareTo)
+                .orElse(null);
     }
 
     @Override
