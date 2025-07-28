@@ -482,7 +482,7 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     @Override
     public LocalizedString getGratuity() {
-        return DynamicField.find(this, GRATUITY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getHistory);
+        return DynamicField.find(this, GRATUITY).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(super::getGratuity);
     }
 
     @Override
