@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.LocalizedString;
 
 public class PersonIdentifier extends PersonIdentifier_Base {
 
@@ -35,9 +36,16 @@ public class PersonIdentifier extends PersonIdentifier_Base {
     @Override
     public void setIdentifier(String identifier) {
         String regexExpression = getType().getExpression();
+        LocalizedString expressionHelpMessage = getType().getExpressionHelpMessage();
 
         if (StringUtils.isNotBlank(regexExpression) && !identifier.matches(regexExpression)) {
-            throw new DomainException("error.person.personIdentifier.identifier.invalidFormat", getType().getName().getContent());
+            if (expressionHelpMessage != null && StringUtils.isNotBlank(expressionHelpMessage.getContent())) {
+                throw new DomainException("error.person.personIdentifier.identifier.invalidFormatWithHelpMessage",
+                        getType().getName().getContent(), expressionHelpMessage.getContent());
+            } else {
+                throw new DomainException("error.person.personIdentifier.identifier.invalidFormat",
+                        getType().getName().getContent());
+            }
         }
 
         Optional<PersonIdentifier> findByIdentifierAndType = findByIdentifierAndType(identifier, getType());
