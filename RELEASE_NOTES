@@ -1,3 +1,5 @@
+- Improvement: Adds expression help message field in Person Identifier Types [#qubIT-Fenix-7239]
+
 50.6.2 (28-07-2025)
 - Bug fix: Correct gratuity getter from DegreeInfo [#UL-FC-5589]
 
