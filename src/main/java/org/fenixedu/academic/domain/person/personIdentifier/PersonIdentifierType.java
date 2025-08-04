@@ -35,6 +35,13 @@ public class PersonIdentifierType extends PersonIdentifierType_Base {
         return type;
     }
 
+    public void edit(final String code, final LocalizedString name, final String expression,
+            final LocalizedString expressionHelpMessage) {
+        setCode(code);
+        setName(name);
+        editExpressionAndHelpMessage(expression, expressionHelpMessage);
+    }
+
     @Override
     public void setCode(String code) {
         Optional<PersonIdentifierType> findByCode = findByCode(code);
@@ -74,10 +81,8 @@ public class PersonIdentifierType extends PersonIdentifierType_Base {
         if (expressionEmpty != helpMessageEmpty) {
             throw new DomainException("error.person.personIdentifier.type.expression.filledOrEmpty");
         }
-        if (!expressionEmpty) {
-            setExpression(expression);
-            setExpressionHelpMessage(expressionHelpMessage);
-        }
+        setExpression(expression);
+        setExpressionHelpMessage(expressionHelpMessage);
     }
 
     private void initAccessControlProfiles() {
