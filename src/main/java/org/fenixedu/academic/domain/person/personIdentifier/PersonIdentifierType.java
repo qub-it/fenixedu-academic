@@ -46,7 +46,12 @@ public class PersonIdentifierType extends PersonIdentifierType_Base {
     }
 
     @Override
-    public void setExpression(final String expression) {
+    public String getExpression() {
+        return super.getExpression();
+    }
+
+    @Override
+    protected void setExpression(final String expression) {
         if (expression != null) {
             try {
                 Pattern.compile(expression);
@@ -55,6 +60,24 @@ public class PersonIdentifierType extends PersonIdentifierType_Base {
             }
         }
         super.setExpression(expression);
+    }
+
+    @Override
+    public LocalizedString getExpressionHelpMessage() {
+        return super.getExpressionHelpMessage();
+    }
+
+    public void editExpressionAndHelpMessage(final String expression, final LocalizedString expressionHelpMessage) {
+        boolean expressionEmpty = StringUtils.isBlank(expression);
+        boolean helpMessageEmpty = expressionHelpMessage == null || expressionHelpMessage.isEmpty();
+
+        if (expressionEmpty != helpMessageEmpty) {
+            throw new DomainException("error.person.personIdentifier.type.expression.filledOrEmpty");
+        }
+        if (!expressionEmpty) {
+            setExpression(expression);
+            setExpressionHelpMessage(expressionHelpMessage);
+        }
     }
 
     private void initAccessControlProfiles() {

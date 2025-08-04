@@ -39,13 +39,8 @@ public class PersonIdentifier extends PersonIdentifier_Base {
         LocalizedString expressionHelpMessage = getType().getExpressionHelpMessage();
 
         if (StringUtils.isNotBlank(regexExpression) && !identifier.matches(regexExpression)) {
-            if (expressionHelpMessage != null && StringUtils.isNotBlank(expressionHelpMessage.getContent())) {
-                throw new DomainException("error.person.personIdentifier.identifier.invalidFormatWithHelpMessage",
-                        getType().getName().getContent(), expressionHelpMessage.getContent());
-            } else {
-                throw new DomainException("error.person.personIdentifier.identifier.invalidFormat",
-                        getType().getName().getContent());
-            }
+            throw new DomainException("error.person.personIdentifier.identifier.invalidFormatWithHelpMessage",
+                    getType().getName().getContent(), expressionHelpMessage.getContent());
         }
 
         Optional<PersonIdentifier> findByIdentifierAndType = findByIdentifierAndType(identifier, getType());
