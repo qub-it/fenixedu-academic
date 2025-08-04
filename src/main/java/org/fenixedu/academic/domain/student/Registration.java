@@ -58,7 +58,6 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -168,7 +167,6 @@ public class Registration extends Registration_Base {
             throw new DomainException("error.Registration.ingressionType.cannot.be.null");
         }
 
-        //TODO: remove entryGrade, admissionPhase and ingressionType from StudentCandidacy
         final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);
         if (executionDegree == null) {
             throw new DomainException("error.Registration.execution.degree.for.year.was.not.found");
@@ -180,11 +178,6 @@ public class Registration extends Registration_Base {
         result.setIngressionType(ingressionType);
 
         result.createStudentCurricularPlan(degreeCurricularPlan, executionYear, (CycleType) null);
-
-        final StudentCandidacy studentCandidacy = new StudentCandidacy(student.getPerson(), executionDegree);
-        studentCandidacy.setState(CandidacySituationType.REGISTERED);
-        studentCandidacy.setIngressionType(ingressionType);
-        result.setStudentCandidacyInformation(studentCandidacy);
 
         //TODO: clean personal ingression data
         final PersonalIngressionData ingressionData = result.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
@@ -202,6 +195,12 @@ public class Registration extends Registration_Base {
 
     @Deprecated
     public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
+            final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
+        return create(person, degreeCurricularPlan, null, protocol, cycleType, executionYear);
+    }
+
+    @Deprecated
+    public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final StudentCandidacy studentCandidacy, final RegistrationProtocol protocol, final CycleType cycleType,
             final ExecutionYear executionYear) {
         Registration registration =
@@ -214,23 +213,20 @@ public class Registration extends Registration_Base {
 
     @Deprecated
     public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
+            final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
+        return importRegistration(person, degreeCurricularPlan, null, protocol, cycleType, executionYear);
+    }
+
+    @Deprecated
+    public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final StudentCandidacy studentCandidacy, final RegistrationProtocol protocol, final CycleType cycleType,
             final ExecutionYear executionYear) {
         final Registration registration = new Registration(person, null,
                 degreeCurricularPlan != null ? degreeCurricularPlan.getDegree() : null, executionYear);
         registration.setRegistrationProtocol(protocol == null ? RegistrationProtocol.getDefault() : protocol);
         registration.createStudentCurricularPlan(degreeCurricularPlan, executionYear, cycleType);
-        registration.setStudentCandidacyInformation(studentCandidacy);
 
         return registration;
-    }
-
-    private void setStudentCandidacyInformation(final StudentCandidacy studentCandidacy) {
-        setStudentCandidacy(studentCandidacy);
-        if (studentCandidacy != null) {
-            setAdmissionPhase(studentCandidacy.getAdmissionPhase());
-            super.setIngressionType(studentCandidacy.getIngressionType());
-        }
     }
 
     public StudentCurricularPlan createStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan,
