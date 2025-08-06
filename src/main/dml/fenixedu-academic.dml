@@ -122,14 +122,6 @@ valueType org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod as 
     internalizeWith getAcademicPeriodFromString();
 }
 
-valueType org.fenixedu.academic.domain.CurricularYearList as CurricularYearList {
-    externalizeWith {
-        String toString();
-    }
-
-    internalizeWith internalize();
-}
-
 valueType org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCurricularYears as LessonPeriodCurricularYears {
     externalizeWith { String toString(); }
     internalizeWith internalize();
@@ -653,15 +645,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         Interval periodInterval;
     }
     
-    /*
-     * Bridge class
-     */
-    
-    class OccupationPeriodReference  {
-    	Integer semester;
-    	CurricularYearList curricularYears;
-    }
-
     class Professorship  {
         Boolean responsibleFor;
     }
@@ -2548,25 +2531,6 @@ relation ExecutionDegreeExecutionYear {
     ExecutionYear playsRole executionYear;
 }
 
-relation OccupationPeriodReferenceExecutionDegree {
-	ExecutionDegree playsRole executionDegree;
-	OccupationPeriodReference playsRole occupationPeriodReferences {
-		multiplicity *;
-	}
-}
-
-relation OccupationPeriodReferenceExecutionInterval {
-	ExecutionInterval playsRole executionInterval;
-	OccupationPeriodReference playsRole occupationPeriodReferences { multiplicity *; }
-}
-
-relation OccupationPeriodReferencePeriod {
-	OccupationPeriod playsRole occupationPeriod;
-	OccupationPeriodReference playsRole executionDegrees {
-		multiplicity *;
-	}
-}
-
 relation ExecutionPeriodContextBegin {
     ExecutionInterval playsRole beginExecutionPeriod;
     degreeStructure.Context playsRole beginExecutionPeriodContexts {
@@ -3507,13 +3471,6 @@ relation RootDomainObjectMark {
 relation RootDomainObjectOccupationPeriod {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     OccupationPeriod playsRole occupationPeriods {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectOccupationPeriodReference {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    OccupationPeriodReference playsRole occupationPeriodReferences {
         multiplicity *;
     }
 }
@@ -5068,10 +5025,6 @@ class schedule.lesson.LessonPeriod {
         OccupationPeriod playsRole occupationPeriod { multiplicity 1..1; }
         schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 0..1; }
     }
-    relation LessonPeriodOccupationPeriodReference {
-        OccupationPeriodReference playsRole occupationPeriodReferences { multiplicity *; }
-        schedule.lesson.LessonPeriod playsRole lessonPeriod { multiplicity 1..1; }
-    }
 
 class schedule.lesson.ExecutionDegreeLessonPeriod  {
     LessonPeriodCurricularYears curricularYears;
@@ -5087,8 +5040,4 @@ class schedule.lesson.ExecutionDegreeLessonPeriod  {
     relation ExecutionDegreeLessonPeriodRoot {
         schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriods { multiplicity *; }
         .org.fenixedu.bennu.core.domain.Bennu playsRole root { multiplicity 1..1; }
-    }
-    relation ExecutionDegreeLessonPeriodOccupationPeriodReference { // temp relation, during migration
-        schedule.lesson.ExecutionDegreeLessonPeriod playsRole executionDegreeLessonPeriodToMigrate;
-        OccupationPeriodReference playsRole occupationPeriodReferenceFromMigration;
     }

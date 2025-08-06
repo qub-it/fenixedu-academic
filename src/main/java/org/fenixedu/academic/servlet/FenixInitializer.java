@@ -18,13 +18,8 @@
  */
 package org.fenixedu.academic.servlet;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -34,15 +29,10 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
-import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
-import org.fenixedu.academic.domain.OccupationPeriod;
-import org.fenixedu.academic.domain.OccupationPeriodReference;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
-import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
-import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -79,10 +69,6 @@ public class FenixInitializer implements ServletContextListener {
         initializeAcademicPeriodOrder();
 
         initializeDynamicFieldTags();
-
-        initializeLessonPeriods();
-
-        initializeExecutionDegreeLessonPeriods();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -167,39 +153,4 @@ public class FenixInitializer implements ServletContextListener {
         AcademicPeriodOrder.initialize();
     }
 
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeLessonPeriods() {
-        Log.warn("---------------------------------------");
-        Log.warn("Starting population of Lesson Periods");
-
-        final AtomicInteger counter = new AtomicInteger(0);
-
-        final Map<OccupationPeriod, List<OccupationPeriodReference>> referencesByPeriod =
-                Bennu.getInstance().getOccupationPeriodReferencesSet().stream()
-                        .collect(Collectors.groupingBy(OccupationPeriodReference::getOccupationPeriod));
-
-        referencesByPeriod.forEach((period, degreeReferences) -> {
-            if(period.getLessonPeriod() == null){
-                final ExecutionInterval executionInterval =
-                        degreeReferences.stream().map(OccupationPeriodReference::getExecutionInterval).sorted().findFirst().get();
-                LessonPeriod.create(executionInterval, period).getOccupationPeriodReferencesSet().addAll(degreeReferences);
-                counter.incrementAndGet();
-            }
-        });
-
-        Log.warn("Finished population of Lesson Periods. Created: " + counter.get());
-        Log.warn("---------------------------------------");
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeExecutionDegreeLessonPeriods() {
-        Log.warn("---------------------------------------");
-        Log.warn("Starting population of Execution Degree Lesson Periods");
-
-        final List<ExecutionDegreeLessonPeriod> newPeriods = Bennu.getInstance().getOccupationPeriodReferencesSet().stream()
-                .map(opr -> opr.createCorrespondingExecutionDegreeLessonPeriodIfMissing()).filter(Objects::nonNull).toList();
-
-        Log.warn("Finished population of Execution Degree Lesson Periods. Created: " + newPeriods.size());
-        Log.warn("---------------------------------------");
-    }
 }

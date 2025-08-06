@@ -138,7 +138,12 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         }
     }
 
+    @Deprecated
     public void deleteFromNestedPeriods(final OccupationPeriod period) {
+        deleteFromNestedPeriods();
+    }
+
+    public void deleteFromNestedPeriods() {
         if (getPreviousPeriod() != null) { // not a 'root' period
             getPreviousPeriod().setNextPeriodWithoutChecks(getNextPeriod());
         }
@@ -171,7 +176,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     private boolean isEmpty() {
-        return getLessonsSet().isEmpty() && getInitialLessonsSet().isEmpty() && getExecutionDegreesSet().isEmpty();
+        return getLessonsSet().isEmpty() && getInitialLessonsSet().isEmpty() && getLessonPeriod() == null;
     }
 
     public OccupationPeriod getLastOccupationPeriodOfNestedPeriods() {

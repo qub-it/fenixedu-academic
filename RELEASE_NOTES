@@ -1,5 +1,7 @@
+- Refactor: Remove deprecated entity OccupationPeriodReference [#qubIT-Fenix-6724]
+
 50.6.3 (06-08-2025)
-- Refactor: adds new constructors to Registration to prepare for StudentCandidacy deprecation [#qubIT-Fenix-6559]
+- Refactor: Adds new constructors to Registration to prepare for StudentCandidacy deprecation [#qubIT-Fenix-6559]
 
 50.6.2 (28-07-2025)
 - Bug fix: Correct gratuity getter from DegreeInfo [#UL-FC-5589]

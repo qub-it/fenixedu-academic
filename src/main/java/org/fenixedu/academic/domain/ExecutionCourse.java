@@ -32,6 +32,7 @@ import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -357,7 +358,8 @@ public class ExecutionCourse extends ExecutionCourse_Base {
                 isAnual ? getExecutionInterval().getExecutionYear().getChildIntervals() : Set.of(getExecutionInterval());
 
         final Function<ExecutionDegree, Stream<OccupationPeriod>> executionDegreeToPeriods =
-                ed -> periodsExecutionIntervals.stream().flatMap(ei -> ed.getPeriodLessons(ei).stream());
+                ed -> periodsExecutionIntervals.stream()
+                        .flatMap(ei -> LessonPeriod.findFor(ed, this).map(LessonPeriod::getOccupationPeriod));
 
         final Function<DegreeCurricularPlan, Stream<ExecutionDegree>> dcpToExecutionDegree =
                 dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream();

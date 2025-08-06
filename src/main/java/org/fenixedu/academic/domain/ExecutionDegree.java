@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -159,9 +160,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         setExecutionYear(null);
         setDegreeCurricularPlan(null);
 
-        for (OccupationPeriodReference reference : getOccupationPeriodReferencesSet()) {
-            reference.delete();
-        }
+        getExecutionDegreeLessonPeriodsSet().forEach(ExecutionDegreeLessonPeriod::delete);
 
         setRootDomainObject(null);
         deleteDomainObject();
@@ -344,11 +343,6 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
 
     public AcademicInterval getAcademicInterval() {
         return getExecutionYear().getAcademicInterval();
-    }
-
-    public Collection<OccupationPeriod> getPeriodLessons(final ExecutionInterval interval) {
-        return getOccupationPeriodReferencesSet().stream().filter(opr -> opr.getExecutionInterval() == interval)
-                .map(OccupationPeriodReference::getOccupationPeriod).collect(Collectors.toSet());
     }
 
     public java.util.SortedSet<org.fenixedu.academic.domain.SchoolClass> getSortedSchoolClasses() {

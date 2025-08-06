@@ -24,7 +24,6 @@ public class ExecutionDegreeLessonPeriod extends ExecutionDegreeLessonPeriod_Bas
         setRoot(null);
         setLessonPeriod(null);
         setExecutionDegree(null);
-        setOccupationPeriodReferenceFromMigration(null);
         super.deleteDomainObject();
     }
 }
