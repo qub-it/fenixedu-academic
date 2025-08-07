@@ -1217,7 +1217,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class person.personIdentifier.PersonIdentifierType {
     	String code (REQUIRED);
     	LocalizedString name (REQUIRED);
-    	String expression;
+    	protected String expression;
+    	protected LocalizedString expressionHelpMessage;
     }
     
 	relation PersonPersonIdentifier {
