@@ -223,12 +223,18 @@ abstract public class DegreeModule extends DegreeModule_Base {
                 ;
             }
         } else {
-            throw new DomainException("courseGroup.notEmptyCurriculumModules");
+            if (!getCurriculumModulesSet().isEmpty()) {
+                throw new DomainException("courseGroup.notEmptyCurriculumModules");
+            } else if (!getProgramConclusionConfigsForIncludedModulesSet().isEmpty()
+                    || !getProgramConclusionConfigsForExcludedModulesSet().isEmpty()) {
+                throw new DomainException("error.DegreeModule.cannot.delete.with.related.programConclusionConfigs");
+            }
         }
     }
 
     protected Boolean getCanBeDeleted() {
-        return getCurriculumModulesSet().isEmpty();
+        return getCurriculumModulesSet().isEmpty() && getProgramConclusionConfigsForIncludedModulesSet().isEmpty()
+                && getProgramConclusionConfigsForExcludedModulesSet().isEmpty();
     }
 
     public void deleteContext(Context context) {
