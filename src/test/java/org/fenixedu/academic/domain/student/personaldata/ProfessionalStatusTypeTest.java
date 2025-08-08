@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -29,10 +28,7 @@ public class ProfessionalStatusTypeTest {
 
     private static PersonalIngressionData personalIngressionData;
 
-    // Example professionalSituationConditionType, can be any valid value
-    private static final ProfessionalSituationConditionType professionalSituationConditionType =
-            ProfessionalSituationConditionType.UNEMPLOYED;
-    private static final String CODE = professionalSituationConditionType.getName();
+    private static final String CODE = "UNEMPLOYED";
     private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Unemployed");
 
     @BeforeClass
@@ -182,96 +178,5 @@ public class ProfessionalStatusTypeTest {
         create(OTHER_EXAMPLE_CODE, QUALIFIED_NAME, false);
 
         assertEquals(2, ProfessionalStatusType.findActive().count());
-    }
-
-    @Test
-    public void testProfessionalStatusType_personalIngressionDataSettersAreSynced() {
-        ProfessionalStatusType professionalStatusType = create(CODE, QUALIFIED_NAME, true);
-        initializeProfessionalStatusTypeRelations(professionalStatusType);
-
-        ProfessionalSituationConditionType other = ProfessionalSituationConditionType.OTHER;
-        ProfessionalStatusType pst = create(other.getName(), QUALIFIED_NAME, true);
-
-        // Assert initial state of PersonalIngressionData
-        PersonalIngressionData pid = new PersonalIngressionData();
-        assertEquals(null, pid.getProfessionalCondition());
-        assertEquals(null, pid.getProfessionalStatusType());
-        assertEquals(null, pid.getMotherProfessionalCondition());
-        assertEquals(null, pid.getMotherProfessionalStatusType());
-        assertEquals(null, pid.getFatherProfessionalCondition());
-        assertEquals(null, pid.getFatherProfessionalStatusType());
-        assertEquals(null, pid.getSpouseProfessionalCondition());
-        assertEquals(null, pid.getSpouseProfessionalStatusType());
-
-        // Call setter in ProfessionalSituationConditionType Enum to trigger the sync in ProfessionalStatusType
-        pid.setProfessionalCondition(other);
-        pid.setMotherProfessionalCondition(other);
-        pid.setFatherProfessionalCondition(other);
-        pid.setSpouseProfessionalCondition(other);
-
-        // Assert ProfessionalSituationConditionType and ProfessionalStatusType have the same value
-        // (edge case: they can be both null instead of the correct value, next assert will verify that)
-        assertEquals(pid.getProfessionalCondition().getName(), pid.getProfessionalStatusType().getCode());
-
-        // Assert ProfessionalStatusType is set to the correct value (instead of being null for example)
-        assertEquals(pst, pid.getProfessionalStatusType());
-
-        assertEquals(pid.getMotherProfessionalCondition().getName(), pid.getMotherProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getMotherProfessionalStatusType());
-
-        assertEquals(pid.getFatherProfessionalCondition().getName(), pid.getFatherProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getFatherProfessionalStatusType());
-
-        assertEquals(pid.getSpouseProfessionalCondition().getName(), pid.getSpouseProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getSpouseProfessionalStatusType());
-
-        // Set to null with Enum Setter
-        pid.setProfessionalCondition(null);
-        pid.setMotherProfessionalCondition(null);
-        pid.setFatherProfessionalCondition(null);
-        pid.setSpouseProfessionalCondition(null);
-
-        assertEquals(null, pid.getProfessionalCondition());
-        assertEquals(null, pid.getProfessionalStatusType());
-        assertEquals(null, pid.getMotherProfessionalCondition());
-        assertEquals(null, pid.getMotherProfessionalStatusType());
-        assertEquals(null, pid.getFatherProfessionalCondition());
-        assertEquals(null, pid.getFatherProfessionalStatusType());
-        assertEquals(null, pid.getSpouseProfessionalCondition());
-        assertEquals(null, pid.getSpouseProfessionalStatusType());
-
-        // Call setter in ProfessionalStatusType to trigger the sync in PersonalIngressionData
-        pid.setProfessionalStatusType(pst);
-        pid.setMotherProfessionalStatusType(pst);
-        pid.setFatherProfessionalStatusType(pst);
-        pid.setSpouseProfessionalStatusType(pst);
-
-        // Assert ProfessionalSituationConditionType and ProfessionalStatusType have the same value
-        assertEquals(pid.getProfessionalCondition().getName(), pid.getProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getProfessionalStatusType());
-
-        assertEquals(pid.getMotherProfessionalCondition().getName(), pid.getMotherProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getMotherProfessionalStatusType());
-
-        assertEquals(pid.getFatherProfessionalCondition().getName(), pid.getFatherProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getFatherProfessionalStatusType());
-
-        assertEquals(pid.getSpouseProfessionalCondition().getName(), pid.getSpouseProfessionalStatusType().getCode());
-        assertEquals(pst, pid.getSpouseProfessionalStatusType());
-
-        // Set to null with ProfessionalStatusType Setter
-        pid.setProfessionalStatusType(null);
-        pid.setMotherProfessionalStatusType(null);
-        pid.setFatherProfessionalStatusType(null);
-        pid.setSpouseProfessionalStatusType(null);
-
-        assertEquals(null, pid.getProfessionalCondition());
-        assertEquals(null, pid.getProfessionalStatusType());
-        assertEquals(null, pid.getMotherProfessionalCondition());
-        assertEquals(null, pid.getMotherProfessionalStatusType());
-        assertEquals(null, pid.getFatherProfessionalCondition());
-        assertEquals(null, pid.getFatherProfessionalStatusType());
-        assertEquals(null, pid.getSpouseProfessionalCondition());
-        assertEquals(null, pid.getSpouseProfessionalStatusType());
     }
 }

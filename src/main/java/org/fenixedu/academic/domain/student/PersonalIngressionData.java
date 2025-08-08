@@ -21,13 +21,7 @@ package org.fenixedu.academic.domain.student;
 import java.util.Comparator;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.ProfessionType;
-import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
-import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
-import org.fenixedu.academic.domain.student.personaldata.ProfessionCategoryType;
-import org.fenixedu.academic.domain.student.personaldata.ProfessionalStatusType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 
@@ -76,138 +70,6 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
         }
     }
 
-    @Override
-    public void setProfessionType(ProfessionType professionType) {
-        super.setProfessionCategoryType(findProfessionCategoryType(professionType));
-        super.setProfessionType(professionType);
-    }
-
-    @Override
-    public void setProfessionCategoryType(ProfessionCategoryType professionCategoryType) {
-        super.setProfessionType(findProfessionType(professionCategoryType));
-        super.setProfessionCategoryType(professionCategoryType);
-    }
-
-    @Override
-    public void setMotherProfessionType(ProfessionType motherProfessionType) {
-        super.setMotherProfessionCategoryType(findProfessionCategoryType(motherProfessionType));
-        super.setMotherProfessionType(motherProfessionType);
-    }
-
-    @Override
-    public void setMotherProfessionCategoryType(ProfessionCategoryType motherProfessionCategoryType) {
-        super.setMotherProfessionType(findProfessionType(motherProfessionCategoryType));
-        super.setMotherProfessionCategoryType(motherProfessionCategoryType);
-    }
-
-    @Override
-    public void setFatherProfessionType(ProfessionType fatherProfessionType) {
-        super.setFatherProfessionCategoryType(findProfessionCategoryType(fatherProfessionType));
-        super.setFatherProfessionType(fatherProfessionType);
-    }
-
-    @Override
-    public void setFatherProfessionCategoryType(ProfessionCategoryType fatherProfessionCategoryType) {
-        super.setFatherProfessionType(findProfessionType(fatherProfessionCategoryType));
-        super.setFatherProfessionCategoryType(fatherProfessionCategoryType);
-    }
-
-    @Override
-    public void setSpouseProfessionType(ProfessionType spouseProfessionType) {
-        super.setSpouseProfessionCategoryType(findProfessionCategoryType(spouseProfessionType));
-        super.setSpouseProfessionType(spouseProfessionType);
-    }
-
-    @Override
-    public void setSpouseProfessionCategoryType(ProfessionCategoryType spouseProfessionCategoryType) {
-        super.setSpouseProfessionType(findProfessionType(spouseProfessionCategoryType));
-        super.setSpouseProfessionCategoryType(spouseProfessionCategoryType);
-    }
-
-    @Override
-    public void setProfessionalCondition(ProfessionalSituationConditionType professionalCondition) {
-        super.setProfessionalStatusType(findProfessionalStatusType(professionalCondition));
-        super.setProfessionalCondition(professionalCondition);
-    }
-
-    @Override
-    public void setProfessionalStatusType(ProfessionalStatusType professionalStatusType) {
-        super.setProfessionalCondition(findProfessionalCondition(professionalStatusType));
-        super.setProfessionalStatusType(professionalStatusType);
-    }
-
-    @Override
-    public void setMotherProfessionalCondition(ProfessionalSituationConditionType motherProfessionalCondition) {
-        super.setMotherProfessionalStatusType(findProfessionalStatusType(motherProfessionalCondition));
-        super.setMotherProfessionalCondition(motherProfessionalCondition);
-    }
-
-    @Override
-    public void setMotherProfessionalStatusType(ProfessionalStatusType motherProfessionalStatusType) {
-        super.setMotherProfessionalCondition(findProfessionalCondition(motherProfessionalStatusType));
-        super.setMotherProfessionalStatusType(motherProfessionalStatusType);
-    }
-
-    @Override
-    public void setFatherProfessionalCondition(ProfessionalSituationConditionType fatherProfessionalCondition) {
-        super.setFatherProfessionalStatusType(findProfessionalStatusType(fatherProfessionalCondition));
-        super.setFatherProfessionalCondition(fatherProfessionalCondition);
-    }
-
-    @Override
-    public void setFatherProfessionalStatusType(ProfessionalStatusType fatherProfessionalStatusType) {
-        super.setFatherProfessionalCondition(findProfessionalCondition(fatherProfessionalStatusType));
-        super.setFatherProfessionalStatusType(fatherProfessionalStatusType);
-    }
-
-    @Override
-    public void setSpouseProfessionalCondition(ProfessionalSituationConditionType spouseProfessionalCondition) {
-        super.setSpouseProfessionalStatusType(findProfessionalStatusType(spouseProfessionalCondition));
-        super.setSpouseProfessionalCondition(spouseProfessionalCondition);
-    }
-
-    @Override
-    public void setSpouseProfessionalStatusType(ProfessionalStatusType spouseProfessionalStatusType) {
-        super.setSpouseProfessionalCondition(findProfessionalCondition(spouseProfessionalStatusType));
-        super.setSpouseProfessionalStatusType(spouseProfessionalStatusType);
-    }
-
-    @Override
-    public void setMotherSchoolLevel(SchoolLevelType motherSchoolLevel) {
-        super.setMotherEducationLevelType(findEducationLevelType(motherSchoolLevel));
-        super.setMotherSchoolLevel(motherSchoolLevel);
-    }
-
-    @Override
-    public void setMotherEducationLevelType(EducationLevelType motherEducationLevelType) {
-        super.setMotherSchoolLevel(findSchoolLevel(motherEducationLevelType));
-        super.setMotherEducationLevelType(motherEducationLevelType);
-    }
-
-    @Override
-    public void setFatherSchoolLevel(SchoolLevelType fatherSchoolLevel) {
-        super.setFatherEducationLevelType(findEducationLevelType(fatherSchoolLevel));
-        super.setFatherSchoolLevel(fatherSchoolLevel);
-    }
-
-    @Override
-    public void setFatherEducationLevelType(EducationLevelType fatherEducationLevelType) {
-        super.setFatherSchoolLevel(findSchoolLevel(fatherEducationLevelType));
-        super.setFatherEducationLevelType(fatherEducationLevelType);
-    }
-
-    @Override
-    public void setSpouseSchoolLevel(SchoolLevelType spouseSchoolLevel) {
-        super.setSpouseEducationLevelType(findEducationLevelType(spouseSchoolLevel));
-        super.setSpouseSchoolLevel(spouseSchoolLevel);
-    }
-
-    @Override
-    public void setSpouseEducationLevelType(EducationLevelType spouseEducationLevelType) {
-        super.setSpouseSchoolLevel(findSchoolLevel(spouseEducationLevelType));
-        super.setSpouseEducationLevelType(spouseEducationLevelType);
-    }
-
     private static boolean studentHasRepeatedPID(Student student, ExecutionYear executionYear) {
         PersonalIngressionData existingPid = null;
         for (PersonalIngressionData pid : student.getPersonalIngressionsDataSet()) {
@@ -252,53 +114,5 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
     @ConsistencyPredicate
     public boolean checkHasStudent() {
         return getStudent() != null;
-    }
-
-    private ProfessionType findProfessionType(ProfessionCategoryType professionCategoryType) {
-        if (professionCategoryType == null) {
-            return null;
-        }
-        return ProfessionType.findByCode(professionCategoryType.getCode()).orElseThrow(
-                () -> new DomainException("error.ProfessionCategoryType.not.found", professionCategoryType.getCode()));
-    }
-
-    private ProfessionCategoryType findProfessionCategoryType(ProfessionType professionType) {
-        if (professionType == null) {
-            return null;
-        }
-        return ProfessionCategoryType.findByCode(professionType.getName())
-                .orElseThrow(() -> new DomainException("error.ProfessionType.not.found", professionType.getName()));
-    }
-
-    private ProfessionalSituationConditionType findProfessionalCondition(ProfessionalStatusType professionalStatusType) {
-        if (professionalStatusType == null) {
-            return null;
-        }
-        return ProfessionalSituationConditionType.findByCode(professionalStatusType.getCode()).orElseThrow(
-                () -> new DomainException("error.ProfessionalStatusType.not.found", professionalStatusType.getCode()));
-    }
-
-    private ProfessionalStatusType findProfessionalStatusType(ProfessionalSituationConditionType professionalCondition) {
-        if (professionalCondition == null) {
-            return null;
-        }
-        return ProfessionalStatusType.findByCode(professionalCondition.getName())
-                .orElseThrow(() -> new DomainException("error.ProfessionalCondition.not.found", professionalCondition.getName()));
-    }
-
-    private SchoolLevelType findSchoolLevel(EducationLevelType educationLevelType) {
-        if (educationLevelType == null) {
-            return null;
-        }
-        return SchoolLevelType.findByCode(educationLevelType.getCode())
-                .orElseThrow(() -> new DomainException("error.EducationLevelType.not.found", educationLevelType.getCode()));
-    }
-
-    private EducationLevelType findEducationLevelType(SchoolLevelType schoolLevel) {
-        if (schoolLevel == null) {
-            return null;
-        }
-        return EducationLevelType.findByCode(schoolLevel.getName())
-                .orElseThrow(() -> new DomainException("error.SchoolLevelType.not.found", schoolLevel.getName()));
     }
 }
