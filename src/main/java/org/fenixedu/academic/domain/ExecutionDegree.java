@@ -142,9 +142,6 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         if (!getSchoolClassesSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionDegree.cannotBeDeleted.hasSchoolClasses"));
         }
-        if (!getStudentCandidaciesSet().isEmpty()) {
-            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionDegree.cannotBeDeleted.hasStudentCandidacies"));
-        }
     }
 
     public boolean isDeletable() {

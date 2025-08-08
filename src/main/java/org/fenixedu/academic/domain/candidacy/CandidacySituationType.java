@@ -22,9 +22,7 @@ public enum CandidacySituationType {
 
     STAND_BY(true),
 
-
     CANCELLED(false),
-
 
     REGISTERED(true);
 
