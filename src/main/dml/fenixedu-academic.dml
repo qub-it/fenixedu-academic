@@ -603,9 +603,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class photograph.PictureOriginal extends photograph.Picture {
     }
 
-        class candidacy.CandidacySummaryFile extends .org.fenixedu.bennu.io.domain.GenericFile {
-        }
-
     class Holiday  {
         Partial date;
     }
@@ -725,17 +722,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class administrativeOffice.AdministrativeOffice  {
         LocalizedString name;
         AdministrativeOfficeType administrativeOfficeType;
-    }
-
-    class candidacy.StudentCandidacy{
-        YearMonthDay startDate;
-    	CandidacySituationType state;
-    	DateTime stateDate;
-        String contigent;
-        Double entryGrade;
-        Integer admissionPhase;
-        Integer placingOption;
-        Boolean firstTimeCandidacy;
     }
 
 	class candidacy.IngressionType{
@@ -2039,13 +2025,6 @@ relation AttendsStudent {
     student.Registration playsRole aluno;
 }
 
-relation CandidacyRootDomainObject {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    candidacy.StudentCandidacy playsRole candidacies {
-        multiplicity *;
-    }
-}
-
 relation CompetenceCourseInformationCompetenceCourse {
     degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformations {
         multiplicity *;
@@ -2836,13 +2815,6 @@ relation AcademicAccessRuleOffices {
     }
 }
 
-relation PersonCandidacy {
-    Person playsRole person;
-    candidacy.StudentCandidacy playsRole candidacies {
-        multiplicity *;
-    }
-}
-
 relation PersonCountryOfBirth {
     Person playsRole associatedBornedPersons {
         multiplicity *;
@@ -2881,16 +2853,6 @@ relation PrecedentDegreeInformationInstitution {
         multiplicity *;
     }
     organizationalStructure.Unit playsRole institution;
-}
-
-relation CompletedPrecedentDegreeInformationStudentCandidacy {
-    student.PrecedentDegreeInformation playsRole completedDegreeInformation;
-    candidacy.StudentCandidacy playsRole completedStudentCandidacy;
-}
-
-relation PreviousPrecedentDegreeInformationStudentCandidacy {
-    student.PrecedentDegreeInformation playsRole previousDegreeInformation;
-    candidacy.StudentCandidacy playsRole previousStudentCandidacy;
 }
 
 relation CompletedPrecedentDegreeInformationRegistration {
@@ -3056,11 +3018,6 @@ relation RegistrationStudent {
         multiplicity *;
     }
     student.Student playsRole student;
-}
-
-relation RegistrationStudentCandidacy {
-    student.Registration playsRole registration;
-    candidacy.StudentCandidacy playsRole studentCandidacy;
 }
 
 relation RegistrationRegistrationProtocol {
@@ -3754,13 +3711,6 @@ relation ShiftSummary {
     Shift playsRole shift { multiplicity 1..1; }
 }
 
-relation StudentCandidacyExecutionDegree {
-    ExecutionDegree playsRole executionDegree;
-    candidacy.StudentCandidacy playsRole studentCandidacies {
-        multiplicity *;
-    }
-}
-
 relation StudentCurricularPlanCredits {
     StudentCurricularPlan playsRole studentCurricularPlan;
     studentCurriculum.Credits playsRole credits {
@@ -4144,30 +4094,12 @@ relation CoordinatorLogPerson {
 	}
 }
 
-relation StudentCandidacyCandidacySummaryFile {
-	candidacy.StudentCandidacy playsRole studentCandidacy;
-	candidacy.CandidacySummaryFile playsRole summaryFile {
-		multiplicity 0..1;
-	}
-}
-
-
 relation IngressionTypeBennu{
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject {
         multiplicity 1..1;
     }
 	candidacy.IngressionType playsRole ingressionTypes{
 		multiplicity *;
-	}
-}
-
-relation StudentCandidacyIngressionType{
-	candidacy.StudentCandidacy playsRole studentCandidacy{
-		multiplicity *;
-	}
-	
-	candidacy.IngressionType playsRole ingressionType{
-		multiplicity 0..1;
 	}
 }
 

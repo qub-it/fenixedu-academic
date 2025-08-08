@@ -26,7 +26,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -268,9 +267,6 @@ public class IngressionType extends IngressionType_Base {
 	public void delete() {
 		if (!getRegistrationSet().isEmpty()) {
 			throw new DomainException("label.error.ingressionType.delete.hasRegistrationsAssociated");
-		}
-		if (!getStudentCandidacySet().isEmpty()) {
-			throw new DomainException("label.error.ingressionType.delete.hasStudentCandidaciesAssociated");
 		}
 		setRootDomainObject(null);
 		deleteDomainObject();

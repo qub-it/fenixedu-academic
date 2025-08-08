@@ -59,7 +59,6 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
@@ -196,15 +195,7 @@ public class Registration extends Registration_Base {
     @Deprecated
     public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
-        return create(person, degreeCurricularPlan, null, protocol, cycleType, executionYear);
-    }
-
-    @Deprecated
-    public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
-            final StudentCandidacy studentCandidacy, final RegistrationProtocol protocol, final CycleType cycleType,
-            final ExecutionYear executionYear) {
-        Registration registration =
-                importRegistration(person, degreeCurricularPlan, studentCandidacy, protocol, cycleType, executionYear);
+        Registration registration = importRegistration(person, degreeCurricularPlan, protocol, cycleType, executionYear);
 
         TreasuryBridgeAPIFactory.implementation().createCustomerIfMissing(registration.getStudent().getPerson());
 
@@ -214,13 +205,6 @@ public class Registration extends Registration_Base {
     @Deprecated
     public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
-        return importRegistration(person, degreeCurricularPlan, null, protocol, cycleType, executionYear);
-    }
-
-    @Deprecated
-    public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
-            final StudentCandidacy studentCandidacy, final RegistrationProtocol protocol, final CycleType cycleType,
-            final ExecutionYear executionYear) {
         final Registration registration = new Registration(person, null,
                 degreeCurricularPlan != null ? degreeCurricularPlan.getDegree() : null, executionYear);
         registration.setRegistrationProtocol(protocol == null ? RegistrationProtocol.getDefault() : protocol);
@@ -278,9 +262,6 @@ public class Registration extends Registration_Base {
 
         if (getRegistrationNumber() != null) {
             getRegistrationNumber().delete();
-        }
-        if (getStudentCandidacy() != null) {
-            getStudentCandidacy().delete();
         }
 
         Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(pdi -> pdi.delete());
@@ -1046,10 +1027,6 @@ public class Registration extends Registration_Base {
         return inspectIngressionYear(registration.getSourceRegistration());
     }
 
-    public String getContigent() {
-        return getStudentCandidacy() != null ? getStudentCandidacy().getContigent() : null;
-    }
-
     public String getDegreeNameWithDegreeCurricularPlanName() {
         final StudentCurricularPlan toAsk = getStudentCurricularPlan(
                 getStartExecutionYear()) == null ? getFirstStudentCurricularPlan() : getStudentCurricularPlan(
@@ -1568,20 +1545,6 @@ public class Registration extends Registration_Base {
     final public boolean isInactive() {
         final RegistrationStateType activeStateType = getActiveStateType();
         return activeStateType != null && !activeStateType.getActive();
-    }
-
-    @Override
-    final public void setStudentCandidacy(final StudentCandidacy studentCandidacy) {
-        if (getStudentCandidacy() != null) {
-            throw new DomainException(
-                    "error.org.fenixedu.academic.domain.student.Registration.studentCandidacy.cannot.be.modified");
-        }
-
-        super.setStudentCandidacy(studentCandidacy);
-    }
-
-    final public void removeStudentCandidacy() {
-        super.setStudentCandidacy(null);
     }
 
     final public Attends readAttendByExecutionCourse(final ExecutionCourse executionCourse) {

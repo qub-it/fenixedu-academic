@@ -19,21 +19,10 @@
 package org.fenixedu.academic.domain.candidacy;
 
 public enum CandidacySituationType {
-    PRE_CANDIDACY(true),
 
     STAND_BY(true),
 
-    STAND_BY_FILLED_DATA(true),
-
-    STAND_BY_CONFIRMED_DATA(true),
-
-    ADMITTED(true),
-
     CANCELLED(false),
-
-    SUBSTITUTE(false),
-
-    NOT_ADMITTED(false),
 
     REGISTERED(true);
 

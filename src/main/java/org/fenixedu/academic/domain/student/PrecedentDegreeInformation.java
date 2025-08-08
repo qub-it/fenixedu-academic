@@ -38,9 +38,6 @@ public class PrecedentDegreeInformation extends PrecedentDegreeInformation_Base 
         setCountryHighSchool(null);
         setInstitution(null);
 
-        setCompletedStudentCandidacy(null);
-        setPreviousStudentCandidacy(null);
-
         setCompletedRegistration(null);
         setPreviousRegistration(null);
 
