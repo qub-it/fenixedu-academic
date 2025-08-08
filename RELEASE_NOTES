@@ -1,3 +1,4 @@
+- Refactor: deprecate CandidateGroup [#qubIT-Fenix-6559]
 - Refactor: Cleans up RAIDES enums refactor [#qubIT-Fenix-7009]
 
 51.0.1 (07-08-2025)
