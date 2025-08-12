@@ -1,3 +1,4 @@
+52.0.0 (12-08-2025)
 - Refactor: Deletes StudentCandidacy class [#qubIT-Fenix-6559]
 - Refactor: deprecate CandidateGroup [#qubIT-Fenix-6559]
 - Refactor: Cleans up RAIDES enums refactor [#qubIT-Fenix-7009]
