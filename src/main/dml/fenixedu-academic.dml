@@ -71,7 +71,6 @@ enum org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext         
 enum org.fenixedu.academic.domain.OperationType																		  as OperationType;
 enum org.fenixedu.academic.domain.contacts.PartyContactValidationState 									              as PartyContactValidationState;
 enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as SchoolPeriodDuration;
-enum org.fenixedu.academic.domain.candidacy.CandidacySituationType                                                     as CandidacySituationType;
 enum java.math.RoundingMode 																							as RoundingMode;
 enum org.fenixedu.academic.domain.log.EnrolmentActionType															as EnrolmentActionType;
 enum org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCoursesDuration                                       as LessonPeriodCoursesDuration;
