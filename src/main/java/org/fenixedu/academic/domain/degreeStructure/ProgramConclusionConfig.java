@@ -10,7 +10,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     
-    public ProgramConclusionConfig() {
+    protected ProgramConclusionConfig() {
         super();
         super.setRootDomainObject(Bennu.getInstance());
     }
@@ -37,8 +37,36 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     }
 
     @Override
+    public void setConclusionTitle(final LocalizedString conclusionTitle) {
+        if (conclusionTitle == null || conclusionTitle.isEmpty()) {
+            throw new DomainException("error.ProgramConclusionConfig.conclusionTitle.cannot.be.null.or.empty");
+        }
+        super.setConclusionTitle(conclusionTitle);
+    }
+
+    @Override
+    public void setDegreeCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan) {
+        if (degreeCurricularPlan == null) {
+            throw new DomainException("error.ProgramConclusionConfig.degreeCurricularPlan.cannot.be.null");
+        }
+        super.setDegreeCurricularPlan(degreeCurricularPlan);
+    }
+
+    @Override
+    public void setProgramConclusion(final ProgramConclusion programConclusion) {
+        if (programConclusion == null) {
+            throw new DomainException("error.ProgramConclusionConfig.programConclusion.cannot.be.null");
+        }
+        if (!getConclusionProcessesSet().isEmpty()) {
+            throw new DomainException(
+                    "error.ProgramConclusionConfig.cannot.change.programConclusion.with.related.conclusionProcesses");
+        }
+        super.setProgramConclusion(programConclusion);
+    }
+
+    @Override
     public void setConfigOrder(final Integer configOrder) {
-        throw new RuntimeException("Order change should be done using move methods");
+        throw new DomainException("error.order.change.should.be.done.using.move.methods");
     }
 
     @Override
@@ -104,8 +132,8 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
             throw new DomainException("error.ProgramConclusionConfig.cannot.delete.with.related.conclusionProcesses");
         }
 
-        setProgramConclusion(null);
-        setDegreeCurricularPlan(null);
+        super.setProgramConclusion(null);
+        super.setDegreeCurricularPlan(null);
         getIncludedModulesSet().clear();
         getExcludedModulesSet().clear();
         setRootDomainObject(null);
