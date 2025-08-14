@@ -196,6 +196,8 @@ public class ProgramConclusion extends ProgramConclusion_Base {
 
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+        for (; !getProgramConclusionConfigsSet().isEmpty(); getProgramConclusionConfigsSet().iterator().next().delete())
+            ;
         setRoot(null);
         setTargetStateType(null);
         super.deleteDomainObject();

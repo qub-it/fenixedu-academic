@@ -222,6 +222,8 @@ abstract public class DegreeModule extends DegreeModule_Base {
                     .iterator().next().delete()) {
                 ;
             }
+            getProgramConclusionConfigsForIncludedModulesSet().clear();
+            getProgramConclusionConfigsForExcludedModulesSet().clear();
         } else {
             throw new DomainException("courseGroup.notEmptyCurriculumModules");
         }

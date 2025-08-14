@@ -287,6 +287,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 getDegreeStructure().delete();
             }
             super.setConclusionGradeCalculator(null);
+            for (; !getProgramConclusionConfigsSet().isEmpty(); getProgramConclusionConfigsSet().iterator().next().delete())
+                ;
             setRootDomainObject(null);
             deleteDomainObject();
         } else {

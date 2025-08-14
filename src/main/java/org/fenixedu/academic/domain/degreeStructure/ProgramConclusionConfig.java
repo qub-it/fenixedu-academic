@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -57,7 +56,7 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
         if (programConclusion == null) {
             throw new DomainException("error.ProgramConclusionConfig.programConclusion.cannot.be.null");
         }
-        if (!getConclusionProcessesSet().isEmpty()) {
+        if (programConclusion != getProgramConclusion() && !getConclusionProcessesSet().isEmpty()) {
             throw new DomainException(
                     "error.ProgramConclusionConfig.cannot.change.programConclusion.with.related.conclusionProcesses");
         }
@@ -140,15 +139,11 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
         super.deleteDomainObject();
     }
 
-    public static ProgramConclusionConfig findAtPosition(final DegreeCurricularPlan degreeCurricularPlan, final Integer order) {
+    private static ProgramConclusionConfig findAtPosition(final DegreeCurricularPlan degreeCurricularPlan, final Integer order) {
         return find(degreeCurricularPlan).stream().filter(c -> c.getConfigOrder().equals(order)).findFirst().orElse(null);
     }
 
-    public static Collection<ProgramConclusionConfig> find(final DegreeCurricularPlan degreeCurricularPlan) {
-        if (degreeCurricularPlan == null) {
-            return Collections.emptySet();
-        }
-
+    private static Collection<ProgramConclusionConfig> find(final DegreeCurricularPlan degreeCurricularPlan) {
         return degreeCurricularPlan.getProgramConclusionConfigsSet();
     }
 }
