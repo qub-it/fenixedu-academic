@@ -222,14 +222,16 @@ abstract public class DegreeModule extends DegreeModule_Base {
                     .iterator().next().delete()) {
                 ;
             }
-            getProgramConclusionConfigsForIncludedModulesSet().clear();
-            getProgramConclusionConfigsForExcludedModulesSet().clear();
         } else {
             throw new DomainException("courseGroup.notEmptyCurriculumModules");
         }
     }
 
     protected Boolean getCanBeDeleted() {
+        if (!getProgramConclusionConfigsForIncludedModulesSet().isEmpty()
+                || !getProgramConclusionConfigsForExcludedModulesSet().isEmpty()) {
+            throw new DomainException("error.DegreeModule.cannot.delete.with.related.programConclusionConfigs");
+        }
         return getCurriculumModulesSet().isEmpty();
     }
 
