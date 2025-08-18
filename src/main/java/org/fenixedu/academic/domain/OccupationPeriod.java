@@ -176,7 +176,8 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     private boolean isEmpty() {
-        return getLessonsSet().isEmpty() && getInitialLessonsSet().isEmpty() && getLessonPeriod() == null;
+        return getLessonsSet().isEmpty() && getInitialLessonsSet().isEmpty() && (getLessonPeriod() == null || getLessonPeriod().getExecutionDegreeLessonPeriodsSet()
+                .isEmpty());
     }
 
     public OccupationPeriod getLastOccupationPeriodOfNestedPeriods() {

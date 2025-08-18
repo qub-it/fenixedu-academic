@@ -1,4 +1,5 @@
 - Refactor: Deletes CandidacySituationType enum [#qubIT-Fenix-6559]
+- Bug fix: Correctly test if an occupation period is empty [#UL-FMV-1113]
 
 52.0.0 (12-08-2025)
 - Refactor: Deletes StudentCandidacy class [#qubIT-Fenix-6559]
