@@ -10,6 +10,10 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class EducationLevelType extends EducationLevelType_Base {
+
+    public static final String UNKNOWN = "UNKNOWN";
+    public static final String DEGREE = "DEGREE";
+
     protected EducationLevelType() {
         super();
         setRootDomainObject(Bennu.getInstance());
