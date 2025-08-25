@@ -36,6 +36,8 @@ public class ExecutionIntervalTest {
      *  > 2nd Semester 2021/2022 
      *  > 1st Semester 2022/2023 
      *  > 2nd Semester 2022/2023
+     *  > 1st Semester 2023/2024
+     *  > 2nd Semester 2023/2024
      */
 
     private static final int CURRENT_YEAR = 2020;
@@ -43,6 +45,7 @@ public class ExecutionIntervalTest {
     private static AcademicYearCE academicYearEntrySecond;
     private static AcademicYearCE academicYearEntryThird;
     private static AcademicYearCE academicYearEntryFourth;
+    private static AcademicYearCE academicYearEntryFifth;
 
     @BeforeClass
     public static void init() {
@@ -67,6 +70,7 @@ public class ExecutionIntervalTest {
         academicYearEntrySecond = createStandardYearInterval(rootEntry, year);
         academicYearEntryThird = createStandardYearInterval(rootEntry, year + 1);
         academicYearEntryFourth = createStandardYearInterval(rootEntry, year + 2);
+        academicYearEntryFifth = createStandardYearInterval(rootEntry, year + 3);
 
 //        final ExecutionYear currentExecutionYear = (ExecutionYear) academicYearEntrySecond.getExecutionInterval();
 //        currentExecutionYear.setState(PeriodState.CURRENT);
@@ -84,6 +88,9 @@ public class ExecutionIntervalTest {
         createFirstSemesterInterval(academicYearEntryFourth);
         createSecondSemesterInterval(academicYearEntryFourth);
 
+        createFirstSemesterInterval(academicYearEntryFifth);
+        createSecondSemesterInterval(academicYearEntryFifth);
+
         AcademicCalendarRootEntry civilCalendar =
                 new AcademicCalendarRootEntry(new LocalizedString().with(Locale.getDefault(), "Civil Calendar"), null);
 
@@ -91,6 +98,7 @@ public class ExecutionIntervalTest {
         createCivilYearIntervalAndMonths(civilCalendar, year);
         createCivilYearIntervalAndMonths(civilCalendar, year + 1);
         createCivilYearIntervalAndMonths(civilCalendar, year + 2);
+        createCivilYearIntervalAndMonths(civilCalendar, year + 3);
 
         AcademicPeriodOrder.initialize();
     }
@@ -104,7 +112,6 @@ public class ExecutionIntervalTest {
         return new AcademicYearCE(calendar, new LocalizedString().with(Locale.getDefault(), name), null,
                 startDate.toDateTimeAtStartOfDay(), endDate.toDateTimeAtStartOfDay(), calendar);
     }
-
     private static AcademicIntervalCE createFirstSemesterInterval(AcademicYearCE academicYearEntry) {
         final int year = academicYearEntry.getBegin().getYear();
         final AcademicIntervalCE firstSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER, academicYearEntry,
@@ -151,7 +158,7 @@ public class ExecutionIntervalTest {
         assertTrue("Root entry".equals(Bennu.getInstance().getDefaultAcademicCalendar().getTitle().getContent()));
         assertTrue(academicYearEntryFirst.getExecutionInterval() != null);
         assertTrue(academicYearEntryFirst.getExecutionInterval().isBefore(academicYearEntrySecond.getExecutionInterval()));
-        assertTrue(ExecutionYear.findAllAggregators().size() == 8);
+        assertTrue(ExecutionYear.findAllAggregators().size() == 10);
         assertEquals(ExecutionYear.findCurrent(null), academicYearEntrySecond.getExecutionInterval());
     }
 
