@@ -83,6 +83,7 @@ public class CompetenceCourseInformationTest {
         final ExecutionYear executionYear_20_21 = ExecutionYear.readExecutionYearByName("2020/2021");
         final ExecutionYear executionYear_21_22 = ExecutionYear.readExecutionYearByName("2021/2022");
         final ExecutionYear executionYear_22_23 = ExecutionYear.readExecutionYearByName("2022/2023");
+        final ExecutionYear executionYear_23_24 = ExecutionYear.readExecutionYearByName("2023/2024");
 
         final Set<ExecutionInterval> currentInformationExecutionIntervalsRange =
                 currentInformation.getExecutionIntervalsRange().collect(Collectors.toSet());
@@ -92,9 +93,10 @@ public class CompetenceCourseInformationTest {
 
         final Set<ExecutionInterval> nextInformationExecutionIntervalsRange =
                 nextNextInformation.getExecutionIntervalsRange().collect(Collectors.toSet());
-        assertEquals(nextInformationExecutionIntervalsRange.size(), 4);
-        assertTrue(nextInformationExecutionIntervalsRange.stream()
-                .allMatch(ei -> ei.getExecutionYear() == executionYear_21_22 || ei.getExecutionYear() == executionYear_22_23));
+        assertEquals(nextInformationExecutionIntervalsRange.size(), 6);
+        assertTrue(nextInformationExecutionIntervalsRange.stream().allMatch(
+                ei -> ei.getExecutionYear() == executionYear_21_22 || ei.getExecutionYear() == executionYear_22_23
+                        || ei.getExecutionYear() == executionYear_23_24));
     }
 
 }
