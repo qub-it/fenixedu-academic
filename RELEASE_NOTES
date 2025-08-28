@@ -1,3 +1,4 @@
+52.1.1 (28-08-2025)
 - Refactor: Use static RAIDES code constants [#qubIT-Fenix-7009]
 - Improvement: add one more year in the ExecutionIntervalTest [#qubIT-Fenix-6788]
 
