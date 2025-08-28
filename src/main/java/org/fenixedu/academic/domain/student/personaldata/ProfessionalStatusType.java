@@ -10,6 +10,10 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ProfessionalStatusType extends ProfessionalStatusType_Base {
+
+    public static final String STUDENT = "STUDENT";
+    public static final String UNKNOWN = "UNKNOWN";
+
     protected ProfessionalStatusType() {
         super();
         setRootDomainObject(Bennu.getInstance());

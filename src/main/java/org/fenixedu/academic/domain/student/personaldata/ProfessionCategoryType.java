@@ -11,6 +11,8 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ProfessionCategoryType extends ProfessionCategoryType_Base {
 
+    public static final String UNKNOWN = "UNKNOWN";
+
     protected ProfessionCategoryType() {
         super();
         setRootDomainObject(Bennu.getInstance());
