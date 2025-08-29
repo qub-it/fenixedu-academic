@@ -51,6 +51,7 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -287,8 +288,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
                 getDegreeStructure().delete();
             }
             super.setConclusionGradeCalculator(null);
-            for (; !getProgramConclusionConfigsSet().isEmpty(); getProgramConclusionConfigsSet().iterator().next().delete())
-                ;
+            getProgramConclusionConfigsSet().forEach(ProgramConclusionConfig::delete);
             setRootDomainObject(null);
             deleteDomainObject();
         } else {

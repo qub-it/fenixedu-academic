@@ -1345,11 +1345,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String calculusDescription;
     }
 
-    relation ProgramConclusionConfigConclusionProcess {
-        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfig { multiplicity 0..1; }
-        student.curriculum.ConclusionProcess playsRole conclusionProcesses { multiplicity *; }
-    }
-
     class student.curriculum.ExtraCurricularActivity  {
         Interval activityInterval (REQUIRED);
     }
@@ -3776,15 +3771,6 @@ relation StudentCurricularPlanStudent {
         multiplicity *;
     }
     student.Registration playsRole student;
-}
-
-relation StudentCurricularPlanConclusionProcess {
-    StudentCurricularPlan playsRole studentCurricularPlan {
-        multiplicity 1;
-    }
-    student.curriculum.ConclusionProcess playsRole conclusionProcesses {
-        multiplicity *;
-    }
 }
 
 relation StudentEnrolmentLog {

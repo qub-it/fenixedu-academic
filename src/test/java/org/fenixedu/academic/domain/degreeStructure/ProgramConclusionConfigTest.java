@@ -160,17 +160,6 @@ public class ProgramConclusionConfigTest {
     }
 
     @Test
-    public void testProgramConclusionConfig_deleteWithRelatedConclusionProcessesThrowsDomainException() {
-        config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-
-        config.getConclusionProcessesSet().add(spy(ProgramConclusionProcess.class));
-        assertEquals(1, config.getConclusionProcessesSet().size());
-        assertThrows(DomainException.class, () -> config.delete());
-
-        config.getConclusionProcessesSet().clear();
-    }
-
-    @Test
     public void testProgramConclusionConfig_moveUp() {
         config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
         ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
