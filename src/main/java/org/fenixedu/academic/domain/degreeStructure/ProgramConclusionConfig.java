@@ -98,10 +98,6 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     }
 
     public void delete() {
-        if (!getConclusionProcessesSet().isEmpty()) {
-            throw new DomainException("error.ProgramConclusionConfig.cannot.delete.with.related.conclusionProcesses");
-        }
-
         moveBottom();
 
         setProgramConclusion(null);
