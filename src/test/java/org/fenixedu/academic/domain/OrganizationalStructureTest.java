@@ -12,16 +12,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
+import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -168,6 +172,31 @@ public class OrganizationalStructureTest {
 
         result = PartyType.findByCode("  ");
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testParty_nameComparator() {
+        Person zPerson = createPerson("Zeca", "z");
+        Person afPerson = createPerson("andreia Filipa", "af");
+        Person igPerson = createPerson("Ígor", "ig");
+        Person amPerson = createPerson("André Miguel", "am");
+        Person ivPerson = createPerson("Ivo", "iv");
+
+        List<Person> sortedPersons =
+                Stream.of(zPerson, afPerson, igPerson, amPerson, ivPerson).sorted(Party.COMPARATOR_BY_NAME).toList();
+//        System.out.println(sortedPersons.stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
+
+        assertEquals(amPerson, sortedPersons.get(0));
+        assertEquals(afPerson, sortedPersons.get(1));
+        assertEquals(igPerson, sortedPersons.get(2));
+        assertEquals(ivPerson, sortedPersons.get(3));
+        assertEquals(zPerson, sortedPersons.get(4));
+    }
+
+    private static Person createPerson(final String name, final String username) {
+        final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
+        new User(username, userProfile);
+        return new Person(userProfile);
     }
 
 }

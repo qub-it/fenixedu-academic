@@ -52,12 +52,8 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public abstract class Party extends Party_Base implements Comparable<Party> {
 
-    static final public Comparator<Party> COMPARATOR_BY_NAME = new Comparator<Party>() {
-        @Override
-        public int compare(final Party o1, final Party o2) {
-            return Collator.getInstance().compare(o1.getName(), o2.getName());
-        }
-    };
+    public static final Comparator<Party> COMPARATOR_BY_NAME =
+            Comparator.comparing(p -> p.getName().replaceAll("\\s+", "_").toUpperCase(), Collator.getInstance());
 
     static final public Comparator<Party> COMPARATOR_BY_SUBPARTY = new Comparator<Party>() {
         @Override
