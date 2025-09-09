@@ -50,10 +50,11 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.LocalizedString;
 
+import static org.fenixedu.academic.util.StringFormatter.NAME_COMPARATOR;
+
 public abstract class Party extends Party_Base implements Comparable<Party> {
 
-    public static final Comparator<Party> COMPARATOR_BY_NAME =
-            Comparator.comparing(p -> p.getName().replaceAll("\\s+", "_").toUpperCase(), Collator.getInstance());
+    public static final Comparator<Party> COMPARATOR_BY_NAME = Comparator.comparing(Party::getName, NAME_COMPARATOR);
 
     static final public Comparator<Party> COMPARATOR_BY_SUBPARTY = new Comparator<Party>() {
         @Override

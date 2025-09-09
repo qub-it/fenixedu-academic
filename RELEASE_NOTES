@@ -1,3 +1,5 @@
+- Refactor: Extract party name comparator logic to an own string comparator [#ISCTE-FENIXEDU-1169]
+
 52.1.2 (05-09-2025)
 - Bug fix: Party name comparator should take into account whitespaces [#ISCTE-FENIXEDU-1169]
 

@@ -21,6 +21,8 @@
  */
 package org.fenixedu.academic.util;
 
+import java.text.Collator;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -38,6 +40,9 @@ import org.fenixedu.commons.StringNormalizer;
  * 
  */
 public class StringFormatter {
+
+    public static final Comparator<String> NAME_COMPARATOR =
+            Comparator.comparing(name -> name.replaceAll("\\s+", "_").toUpperCase(), Collator.getInstance());
 
     private static String specialChars = "/:-,.()'+";
 
