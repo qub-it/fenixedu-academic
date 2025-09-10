@@ -1,3 +1,5 @@
+- Refactor: Remove DegreeInfo domain hardcoded fields [#qubIT-Fenix-6512]
+
 52.1.3 (09-09-2025)
 - Refactor: Extract party name comparator logic to an own string comparator [#ISCTE-FENIXEDU-1169]
 

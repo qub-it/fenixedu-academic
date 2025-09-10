@@ -421,25 +421,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     
     class DegreeInfo  {
-        Integer driftsFirst;
-        Integer driftsInitial;
-        Integer driftsSecond;
-        Double markAverage;
-        Double markMax;
-        Double markMin;
         LocalizedString name;
-        LocalizedString additionalInfo;
-        LocalizedString description;
-        LocalizedString gratuity;
-        LocalizedString history;
-        LocalizedString links;
-        LocalizedString operationalRegime;
         LocalizedString schoolCalendar;
-
-		LocalizedString learningLanguages;
-		LocalizedString officialProgramDuration;
-		LocalizedString studyRegime;
-		LocalizedString prevailingScientificArea;
     }
 
     class DegreeInfoCandidacy  {
