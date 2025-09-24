@@ -192,6 +192,10 @@ public class ProgramConclusion extends ProgramConclusion_Base {
         if (!getCourseGroupSet().isEmpty()) {
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.program.conclusion.has.groups"));
         }
+        if (!getProgramConclusionConfigsSet().isEmpty()) {
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION,
+                    "error.ProgramConclusion.cannot.delete.with.related.programConclusionConfigs"));
+        }
     }
 
     public void delete() {

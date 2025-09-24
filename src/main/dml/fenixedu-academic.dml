@@ -1037,7 +1037,37 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         protected boolean alumniProvider;
         protected boolean skipValidation;
     }
-	
+
+    public class degreeStructure.ProgramConclusionConfig {
+        public int configOrder;
+        public LocalizedString conclusionTitle (REQUIRED);
+    }
+
+    relation ProgramConclusionConfigRootDomainObject {
+        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfigs { multiplicity *; }
+        .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+    }
+
+    relation ProgramConclusionProgramConclusionConfig {
+        degreeStructure.ProgramConclusion playsRole programConclusion { multiplicity 1; }
+        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfigs { multiplicity *; }
+    }
+
+    relation DegreeCurricularPlanProgramConclusionConfig {
+        DegreeCurricularPlan playsRole degreeCurricularPlan { multiplicity 1; }
+        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfigs { multiplicity *; }
+    }
+
+    relation ProgramConclusionConfigIncludedModules {
+        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfigsForIncludedModules { multiplicity *; }
+        degreeStructure.DegreeModule playsRole includedModules { multiplicity *; }
+    }
+
+    relation ProgramConclusionConfigExcludedModules {
+        degreeStructure.ProgramConclusionConfig playsRole programConclusionConfigsForExcludedModules { multiplicity *; }
+        degreeStructure.DegreeModule playsRole excludedModules { multiplicity *; }
+    }
+
     class BusinessArea  {
         Integer level;
         String code;
