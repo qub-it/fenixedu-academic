@@ -1,3 +1,5 @@
+- Refactor: Add dynamic field descriptor codes as constants in Degree Info class [#qubIT-Fenix-6512]
+
 52.2.0 (24-09-2025)
 - New feature: Implements ProgramConclusionConfiguration to allow ProgramConclusions with multiple DegreeModules [#qubIT-Fenix-6554]
 
