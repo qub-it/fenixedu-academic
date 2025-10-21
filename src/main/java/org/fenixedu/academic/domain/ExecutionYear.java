@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
@@ -105,6 +106,11 @@ public class ExecutionYear extends ExecutionYear_Base {
     @Override
     public String getQualifiedName() {
         return getName();
+    }
+
+    @Override
+    public LocalizedString getQualifiedNameI18N() {
+        return getAcademicCalendarEntry().getTitle();
     }
 
     /**

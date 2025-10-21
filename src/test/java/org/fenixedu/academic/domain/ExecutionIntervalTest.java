@@ -1,8 +1,5 @@
 package org.fenixedu.academic.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.time.YearMonth;
 import java.util.Locale;
 
@@ -23,18 +20,20 @@ import org.junit.runners.FenixFrameworkRunner;
 
 import pt.ist.fenixframework.FenixFramework;
 
+import static org.junit.Assert.*;
+
 @RunWith(FenixFrameworkRunner.class)
 public class ExecutionIntervalTest {
 
     /*
      * Child execution intervals created:
-     *  > 1st Semester 2019/2020 
+     *  > 1st Semester 2019/2020
      *  > 2nd Semester 2019/2020
      *  > 1st Semester 2020/2021 (current)
-     *  > 2nd Semester 2020/2021 
-     *  > 1st Semester 2021/2022 
-     *  > 2nd Semester 2021/2022 
-     *  > 1st Semester 2022/2023 
+     *  > 2nd Semester 2020/2021
+     *  > 1st Semester 2021/2022
+     *  > 2nd Semester 2021/2022
+     *  > 1st Semester 2022/2023
      *  > 2nd Semester 2022/2023
      *  > 1st Semester 2023/2024
      *  > 2nd Semester 2023/2024
@@ -168,6 +167,52 @@ public class ExecutionIntervalTest {
         assertEquals("A", executionYear.getShortName());
         assertEquals("S1", executionYear.getChildInterval(1, AcademicPeriod.SEMESTER).getShortName());
         assertEquals("S2", executionYear.getChildInterval(2, AcademicPeriod.SEMESTER).getShortName());
+    }
+
+    @Test
+    public void testQualifiedNameWithLocale() {
+        final AcademicCalendarRootEntry rootEntry = Bennu.getInstance().getDefaultAcademicCalendar();
+        final AcademicYearCE yearEntry = createStandardYearInterval(rootEntry, 2000);
+        final ExecutionInterval executionYear = yearEntry.getExecutionInterval();
+
+        final AcademicIntervalCE semesterEntry = createFirstSemesterInterval(yearEntry);
+        final ExecutionInterval executionSemester = semesterEntry.getExecutionInterval();
+
+        final Locale defaultLocale = Locale.getDefault();
+        final Locale pt = new Locale("pt");
+
+        assertEquals("2000/2001", executionYear.getQualifiedName());
+        assertEquals("1st Semester 2000/2001", executionSemester.getQualifiedName());
+
+        final LocalizedString yearNewTitle =
+                new LocalizedString.Builder().with(pt, "2000/2001 pt").with(defaultLocale, "2000/2001 default").build();
+        yearEntry.setTitle(yearNewTitle);
+        assertEquals(yearNewTitle, executionYear.getQualifiedNameI18N());
+        assertEquals("2000/2001", executionYear.getQualifiedName()); // ExecutionYear implementation falls back to getName()
+        assertEquals("2000/2001 default", executionYear.getQualifiedNameI18N().getContent());
+        assertEquals("2000/2001 default", executionYear.getQualifiedNameI18N().getContent(defaultLocale));
+        assertEquals("2000/2001 pt", executionYear.getQualifiedNameI18N().getContent(pt));
+        assertEquals("2000/2001 default",
+                executionYear.getQualifiedNameI18N().getContent(Locale.FRANCE)); // falls back to default locale
+
+        final LocalizedString semesterNewTitle =
+                new LocalizedString.Builder().with(pt, "1o Semestre pt").with(defaultLocale, "1st Semester default").build();
+        semesterEntry.setTitle(semesterNewTitle);
+        assertEquals("1st Semester default 2000/2001",
+                executionSemester.getQualifiedName()); // ExecutionYear implementation falls back to getName()
+
+        final LocalizedString semesterNewQualifiedName = new LocalizedString.Builder().with(pt, "1o Semestre pt 2000/2001 pt")
+                .with(defaultLocale, "1st Semester default 2000/2001 default").build();
+        assertEquals(semesterNewQualifiedName, executionSemester.getQualifiedNameI18N());
+        assertEquals("1st Semester default 2000/2001 default", executionSemester.getQualifiedNameI18N().getContent());
+        assertEquals("1st Semester default 2000/2001 default",
+                executionSemester.getQualifiedNameI18N().getContent(defaultLocale));
+        assertEquals("1o Semestre pt 2000/2001 pt", executionSemester.getQualifiedNameI18N().getContent(pt));
+        assertEquals("1st Semester default 2000/2001 default",
+                executionSemester.getQualifiedNameI18N().getContent(Locale.FRANCE));
+
+        semesterEntry.delete(rootEntry);
+        yearEntry.delete(rootEntry);
     }
 
 }

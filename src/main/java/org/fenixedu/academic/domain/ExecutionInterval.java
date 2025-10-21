@@ -31,6 +31,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -88,7 +89,12 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         final String localizedName = getAcademicInterval().getAcademicCalendarEntry().getTitle().getContent();
         final String name = StringUtils.isNotBlank(localizedName) ? localizedName : getName();
 
-        return new StringBuilder().append(name).append(" ").append(this.getExecutionYear().getName()).toString();
+        return name + " " + this.getExecutionYear().getName();
+    }
+
+    public LocalizedString getQualifiedNameI18N() {
+        final LocalizedString localizedName = getAcademicCalendarEntry().getTitle();
+        return localizedName.append(this.getExecutionYear().getAcademicCalendarEntry().getTitle(), " ");
     }
 
 //    abstract public boolean isCurrent();

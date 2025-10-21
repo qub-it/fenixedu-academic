@@ -1,3 +1,5 @@
+- Refactor: Add method to return execution interval name as localized string [#qubIT-Fenix-7655]
+
 52.2.1 (24-09-2025)
 - Refactor: Add dynamic field descriptor codes as constants in Degree Info class [#qubIT-Fenix-6512]
 
