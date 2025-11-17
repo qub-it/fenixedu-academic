@@ -51,10 +51,6 @@ public class IngressionType extends IngressionType_Base {
 		return ingressionType;
 	}
 
-	public boolean hasEntryPhase() {
-		return getHasEntryPhase();
-	}
-
 	public String getLocalizedName() {
 		return getLocalizedName(Locale.getDefault());
 	}
@@ -272,25 +268,6 @@ public class IngressionType extends IngressionType_Base {
 		deleteDomainObject();
 	}
 
-	public void editState(boolean hasEntryPhase, boolean isDirectAccessFrom1stCycle, boolean isExternalDegreeChange,
-			boolean isFirstCycleAttribution, boolean isHandicappedContingent, boolean isInternal2ndCycleAccess,
-			boolean isInternal3rdCycleAccess, boolean isInternalDegreeChange, boolean isIsolatedCurricularUnits,
-			boolean isMiddleAndSuperiorCourses, boolean isOver23, boolean isReIngression, boolean isTransfer) {
-		setHasEntryPhase(hasEntryPhase);
-		setIsDirectAccessFrom1stCycle(isDirectAccessFrom1stCycle);
-		setIsExternalDegreeChange(isExternalDegreeChange);
-		setIsFirstCycleAttribution(isFirstCycleAttribution);
-		setIsHandicappedContingent(isHandicappedContingent);
-		setIsInternal2ndCycleAccess(isInternal2ndCycleAccess);
-		setIsInternal3rdCycleAccess(isInternal3rdCycleAccess);
-		setIsInternalDegreeChange(isInternalDegreeChange);
-		setIsIsolatedCurricularUnits(isIsolatedCurricularUnits);
-		setIsMiddleAndSuperiorCourses(isMiddleAndSuperiorCourses);
-		setIsOver23(isOver23);
-		setIsReIngression(isReIngression);
-		setIsTransfer(isTransfer);
-	}
-	
 	@Override
 	public void setCode(String code) {
 		
