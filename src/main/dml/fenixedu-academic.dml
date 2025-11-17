@@ -727,7 +727,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		String code (REQUIRED);
 		LocalizedString description (REQUIRED);
 		
-		boolean hasEntryPhase;
 		boolean requiresUnfinishedSourceDegreeInformation;
 		
 		// These predicates correspond to some of the old enumeration values used in the business code

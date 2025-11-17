@@ -1,3 +1,5 @@
+- Refactor: Removes deprecated IngressionType.hasEntryPhase [#qubIT-Fenix-6540]
+
 52.2.3 (10-11-2025)
 - Refactor: Move AnyCurricularCourseExceptionsConfiguration from extensions [#UL-FBA-2009]
 
