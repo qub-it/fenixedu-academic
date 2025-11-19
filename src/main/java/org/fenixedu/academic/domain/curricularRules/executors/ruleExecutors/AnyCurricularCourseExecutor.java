@@ -99,7 +99,7 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
         }
 
         if (result) {
-            return RuleResult.createTrue(curricularCourseToEnrol);
+            return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         } else {
             if (sourceDegreeModuleToEvaluate.isEnroled()) {
                 return RuleResult.createImpossibleWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
