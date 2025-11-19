@@ -42,6 +42,11 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
         super.setSocialSecurityNumber(socialSecurityNumber);
 
         checkRules();
+
+        if (getParty().isPerson()) {
+            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
+                    getSocialSecurityNumber());
+        }
     }
 
     private void checkRules() {
@@ -86,11 +91,6 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
         if (!TreasuryBridgeAPIFactory.implementation().isValidFiscalNumber(getFiscalCountry().getCode(), getSocialSecurityNumber())) {
             throw new DomainException("error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
         }
-
-        if (getParty().isPerson()) {
-            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
-                    getSocialSecurityNumber());
-        }
     }
 
     public boolean hasSocialSecurityNumber(String socialSecurityNumber) {
@@ -118,6 +118,11 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
         setSocialSecurityNumber(socialSecurityNumber);
 
         checkRules();
+
+        if (getParty().isPerson()) {
+            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
+                    getSocialSecurityNumber());
+        }
     }
 
     protected boolean hasFiscalCountry() {
