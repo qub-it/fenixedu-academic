@@ -254,35 +254,4 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
 
         return true;
     }
-
-    //    //Para sair se entretanto mover a classe AbstractCurricularRuleExecutorLogic para o academic
-    //    static private RuleResult createResultFalse(final AnyCurricularCourse rule,
-    //            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol,
-    //            final String messageKey) {
-    //
-    //        final String message = BundleUtil.getString(Bundle.APPLICATION, messageKey, curricularCourseToEnrol.getName(),
-    //                rule.getDegreeModuleToApplyRule().getName());
-    //
-    //        return sourceDegreeModuleToEvaluate.isEnroled() ? RuleResult.createImpossibleWithLiteralMessage(
-    //                sourceDegreeModuleToEvaluate.getDegreeModule(), message) : RuleResult.createFalseWithLiteralMessage(
-    //                sourceDegreeModuleToEvaluate.getDegreeModule(), message);
-    //    }
-    //
-    //    public RuleResult createFalseConfiguration(final DegreeModule degreeModule) {
-    //        return createFalseConfiguration(degreeModule, StringUtils.EMPTY, getCurricularRuleLabelKey());
-    //    }
-
-    //    static public RuleResult createFalseConfiguration(final DegreeModule degreeModule, final String prefix,
-    //            final String curricularRuleLabelKey) {
-    //
-    //        final String literalMessage =
-    //                prefix + BundleUtil.getString(Bundle.APPLICATION, "curricularRules.ruleExecutors.logic.unavailable",
-    //                        BundleUtil.getString(Bundle.BOLONHA, curricularRuleLabelKey));
-    //        return RuleResult.createFalseWithLiteralMessage(degreeModule, literalMessage);
-    //    }
-
-    //    protected String getCurricularRuleLabelKey() {
-    //        return "label.anyCurricularCourse";
-    //    }
-
 }
