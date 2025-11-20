@@ -240,7 +240,7 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
 
     protected boolean matchesExceptionConfigurations(AnyCurricularCourse rule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
-        if (rule.getFilterExceptions() != null && rule.getFilterExceptions()) {
+        if (rule.getFilterExceptions()) {
             final CurricularCourse curricularCourseToEnrolFromOptional =
                     getCurricularCourseFromOptional(sourceDegreeModuleToEvaluate);
             if (curricularCourseToEnrolFromOptional != null) {
