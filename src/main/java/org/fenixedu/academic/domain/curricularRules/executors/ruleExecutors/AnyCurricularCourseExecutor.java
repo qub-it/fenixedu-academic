@@ -27,6 +27,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -38,6 +39,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
+import org.fenixedu.bennu.core.domain.Bennu;
 
 import com.google.common.collect.Sets;
 
@@ -90,6 +92,7 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
         result &= matchesCourseGroupDcpDegreesAndDegreeTypes(rule, degree, degreeCurricularPlan, allParentCourseGroups);
         result &= matchesCompetenceCoursesAndLevels(rule, curricularCourseToEnrol, executionInterval);
         result &= matchesUnits(rule, curricularCourseToEnrol, executionInterval);
+        result &= matchesExceptionConfigurations(rule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         if (Boolean.TRUE.equals(rule.getNegation())) {
             result = !result;
@@ -176,4 +179,79 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                 .findAny().isPresent();
     }
 
+    static private CurricularCourse getCurricularCourseFromOptional(final IDegreeModuleToEvaluate input) {
+        CurricularCourse result = null;
+
+        if (input.isEnroling()) {
+            final OptionalDegreeModuleToEnrol toEnrol = (OptionalDegreeModuleToEnrol) input;
+            result = toEnrol.getCurricularCourse();
+
+        } else if (input.isEnroled()) {
+            final EnroledOptionalEnrolment enroled = (EnroledOptionalEnrolment) input;
+            result = (CurricularCourse) enroled.getCurriculumModule().getDegreeModule();
+        }
+
+        return result;
+    }
+
+    private boolean verifyOptionalsConfiguration(final AnyCurricularCourse rule,
+            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol) {
+
+        final Boolean optionalsConfiguration = rule.getOptionalsConfiguration();
+
+        if (optionalsConfiguration != null) {
+
+            boolean useOptionals = optionalsConfiguration && hasOneOptionalParentCourseGroup(curricularCourseToEnrol,
+                    sourceDegreeModuleToEvaluate.getExecutionInterval());
+
+            boolean useMandatory = !optionalsConfiguration && !hasOneOptionalParentCourseGroup(curricularCourseToEnrol,
+                    sourceDegreeModuleToEvaluate.getExecutionInterval());
+
+            return (useOptionals || useMandatory);
+        }
+        return true;
+
+    }
+
+    private static boolean hasOneOptionalParentCourseGroup(final CurricularCourse curricularCourseToEnrol,
+            ExecutionInterval executionInterval) {
+        return curricularCourseToEnrol.getParentContextsByExecutionYear(executionInterval.getExecutionYear()).stream()
+                .anyMatch(ctx -> ctx.getParentCourseGroup().getIsOptional());
+    }
+
+    private boolean verifyCompetenceCourses(final AnyCurricularCourse rule,
+            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol,
+            final EnrolmentContext enrolmentContext) {
+
+        final CompetenceCourse competenceCourse = curricularCourseToEnrol.getCompetenceCourse();
+        final DegreeCurricularPlan chosenDegreeCurricularPlan = curricularCourseToEnrol.getDegreeCurricularPlan();
+        final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
+
+        return !isException(competenceCourse, chosenDegreeCurricularPlan, studentCurricularPlan);
+    }
+
+    public static boolean isException(final CompetenceCourse competenceCourse,
+            final DegreeCurricularPlan chosenDegreeCurricularPlan, final StudentCurricularPlan studentCurricularPlan) {
+
+        // can only be considered an exception if the user chose other DCP than his own
+        return chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan() && Bennu.getInstance()
+                .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
+    }
+
+    protected boolean matchesExceptionConfigurations(AnyCurricularCourse rule,
+            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
+        if (rule.getFilterExceptions() != null && rule.getFilterExceptions()) {
+            final CurricularCourse curricularCourseToEnrolFromOptional =
+                    getCurricularCourseFromOptional(sourceDegreeModuleToEvaluate);
+            if (curricularCourseToEnrolFromOptional != null) {
+                return verifyOptionalsConfiguration(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional)
+                        && verifyCompetenceCourses(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional,
+                        enrolmentContext);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }
