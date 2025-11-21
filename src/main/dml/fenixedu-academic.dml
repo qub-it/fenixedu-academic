@@ -842,7 +842,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
                 Double maximumCredits;
                 Boolean negation;
                 boolean filterExceptions;
-                Boolean optionalsConfiguration;
             }
             
             class curricularRules.AnyCurricularCourseExceptions extends curricularRules.Rule {
