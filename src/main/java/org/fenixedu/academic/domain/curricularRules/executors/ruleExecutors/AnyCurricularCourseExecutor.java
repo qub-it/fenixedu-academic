@@ -194,31 +194,6 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
         return result;
     }
 
-    private boolean verifyOptionalsConfiguration(final AnyCurricularCourse rule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol) {
-
-        final Boolean optionalsConfiguration = rule.getOptionalsConfiguration();
-
-        if (optionalsConfiguration != null) {
-
-            boolean useOptionals = optionalsConfiguration && hasOneOptionalParentCourseGroup(curricularCourseToEnrol,
-                    sourceDegreeModuleToEvaluate.getExecutionInterval());
-
-            boolean useMandatory = !optionalsConfiguration && !hasOneOptionalParentCourseGroup(curricularCourseToEnrol,
-                    sourceDegreeModuleToEvaluate.getExecutionInterval());
-
-            return (useOptionals || useMandatory);
-        }
-        return true;
-
-    }
-
-    private static boolean hasOneOptionalParentCourseGroup(final CurricularCourse curricularCourseToEnrol,
-            ExecutionInterval executionInterval) {
-        return curricularCourseToEnrol.getParentContextsByExecutionYear(executionInterval.getExecutionYear()).stream()
-                .anyMatch(ctx -> ctx.getParentCourseGroup().getIsOptional());
-    }
-
     private boolean verifyCompetenceCourses(final AnyCurricularCourse rule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol,
             final EnrolmentContext enrolmentContext) {
@@ -244,8 +219,7 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
             final CurricularCourse curricularCourseToEnrolFromOptional =
                     getCurricularCourseFromOptional(sourceDegreeModuleToEvaluate);
             if (curricularCourseToEnrolFromOptional != null) {
-                return verifyOptionalsConfiguration(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional)
-                        && verifyCompetenceCourses(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional,
+                return verifyCompetenceCourses(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional,
                         enrolmentContext);
             }
 
