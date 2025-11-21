@@ -1,4 +1,5 @@
 - Refactor: Move statements with side effects outside of checkRules method [#qubIT-Fenix-7696]
+- Bug fix: Allow extra-curricular enrolment without rules [#UL-IGOT-1781]
 
 52.2.4 (18-11-2025)
 - Refactor: Removes deprecated IngressionType.hasEntryPhase [#qubIT-Fenix-6540]

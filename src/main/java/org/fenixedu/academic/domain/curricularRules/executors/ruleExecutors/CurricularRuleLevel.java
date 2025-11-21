@@ -28,6 +28,8 @@ public enum CurricularRuleLevel {
 
     EXTRA_ENROLMENT(false),
 
+    EXTRA_ENROLMENT_NO_RULES(false),
+
     STANDALONE_ENROLMENT(false),
 
     STANDALONE_ENROLMENT_NO_RULES(false),

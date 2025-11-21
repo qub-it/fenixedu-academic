@@ -177,7 +177,8 @@ public class EnrolmentContext {
     }
 
     public boolean isExtra() {
-        return getCurricularRuleLevel() == CurricularRuleLevel.EXTRA_ENROLMENT;
+        return getCurricularRuleLevel() == CurricularRuleLevel.EXTRA_ENROLMENT
+                || getCurricularRuleLevel() == CurricularRuleLevel.EXTRA_ENROLMENT_NO_RULES;
     }
 
     public boolean isStandalone() {

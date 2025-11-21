@@ -90,6 +90,7 @@ abstract public class CurricularRuleExecutor {
 
         case ENROLMENT_NO_RULES:
         case STANDALONE_ENROLMENT_NO_RULES:
+        case EXTRA_ENROLMENT_NO_RULES:
             return executeEnrolmentWithNoRules(curricularRule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         case ENROLMENT_PREFILTER:
