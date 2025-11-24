@@ -179,48 +179,28 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                 .findAny().isPresent();
     }
 
-    static private CurricularCourse getCurricularCourseFromOptional(final IDegreeModuleToEvaluate input) {
-        CurricularCourse result = null;
-
-        if (input.isEnroling()) {
-            final OptionalDegreeModuleToEnrol toEnrol = (OptionalDegreeModuleToEnrol) input;
-            result = toEnrol.getCurricularCourse();
-
-        } else if (input.isEnroled()) {
-            final EnroledOptionalEnrolment enroled = (EnroledOptionalEnrolment) input;
-            result = (CurricularCourse) enroled.getCurriculumModule().getDegreeModule();
-        }
-
-        return result;
-    }
-
-    private boolean verifyCompetenceCourses(final AnyCurricularCourse rule,
-            final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final CurricularCourse curricularCourseToEnrol,
-            final EnrolmentContext enrolmentContext) {
-
-        final CompetenceCourse competenceCourse = curricularCourseToEnrol.getCompetenceCourse();
-        final DegreeCurricularPlan chosenDegreeCurricularPlan = curricularCourseToEnrol.getDegreeCurricularPlan();
-        final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
-
-        return !isException(competenceCourse, chosenDegreeCurricularPlan, studentCurricularPlan);
-    }
-
-    public static boolean isException(final CompetenceCourse competenceCourse,
-            final DegreeCurricularPlan chosenDegreeCurricularPlan, final StudentCurricularPlan studentCurricularPlan) {
-
-        // can only be considered an exception if the user chose other DCP than his own
-        return chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan() && Bennu.getInstance()
-                .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
-    }
-
     protected boolean matchesExceptionConfigurations(AnyCurricularCourse rule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
+
         if (rule.getFilterExceptions()) {
-            final CurricularCourse curricularCourseToEnrolFromOptional =
-                    getCurricularCourseFromOptional(sourceDegreeModuleToEvaluate);
+            CurricularCourse curricularCourseToEnrolFromOptional = null;
+            if (sourceDegreeModuleToEvaluate.isEnroling()) {
+                final OptionalDegreeModuleToEnrol toEnrol = (OptionalDegreeModuleToEnrol) sourceDegreeModuleToEvaluate;
+                curricularCourseToEnrolFromOptional = toEnrol.getCurricularCourse();
+
+            } else if (sourceDegreeModuleToEvaluate.isEnroled()) {
+                final EnroledOptionalEnrolment enroled = (EnroledOptionalEnrolment) sourceDegreeModuleToEvaluate;
+                curricularCourseToEnrolFromOptional = (CurricularCourse) enroled.getCurriculumModule().getDegreeModule();
+            }
+
             if (curricularCourseToEnrolFromOptional != null) {
-                return verifyCompetenceCourses(rule, sourceDegreeModuleToEvaluate, curricularCourseToEnrolFromOptional,
-                        enrolmentContext);
+                final CompetenceCourse competenceCourse = curricularCourseToEnrolFromOptional.getCompetenceCourse();
+                final DegreeCurricularPlan chosenDegreeCurricularPlan =
+                        curricularCourseToEnrolFromOptional.getDegreeCurricularPlan();
+                final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
+
+                return chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan() && Bennu.getInstance()
+                        .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
             }
 
             return false;
