@@ -181,9 +181,9 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
 
     protected boolean matchesExceptionConfigurations(AnyCurricularCourse rule,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
-
         if (rule.getFilterExceptions()) {
             CurricularCourse curricularCourseToEnrolFromOptional = null;
+
             if (sourceDegreeModuleToEvaluate.isEnroling()) {
                 final OptionalDegreeModuleToEnrol toEnrol = (OptionalDegreeModuleToEnrol) sourceDegreeModuleToEvaluate;
                 curricularCourseToEnrolFromOptional = toEnrol.getCurricularCourse();
@@ -199,8 +199,11 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                         curricularCourseToEnrolFromOptional.getDegreeCurricularPlan();
                 final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
 
-                return chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan() && Bennu.getInstance()
+                boolean isCurricularPlanFromAnotherDegree =
+                        chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan();
+                boolean containedInExceptionsConfigurations = Bennu.getInstance()
                         .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
+                return !(isCurricularPlanFromAnotherDegree && containedInExceptionsConfigurations);
             }
 
             return false;
