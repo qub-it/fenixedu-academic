@@ -55,7 +55,9 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CompetenceCourse extends CompetenceCourse_Base {
@@ -673,4 +675,39 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .map(cci -> cci.getCompetenceCourse()).distinct();
     }
 
+    @Override
+    public void setType(final CompetenceCourseType competenceCourseType) {
+        super.setType(competenceCourseType);
+        super.setCompetenceCourseType(findCompetenceCourseType(competenceCourseType));
+    }
+
+    @Override
+    public void setCompetenceCourseType(
+            final org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
+        super.setCompetenceCourseType(competenceCourseType);
+        super.setType(findCompetenceCourseType(competenceCourseType));
+    }
+
+    private org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType findCompetenceCourseType(
+            CompetenceCourseType competenceCourseType) {
+        if (competenceCourseType == null) {
+            return null;
+        }
+
+        return org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType.findByCode(competenceCourseType.name())
+                .orElseThrow(() -> new DomainException(
+                        BundleUtil.getString(Bundle.APPLICATION, "error.CompetenceCourseType.not.found",
+                                competenceCourseType.name())));
+    }
+
+    private CompetenceCourseType findCompetenceCourseType(
+            org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
+        if (competenceCourseType == null) {
+            return null;
+        }
+
+        return CompetenceCourseType.findByCode(competenceCourseType.getCode()).orElseThrow(() -> new DomainException(
+                BundleUtil.getString(Bundle.APPLICATION, "error.CompetenceCourseType.not.found",
+                        competenceCourseType.getCode())));
+    }
 }
