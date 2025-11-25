@@ -27,6 +27,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -38,6 +39,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.enrolment.OptionalDegreeModuleToEnrol;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.CurricularRuleLabelFormatter;
+import org.fenixedu.bennu.core.domain.Bennu;
 
 import com.google.common.collect.Sets;
 
@@ -90,6 +92,7 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
         result &= matchesCourseGroupDcpDegreesAndDegreeTypes(rule, degree, degreeCurricularPlan, allParentCourseGroups);
         result &= matchesCompetenceCoursesAndLevels(rule, curricularCourseToEnrol, executionInterval);
         result &= matchesUnits(rule, curricularCourseToEnrol, executionInterval);
+        result &= matchesExceptionConfigurations(rule, sourceDegreeModuleToEvaluate, enrolmentContext);
 
         if (Boolean.TRUE.equals(rule.getNegation())) {
             result = !result;
@@ -176,4 +179,36 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                 .findAny().isPresent();
     }
 
+    protected boolean matchesExceptionConfigurations(AnyCurricularCourse rule,
+            IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, EnrolmentContext enrolmentContext) {
+        if (rule.getFilterExceptions()) {
+            CurricularCourse curricularCourseToEnrolFromOptional = null;
+
+            if (sourceDegreeModuleToEvaluate.isEnroling()) {
+                final OptionalDegreeModuleToEnrol toEnrol = (OptionalDegreeModuleToEnrol) sourceDegreeModuleToEvaluate;
+                curricularCourseToEnrolFromOptional = toEnrol.getCurricularCourse();
+
+            } else if (sourceDegreeModuleToEvaluate.isEnroled()) {
+                final EnroledOptionalEnrolment enroled = (EnroledOptionalEnrolment) sourceDegreeModuleToEvaluate;
+                curricularCourseToEnrolFromOptional = (CurricularCourse) enroled.getCurriculumModule().getDegreeModule();
+            }
+
+            if (curricularCourseToEnrolFromOptional != null) {
+                final CompetenceCourse competenceCourse = curricularCourseToEnrolFromOptional.getCompetenceCourse();
+                final DegreeCurricularPlan chosenDegreeCurricularPlan =
+                        curricularCourseToEnrolFromOptional.getDegreeCurricularPlan();
+                final StudentCurricularPlan studentCurricularPlan = enrolmentContext.getStudentCurricularPlan();
+
+                boolean isCurricularPlanFromAnotherDegree =
+                        chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan();
+                boolean containedInExceptionsConfigurations = Bennu.getInstance()
+                        .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
+                return !(isCurricularPlanFromAnotherDegree && containedInExceptionsConfigurations);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }
