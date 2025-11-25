@@ -215,7 +215,10 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
                         units.stream().map(u -> u.getNameI18n().getContent()).collect(Collectors.joining(", ")), false));
                 labelList.add(new GenericPair<Object, Boolean>("]", false));
             });
-
+        }
+        if (getFilterExceptions()) {
+            labelList.add(new GenericPair<Object, Boolean>(" ", false));
+            labelList.add(new GenericPair<Object, Boolean>("label.filterExceptions", true));
         }
 
         return labelList;
