@@ -106,6 +106,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     public void delete() {
         setGradeScale(null);
+        setCompetenceCourseType(null);
         if (!getAssociatedCurricularCoursesSet().isEmpty()) {
             throw new DomainException("mustDeleteCurricularCoursesFirst");
         }

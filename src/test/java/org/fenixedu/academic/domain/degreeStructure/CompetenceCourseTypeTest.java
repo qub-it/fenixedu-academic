@@ -61,7 +61,7 @@ public class CompetenceCourseTypeTest {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             competenceCourseTypeEntity.getCompetenceCoursesSet().clear();
             Bennu.getInstance().getCompetenceCourseTypesSet().forEach(CompetenceCourseType::delete);
-            competenceCourse.delete();
+            Bennu.getInstance().getCompetenceCoursesSet().forEach(CompetenceCourse::delete);
             return null;
         });
     }
