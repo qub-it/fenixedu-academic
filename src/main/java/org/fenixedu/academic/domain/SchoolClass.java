@@ -33,7 +33,9 @@ import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 /**
  * 
@@ -56,8 +58,23 @@ public class SchoolClass extends SchoolClass_Base {
         setAvailableForEnrolment(true);
     }
 
+    @Override
+    protected void checkForDeletionBlockers(Collection<String> blockers) {
+        super.checkForDeletionBlockers(blockers);
+        if (!getAssociatedShiftsSet().isEmpty()) {
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.SchoolClass.delete.shiftsNotEmpty", getName()));
+        }
+        if (!getRegistrationsSet().isEmpty()) {
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.SchoolClass.delete.registrationsNotEmpty", getName()));
+        }
+    }
+
+    public Stream<String> findDeletionBlockers() {
+        return getDeletionBlockers().stream();
+    }
+
     public void delete() {
-        getAssociatedShiftsSet().clear();
+        DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
         getShiftCapacitiesSet().clear();
         super.setExecutionDegree(null);
         super.setExecutionPeriod(null);
