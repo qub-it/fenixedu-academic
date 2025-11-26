@@ -20,6 +20,7 @@ package org.fenixedu.academic.servlet;
 
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -74,6 +75,7 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeDynamicFieldTags();
         initializeCompetenceCourseTypeDomainEntity();
+        migrateCompetenceCourseData();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -177,6 +179,25 @@ public class FenixInitializer implements ServletContextListener {
         }
 
         Log.warn("Finished population of Competence Course Types. Instances created: " + CompetenceCourseType.findAll().count());
+        Log.warn("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migrateCompetenceCourseData() {
+        Log.warn("---------------------------------------");
+        Log.warn("Migrating Competence Course 'type' field to new entities");
+        final AtomicInteger counter = new AtomicInteger();
+
+        Bennu.getInstance().getCompetenceCoursesSet().forEach(cc -> {
+            if (cc.getCompetenceCourseType() == null) {
+                CompetenceCourseType.findByCode(cc.getType().name()).ifPresent(cc::setCompetenceCourseType);
+                counter.getAndIncrement();
+            }
+        });
+
+        Log.warn("Finished migrating Competence Course 'type' field to new entities. Processed " + Bennu.getInstance()
+                .getCompetenceCoursesSet().size() + " Competence Course instances." + "Migrated: " + counter.get()
+                + " instances.");
         Log.warn("---------------------------------------");
     }
 }
