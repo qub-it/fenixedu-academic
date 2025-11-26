@@ -421,46 +421,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
     
     class DegreeInfo  {
-        Integer driftsFirst;
-        Integer driftsInitial;
-        Integer driftsSecond;
-        Double markAverage;
-        Double markMax;
-        Double markMin;
         LocalizedString name;
-        LocalizedString additionalInfo;
-        LocalizedString description;
-        LocalizedString gratuity;
-        LocalizedString history;
-        LocalizedString links;
-        LocalizedString operationalRegime;
-        LocalizedString schoolCalendar;
-
-		LocalizedString learningLanguages;
-		LocalizedString officialProgramDuration;
-		LocalizedString studyRegime;
-		LocalizedString prevailingScientificArea;
-    }
-
-    class DegreeInfoCandidacy  {
-        LocalizedString accessRequisites;
-        LocalizedString candidacyDocuments;
-        LocalizedString candidacyPeriod;
-        LocalizedString enrolmentPeriod;
-        LocalizedString selectionResultDeadline;
-        LocalizedString testIngression;
-    }
-
-    class DegreeInfoFuture  {
-        LocalizedString classifications;
-        LocalizedString designedFor;
-        LocalizedString objectives;
-        LocalizedString professionalExits;
-        LocalizedString qualificationLevel;
-        LocalizedString recognitions;
-        
-    	LocalizedString graduationNextLevelAccess;
-		LocalizedString professionalStatute;
     }
 
     class District  {
@@ -2302,16 +2263,6 @@ relation DegreeDegreeInfo {
     }
 }
 
-relation DegreeInfoDegreeInfoCandidacy {
-    DegreeInfo playsRole degreeInfo;
-    DegreeInfoCandidacy playsRole degreeInfoCandidacy;
-}
-
-relation DegreeInfoDegreeInfoFuture {
-    DegreeInfo playsRole degreeInfo;
-    DegreeInfoFuture playsRole degreeInfoFuture;
-}
-
 relation DegreeInfoExecutionYear {
     ExecutionYear playsRole executionYear;
     DegreeInfo playsRole degreeInfos {
@@ -3246,20 +3197,6 @@ relation RootDomainObjectDegreeCurricularPlan {
 relation RootDomainObjectDegreeInfo {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     DegreeInfo playsRole degreeInfos {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectDegreeInfoCandidacy {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    DegreeInfoCandidacy playsRole degreeInfoCandidacys {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectDegreeInfoFuture {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    DegreeInfoFuture playsRole degreeInfoFutures {
         multiplicity *;
     }
 }

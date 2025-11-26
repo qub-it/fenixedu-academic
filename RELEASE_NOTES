@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated hardcoded DegreeInfo fields, other deprecated entities and relations with DegreeInfo domain [#qubIT-Fenix-6512]
+
 52.3.0 (26-11-2025)
 - Refactor: Move some properties and methods from ITreasuryBridgeAPI [#qubIT-Fenix-6552]
 
