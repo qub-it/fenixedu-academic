@@ -26,10 +26,8 @@ import pt.ist.fenixframework.FenixFramework;
 public class CompetenceCourseTypeTest {
 
     // Example competenceCourseTypeEnum, can be any valid value
-    private static final org.fenixedu.academic.domain.CompetenceCourseType competenceCourseTypeEnum =
-            org.fenixedu.academic.domain.CompetenceCourseType.REGULAR;
-    private static final String CODE = competenceCourseTypeEnum.name();
-    private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Regular");
+    private static final String CODE = "CODE";
+    private static final LocalizedString QUALIFIED_NAME = new LocalizedString(Locale.getDefault(), "Code");
     private static CompetenceCourseType competenceCourseTypeEntity;
     private static CompetenceCourse competenceCourse;
 
@@ -38,10 +36,10 @@ public class CompetenceCourseTypeTest {
         // Instantiate the dependencies before each test (@BeforeAll doesn't work here)
         FenixFramework.getTransactionManager().withTransaction(() -> {
             initCompetenceCourse();
-            competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
-
             return null;
         });
+
+        competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
     }
 
     private CompetenceCourseType create(String code, LocalizedString name, boolean finalWork) {
@@ -59,9 +57,8 @@ public class CompetenceCourseTypeTest {
     @After
     public void cleanup() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            competenceCourseTypeEntity.getCompetenceCoursesSet().clear();
-            Bennu.getInstance().getCompetenceCourseTypesSet().forEach(CompetenceCourseType::delete);
             Bennu.getInstance().getCompetenceCoursesSet().forEach(CompetenceCourse::delete);
+            Bennu.getInstance().getCompetenceCourseTypesSet().forEach(CompetenceCourseType::delete);
             return null;
         });
     }
