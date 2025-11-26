@@ -1,3 +1,5 @@
+- Refactor: Refactors CompetenceCourseType enum to domain entity [#qubIT-Fenix-3048]
+
 52.3.0 (26-11-2025)
 - Refactor: Move some properties and methods from ITreasuryBridgeAPI [#qubIT-Fenix-6552]
 
