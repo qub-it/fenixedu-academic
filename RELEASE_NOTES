@@ -1,3 +1,5 @@
+- Refactor: Move some properties and methods from ITreasuryBridgeAPI [#qubIT-Fenix-6552]
+
 52.2.7 (25-11-2025)
 - Refactor: Change AnyCurricularCourse to also represent AnyCurricularCourseExceptions [#UL-FBA-2009]
 

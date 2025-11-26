@@ -16,30 +16,12 @@ import org.joda.time.LocalDate;
 public interface ITreasuryBridgeAPI {
 
     // @formatter:off
-    /* ------------------------
-     * ACADEMIC SERVICE REQUEST
-     * ------------------------
-     */
-    // @formatter:on
-
-    public static String ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT = "ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT";
-    public static String ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT = "ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT";
-
-    @Deprecated
-    public IAcademicServiceRequestAndAcademicTaxTreasuryEvent academicTreasuryEventForAcademicServiceRequest(
-            AcademicServiceRequest academicServiceRequest);
-
-    // @formatter:off
     /* ----------
      * ENROLMENTS
      * ----------
      */
     // @formatter:on
 
-    public static String STANDALONE_ENROLMENT = "STANDALONE_ENROLMENT";
-    public static String EXTRACURRICULAR_ENROLMENT = "EXTRACURRICULAR_ENROLMENT";
-    public static String IMPROVEMENT_ENROLMENT = "IMPROVEMENT_ENROLMENT";
-    public static String NORMAL_ENROLMENT = "NORMAL_ENROLMENT";
 
     @Deprecated
     public void standaloneUnenrolment(Enrolment standaloneEnrolment);

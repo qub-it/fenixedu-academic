@@ -35,9 +35,6 @@ import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
-import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
-import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
@@ -207,32 +204,6 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
 
     final protected boolean isPayable() {
         return ServiceRequestType.findUnique(this) != null && ServiceRequestType.findUnique(this).isPayable();
-    }
-
-    protected boolean isPayed() {
-        if (!isPayable()) {
-            return true;
-        }
-
-        final IAcademicTreasuryEvent event =
-                TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
-
-        return event != null && event.isPayed();
-    }
-
-    final public boolean getIsPayed() {
-        return isPayed();
-    }
-
-    abstract public boolean isPayedUponCreation();
-
-    /**
-     * Return the URL for debt account of this student
-     */
-    public String getPaymentURL() {
-        final IAcademicServiceRequestAndAcademicTaxTreasuryEvent event =
-                TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
-        return event != null ? event.getDebtAccountURL() : null;
     }
 
     protected String getDescription(final AcademicServiceRequestType academicServiceRequestType,
@@ -621,11 +592,10 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
         }
     }
 
-    protected void assertPayedEvents() {
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(getPerson(), new LocalDate())) {
-            throw new DomainException("DocumentRequest.student.has.not.payed.debts");
-        }
-    }
+    // ANIL (2025-11-26) (#qubIT-Fenix-6552)
+    // Removed implementation and only implemented in the subclass
+    // to remove dependency of ITreasuryBridgeAPI
+    protected abstract void assertPayedEvents();
 
     protected void verifyIsToDeliveredAndIsPayed(final AcademicServiceRequestBean academicServiceRequestBean) {
         if (academicServiceRequestBean.isToDeliver()) {

@@ -43,6 +43,9 @@ import com.google.common.collect.Sets;
 
 public class StudentCurricularPlanNoCourseGroupEnrolmentManager extends StudentCurricularPlanEnrolment {
 
+    public static String STANDALONE_ENROLMENT = "STANDALONE_ENROLMENT";
+    public static String EXTRACURRICULAR_ENROLMENT = "EXTRACURRICULAR_ENROLMENT";
+
     public StudentCurricularPlanNoCourseGroupEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
     }
@@ -144,9 +147,9 @@ public class StudentCurricularPlanNoCourseGroupEnrolmentManager extends StudentC
 
         for (final Enrolment enrolment : enrolmentsToNotify) {
             if (enrolment.isStandalone()) {
-                Signal.emit(ITreasuryBridgeAPI.STANDALONE_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
+                Signal.emit(STANDALONE_ENROLMENT, new DomainObjectEvent<>(enrolment));
             } else if (enrolment.isExtraCurricular()) {
-                Signal.emit(ITreasuryBridgeAPI.EXTRACURRICULAR_ENROLMENT, new DomainObjectEvent<Enrolment>(enrolment));
+                Signal.emit(EXTRACURRICULAR_ENROLMENT, new DomainObjectEvent<>(enrolment));
             }
         }
 

@@ -49,6 +49,9 @@ import org.fenixedu.bennu.core.signals.Signal;
 
 public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlanEnrolment {
 
+    public static String NORMAL_ENROLMENT = "NORMAL_ENROLMENT";
+    public static String IMPROVEMENT_ENROLMENT = "IMPROVEMENT_ENROLMENT";
+
     public StudentCurricularPlanEnrolmentManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
     }
@@ -153,7 +156,7 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
         }
 
         getRegistration().updateEnrolmentDate(getExecutionYear());
-        Signal.emit(ITreasuryBridgeAPI.NORMAL_ENROLMENT, new DomainObjectEvent<Registration>(enrolmentContext.getRegistration()));
+        Signal.emit(NORMAL_ENROLMENT, new DomainObjectEvent<>(enrolmentContext.getRegistration()));
     }
 
     protected EnrollmentCondition getEnrolmentCondition(final Enrolment enrolment,
