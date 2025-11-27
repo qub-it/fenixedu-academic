@@ -3,10 +3,9 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CompetenceCourseType extends CompetenceCourseType_Base {
@@ -27,20 +26,21 @@ public class CompetenceCourseType extends CompetenceCourseType_Base {
 
     public void delete() {
         if (!getCompetenceCoursesSet().isEmpty()) {
-            throw new DomainException(BundleUtil.getString(Bundle.APPLICATION,
-                    "error.CompetenceCourseType.cannot.delete.related.to.CompetenceCourse"));
+            throw new DomainException("error.CompetenceCourseType.cannot.delete.related.to.CompetenceCourse");
         }
 
-        getCompetenceCoursesSet().clear();
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
 
     @Override
     public void setCode(String code) {
+        if (StringUtils.isBlank(code)) {
+            throw new DomainException("error.CompetenceCourseType.code.cannot.be.empty");
+        }
+
         if (isDuplicateCode(code)) {
-            throw new DomainException(
-                    BundleUtil.getString(Bundle.APPLICATION, "error.CompetenceCourseType.code.already.exists", code));
+            throw new DomainException("error.CompetenceCourseType.code.already.exists", code);
         }
 
         super.setCode(code);
