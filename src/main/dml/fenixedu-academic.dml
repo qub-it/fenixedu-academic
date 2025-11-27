@@ -309,7 +309,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
 	class degreeStructure.CompetenceCourseType  {
 		String code (REQUIRED);
-		LocalizedString name;
+		LocalizedString name (REQUIRED);
 		boolean finalWork;
 	}
 
