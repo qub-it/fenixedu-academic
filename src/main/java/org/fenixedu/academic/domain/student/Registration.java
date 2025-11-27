@@ -1639,7 +1639,7 @@ public class Registration extends Registration_Base {
 
         // edit Scp start year
         final StudentCurricularPlan first = getFirstStudentCurricularPlan();
-        first.editStart(registrationYear, startDate);
+        first.editStart(registrationYear);
         if (first != getFirstStudentCurricularPlan()) {
             throw new DomainException("error.Registration.startDate.changes.first.scp");
         }

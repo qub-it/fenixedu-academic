@@ -191,19 +191,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     public void editStart(final ExecutionInterval startInterval) {
         if (startInterval != getStartExecutionInterval()) {
             final YearMonthDay startDate = startInterval.getBeginDateYearMonthDay();
-            editStart(startInterval, startDate);
+            setStartExecutionInterval(startInterval);
+            setStartDate(startDate);
         }
-    }
-
-    public void editStart(final ExecutionInterval startInterval, final YearMonthDay startDate) {
-        if (getRegistration().getStudentCurricularPlansSet().stream().filter(scp -> scp != this).anyMatch(
-                scp -> (scp.getStartExecutionInterval() == startInterval || scp.getStartExecutionYear() == startInterval) && scp.getStartDateYearMonthDay()
-                        .equals(startDate))) {
-            throw new DomainException("error.registrationAlreadyHasSCPWithGivenStartIntervalAndDates");
-        }
-
-        setStartExecutionInterval(startInterval);
-        setStartDate(startDate);
     }
 
     public void delete() throws DomainException {
