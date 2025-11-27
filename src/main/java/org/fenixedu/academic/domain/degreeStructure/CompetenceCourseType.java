@@ -9,6 +9,11 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CompetenceCourseType extends CompetenceCourseType_Base {
+
+    public static final String REGULAR = "REGULAR";
+    public static final String DISSERTATION = "DISSERTATION";
+    public static final String PROJECT_WORK = "PROJECT_WORK";
+    public static final String INTERNSHIP = "INTERNSHIP";
     
     protected CompetenceCourseType() {
         super();
