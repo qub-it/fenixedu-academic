@@ -55,9 +55,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CompetenceCourse extends CompetenceCourse_Base {
@@ -695,9 +693,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         }
 
         return org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType.findByCode(competenceCourseType.name())
-                .orElseThrow(() -> new DomainException(
-                        BundleUtil.getString(Bundle.APPLICATION, "error.CompetenceCourseType.not.found",
-                                competenceCourseType.name())));
+                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.name()));
     }
 
     private CompetenceCourseType findCompetenceCourseType(
@@ -706,8 +702,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
             return null;
         }
 
-        return CompetenceCourseType.findByCode(competenceCourseType.getCode()).orElseThrow(() -> new DomainException(
-                BundleUtil.getString(Bundle.APPLICATION, "error.CompetenceCourseType.not.found",
-                        competenceCourseType.getCode())));
+        return CompetenceCourseType.findByCode(competenceCourseType.getCode())
+                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.getCode()));
     }
 }
