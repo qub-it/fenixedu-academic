@@ -1,3 +1,4 @@
+- Refactor: Migrates CompetenceCourse 'type' field data [#qubIT-Fenix-3048]
 - Refactor: Refactors CompetenceCourseType enum to domain entity [#qubIT-Fenix-3048]
 
 52.3.0 (26-11-2025)
