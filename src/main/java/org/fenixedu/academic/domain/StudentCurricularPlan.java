@@ -182,10 +182,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             throw new DomainException("error.registrationAlreadyHasSCPWithGivenDCP");
         }
 
-        if (registration.getStudentCurricularPlansSet().stream().anyMatch(
-                scp -> scp.getStartExecutionInterval() == startInterval && scp.getStartDateYearMonthDay().equals(startDate))) {
-            throw new DomainException("error.registrationAlreadyHasSCPWithGivenStartIntervalAndDates");
-        }
+        checkIfExistsOtherPlanForSameInterval(registration, this, startInterval, startDate);
     }
 
     public void editStart(final ExecutionInterval startInterval) {
@@ -193,6 +190,17 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             final YearMonthDay startDate = startInterval.getBeginDateYearMonthDay();
             setStartExecutionInterval(startInterval);
             setStartDate(startDate);
+
+            checkIfExistsOtherPlanForSameInterval(getRegistration(), this, startInterval, startDate);
+        }
+    }
+
+    private static void checkIfExistsOtherPlanForSameInterval(Registration registration, StudentCurricularPlan plan,
+            ExecutionInterval startInterval, YearMonthDay startDate) {
+        if (registration.getStudentCurricularPlansSet().stream().filter(scp -> scp != plan).anyMatch(
+                scp -> scp.getStartExecutionYear() == startInterval.getExecutionYear() && scp.getStartDateYearMonthDay()
+                        .equals(startDate))) {
+            throw new DomainException("error.registrationAlreadyHasSCPWithGivenStartIntervalAndDates");
         }
     }
 
