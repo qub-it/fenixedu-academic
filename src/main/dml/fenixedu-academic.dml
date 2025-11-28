@@ -1324,10 +1324,12 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class student.curriculum.ExtraCurricularActivity  {
         Interval activityInterval (REQUIRED);
+        LocalizedString details;
     }
 
     class student.curriculum.ExtraCurricularActivityType  {
         LocalizedString name (REQUIRED);
+        LocalizedString details;
     }
 
     class student.personaldata.EducationLevelType {
