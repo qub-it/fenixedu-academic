@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.degreeStructure.CompetenceCourseTypeTest.initCompetenceCourseType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -86,6 +87,8 @@ public class CompetenceCourseTest {
 
     public static CompetenceCourse createCompetenceCourse(final String name, final String code, BigDecimal credits,
             final AcademicPeriod duration, ExecutionInterval executionInterval, Unit coursesUnit) {
+        initCompetenceCourseType();
+
         final CompetenceCourse result =
                 new CompetenceCourse(name, name, Boolean.TRUE, duration, CompetenceCourseLevelType.UNKNOWN().orElse(null),
                         CompetenceCourseType.REGULAR, CurricularStage.APPROVED, coursesUnit, executionInterval, new GradeScale());
