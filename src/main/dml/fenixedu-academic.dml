@@ -337,7 +337,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     	}
 
     	relation CompetenceCourseCompetenceCourseType {
-			degreeStructure.CompetenceCourseType playsRole competenceCourseType { multiplicity 1..1; }
+			degreeStructure.CompetenceCourseType playsRole competenceCourseType { multiplicity 0..1; }
 		    CompetenceCourse playsRole competenceCourses { multiplicity *; }
     	}
 
