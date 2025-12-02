@@ -146,8 +146,8 @@ public class CompetenceCourseTypeTest {
 
     @Test
     public void testCompetenceCourseType_competenceCourseSettersAreSynced() {
-        org.fenixedu.academic.domain.CompetenceCourseType _enum = org.fenixedu.academic.domain.CompetenceCourseType.REGULAR;
-        CompetenceCourseType cct = CompetenceCourseType.findByCode(_enum.name()).orElseThrow();
+        org.fenixedu.academic.domain.CompetenceCourseType typeEnum = org.fenixedu.academic.domain.CompetenceCourseType.REGULAR;
+        CompetenceCourseType cct = CompetenceCourseType.findByCode(typeEnum.name()).orElseThrow();
         CompetenceCourse cc = CompetenceCourse.find(COURSE_B_CODE);
         cc.setType(null);
 
@@ -156,7 +156,7 @@ public class CompetenceCourseTypeTest {
         assertNull(cc.getType());
 
         // Call setter in CompetenceCourseType Enum to trigger the sync in CompetenceCourseType Entity
-        cc.setType(_enum);
+        cc.setType(typeEnum);
 
         // Assert CompetenceCourseType Enum and CompetenceCourseType Entity have the same value
         assertEquals(cct, cc.getCompetenceCourseType());

@@ -683,7 +683,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     public void setCompetenceCourseType(
             final org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
         super.setCompetenceCourseType(competenceCourseType);
-        super.setType(findCompetenceCourseType(competenceCourseType));
+        super.setType(findCompetenceCourseTypeEnum(competenceCourseType));
     }
 
     private org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType findCompetenceCourseType(
@@ -696,7 +696,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.name()));
     }
 
-    private CompetenceCourseType findCompetenceCourseType(
+    private CompetenceCourseType findCompetenceCourseTypeEnum(
             org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
         if (competenceCourseType == null) {
             return null;
