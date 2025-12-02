@@ -60,7 +60,7 @@ public class ExtraCurricularActivity extends ExtraCurricularActivity_Base {
         Set<ExtraCurricularActivityType> existing = new HashSet<ExtraCurricularActivityType>();
         for (ExtraCurricularActivity activity : student.getExtraCurricularActivitySet()) {
             existing.add(activity.getType());
-            if (activity.getType().equals(type) && activity.getActivityInterval().overlaps(interval)) {
+            if (activity != this && activity.getType().equals(type) && activity.getActivityInterval().overlaps(interval)) {
                 throw new DomainException("error.extraCurricularActivity.overlaping");
             }
         }
