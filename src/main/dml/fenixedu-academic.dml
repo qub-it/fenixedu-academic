@@ -307,6 +307,17 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String url;
     }
 
+	class degreeStructure.CompetenceCourseType  {
+		String code (REQUIRED);
+		LocalizedString name (REQUIRED);
+		boolean finalWork;
+	}
+
+		relation CompetenceCourseTypeRoot {
+		    degreeStructure.CompetenceCourseType playsRole competenceCourseTypes { multiplicity *; }
+		    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+		}
+
     class CompetenceCourse  {
         String code;
         YearMonthDay creationDateYearMonthDay;
@@ -323,6 +334,11 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     		CompetenceCourse playsRole compentenceCourses {
     			multiplicity *;
     		}
+    	}
+
+    	relation CompetenceCourseCompetenceCourseType {
+			degreeStructure.CompetenceCourseType playsRole competenceCourseType { multiplicity 0..1; }
+		    CompetenceCourse playsRole competenceCourses { multiplicity *; }
     	}
 
     class Coordinator  {

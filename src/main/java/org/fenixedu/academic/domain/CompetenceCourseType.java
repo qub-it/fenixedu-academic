@@ -18,6 +18,9 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 public enum CompetenceCourseType {
 
     REGULAR(false),
@@ -38,4 +41,7 @@ public enum CompetenceCourseType {
         return this.finalWork;
     }
 
+    public static Optional<CompetenceCourseType> findByCode(String code) {
+        return Stream.of(values()).filter(cct -> code != null && code.equals(cct.name())).findFirst();
+    }
 }
