@@ -673,4 +673,36 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .map(cci -> cci.getCompetenceCourse()).distinct();
     }
 
+    @Override
+    public void setType(final CompetenceCourseType competenceCourseType) {
+        super.setType(competenceCourseType);
+        super.setCompetenceCourseType(findCompetenceCourseType(competenceCourseType));
+    }
+
+    @Override
+    public void setCompetenceCourseType(
+            final org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
+        super.setCompetenceCourseType(competenceCourseType);
+        super.setType(findCompetenceCourseTypeEnum(competenceCourseType));
+    }
+
+    private org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType findCompetenceCourseType(
+            CompetenceCourseType competenceCourseType) {
+        if (competenceCourseType == null) {
+            return null;
+        }
+
+        return org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType.findByCode(competenceCourseType.name())
+                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.name()));
+    }
+
+    private CompetenceCourseType findCompetenceCourseTypeEnum(
+            org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
+        if (competenceCourseType == null) {
+            return null;
+        }
+
+        return CompetenceCourseType.findByCode(competenceCourseType.getCode())
+                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.getCode()));
+    }
 }

@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_B_CODE;
 import static org.fenixedu.academic.domain.CompetenceCourseTest.initCompetenceCourse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,11 +40,13 @@ public class CompetenceCourseTypeTest {
         });
     }
 
-    private static void initCompetenceCourseType() {
+    public static CompetenceCourseType initCompetenceCourseType() {
         org.fenixedu.academic.domain.CompetenceCourseType regular = org.fenixedu.academic.domain.CompetenceCourseType.REGULAR;
         String code = regular.name();
         LocalizedString name = new LocalizedString(Locale.getDefault(), code);
-        CompetenceCourseType.create(code, name, regular.isFinalWork());
+
+        return CompetenceCourseType.findByCode(code)
+                .orElseGet(() -> CompetenceCourseType.create(code, name, regular.isFinalWork()));
     }
 
     private CompetenceCourseType create(String code, LocalizedString name, boolean finalWork) {
@@ -139,5 +142,43 @@ public class CompetenceCourseTypeTest {
         create(CODE, QUALIFIED_NAME, true);
 
         assertEquals(2, CompetenceCourseType.findAll().count());
+    }
+
+    @Test
+    public void testCompetenceCourseType_competenceCourseSettersAreSynced() {
+        org.fenixedu.academic.domain.CompetenceCourseType typeEnum = org.fenixedu.academic.domain.CompetenceCourseType.REGULAR;
+        CompetenceCourseType cct = CompetenceCourseType.findByCode(typeEnum.name()).orElseThrow();
+        CompetenceCourse cc = CompetenceCourse.find(COURSE_B_CODE);
+        cc.setType(null);
+
+        // Assert initial state of CompetenceCourse
+        assertNull(cc.getCompetenceCourseType());
+        assertNull(cc.getType());
+
+        // Call setter in CompetenceCourseType Enum to trigger the sync in CompetenceCourseType Entity
+        cc.setType(typeEnum);
+
+        // Assert CompetenceCourseType Enum and CompetenceCourseType Entity have the same value
+        assertEquals(cct, cc.getCompetenceCourseType());
+        assertEquals(cc.getType().name(), cc.getCompetenceCourseType().getCode());
+
+        // Set to null with Enum Setter
+        cc.setType(null);
+
+        assertNull(cc.getType());
+        assertNull(cc.getCompetenceCourseType());
+
+        // Call setter in CompetenceCourseType to trigger the sync in CompetenceCourse
+        cc.setCompetenceCourseType(cct);
+
+        // Assert CompetenceCourseType Enum and CompetenceCourseType Entity have the same value
+        assertEquals(cct, cc.getCompetenceCourseType());
+        assertEquals(cc.getType().name(), cc.getCompetenceCourseType().getCode());
+
+        // Set to null with CompetenceCourseType Setter
+        cc.setCompetenceCourseType(null);
+
+        assertNull(cc.getType());
+        assertNull(cc.getCompetenceCourseType());
     }
 }
