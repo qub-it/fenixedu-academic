@@ -1,3 +1,4 @@
+- Refactor: Make competence course information class constants public to aid in hardcoded fields refactor [#qubIT-Fenix-6448]
 - Improvement: Add details field to extra curricular activity and extra curricular activity type [#ISCTE-FENIXEDU-1313]
 
 52.6.0 (06-12-2025)
