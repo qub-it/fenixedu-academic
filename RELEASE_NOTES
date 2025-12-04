@@ -1,3 +1,5 @@
+- Refactor: Make competence course information class constants public to aid in hardcoded fields refactor [#qubIT-Fenix-6448]
+
 52.4.0 (03-12-2025)
 - Refactor: Refactors CompetenceCourseType enum to domain entity [#qubIT-Fenix-3048]
 - Refactor: Migrates CompetenceCourse 'type' field data [#qubIT-Fenix-3048]
