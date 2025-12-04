@@ -1329,7 +1329,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class student.curriculum.ExtraCurricularActivityType  {
         LocalizedString name (REQUIRED);
-        LocalizedString details;
+        LocalizedString detailsTemplate;
     }
 
     class student.personaldata.EducationLevelType {
