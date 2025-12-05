@@ -23,10 +23,10 @@ public interface ITreasuryBridgeAPI {
     // @formatter:on
 
 
-    @Deprecated
+    // Used by StudentCurricularPlanNoCourseGroupEnrolmentManager
     public void standaloneUnenrolment(Enrolment standaloneEnrolment);
 
-    @Deprecated
+    // Used by StudentCurricularPlanNoCourseGroupEnrolmentManager
     public void extracurricularUnenrolment(Enrolment extracurricularEnrolment);
 
     // @formatter:off
@@ -35,8 +35,8 @@ public interface ITreasuryBridgeAPI {
      * --------------
      */
     // @formatter:on
-
-    @Deprecated
+    //
+    // Used by EnrolmentEvaluation
     public IImprovementTreasuryEvent getImprovementTaxTreasuryEvent(Registration registration, ExecutionYear executionYear);
 
     // @formatter:off
@@ -47,6 +47,9 @@ public interface ITreasuryBridgeAPI {
     // @formatter:on
 
     @Deprecated
+    // ANIL 2025-12-05 (#qubIT-Fenix-6552)
+    //
+    // Remove in a future release
     public boolean isAcademicalActsBlocked(Person person, LocalDate when);
 
     // @formatter:off
@@ -57,6 +60,9 @@ public interface ITreasuryBridgeAPI {
     // @formatter:on
 
     @Deprecated
+    // ANIL 2025-12-05 (#qubIT-Fenix-6552)
+    //
+    // Remove in a future release
     public List<IAcademicTreasuryEvent> getAllAcademicTreasuryEventsList(Person person);
 
     // @formatter:off
@@ -72,19 +78,13 @@ public interface ITreasuryBridgeAPI {
     @Deprecated
     public String getRegistrationAccountTreasuryManagementURL(Registration registration);
 
-    @Deprecated
+    // Used by PartySocialSecurityNumber
     public boolean isValidFiscalNumber(String fiscalAddressCountryCode, String fiscalNumber);
 
-    @Deprecated
+    // Used by PartySocialSecurityNumber
     public boolean updateCustomer(Person person, String fiscalAddressCountryCode, String fiscalNumber);
 
-    @Deprecated
-    public boolean createCustomerIfMissing(Person person);
-
-    @Deprecated
+    // Used by PartySocialSecurityNumber
     public void saveFiscalAddressFieldsFromPersonInActiveCustomer(Person person);
-
-    @Deprecated
-    public PhysicalAddress createSaftDefaultPhysicalAddress(Person person);
 
 }

@@ -184,22 +184,13 @@ public class Registration extends Registration_Base {
             new PersonalIngressionData(result.getStudent(), executionYear);
         }
 
-        final ITreasuryBridgeAPI treasuryAPI = TreasuryBridgeAPIFactory.implementation();
-        if (treasuryAPI != null) {
-            treasuryAPI.createCustomerIfMissing(result.getStudent().getPerson());
-        }
-
         return result;
     }
 
     @Deprecated
     public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
-        Registration registration = importRegistration(person, degreeCurricularPlan, protocol, cycleType, executionYear);
-
-        TreasuryBridgeAPIFactory.implementation().createCustomerIfMissing(registration.getStudent().getPerson());
-
-        return registration;
+        return importRegistration(person, degreeCurricularPlan, protocol, cycleType, executionYear);
     }
 
     @Deprecated
