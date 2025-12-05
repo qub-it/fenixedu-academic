@@ -76,12 +76,14 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
-            CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType type, CurricularStage curricularStage,
+            CompetenceCourseLevelType competenceCourseLevel,
+            org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType,
+            CurricularStage curricularStage,
             Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
 
         this();
         super.setCurricularStage(curricularStage);
-        setType(type);
+        setCompetenceCourseType(competenceCourseType);
 
         super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
                 .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
@@ -96,7 +98,31 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final String capitalize = StringUtils.capitalize(normalize);
         final String initials = WordUtils.initials(capitalize);
         competenceCourseInformation.setAcronym(initials);
+    }
 
+    @Deprecated
+    public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
+            CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType type, CurricularStage curricularStage,
+            Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
+
+        this();
+        super.setCurricularStage(curricularStage);
+        setType(type);
+
+        super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
+                .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
+
+        CompetenceCourseInformation competenceCourseInformation =
+                new CompetenceCourseInformation(name.trim(), nameEn.trim(), basic, academicPeriod, competenceCourseLevel,
+                        startInterval, unit);
+        super.addCompetenceCourseInformations(competenceCourseInformation);
+
+        // acronym creation
+        final String strip = name.strip();
+        final String normalize = Normalizer.normalize(strip, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+        final String capitalize = StringUtils.capitalize(normalize);
+        final String initials = WordUtils.initials(capitalize);
+        competenceCourseInformation.setAcronym(initials);
     }
 
     public Stream<BibliographicReference> findBibliographies() {
@@ -604,7 +630,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public boolean isFinalWork() {
-        return getType().isFinalWork();
+        return getCompetenceCourseType().getFinalWork();
     }
 
     public ExecutionInterval getStartExecutionInterval() {

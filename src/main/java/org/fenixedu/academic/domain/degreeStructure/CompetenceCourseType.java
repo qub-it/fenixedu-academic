@@ -62,4 +62,8 @@ public class CompetenceCourseType extends CompetenceCourseType_Base {
     public static Stream<CompetenceCourseType> findAll() {
         return Bennu.getInstance().getCompetenceCourseTypesSet().stream();
     }
+
+    public static Stream<CompetenceCourseType> findFinalWorks() {
+        return findAll().filter(CompetenceCourseType::getFinalWork);
+    }
 }
