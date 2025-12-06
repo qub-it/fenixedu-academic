@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.qubit.terra.framework.services.ServiceProvider;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -35,7 +36,6 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 
@@ -163,9 +163,9 @@ public class StudentCurricularPlanNoCourseGroupEnrolmentManager extends StudentC
         for (final CurriculumModule curriculumModule : enrolmentContext.getToRemove()) {
             if (curriculumModule.isLeaf()) {
                 if (curriculumModule.getCurriculumGroup().isStandalone()) {
-                    TreasuryBridgeAPIFactory.implementation().standaloneUnenrolment((Enrolment) curriculumModule);
+                    ServiceProvider.getService(ITreasuryBridgeAPI.class).standaloneUnenrolment((Enrolment) curriculumModule);
                 } else if (curriculumModule.getCurriculumGroup().isExtraCurriculum()) {
-                    TreasuryBridgeAPIFactory.implementation().extracurricularUnenrolment((Enrolment) curriculumModule);
+                    ServiceProvider.getService(ITreasuryBridgeAPI.class).extracurricularUnenrolment((Enrolment) curriculumModule);
                 }
 
                 curriculumModule.delete();

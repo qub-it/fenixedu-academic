@@ -18,12 +18,13 @@
  */
 package org.fenixedu.academic.domain.organizationalStructure;
 
+import com.qubit.terra.framework.services.ServiceProvider;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
+import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 import com.google.common.base.Strings;
@@ -44,7 +45,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
         checkRules();
 
         if (getParty().isPerson()) {
-            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
+            ServiceProvider.getService(ITreasuryBridgeAPI.class).updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
                     getSocialSecurityNumber());
         }
     }
@@ -88,7 +89,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
             }
         }
 
-        if (!TreasuryBridgeAPIFactory.implementation().isValidFiscalNumber(getFiscalCountry().getCode(), getSocialSecurityNumber())) {
+        if (!ServiceProvider.getService(ITreasuryBridgeAPI.class).isValidFiscalNumber(getFiscalCountry().getCode(), getSocialSecurityNumber())) {
             throw new DomainException("error.PartySocialSecurityNumber.invalid.socialSecurityNumber");
         }
     }
@@ -120,7 +121,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
         checkRules();
 
         if (getParty().isPerson()) {
-            TreasuryBridgeAPIFactory.implementation().updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
+            ServiceProvider.getService(ITreasuryBridgeAPI.class).updateCustomer((Person) getParty(), getFiscalCountry().getCode(),
                     getSocialSecurityNumber());
         }
     }
@@ -153,7 +154,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
 
     public static PartySocialSecurityNumber editFiscalInformation(final Party party, final String socialSecurityNumber, final PhysicalAddress fiscalAddress) {
         if(party.isPerson()) {
-            TreasuryBridgeAPIFactory.implementation().saveFiscalAddressFieldsFromPersonInActiveCustomer((Person) party);
+            ServiceProvider.getService(ITreasuryBridgeAPI.class).saveFiscalAddressFieldsFromPersonInActiveCustomer((Person) party);
         }
         
         if(fiscalAddress == null || fiscalAddress.getCountryOfResidence() == null) {
