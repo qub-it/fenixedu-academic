@@ -158,7 +158,7 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_sameYearDifferentExecutionIntervals_shouldReturnFirstState() {
+    public void testActiveState_sameYearDifferentExecutionIntervals_shouldReturnLastCreatedState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
         final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
@@ -181,40 +181,10 @@ public class RegistrationTest {
         RegistrationState activeState = registration.getActiveState();
 
         assertEquals(
-                "For the same year with two states in different execution intervals, the active state should be the state in the current execution interval",
-                semester1State,
+                "For the same year with two states in different execution intervals, the active state should be the last state created",
+                semester2State,
                 activeState
         );
-    }
-
-    @Test
-    public void testActiveState_sameYearDifferentExecutionIntervals_shouldReturnLastState() {
-        assertEquals(0, registration.getRegistrationStatesSet().size());
-
-        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
-        assertTrue(executionYear2021.isCurrent());
-
-        final ExecutionInterval semester1 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
-        final ExecutionInterval semester2 = executionYear2021.getChildInterval(2, AcademicPeriod.SEMESTER);
-        semester1.setState(PeriodState.CLOSED);
-        semester2.setState(PeriodState.CURRENT);
-        assertFalse(semester1.isCurrent());
-        assertTrue(semester2.isCurrent());
-
-        final RegistrationState semester1State =
-                RegistrationState.createRegistrationState(registration, null, DateTime.now().minusDays(1),
-                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), semester1);
-
-        final RegistrationState semester2State = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
-                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), semester2);
-
-        assertEquals(semester1State.getExecutionYear(), semester2State.getExecutionYear());
-
-        RegistrationState activeState = registration.getActiveState();
-
-        assertEquals(
-                "For the same year with two states in different execution intervals, the active state should be the state in the current execution interval",
-                semester2State, activeState);
     }
 
     @Test
@@ -282,5 +252,39 @@ public class RegistrationTest {
         assertEquals("For different execution years, the active state should be the state from the current execution year",
                 lastState, activeState);
     }
+
+    @Test
+    public void testActiveState_pastExecutionYears_shouldReturnLastState() {
+        assertEquals(0, registration.getRegistrationStatesSet().size());
+
+        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
+        final ExecutionYear executionYear2122 = ExecutionYear.readExecutionYearByName("2021/2022");
+        executionYear2021.setState(PeriodState.CURRENT);
+        assertTrue(executionYear2021.isCurrent());
+        assertFalse(executionYear2122.isCurrent());
+
+        final ExecutionInterval semester1_2021 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
+        final ExecutionInterval semester1_2122 = executionYear2122.getChildInterval(1, AcademicPeriod.SEMESTER);
+        semester1_2021.setState(PeriodState.CURRENT);
+        assertTrue(semester1_2021.isCurrent());
+        assertFalse(semester1_2122.isCurrent());
+
+        final RegistrationState firstState =
+                RegistrationState.createRegistrationState(registration, null, DateTime.now().minusMonths(6),
+                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), semester1_2021);
+
+        final RegistrationState lastState =
+                RegistrationState.createRegistrationState(registration, null, DateTime.now().minusMonths(5),
+                        RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), semester1_2122);
+
+        assertEquals(executionYear2021, firstState.getExecutionYear());
+        assertEquals(executionYear2122, lastState.getExecutionYear());
+
+        RegistrationState activeState = registration.getActiveState();
+
+        assertEquals("For different past execution years, the active state should be the last state created",
+                lastState, activeState);
+    }
+
 }
 
