@@ -65,9 +65,9 @@ import org.fenixedu.commons.i18n.LocalizedString;
  */
 public class CompetenceCourseInformation extends CompetenceCourseInformation_Base {
 
-    private static final String OBJECTIVES = "objectives";
-    private static final String PROGRAM = "program";
-    private static final String EVALUATION_METHOD = "evaluationMethod";
+    public static final String OBJECTIVES = "objectives";
+    public static final String PROGRAM = "program";
+    public static final String EVALUATION_METHOD = "evaluationMethod";
 
     static public final Comparator<CompetenceCourseInformation> COMPARATORY_BY_EXECUTION_INTERVAL =
             Comparator.comparing(CompetenceCourseInformation::getExecutionInterval);
