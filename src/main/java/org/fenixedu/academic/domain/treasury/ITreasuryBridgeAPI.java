@@ -30,53 +30,11 @@ public interface ITreasuryBridgeAPI {
     public void extracurricularUnenrolment(Enrolment extracurricularEnrolment);
 
     // @formatter:off
-    /* --------------
-     * ACADEMIC TAXES
-     * --------------
-     */
-    // @formatter:on
-    //
-    // Used by EnrolmentEvaluation
-    public IImprovementTreasuryEvent getImprovementTaxTreasuryEvent(Registration registration, ExecutionYear executionYear);
-
-    // @formatter:off
-    /* --------------
-     * ACADEMICAL ACT
-     * --------------
-     */
-    // @formatter:on
-
-    @Deprecated
-    // ANIL 2025-12-05 (#qubIT-Fenix-6552)
-    //
-    // Remove in a future release
-    public boolean isAcademicalActsBlocked(Person person, LocalDate when);
-
-    // @formatter:off
-    /* -----
-     * OTHER
-     * -----
-     */
-    // @formatter:on
-
-    @Deprecated
-    // ANIL 2025-12-05 (#qubIT-Fenix-6552)
-    //
-    // Remove in a future release
-    public List<IAcademicTreasuryEvent> getAllAcademicTreasuryEventsList(Person person);
-
-    // @formatter:off
     /* ------------------------------------
      * ACADEMIC TREASURY MODULE INTEGRATION
      * ------------------------------------
      */
     // @formatter:on
-
-    @Deprecated
-    public String getPersonAccountTreasuryManagementURL(Person person);
-
-    @Deprecated
-    public String getRegistrationAccountTreasuryManagementURL(Registration registration);
 
     // Used by PartySocialSecurityNumber
     public boolean isValidFiscalNumber(String fiscalAddressCountryCode, String fiscalNumber);

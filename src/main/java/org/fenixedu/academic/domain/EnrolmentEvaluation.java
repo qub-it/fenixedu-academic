@@ -18,25 +18,21 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-
-import com.qubit.terra.framework.services.ServiceProvider;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.exceptions.EnrolmentNotPayedException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.treasury.IImprovementTreasuryEvent;
-import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.FenixDigestUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
 
 import static org.fenixedu.academic.util.Bundle.APPLICATION;
 
@@ -244,11 +240,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
             throw new DomainException("EnrolmentEvaluation.cannot.submit.with.empty.grade");
         }
 
-        if (isPayable() && !isPayed()) {
-            throw new EnrolmentNotPayedException("EnrolmentEvaluation.cannot.set.grade.on.not.payed.enrolment.evaluation",
-                    getEnrolment());
-        }
-
         setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
         setPerson(person);
         setObservation(observation);
@@ -350,20 +341,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
     final public boolean hasExamDateYearMonthDay() {
         return getExamDateYearMonthDay() != null;
-    }
-
-    public boolean isPayable() {
-        final IImprovementTreasuryEvent event =
-                ServiceProvider.getService(ITreasuryBridgeAPI.class).getImprovementTaxTreasuryEvent(getRegistration(), getExecutionYear());
-
-        return event != null && event.isCharged(this);
-    }
-
-    public boolean isPayed() {
-        final IImprovementTreasuryEvent event =
-                ServiceProvider.getService(ITreasuryBridgeAPI.class).getImprovementTaxTreasuryEvent(getRegistration(), getExecutionYear());
-
-        return event != null && event.isPayed(this);
     }
 
     /**
