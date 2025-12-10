@@ -1,8 +1,8 @@
-- Refactor: Make competence course information class constants public to aid in hardcoded fields refactor [#qubIT-Fenix-6448]
-- Improvement: Add details field to extra curricular activity and extra curricular activity type [#ISCTE-FENIXEDU-1313]
 - Refactor: Remove deprecated IImprovementTreasuryEvent [#qubIT-Fenix-6552]
 - Refactor: Delete deprecated methods in ITreasuryBridgeAPI [#qubIT-Fenix-6552]
 - Refactor: Remove logic to check if EnrolmentEvaluation is paid [#qubIT-Fenix-6552]
+- Refactor: Make competence course information class constants public to aid in hardcoded fields refactor [#qubIT-Fenix-6448]
+- Improvement: Add details field to extra curricular activity and extra curricular activity type [#ISCTE-FENIXEDU-1313]
 
 52.6.0 (06-12-2025)
 - Refactor: Remove TreasuryBridgeAPIFactory and replace with ServiceProvider [#qubIT-Fenix-6552]
