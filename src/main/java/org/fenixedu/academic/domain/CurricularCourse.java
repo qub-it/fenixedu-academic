@@ -332,36 +332,12 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getCompetenceCourse().getDepartmentUnit();
     }
 
-    public String getObjectives() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getObjectives() : null;
-    }
-
-    public String getObjectivesEn() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getObjectivesEn() : null;
-    }
-
     public LocalizedString getObjectivesI18N(ExecutionInterval interval) {
         return getCompetenceCourse() != null ? getCompetenceCourse().getObjectivesI18N(interval) : new LocalizedString();
     }
 
-    public String getProgram() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getProgram() : null;
-    }
-
-    public String getProgramEn() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getProgramEn() : null;
-    }
-
     public LocalizedString getProgramI18N(ExecutionInterval interval) {
         return getCompetenceCourse() != null ? getCompetenceCourse().getProgramI18N(interval) : new LocalizedString();
-    }
-
-    public String getEvaluationMethod() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getEvaluationMethod() : null;
-    }
-
-    public String getEvaluationMethodEn() {
-        return getCompetenceCourse() != null ? getCompetenceCourse().getEvaluationMethodEn() : null;
     }
 
     public LocalizedString getEvaluationMethodI18N(ExecutionInterval interval) {
