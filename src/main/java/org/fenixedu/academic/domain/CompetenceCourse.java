@@ -51,6 +51,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
+import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -252,60 +253,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     @Deprecated
     public void setRegime(RegimeType regimeType) {
         findInformationMostRecentUntil(null).setAcademicPeriod(regimeType.convertToAcademicPeriod());
-    }
-
-    public String getObjectives(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getObjectives() : null;
-    }
-
-    public String getObjectives() {
-        return getObjectives(null);
-    }
-
-    public String getProgram(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getProgram() : null;
-    }
-
-    public String getProgram() {
-        return getProgram(null);
-    }
-
-    public String getEvaluationMethod(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getEvaluationMethod() : null;
-    }
-
-    public String getEvaluationMethod() {
-        return getEvaluationMethod(null);
-    }
-
-    public String getObjectivesEn(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getObjectivesEn() : null;
-    }
-
-    public String getObjectivesEn() {
-        return getObjectivesEn(null);
-    }
-
-    public String getProgramEn(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getProgramEn() : null;
-    }
-
-    public String getProgramEn() {
-        return getProgramEn(null);
-    }
-
-    public String getEvaluationMethodEn(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getEvaluationMethodEn() : null;
-    }
-
-    public String getEvaluationMethodEn() {
-        return getEvaluationMethodEn(null);
     }
 
     public double getTheoreticalHours() {
@@ -567,16 +514,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getObjectivesI18N(ExecutionInterval interval) {
-        LocalizedString LocalizedString = new LocalizedString();
-        String objectives = getObjectives(interval);
-        if (objectives != null && objectives.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.PT, objectives);
-        }
-        String objectivesEn = getObjectivesEn(interval);
-        if (objectivesEn != null && objectivesEn.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.EN, objectivesEn);
-        }
-        return LocalizedString;
+        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.OBJECTIVES);
     }
 
     public LocalizedString getProgramI18N() {
@@ -584,16 +522,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getProgramI18N(ExecutionInterval interval) {
-        LocalizedString LocalizedString = new LocalizedString();
-        String program = getProgram(interval);
-        if (program != null && program.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.PT, program);
-        }
-        String programEn = getProgramEn(interval);
-        if (programEn != null && programEn.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.EN, programEn);
-        }
-        return LocalizedString;
+        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.PROGRAM);
     }
 
     public LocalizedString getEvaluationMethodI18N() {
@@ -601,16 +530,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getEvaluationMethodI18N(ExecutionInterval interval) {
-        LocalizedString LocalizedString = new LocalizedString();
-        String evaluationMethod = getEvaluationMethod(interval);
-        if (evaluationMethod != null && evaluationMethod.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.PT, evaluationMethod);
-        }
-        String evaluationMethodEn = getEvaluationMethodEn(interval);
-        if (evaluationMethodEn != null && evaluationMethodEn.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.EN, evaluationMethodEn);
-        }
-        return LocalizedString;
+        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.EVALUATION_METHOD);
     }
 
     public List<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
