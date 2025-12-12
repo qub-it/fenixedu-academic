@@ -1,3 +1,5 @@
+- Refactor: Remove wrapping methods accessing competence course information hardcoded fields and replace i18n wrapping with direct access to new dynamic fields [#qubIT-Fenix-6448]
+
 52.7.0 (10-12-2025)
 - Refactor: Remove deprecated IImprovementTreasuryEvent [#qubIT-Fenix-6552]
 - Refactor: Delete deprecated methods in ITreasuryBridgeAPI [#qubIT-Fenix-6552]
