@@ -22,7 +22,6 @@ package org.fenixedu.academic.domain;
 /*
  * Enums first
  */
-enum org.fenixedu.academic.domain.CompetenceCourseType                                                                 as CompetenceCourseType;
 enum org.fenixedu.academic.domain.ContractType                                                                         as ContractType;
 enum org.fenixedu.academic.domain.ExecutionCourseBoardPermittedGroupType                                               as ExecutionCourseBoardPermittedGroupType;
 enum org.fenixedu.academic.domain.FrequencyType                                                                        as FrequencyType;
@@ -323,7 +322,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         YearMonthDay creationDateYearMonthDay;
         CurricularStage curricularStage;
         String name;
-        CompetenceCourseType type;
     }
     
     	relation CompetenceCourseGradeScale {
