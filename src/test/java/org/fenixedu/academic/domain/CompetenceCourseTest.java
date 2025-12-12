@@ -12,6 +12,7 @@ import java.util.function.Function;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -87,11 +88,11 @@ public class CompetenceCourseTest {
 
     public static CompetenceCourse createCompetenceCourse(final String name, final String code, BigDecimal credits,
             final AcademicPeriod duration, ExecutionInterval executionInterval, Unit coursesUnit) {
-        initCompetenceCourseType();
+        CompetenceCourseType competenceCourseType = initCompetenceCourseType();
 
         final CompetenceCourse result =
                 new CompetenceCourse(name, name, Boolean.TRUE, duration, CompetenceCourseLevelType.UNKNOWN().orElse(null),
-                        CompetenceCourseType.REGULAR, CurricularStage.APPROVED, coursesUnit, executionInterval, new GradeScale());
+                        competenceCourseType, CurricularStage.APPROVED, coursesUnit, executionInterval, new GradeScale());
         result.setCode(code);
 
         final CompetenceCourseInformation courseInformation = result.getCompetenceCourseInformationsSet().iterator().next();
