@@ -593,9 +593,4 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                         .filter(cci -> cci.getCompetenceCourse().getCompetenceCourseGroupUnit() == u)) // ensure that active information is from unit
                 .map(cci -> cci.getCompetenceCourse()).distinct();
     }
-
-    @Override
-    public void setCompetenceCourseType(final CompetenceCourseType competenceCourseType) {
-        super.setCompetenceCourseType(competenceCourseType);
-    }
 }

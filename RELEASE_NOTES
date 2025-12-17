@@ -1,8 +1,8 @@
+- Refactor: Cleans up CompetenceCourseType enum refactor [#qubIT-Fenix-3048]
 - Refactor: Remove wrapping methods accessing competence course information hardcoded fields and replace i18n wrapping with direct access to new dynamic fields [#qubIT-Fenix-6448]
 
 52.7.2 (17-12-2025)
 - Refactor: Removes CompetenceCourseType migration code [#qubIT-Fenix-3048]
-- Refactor: Cleans up CompetenceCourseType enum refactor [#qubIT-Fenix-3048]
 
 52.7.1 (12-12-2025)
 - Refactor: Adds new CompetenceCourse constructor and replaces Enum references [#qubIT-Fenix-3048]
