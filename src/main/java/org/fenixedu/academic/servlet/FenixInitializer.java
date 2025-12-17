@@ -20,7 +20,6 @@ package org.fenixedu.academic.servlet;
 
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -31,17 +30,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Installation;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.rest.Healthcheck;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +69,6 @@ public class FenixInitializer implements ServletContextListener {
         initializeAcademicPeriodOrder();
 
         initializeDynamicFieldTags();
-        initializeCompetenceCourseTypeDomainEntity();
-        migrateCompetenceCourseData();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -158,46 +151,5 @@ public class FenixInitializer implements ServletContextListener {
     @Atomic(mode = TxMode.WRITE)
     private void initializeAcademicPeriodOrder() {
         AcademicPeriodOrder.initialize();
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeCompetenceCourseTypeDomainEntity() {
-        if (CompetenceCourseType.findAll().findAny().isPresent()) {
-            return;
-        }
-
-        Log.warn("---------------------------------------");
-        Log.warn("Starting population of Competence Course Types");
-
-        for (org.fenixedu.academic.domain.CompetenceCourseType competenceCourseTypeEnum : org.fenixedu.academic.domain.CompetenceCourseType.values()) {
-            String code = competenceCourseTypeEnum.name();
-            LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, competenceCourseTypeEnum.name());
-
-            if (CompetenceCourseType.findByCode(code).isEmpty()) {
-                CompetenceCourseType.create(code, name, competenceCourseTypeEnum.isFinalWork());
-            }
-        }
-
-        Log.warn("Finished population of Competence Course Types. Instances created: " + CompetenceCourseType.findAll().count());
-        Log.warn("---------------------------------------");
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void migrateCompetenceCourseData() {
-        Log.warn("---------------------------------------");
-        Log.warn("Migrating Competence Course 'type' field to new entities");
-        final AtomicInteger counter = new AtomicInteger();
-
-        Bennu.getInstance().getCompetenceCoursesSet().forEach(cc -> {
-            if (cc.getCompetenceCourseType() == null) {
-                CompetenceCourseType.findByCode(cc.getType().name()).ifPresent(cc::setCompetenceCourseType);
-                counter.getAndIncrement();
-            }
-        });
-
-        Log.warn("Finished migrating Competence Course 'type' field to new entities. Processed " + Bennu.getInstance()
-                .getCompetenceCoursesSet().size() + " Competence Course instances." + "Migrated: " + counter.get()
-                + " instances.");
-        Log.warn("---------------------------------------");
     }
 }
