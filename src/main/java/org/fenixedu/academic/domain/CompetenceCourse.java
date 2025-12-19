@@ -47,6 +47,7 @@ import org.apache.commons.lang.WordUtils;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
@@ -77,8 +78,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
-            CompetenceCourseLevelType competenceCourseLevel,
-            org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType,
+            CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType competenceCourseType,
             CurricularStage curricularStage,
             Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
 
@@ -91,31 +91,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
         CompetenceCourseInformation competenceCourseInformation = new CompetenceCourseInformation(name.trim(), nameEn.trim(),
                 basic, academicPeriod, competenceCourseLevel, startInterval, unit);
-        super.addCompetenceCourseInformations(competenceCourseInformation);
-
-        // acronym creation
-        final String strip = name.strip();
-        final String normalize = Normalizer.normalize(strip, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-        final String capitalize = StringUtils.capitalize(normalize);
-        final String initials = WordUtils.initials(capitalize);
-        competenceCourseInformation.setAcronym(initials);
-    }
-
-    @Deprecated
-    public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
-            CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType type, CurricularStage curricularStage,
-            Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
-
-        this();
-        super.setCurricularStage(curricularStage);
-        setType(type);
-
-        super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
-                .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
-
-        CompetenceCourseInformation competenceCourseInformation =
-                new CompetenceCourseInformation(name.trim(), nameEn.trim(), basic, academicPeriod, competenceCourseLevel,
-                        startInterval, unit);
         super.addCompetenceCourseInformations(competenceCourseInformation);
 
         // acronym creation
@@ -617,38 +592,5 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .flatMap(u -> u.getCompetenceCourseInformationsSet().stream()
                         .filter(cci -> cci.getCompetenceCourse().getCompetenceCourseGroupUnit() == u)) // ensure that active information is from unit
                 .map(cci -> cci.getCompetenceCourse()).distinct();
-    }
-
-    @Override
-    public void setType(final CompetenceCourseType competenceCourseType) {
-        super.setType(competenceCourseType);
-        super.setCompetenceCourseType(findCompetenceCourseType(competenceCourseType));
-    }
-
-    @Override
-    public void setCompetenceCourseType(
-            final org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
-        super.setCompetenceCourseType(competenceCourseType);
-        super.setType(findCompetenceCourseTypeEnum(competenceCourseType));
-    }
-
-    private org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType findCompetenceCourseType(
-            CompetenceCourseType competenceCourseType) {
-        if (competenceCourseType == null) {
-            return null;
-        }
-
-        return org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType.findByCode(competenceCourseType.name())
-                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.name()));
-    }
-
-    private CompetenceCourseType findCompetenceCourseTypeEnum(
-            org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType competenceCourseType) {
-        if (competenceCourseType == null) {
-            return null;
-        }
-
-        return CompetenceCourseType.findByCode(competenceCourseType.getCode())
-                .orElseThrow(() -> new DomainException("error.CompetenceCourseType.not.found", competenceCourseType.getCode()));
     }
 }
