@@ -877,14 +877,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String acronym;
         BigDecimal credits;
         Boolean basic;
-        String evaluationMethod;
-        String evaluationMethodEn;
         String name;
         String nameEn;
-        String objectives;
-        String objectivesEn;
-        String program;
-        String programEn;
         degreeStructure.RegimeType regime;
         AcademicPeriod academicPeriod;
         Languages languages;
