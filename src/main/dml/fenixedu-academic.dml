@@ -962,7 +962,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		relation CourseLoadDurationByTeachingMethodTeachingMethodType {
 		    degreeStructure.CourseLoadDurationByTeachingMethod playsRole courseLoadDurationsByTeachingMethod { multiplicity *; }
 		    degreeStructure.TeachingMethodType playsRole teachingMethodType { multiplicity 1..1; }
-		}		
+		}
 
     class degreeStructure.Context  {
         Integer childOrder;
@@ -4962,3 +4962,19 @@ class curricularRules.AnyCurricularCourseExceptionsConfiguration {
     }
 
 // ==================== END: CurricularRule Executor Logics ====================
+
+	class degreeStructure.CompetenceCourseScientificArea  {
+	    BigDecimal credits;
+	}
+		relation CompetenceCourseScientificAreaRoot {
+		    degreeStructure.CompetenceCourseScientificArea playsRole competenceCourseScientificAreas { multiplicity *; }
+		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+		}
+		relation CompetenceCourseScientificAreaCompetenceCourseInformation {
+		    degreeStructure.CompetenceCourseScientificArea playsRole competenceCourseScientificAreas { multiplicity *; }
+            degreeStructure.CompetenceCourseInformation playsRole competenceCourseInformation { multiplicity 1..1; }
+		}
+		relation CompetenceCourseScientificAreaUnit {
+		    degreeStructure.CompetenceCourseScientificArea playsRole competenceCourseScientificAreas { multiplicity *; }
+		    organizationalStructure.Unit playsRole scientificAreaUnit { multiplicity 1..1; }
+		}

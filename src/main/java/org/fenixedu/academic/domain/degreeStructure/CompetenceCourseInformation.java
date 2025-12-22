@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain.degreeStructure;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +37,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -113,6 +115,10 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                         DynamicField.getFieldValue(this, df.getDescriptor().getCode())));
 
         setLanguages(existingInformation.getLanguages());
+
+        existingInformation.getCompetenceCourseScientificAreasSet().stream()
+                .filter(ccsa -> CompetenceCourseScientificArea.find(this, ccsa.getScientificAreaUnit()).isEmpty())
+                .forEach(ccsa -> CompetenceCourseScientificArea.create(this, ccsa.getScientificAreaUnit()));
     }
 
     public CompetenceCourseInformation(final String name, final String nameEn, final Boolean basic,
@@ -239,6 +245,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setExecutionPeriod(null);
         setCompetenceCourse(null);
         setCompetenceCourseGroupUnit(null);
+        getCompetenceCourseScientificAreasSet().forEach(CompetenceCourseScientificArea::delete);
+
         setLevelType(null);
 
         setRootDomainObject(null);
@@ -322,6 +330,39 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         return getCompetenceCourse().getCompetenceCourseInformationsSet().stream()
                 .sorted(COMPARATORY_BY_EXECUTION_INTERVAL.reversed()).dropWhile(cci -> cci != this).dropWhile(cci -> cci == this)
                 .findFirst();
+    }
+
+    @Override
+    public void setCredits(BigDecimal credits) {
+        super.setCredits(credits);
+        CompetenceCourseScientificArea.checkScientificAreasCreditsRules(this);
+    }
+
+    @Override
+    public void setCompetenceCourseGroupUnit(Unit unit) {
+        if (unit != null) {
+
+            if (!unit.isCompetenceCourseGroupUnit()) {
+                throw new DomainException("competence.course.information.invalid.group.unit");
+            }
+
+            final Collection<Unit> newScientificAreaUnits =
+                    unit.getAllParentUnits().stream().filter(Party::isScientificAreaUnit).collect(Collectors.toSet());
+
+            newScientificAreaUnits.forEach(newUnit -> CompetenceCourseScientificArea.find(this, newUnit)
+                    .orElseGet(() -> CompetenceCourseScientificArea.create(this, newUnit)));
+
+            if (getCompetenceCourseGroupUnit() != null) {
+                final Collection<Unit> oldScientificAreaUnits =
+                        getCompetenceCourseGroupUnit().getAllParentUnits().stream().filter(Party::isScientificAreaUnit)
+                                .collect(Collectors.toSet());
+
+                oldScientificAreaUnits.stream().filter(oldUnit -> !newScientificAreaUnits.contains(oldUnit))
+                        .flatMap(oldUnit -> CompetenceCourseScientificArea.find(this, oldUnit).stream())
+                        .forEach(CompetenceCourseScientificArea::delete);
+            }
+        }
+        super.setCompetenceCourseGroupUnit(unit);
     }
 
 }

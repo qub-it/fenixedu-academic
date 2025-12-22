@@ -96,6 +96,14 @@ public class Unit extends Unit_Base {
     }
 
     @Override
+    public void setPartyType(PartyType partyType) {
+        super.setPartyType(partyType);
+        if (!isScientificAreaUnit() && !getCompetenceCourseScientificAreasSet().isEmpty()) {
+            throw new DomainException("error.unit.cannot.change.partytype.when.has.competencecoursescientificareas");
+        }
+    }
+
+    @Override
     public String getName() {
         return LocaleUtils.getPreferedContent(getPartyName());
     }
@@ -199,6 +207,10 @@ public class Unit extends Unit_Base {
         }
 
         if (!getCompetenceCourseInformationsSet().isEmpty()) {
+            blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.unit.cannot.be.deleted"));
+        }
+
+        if(!getCompetenceCourseScientificAreasSet().isEmpty()){
             blockers.add(BundleUtil.getString(Bundle.APPLICATION, "error.unit.cannot.be.deleted"));
         }
     }
