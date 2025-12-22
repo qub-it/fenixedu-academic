@@ -34,6 +34,7 @@ import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.dml.DynamicField;
+import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -107,12 +108,9 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
         getBibliographiesSet().addAll(copyBibliographies);
 
-        setEvaluationMethod(existingInformation.getEvaluationMethod());
-        setEvaluationMethodEn(existingInformation.getEvaluationMethodEn());
-        setObjectives(existingInformation.getObjectives());
-        setObjectivesEn(existingInformation.getObjectivesEn());
-        setProgram(existingInformation.getProgram());
-        setProgramEn(existingInformation.getProgramEn());
+        existingInformation.getDynamicFieldSet().stream().filter(df -> StringUtils.isNotBlank(df.getValue()))
+                .forEach(df -> DynamicField.setFieldValue(this, df.getDescriptor().getCode(),
+                        DynamicField.getFieldValue(this, df.getDescriptor().getCode())));
 
         setLanguages(existingInformation.getLanguages());
     }
@@ -157,16 +155,6 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         setBasic(basic);
         setLevelType(competenceCourseLevel);
         setCompetenceCourseGroupUnit(unit);
-    }
-
-    public void edit(final String objectives, final String program, final String evaluationMethod, final String objectivesEn,
-            final String programEn, final String evaluationMethodEn) {
-        setObjectives(objectives);
-        setProgram(program);
-        setEvaluationMethod(evaluationMethod);
-        setObjectivesEn(objectivesEn);
-        setProgramEn(programEn);
-        setEvaluationMethodEn(evaluationMethodEn);
     }
 
     public ExecutionInterval getExecutionInterval() {
@@ -219,170 +207,28 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
         }
     }
 
-    @Override
-    public String getObjectives() {
-        return DynamicField.find(this, OBJECTIVES).flatMap(
-                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
-                .orElse(super.getObjectives());
-    }
-
-    @Override
-    public void setObjectives(final String objectives) {
-        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.getDefault(), objectives)));
-        super.setObjectives(objectives);
-    }
-
-    @Override
-    public String getObjectivesEn() {
-        return DynamicField.find(this, OBJECTIVES)
-                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
-                .orElse(super.getObjectivesEn());
-    }
-
-    @Override
-    public void setObjectivesEn(final String objectivesEn) {
-        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.ENGLISH, objectivesEn)));
-        super.setObjectivesEn(objectivesEn);
-    }
-
     public LocalizedString getObjectivesI18N() {
-        return DynamicField.find(this, OBJECTIVES).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(() -> {
-            LocalizedString result = new LocalizedString();
-
-            if (!StringUtils.isEmpty(super.getObjectives())) {
-                result = result.with(Locale.getDefault(), super.getObjectives());
-            }
-            if (!StringUtils.isEmpty(super.getObjectivesEn())) {
-                result = result.with(Locale.ENGLISH, super.getObjectivesEn());
-            }
-            return result;
-        });
+        return DynamicField.getFieldValue(this, OBJECTIVES);
     }
 
     public void setObjectivesI18N(final LocalizedString input) {
-        DynamicField.find(this, OBJECTIVES).ifPresent(dF -> dF.edit(input));
-        if (input != null) {
-            super.setObjectives(input.getContent(Locale.getDefault()));
-            super.setObjectivesEn(input.getContent(Locale.ENGLISH));
-        } else {
-            super.setObjectives(null);
-            super.setObjectivesEn(null);
-        }
-    }
-
-    @Override
-    public String getProgram() {
-        return DynamicField.find(this, PROGRAM).flatMap(
-                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
-                .orElse(super.getProgram());
-    }
-
-    @Override
-    public void setProgram(final String program) {
-        DynamicField.find(this, PROGRAM).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.getDefault(), program)));
-        super.setProgram(program);
-    }
-
-    @Override
-    public String getProgramEn() {
-        return DynamicField.find(this, PROGRAM)
-                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
-                .orElse(super.getProgramEn());
-    }
-
-    @Override
-    public void setProgramEn(final String programEn) {
-        DynamicField.find(this, PROGRAM).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.ENGLISH, programEn)));
-        super.setProgramEn(programEn);
+        DynamicField.setFieldValue(this, OBJECTIVES, input);
     }
 
     public LocalizedString getProgramI18N() {
-        return DynamicField.find(this, PROGRAM).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(() -> {
-            LocalizedString result = new LocalizedString();
-
-            if (!StringUtils.isEmpty(super.getProgram())) {
-                result = result.with(Locale.getDefault(), getProgram());
-            }
-            if (!StringUtils.isEmpty(super.getProgramEn())) {
-                result = result.with(Locale.ENGLISH, getProgramEn());
-            }
-
-            return result;
-        });
+        return DynamicField.getFieldValue(this, PROGRAM);
     }
 
     public void setProgramI18N(final LocalizedString input) {
-        DynamicField.find(this, PROGRAM).ifPresent(dF -> dF.edit(input));
-        if (input != null) {
-            super.setProgram(input.getContent(Locale.getDefault()));
-            super.setProgramEn(input.getContent(Locale.ENGLISH));
-        } else {
-            super.setProgram(null);
-            super.setProgramEn(null);
-        }
-    }
-
-    @Override
-    public String getEvaluationMethod() {
-        return DynamicField.find(this, EVALUATION_METHOD).flatMap(
-                        dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.getDefault())))
-                .orElse(super.getEvaluationMethod());
-    }
-
-    @Override
-    public void setEvaluationMethod(final String evaluationMethod) {
-        DynamicField.find(this, EVALUATION_METHOD).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.getDefault(), evaluationMethod)));
-        super.setEvaluationMethod(evaluationMethod);
-    }
-
-    @Override
-    public String getEvaluationMethodEn() {
-        return DynamicField.find(this, EVALUATION_METHOD)
-                .flatMap(dF -> Optional.ofNullable(dF.getValue(LocalizedString.class)).map(ls -> ls.getContent(Locale.ENGLISH)))
-                .orElse(super.getEvaluationMethodEn());
-    }
-
-    @Override
-    public void setEvaluationMethodEn(final String evaluationMethodEn) {
-        DynamicField.find(this, EVALUATION_METHOD).ifPresent(dF -> dF.edit(
-                Optional.ofNullable(dF.getValue(LocalizedString.class)).orElse(new LocalizedString())
-                        .with(Locale.ENGLISH, evaluationMethodEn)));
-        super.setEvaluationMethodEn(evaluationMethodEn);
+        DynamicField.setFieldValue(this, PROGRAM, input);
     }
 
     public LocalizedString getEvaluationMethodI18N() {
-        return DynamicField.find(this, EVALUATION_METHOD).map(dF -> dF.getValue(LocalizedString.class)).orElseGet(() -> {
-            LocalizedString result = new LocalizedString();
-
-            if (!StringUtils.isEmpty(getEvaluationMethod())) {
-                result = result.with(Locale.getDefault(), getEvaluationMethod());
-            }
-            if (!StringUtils.isEmpty(getEvaluationMethodEn())) {
-                result = result.with(Locale.ENGLISH, getEvaluationMethodEn());
-            }
-            return result;
-        });
+        return DynamicField.getFieldValue(this, EVALUATION_METHOD);
     }
 
     public void setEvaluationMethodI18N(final LocalizedString input) {
-        DynamicField.find(this, EVALUATION_METHOD).ifPresent(dF -> dF.edit(input));
-        if (input != null) {
-            super.setEvaluationMethod(input.getContent(Locale.getDefault()));
-            super.setEvaluationMethodEn(input.getContent(Locale.ENGLISH));
-        } else {
-            super.setEvaluationMethod(null);
-            super.setEvaluationMethodEn(null);
-        }
+        DynamicField.setFieldValue(this, EVALUATION_METHOD, input);
     }
 
     public void delete() {
