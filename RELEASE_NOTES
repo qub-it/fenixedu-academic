@@ -1,7 +1,7 @@
-- New feature: Domain to represent explicit associations between competence course and scientific areas [#qubIT-Fenix-7186]
 - Refactor: Cleans up CompetenceCourseType enum refactor [#qubIT-Fenix-3048]
 - Refactor: Remove wrapping methods accessing competence course information hardcoded fields and replace i18n wrapping with direct access to new dynamic fields [#qubIT-Fenix-6448]
 - Refactor: Remove hardcoded fields from competence course information domain and related class methods, replacing the behaviour with dynamic field access [#qubIT-Fenix-6448]
+- New feature: Domain to represent explicit associations between competence course and scientific areas [#qubIT-Fenix-7186]
 
 52.7.2 (17-12-2025)
 - Refactor: Removes CompetenceCourseType migration code [#qubIT-Fenix-3048]
