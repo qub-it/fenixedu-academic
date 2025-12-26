@@ -19,18 +19,13 @@
 package org.fenixedu.academic.dto;
 
 import java.util.Calendar;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.fenixedu.academic.util.DayType;
 import org.fenixedu.academic.util.DiaSemana;
-import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.academic.util.renderer.GanttDiagramEvent;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.spaces.domain.occupation.Occupation;
 import org.joda.time.Interval;
 
-public class InfoOccupation extends InfoShowOccupation implements GanttDiagramEvent {
+public class InfoOccupation extends InfoShowOccupation  {
 
     Interval interval;
     Occupation occupation;
@@ -63,61 +58,6 @@ public class InfoOccupation extends InfoShowOccupation implements GanttDiagramEv
     @Override
     public Calendar getFim() {
         return interval.getEnd().toCalendar(I18N.getLocale());
-    }
-
-    @Override
-    public List<Interval> getGanttDiagramEventSortedIntervals() {
-        return occupation.getIntervals();
-    }
-
-    @Override
-    public LocalizedString getGanttDiagramEventName() {
-        return new LocalizedString(I18N.getLocale(), occupation.getSubject());
-    }
-
-    @Override
-    public int getGanttDiagramEventOffset() {
-        return 0;
-    }
-
-    @Override
-    public String getGanttDiagramEventPeriod() {
-        return occupation.getSummary();
-    }
-
-    @Override
-    public String getGanttDiagramEventObservations() {
-        return occupation.getSpaces().stream().map(space -> space.getName()).collect(Collectors.joining(" "));
-    }
-
-    @Override
-    public String getGanttDiagramEventIdentifier() {
-        return occupation.getRequest().getExternalId();
-    }
-
-    @Override
-    public Integer getGanttDiagramEventMonth() {
-        return interval.getStart().getMonthOfYear();
-    }
-
-    @Override
-    public String getGanttDiagramEventUrlAddOns() {
-        return null;
-    }
-
-    @Override
-    public boolean isGanttDiagramEventIntervalsLongerThanOneDay() {
-        return false;
-    }
-
-    @Override
-    public boolean isGanttDiagramEventToMarkWeekendsAndHolidays() {
-        return false;
-    }
-
-    @Override
-    public DayType getGanttDiagramEventDayType(Interval interval) {
-        return null;
     }
 
     public Occupation getOccupation() {

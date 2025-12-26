@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated GanttDiagramEvent [#qubIT-Fenix-1607]
+
 53.0.0 (23-12-2025)
 - Refactor: Cleans up CompetenceCourseType enum refactor [#qubIT-Fenix-3048]
 - Refactor: Remove wrapping methods accessing competence course information hardcoded fields and replace i18n wrapping with direct access to new dynamic fields [#qubIT-Fenix-6448]

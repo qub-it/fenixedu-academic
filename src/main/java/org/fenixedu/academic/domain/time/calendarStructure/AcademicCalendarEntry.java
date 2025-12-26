@@ -32,15 +32,12 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.chronologies.AcademicChronology;
 import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.DayType;
-import org.fenixedu.academic.util.renderer.GanttDiagramEvent;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
-public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base implements GanttDiagramEvent {
+public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
 
     public static final Comparator<AcademicCalendarEntry> COMPARATOR_BY_BEGIN_DATE = new Comparator<AcademicCalendarEntry>() {
 
@@ -305,132 +302,12 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base i
         return allChildEntries;
     }
 
-//    // renamed from getAllChildEntriesWithTemplateEntries
-//    public List<AcademicCalendarEntry> getAllChildEntries(Class<? extends AcademicCalendarEntry> subEntryClass) {
-//        if (subEntryClass == null) {
-//            return Collections.emptyList();
-//        }
-//        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
-//        getChildEntries(null, allChildEntries, null, null, subEntryClass);
-//        for (AcademicCalendarEntry child : getChildEntriesSet()) {
-//            allChildEntries.addAll(child.getAllChildEntries(subEntryClass));
-//        }
-//        return allChildEntries;
-//    }
-
-//    // renamed from getChildEntriesWithTemplateEntries    
-//    public List<AcademicCalendarEntry> getChildEntries(DateTime begin, DateTime end,
-//            Class<? extends AcademicCalendarEntry> subEntryClass) {
-//        List<AcademicCalendarEntry> result = new ArrayList<AcademicCalendarEntry>();
-//        getChildEntries(null, result, begin, end, subEntryClass);
-//        return result;
-//    }
-
-//    private List<AcademicCalendarEntry> getChildEntries(Long instant, List<AcademicCalendarEntry> result,
-//            Class<? extends AcademicCalendarEntry> subEntryClass) {
-//
-//        for (AcademicCalendarEntry subEntry : getChildEntriesSet()) {
-//            if ((subEntryClass == null || subEntry.getClass().equals(subEntryClass))
-//                    && (instant == null || subEntry.containsInstant(instant))) {
-//
-//                result.add(subEntry);
-//            }
-//        }
-//
-//        return result;
-//    }
-
-    // renamed from getFirstChildEntriesWithTemplateEntries    
-//    protected void getFirstChildEntries(Long instant, Class<? extends AcademicCalendarEntry> subEntryClass,
-//            Class<? extends AcademicCalendarEntry> parentEntryClass, List<AcademicCalendarEntry> childrenEntriesList) {
-//
-//        if (getClass().equals(parentEntryClass)) {
-//            getChildEntries(instant, childrenEntriesList, subEntryClass);
-//
-//        } else {
-//            for (AcademicCalendarEntry subEntry : getChildEntriesSet()) {
-//                if (instant == null || subEntry.containsInstant(instant)) {
-//                    subEntry.getFirstChildEntries(instant, subEntryClass, parentEntryClass, childrenEntriesList);
-//                }
-//            }
-//        }
-//    }
-
-//    public AcademicCalendarEntry getEntryForCalendar(final AcademicCalendarRootEntry academicCalendar) {
-//        return getRootEntry().equals(academicCalendar) ? this : null;
-//    }
-
-//    public int getAcademicSemesterOfAcademicYear(final AcademicChronology academicChronology) {
-//        return getBegin().withChronology(academicChronology)
-//                .get(AcademicSemesterOfAcademicYearDateTimeFieldType.academicSemesterOfAcademicYear());
-//    }
-
     public boolean belongsToPeriod(DateTime begin, DateTime end) {
         return !getBegin().isAfter(end) && !getEnd().isBefore(begin);
     }
 
     public boolean containsInstant(long instant) {
         return getBegin().getMillis() <= instant && getEnd().getMillis() >= instant;
-    }
-
-    @Override
-    public List<Interval> getGanttDiagramEventSortedIntervals() {
-        List<Interval> result = new ArrayList<Interval>();
-        result.add(new Interval(getBegin(), getEnd()));
-        return result;
-    }
-
-    @Override
-    public LocalizedString getGanttDiagramEventName() {
-        return getTitle();
-    }
-
-    @Override
-    public int getGanttDiagramEventOffset() {
-        if (getParentEntry() == null) {
-            return 0;
-        }
-        return getParentEntry().getGanttDiagramEventOffset() + 1;
-    }
-
-    @Override
-    public String getGanttDiagramEventObservations() {
-        return "-";
-    }
-
-    @Override
-    public String getGanttDiagramEventPeriod() {
-        return getBegin().toString("dd/MM/yyyy HH:mm") + " - " + getEnd().toString("dd/MM/yyyy HH:mm");
-    }
-
-    @Override
-    public String getGanttDiagramEventIdentifier() {
-        return getExternalId().toString();
-    }
-
-    @Override
-    public Integer getGanttDiagramEventMonth() {
-        return null;
-    }
-
-    @Override
-    public String getGanttDiagramEventUrlAddOns() {
-        return null;
-    }
-
-    @Override
-    public boolean isGanttDiagramEventIntervalsLongerThanOneDay() {
-        return false;
-    }
-
-    @Override
-    public boolean isGanttDiagramEventToMarkWeekendsAndHolidays() {
-        return false;
-    }
-
-    @Override
-    public DayType getGanttDiagramEventDayType(Interval interval) {
-        return null;
     }
 
     public boolean isOfType(AcademicPeriod period) {
@@ -486,16 +363,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base i
                 .filter(e -> e.getAcademicPeriod().equals(academicPeriod)).sorted(COMPARATOR_BY_BEGIN_DATE)
                 .collect(Collectors.toList()).indexOf(this) + 1 : 0;
     }
-
-//    public int getCardinalityOfCalendarEntry(AcademicCalendarEntry child) {
-//        int count = 1;
-//        for (AcademicCalendarEntry entry : getChildEntries(child.getClass())) {
-//            if (entry.getBegin().isBefore(child.getBegin())) {
-//                count++;
-//            }
-//        }
-//        return count;
-//    }
 
     public static AcademicCalendarEntry findDefaultCalendar() {
         return Bennu.getInstance().getDefaultAcademicCalendar();
