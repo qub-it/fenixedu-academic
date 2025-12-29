@@ -3307,6 +3307,11 @@ relation RootDomainObjectExecutionInterval {
     }
 }
 
+relation RootDomainObjectCurrentExecutionInterval {
+    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectForCurrentExecutionInterval;
+    ExecutionInterval playsRole currentExecutionIntervals { multiplicity *; }
+}
+
 relation RootDomainObjectExternalCurricularCourse {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     ExternalCurricularCourse playsRole externalCurricularCourses {

@@ -250,10 +250,8 @@ public class ExecutionYear extends ExecutionYear_Base {
     }
 
     public static Collection<ExecutionYear> findCurrents() {
-        return Stream
-                .concat(Bennu.getInstance().getExecutionYearsSet().stream().filter(ey -> ey.isCurrent()),
-                        ExecutionInterval.findCurrentsChilds().stream().map(es -> es.getExecutionYear()))
-                .collect(Collectors.toSet());
+        return Bennu.getInstance().getCurrentExecutionIntervalsSet().stream().map(ExecutionInterval::getExecutionYear)
+                .filter(ExecutionInterval::isCurrent).collect(Collectors.toSet());
     }
 
     /**

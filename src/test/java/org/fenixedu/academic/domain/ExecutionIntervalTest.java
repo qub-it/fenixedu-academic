@@ -1,6 +1,8 @@
 package org.fenixedu.academic.domain;
 
+import java.time.Year;
 import java.time.YearMonth;
+import java.util.Collection;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
@@ -73,12 +75,12 @@ public class ExecutionIntervalTest {
 
 //        final ExecutionYear currentExecutionYear = (ExecutionYear) academicYearEntrySecond.getExecutionInterval();
 //        currentExecutionYear.setState(PeriodState.CURRENT);
-        academicYearEntrySecond.getExecutionInterval().setState(PeriodState.CURRENT);
+//        academicYearEntrySecond.getExecutionInterval().changeState(PeriodState.CURRENT);
 
         createFirstSemesterInterval(academicYearEntryFirst);
         createSecondSemesterInterval(academicYearEntryFirst);
 
-        createFirstSemesterInterval(academicYearEntrySecond).getExecutionInterval().setState(PeriodState.CURRENT);
+        createFirstSemesterInterval(academicYearEntrySecond).getExecutionInterval().changeState(PeriodState.CURRENT);
         createSecondSemesterInterval(academicYearEntrySecond);
 
         createFirstSemesterInterval(academicYearEntryThird);
@@ -154,11 +156,23 @@ public class ExecutionIntervalTest {
 
     @Test
     public void testExecutionInterval() {
+        ExecutionYear academicYearSecond = (ExecutionYear) academicYearEntrySecond.getExecutionInterval();
+
         assertTrue("Root entry".equals(Bennu.getInstance().getDefaultAcademicCalendar().getTitle().getContent()));
         assertTrue(academicYearEntryFirst.getExecutionInterval() != null);
-        assertTrue(academicYearEntryFirst.getExecutionInterval().isBefore(academicYearEntrySecond.getExecutionInterval()));
+        assertTrue(academicYearEntryFirst.getExecutionInterval().isBefore(academicYearSecond));
         assertTrue(ExecutionYear.findAllAggregators().size() == 10);
-        assertEquals(ExecutionYear.findCurrent(null), academicYearEntrySecond.getExecutionInterval());
+
+        ExecutionInterval firstSemSecondYear = academicYearSecond.getChildInterval(1, AcademicPeriod.SEMESTER);
+        firstSemSecondYear.changeState(PeriodState.CURRENT);
+        assertEquals(ExecutionYear.findCurrent(null), academicYearSecond);
+
+        final Collection<ExecutionInterval> currentsChilds = ExecutionInterval.findCurrentsChilds();
+        assertEquals(currentsChilds.size(), 1);
+
+        final ExecutionInterval currentInterval = currentsChilds.iterator().next();
+        assertEquals(currentInterval, firstSemSecondYear);
+        assertEquals(currentInterval.getExecutionYear(), academicYearSecond);
     }
 
     @Test
@@ -213,6 +227,35 @@ public class ExecutionIntervalTest {
 
         semesterEntry.delete(rootEntry);
         yearEntry.delete(rootEntry);
+    }
+
+    @Test
+    public void testChangeStateToCurrentSwitchesPrevious() {
+        final AcademicCalendarRootEntry rootEntry = Bennu.getInstance().getDefaultAcademicCalendar();
+        AcademicYearCE year1 = createStandardYearInterval(rootEntry, 1950);
+        AcademicYearCE year2 = createStandardYearInterval(rootEntry, 1951);
+        final ExecutionInterval semYear1 = createFirstSemesterInterval(year1).getExecutionInterval();
+        final ExecutionInterval semYear2 = createFirstSemesterInterval(year2).getExecutionInterval();
+
+        // make first semester of year1 current
+        semYear1.changeState(PeriodState.CURRENT);
+        assertTrue(semYear1.isCurrent());
+        assertEquals(PeriodState.CURRENT, semYear1.getExecutionYear().getState());
+
+        // now set first semester of year2 current -> should deactivate (open) the previous
+        semYear2.changeState(PeriodState.CURRENT);
+        assertTrue(semYear2.isCurrent());
+        assertEquals(PeriodState.CURRENT, semYear2.getExecutionYear().getState());
+
+        // previous semester and its year must be opened
+        assertEquals(PeriodState.OPEN, semYear1.getState());
+        assertEquals(PeriodState.OPEN, semYear1.getExecutionYear().getState());
+
+        // tear down
+        semYear1.getAcademicCalendarEntry().delete(rootEntry);
+        semYear2.getAcademicCalendarEntry().delete(rootEntry);
+        year1.delete(rootEntry);
+        year2.delete(rootEntry);
     }
 
 }

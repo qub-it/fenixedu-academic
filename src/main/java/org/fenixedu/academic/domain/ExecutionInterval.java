@@ -78,6 +78,44 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         super.setState(state);
     }
 
+    public void changeState(final PeriodState newState) {
+        if (getState().equals(newState)) {
+            return;
+        }
+
+        if (PeriodState.CURRENT.equals(newState)) {
+            final AcademicCalendarRootEntry calendar = (AcademicCalendarRootEntry) getAcademicCalendar();
+
+            // Deactivate the current interval and year
+            final ExecutionInterval oldCurrentExecutionInterval =
+                    ExecutionInterval.findCurrentChild(getAcademicPeriod(), calendar);
+            if (oldCurrentExecutionInterval != null) {
+                oldCurrentExecutionInterval.openInterval();
+            }
+
+            final ExecutionYear newCurrentExecutionYear = getExecutionYear();
+
+            // Deactivate eventual other current intervals of other years from the same calendar
+            ExecutionInterval.findCurrentsChilds().stream().filter(ei -> ei.getAcademicCalendar() == calendar)
+                    .filter(ei -> ei.getExecutionYear() != newCurrentExecutionYear).forEach(ei -> ei.openInterval());
+
+            // Update year
+            newCurrentExecutionYear.setState(PeriodState.CURRENT);
+            newCurrentExecutionYear.setRootDomainObjectForCurrentExecutionInterval(Bennu.getInstance());
+
+            setRootDomainObjectForCurrentExecutionInterval(Bennu.getInstance());
+        }
+
+        setState(newState);
+    }
+
+    private void openInterval() {
+        setState(PeriodState.OPEN);
+        getExecutionYear().setState(PeriodState.OPEN);
+        setRootDomainObjectForCurrentExecutionInterval(null);
+        getExecutionYear().setRootDomainObjectForCurrentExecutionInterval(null);
+    }
+
     @jvstm.cps.ConsistencyPredicate
     protected boolean checkDateInterval() {
         return getBeginDateYearMonthDay() != null && getEndDateYearMonthDay() != null
@@ -348,7 +386,8 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
     }
 
     public static Collection<ExecutionInterval> findCurrentsChilds() {
-        return findAllChilds().stream().filter(ei -> ei.isCurrent()).collect(Collectors.toSet());
+        return Bennu.getInstance().getCurrentExecutionIntervalsSet().stream().filter(ei -> !ei.isAggregator())
+                .filter(ExecutionInterval::isCurrent).collect(Collectors.toSet());
     }
 
     public static ExecutionInterval findFirstCurrentChild(final AcademicCalendarRootEntry calendar) {
@@ -427,6 +466,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         setExecutionYear(null);
         setRootDomainObjectForExecutionPeriod(null);
         setRootDomainObject(null);
+        setRootDomainObjectForCurrentExecutionInterval(null);
         deleteDomainObject();
     }
 

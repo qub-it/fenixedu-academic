@@ -1,3 +1,4 @@
+- Refactor: Direct relationship between current execution intervals and root entity [#qubIT-Fenix-7881]
 - Refactor: Remove deprecated GanttDiagramEvent [#qubIT-Fenix-1607]
 
 53.0.0 (23-12-2025)

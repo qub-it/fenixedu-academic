@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.servlet;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
@@ -69,6 +71,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeAcademicPeriodOrder();
 
         initializeDynamicFieldTags();
+
+        initializeCurrentExecutionIntervals();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -87,6 +91,24 @@ public class FenixInitializer implements ServletContextListener {
 
         Log.warn("Finished population of DynamicFieldTag in DynamicFieldDescriptors in " + (System.currentTimeMillis() - start)
                 + " ms. Migrated " + dynamicFieldDescriptorSet.size() + " DynamicFieldDescriptor instances.");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeCurrentExecutionIntervals() {
+        final Bennu root = Bennu.getInstance();
+        if (!root.getCurrentExecutionIntervalsSet().isEmpty()) {
+            return;
+        }
+
+        Log.warn("---------------------------------------");
+        Log.warn("Starting initialization of current execution intervals");
+        Log.warn("---------------------------------------");
+
+        final List<ExecutionInterval> currentIntervals =
+                root.getExecutionIntervalsSet().stream().filter(ExecutionInterval::isCurrent).toList();
+        root.getCurrentExecutionIntervalsSet().addAll(currentIntervals);
+
+        Log.warn("Finished initialization of current execution intervals");
     }
 
     private void registerHealthchecks() {
