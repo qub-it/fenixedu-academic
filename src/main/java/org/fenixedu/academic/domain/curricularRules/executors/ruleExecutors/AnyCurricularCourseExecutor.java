@@ -203,7 +203,8 @@ public class AnyCurricularCourseExecutor extends CurricularRuleExecutor {
                         chosenDegreeCurricularPlan != studentCurricularPlan.getDegreeCurricularPlan();
                 boolean containedInExceptionsConfigurations = Bennu.getInstance()
                         .getAnyCurricularCourseExceptionsConfiguration().getCompetenceCoursesSet().contains(competenceCourse);
-                return !(isCurricularPlanFromAnotherDegree && containedInExceptionsConfigurations);
+                return !(containedInExceptionsConfigurations && (rule.getFilterStudentDegree()
+                        || isCurricularPlanFromAnotherDegree));
             }
 
             return false;
