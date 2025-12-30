@@ -59,15 +59,25 @@ public class ShiftCapacity extends ShiftCapacity_Base {
         final boolean dcpsDefined = !getDegreeCurricularPlansSet().isEmpty();
         final boolean schoolClassesDefined = !getSchoolClassesSet().isEmpty();
 
-        if (schoolClassesDefined && dcpsDefined) { // if both relations defined, must accept one or other
-            if (!acceptsSchoolClass(registration) && !acceptsDegreeCurricularPlan(registration)) {
+        if (getNegation()) {
+            if (schoolClassesDefined && acceptsSchoolClass(registration)) {
                 return false;
             }
+            if (dcpsDefined && acceptsDegreeCurricularPlan(registration)) { // must accept dcps
+                return false;
+            }
+
         } else {
-            if (schoolClassesDefined && !acceptsSchoolClass(registration)) { // must accept school class
-                return false;
-            } else if (dcpsDefined && !acceptsDegreeCurricularPlan(registration)) { // must accept dcps
-                return false;
+            if (schoolClassesDefined && dcpsDefined) { // if both relations defined, must accept one or other
+                if (!acceptsSchoolClass(registration) && !acceptsDegreeCurricularPlan(registration)) {
+                    return false;
+                }
+            } else {
+                if (schoolClassesDefined && !acceptsSchoolClass(registration)) { // must accept school class
+                    return false;
+                } else if (dcpsDefined && !acceptsDegreeCurricularPlan(registration)) { // must accept dcps
+                    return false;
+                }
             }
         }
 

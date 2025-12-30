@@ -4725,6 +4725,7 @@ relation ProfileMembers {
 
 class schedule.shiftCapacity.ShiftCapacity {
 	Integer capacity (REQUIRED);
+	boolean negation;
 }
 	relation ShiftCapacityRoot {
 	    schedule.shiftCapacity.ShiftCapacity playsRole shiftCapacities { multiplicity *; }
