@@ -1,5 +1,5 @@
 53.1.1 (30-12-2025)
-- Improvement: Improvement: Add possibility to negate shift capacity criteria [#ISCTE-FENIXEDU-1243]
+- Improvement: Add possibility to negate shift capacity criteria [#ISCTE-FENIXEDU-1243]
 
 53.1.0 (29-12-2025)
 - Refactor: Direct relationship between current execution intervals and root entity [#qubIT-Fenix-7881]
