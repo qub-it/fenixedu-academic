@@ -1,3 +1,5 @@
+- Improvement: Adds unit tests for registration get active state method [#qubIT-Fenix-7775]
+
 53.1.1 (30-12-2025)
 - Improvement: Add possibility to negate shift capacity criteria [#ISCTE-FENIXEDU-1243]
 
