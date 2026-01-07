@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.dml.DynamicField;
-import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -110,9 +109,9 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
         getBibliographiesSet().addAll(copyBibliographies);
 
-        existingInformation.getDynamicFieldSet().stream().filter(df -> StringUtils.isNotBlank(df.getValue()))
-                .forEach(df -> DynamicField.setFieldValue(this, df.getDescriptor().getCode(),
-                        DynamicField.getFieldValue(this, df.getDescriptor().getCode())));
+        existingInformation.getDynamicFieldSet().stream().filter(df -> StringUtils.isNotBlank(df.getValue())).forEach(
+                df -> DynamicField.setFieldValue(this, df.getDescriptor().getCode(),
+                        DynamicField.getFieldValue(existingInformation, df.getDescriptor().getCode())));
 
         setLanguages(existingInformation.getLanguages());
 
