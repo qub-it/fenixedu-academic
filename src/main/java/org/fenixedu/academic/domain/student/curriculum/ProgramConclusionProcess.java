@@ -54,7 +54,12 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
             throw new DomainException("error.CycleConclusionProcess.argument.must.not.be.null");
         }
 
+        if (bean.getStudentCurricularPlan() == null) {
+            throw new DomainException("error.ProgramConclusionProcess.studentCurricularPlan.cannot.be.null");
+        }
+
         super.setGroup(group);
+        super.setStudentCurricularPlan(bean.getStudentCurricularPlan());
         super.setConclusionYear(conclusionYear);
         addVersions(bean);
     }

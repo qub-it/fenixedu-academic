@@ -1,3 +1,5 @@
+- Refactor: Add Conclusion Process to Student Currricular Plan domain relation [#qubIT-Fenix-6554]
+
 53.1.2 (07-01-2026)
 - Improvement: Adds unit tests for registration get active state method [#qubIT-Fenix-7775]
 - Bug fix: Fix dynamic field transfer from existing information when creating new competence course information [#qubIT-Fenix-6448]

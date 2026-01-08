@@ -2058,6 +2058,13 @@ relation ConclusionProcessConclusionYear {
     ExecutionYear playsRole conclusionYear;
 }
 
+relation ConclusionProcessStudentCurricularPlan {
+    student.curriculum.ConclusionProcess playsRole conclusionProcesses {
+        multiplicity *;
+    }
+    StudentCurricularPlan playsRole studentCurricularPlan;
+}
+
 relation ConclusionProcessVersionConclusionYear {
     student.curriculum.ConclusionProcessVersion playsRole conclusionProcessVersionsConcluded {
         multiplicity *;

@@ -166,6 +166,7 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
         }
 
         super.setGroup(null);
+        super.setStudentCurricularPlan(null);
         super.setConclusionYear(null);
         super.setLastVersion(null);
         super.setRootDomainObject(null);
