@@ -144,10 +144,6 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
         return getDegree().getDegreeType();
     }
 
-    public LocalizedString getName() {
-        return getGroup().getName();
-    }
-
     public boolean isActive() {
         return getLastVersion() != null && getLastVersion().isActive();
     }

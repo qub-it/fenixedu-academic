@@ -226,17 +226,7 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     public boolean isConcluded() {
         return getCurriculumGroup().isConcluded();
     }
-
-    public Collection<CurriculumModule> getCurriculumModulesWithNoConlusionDate() {
-        final Collection<CurriculumModule> result = new HashSet<CurriculumModule>();
-        if (isByGroup()) {
-            getCurriculumGroup().assertConclusionDate(result);
-        } else {
-            getRegistration().assertConclusionDate(result);
-        }
-        return result;
-    }
-
+    
     public Collection<CurriculumGroup> getCurriculumGroupsNotVerifyingStructure() {
         if (isByGroup()) {
             final Collection<CurriculumGroup> result = new HashSet<CurriculumGroup>();

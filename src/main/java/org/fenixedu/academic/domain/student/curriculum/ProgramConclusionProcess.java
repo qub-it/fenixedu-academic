@@ -72,8 +72,8 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     @Override
     final public void update(final Person responsible, final Grade finalGrade, final Grade rawGrade, final Grade descriptiveGrade,
             final LocalDate conclusionDate, final String notes) {
-        addVersions(new RegistrationConclusionBean(getGroup().getStudentCurricularPlan(),
-                getGroup().getDegreeModule().getProgramConclusion()));
+        addVersions(
+                new RegistrationConclusionBean(getStudentCurricularPlan(), getGroup().getDegreeModule().getProgramConclusion()));
         getLastVersion().update(responsible, finalGrade, rawGrade, descriptiveGrade, conclusionDate, notes);
     }
 
@@ -108,7 +108,7 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
 
     @Override
     public Registration getRegistration() {
-        return getGroup().getRegistration();
+        return getStudentCurricularPlan().getRegistration();
     }
 
 }
