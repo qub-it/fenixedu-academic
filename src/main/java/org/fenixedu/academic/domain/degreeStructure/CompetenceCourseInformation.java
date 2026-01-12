@@ -213,8 +213,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getObjectivesI18N() {
-        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this, CompetenceCourseInformation.OBJECTIVES))
-                .orElse(new LocalizedString());
+        final LocalizedString objectives = DynamicField.getFieldValue(this, CompetenceCourseInformation.OBJECTIVES);
+        return Optional.ofNullable(objectives).orElseGet(LocalizedString::new);
     }
 
     public void setObjectivesI18N(final LocalizedString input) {
@@ -222,8 +222,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getProgramI18N() {
-        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this, CompetenceCourseInformation.PROGRAM))
-                .orElse(new LocalizedString());
+        final LocalizedString program = DynamicField.getFieldValue(this, CompetenceCourseInformation.PROGRAM);
+        return Optional.ofNullable(program).orElseGet(LocalizedString::new);
     }
 
     public void setProgramI18N(final LocalizedString input) {
@@ -231,8 +231,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getEvaluationMethodI18N() {
-        return (LocalizedString) Optional.ofNullable(
-                DynamicField.getFieldValue(this, CompetenceCourseInformation.EVALUATION_METHOD)).orElse(new LocalizedString());
+        final LocalizedString evaluationMethod = DynamicField.getFieldValue(this, CompetenceCourseInformation.EVALUATION_METHOD);
+        return Optional.ofNullable(evaluationMethod).orElseGet(LocalizedString::new);
     }
 
     public void setEvaluationMethodI18N(final LocalizedString input) {

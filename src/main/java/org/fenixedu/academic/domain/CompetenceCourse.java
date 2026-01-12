@@ -489,9 +489,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getObjectivesI18N(ExecutionInterval interval) {
-        return (LocalizedString) Optional.ofNullable(
-                        DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.OBJECTIVES))
-                .orElse(new LocalizedString());
+        final LocalizedString objectives =
+                DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.OBJECTIVES);
+        return Optional.ofNullable(objectives).orElseGet(LocalizedString::new);
     }
 
     public LocalizedString getProgramI18N() {
@@ -499,9 +499,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getProgramI18N(ExecutionInterval interval) {
-        return (LocalizedString) Optional.ofNullable(
-                        DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.PROGRAM))
-                .orElse(new LocalizedString());
+        final LocalizedString program =
+                DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.PROGRAM);
+        return Optional.ofNullable(program).orElseGet(LocalizedString::new);
     }
 
     public LocalizedString getEvaluationMethodI18N() {
@@ -509,8 +509,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getEvaluationMethodI18N(ExecutionInterval interval) {
-        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval),
-                CompetenceCourseInformation.EVALUATION_METHOD)).orElse(new LocalizedString());
+        final LocalizedString evaluationMethod = DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval),
+                CompetenceCourseInformation.EVALUATION_METHOD);
+        return Optional.ofNullable(evaluationMethod).orElseGet(LocalizedString::new);
     }
 
     public List<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
