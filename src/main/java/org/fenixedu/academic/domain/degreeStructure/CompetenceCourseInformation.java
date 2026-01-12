@@ -213,7 +213,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getObjectivesI18N() {
-        return DynamicField.getFieldValue(this, OBJECTIVES);
+        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this, CompetenceCourseInformation.OBJECTIVES))
+                .orElse(new LocalizedString());
     }
 
     public void setObjectivesI18N(final LocalizedString input) {
@@ -221,7 +222,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getProgramI18N() {
-        return DynamicField.getFieldValue(this, PROGRAM);
+        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this, CompetenceCourseInformation.PROGRAM))
+                .orElse(new LocalizedString());
     }
 
     public void setProgramI18N(final LocalizedString input) {
@@ -229,7 +231,8 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     }
 
     public LocalizedString getEvaluationMethodI18N() {
-        return DynamicField.getFieldValue(this, EVALUATION_METHOD);
+        return (LocalizedString) Optional.ofNullable(
+                DynamicField.getFieldValue(this, CompetenceCourseInformation.EVALUATION_METHOD)).orElse(new LocalizedString());
     }
 
     public void setEvaluationMethodI18N(final LocalizedString input) {

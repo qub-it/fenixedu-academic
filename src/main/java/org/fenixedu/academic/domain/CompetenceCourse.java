@@ -489,7 +489,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getObjectivesI18N(ExecutionInterval interval) {
-        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.OBJECTIVES);
+        return (LocalizedString) Optional.ofNullable(
+                        DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.OBJECTIVES))
+                .orElse(new LocalizedString());
     }
 
     public LocalizedString getProgramI18N() {
@@ -497,7 +499,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getProgramI18N(ExecutionInterval interval) {
-        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.PROGRAM);
+        return (LocalizedString) Optional.ofNullable(
+                        DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.PROGRAM))
+                .orElse(new LocalizedString());
     }
 
     public LocalizedString getEvaluationMethodI18N() {
@@ -505,7 +509,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getEvaluationMethodI18N(ExecutionInterval interval) {
-        return DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval), CompetenceCourseInformation.EVALUATION_METHOD);
+        return (LocalizedString) Optional.ofNullable(DynamicField.getFieldValue(this.findInformationMostRecentUntil(interval),
+                CompetenceCourseInformation.EVALUATION_METHOD)).orElse(new LocalizedString());
     }
 
     public List<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
