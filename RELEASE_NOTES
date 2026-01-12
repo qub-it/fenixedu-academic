@@ -1,3 +1,4 @@
+53.1.4 (12-01-2026)
 - Refactor: Change conclusion process student curricular access to direct relation [#qubIT-Fenix-6554]
 - Improvement: Add boolean to AnyCurricularCourseRule to allow the use of Exception in the student degree curricular plan [#UL-FBA-2009]
 
