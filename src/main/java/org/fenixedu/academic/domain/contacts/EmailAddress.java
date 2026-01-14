@@ -111,9 +111,11 @@ public class EmailAddress extends EmailAddress_Base {
 
     @Override
     public void setType(final PartyContactType type) {
-        if (PartyContactType.INSTITUTIONAL.equals(type)) {
+        EmailAddress institutionalEmailAddress = getParty().getInstitutionalEmailAddress();
+        if (type == PartyContactType.INSTITUTIONAL && institutionalEmailAddress != null && this != institutionalEmailAddress) {
             throw new DomainException("error.domain.contacts.EmailAddress.can.only.have.one.institutional.emailAddress");
         }
+
         super.setType(type);
         updateProfileEmail();
     }

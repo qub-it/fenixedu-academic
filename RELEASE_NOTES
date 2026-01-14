@@ -1,3 +1,5 @@
+- Bug Fix: Allow to set institutional contact type in email address, if there is no other institutional email address of associated party [#qubIT-Fenix-7898]
+
 53.1.5 (12-01-2026)
 - Improvement: Handle null values when accessing competence course information dynamic fields [#qubIT-Fenix-6448]
 
