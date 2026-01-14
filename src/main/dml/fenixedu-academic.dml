@@ -4992,3 +4992,19 @@ class curricularRules.AnyCurricularCourseExceptionsConfiguration {
 		    degreeStructure.CompetenceCourseScientificArea playsRole competenceCourseScientificAreas { multiplicity *; }
 		    organizationalStructure.Unit playsRole scientificAreaUnit { multiplicity 1..1; }
 		}
+
+	class person.pedagogicalTraining.PedagogicalTraining {
+	    LocalizedString description;
+	}
+
+	relation PedagogicalTrainingRoot {
+    		    person.pedagogicalTraining.PedagogicalTraining playsRole pedagogicalTrainings { multiplicity *; }
+    		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
+    		}
+
+    		relation PedagogicalTrainingPerson {
+                		    person.pedagogicalTraining.PedagogicalTraining playsRole pedagogicalTrainings { multiplicity *; }
+                		    Person playsRole person {
+                            			multiplicity 1;
+                            		}
+                		}
