@@ -14,15 +14,20 @@ public class PedagogicalTraining extends PedagogicalTraining_Base {
 
 
     public static PedagogicalTraining create (LocalizedString description, Person person) {
+        final PedagogicalTraining pedagogicalTraining = new PedagogicalTraining();
+
+        pedagogicalTraining.setDescription(description);
+        pedagogicalTraining.setPerson(person);
+
+        return pedagogicalTraining;
+    }
+
+    @Override
+    public void setDescription(final LocalizedString description) {
         if (description == null || description.isEmpty()) {
             throw new DomainException("pedagogicalTraining.description.cannot.be.null");
         }
-        final PedagogicalTraining pedagogicalTraining = new PedagogicalTraining();
-
-        pedagogicalTraining.setPerson(person);
-        pedagogicalTraining.setDescription(description);
-
-        return pedagogicalTraining;
+        super.setDescription(description);
     }
 
     public void delete() {
