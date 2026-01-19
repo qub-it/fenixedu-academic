@@ -22,6 +22,8 @@
 package org.fenixedu.academic.domain.person;
 
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -72,5 +74,9 @@ public enum IDDocumentType implements IPresentableEnum {
 
     public LocalizedString getLocalizedNameI18N() {
         return BundleUtil.getLocalizedString(Bundle.ENUMERATION, name());
+    }
+
+    public static Optional<IDDocumentType> findByCode(String code) {
+        return Stream.of(values()).filter(idt -> code != null && code.equals(idt.name())).findFirst();
     }
 }

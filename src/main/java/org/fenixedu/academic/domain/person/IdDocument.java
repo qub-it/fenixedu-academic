@@ -20,8 +20,11 @@ package org.fenixedu.academic.domain.person;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public class IdDocument extends IdDocument_Base {
@@ -60,13 +63,46 @@ public class IdDocument extends IdDocument_Base {
 
     public void setIdDocumentType(IDDocumentType documentType) {
         super.setIdDocumentType(IdDocumentTypeObject.readByIDDocumentType(documentType));
+        super.setIdentificationDocumentType(findIdentificationDocumentType(documentType));
+    }
+
+    @Override
+    public void setIdDocumentType(final IdDocumentTypeObject idDocumentType) {
+        super.setIdDocumentType(idDocumentType);
+        super.setIdentificationDocumentType(findIdentificationDocumentType(
+                Optional.ofNullable(idDocumentType).map(IdDocumentTypeObject::getValue).orElse(null)));
+    }
+
+    @Override
+    public void setIdentificationDocumentType(final IdentificationDocumentType identificationDocumentType) {
+        super.setIdentificationDocumentType(identificationDocumentType);
+        super.setIdDocumentType(IdDocumentTypeObject.readByIDDocumentType(findIDDocumentType(identificationDocumentType)));
     }
 
     public void delete() {
         setPerson(null);
+        super.setIdentificationDocumentType(null);
         super.setIdDocumentType(null);
         setRootDomainObject(null);
         deleteDomainObject();
+    }
+
+    private IdentificationDocumentType findIdentificationDocumentType(IDDocumentType idDocumentType) {
+        if (idDocumentType == null) {
+            return null;
+        }
+
+        return IdentificationDocumentType.findByCode(idDocumentType.name())
+                .orElseThrow(() -> new DomainException("error.IdentificationDocumentType.not.found", idDocumentType.name()));
+    }
+
+    private IDDocumentType findIDDocumentType(IdentificationDocumentType identificationDocumentType) {
+        if (identificationDocumentType == null) {
+            return null;
+        }
+
+        return IDDocumentType.findByCode(identificationDocumentType.getCode())
+                .orElseThrow(() -> new DomainException("error.IDDocumentType.not.found", identificationDocumentType.getCode()));
     }
 
 }

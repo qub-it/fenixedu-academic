@@ -1190,6 +1190,11 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class person.IdDocumentTypeObject  {
         IDDocumentType value;
     }
+
+    class person.identificationDocument.IdentificationDocumentType {
+        String code (REQUIRED);
+        LocalizedString name (REQUIRED);
+    }
     
     class person.personIdentifier.PersonIdentifier {
     	String identifier (REQUIRED);
@@ -2618,6 +2623,15 @@ relation IdDocumentTypeObjectIdDocument {
     }
 }
 
+relation IdentificationDocumentTypeIdDocument {
+    person.identificationDocument.IdentificationDocumentType playsRole identificationDocumentType {
+        multiplicity 0..1;
+    }
+    person.IdDocument playsRole idDocuments {
+        multiplicity *;
+    }
+}
+
 relation LessonLessonSpaceOccupation {
     Lesson playsRole lesson;
     space.LessonSpaceOccupation playsRole lessonSpaceOccupation;
@@ -3376,6 +3390,13 @@ relation RootDomainObjectIdDocument {
 relation RootDomainObjectIdDocumentTypeObject {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     person.IdDocumentTypeObject playsRole idDocumentTypes {
+        multiplicity *;
+    }
+}
+
+relation RootDomainObjectIdentificationDocumentType {
+    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+    person.identificationDocument.IdentificationDocumentType playsRole identificationDocumentTypes {
         multiplicity *;
     }
 }
