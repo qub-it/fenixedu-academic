@@ -4,14 +4,11 @@ import static org.fenixedu.academic.domain.person.identificationDocument.Identif
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Locale;
-
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.IdDocument;
 import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.domain.UserProfile;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,16 +32,9 @@ public class IdentificationDocumentTest {
         });
     }
 
-    public static void initPerson() {
-        final UserProfile userProfile =
-                new UserProfile("Mark Zuckerberg", "", "Mark Zuckerberg", "markzuckerberg" + "@fenixedu.com", Locale.getDefault());
-        new User("markzuckerberg", userProfile);
-        person = new Person(userProfile);
-    }
-
     public static void initIdentificationDocument() {
         if (person == null) {
-            initPerson();
+            person = StudentTest.createStudent("Student", "student").getPerson();
         }
         IdDocumentTypeObject.create(ID_DOCUMENT_TYPE);
         IdDocument idDocument = new IdDocument(person, ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);

@@ -41,10 +41,8 @@ import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.rest.Healthcheck;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
@@ -222,7 +220,7 @@ public class FenixInitializer implements ServletContextListener {
 
         for (IDDocumentType idDocumentType : IDDocumentType.values()) {
             String code = idDocumentType.name();
-            LocalizedString name = BundleUtil.getLocalizedString(Bundle.ENUMERATION, idDocumentType.name());
+            LocalizedString name = idDocumentType.getLocalizedNameI18N();
 
             if (IdentificationDocumentType.findByCode(code).isEmpty()) {
                 IdentificationDocumentType.create(code, name);

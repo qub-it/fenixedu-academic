@@ -65,10 +65,6 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
                 .findAny();
     }
 
-    public static IdentificationDocumentType readByCode(final String code) {
-        return findByCode(code).orElse(null);
-    }
-
     public static Stream<IdentificationDocumentType> findAll() {
         return Bennu.getInstance().getIdentificationDocumentTypesSet().stream();
     }
