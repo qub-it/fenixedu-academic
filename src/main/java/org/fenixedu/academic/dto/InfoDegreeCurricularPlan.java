@@ -22,7 +22,6 @@ package org.fenixedu.academic.dto;
 import java.util.Date;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.util.DateFormatUtil;
 import org.fenixedu.commons.i18n.I18N;
 
@@ -87,13 +86,6 @@ public class InfoDegreeCurricularPlan extends InfoObject implements Comparable {
 
     public String getPresentationName() {
         return getDegreeCurricularPlan().getDegree().getName() + " " + getName();
-    }
-
-    /**
-     * @return DegreeCurricularPlanState
-     */
-    public DegreeCurricularPlanState getState() {
-        return getDegreeCurricularPlan().getState();
     }
 
     public Integer getDegreeDuration() {

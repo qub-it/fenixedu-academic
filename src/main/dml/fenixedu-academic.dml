@@ -44,7 +44,6 @@ enum org.fenixedu.academic.domain.curricularRules.EnrolmentModel				            
 enum org.fenixedu.academic.domain.curriculum.CurricularCourseType                                                      as CurricularCourseType;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentCondition                                                       as EnrollmentCondition;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentState                                                           as EnrollmentState;
-enum org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState                                as DegreeCurricularPlanState;
 enum org.fenixedu.academic.domain.degreeStructure.BranchType                                                           as BranchType;
 enum org.fenixedu.academic.domain.degreeStructure.CurricularStage                                                      as CurricularStage;
 enum org.fenixedu.academic.domain.degreeStructure.CycleType                                                            as CycleType;
@@ -423,12 +422,12 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class DegreeCurricularPlan  {
         CurricularStage curricularStage;
+       	boolean active;
         Integer degreeDuration;
         String description;
         String descriptionEn;
         YearMonthDay initialDateYearMonthDay;
         String name;
-        DegreeCurricularPlanState state;
         Boolean applyPreviousYearsEnrolmentRule;
         EnrolmentModel curricularRuleValidationType;
        	LocalizedString enrolmentInstructions;

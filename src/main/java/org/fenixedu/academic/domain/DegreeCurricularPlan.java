@@ -41,7 +41,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degree.degreeCurricularPlan.DegreeCurricularPlanState;
 import org.fenixedu.academic.domain.degreeStructure.BranchType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -139,7 +138,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         setName(name);
         createDefaultCourseGroups();
         editDuration(duration);
-        setState(DegreeCurricularPlanState.ACTIVE);
         newStructureFieldsChange(CurricularStage.DRAFT, null);
     }
 
@@ -158,22 +156,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         } else {
             setCurricularStage(curricularStage);
         }
-    }
-
-    public void edit(final String name, final CurricularStage stage, final DegreeCurricularPlanState state,
-            final ExecutionYear beginExecutionInterval) {
-
-        if (isApproved() && (name != null && !getName().equals(name))) {
-            throw new DomainException("error.degreeCurricularPlan.already.approved");
-        } else {
-            setName(name);
-        }
-
-        newStructureFieldsChange(stage, beginExecutionInterval);
-
-        this.setState(state);
-        this.getRoot().setName(name);
-        this.getRoot().setNameEn(name);
     }
 
     private void approve(final ExecutionYear beginExecutionYear) {
