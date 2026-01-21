@@ -158,6 +158,20 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
     }
 
+    public void edit(final String name, final CurricularStage stage, final ExecutionYear beginExecutionInterval) {
+
+        if (isApproved() && (name != null && !getName().equals(name))) {
+            throw new DomainException("error.degreeCurricularPlan.already.approved");
+        } else {
+            setName(name);
+        }
+
+        newStructureFieldsChange(stage, beginExecutionInterval);
+
+        this.getRoot().setName(name);
+        this.getRoot().setNameEn(name);
+    }
+
     private void approve(final ExecutionYear beginExecutionYear) {
         if (isApproved()) {
             return;
