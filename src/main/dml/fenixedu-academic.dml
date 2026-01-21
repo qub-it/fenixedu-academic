@@ -1195,6 +1195,10 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
     }
+
+    class person.identificationDocument.IdentificationDocument {
+        String value;
+    }
     
     class person.personIdentifier.PersonIdentifier {
     	String identifier (REQUIRED);
@@ -2623,11 +2627,18 @@ relation IdDocumentTypeObjectIdDocument {
     }
 }
 
-relation IdentificationDocumentTypeIdDocument {
+relation IdentificationDocumentPerson {
+    Person playsRole person;
+    person.identificationDocument.IdentificationDocument playsRole identificationDocuments {
+        multiplicity *;
+    }
+}
+
+relation IdentificationDocumentTypeIdentificationDocument {
     person.identificationDocument.IdentificationDocumentType playsRole identificationDocumentType {
         multiplicity 0..1;
     }
-    person.IdDocument playsRole idDocuments {
+    person.identificationDocument.IdentificationDocument playsRole identificationDocuments {
         multiplicity *;
     }
 }
@@ -3397,6 +3408,13 @@ relation RootDomainObjectIdDocumentTypeObject {
 relation RootDomainObjectIdentificationDocumentType {
     .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
     person.identificationDocument.IdentificationDocumentType playsRole identificationDocumentTypes {
+        multiplicity *;
+    }
+}
+
+relation RootDomainObjectIdentificationDocument {
+    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+    person.identificationDocument.IdentificationDocument playsRole identificationDocuments {
         multiplicity *;
     }
 }

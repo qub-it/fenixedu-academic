@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.IDDocumentType;
-import org.fenixedu.academic.domain.person.IdDocument;
-import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
@@ -50,9 +50,14 @@ public class IdentificationDocumentTypeTest {
                 .orElseGet(() -> IdentificationDocumentType.create(code, name));
     }
 
+    public static void createIdentificationDocumentTypes() {
+        Set.of(IDDocumentType.values()).forEach(type -> IdentificationDocumentType.findByCode(type.name()).orElseGet(
+                () -> IdentificationDocumentType.create(type.name(), new LocalizedString(Locale.getDefault(), type.name()))));
+    }
+
     @After
     public void cleanup() {
-        Bennu.getInstance().getIdDocumentsSet().forEach(IdDocument::delete);
+        Bennu.getInstance().getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
         Bennu.getInstance().getIdentificationDocumentTypesSet().forEach(IdentificationDocumentType::delete);
     }
 
@@ -76,31 +81,33 @@ public class IdentificationDocumentTypeTest {
     public void testIdentificationDocumentType_delete() {
         // Create a new IdentificationDocumentType and its relations
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
-        IdDocument idDocument = IdDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);
-        assertNotNull(idDocument);
-        idDocument.setIdentificationDocumentType(identificationDocumentType);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocument);
+        identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
         // Verify initial state before deletion
         assertFalse(Bennu.getInstance().getIdentificationDocumentTypesSet().isEmpty());
         assertNotEquals(null, identificationDocumentType.getRootDomainObject());
-        assertTrue(identificationDocumentType.getIdDocumentsSet().contains(idDocument));
+        assertTrue(identificationDocumentType.getIdentificationDocumentsSet().contains(identificationDocument));
 
         // Perform deletion
-        identificationDocumentType.getIdDocumentsSet().clear();
+        identificationDocumentType.getIdentificationDocumentsSet().clear();
         identificationDocumentType.delete();
 
         // Verify deletion
         assertFalse(Bennu.getInstance().getIdentificationDocumentTypesSet().contains(identificationDocumentType));
         assertNull(identificationDocumentType.getRootDomainObject());
-        assertNull(idDocument.getIdentificationDocumentType());
+        assertNull(identificationDocument.getIdentificationDocumentType());
     }
 
     @Test
     public void testIdentificationDocumentType_deleteFailsBecauseRelationsNotCleared() {
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
-        IdDocument idDocument = IdDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);
-        assertNotNull(idDocument);
-        idDocument.setIdentificationDocumentType(identificationDocumentType);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocument);
+        identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
         assertThrows(DomainException.class, identificationDocumentType::delete);
     }
@@ -108,18 +115,19 @@ public class IdentificationDocumentTypeTest {
     @Test
     public void testIdentificationDocumentType_identificationDocumentRelations() {
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
-        IdDocument idDocument = IdDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);
-        assertNotNull(idDocument);
-        idDocument.setIdentificationDocumentType(identificationDocumentType);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocument);
+        identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
         // Verify initial relations with IdDocument
-        assertTrue(identificationDocumentType.getIdDocumentsSet().contains(idDocument));
+        assertTrue(identificationDocumentType.getIdentificationDocumentsSet().contains(identificationDocument));
 
         // Delete with IdDocument
-        idDocument.delete();
+        identificationDocument.delete();
 
         // Verify that relations with IdentificationDocumentType are removed
-        assertTrue(identificationDocumentType.getIdDocumentsSet().isEmpty());
+        assertTrue(identificationDocumentType.getIdentificationDocumentsSet().isEmpty());
     }
 
     @Test
@@ -146,54 +154,42 @@ public class IdentificationDocumentTypeTest {
 
     @Test
     public void testIdentificationDocumentType_identificationDocumentSettersAreSynced() {
-        IDDocumentType typeEnum = ID_DOCUMENT_TYPE;
-        IdDocumentTypeObject typeObject = IdDocumentTypeObject.readByIDDocumentType(typeEnum);
-        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.findByCode(typeEnum.name()).orElseThrow();
-        IdDocument idDocument = IdDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);
-        assertNotNull(idDocument);
-        idDocument.setIdDocumentType((IDDocumentType) null);
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElseThrow();
+        IDDocumentType typeEnum = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
 
-        // Assert initial state of IdentificationDocument
-        assertNull(idDocument.getIdentificationDocumentType());
-        assertNull(idDocument.getIdDocumentType());
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocument);
+        Person person = identificationDocument.getPerson();
+        assertNotNull(person);
 
-        // Call setter in IDDocumentType Enum to trigger the sync in IdentificationDocumentType Entity
-        idDocument.setIdDocumentType(typeEnum);
+        // Assert initial state of person documents types
+        assertNull(person.getIdDocumentType());
+        identificationDocument.setIdentificationDocumentType(null);
+        assertNull(identificationDocument.getIdentificationDocumentType());
 
-        // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value
-        assertEquals(identificationDocumentType, idDocument.getIdentificationDocumentType());
-        assertEquals(idDocument.getIdDocumentType().getValue().name(), idDocument.getIdentificationDocumentType().getCode());
+        // Call IDDocumentType Enum setter in Person to trigger the sync of types in IdDocument and IdentificationDocument entities
+        person.setIdDocumentType(typeEnum);
 
-        // Set to null with Enum Setter
-        idDocument.setIdDocumentType((IDDocumentType) null);
+        // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value for the two different document entities
+        assertEquals(identificationDocumentType, identificationDocument.getIdentificationDocumentType());
+        assertEquals(typeEnum, person.getIdDocumentType());
+        assertEquals(person.getIdDocumentType().name(), identificationDocument.getIdentificationDocumentType().getCode());
 
-        assertNull(idDocument.getIdentificationDocumentType());
-        assertNull(idDocument.getIdDocumentType());
+        IdentificationDocumentType otherIdentificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        IDDocumentType otherTypeEnum = IdentificationDocumentType.findIDDocumentType(otherIdentificationDocumentType);
 
-        // Call setter in IdDocumentTypeObject to trigger the sync in IdentificationDocument
-        idDocument.setIdDocumentType(typeObject);
+        // Assert initial state of person documents types
+        assertNotEquals(person.getIdDocumentType(), otherTypeEnum);
+        assertNotEquals(identificationDocument.getIdentificationDocumentType(), otherIdentificationDocumentType);
 
-        // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value
-        assertEquals(identificationDocumentType, idDocument.getIdentificationDocumentType());
-        assertEquals(idDocument.getIdDocumentType().getValue().name(), idDocument.getIdentificationDocumentType().getCode());
+        // Call IdentificationDocumentType setter in Person to trigger the sync of types in IdDocument and IdentificationDocument entities
+        person.setIdentificationDocumentType(otherIdentificationDocumentType);
 
-        // Set to null with IdDocumentTypeObject Setter
-        idDocument.setIdDocumentType((IdDocumentTypeObject) null);
-
-        assertNull(idDocument.getIdDocumentType());
-        assertNull(idDocument.getIdentificationDocumentType());
-
-        // Call setter in IdentificationDocumentType to trigger the sync in IdentificationDocument
-        idDocument.setIdentificationDocumentType(identificationDocumentType);
-
-        // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value
-        assertEquals(identificationDocumentType, idDocument.getIdentificationDocumentType());
-        assertEquals(idDocument.getIdDocumentType().getValue().name(), idDocument.getIdentificationDocumentType().getCode());
-
-        // Set to null with IdentificationDocumentType Setter
-        idDocument.setIdentificationDocumentType(null);
-
-        assertNull(idDocument.getIdDocumentType());
-        assertNull(idDocument.getIdentificationDocumentType());
+        // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value for the two different document entities
+        assertEquals(otherIdentificationDocumentType, identificationDocument.getIdentificationDocumentType());
+        assertEquals(otherTypeEnum, person.getIdDocumentType());
+        assertEquals(person.getIdDocumentType().name(), identificationDocument.getIdentificationDocumentType().getCode());
     }
 }

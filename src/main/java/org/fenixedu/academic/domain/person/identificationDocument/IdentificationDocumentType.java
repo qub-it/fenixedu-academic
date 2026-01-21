@@ -1,12 +1,16 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.person.IDDocumentType;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class IdentificationDocumentType extends IdentificationDocumentType_Base {
@@ -38,8 +42,8 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
     }
 
     public void delete() {
-        if (!getIdDocumentsSet().isEmpty()) {
-            throw new DomainException("error.IdentificationDocumentType.cannot.delete.related.to.IDDocuments");
+        if (!getIdentificationDocumentsSet().isEmpty()) {
+            throw new DomainException("error.IdentificationDocumentType.cannot.delete.related.to.IdentificationDocuments");
         }
 
         setRootDomainObject(null);
@@ -60,6 +64,18 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
         super.setCode(code);
     }
 
+    public String getLocalizedName() {
+        return getLocalizedNameI18N().getContent();
+    }
+
+    public String getLocalizedName(final Locale locale) {
+        return getLocalizedNameI18N().getContent(locale);
+    }
+
+    public LocalizedString getLocalizedNameI18N() {
+        return BundleUtil.getLocalizedString(Bundle.ENUMERATION, getCode());
+    }
+
     public static Optional<IdentificationDocumentType> findByCode(final String code) {
         return findAll().filter(identificationDocumentType -> Objects.equals(identificationDocumentType.getCode(), code))
                 .findAny();
@@ -68,4 +84,23 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
     public static Stream<IdentificationDocumentType> findAll() {
         return Bennu.getInstance().getIdentificationDocumentTypesSet().stream();
     }
+
+    public static IdentificationDocumentType findIdentificationDocumentType(IDDocumentType idDocumentType) {
+        if (idDocumentType == null) {
+            return null;
+        }
+
+        return IdentificationDocumentType.findByCode(idDocumentType.name())
+                .orElseThrow(() -> new DomainException("error.IdentificationDocumentType.not.found", idDocumentType.name()));
+    }
+
+    public static IDDocumentType findIDDocumentType(IdentificationDocumentType identificationDocumentType) {
+        if (identificationDocumentType == null) {
+            return null;
+        }
+
+        return IDDocumentType.findByCode(identificationDocumentType.getCode())
+                .orElseThrow(() -> new DomainException("error.IDDocumentType.not.found", identificationDocumentType.getCode()));
+    }
+
 }
