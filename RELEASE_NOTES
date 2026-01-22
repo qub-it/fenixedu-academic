@@ -1,3 +1,5 @@
+- Bug fix: Curricular rule to validate min credits to enrol should only test approved credits [#UCP-FENIXEDU-634]
+
 54.0.0 (21-01-2026)
 - Refactor: Remove deprecated degree curricular plan state enum [#qubIT-Fenix-4442]
 

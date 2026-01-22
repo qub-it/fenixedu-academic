@@ -41,8 +41,7 @@ public class MinimumNumberOfCreditsToEnrolExecutor extends CurricularRuleExecuto
         }
 
         final Double totalEctsCredits = getTotalEctsCredits(enrolmentContext.getStudentCurricularPlan().getRoot(),
-                enrolmentContext.getExecutionPeriod().getExecutionYear())
-                + calculatePreviousPeriodEnroledEctsCredits(enrolmentContext, sourceDegreeModuleToEvaluate);
+                enrolmentContext.getExecutionPeriod().getExecutionYear());
 
         if (rule.allowCredits(totalEctsCredits)) {
             return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
@@ -69,24 +68,6 @@ public class MinimumNumberOfCreditsToEnrolExecutor extends CurricularRuleExecuto
         return res;
     }
 
-    private Double calculatePreviousPeriodEnroledEctsCredits(EnrolmentContext enrolmentContext,
-            IDegreeModuleToEvaluate sourcdDegreeModuleToEvaluate) {
-
-        if (!enrolmentContext.isToEvaluateRulesByYear()) {
-            return 0d;
-        }
-
-        double result = 0;
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.getExecutionInterval().isBefore(sourcdDegreeModuleToEvaluate.getExecutionInterval())) {
-                result += degreeModuleToEvaluate.getEctsCredits();
-            }
-        }
-
-        return result;
-
-    }
-
     private RuleResult createFalseRuleResult(final MinimumNumberOfCreditsToEnrol rule, final Double ectsCredits,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
         return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
@@ -100,15 +81,6 @@ public class MinimumNumberOfCreditsToEnrolExecutor extends CurricularRuleExecuto
                 "curricularRules.ruleExecutors.MinimumNumberOfCreditsToEnrolExecutor.student.has.not.minimum.number.of.credits",
                 ectsCredits.toString(), rule.getMinimumCredits().toString(), rule.getDegreeModuleToApplyRule().getName());
     }
-
-    protected Double calculatePreviousPeriodTemporaryEnroledEctsCredits(final CurriculumGroup curriculumGroup,
-            final EnrolmentContext enrolmentContext) {
-        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumGroup
-                .getEnroledEctsCredits(enrolmentContext.getExecutionYear().getPreviousExecutionYear()) : curriculumGroup
-                        .getEnroledEctsCredits(enrolmentContext.getExecutionPeriod().getPrevious());
-    }
-
-
 
     @Override
     protected boolean canBeEvaluated(ICurricularRule curricularRule, IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,
