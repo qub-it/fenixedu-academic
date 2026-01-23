@@ -7,7 +7,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 
 public class IdentificationDocument extends IdentificationDocument_Base {
 
-    public IdentificationDocument() {
+    protected IdentificationDocument() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
@@ -29,15 +29,10 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         this.deleteDomainObject();
     }
 
-    public static Optional<IdentificationDocument> findFirst(final String idDocumentValue,
+    public static Optional<IdentificationDocument> find(final String idDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
         return identificationDocumentType.getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue)).findFirst();
-    }
-
-    public static Optional<IdentificationDocument> findFirst(String idDocumentValue, String identificationDocumentTypeCode) {
-        return IdentificationDocumentType.findByCode(identificationDocumentTypeCode)
-                .flatMap(type -> findFirst(idDocumentValue, type));
+                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue)).findAny();
     }
 
 }

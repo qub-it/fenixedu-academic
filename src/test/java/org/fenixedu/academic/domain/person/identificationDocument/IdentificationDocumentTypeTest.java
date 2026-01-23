@@ -80,9 +80,12 @@ public class IdentificationDocumentTypeTest {
     @Test
     public void testIdentificationDocumentType_delete() {
         // Create a new IdentificationDocumentType and its relations
-        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        //IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
         IdentificationDocument identificationDocument =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
         assertNotNull(identificationDocument);
         identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
@@ -103,9 +106,12 @@ public class IdentificationDocumentTypeTest {
 
     @Test
     public void testIdentificationDocumentType_deleteFailsBecauseRelationsNotCleared() {
-        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        //IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
         IdentificationDocument identificationDocument =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
         assertNotNull(identificationDocument);
         identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
@@ -114,9 +120,12 @@ public class IdentificationDocumentTypeTest {
 
     @Test
     public void testIdentificationDocumentType_identificationDocumentRelations() {
-        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        //IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
         IdentificationDocument identificationDocument =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
         assertNotNull(identificationDocument);
         identificationDocument.setIdentificationDocumentType(identificationDocumentType);
 
@@ -155,11 +164,12 @@ public class IdentificationDocumentTypeTest {
     @Test
     public void testIdentificationDocumentType_identificationDocumentSettersAreSynced() {
         IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElseThrow();
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
         IDDocumentType typeEnum = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
 
         IdentificationDocument identificationDocument =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE).orElse(null);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
         assertNotNull(identificationDocument);
         Person person = identificationDocument.getPerson();
         assertNotNull(person);
@@ -185,11 +195,13 @@ public class IdentificationDocumentTypeTest {
         assertNotEquals(identificationDocument.getIdentificationDocumentType(), otherIdentificationDocumentType);
 
         // Call IdentificationDocumentType setter in Person to trigger the sync of types in IdDocument and IdentificationDocument entities
-        person.setIdentificationDocumentType(otherIdentificationDocumentType);
+        String documentValue = "A1234567";
+        person.setIdentificationDocument(documentValue, otherIdentificationDocumentType);
 
         // Assert IDDocumentType Enum and IdentificationDocumentType Entity have the same value for the two different document entities
         assertEquals(otherIdentificationDocumentType, identificationDocument.getIdentificationDocumentType());
         assertEquals(otherTypeEnum, person.getIdDocumentType());
         assertEquals(person.getIdDocumentType().name(), identificationDocument.getIdentificationDocumentType().getCode());
+        assertEquals(documentValue, person.getDocumentIdNumber(), identificationDocument.getValue());
     }
 }

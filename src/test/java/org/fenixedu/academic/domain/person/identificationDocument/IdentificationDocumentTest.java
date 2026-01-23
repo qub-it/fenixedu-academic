@@ -72,7 +72,7 @@ public class IdentificationDocumentTest {
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
         IdentificationDocument identificationDocument =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
         assertNotNull(identificationDocument);
 
         // Verify initial state before deletion
@@ -99,21 +99,25 @@ public class IdentificationDocumentTest {
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
         Optional<IdentificationDocument> identificationDocumentOptByType =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, identificationDocumentType);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType);
         assertTrue(identificationDocumentOptByType.isPresent());
         assertEquals(ID_DOCUMENT_VALUE, identificationDocumentOptByType.get().getValue());
 
         // Find first by IdentificationDocumentType code
         Optional<IdentificationDocument> identificationDocumentOptByCode =
-                IdentificationDocument.findFirst(ID_DOCUMENT_VALUE, ID_DOCUMENT_TYPE);
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType);
         assertTrue(identificationDocumentOptByCode.isPresent());
         assertEquals(ID_DOCUMENT_VALUE, identificationDocumentOptByCode.get().getValue());
     }
 
     @Test
     public void testIdentificationDocument_findFirstNotFound() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+
         Optional<IdentificationDocument> identificationDocumentOpt =
-                IdentificationDocument.findFirst("NON_EXISTENT_VALUE", ID_DOCUMENT_TYPE);
+                IdentificationDocument.find("NON_EXISTENT_VALUE", identificationDocumentType);
         assertFalse(identificationDocumentOpt.isPresent());
     }
 }

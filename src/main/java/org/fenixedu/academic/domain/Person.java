@@ -85,7 +85,7 @@ public class Person extends Person_Base {
         return documentIterator.hasNext() ? documentIterator.next() : null;
     }
 
-    public IdentificationDocument getActiveIdentificationDocument() {
+    public IdentificationDocument getDefaultIdentificationDocument() {
         final Iterator<IdentificationDocument> documentIterator = getIdentificationDocumentsSet().iterator();
         return documentIterator.hasNext() ? documentIterator.next() : null;
     }
@@ -142,7 +142,7 @@ public class Person extends Person_Base {
             idDocument.setValue(documentIdNumber);
         }
 
-        IdentificationDocument identificationDocument = getActiveIdentificationDocument();
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument == null) {
             IdentificationDocument.create(this, documentIdNumber, null);
         } else {
@@ -160,7 +160,7 @@ public class Person extends Person_Base {
             throw new DomainException("error.person.empty.idDocumentType");
         }
 
-        IdentificationDocument identificationDocument = getActiveIdentificationDocument();
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         IdentificationDocumentType identificationDocumentType =
                 IdentificationDocumentType.findIdentificationDocumentType(idDocumentType);
         if (identificationDocument == null) {
@@ -181,7 +181,11 @@ public class Person extends Person_Base {
         super.setIdDocumentType(idDocumentType);
     }
 
-    public void setIdentificationDocumentType(final IdentificationDocumentType identificationDocumentType) {
+    public void setIdentificationDocument(final String documentNumber,
+            final IdentificationDocumentType identificationDocumentType) {
+        if (documentNumber == null || Strings.isNullOrEmpty(documentNumber)) {
+            throw new DomainException("error.person.empty.documentIdNumber");
+        }
         if (identificationDocumentType == null) {
             throw new DomainException("error.person.empty.idDocumentType");
         }
@@ -189,20 +193,25 @@ public class Person extends Person_Base {
         IdDocument idDocument = getIdDocument();
         IDDocumentType idDocumentType = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
         if (idDocument == null) {
-            idDocument = new IdDocument(this, null, idDocumentType);
+            idDocument = new IdDocument(this, documentNumber, idDocumentType);
         } else {
+            idDocument.setValue(documentNumber);
             idDocument.setIdDocumentType(idDocumentType);
         }
 
-        IdentificationDocument identificationDocument = getActiveIdentificationDocument();
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument == null) {
-            IdentificationDocument.create(this, null, identificationDocumentType);
+            IdentificationDocument.create(this, documentNumber, identificationDocumentType);
         } else {
+            identificationDocument.setValue(documentNumber);
             identificationDocument.setIdentificationDocumentType(identificationDocumentType);
         }
 
+        logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getDocumentIdNumber(), documentNumber,
+                "label.documentNumber");
         logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
                 "label.documentIdType");
+        super.setDocumentIdNumber(documentNumber);
         super.setIdDocumentType(idDocumentType);
     }
 
@@ -517,11 +526,9 @@ public class Person extends Person_Base {
         return result;
     }
 
-    public static Person readByDocumentIdNumberAndIdentificationDocumentType(final String documentIdNumber,
+    public static Optional<Person> findByDocumentIdentification(final String documentIdNumber,
             final IdentificationDocumentType identificationDocumentType) {
-        final IdentificationDocument document =
-                IdentificationDocument.findFirst(documentIdNumber, identificationDocumentType).orElse(null);
-        return document == null ? null : document.getPerson();
+        return IdentificationDocument.find(documentIdNumber, identificationDocumentType).map(IdentificationDocument::getPerson);
     }
 
     public static Person readByDocumentIdNumberAndIdDocumentType(final String documentIdNumber,

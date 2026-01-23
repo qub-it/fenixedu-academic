@@ -1,6 +1,5 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -8,9 +7,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.IDDocumentType;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class IdentificationDocumentType extends IdentificationDocumentType_Base {
@@ -29,7 +26,7 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
     public static final String EU_PERMANENT_RESIDENCE_CARD_CODE = "EU_PERMANENT_RESIDENCE_CARD";
     public static final String EU_REGISTRATION_CERTIFICATE_CODE = "EU_REGISTRATION_CERTIFICATE";
 
-    public IdentificationDocumentType() {
+    protected IdentificationDocumentType() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
@@ -62,18 +59,6 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
         }
 
         super.setCode(code);
-    }
-
-    public String getLocalizedName() {
-        return getLocalizedNameI18N().getContent();
-    }
-
-    public String getLocalizedName(final Locale locale) {
-        return getLocalizedNameI18N().getContent(locale);
-    }
-
-    public LocalizedString getLocalizedNameI18N() {
-        return BundleUtil.getLocalizedString(Bundle.ENUMERATION, getCode());
     }
 
     public static Optional<IdentificationDocumentType> findByCode(final String code) {

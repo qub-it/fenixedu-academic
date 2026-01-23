@@ -2628,7 +2628,9 @@ relation IdDocumentTypeObjectIdDocument {
 }
 
 relation IdentificationDocumentPerson {
-    Person playsRole person;
+    Person playsRole person {
+        multiplicity 1..1;
+    }
     person.identificationDocument.IdentificationDocument playsRole identificationDocuments {
         multiplicity *;
     }
