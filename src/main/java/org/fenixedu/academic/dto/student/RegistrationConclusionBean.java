@@ -75,7 +75,6 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
             final ProgramConclusion programConclusion) {
         setStudentCurricularPlan(studentCurricularPlan);
         setRegistration(studentCurricularPlan.getRegistration());
-        setProgramConclusion(programConclusion);
         programConclusionConfig = ProgramConclusionConfig.findBy(
                 getStudentCurricularPlan().getDegreeCurricularPlan(), programConclusion).orElseThrow(() -> new RuntimeException(
                 "No ProgramConclusionConfig found for the given DegreeCurricularPlan and ProgramConclusion"));
@@ -99,6 +98,8 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
 
     public boolean hasCurriculumGroup() {
         return getCurriculumGroup() != null;
+    }
+
     public ProgramConclusionConfig getProgramConclusionConfig() {
         return programConclusionConfig;
     }
