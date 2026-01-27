@@ -1,3 +1,4 @@
+54.1.0 (27-01-2026)
 - Refactor: Remove unused dtos [#qubIT-Fenix-1607]
 - Refactor: Initialize program conclusion configs [#qubIT-Fenix-6554]
 - Refactor: Add program conclusion config to conclusion process relation [#qubIT-Fenix-7908]
