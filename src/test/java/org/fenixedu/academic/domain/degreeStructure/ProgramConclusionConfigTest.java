@@ -41,6 +41,8 @@ public class ProgramConclusionConfigTest {
             DegreeTest.initDegree();
             degreeCurricularPlan = new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), DCP_NAME_V1, AcademicPeriod.THREE_YEAR);
             programConclusion = new ProgramConclusion();
+            programConclusion.setCode("PROGRAM_CONCLUSION_CODE");
+            programConclusion.setName(new LocalizedString());
 
             return null;
         });
@@ -66,17 +68,6 @@ public class ProgramConclusionConfigTest {
         assertEquals(programConclusion, config.getProgramConclusion());
     }
 
-    @Test
-    public void testProgramConclusionConfig_setNullConclusionTitleThrowsDomainException() {
-        config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        assertThrows(DomainException.class, () -> config.setConclusionTitle(null));
-    }
-
-    @Test
-    public void testProgramConclusionConfig_setEmptyConclusionTitleThrowsDomainException() {
-        config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        assertThrows(DomainException.class, () -> config.setConclusionTitle(new LocalizedString(Locale.getDefault(), "")));
-    }
 
     @Test
     public void testProgramConclusionConfig_setConfigOrderThrowsDomainException() {
@@ -162,7 +153,7 @@ public class ProgramConclusionConfigTest {
     @Test
     public void testProgramConclusionConfig_moveUp() {
         config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
+        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
 
         assertEquals(0, config.getConfigOrder());
         assertEquals(1, config2.getConfigOrder());
@@ -182,7 +173,7 @@ public class ProgramConclusionConfigTest {
     @Test
     public void testProgramConclusionConfig_moveDown() {
         config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
+        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
 
         assertEquals(0, config.getConfigOrder());
         assertEquals(1, config2.getConfigOrder());
@@ -202,8 +193,8 @@ public class ProgramConclusionConfigTest {
     @Test
     public void testProgramConclusionConfig_moveTop() {
         config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config3 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
+        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
+        ProgramConclusionConfig config3 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
 
         assertEquals(0, config.getConfigOrder());
         assertEquals(1, config2.getConfigOrder());
@@ -226,8 +217,9 @@ public class ProgramConclusionConfigTest {
     @Test
     public void testProgramConclusionConfig_moveBottom() {
         config = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
-        ProgramConclusionConfig config3 = create(CONCLUSION_TITLE, degreeCurricularPlan, programConclusion);
+
+        ProgramConclusionConfig config2 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
+        ProgramConclusionConfig config3 = create(CONCLUSION_TITLE, degreeCurricularPlan, new ProgramConclusion());
 
         assertEquals(0, config.getConfigOrder());
         assertEquals(1, config2.getConfigOrder());

@@ -1009,7 +1009,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     public class degreeStructure.ProgramConclusionConfig {
         public int configOrder;
-        public LocalizedString conclusionTitle (REQUIRED);
+        public LocalizedString conclusionTitle;
     }
 
     relation ProgramConclusionConfigRootDomainObject {
@@ -2063,6 +2063,13 @@ relation ConclusionProcessStudentCurricularPlan {
         multiplicity *;
     }
     StudentCurricularPlan playsRole studentCurricularPlan;
+}
+
+relation ConclusionProcessProgramConclusionConfig {
+    student.curriculum.ConclusionProcess playsRole conclusionProcesses {
+        multiplicity *;
+    }
+    degreeStructure.ProgramConclusionConfig playsRole programConclusionConfig;
 }
 
 relation ConclusionProcessVersionConclusionYear {

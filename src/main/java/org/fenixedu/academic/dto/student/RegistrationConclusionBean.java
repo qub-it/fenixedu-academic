@@ -19,9 +19,12 @@
 package org.fenixedu.academic.dto.student;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -29,12 +32,14 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.commons.i18n.I18N;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -46,8 +51,6 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     private static final long serialVersionUID = 5825221957160251388L;
 
     private Registration registration;
-
-    private ProgramConclusion programConclusion;
 
     private Boolean hasAccessToRegistrationConclusionProcess = Boolean.TRUE;
 
@@ -63,6 +66,7 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
 
     private StudentCurricularPlan studentCurricularPlan;
 
+    private ProgramConclusionConfig programConclusionConfig;
     protected RegistrationConclusionBean() {
         super();
     }
@@ -72,6 +76,9 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
         setStudentCurricularPlan(studentCurricularPlan);
         setRegistration(studentCurricularPlan.getRegistration());
         setProgramConclusion(programConclusion);
+        programConclusionConfig = ProgramConclusionConfig.findBy(
+                getStudentCurricularPlan().getDegreeCurricularPlan(), programConclusion).orElseThrow(() -> new RuntimeException(
+                "No ProgramConclusionConfig found for the given DegreeCurricularPlan and ProgramConclusion"));
     }
 
     public CurriculumGroup getCurriculumGroup() {
@@ -87,15 +94,13 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public ProgramConclusion getProgramConclusion() {
-        return programConclusion;
-    }
-
-    public void setProgramConclusion(ProgramConclusion programConclusion) {
-        this.programConclusion = programConclusion;
+        return getProgramConclusionConfig().getProgramConclusion();
     }
 
     public boolean hasCurriculumGroup() {
         return getCurriculumGroup() != null;
+    public ProgramConclusionConfig getProgramConclusionConfig() {
+        return programConclusionConfig;
     }
 
     @Override

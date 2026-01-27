@@ -60,6 +60,7 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
 
         super.setGroup(group);
         super.setStudentCurricularPlan(bean.getStudentCurricularPlan());
+        super.setProgramConclusionConfig(bean.getProgramConclusionConfig());
         super.setConclusionYear(conclusionYear);
         addVersions(bean);
     }
@@ -110,5 +111,7 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     public Registration getRegistration() {
         return getStudentCurricularPlan().getRegistration();
     }
+
+
 
 }

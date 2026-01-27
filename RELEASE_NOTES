@@ -1,5 +1,6 @@
 - Refactor: Remove unused dtos [#qubIT-Fenix-1607]
 - Refactor: Initialize program conclusion configs [#qubIT-Fenix-6554]
+- Refactor: Add program conclusion config to conclusion process relation [#qubIT-Fenix-7908]
 
 54.0.1 (22-01-2026)
 - Bug fix: Curricular rule to validate min credits to enrol should only test approved credits [#UCP-FENIXEDU-634]
