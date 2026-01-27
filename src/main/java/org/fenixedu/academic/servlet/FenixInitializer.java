@@ -21,6 +21,7 @@ package org.fenixedu.academic.servlet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -32,6 +33,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
@@ -73,6 +76,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeDynamicFieldTags();
 
         initializeCurrentExecutionIntervals();
+
+        initializeProgramConclusionConfigs();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -163,8 +168,8 @@ public class FenixInitializer implements ServletContextListener {
                     return false;
                 }
                 return (uri.indexOf("external/") == -1) && (uri.indexOf("login.do") == -1) && (uri.indexOf("loginCAS.do") == -1)
-                        && (uri.indexOf("logoff.do") == -1) && (uri.indexOf("publico/") == -1)
-                        && (uri.indexOf("siteMap.do") == -1);
+                        && (uri.indexOf("logoff.do") == -1) && (uri.indexOf("publico/") == -1) && (uri.indexOf("siteMap.do")
+                        == -1);
             }
 
         });
@@ -173,5 +178,29 @@ public class FenixInitializer implements ServletContextListener {
     @Atomic(mode = TxMode.WRITE)
     private void initializeAcademicPeriodOrder() {
         AcademicPeriodOrder.initialize();
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeProgramConclusionConfigs() {
+        Log.info("---------------------------------------");
+        Log.info("Starting initialization of ProgramConclusionConfigs");
+
+        final AtomicInteger counter = new AtomicInteger(0);
+        ProgramConclusion.findAll().flatMap(pc -> pc.getCourseGroupSet().stream())
+                .filter(cg -> cg.getProgramConclusionConfigsForIncludedModulesSet().isEmpty()).forEach(cg -> {
+                    final ProgramConclusionConfig conclusionConfig =
+                            ProgramConclusionConfig.create(cg.getConclusionTitle(), cg.getParentDegreeCurricularPlan(),
+                                    cg.getProgramConclusion());
+                    conclusionConfig.addIncludedModules(cg);
+                    if (cg.getProgramConclusion().isTerminal()) {
+                        conclusionConfig.moveTop();
+                    } else {
+                        conclusionConfig.moveBottom();
+                    }
+                    counter.incrementAndGet();
+                });
+
+        Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
+        Log.info("---------------------------------------");
     }
 }

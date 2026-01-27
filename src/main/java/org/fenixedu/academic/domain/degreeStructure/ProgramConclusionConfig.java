@@ -1,12 +1,14 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
+import java.util.Optional;
+
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
-    
+
     protected ProgramConclusionConfig() {
         super();
         super.setRootDomainObject(Bennu.getInstance());
@@ -19,6 +21,7 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
         config.setDegreeCurricularPlan(degreeCurricularPlan);
         config.setProgramConclusion(programConclusion);
         config.changeConfigOrder(degreeCurricularPlan.getProgramConclusionConfigsSet().size() - 1);
+        config.checkRules();
 
         return config;
     }
@@ -26,14 +29,19 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     public void edit(LocalizedString conclusionTitle, ProgramConclusion programConclusion) {
         setConclusionTitle(conclusionTitle);
         setProgramConclusion(programConclusion);
+
+        checkRules();
     }
 
-    @Override
-    public void setConclusionTitle(final LocalizedString conclusionTitle) {
-        if (conclusionTitle == null || conclusionTitle.isEmpty()) {
-            throw new DomainException("error.ProgramConclusionConfig.conclusionTitle.cannot.be.null.or.empty");
+    private void checkRules() {
+        if (getDegreeCurricularPlan() != null && getProgramConclusion() != null) {
+            if (getDegreeCurricularPlan().getProgramConclusionConfigsSet().stream()
+                    .anyMatch(pcc -> pcc.getProgramConclusion() == getProgramConclusion() && pcc != this)) {
+                throw new DomainException(
+                        "error.ProgramConclusionConfig.programConclusion.already.configured.for.degreeCurricularPlan",
+                        getProgramConclusion().getName().getContent(), getDegreeCurricularPlan().getName());
+            }
         }
-        super.setConclusionTitle(conclusionTitle);
     }
 
     @Override
@@ -47,6 +55,12 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
             throw new DomainException("error.ProgramConclusionConfig.degreeModule.is.excluded",
                     includedModule.getNameI18N().getContent());
         }
+
+        if (getIncludedModulesSet().stream().anyMatch(im -> im.hasDegreeModule(includedModule))) {
+            throw new DomainException("error.ProgramConclusionConfig.degreeModule.already.included",
+                    includedModule.getNameI18N().getContent());
+        }
+
         super.addIncludedModules(includedModule);
     }
 
@@ -56,6 +70,12 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
             throw new DomainException("error.ProgramConclusionConfig.degreeModule.is.included",
                     excludedModule.getNameI18N().getContent());
         }
+
+        if (getExcludedModulesSet().stream().anyMatch(em -> em.hasDegreeModule(excludedModule))) {
+            throw new DomainException("error.ProgramConclusionConfig.degreeModule.already.excluded",
+                    excludedModule.getNameI18N().getContent());
+        }
+
         super.addExcludedModules(excludedModule);
     }
 
@@ -98,6 +118,10 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     }
 
     public void delete() {
+        if (!getConclusionProcessesSet().isEmpty()) {
+            throw new DomainException("error.ProgramConclusionConfig.cannot.delete.with.conclusion.processes");
+        }
+
         moveBottom();
 
         setProgramConclusion(null);
@@ -111,5 +135,11 @@ public class ProgramConclusionConfig extends ProgramConclusionConfig_Base {
     private static ProgramConclusionConfig findAtPosition(final DegreeCurricularPlan degreeCurricularPlan, final int order) {
         return degreeCurricularPlan.getProgramConclusionConfigsSet().stream().filter(c -> c.getConfigOrder() == order).findFirst()
                 .orElse(null);
+    }
+
+    public static Optional<ProgramConclusionConfig> findBy(final DegreeCurricularPlan degreeCurricularPlan,
+            final ProgramConclusion programConclusion) {
+        return degreeCurricularPlan.getProgramConclusionConfigsSet().stream()
+                .filter(pcc -> pcc.getProgramConclusion() == programConclusion).findAny();
     }
 }
