@@ -34,6 +34,7 @@ import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixframework.Atomic;
 
+//TODO: cleanup logic
 public class RegistrationConclusionProcess {
 
     @Atomic
@@ -54,8 +55,8 @@ public class RegistrationConclusionProcess {
                 || conclusionBean.hasEnteredAverageGrade() || conclusionBean.hasEnteredDescriptiveGrade()) {
             GradeScale gradeScale = registration.getDegree().getNumericGradeScale();
             YearMonthDay conclusionDate = conclusionBean.getConclusionDate();
-            Grade finalGrade = curriculumGroup.getFinalGrade();
-            Grade rawGrade = curriculumGroup.getRawGrade();
+            Grade finalGrade = conclusionBean.getFinalGrade();
+            Grade rawGrade = conclusionBean.getRawGrade();
             Grade descriptiveGrade = null;
 
             if (conclusionBean.hasEnteredConclusionDate()) {

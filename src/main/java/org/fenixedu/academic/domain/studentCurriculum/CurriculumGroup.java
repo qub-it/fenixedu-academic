@@ -1296,50 +1296,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         return getConclusionProcess() != null;
     }
 
-    final public ExecutionYear getIngressionYear() {
-        return isConclusionProcessed() ? getConclusionProcess().getIngressionYear() : getRegistration().calculateIngressionYear();
-    }
-
-    final public ExecutionYear calculateIngressionYear() {
-        return getRegistration().calculateIngressionYear();
-    }
-
-    final public Grade getRawGrade() {
-        return isConclusionProcessed() ? getConclusionProcess().getRawGrade() : null;
-    }
-
-    final public Grade getFinalGrade() {
-        return isConclusionProcessed() ? getConclusionProcess().getFinalGrade() : null;
-    }
-
-    final public Grade getDescriptiveGrade() {
-        return isConclusionProcessed() ? getConclusionProcess().getDescriptiveGrade() : null;
-    }
-
-    final public ExecutionYear getConclusionYear() {
-        return isConclusionProcessed() ? getConclusionProcess().getConclusionYear() : null;
-    }
-
-    final public Person getConclusionProcessResponsible() {
-        return isConclusionProcessed() ? getConclusionProcess().getResponsible() : null;
-    }
-
-    final public Person getConclusionProcessLastResponsible() {
-        return isConclusionProcessed() ? getConclusionProcess().getLastResponsible() : null;
-    }
-
-    final public String getConclusionProcessNotes() {
-        return isConclusionProcessed() ? getConclusionProcess().getNotes() : null;
-    }
-
-    final public DateTime getConclusionProcessCreationDateTime() {
-        return isConclusionProcessed() ? getConclusionProcess().getCreationDateTime() : null;
-    }
-
-    final public DateTime getConclusionProcessLastModificationDateTime() {
-        return isConclusionProcessed() ? getConclusionProcess().getLastModificationDateTime() : null;
-    }
-
     public void editConclusionInformation(final Person editor, final Grade finalGrade, final Grade rawGrade,
             final Grade descriptiveGrade, final YearMonthDay conclusion, final String notes) {
         if (!isConclusionProcessed()) {
@@ -1352,10 +1308,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         }
 
         getConclusionProcess().update(editor, finalGrade, rawGrade, descriptiveGrade, conclusion.toLocalDate(), notes);
-    }
-
-    final public ExecutionYear calculateConclusionYear() {
-        return getLastApprovementExecutionYear();
     }
 
     final public YearMonthDay getConclusionDate() {

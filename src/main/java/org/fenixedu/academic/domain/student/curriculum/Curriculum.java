@@ -312,13 +312,13 @@ public class Curriculum implements Serializable, ICurriculum {
 
     private CurriculumModule curriculumModule;
 
-    private final ExecutionYear executionYear;
+    private ExecutionYear executionYear;
 
-    private final Set<ICurriculumEntry> averageEnrolmentRelatedEntries = new HashSet<>();
+    private Set<ICurriculumEntry> averageEnrolmentRelatedEntries = new HashSet<>();
 
-    private final Set<ICurriculumEntry> averageDismissalRelatedEntries = new HashSet<>();
+    private Set<ICurriculumEntry> averageDismissalRelatedEntries = new HashSet<>();
 
-    private final Set<ICurriculumEntry> curricularYearEntries = new HashSet<>();
+    private Set<ICurriculumEntry> curricularYearEntries = new HashSet<>();
 
     private CurricularYearCalculator curricularYearCalculator = CURRICULAR_YEAR_CALCULATOR.get();
 
@@ -332,6 +332,10 @@ public class Curriculum implements Serializable, ICurriculum {
 
     static public Curriculum createEmpty(final CurriculumModule curriculumModule, final ExecutionYear executionYear) {
         return new Curriculum(curriculumModule, executionYear);
+    }
+
+    protected Curriculum() {
+
     }
 
     private Curriculum(final CurriculumModule curriculumModule, final ExecutionYear executionYear) {

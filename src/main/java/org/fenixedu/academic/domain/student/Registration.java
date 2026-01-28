@@ -387,10 +387,6 @@ public class Registration extends Registration_Base {
                 .orElse(null);
     }
 
-    final public Grade getFinalGrade(final ProgramConclusion programConclusion) {
-        return programConclusion.groupFor(this).map(CurriculumGroup::getFinalGrade).orElse(null);
-    }
-
     final public Collection<CurricularCourse> getCurricularCoursesApprovedByEnrolment() {
         final Collection<CurricularCourse> result = new HashSet<>();
 
@@ -1297,22 +1293,6 @@ public class Registration extends Registration_Base {
         return lastStudentCurricularPlan.calculateConclusionDate(cycleType);
     }
 
-    final public String getGraduateTitle(final ProgramConclusion programConclusion, final Locale locale) {
-        if (programConclusion.isConclusionProcessed(this)) {
-            return programConclusion.groupFor(this)
-                    .map(cg -> cg.getDegreeModule().getGraduateTitle(cg.getConclusionYear(), locale)).orElse(null);
-        }
-        throw new DomainException("Registration.hasnt.concluded.requested.cycle");
-    }
-
-    final public boolean hasConcludedFirstCycle() {
-        return hasConcludedCycle(CycleType.FIRST_CYCLE);
-    }
-
-    final public boolean hasConcludedSecondCycle() {
-        return hasConcludedCycle(CycleType.SECOND_CYCLE);
-    }
-
     final public boolean hasConcludedCycle(final CycleType cycleType) {
         return getLastStudentCurricularPlan().hasConcludedCycle(cycleType);
     }
@@ -1340,18 +1320,6 @@ public class Registration extends Registration_Base {
         for (final CycleType cycleType : getDegreeType().getCycleTypes()) {
             if (hasConcludedCycle(cycleType)) {
                 result.add(cycleType);
-            }
-        }
-
-        return result;
-    }
-
-    final public Collection<CycleCurriculumGroup> getConclusionProcessedCycles(final ExecutionYear executionYear) {
-        final Collection<CycleCurriculumGroup> result = new HashSet<>();
-
-        for (final CycleCurriculumGroup group : getLastStudentCurricularPlan().getInternalCycleCurriculumGrops()) {
-            if (group.isConclusionProcessed() && group.getConclusionYear() == executionYear) {
-                result.add(group);
             }
         }
 

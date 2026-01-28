@@ -31,6 +31,8 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.student.Registration;
@@ -67,6 +69,11 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     private StudentCurricularPlan studentCurricularPlan;
 
     private ProgramConclusionConfig programConclusionConfig;
+
+    private ConclusionProcess conclusionProcess;
+
+    private Curriculum curriculum;
+
     protected RegistrationConclusionBean() {
         super();
     }
@@ -96,10 +103,6 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
         return getProgramConclusionConfig().getProgramConclusion();
     }
 
-    public boolean hasCurriculumGroup() {
-        return getCurriculumGroup() != null;
-    }
-
     public ProgramConclusionConfig getProgramConclusionConfig() {
         return programConclusionConfig;
     }
@@ -118,35 +121,25 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public Grade getFinalGrade() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getFinalGrade();
-        }
-
-        return getCalculatedFinalGrade();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getFinalGrade())
+                .orElseGet(() -> getCalculatedFinalGrade());
     }
 
     public Grade getCalculatedFinalGrade() {
-        return getCurriculumGroup().calculateFinalGrade();
+        return getCurriculumForConclusion().getFinalGrade();
     }
 
     public Grade getRawGrade() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getRawGrade();
-        }
-
-        return getCalculatedRawGrade();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getRawGrade()).orElseGet(() -> getCalculatedRawGrade());
     }
 
     public Grade getCalculatedRawGrade() {
-        return getCurriculumGroup().calculateRawGrade();
+        return getCurriculumForConclusion().getRawGrade();
     }
 
     public YearMonthDay getConclusionDate() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getConclusionDate();
-        }
-
-        return calculateConclusionDate();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getConclusionYearMonthDay())
+                .orElseGet(() -> calculateConclusionDate());
     }
 
     public YearMonthDay calculateConclusionDate() {
@@ -158,11 +151,7 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public Grade getDescriptiveGrade() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getDescriptiveGrade();
-        }
-
-        return null;
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getDescriptiveGrade()).orElse(null);
     }
 
     public String getDescriptiveGradeExtendedValue() {
@@ -170,11 +159,8 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public ExecutionYear getIngressionYear() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getIngressionYear();
-        }
-
-        return calculateIngressionYear();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getIngressionYear())
+                .orElseGet(() -> calculateIngressionYear());
     }
 
     public ExecutionYear calculateIngressionYear() {
@@ -182,11 +168,7 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public ExecutionYear getConclusionYear() {
-        if (isConclusionProcessed()) {
-            return getCurriculumGroup().getConclusionYear();
-        }
-
-        return getCalculatedConclusionYear();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getConclusionYear()).orElseGet(() -> getCalculatedConclusionYear());
     }
 
     public ExecutionYear calculateConclusionYear() {
@@ -217,8 +199,12 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
         return calculateCredits();
     }
 
-    public ICurriculum getCurriculumForConclusion() {
-        return getCurriculumGroup().getCurriculum();
+    public Curriculum getCurriculumForConclusion() {
+        if (curriculum == null) {
+            curriculum = getCurriculumGroup().getCurriculum();
+        }
+
+        return curriculum;
     }
 
     public int getCurriculumEntriesSize() {
@@ -232,49 +218,45 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     public boolean isConcluded() {
         return getCurriculumGroup().isConcluded();
     }
-    
+
     public Collection<CurriculumGroup> getCurriculumGroupsNotVerifyingStructure() {
-        if (isByGroup()) {
-            final Collection<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-            if (!getCurriculumGroup().isSkipConcluded()) {
-                getCurriculumGroup().assertCorrectStructure(result, getConclusionYear());
-            }
-            return result;
-        } else {
-            return Collections.emptyList();
+        final Collection<CurriculumGroup> result = new HashSet<CurriculumGroup>();
+        if (!getCurriculumGroup().isSkipConcluded()) {
+            getCurriculumGroup().assertCorrectStructure(result, getConclusionYear());
         }
+        return result;
     }
 
     public boolean isConclusionProcessed() {
-        return getCurriculumGroup().isConclusionProcessed();
+        return getConclusionProcess() != null;
     }
 
     public ConclusionProcess getConclusionProcess() {
-        return getCurriculumGroup().getConclusionProcess();
-    }
+        if (conclusionProcess == null) {
+            conclusionProcess = ConclusionProcess.findBy(getStudentCurricularPlan(), getProgramConclusion()).orElse(null);
+        }
 
-    public boolean isByGroup() {
-        return hasCurriculumGroup();
+        return conclusionProcess;
     }
 
     public String getConclusionProcessNotes() {
-        return getCurriculumGroup().getConclusionProcessNotes();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getNotes()).orElse(null);
     }
 
     public Person getConclusionProcessResponsible() {
-        return getCurriculumGroup().getConclusionProcessResponsible();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getResponsible()).orElse(null);
     }
 
     public Person getConclusionProcessLastResponsible() {
-        return getCurriculumGroup().getConclusionProcessLastResponsible();
+        return Optional.ofNullable(getConclusionProcess()).map(cp -> cp.getLastResponsible()).orElse(null);
     }
 
     public DateTime getConclusionProcessCreationDateTime() {
-        return getCurriculumGroup().getConclusionProcessCreationDateTime();
+        return Optional.ofNullable(getConclusionProcess()).map(cp-> cp.getCreationDateTime()).orElse(null);
     }
 
     public DateTime getConclusionProcessLastModificationDateTime() {
-        return getCurriculumGroup().getConclusionProcessLastModificationDateTime();
+        return Optional.ofNullable(getConclusionProcess()).map(cp-> cp.getLastModificationDateTime()).orElse(null);
     }
 
     public boolean isSkipValidation() {
@@ -293,12 +275,12 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
         return enteredConclusionDate;
     }
 
-    public boolean hasEnteredConclusionDate() {
-        return getEnteredConclusionDate() != null;
-    }
-
     public void setEnteredConclusionDate(LocalDate enteredConclusionDate) {
         this.enteredConclusionDate = enteredConclusionDate;
+    }
+
+    public boolean hasEnteredConclusionDate() {
+        return getEnteredConclusionDate() != null;
     }
 
     public String getEnteredFinalAverageGrade() {
@@ -361,6 +343,45 @@ public class RegistrationConclusionBean implements Serializable, IRegistrationBe
     }
 
     public String calculateDescription() {
-        return getCurriculumGroup().getCurriculum().getDescription();
+        return getCurriculumForConclusion().getDescription();
     }
+
+    public LocalizedString getConclusionTitle() {
+        final LocalizedString conclusionTitle = getProgramConclusionConfig().getConclusionTitle();
+        if (conclusionTitle != null && !conclusionTitle.isEmpty()) {
+            return conclusionTitle;
+        }
+
+        final ExecutionYear conclusionYear = getConclusionYear();
+        return conclusionYear == null ? registration.getDegree().getPresentationNameI18N() : registration.getDegree()
+                .getPresentationNameI18N(conclusionYear);
+    }
+
+    /**
+     *
+     * This method is deprecated and will be REMOVED after service requests elimination.
+     * Use {@link #getConclusionTitle()} instead.
+     */
+    @Deprecated
+    public LocalizedString getRawConclusionTitle() {
+        return getProgramConclusionConfig().getConclusionTitle();
+    }
+
+    public boolean isForCycle(CycleType cycleType) {
+        final CycleCourseGroup cycleCourseGroup =
+                getStudentCurricularPlan().getDegreeCurricularPlan().getCycleCourseGroup(cycleType);
+
+        return cycleCourseGroup != null && getProgramConclusionConfig().getIncludedModulesSet().stream()
+                .anyMatch(m -> m.hasDegreeModule(cycleCourseGroup));
+    }
+
+    public BigDecimal getMinCreditsToConclude() {
+        final BigDecimal toAdd = new BigDecimal(getProgramConclusionConfig().getIncludedModulesSet().stream()
+                .collect(Collectors.summingDouble(dm -> dm.getMinEctsCredits())));
+        final BigDecimal toRemove = new BigDecimal(getProgramConclusionConfig().getExcludedModulesSet().stream()
+                .collect(Collectors.summingDouble(dm -> dm.getMinEctsCredits())));
+
+        return toAdd.subtract(toRemove);
+    }
+
 }

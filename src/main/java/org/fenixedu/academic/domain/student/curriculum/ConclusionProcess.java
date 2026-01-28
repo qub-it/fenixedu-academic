@@ -27,12 +27,13 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -191,4 +192,9 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
         this.setNumber(null);
     }
 
+    public static Optional<ConclusionProcess> findBy(StudentCurricularPlan studentCurricularPlan,
+            ProgramConclusion programConclusion) {
+        return studentCurricularPlan.getConclusionProcessesSet().stream().filter(cp -> cp.isActive())
+                .filter(cp -> cp.getProgramConclusionConfig().getProgramConclusion() == programConclusion).findAny();
+    }
 }
