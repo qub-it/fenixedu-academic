@@ -50,7 +50,8 @@ import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.IdDocument;
 import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.academic.domain.person.MaritalStatus;
-import org.fenixedu.academic.domain.person.personIdentifier.PersonIdentifier;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.util.Bundle;
@@ -81,6 +82,11 @@ public class Person extends Person_Base {
 
     private IdDocument getIdDocument() {
         final Iterator<IdDocument> documentIterator = getIdDocumentsSet().iterator();
+        return documentIterator.hasNext() ? documentIterator.next() : null;
+    }
+
+    public IdentificationDocument getDefaultIdentificationDocument() {
+        final Iterator<IdentificationDocument> documentIterator = getIdentificationDocumentsSet().iterator();
         return documentIterator.hasNext() ? documentIterator.next() : null;
     }
 
@@ -135,6 +141,14 @@ public class Person extends Person_Base {
         } else {
             idDocument.setValue(documentIdNumber);
         }
+
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument == null) {
+            IdentificationDocument.create(this, documentIdNumber, null);
+        } else {
+            identificationDocument.setValue(documentIdNumber);
+        }
+
         logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getDocumentIdNumber(), documentIdNumber,
                 "label.documentNumber");
         super.setDocumentIdNumber(documentIdNumber);
@@ -145,6 +159,16 @@ public class Person extends Person_Base {
         if (idDocumentType == null) {
             throw new DomainException("error.person.empty.idDocumentType");
         }
+
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findIdentificationDocumentType(idDocumentType);
+        if (identificationDocument == null) {
+            IdentificationDocument.create(this, null, identificationDocumentType);
+        } else {
+            identificationDocument.setIdentificationDocumentType(identificationDocumentType);
+        }
+
         IdDocument idDocument = getIdDocument();
         if (idDocument == null) {
             idDocument = new IdDocument(this, null, idDocumentType);
@@ -154,6 +178,40 @@ public class Person extends Person_Base {
 
         logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
                 "label.documentIdType");
+        super.setIdDocumentType(idDocumentType);
+    }
+
+    public void setIdentificationDocument(final String documentNumber,
+            final IdentificationDocumentType identificationDocumentType) {
+        if (documentNumber == null || Strings.isNullOrEmpty(documentNumber)) {
+            throw new DomainException("error.person.empty.documentIdNumber");
+        }
+        if (identificationDocumentType == null) {
+            throw new DomainException("error.person.empty.idDocumentType");
+        }
+
+        IdDocument idDocument = getIdDocument();
+        IDDocumentType idDocumentType = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
+        if (idDocument == null) {
+            idDocument = new IdDocument(this, documentNumber, idDocumentType);
+        } else {
+            idDocument.setValue(documentNumber);
+            idDocument.setIdDocumentType(idDocumentType);
+        }
+
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument == null) {
+            IdentificationDocument.create(this, documentNumber, identificationDocumentType);
+        } else {
+            identificationDocument.setValue(documentNumber);
+            identificationDocument.setIdentificationDocumentType(identificationDocumentType);
+        }
+
+        logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getDocumentIdNumber(), documentNumber,
+                "label.documentNumber");
+        logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
+                "label.documentIdType");
+        super.setDocumentIdNumber(documentNumber);
         super.setIdDocumentType(idDocumentType);
     }
 
@@ -466,6 +524,11 @@ public class Person extends Person_Base {
             result.add(idDocument.getPerson());
         }
         return result;
+    }
+
+    public static Optional<Person> findByDocumentIdentification(final String documentIdNumber,
+            final IdentificationDocumentType identificationDocumentType) {
+        return IdentificationDocument.find(documentIdNumber, identificationDocumentType).map(IdentificationDocument::getPerson);
     }
 
     public static Person readByDocumentIdNumberAndIdDocumentType(final String documentIdNumber,

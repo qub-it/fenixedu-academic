@@ -1,3 +1,5 @@
+- Refactor: Add IdentificationDocument and initialize IdentificationDocumentType entity, setters synchronization and tests implementation [#qubIT-Fenix-6491]
+
 54.1.0 (27-01-2026)
 - Refactor: Remove unused dtos [#qubIT-Fenix-1607]
 - Refactor: Initialize program conclusion configs [#qubIT-Fenix-6554]

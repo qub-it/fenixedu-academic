@@ -18,6 +18,9 @@
  */
 package org.fenixedu.academic.dto.person;
 
+import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType.findIDDocumentType;
+import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType.findIdentificationDocumentType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -69,6 +73,8 @@ public class PersonBean implements Serializable {
     private String documentIdNumber; // read only
 
     private IDDocumentType idDocumentType;
+
+    private IdentificationDocumentType identificationDocumentType;
 
     private String identificationDocumentSeriesNumber;
 
@@ -171,6 +177,24 @@ public class PersonBean implements Serializable {
     
     public PersonBean() {
         super();
+    }
+
+    public PersonBean(final String name, final String identificationNumber,
+            final IdentificationDocumentType identificationDocumentType, final YearMonthDay dateOfBirth) {
+        setName(name);
+        setDocumentIdNumber(identificationNumber);
+        setIdentificationDocumentType(identificationDocumentType);
+        setDateOfBirth(dateOfBirth);
+    }
+
+    public PersonBean(final String name, final String identificationNumber,
+            final IdentificationDocumentType identificationDocumentType, final YearMonthDay dateOfBirth,
+            final Integer studentNumber) {
+        setName(name);
+        setDocumentIdNumber(identificationNumber);
+        setIdentificationDocumentType(identificationDocumentType);
+        setDateOfBirth(dateOfBirth);
+        setStudentNumber(studentNumber);
     }
 
     public PersonBean(final String name, final String identificationNumber, final IDDocumentType idDocumentType,
@@ -468,6 +492,16 @@ public class PersonBean implements Serializable {
 
     public void setIdDocumentType(final IDDocumentType idDocumentType) {
         this.idDocumentType = idDocumentType;
+        this.identificationDocumentType = findIdentificationDocumentType(idDocumentType);
+    }
+
+    public IdentificationDocumentType getIdentificationDocumentType() {
+        return identificationDocumentType;
+    }
+
+    public void setIdentificationDocumentType(final IdentificationDocumentType identificationDocumentType) {
+        this.identificationDocumentType = identificationDocumentType;
+        this.idDocumentType = findIDDocumentType(identificationDocumentType);
     }
 
     public boolean isEmailAvailable() {
