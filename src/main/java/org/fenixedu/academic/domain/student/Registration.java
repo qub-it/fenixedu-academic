@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,6 +71,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -112,6 +114,16 @@ public class Registration extends Registration_Base {
             return comparationResult == 0 ? o1.getOid().compareTo(o2.getOid()) : comparationResult;
         }
     };
+
+    private static Function<RegistrationConclusionBean, Boolean> CONCLUSION_PROCESS_ENABLER = (bean) -> false;
+
+    public static Function<RegistrationConclusionBean, Boolean> getConclusionProcessEnabler() {
+        return CONCLUSION_PROCESS_ENABLER;
+    }
+
+    public static void setConclusionProcessEnabler(final Function<RegistrationConclusionBean, Boolean> input) {
+        CONCLUSION_PROCESS_ENABLER = input;
+    }
 
     private Registration() {
         super();
@@ -1424,25 +1436,23 @@ public class Registration extends Registration_Base {
         return concludedCycles.isEmpty() ? null : concludedCycles.last();
     }
 
-    public void conclude(final CurriculumGroup curriculumGroup) {
-        if (curriculumGroup == null
-                || getStudentCurricularPlansSet().stream().noneMatch(scp -> scp.hasCurriculumModule(curriculumGroup))) {
-            throw new DomainException("error.Registration.invalid.cycleCurriculumGroup");
+    public void conclude(RegistrationConclusionBean bean) {
+        if (!bean.isConcluded() && !getConclusionProcessEnabler().apply(bean)) {
+            throw new DomainException("error.CycleCurriculumGroup.cycle.is.not.concluded");
         }
 
-        curriculumGroup.conclude();
+        final Optional<ConclusionProcess> conclusionProcess = bean.getStudentCurricularPlan().getConclusionProcessesSet().stream()
+                .filter(cp -> cp.getProgramConclusionConfig().getProgramConclusion() == bean.getProgramConclusion()).findAny();
 
-        ProgramConclusion conclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
+        conclusionProcess.ifPresentOrElse(c -> c.update(bean), () -> new ProgramConclusionProcess(bean));
 
-        if (conclusion != null && conclusion.getTargetStateType() != null && !conclusion.getTargetStateType()
-                .equals(getActiveStateType())) {
-            final ExecutionInterval conclusionInterval =
-                    new RegistrationConclusionBean(curriculumGroup.getStudentCurricularPlan(),
-                            curriculumGroup.getDegreeModule().getProgramConclusion()).getConclusionExecutionInterval();
-            RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(),
-                    conclusion.getTargetStateType(), conclusionInterval);
+        final RegistrationStateType targetStateType = bean.getProgramConclusion().getTargetStateType();
+        if (targetStateType != null && targetStateType != getActiveStateType()) {
+            RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(), targetStateType,
+                    bean.getConclusionExecutionInterval());
         }
     }
+
 
     public boolean hasApprovement(final ExecutionYear executionYear) {
         int curricularYearInTheBegin = getCurricularYear(executionYear);
