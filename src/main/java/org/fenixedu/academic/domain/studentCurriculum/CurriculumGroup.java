@@ -1234,54 +1234,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         return super.getConclusionProcess();
     }
 
-    // Stuff moved from CycleCurriculumGroup
-
-    public void conclude() {
-        ProgramConclusion conclusion = getDegreeModule().getProgramConclusion();
-
-        if (conclusion == null) {
-            throw new DomainException("error.program.conclusion.empty");
-        }
-
-        if (!getConclusionProcessEnabler().isAllowed(this)) {
-            throw new DomainException("error.CycleCurriculumGroup.cycle.is.not.concluded");
-        }
-
-        final RegistrationConclusionBean bean =
-                new RegistrationConclusionBean(getStudentCurricularPlan(), getDegreeModule().getProgramConclusion());
-        if (super.getConclusionProcess() != null) {
-            super.getConclusionProcess().update(bean);
-        } else {
-            super.setConclusionProcess(new ProgramConclusionProcess(bean));
-        }
-    }
-
-    static public interface ConclusionProcessEnabler {
-
-        public boolean isAllowed(final CurriculumGroup curriculumGroup);
-    }
-
-    static private Supplier<ConclusionProcessEnabler> CONCLUSION_PROCESS_ENABLER = () -> new ConclusionProcessEnabler() {
-
-        @Override
-        public boolean isAllowed(final CurriculumGroup curriculumGroup) {
-
-            return curriculumGroup != null && curriculumGroup.isConcluded();
-        }
-    };
-
-    static public ConclusionProcessEnabler getConclusionProcessEnabler() {
-        return CONCLUSION_PROCESS_ENABLER.get();
-    }
-
-    static public void setConclusionProcessEnabler(final Supplier<ConclusionProcessEnabler> input) {
-        if (input != null && input.get() != null) {
-            CONCLUSION_PROCESS_ENABLER = input;
-        } else {
-            logger.error("Could not set CONCLUSION_PROCESS_ENABLER to null");
-        }
-    }
-
     public boolean isSkipConcluded() {
         return getDegreeModule() != null && getDegreeModule().getProgramConclusion() != null
                 && getDegreeModule().getProgramConclusion().isSkipValidation();
@@ -1338,20 +1290,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     final public DateTime getConclusionProcessLastModificationDateTime() {
         return isConclusionProcessed() ? getConclusionProcess().getLastModificationDateTime() : null;
-    }
-
-    public void editConclusionInformation(final Person editor, final Grade finalGrade, final Grade rawGrade,
-            final Grade descriptiveGrade, final YearMonthDay conclusion, final String notes) {
-        if (!isConclusionProcessed()) {
-            throw new DomainException(
-                    "error.org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup.its.only.possible.to.edit.after.conclusion.process.has.been.performed");
-        }
-
-        if (finalGrade == null || rawGrade == null || conclusion == null) {
-            throw new DomainException("error.CycleCurriculumGroup.argument.must.not.be.null");
-        }
-
-        getConclusionProcess().update(editor, finalGrade, rawGrade, descriptiveGrade, conclusion.toLocalDate(), notes);
     }
 
     final public ExecutionYear calculateConclusionYear() {

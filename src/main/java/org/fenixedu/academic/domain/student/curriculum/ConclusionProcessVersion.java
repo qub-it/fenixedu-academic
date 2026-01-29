@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Optional;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -71,9 +73,24 @@ public class ConclusionProcessVersion extends ConclusionProcessVersion_Base {
         super.setCreationDateTime(new DateTime());
         super.setResponsible(AccessControl.getPerson());
 
-        final YearMonthDay conclusion = bean.calculateConclusionDate();
-        final Grade finalGrade = bean.getCalculatedFinalGrade();
-        final Grade rawGrade = bean.getCalculatedRawGrade();
+        final GradeScale numericGradeScale = bean.getRegistration().getDegree().getNumericGradeScale();
+        final GradeScale qualitativeGradeScale = bean.getRegistration().getDegree().getQualitativeGradeScale();
+
+        final LocalDate conclusionDate = Optional.ofNullable(bean.getEnteredConclusionDate())
+                .orElseGet(() -> bean.calculateConclusionDate().toLocalDate());
+        if (bean.getRegistration().getStartDate().isAfter(conclusionDate)) {
+            throw new DomainException("error.ConclusionProcessVersion.start.date.is.after.conclusion.date");
+        }
+
+        final Grade finalGrade =
+                Optional.ofNullable(bean.getEnteredFinalAverageGrade()).map(g -> Grade.createGrade(g, numericGradeScale))
+                        .orElseGet(() -> bean.getCalculatedFinalGrade());
+        final Grade rawGrade =
+                Optional.ofNullable(bean.getEnteredAverageGrade()).map(g -> Grade.createGrade(g, numericGradeScale))
+                        .orElseGet(() -> bean.getCalculatedRawGrade());
+        final Grade descriptiveGrade =
+                Optional.ofNullable(bean.getEnteredDescriptiveGrade()).map(g -> Grade.createGrade(g, qualitativeGradeScale))
+                        .orElseGet(() -> bean.getDescriptiveGrade());
         final Double ectsCredits = bean.calculateCredits();
         final ExecutionYear ingressionYear = bean.calculateIngressionYear();
         final ExecutionYear conclusionYear = bean.calculateConclusionYear();
@@ -83,15 +100,18 @@ public class ConclusionProcessVersion extends ConclusionProcessVersion_Base {
             throw new DomainException("error.ConclusionProcessVersion.argument.must.not.be.null");
         }
 
-        super.setConclusionDate(conclusion.toLocalDate());
+        super.setConclusionDate(conclusionDate);
         super.setFinalGrade(finalGrade);
         super.setRawGrade(rawGrade);
+        super.setDescriptiveGrade(descriptiveGrade);
         super.setCredits(BigDecimal.valueOf(ectsCredits));
         super.setCurriculum(bean.getCurriculumForConclusion().toString());
         super.setIngressionYear(ingressionYear);
         super.setConclusionYear(conclusionYear);
         super.setCalculusDescription(calculusDescription);
+        super.setNotes(bean.getObservations());
         super.setActive(true);
+
         Signal.emit(ConclusionProcessVersion.CREATE_SIGNAL, new DomainObjectEvent<ConclusionProcessVersion>(this));
     }
 

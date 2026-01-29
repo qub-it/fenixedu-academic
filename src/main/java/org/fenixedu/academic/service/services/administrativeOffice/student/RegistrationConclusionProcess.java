@@ -43,63 +43,7 @@ public class RegistrationConclusionProcess {
 
     @Atomic
     public static void run(final RegistrationConclusionBean conclusionBean) {
-        final Registration registration = conclusionBean.getRegistration();
-
-        final CurriculumGroup curriculumGroup = conclusionBean.getCurriculumGroup();
-
-        registration.conclude(curriculumGroup);
-
-        //TODO: clean this logic and move to domain using only conclusion bean
-        if (conclusionBean.hasEnteredConclusionDate() || conclusionBean.hasEnteredFinalAverageGrade()
-                || conclusionBean.hasEnteredAverageGrade() || conclusionBean.hasEnteredDescriptiveGrade()) {
-            GradeScale gradeScale = registration.getDegree().getNumericGradeScale();
-            YearMonthDay conclusionDate = conclusionBean.getConclusionDate();
-            Grade finalGrade = curriculumGroup.getFinalGrade();
-            Grade rawGrade = curriculumGroup.getRawGrade();
-            Grade descriptiveGrade = null;
-
-            if (conclusionBean.hasEnteredConclusionDate()) {
-                checkEnteredConclusionDate(conclusionBean);
-                conclusionDate = new YearMonthDay(conclusionBean.getEnteredConclusionDate());
-            }
-
-            if (conclusionBean.hasEnteredFinalAverageGrade()) {
-                checkGrade(conclusionBean.getEnteredFinalAverageGrade(), gradeScale);
-                finalGrade = Grade.createGrade(conclusionBean.getEnteredFinalAverageGrade(), gradeScale);
-            }
-
-            if (conclusionBean.hasEnteredAverageGrade()) {
-                checkGrade(conclusionBean.getEnteredAverageGrade(), gradeScale);
-                rawGrade = Grade.createGrade(
-                        new BigDecimal(conclusionBean.getEnteredAverageGrade()).setScale(2, RoundingMode.HALF_UP).toString(),
-                        gradeScale);
-            }
-
-            if (conclusionBean.hasEnteredDescriptiveGrade()) {
-                GradeScale qualitativeGradeScale = registration.getDegree().getQualitativeGradeScale();
-                checkGrade(conclusionBean.getEnteredDescriptiveGrade(), qualitativeGradeScale);
-                descriptiveGrade = Grade.createGrade(conclusionBean.getEnteredDescriptiveGrade(), qualitativeGradeScale);
-            }
-
-            curriculumGroup.editConclusionInformation(AccessControl.getPerson(), finalGrade, rawGrade, descriptiveGrade,
-                    conclusionDate, conclusionBean.getObservations());
-        }
-    }
-
-    private static void checkGrade(String value, GradeScale gradeScale) {
-        if (!gradeScale.belongsTo(value)) {
-            throw new DomainException("error.RegistrationConclusionProcess.final.average.is.invalid", value,
-                    gradeScale.getName().getContent());
-        }
-    }
-
-    private static void checkEnteredConclusionDate(final RegistrationConclusionBean conclusionBean) {
-        final YearMonthDay startDate = conclusionBean.getRegistration().getStartDate();
-
-        if (startDate.isAfter(conclusionBean.getEnteredConclusionDate())) {
-            throw new DomainException("error.RegistrationConclusionProcess.start.date.is.after.entered.date");
-        }
-
+        conclusionBean.getRegistration().conclude(conclusionBean);
     }
 
 }
