@@ -71,14 +71,6 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     }
 
     @Override
-    final public void update(final Person responsible, final Grade finalGrade, final Grade rawGrade, final Grade descriptiveGrade,
-            final LocalDate conclusionDate, final String notes) {
-        addVersions(
-                new RegistrationConclusionBean(getStudentCurricularPlan(), getGroup().getDegreeModule().getProgramConclusion()));
-        getLastVersion().update(responsible, finalGrade, rawGrade, descriptiveGrade, conclusionDate, notes);
-    }
-
-    @Override
     protected void addSpecificVersionInfo() {
         Enrolment dissertationEnrolment = getDissertationEnrolment();
         if (dissertationEnrolment != null) {

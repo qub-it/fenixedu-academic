@@ -70,6 +70,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
+import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -1411,23 +1412,14 @@ public class Registration extends Registration_Base {
         return concludedCycles.isEmpty() ? null : concludedCycles.last();
     }
 
-    public void conclude(final CurriculumGroup curriculumGroup) {
-        if (curriculumGroup == null
-                || getStudentCurricularPlansSet().stream().noneMatch(scp -> scp.hasCurriculumModule(curriculumGroup))) {
-            throw new DomainException("error.Registration.invalid.cycleCurriculumGroup");
-        }
+    public void conclude(RegistrationConclusionBean bean) {
+        Optional.ofNullable(bean.getConclusionProcess())
+                .ifPresentOrElse(c -> c.update(bean), () -> new ProgramConclusionProcess(bean));
 
-        curriculumGroup.conclude();
-
-        ProgramConclusion conclusion = curriculumGroup.getDegreeModule().getProgramConclusion();
-
-        if (conclusion != null && conclusion.getTargetStateType() != null && !conclusion.getTargetStateType()
-                .equals(getActiveStateType())) {
-            final ExecutionInterval conclusionInterval =
-                    new RegistrationConclusionBean(curriculumGroup.getStudentCurricularPlan(),
-                            curriculumGroup.getDegreeModule().getProgramConclusion()).getConclusionExecutionInterval();
-            RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(),
-                    conclusion.getTargetStateType(), conclusionInterval);
+        final RegistrationStateType targetStateType = bean.getProgramConclusion().getTargetStateType();
+        if (targetStateType != null && targetStateType != getActiveStateType()) {
+            RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(), targetStateType,
+                    bean.getConclusionExecutionInterval());
         }
     }
 

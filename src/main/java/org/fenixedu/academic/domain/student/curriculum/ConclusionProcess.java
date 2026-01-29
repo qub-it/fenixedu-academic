@@ -96,9 +96,6 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
         return getLastVersion().getCredits();
     }
 
-    abstract public void update(final Person responsible, final Grade finalGrade, final Grade rawGrade,
-            final Grade qualitativeGrade, final LocalDate conclusionDate, final String notes);
-
     abstract public void update(final RegistrationConclusionBean bean);
 
     final protected void addVersions(final RegistrationConclusionBean bean) {
