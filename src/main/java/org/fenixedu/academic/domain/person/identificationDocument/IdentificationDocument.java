@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.Person;
@@ -31,8 +32,9 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
     public static Optional<IdentificationDocument> find(final String idDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
-        return identificationDocumentType.getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue)).findAny();
+        return Optional.ofNullable(identificationDocumentType).map(IdentificationDocumentType::getIdentificationDocumentsSet)
+                .orElse(Collections.emptySet()).stream().filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
+                .findAny();
     }
 
 }

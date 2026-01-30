@@ -52,7 +52,7 @@ public class IdentificationDocumentTypeTest {
 
     public static void createIdentificationDocumentTypes() {
         Set.of(IDDocumentType.values()).forEach(type -> IdentificationDocumentType.findByCode(type.name()).orElseGet(
-                () -> IdentificationDocumentType.create(type.name(), new LocalizedString(Locale.getDefault(), type.name()))));
+                () -> IdentificationDocumentType.create(type.name(), type.getLocalizedNameI18N())));
     }
 
     @After
