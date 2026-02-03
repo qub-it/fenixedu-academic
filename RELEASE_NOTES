@@ -1,3 +1,5 @@
+- Improvement: Student group by execution year should not rely on last registration state [#UL-FC-5827]
+
 54.2.0 (29-01-2026)
 - Refactor: Add IdentificationDocument and initialize IdentificationDocumentType entity, setters synchronization and tests implementation [#qubIT-Fenix-6491]
 

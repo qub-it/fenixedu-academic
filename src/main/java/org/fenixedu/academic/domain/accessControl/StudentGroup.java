@@ -41,7 +41,7 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.ConclusionValue;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.util.Bundle;
@@ -343,8 +343,8 @@ public class StudentGroup extends FenixGroup {
             return executionYear.getChildIntervals().stream().flatMap(ei -> ei.getEnrolmentsSet().stream())
                     .filter(e -> !e.isAnnulled()).map(e -> e.getRegistration());
         } else {
-            return Bennu.getInstance().getRegistrationsSet().stream().filter(r -> Optional
-                    .ofNullable(r.getLastRegistrationState(executionYear)).map(RegistrationState::isActive).orElse(false));
+            return executionYear.getRegistrationDataByExecutionYearSet().stream()
+                    .filter(RegistrationDataByExecutionYear::getActive).map(RegistrationDataByExecutionYear::getRegistration);
         }
     }
 
