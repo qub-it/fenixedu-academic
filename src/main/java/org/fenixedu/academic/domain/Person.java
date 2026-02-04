@@ -628,15 +628,9 @@ public class Person extends Person_Base {
     }
 
     public static Collection<Person> findPersonByIdentificationDocumentsValue(String documentValue) {
-        if (StringUtils.isBlank(documentValue)) {
-            return List.of();
-        }
-
-        return readAllPersons().stream()
-                .filter(p -> p.getIdentificationDocumentsSet().stream().anyMatch(idDoc -> documentValue.equals(idDoc.getValue())))
-                .toList();
+        return IdentificationDocument.findByValue(documentValue).stream().map(IdentificationDocument::getPerson)
+                .collect(Collectors.toSet());
     }
-
 
     public static Collection<Person> findPersonByDocumentID(final String documentIDValue) {
         final Collection<Person> people = new ArrayList<Person>();
