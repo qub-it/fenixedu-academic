@@ -35,6 +35,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.comparators.ReverseComparator;
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -74,8 +75,8 @@ public class CourseGroup extends CourseGroup_Base {
     }
 
     protected void init(final String name, final String nameEn) {
-        super.setName(name);
-        super.setNameEn(nameEn);
+        setName(name);
+        setNameEn(nameEn);
     }
 
     public CourseGroup(final CourseGroup parentCourseGroup, final String name, final String nameEn, final ExecutionInterval begin,
@@ -127,6 +128,14 @@ public class CourseGroup extends CourseGroup_Base {
         }
         setIsOptional(isOptional);
         setProgramConclusion(programConclusion);
+    }
+
+    @Override
+    public void setName(String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new DomainException("error.CourseGroup.name.cannot.be.empty");
+        }
+        super.setName(name);
     }
 
     @Override
