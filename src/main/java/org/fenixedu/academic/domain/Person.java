@@ -458,6 +458,10 @@ public class Person extends Person_Base {
             ;
         }
 
+        for (; !getIdentificationDocumentsSet().isEmpty(); getIdentificationDocumentsSet().iterator().next().delete()) {
+            ;
+        }
+
         for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
             ;
         }
