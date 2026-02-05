@@ -40,7 +40,7 @@ public class IdentificationDocument extends IdentificationDocument_Base {
                 .findAny();
     }
 
-    public static Collection<IdentificationDocument> findByValue(final String idDocumentValue) {
+    public static Collection<IdentificationDocument> findAllByValue(final String idDocumentValue) {
         if (StringUtils.isBlank(idDocumentValue)) {
             return Collections.emptySet();
         }

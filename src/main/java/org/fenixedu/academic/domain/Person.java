@@ -627,8 +627,8 @@ public class Person extends Person_Base {
         return Collections.EMPTY_LIST;
     }
 
-    public static Collection<Person> findPersonByIdentificationDocumentsValue(String documentValue) {
-        return IdentificationDocument.findByValue(documentValue).stream().map(IdentificationDocument::getPerson)
+    public static Collection<Person> findAllByIdentificationDocumentsValue(String documentValue) {
+        return IdentificationDocument.findAllByValue(documentValue).stream().map(IdentificationDocument::getPerson)
                 .collect(Collectors.toSet());
     }
 
