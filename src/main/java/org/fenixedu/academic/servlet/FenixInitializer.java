@@ -38,13 +38,10 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
 import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
-import org.fenixedu.academic.domain.person.IDDocumentType;
-import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.rest.Healthcheck;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,8 +78,6 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
-
-        initializeIdentificationDocumentTypeDomainEntity();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -207,29 +202,5 @@ public class FenixInitializer implements ServletContextListener {
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
         Log.info("---------------------------------------");
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeIdentificationDocumentTypeDomainEntity() {
-        if (IdentificationDocumentType.findAll().findAny().isPresent()) {
-            return;
-        }
-
-        Log.warn("---------------------------------------");
-        Log.warn("Starting population of Identification Document Types");
-
-        for (IDDocumentType idDocumentType : IDDocumentType.values()) {
-            String code = idDocumentType.name();
-            LocalizedString name = idDocumentType.getLocalizedNameI18N();
-
-            if (IdentificationDocumentType.findByCode(code).isEmpty()) {
-                IdentificationDocumentType.create(code, name);
-            }
-        }
-
-        Log.warn(
-                "Finished population of Identification Document Types. Instances created: " + IdentificationDocumentType.findAll()
-                        .count());
-        Log.warn("---------------------------------------");
     }
 }
