@@ -1,9 +1,7 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Person;
@@ -35,18 +33,22 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
     public static Optional<IdentificationDocument> find(final String idDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
-        return Optional.ofNullable(identificationDocumentType).map(IdentificationDocumentType::getIdentificationDocumentsSet)
-                .orElse(Collections.emptySet()).stream().filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
+        if (identificationDocumentType == null) {
+            return Optional.empty();
+        }
+
+        return identificationDocumentType.getIdentificationDocumentsSet().stream()
+                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
                 .findAny();
     }
 
-    public static Collection<IdentificationDocument> findAllByValue(final String idDocumentValue) {
+    public static Stream<IdentificationDocument> find(final String idDocumentValue) {
         if (StringUtils.isBlank(idDocumentValue)) {
-            return Collections.emptySet();
+            return Stream.empty();
         }
 
         return Bennu.getInstance().getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDocumentValue.equals(idDoc.getValue())).collect(Collectors.toSet());
+                .filter(idDoc -> idDocumentValue.equalsIgnoreCase(idDoc.getValue()));
     }
 
 }

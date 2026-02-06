@@ -458,9 +458,7 @@ public class Person extends Person_Base {
             ;
         }
 
-        for (; !getIdentificationDocumentsSet().isEmpty(); getIdentificationDocumentsSet().iterator().next().delete()) {
-            ;
-        }
+        getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
 
         for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
             ;
@@ -528,6 +526,10 @@ public class Person extends Person_Base {
             result.add(idDocument.getPerson());
         }
         return result;
+    }
+
+    public static Stream<Person> findByDocumentIdentification(String documentValue) {
+        return IdentificationDocument.find(documentValue).map(IdentificationDocument::getPerson);
     }
 
     public static Optional<Person> findByDocumentIdentification(final String documentIdNumber,
@@ -625,11 +627,6 @@ public class Person extends Person_Base {
                     splittedName[0] + " " + splittedName[splittedName.length - 1]) : Collections.EMPTY_LIST;
         }
         return Collections.EMPTY_LIST;
-    }
-
-    public static Collection<Person> findAllByIdentificationDocumentsValue(String documentValue) {
-        return IdentificationDocument.findAllByValue(documentValue).stream().map(IdentificationDocument::getPerson)
-                .collect(Collectors.toSet());
     }
 
     public static Collection<Person> findPersonByDocumentID(final String documentIDValue) {
