@@ -1,5 +1,19 @@
 package org.fenixedu.academic.domain.curricularRules.util;
 
+import static org.fenixedu.academic.domain.CompetenceCourseTest.createCompetenceCourse;
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
+import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
+
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -42,21 +56,8 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
+
 import pt.ist.fenixframework.FenixFramework;
-
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.fenixedu.academic.domain.CompetenceCourseTest.createCompetenceCourse;
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
-import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 
 public class ConclusionRulesTestUtil {
 
@@ -72,6 +73,8 @@ public class ConclusionRulesTestUtil {
 
     public static final String GRADE_SCALE_NUMERIC = "TYPE20";
 
+    public static final String GRADE_SCALE_QUALITATIVE = "TYPEQUALITATIVE";
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
@@ -85,6 +88,12 @@ public class ConclusionRulesTestUtil {
         EnrolmentTest.init();
         GradeScale.create(GRADE_SCALE_NUMERIC, new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
                 new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true);
+
+        final GradeScale typeQualitative =
+                GradeScale.create(GRADE_SCALE_QUALITATIVE, new LocalizedString(Locale.getDefault(), "Type Qualitative"), null,
+                        null, null, null, false, true);
+        typeQualitative.createGradeScaleEntry("AP", new LocalizedString(Locale.getDefault(), "Approved"), true);
+        typeQualitative.createGradeScaleEntry("F", new LocalizedString(Locale.getDefault(), "Fail"), false);
 
         StudentTest.createStudent("Student Test Conclusion A", STUDENT_CONCLUSION_A_USERNAME);
     }
@@ -128,7 +137,7 @@ public class ConclusionRulesTestUtil {
         createCurricularCourse("C4", "Course 4", new BigDecimal(6), period2Y1S, firstExecutionPeriod, optionalGroup);
         createCurricularCourse("C5", "Course 5", new BigDecimal(6), period2Y1S, firstExecutionPeriod, optionalGroup);
 
-//      System.out.println(degreeCurricularPlan.print());
+        //      System.out.println(degreeCurricularPlan.print());
 
         degreeCurricularPlan.createExecutionDegree(executionYear);
 
