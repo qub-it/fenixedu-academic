@@ -1,7 +1,9 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -31,8 +33,22 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
     public static Optional<IdentificationDocument> find(final String idDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
+        if (identificationDocumentType == null) {
+            return Optional.empty();
+        }
+
         return identificationDocumentType.getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue)).findAny();
+                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
+                .findAny();
+    }
+
+    public static Stream<IdentificationDocument> find(final String idDocumentValue) {
+        if (StringUtils.isBlank(idDocumentValue)) {
+            return Stream.empty();
+        }
+
+        return Bennu.getInstance().getIdentificationDocumentsSet().stream()
+                .filter(idDoc -> idDocumentValue.equalsIgnoreCase(idDoc.getValue()));
     }
 
 }

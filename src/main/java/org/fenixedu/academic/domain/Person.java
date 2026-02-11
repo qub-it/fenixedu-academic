@@ -458,6 +458,8 @@ public class Person extends Person_Base {
             ;
         }
 
+        getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
+
         for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
             ;
         }
@@ -524,6 +526,10 @@ public class Person extends Person_Base {
             result.add(idDocument.getPerson());
         }
         return result;
+    }
+
+    public static Stream<Person> findByDocumentIdentification(String documentValue) {
+        return IdentificationDocument.find(documentValue).map(IdentificationDocument::getPerson);
     }
 
     public static Optional<Person> findByDocumentIdentification(final String documentIdNumber,
