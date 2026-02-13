@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -113,6 +114,16 @@ public class Registration extends Registration_Base {
             return comparationResult == 0 ? o1.getOid().compareTo(o2.getOid()) : comparationResult;
         }
     };
+
+    private static Function<RegistrationConclusionBean, Boolean> CONCLUSION_PROCESS_ENABLER = (bean) -> false;
+
+    public static Function<RegistrationConclusionBean, Boolean> getConclusionProcessEnabler() {
+        return CONCLUSION_PROCESS_ENABLER;
+    }
+
+    public static void setConclusionProcessEnabler(final Function<RegistrationConclusionBean, Boolean> input) {
+        CONCLUSION_PROCESS_ENABLER = input;
+    }
 
     private Registration() {
         super();
@@ -1413,6 +1424,10 @@ public class Registration extends Registration_Base {
     }
 
     public void conclude(RegistrationConclusionBean bean) {
+        if (!bean.isConcluded() && !getConclusionProcessEnabler().apply(bean)) {
+            throw new DomainException("error.CycleCurriculumGroup.cycle.is.not.concluded");
+        }
+
         Optional.ofNullable(bean.getConclusionProcess())
                 .ifPresentOrElse(c -> c.update(bean), () -> new ProgramConclusionProcess(bean));
 
