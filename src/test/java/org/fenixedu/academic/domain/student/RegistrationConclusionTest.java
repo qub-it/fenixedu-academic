@@ -11,15 +11,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
+import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -31,6 +36,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.service.services.administrativeOffice.student.RegistrationConclusionProcess;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,8 +47,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
 import pt.ist.fenixframework.FenixFramework;
-
-//TODO: how to test accumulated registrations bypassing conclusion validation
 
 @RunWith(FenixFrameworkRunner.class)
 public class RegistrationConclusionTest {
@@ -56,6 +60,7 @@ public class RegistrationConclusionTest {
     private ProgramConclusion finalConclusion;
     private ProgramConclusion partialConclusion;
     private DegreeCurricularPlan degreeCurricularPlan;
+    private Set<Registration> skipConclusionValidation = new HashSet<>();
 
     @BeforeClass
     public static void init() {
@@ -72,6 +77,18 @@ public class RegistrationConclusionTest {
 
     @Before
     public void setup() {
+
+        //NEW
+        //Registration.setConclusionProcessEnabler((bean) -> skipConclusionValidation.contains(bean.getRegistration()));
+
+        //OLD
+        CurriculumGroup.setConclusionProcessEnabler(() -> new CurriculumGroup.ConclusionProcessEnabler() {
+            @Override
+            public boolean isAllowed(final CurriculumGroup curriculumGroup) {
+                return curriculumGroup.isConcluded() || skipConclusionValidation.contains(curriculumGroup.getRegistration());
+            }
+        });
+
         FenixFramework.getTransactionManager().withTransaction(() -> {
             this.finalConclusion = ProgramConclusion.findByCode("FINAL").get();
             this.partialConclusion = ProgramConclusion.findByCode("PARTIAL").get();
@@ -141,6 +158,17 @@ public class RegistrationConclusionTest {
         RegistrationConclusionProcess.run(conclusionBean);
     }
 
+    //    NEW
+    //    @Test
+    //    public void givenConfigurationWithNumericGrade_whenEnteredGradeIsInvalid_thenThrowDomainException() {
+    //        exceptionRule.expect(DomainException.class);
+    //        exceptionRule.expectMessage("error.grade.invalid.grade");
+    //
+    //        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+    //        conclusionBean.setEnteredAverageGrade("INVALID");
+    //        RegistrationConclusionProcess.run(conclusionBean);
+    //    }
+
     @Test
     public void givenConfigurationWithNumericGrade_whenEnteredGradeIsValid_thenSuccess() {
         final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
@@ -162,6 +190,19 @@ public class RegistrationConclusionTest {
         RegistrationConclusionProcess.run(conclusionBean);
     }
 
+    // NEW
+    //
+    //    @Test
+    //    public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsBeforeStartDate_thenThrowDomainException() {
+    //        exceptionRule.expect(DomainException.class);
+    //        exceptionRule.expectMessage("error.ConclusionProcessVersion.start.date.is.after.conclusion.date");
+    //
+    //        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+    //        conclusionBean.setEnteredAverageGrade("10");
+    //        conclusionBean.setEnteredConclusionDate(conclusionBean.getRegistration().getStartDate().minusDays(1).toLocalDate());
+    //        RegistrationConclusionProcess.run(conclusionBean);
+    //    }
+
     @Test
     public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsAfterOrEqualsStartDate_thenSuccess() {
         final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
@@ -172,6 +213,7 @@ public class RegistrationConclusionTest {
         assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
     }
 
+    // OLD
     @Test
     public void givenRegistrationWithoutCurriculumGroupForProgramConclusion_whenConcludeIsExecuted_thenThrowDomainException() {
         exceptionRule.expect(DomainException.class);
@@ -190,6 +232,7 @@ public class RegistrationConclusionTest {
         newRegistration.conclude(null);
     }
 
+    // OLD
     @Test
     public void givenRegistrationWithCurriculumGroupForProgramConclusion_whenConcludeIsExecutedWithInvalidCurriculumGroup_thenThrowDomainException() {
         exceptionRule.expect(DomainException.class);
@@ -223,15 +266,86 @@ public class RegistrationConclusionTest {
     }
 
     @Test
+    public void givenRegistrationWithConclusionProcess_whenConcludeWithUpdatedConclusionYear_thenShouldUpdateConclusionYear_Problematic() {
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        RegistrationConclusionProcess.run(conclusionBean);
+
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
+
+        final Enrolment c2Enrolment = curricularPlan.getEnrolmentStream().filter(e -> e.getCode().equals("C2")).findAny().get();
+        final EnrolmentEvaluation c2Evaluation = c2Enrolment.getFinalEnrolmentEvaluation();
+        c2Evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+        c2Evaluation.setGrade(createNumericGrade("0"));
+        c2Evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+        c2Enrolment.setEnrollmentState(EnrollmentState.NOT_APROVED);
+
+        enrol(curricularPlan, (ExecutionYear) executionYear.getNext(), "C2");
+        approve(curricularPlan, (ExecutionYear) executionYear.getNext(), "C2");
+
+        final RegistrationConclusionBean newConclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        RegistrationConclusionProcess.run(newConclusionBean);
+        assertTrue(newConclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, newConclusionBean));
+    }
+
+    @Test
     public void givenRegistrationNotConcluded_whenConcludeIsExecuted_thenThrowDomainException() {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.CycleCurriculumGroup.cycle.is.not.concluded");
 
         final Registration newRegistration = createRegistration(degreeCurricularPlan, executionYear);
+        enrol(newRegistration.getLastStudentCurricularPlan(), executionYear, "C1");
+        approve(newRegistration.getLastStudentCurricularPlan(), "C1");
 
         final RegistrationConclusionBean conclusionBean =
                 createConclusionBean(newRegistration.getLastStudentCurricularPlan(), partialConclusion);
         RegistrationConclusionProcess.run(conclusionBean);
+    }
+
+    @Test
+    public void givenRegistrationWithConclusionProcess_whenConcludeAfterEnrolmentIsChangedToFlunked_thenShouldAllowConclusion() {
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        RegistrationConclusionProcess.run(conclusionBean);
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
+
+        final Enrolment c2Enrolment = curricularPlan.getEnrolmentStream().filter(e -> e.getCode().equals("C2")).findAny().get();
+        final EnrolmentEvaluation c2Evaluation = c2Enrolment.getFinalEnrolmentEvaluation();
+        c2Evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+        c2Evaluation.setGrade(createNumericGrade("0"));
+        c2Evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+        c2Enrolment.setEnrollmentState(EnrollmentState.NOT_APROVED);
+
+        //isConcluded should return true when conclusion is already processed, regardless of the current state of the enrolments,
+        //to allow processing the conclusion and updating the conclusion data with the new enrolment state or migrated conclusion processes
+        //with enrolments that are not in approved state but the registration is concluded.
+        assertTrue(conclusionBean.isConcluded());
+
+        RegistrationConclusionProcess.run(conclusionBean);
+
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
+
+    }
+
+    @Test
+    public void givenRegistrationNotConcluded_whenRegisteredToSkipConclusionValidation_thenShouldBeAbleToConclude() {
+        final Registration registration = createRegistration(this.degreeCurricularPlan, executionYear);
+        skipConclusionValidation.add(registration);
+        final StudentCurricularPlan curricularPlan = registration.getLastStudentCurricularPlan();
+
+        enrol(curricularPlan, executionYear, "C1");
+        approve(curricularPlan, executionYear, "C1");
+
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        RegistrationConclusionProcess.run(conclusionBean);
+        assertTrue(conclusionBean.isConcluded());
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
     }
 
     private RegistrationConclusionBean createConclusionBean(StudentCurricularPlan curricularPlan,
@@ -249,30 +363,43 @@ public class RegistrationConclusionTest {
 
         if (input.hasEnteredConclusionDate()) {
             if (!Objects.equals(conclusionProcess.getConclusionDate(), input.getEnteredConclusionDate())) {
+                System.out.println("Conclusion date doesn't match. Expected: " + input.getEnteredConclusionDate() + ", Actual: "
+                        + conclusionProcess.getConclusionDate());
                 return false;
             }
         } else {
             if (!Objects.equals(conclusionProcess.getConclusionDate(), input.getConclusionDate())) {
+                System.out.println("Conclusion date doesn't match. Expected: " + input.getConclusionDate() + ", Actual: "
+                        + conclusionProcess.getConclusionDate());
                 return false;
             }
         }
 
         if (input.hasEnteredAverageGrade()) {
             if (!gradesEqual(conclusionProcess.getRawGrade(), createNumericGrade(input.getEnteredAverageGrade()))) {
+                System.out.println("Average grade doesn't match. Expected: " + input.getEnteredAverageGrade() + ", Actual: "
+                        + conclusionProcess.getRawGrade());
                 return false;
             }
         } else {
             if (!gradesEqual(conclusionProcess.getRawGrade(), input.getRawGrade())) {
+                System.out.println("Average grade doesn't match. Expected: " + input.getRawGrade() + ", Actual: "
+                        + conclusionProcess.getRawGrade());
                 return false;
             }
         }
 
         if (input.hasEnteredFinalAverageGrade()) {
             if (!gradesEqual(conclusionProcess.getFinalGrade(), createNumericGrade(input.getEnteredFinalAverageGrade()))) {
+                System.out.println(
+                        "Final average grade doesn't match. Expected: " + input.getEnteredFinalAverageGrade() + ", Actual: "
+                                + conclusionProcess.getFinalGrade());
                 return false;
             }
         } else {
             if (!gradesEqual(conclusionProcess.getFinalGrade(), input.getFinalGrade())) {
+                System.out.println("Final average grade doesn't match. Expected: " + input.getFinalGrade() + ", Actual: "
+                        + conclusionProcess.getFinalGrade());
                 return false;
             }
         }
@@ -280,44 +407,72 @@ public class RegistrationConclusionTest {
         if (input.hasEnteredDescriptiveGrade()) {
             if (!gradesEqual(conclusionProcess.getDescriptiveGrade(),
                     createQualitativeGrade(input.getEnteredDescriptiveGrade()))) {
+                System.out.println(
+                        "Descriptive grade doesn't match. Expected: " + input.getEnteredDescriptiveGrade() + ", Actual: "
+                                + conclusionProcess.getDescriptiveGrade());
                 return false;
             }
         } else {
             if (!gradesEqual(conclusionProcess.getDescriptiveGrade(), input.getDescriptiveGrade())) {
+                System.out.println("Descriptive grade doesn't match. Expected: " + input.getDescriptiveGrade() + ", Actual: "
+                        + conclusionProcess.getDescriptiveGrade());
                 return false;
             }
         }
 
         if (conclusionProcess.getConclusionYear() != input.getConclusionYear()) {
+            System.out.println(
+                    "Conclusion year doesn't match. Expected: " + input.getConclusionYear().getQualifiedName() + ", Actual: "
+                            + conclusionProcess.getConclusionYear().getQualifiedName());
             return false;
         }
 
         if (conclusionProcess.getGroup() != input.getCurriculumGroup()) {
+            System.out.println("Curriculum group doesn't match. Expected: " + input.getCurriculumGroup().getName() + ", Actual: "
+                    + conclusionProcess.getGroup().getName());
             return false;
         }
 
         if (conclusionProcess.getStudentCurricularPlan() != input.getStudentCurricularPlan()) {
+            System.out.println(
+                    "Student curricular plan doesn't match. Expected: " + input.getStudentCurricularPlan().getExternalId()
+                            + ", Actual: " + conclusionProcess.getStudentCurricularPlan().getExternalId());
             return false;
         }
 
         if (conclusionProcess.getProgramConclusionConfig() != input.getProgramConclusionConfig()) {
+            System.out.println(
+                    "Program conclusion config doesn't match. Expected: " + input.getProgramConclusionConfig().getExternalId()
+                            + ", Actual: " + conclusionProcess.getProgramConclusionConfig().getExternalId());
             return false;
         }
 
         if (conclusionProcess.getCredits().doubleValue() != input.getEctsCredits()) {
+            System.out.println(
+                    "Credits don't match. Expected: " + input.getEctsCredits() + ", Actual: " + conclusionProcess.getCredits());
             return false;
         }
 
         if (!Objects.equals(conclusionProcess.getLastVersion().getCurriculum().toString(),
                 input.getCurriculumForConclusion().toString())) {
+            System.out.println("Curriculums don't match. Expected: " + input.getCurriculumForConclusion() + ", \nActual: "
+                    + conclusionProcess.getLastVersion().getCreationDateTime().toString() + " \n"
+                    + conclusionProcess.getLastVersion().getCurriculum());
+
             return false;
         }
 
         if (conclusionProcess.getIngressionYear() != input.getIngressionYear()) {
+            System.out.println(
+                    "Ingression year doesn't match. Expected: " + input.getIngressionYear().getQualifiedName() + ", Actual: "
+                            + conclusionProcess.getIngressionYear().getQualifiedName());
             return false;
         }
 
         if (conclusionProcess.getLastVersion().getResponsible() != input.getConclusionProcessResponsible()) {
+            System.out.println(
+                    "Responsible doesn't match. Expected: " + input.getConclusionProcessResponsible().getName() + ", Actual: "
+                            + conclusionProcess.getLastVersion().getResponsible().getName());
             return false;
         }
 
@@ -325,6 +480,8 @@ public class RegistrationConclusionTest {
         if (input.hasEnteredConclusionDate() || input.hasEnteredAverageGrade() || input.hasEnteredAverageGrade()
                 || input.hasEnteredDescriptiveGrade()) {
             if (!Objects.equals(conclusionProcess.getNotes(), input.getObservations())) {
+                System.out.println("Observations don't match. Expected: " + input.getObservations() + ", Actual: "
+                        + conclusionProcess.getNotes());
                 return false;
             }
         }
