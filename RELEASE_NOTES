@@ -1,3 +1,5 @@
+- Bug fix: Curriculum should be considered until provided date (inclusive) [#qubIT-Fenix-8006]
+
 54.2.4 (11-02-2026)
 - Refactor: Add identification document new methods and delete documents on person deletion [#qubIT-Fenix-6491]
 

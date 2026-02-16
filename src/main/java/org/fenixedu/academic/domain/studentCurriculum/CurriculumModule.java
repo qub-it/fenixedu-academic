@@ -280,7 +280,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     final public boolean wasCreated(final DateTime when) {
-        return getCreationDateDateTime() == null || getCreationDateDateTime().isBefore(when);
+        return getCreationDateDateTime() == null || !getCreationDateDateTime().isAfter(when);
     }
 
     final public Curriculum getCurriculum() {
