@@ -96,18 +96,25 @@ public class ConclusionRulesTestUtil {
         typeQualitative.createGradeScaleEntry("F", new LocalizedString(Locale.getDefault(), "Fail"), false);
 
         StudentTest.createStudent("Student Test Conclusion A", STUDENT_CONCLUSION_A_USERNAME);
+
     }
 
     public static DegreeCurricularPlan createDegreeCurricularPlan(ExecutionYear executionYear) {
-        final ExecutionInterval firstExecutionPeriod = executionYear.getFirstExecutionPeriod();
         final DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
         final Degree degree =
                 DegreeTest.createDegree(degreeType, "D" + System.currentTimeMillis(), "D" + System.currentTimeMillis(),
                         executionYear);
+
+        return createDegreeCurricularPlan(degree, "Plan 1", executionYear);
+    }
+
+    public static DegreeCurricularPlan createDegreeCurricularPlan(Degree degree, String name, ExecutionYear executionYear) {
+        final ExecutionInterval firstExecutionPeriod = executionYear.getFirstExecutionPeriod();
+
         final User user = User.findByUsername(ADMIN_USERNAME);
 
         final DegreeCurricularPlan degreeCurricularPlan =
-                degree.createDegreeCurricularPlan("Plan 1", user.getPerson(), AcademicPeriod.THREE_YEAR);
+                degree.createDegreeCurricularPlan(name, user.getPerson(), AcademicPeriod.THREE_YEAR);
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
         degreeCurricularPlan.setCurricularRuleValidationType(EnrolmentModel.YEAR);
         final CurricularPeriod firstYearPeriod =
