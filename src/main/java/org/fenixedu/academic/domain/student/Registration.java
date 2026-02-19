@@ -1428,8 +1428,10 @@ public class Registration extends Registration_Base {
             throw new DomainException("error.CycleCurriculumGroup.cycle.is.not.concluded");
         }
 
-        Optional.ofNullable(bean.getConclusionProcess())
-                .ifPresentOrElse(c -> c.update(bean), () -> new ProgramConclusionProcess(bean));
+        final Optional<ConclusionProcess> conclusionProcess = bean.getStudentCurricularPlan().getConclusionProcessesSet().stream()
+                .filter(cp -> cp.getProgramConclusionConfig().getProgramConclusion() == bean.getProgramConclusion()).findAny();
+
+        conclusionProcess.ifPresentOrElse(c -> c.update(bean), () -> new ProgramConclusionProcess(bean));
 
         final RegistrationStateType targetStateType = bean.getProgramConclusion().getTargetStateType();
         if (targetStateType != null && targetStateType != getActiveStateType()) {
@@ -1437,6 +1439,7 @@ public class Registration extends Registration_Base {
                     bean.getConclusionExecutionInterval());
         }
     }
+
 
     public boolean hasApprovement(final ExecutionYear executionYear) {
         int curricularYearInTheBegin = getCurricularYear(executionYear);

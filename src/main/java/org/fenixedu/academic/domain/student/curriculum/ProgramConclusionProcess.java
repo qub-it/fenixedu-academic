@@ -24,18 +24,14 @@ import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.joda.time.LocalDate;
 
 public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
-    
+
     protected ProgramConclusionProcess() {
         super();
         super.setRootDomainObject(Bennu.getInstance());
@@ -44,25 +40,42 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     public ProgramConclusionProcess(final RegistrationConclusionBean bean) {
         super();
         super.setRootDomainObject(Bennu.getInstance());
+        super.setGroup(bean.getCurriculumGroup());
+        super.setStudentCurricularPlan(bean.getStudentCurricularPlan());
+        super.setProgramConclusionConfig(bean.getProgramConclusionConfig());
+        super.setConclusionYear(bean.getConclusionYear());
 
-        final CurriculumGroup group = bean.getCurriculumGroup();
-        final ExecutionYear conclusionYear = bean.getConclusionYear();
-        if (group == null) {
+        addVersions(bean);
+
+        checkRules();
+    }
+
+    private void checkRules() {
+        if (getGroup() == null) {
             throw new DomainException("error.CycleConclusionProcess.argument.must.not.be.null");
         }
-        if (conclusionYear == null) {
+
+        if (getConclusionYear() == null) {
             throw new DomainException("error.CycleConclusionProcess.argument.must.not.be.null");
         }
 
-        if (bean.getStudentCurricularPlan() == null) {
+        if (getStudentCurricularPlan() == null) {
             throw new DomainException("error.ProgramConclusionProcess.studentCurricularPlan.cannot.be.null");
         }
 
-        super.setGroup(group);
-        super.setStudentCurricularPlan(bean.getStudentCurricularPlan());
-        super.setProgramConclusionConfig(bean.getProgramConclusionConfig());
-        super.setConclusionYear(conclusionYear);
-        addVersions(bean);
+        if (getStudentCurricularPlan().getConclusionProcessesSet().stream()
+                .filter(cp -> cp.getProgramConclusionConfig().getProgramConclusion()
+                        == getProgramConclusionConfig().getProgramConclusion()).anyMatch(cp -> cp != this)) {
+            throw new DomainException(
+                    "error.ProgramConclusionProcess.already.exists.in.curricular.plan.for.same.conclusion.type");
+        }
+
+        if (getStudentCurricularPlan().getRegistration().getStudentCurricularPlanStream()
+                .flatMap(scp -> scp.getConclusionProcessesSet().stream()).filter(cp -> cp.isActive())
+                .filter(cp -> cp.getProgramConclusionConfig().getProgramConclusion()
+                        == getProgramConclusionConfig().getProgramConclusion()).anyMatch(cp -> cp != this)) {
+            throw new DomainException("error.ProgramConclusionProcess.already.exists.in.registration.for.same.conclusion.type");
+        }
     }
 
     @Override
@@ -103,7 +116,5 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     public Registration getRegistration() {
         return getStudentCurricularPlan().getRegistration();
     }
-
-
 
 }
