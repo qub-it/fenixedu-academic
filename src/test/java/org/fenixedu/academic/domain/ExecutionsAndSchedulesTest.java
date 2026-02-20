@@ -26,6 +26,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.spaces.domain.Information;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.DateTime;
@@ -251,8 +252,9 @@ public class ExecutionsAndSchedulesTest {
 
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
 
-//        Space space = new Space(new Information.Builder().classification(classification).name("Room 1").build());
-        Space space = null;
+        Space space = new Space(
+                new Information.Builder().classification(classification).name("Room 1").validFrom(DateTime.now().minusDays(1))
+                        .build());
 
         Iterator<Interval> intervals =
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
@@ -306,8 +308,8 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(newDates.contains(new LocalDate(2023, 12, 11)));
         assertTrue(newDates.contains(new LocalDate(2023, 12, 18)));
 
-//        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
-//        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
 
         lesson.createAllLessonInstances();
         assertNull(lesson.getPeriod());
@@ -326,12 +328,12 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(datesAfterInstancesCreation.contains(new LocalDate(2023, 12, 11)));
         assertTrue(datesAfterInstancesCreation.contains(new LocalDate(2023, 12, 18)));
 
-//        assertNull(lesson.getLessonSpaceOccupation());
-//        assertTrue(lesson.getSpaces().findAny().get() == space);
+        assertNull(lesson.getLessonSpaceOccupation());
+        assertTrue(lesson.getSpaces().findAny().get() == space);
 
-//        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
-//        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
-//        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
 
 //        new LessonInstance(lesson, new YearMonthDay(2023, 12, 17)); TODO ERROR: invalid date!
 
@@ -346,8 +348,9 @@ public class ExecutionsAndSchedulesTest {
         new Holiday(new Partial(new LocalDate(2023, 10, 9)));
 //        Bennu.getInstance().getHolidaysSet().forEach(Holiday::delete);
 
-//        Space space = new Space(new Information.Builder().classification(classification).name("Room 2").build());
-        Space space = null;
+        Space space = new Space(
+                new Information.Builder().classification(classification).name("Room 2").validFrom(DateTime.now().minusDays(1))
+                        .build());
 
         int year = 2023;
         final Interval interval1 = new Interval(new DateTime(year, 9, 20, 0, 0), new DateTime(year, 10, 31, 23, 59));
@@ -371,8 +374,8 @@ public class ExecutionsAndSchedulesTest {
 
         // FIXME: with holiday, dates should be 5: 2023-09-25, 2023-10-09, 2023-10-23, 2023-11-13, 2023-12-11
 
-//        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
-//        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
 
         lesson.createAllLessonInstances();
         assertNull(lesson.getPeriod());
@@ -385,12 +388,12 @@ public class ExecutionsAndSchedulesTest {
         assertTrue(datesAfterInstancesCreation.contains(new LocalDate(2023, 11, 13)));
         assertTrue(datesAfterInstancesCreation.contains(new LocalDate(2023, 12, 11)));
 
-//        assertNull(lesson.getLessonSpaceOccupation());
-//        assertTrue(lesson.getSpaces().findAny().get() == space);
-//
-//        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
-//        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
-//        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
+        assertNull(lesson.getLessonSpaceOccupation());
+        assertTrue(lesson.getSpaces().findAny().get() == space);
+
+        assertTrue(lesson.getLessonInstancesSet().stream().allMatch(li -> li.getSpaces().findAny().get() == space));
+        assertFalse(space.isFree(new Interval(new DateTime(year, 11, 13, 10, 15), new DateTime(year, 11, 13, 10, 30))));
+        assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
     }
 
     @Test
@@ -480,10 +483,12 @@ public class ExecutionsAndSchedulesTest {
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
 
-//        Space spaceX = new Space(new Information.Builder().classification(classification).name("Room X").build());
-//        Space spaceY = new Space(new Information.Builder().classification(classification).name("Room Y").build());
-        Space spaceX = null;
-        Space spaceY = null;
+        Space spaceX = new Space(
+                new Information.Builder().classification(classification).name("Room X").validFrom(DateTime.now().minusDays(1))
+                        .build());
+        Space spaceY = new Space(
+                new Information.Builder().classification(classification).name("Room Y").validFrom(DateTime.now().minusDays(1))
+                        .build());
 
         Shift shift1 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T100");
 
@@ -502,9 +507,9 @@ public class ExecutionsAndSchedulesTest {
 
         Shift shift2 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T101");
 
-//        System.out.println(shift2.getPresentationName());
+//        System.out.println(">> " + shift1.getPresentationName());
         assertEquals(shift1.getPresentationName(),
-                "T100 (Wed. 10:00-11:00; Thu. 10:00-11:00; Fri. 10:00-11:00; Fri. 11:00-12:00)");
+                "T100 (Wed. 10:00-11:00; Thu. 10:00-11:00 - Room Y; Fri. 10:00-11:00; Fri. 11:00-12:00 - Room X)");
         assertEquals(shift2.getPresentationName(), "T101");
     }
 
