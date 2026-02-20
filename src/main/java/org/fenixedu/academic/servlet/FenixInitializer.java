@@ -20,7 +20,6 @@ package org.fenixedu.academic.servlet;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Session;
@@ -35,8 +34,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
-import org.fenixedu.academic.domain.dml.DynamicFieldDescriptor;
-import org.fenixedu.academic.domain.dml.DynamicFieldTag;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
@@ -73,29 +70,9 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeAcademicPeriodOrder();
 
-        initializeDynamicFieldTags();
-
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeDynamicFieldTags() {
-        Log.warn("---------------------------------------");
-        Log.warn("Starting population of DynamicFieldTag");
-        Log.warn("---------------------------------------");
-        long start = System.currentTimeMillis();
-
-        Set<DynamicFieldDescriptor> dynamicFieldDescriptorSet = Bennu.getInstance().getDynamicFieldDescriptorSet();
-        dynamicFieldDescriptorSet.forEach((DynamicFieldDescriptor d) -> {
-            if (d.getTag() == null) {
-                d.setTag(DynamicFieldTag.getOrCreateDefaultTag(d.getDomainObjectClassName()));
-            }
-        });
-
-        Log.warn("Finished population of DynamicFieldTag in DynamicFieldDescriptors in " + (System.currentTimeMillis() - start)
-                + " ms. Migrated " + dynamicFieldDescriptorSet.size() + " DynamicFieldDescriptor instances.");
     }
 
     @Atomic(mode = TxMode.WRITE)
