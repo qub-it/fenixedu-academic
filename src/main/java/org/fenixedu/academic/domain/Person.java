@@ -216,6 +216,15 @@ public class Person extends Person_Base {
         super.setIdDocumentType(idDocumentType);
     }
 
+    public void setIdentification(String documentIdNumber, final IdentificationDocumentType identificationDocumentType) {
+        documentIdNumber = StringUtils.trimToNull(documentIdNumber);
+        if (documentIdNumber != null && identificationDocumentType != null && checkIfDocumentNumberIdAndDocumentIdTypeExists(
+                documentIdNumber, identificationDocumentType)) {
+            throw new DomainException("error.person.existent.docIdAndType");
+        }
+        setIdentificationDocument(documentIdNumber, identificationDocumentType);
+    }
+
     public void setIdentification(String documentIdNumber, final IDDocumentType idDocumentType) {
         documentIdNumber = StringUtils.trimToNull(documentIdNumber);
         if (documentIdNumber != null && idDocumentType != null
@@ -247,6 +256,12 @@ public class Person extends Person_Base {
     public void setFamilyNames(final String newFamilyNames) {
         UserProfile profile = getProfile();
         profile.changeName(profile.getGivenNames(), newFamilyNames, profile.getDisplayName());
+    }
+
+    private boolean checkIfDocumentNumberIdAndDocumentIdTypeExists(final String documentIDNumber,
+            final IdentificationDocumentType documentType) {
+        final Optional<Person> personOpt = findByDocumentIdentification(documentIDNumber, documentType);
+        return personOpt.isPresent() && !personOpt.get().equals(this);
     }
 
     private boolean checkIfDocumentNumberIdAndDocumentIdTypeExists(final String documentIDNumber,
