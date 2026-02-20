@@ -51,9 +51,20 @@ public class LessonInstanceSpaceOccupation extends LessonInstanceSpaceOccupation
     }
 
     public void add(LessonInstance lessonInstance) {
+        if (getLessonInstancesSet().stream().map(LessonInstance::getLesson)
+                .anyMatch(lesson -> lesson != lessonInstance.getLesson())) {
+            throw new DomainException("error.LessonInstanceSpaceOccupation.cannot.add.lessonInstance.with.different.lesson");
+        }
+
         getLessonInstancesSet().removeIf(li -> li == lessonInstance);
         checkIfSpaceIsFree(getSpace(), lessonInstance);
-        getLessonInstancesSet().add(lessonInstance);
+        addLessonInstances(lessonInstance);
+    }
+
+    @Override
+    public void addLessonInstances(LessonInstance lessonInstances) {
+        super.addLessonInstances(lessonInstances);
+        updateYearsIndex();
     }
 
     @Override

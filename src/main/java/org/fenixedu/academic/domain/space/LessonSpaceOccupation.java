@@ -91,6 +91,7 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
             throw new DomainException("error.LessonSpaceOccupation.empty.lesson");
         }
         super.setLesson(lesson);
+        updateYearsIndex();
     }
 
     @Override
