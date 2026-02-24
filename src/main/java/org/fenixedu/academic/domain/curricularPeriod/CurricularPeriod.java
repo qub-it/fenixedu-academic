@@ -236,9 +236,13 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     }
 
     public CurricularPeriod getNext() {
+        if (this.getParent() == null) {
+            return null;
+        }
+
         List<CurricularPeriod> brothers = this.getParent().getSortedChilds();
 
-        for (Iterator<CurricularPeriod> iterator = brothers.iterator(); iterator.hasNext();) {
+        for (Iterator<CurricularPeriod> iterator = brothers.iterator(); iterator.hasNext(); ) {
             CurricularPeriod brother = iterator.next();
 
             if (brother.getChildOrder().equals(this.getChildOrder()) && iterator.hasNext()) {

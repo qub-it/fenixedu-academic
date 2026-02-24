@@ -150,7 +150,7 @@ public class CurricularPeriodTest {
         CurricularPeriod child1 = new CurricularPeriod(SEMESTER, 1, parent);
         CurricularPeriod child2 = new CurricularPeriod(SEMESTER, 2, parent);
 
-//        assertNull(parent.getNext()); // TODO: fix NPE
+        assertNull(parent.getNext());
         assertEquals(child2, child1.getNext());
         assertNull(child2.getNext());
     }
