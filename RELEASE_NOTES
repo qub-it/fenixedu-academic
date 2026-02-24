@@ -1,3 +1,5 @@
+- Bug fix: Sort correctly when curricular periods of different types under same year [#UCP-FENIXEDU-600]
+
 54.3.0 (20-02-2026)
 - Refactor: Remove unnecessary initialization of dynamic field tags [#qubIT-Fenix-5940]
 - Improvement: Index space occupations by year to improve performance [#ISCTE-FENIXEDU-1422]

@@ -164,23 +164,34 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
 
     @Override
     public int compareTo(CurricularPeriod o) {
-        if (Objects.equals(this.getAcademicPeriod(), o.getAcademicPeriod())) {
-            return this.getFullWeight().compareTo(o.getFullWeight());
+        int rootCompare = Comparator.nullsFirst(Comparator.<CurricularPeriod> naturalOrder()).compare(getParent(), o.getParent());
+        if (rootCompare != 0) {
+            return rootCompare; // roots go first
         }
 
-        Float thisPeriodWeight = Optional.ofNullable(this.getAcademicPeriod()).map(ap -> ap.getWeight()).orElse(0f);
-        Float otherPeriodWeight = Optional.ofNullable(o.getAcademicPeriod()).map(ap -> ap.getWeight()).orElse(0f);
+        int parentsCompare = collectParentsWeight(this).compareTo(collectParentsWeight(o));
+        if (parentsCompare != 0) {
+            return parentsCompare; // if different parents (usually years), sort by them first
+        }
 
-        return thisPeriodWeight.compareTo(otherPeriodWeight);
+        if (Objects.equals(this.getAcademicPeriod(), o.getAcademicPeriod())) {
+            return this.getFullWeight().compareTo(o.getFullWeight()); // if same type (e.g., both semesters), sort by full weight
+        }
+
+        Float thisPeriodWeight = Optional.ofNullable(this.getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(0f);
+        Float otherPeriodWeight = Optional.ofNullable(o.getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(0f);
+
+        return thisPeriodWeight.compareTo(
+                otherPeriodWeight); // if different types (e.g., semester vs trimester), sort by type weight
     }
 
-    private Float getWeight() {
+    Float getWeight() {
         float periodTypeWeight = (this.getAcademicPeriod() == null) ? 0 : this.getAcademicPeriod().getWeight();
         float periodOrder = (this.getChildOrder() == null) ? 0 : this.getChildOrder();
         return periodTypeWeight * periodOrder;
     }
 
-    private Float getFullWeight() {
+    Float getFullWeight() {
         return this.getWeight() + this.collectParentsWeight(this);
     }
 
