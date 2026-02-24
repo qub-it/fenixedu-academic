@@ -1,3 +1,4 @@
+- Improvement: Support custom providers of addresses for sending emails [#ISCTE-FENIXEDU-1401]
 - Bug fix: Sort correctly when curricular periods of different types under same year [#UCP-FENIXEDU-600]
 
 54.3.0 (20-02-2026)

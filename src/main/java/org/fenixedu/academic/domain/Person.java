@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -800,10 +801,20 @@ public class Person extends Person_Base {
         return false;
     }
 
+    private static Function<Person, EmailAddress> customEmailAddressForSendingEmailsProvider = null;
+
+    public static void registerCustomEmailAddressForSendingEmailsProvider(Function<Person, EmailAddress> customProvider) {
+        customEmailAddressForSendingEmailsProvider = customProvider;
+    }
+
     public EmailAddress getEmailAddressForSendingEmails() {
         final Boolean disableSendEmails = getDisableSendEmails();
         if (disableSendEmails != null && disableSendEmails.booleanValue()) {
             return null;
+        }
+
+        if (customEmailAddressForSendingEmailsProvider != null) {
+            return customEmailAddressForSendingEmailsProvider.apply(this);
         }
 
         boolean firstInstitutional = Installation.getInstance().getForceSendingEmailsToInstituitionAddress();
