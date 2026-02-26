@@ -1,3 +1,4 @@
+- Refactor: Adds to Picture originalFileId, the id of the Picture Original file stored in disk [#qubIT-Fenix-8049]
 - Improvement: Protect setting invalid execution intervals on competence course information [#qubIT-Fenix-3389]
 
 54.5.0 (06-03-2026)
