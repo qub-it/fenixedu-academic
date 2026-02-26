@@ -1,3 +1,5 @@
+- Refactor: Add person set identification method with identification document type [#qubIT-Fenix-6491]
+
 54.4.0 (24-02-2026)
 - Improvement: Support custom providers of addresses for sending emails [#ISCTE-FENIXEDU-1401]
 - Bug fix: Sort correctly when curricular periods of different types under same year [#UCP-FENIXEDU-600]

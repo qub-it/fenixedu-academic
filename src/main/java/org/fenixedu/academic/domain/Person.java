@@ -216,6 +216,19 @@ public class Person extends Person_Base {
         super.setIdDocumentType(idDocumentType);
     }
 
+    public void setIdentification(String documentIdNumber, final IdentificationDocumentType identificationDocumentType) {
+        if (StringUtils.isNotBlank(documentIdNumber) && identificationDocumentType != null) {
+            String trimmedDocumentIdNumber = documentIdNumber.trim();
+            findByDocumentIdentification(trimmedDocumentIdNumber, identificationDocumentType).stream()
+                    .filter(person -> !person.equals(this)).findAny().ifPresent(p -> {
+                        throw new DomainException("error.person.existent.docIdAndType");
+                    });
+
+            setIdentificationDocument(trimmedDocumentIdNumber, identificationDocumentType);
+        }
+    }
+
+    @Deprecated
     public void setIdentification(String documentIdNumber, final IDDocumentType idDocumentType) {
         documentIdNumber = StringUtils.trimToNull(documentIdNumber);
         if (documentIdNumber != null && idDocumentType != null
