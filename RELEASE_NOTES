@@ -1,5 +1,6 @@
 - Refactor: Adds to Picture originalFileId, the id of the Picture Original file stored in disk [#qubIT-Fenix-8049]
 - Refactor: Changes Pictures redimensions to default to ZOOM. FIT will only be used if explicitly asked [#qubIT-Fenix-8050]
+- Refactor: Adds PictureService to handle Picture loading refactor [#qubIT-Fenix-8051]
 
 54.4.1 (26-02-2026)
 - Refactor: Add person set identification method with identification document type [#qubIT-Fenix-6491]

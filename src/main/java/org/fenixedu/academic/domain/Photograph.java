@@ -28,6 +28,7 @@ import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
 import org.fenixedu.academic.domain.photograph.PictureOriginal;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.service.services.person.picture.PictureService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.ContentType;
 import org.fenixedu.bennu.core.domain.Avatar;
@@ -41,6 +42,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.qubit.terra.framework.services.ServiceProvider;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -155,18 +157,25 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
         return getCustomAvatar(1, 1, 100, 100, PictureMode.ZOOM);
     }
 
-    private BufferedImage read(PictureOriginal original) {
-        BufferedImage image = Picture.readImage(original.getPictureData());
+    private BufferedImage read(byte[] pictureBytes) {
+        BufferedImage image = Picture.readImage(pictureBytes);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
         return result;
     }
 
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
-        PictureOriginal original = getOriginal();
+        final PictureService pictureService = ServiceProvider.getService(PictureService.class);
+        boolean usePictureStoredInPictureData = width == 100 && height == 100 && pictureService.doesPictureDataContain100x100();
+
+        final byte[] originalPictureBytes =
+                usePictureStoredInPictureData ? getOriginal().getPictureData() : pictureService.getOriginalPicture(getOriginal());
+
         BufferedImage image =
-                original.getPictureFileFormat() == ContentType.JPG ? readJpegImage(original.getPictureData()) : read(original);
-        return processImage(image, xRatio, yRatio, width, height, pictureMode);
+                getOriginal().getPictureFileFormat() == ContentType.JPG ? readJpegImage(originalPictureBytes) : read(
+                        originalPictureBytes);
+        return usePictureStoredInPictureData ? Picture.writeImage(image, ContentType.PNG) : processImage(image, xRatio, yRatio,
+                width, height, pictureMode);
     }
 
     private BufferedImage readJpegImage(byte[] pictureData) {
