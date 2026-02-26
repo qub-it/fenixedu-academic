@@ -18,13 +18,12 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.fenixedu.academic.domain.photograph.AspectRatio;
 import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
 import org.fenixedu.academic.domain.photograph.PictureOriginal;
@@ -153,7 +152,7 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     }
 
     public byte[] getDefaultAvatar() {
-        return getCustomAvatar(1, 1, 100, 100, PictureMode.FIT);
+        return getCustomAvatar(1, 1, 100, 100, PictureMode.ZOOM);
     }
 
     private BufferedImage read(PictureOriginal original) {
@@ -191,10 +190,6 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
             // Let's ignore the error here, we'll serve the image as is
         }
         return image;
-    }
-
-    public byte[] getCustomAvatar(AspectRatio aspectRatio, int width, int height, PictureMode pictureMode) {
-        return getCustomAvatar(aspectRatio.getXRatio(), aspectRatio.getYRatio(), width, height, pictureMode);
     }
 
     public byte[] getCustomAvatar(int width, int height, PictureMode pictureMode) {
