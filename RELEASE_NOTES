@@ -1,3 +1,5 @@
+- Refactor: Adds to Picture originalFileId, the id of the Picture Original file stored in disk [#qubIT-Fenix-8049]
+
 54.4.1 (26-02-2026)
 - Refactor: Add person set identification method with identification document type [#qubIT-Fenix-6491]
 
