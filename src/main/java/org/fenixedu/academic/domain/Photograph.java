@@ -26,7 +26,6 @@ import java.io.InputStream;
 
 import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
-import org.fenixedu.academic.domain.photograph.PictureOriginal;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.service.services.person.picture.PictureService;
 import org.fenixedu.academic.util.Bundle;
@@ -57,7 +56,8 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     public Photograph(PhotoType photoType, ContentType contentType, byte[] original) {
         this();
         setPhotoType(photoType);
-        new PictureOriginal(this, original, contentType);
+        ServiceProvider.getService(PictureService.class).createPictureForPhotograph(this, contentType, original,
+                imageAsBytes(1, 1, 100, 100, PictureMode.ZOOM, contentType, original, true));
     }
 
     @Override
@@ -166,16 +166,20 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
 
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
         final PictureService pictureService = ServiceProvider.getService(PictureService.class);
-        boolean usePictureStoredInPictureData = width == 100 && height == 100 && pictureService.doesPictureDataContain100x100();
-
+        boolean usePictureStoredInPictureData = width == 100 && height == 100 && PictureMode.ZOOM == pictureMode
+                && pictureService.doesPictureDataContain100x100();
         final byte[] originalPictureBytes =
                 usePictureStoredInPictureData ? getOriginal().getPictureData() : pictureService.getOriginalPicture(getOriginal());
+        return imageAsBytes(xRatio, yRatio, width, height, pictureMode, getOriginal().getPictureFileFormat(),
+                originalPictureBytes, !usePictureStoredInPictureData);
+    }
 
-        BufferedImage image =
-                getOriginal().getPictureFileFormat() == ContentType.JPG ? readJpegImage(originalPictureBytes) : read(
-                        originalPictureBytes);
-        return usePictureStoredInPictureData ? Picture.writeImage(image, ContentType.PNG) : processImage(image, xRatio, yRatio,
-                width, height, pictureMode);
+    private byte[] imageAsBytes(final int xRatio, final int yRatio, final int width, final int height,
+            final PictureMode pictureMode, ContentType contentType, final byte[] originalPictureBytes,
+            final boolean needToDimentionImage) {
+        BufferedImage image = contentType == ContentType.JPG ? readJpegImage(originalPictureBytes) : read(originalPictureBytes);
+        return needToDimentionImage ? processImage(image, xRatio, yRatio, width, height, pictureMode) : Picture.writeImage(image,
+                ContentType.PNG);
     }
 
     private BufferedImage readJpegImage(byte[] pictureData) {
