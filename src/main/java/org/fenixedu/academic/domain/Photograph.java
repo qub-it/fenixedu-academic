@@ -18,17 +18,16 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.fenixedu.academic.domain.photograph.AspectRatio;
 import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
-import org.fenixedu.academic.domain.photograph.PictureOriginal;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.service.services.person.picture.PictureService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.ContentType;
 import org.fenixedu.bennu.core.domain.Avatar;
@@ -42,6 +41,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.qubit.terra.framework.services.ServiceProvider;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -56,7 +56,8 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     public Photograph(PhotoType photoType, ContentType contentType, byte[] original) {
         this();
         setPhotoType(photoType);
-        new PictureOriginal(this, original, contentType);
+        ServiceProvider.getService(PictureService.class).createPictureForPhotograph(this, contentType, original,
+                imageAsBytes(1, 1, 100, 100, PictureMode.ZOOM, contentType, original, true));
     }
 
     @Override
@@ -153,21 +154,32 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     }
 
     public byte[] getDefaultAvatar() {
-        return getCustomAvatar(1, 1, 100, 100, PictureMode.FIT);
+        return getCustomAvatar(1, 1, 100, 100, PictureMode.ZOOM);
     }
 
-    private BufferedImage read(PictureOriginal original) {
-        BufferedImage image = Picture.readImage(original.getPictureData());
+    private BufferedImage read(byte[] pictureBytes) {
+        BufferedImage image = Picture.readImage(pictureBytes);
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         result.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
         return result;
     }
 
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
-        PictureOriginal original = getOriginal();
-        BufferedImage image =
-                original.getPictureFileFormat() == ContentType.JPG ? readJpegImage(original.getPictureData()) : read(original);
-        return processImage(image, xRatio, yRatio, width, height, pictureMode);
+        final PictureService pictureService = ServiceProvider.getService(PictureService.class);
+        boolean usePictureStoredInPictureData = width == 100 && height == 100 && PictureMode.ZOOM == pictureMode
+                && pictureService.doesPictureDataContain100x100();
+        final byte[] originalPictureBytes =
+                usePictureStoredInPictureData ? getOriginal().getPictureData() : pictureService.getOriginalPicture(getOriginal());
+        return imageAsBytes(xRatio, yRatio, width, height, pictureMode, getOriginal().getPictureFileFormat(),
+                originalPictureBytes, !usePictureStoredInPictureData);
+    }
+
+    private byte[] imageAsBytes(final int xRatio, final int yRatio, final int width, final int height,
+            final PictureMode pictureMode, ContentType contentType, final byte[] originalPictureBytes,
+            final boolean needToDimentionImage) {
+        BufferedImage image = contentType == ContentType.JPG ? readJpegImage(originalPictureBytes) : read(originalPictureBytes);
+        return needToDimentionImage ? processImage(image, xRatio, yRatio, width, height, pictureMode) : Picture.writeImage(image,
+                ContentType.PNG);
     }
 
     private BufferedImage readJpegImage(byte[] pictureData) {
@@ -191,10 +203,6 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
             // Let's ignore the error here, we'll serve the image as is
         }
         return image;
-    }
-
-    public byte[] getCustomAvatar(AspectRatio aspectRatio, int width, int height, PictureMode pictureMode) {
-        return getCustomAvatar(aspectRatio.getXRatio(), aspectRatio.getYRatio(), width, height, pictureMode);
     }
 
     public byte[] getCustomAvatar(int width, int height, PictureMode pictureMode) {

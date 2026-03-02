@@ -571,6 +571,8 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     	Integer height;
     	ContentType pictureFileFormat;
     	bytearray pictureData;
+
+    	String originalFileId;
     }
     
     class photograph.PictureOriginal extends photograph.Picture {
