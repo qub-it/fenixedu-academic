@@ -27,7 +27,7 @@ import java.io.InputStream;
 import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureMode;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.service.services.person.picture.PictureService;
+import org.fenixedu.academic.service.services.person.picture.UserPhotoStorageService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.ContentType;
 import org.fenixedu.bennu.core.domain.Avatar;
@@ -56,7 +56,7 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     public Photograph(PhotoType photoType, ContentType contentType, byte[] original) {
         this();
         setPhotoType(photoType);
-        ServiceProvider.getService(PictureService.class).createPictureForPhotograph(this, contentType, original,
+        ServiceProvider.getService(UserPhotoStorageService.class).createPictureForPhotograph(this, contentType, original,
                 imageAsBytes(1, 1, 100, 100, PictureMode.ZOOM, contentType, original, true));
     }
 
@@ -165,11 +165,12 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     }
 
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
-        final PictureService pictureService = ServiceProvider.getService(PictureService.class);
+        final UserPhotoStorageService userPhotoStorageService = ServiceProvider.getService(UserPhotoStorageService.class);
         boolean usePictureStoredInPictureData = width == 100 && height == 100 && PictureMode.ZOOM == pictureMode
-                && pictureService.doesPictureDataContain100x100();
+                && userPhotoStorageService.doesPictureDataContain100x100();
         final byte[] originalPictureBytes =
-                usePictureStoredInPictureData ? getOriginal().getPictureData() : pictureService.getOriginalPicture(getOriginal());
+                usePictureStoredInPictureData ? getOriginal().getPictureData() : userPhotoStorageService.getOriginalPicture(
+                        getOriginal());
         return imageAsBytes(xRatio, yRatio, width, height, pictureMode, getOriginal().getPictureFileFormat(),
                 originalPictureBytes, !usePictureStoredInPictureData);
     }

@@ -5,16 +5,19 @@ import org.fenixedu.academic.domain.photograph.Picture;
 import org.fenixedu.academic.domain.photograph.PictureOriginal;
 import org.fenixedu.academic.util.ContentType;
 
-public interface PictureService {
+public interface UserPhotoStorageService {
 
+    @Deprecated
     public void storePictureInStorage(Picture picture);
 
     public byte[] getOriginalPicture(Picture picture);
 
+    @Deprecated
     public boolean isPictureCorrectlyStoredInDisk(Picture picture);
 
-    public void assertStorageExistance();
+    public void initUserPhotoStorage();
 
+    @Deprecated
     public boolean doesPictureDataContain100x100();
 
     public PictureOriginal createPictureForPhotograph(Photograph photograph, ContentType contentType, byte[] originalData,
