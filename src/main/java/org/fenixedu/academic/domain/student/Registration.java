@@ -889,6 +889,14 @@ public class Registration extends Registration_Base {
         return result;
     }
 
+    public Stream<ExecutionCourse> findValidAttendingExecutionCoursesFor(final ExecutionInterval executionInterval) {
+        if (executionInterval instanceof ExecutionYear executionYear) {
+            return executionYear.getChildIntervals().stream().flatMap(this::findValidAttendingExecutionCoursesFor);
+        }
+        return getAssociatedAttendsSet().stream().filter(a -> a.isFor(executionInterval)).filter(Attends::isValid)
+                .map(Attends::getExecutionCourse);
+    }
+
     final public List<ExecutionCourse> getAttendingExecutionCoursesFor(final ExecutionYear executionYear) {
         final List<ExecutionCourse> result = new ArrayList<>();
         for (final Attends attends : getAssociatedAttendsSet()) {
