@@ -98,7 +98,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
      *
      * For an example, see the coordinator's portal.
      */
-    public static final Comparator<DegreeCurricularPlan> DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE =
+    public static final Comparator<DegreeCurricularPlan>
+            DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE =
             new Comparator<DegreeCurricularPlan>() {
 
                 @Override
@@ -125,8 +126,10 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         super.setRootDomainObject(Bennu.getInstance());
         super.setApplyPreviousYearsEnrolmentRule(Boolean.TRUE);
         super.setCurricularRuleValidationType(EnrolmentModel.YEAR);
+        super.setActive(true);
     }
 
+    @Deprecated(forRemoval = true)
     public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration) {
         this();
 
@@ -138,78 +141,27 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         setName(name);
         createDefaultCourseGroups();
         editDuration(duration);
-        newStructureFieldsChange(CurricularStage.DRAFT, null);
+        setCurricularStage(CurricularStage.APPROVED);
+    }
+
+    public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration,
+            final ExecutionInterval begin) {
+        this();
+
+        if (degree == null) {
+            throw new DomainException("error.degreeCurricularPlan.degree.not.null");
+        }
+
+        setDegree(degree);
+        setName(name);
+        createDefaultCourseGroups();
+        editDuration(duration);
+        setCurricularStage(CurricularStage.APPROVED);
+        initBeginExecutionPeriodForDegreeCurricularPlan(getRoot(), begin.getExecutionYear().getFirstExecutionPeriod());
     }
 
     private void createDefaultCourseGroups() {
         RootCourseGroup.createRoot(this, getName(), getName());
-    }
-
-    private void newStructureFieldsChange(final CurricularStage curricularStage, final ExecutionYear beginExecutionYear) {
-
-        if (curricularStage == null) {
-            throw new DomainException("degreeCurricularPlan.curricularStage.not.null");
-        } else if (!getExecutionDegreesSet().isEmpty() && curricularStage == CurricularStage.DRAFT) {
-            throw new DomainException("degreeCurricularPlan.has.already.been.executed");
-        } else if (curricularStage == CurricularStage.APPROVED) {
-            approve(beginExecutionYear);
-        } else {
-            setCurricularStage(curricularStage);
-        }
-    }
-
-    public void edit(final String name, final CurricularStage stage, final ExecutionYear beginExecutionInterval) {
-
-        if (isApproved() && (name != null && !getName().equals(name))) {
-            throw new DomainException("error.degreeCurricularPlan.already.approved");
-        } else {
-            setName(name);
-        }
-
-        newStructureFieldsChange(stage, beginExecutionInterval);
-
-        this.getRoot().setName(name);
-        this.getRoot().setNameEn(name);
-    }
-
-    private void approve(final ExecutionYear beginExecutionYear) {
-        if (isApproved()) {
-            return;
-        }
-
-        if (!getCanModify().booleanValue()) {
-            throw new DomainException("error.degreeCurricularPlan.already.approved");
-        }
-
-        final ExecutionInterval beginExecutionPeriod;
-        if (beginExecutionYear == null) {
-            throw new DomainException("error.invalid.execution.year");
-        } else {
-            beginExecutionPeriod = beginExecutionYear.getFirstExecutionPeriod();
-            if (beginExecutionPeriod == null) {
-                throw new DomainException("error.invalid.execution.period");
-            }
-        }
-
-        checkIfCurricularCoursesBelongToApprovedCompetenceCourses();
-        initBeginExecutionPeriodForDegreeCurricularPlan(getRoot(), beginExecutionPeriod);
-        setCurricularStage(CurricularStage.APPROVED);
-    }
-
-    private void checkIfCurricularCoursesBelongToApprovedCompetenceCourses() {
-        final List<String> notApprovedCompetenceCourses = new ArrayList<>();
-        for (final DegreeModule degreeModule : getDcpDegreeModules(CurricularCourse.class)) {
-            final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
-            if (!curricularCourse.isOptionalCurricularCourse() && !curricularCourse.getCompetenceCourse().isApproved()) {
-                notApprovedCompetenceCourses.add(curricularCourse.getCompetenceCourse().getDepartmentUnit().getName() + " > "
-                        + curricularCourse.getCompetenceCourse().getName());
-            }
-        }
-        if (!notApprovedCompetenceCourses.isEmpty()) {
-            final String[] result = new String[notApprovedCompetenceCourses.size()];
-            throw new DomainException("error.not.all.competence.courses.are.approved",
-                    notApprovedCompetenceCourses.toArray(result));
-        }
     }
 
     private void initBeginExecutionPeriodForDegreeCurricularPlan(final CourseGroup courseGroup,
@@ -246,6 +198,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             throw new DomainException("error.degreeCurricularPlan.existing.name.and.degree");
         }
 
+        final RootCourseGroup root = getRoot();
+        if (root != null) {
+            root.setName(name);
+            root.setNameEn(name);
+        }
+
         super.setName(name);
     }
 
@@ -254,22 +212,29 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return false;
     }
 
-    private boolean isApproved() {
-        return getCurricularStage() == CurricularStage.APPROVED;
-    }
-
     private boolean isDraft() {
         return getCurricularStage() == CurricularStage.DRAFT;
     }
 
     public boolean isActive() {
+        return getActive() != null ? getActive().booleanValue() : isActiveAccordingToCurricularStage();
+    }
+
+    @Deprecated(forRemoval = true)
+    public boolean isActiveAccordingToCurricularStage() {
         final CurricularStage curricularStage = getCurricularStage();
         return curricularStage == CurricularStage.APPROVED || curricularStage == CurricularStage.PUBLISHED;
     }
 
+    @Deprecated(forRemoval = true)
+    @Override
+    public void setCurricularStage(CurricularStage curricularStage) {
+        super.setCurricularStage(curricularStage);
+        setActive(isActiveAccordingToCurricularStage());
+    }
+
     private Boolean getCanBeDeleted() {
-        return canDeleteRoot() && getStudentCurricularPlansSet().isEmpty() && getCurricularCoursesSet().isEmpty()
-                && getExecutionDegreesSet().isEmpty();
+        return canDeleteRoot() && getStudentCurricularPlansSet().isEmpty() && getCurricularCoursesSet().isEmpty() && getExecutionDegreesSet().isEmpty();
     }
 
     private boolean canDeleteRoot() {
@@ -632,16 +597,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
-    public Boolean getCanModify() {
-        if (isApproved()) {
-            return false;
-        }
-
-        final Collection<ExecutionDegree> executionDegrees = getExecutionDegreesSet();
-        return executionDegrees.size() > 1 ? false : executionDegrees.isEmpty()
-                || executionDegrees.iterator().next().getExecutionYear().isCurrent();
-    }
-
     public void editDuration(final AcademicPeriod newDuration) {
         if (!(newDuration instanceof AcademicYears)) {
             throw new DomainException("error.degreeCurricularPlan.duration.must.be.specified.in.years");
@@ -715,6 +670,10 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     @Deprecated
     public static List<DegreeCurricularPlan> readNotEmptyDegreeCurricularPlans() {
         return new ArrayList<>(Bennu.getInstance().getDegreeCurricularPlansSet());
+    }
+
+    public static Stream<DegreeCurricularPlan> findAll() {
+        return Bennu.getInstance().getDegreeCurricularPlansSet().stream();
     }
 
     public static Set<DegreeCurricularPlan> readBolonhaDegreeCurricularPlans() {

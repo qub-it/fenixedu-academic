@@ -20,7 +20,9 @@ package org.fenixedu.academic.servlet;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -30,6 +32,7 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -73,6 +76,27 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
+
+        initializeActiveDegreeCurricularPlans();
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeActiveDegreeCurricularPlans() {
+        final Set<DegreeCurricularPlan> dcpsToChange = DegreeCurricularPlan.findAll()
+                .filter(dcp -> dcp.getActive() == null || (dcp.isActive() != dcp.getActive().booleanValue()))
+                .collect(Collectors.toSet());
+
+        if (dcpsToChange.isEmpty()) {
+            return;
+        }
+
+        Log.info("---------------------------------------");
+        Log.info("Starting initialization of active degree curricular plans. Plans to change: " + dcpsToChange.size());
+
+        dcpsToChange.forEach(dcp -> dcp.setActive(dcp.isActive()));
+
+        Log.info("Finished initialization.");
+        Log.info("---------------------------------------");
     }
 
     @Atomic(mode = TxMode.WRITE)
