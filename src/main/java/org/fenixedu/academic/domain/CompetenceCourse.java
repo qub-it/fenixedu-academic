@@ -83,7 +83,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
             Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
 
         this();
-        super.setCurricularStage(curricularStage);
         setCompetenceCourseType(competenceCourseType);
 
         super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
@@ -439,14 +438,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         super.setCode(code);
     }
 
-    @Override
-    public void setCurricularStage(CurricularStage curricularStage) {
-        if (!this.getAssociatedCurricularCoursesSet().isEmpty() && curricularStage.equals(CurricularStage.DRAFT)) {
-            throw new DomainException("competenceCourse.has.already.associated.curricular.courses");
-        }
-        super.setCurricularStage(curricularStage);
-    }
-
     public Stream<Unit> getParentUnits(final Predicate<Unit> predicate, ExecutionInterval interval) {
         final Predicate<Unit> nullSafePredicate = predicate != null ? predicate : u -> true;
 
@@ -464,7 +455,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public boolean isApproved() {
-        return getCurricularStage() == CurricularStage.APPROVED;
+        return true;
     }
 
     public LocalizedString getNameI18N() {

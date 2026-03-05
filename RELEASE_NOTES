@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated field CurricularStage from CompetenceCourse [#qubIT-Fenix-8089]
+
 54.4.2 (04-03-2026)
 - Refactor: Add method for finding execution courses of valid attends [#UCP-FENIXEDU-713]
 
