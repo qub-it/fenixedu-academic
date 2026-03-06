@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -77,6 +78,43 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
+    public CompetenceCourse(String code, LocalizedString name, String acronym, BigDecimal credits, Unit unit,
+            AcademicPeriod academicPeriod, CompetenceCourseType competenceCourseType,
+            CompetenceCourseLevelType competenceCourseLevel, ExecutionInterval startInterval, GradeScale gradeScale) {
+
+        this();
+        setCode(code);
+        setCompetenceCourseType(competenceCourseType);
+
+        super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
+                .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
+
+        final String nameDefault = name.getContent(Locale.getDefault());
+        if (StringUtils.isBlank(nameDefault)) {
+            throw new DomainException("error.CompetenceCourse.name.required");
+        }
+
+        final String nameEn = Optional.ofNullable(name.getContent(Locale.ENGLISH)).orElse(nameDefault);
+
+        CompetenceCourseInformation competenceCourseInformation =
+                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), false, academicPeriod, competenceCourseLevel,
+                        startInterval, unit);
+        super.addCompetenceCourseInformations(competenceCourseInformation);
+        competenceCourseInformation.setCredits(credits);
+
+        if (StringUtils.isNotBlank(acronym)) {
+            competenceCourseInformation.setAcronym(acronym);
+        } else {
+            // acronym generation
+            final String strip = nameDefault.strip();
+            final String normalize = Normalizer.normalize(strip, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+            final String capitalize = StringUtils.capitalize(normalize);
+            final String initials = WordUtils.initials(capitalize);
+            competenceCourseInformation.setAcronym(initials);
+        }
+    }
+
+    @Deprecated(forRemoval = true)
     public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
             CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType competenceCourseType,
             CurricularStage curricularStage,
@@ -432,7 +470,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final CompetenceCourse existing = CompetenceCourse.find(code);
 
         if (existing != null && existing != this) {
-            throw new DomainException("error.CompetenceCourse.found.duplicate");
+            throw new DomainException("error.CompetenceCourse.found.duplicate", code, existing.getName());
         }
 
         super.setCode(code);
@@ -454,6 +492,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return isAnual(null);
     }
 
+    @Deprecated(forRemoval = true)
     public boolean isApproved() {
         return true;
     }
