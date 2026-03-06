@@ -417,24 +417,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return curricularCourses;
     }
 
-//    public List<CurricularCourse> getCurricularCoursesByBasicAttribute(final Boolean basic) {
-//        if (isBolonhaDegree()) {
-//            return Collections.emptyList();
-//        }
-//
-//        final List<CurricularCourse> curricularCourses = new ArrayList<>();
-//        for (final CurricularCourse curricularCourse : getCurricularCoursesSet()) {
-//            if (curricularCourse.getBasic().equals(basic)) {
-//                curricularCourses.add(curricularCourse);
-//            }
-//        }
-//        return curricularCourses;
-//    }
-
-    // -------------------------------------------------------------
-    // BEGIN: Only for enrollment purposes
-    // -------------------------------------------------------------
-
     public CurricularCourse getCurricularCourseByCode(final String code) {
         for (CurricularCourse curricularCourse : getCurricularCoursesSet()) {
             if (curricularCourse.getCode() != null && curricularCourse.getCode().equals(code)) {
@@ -485,10 +467,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
         return result;
     }
-
-//    public void applyToCurricularCourses(final ExecutionYear executionYear, final Predicate predicate) {
-//        getRoot().applyToCurricularCourses(executionYear, predicate);
-//    }
 
     /**
      * Method to get an unfiltered list of a bolonha dcp's competence courses
@@ -545,31 +523,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
-//    public CurricularCourse createCurricularCourse(final Double weight, final CompetenceCourse competenceCourse,
-//            final CourseGroup parentCourseGroup, final CurricularPeriod curricularPeriod, final ExecutionInterval begin,
-//            final ExecutionInterval end) {
-//
-//        if (competenceCourse.getCurricularCourse(this) != null) {
-//            throw new DomainException("competenceCourse.already.has.a.curricular.course.in.degree.curricular.plan");
-//        }
-//        checkIfAnualBeginsInFirstPeriod(competenceCourse, curricularPeriod);
-//
-//        return new CurricularCourse(weight, competenceCourse, parentCourseGroup, curricularPeriod, begin, end);
-//    }
-
     public CurricularCourse createOptionalCurricularCourse(final CourseGroup parentCourseGroup, final String name,
             final String nameEn, final CurricularPeriod curricularPeriod, final ExecutionInterval begin,
             final ExecutionInterval end) {
 
         return new OptionalCurricularCourse(parentCourseGroup, name, nameEn, curricularPeriod, begin, end);
     }
-
-//    private void checkIfAnualBeginsInFirstPeriod(final CompetenceCourse competenceCourse,
-//            final CurricularPeriod curricularPeriod) {
-//        if (competenceCourse.isAnual() && !curricularPeriod.hasChildOrderValue(1)) {
-//            throw new DomainException("competenceCourse.anual.but.trying.to.associate.curricular.course.not.to.first.period");
-//        }
-//    }
 
     public List<DegreeModule> getDcpDegreeModules(final Class<? extends DegreeModule> clazz) {
         return getDcpDegreeModules(clazz, (ExecutionYear) null);
@@ -660,10 +619,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return getDegree().getPresentationName(executionYear, locale) + " - " + getName();
     }
 
-    // -------------------------------------------------------------
-    // read static methods
-    // -------------------------------------------------------------
-
     /**
      * @deprecated DegreeCurricularPlans cannot be empty anymore so usage of this method is unecessary
      */
@@ -695,38 +650,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
         return result;
     }
-
-//    /**
-//     * If state is null then just degree type is checked
-//     */
-//    public static List<DegreeCurricularPlan> readByDegreeTypeAndState(final java.util.function.Predicate<DegreeType> degreeType,
-//            final DegreeCurricularPlanState state) {
-//        List<DegreeCurricularPlan> result = new ArrayList<>();
-//        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-//            if (degreeType.test(degreeCurricularPlan.getDegree().getDegreeType())
-//                    && (state == null || degreeCurricularPlan.getState() == state)) {
-//
-//                result.add(degreeCurricularPlan);
-//            }
-//        }
-//        return result;
-//    }
-
-//    /**
-//     * If state is null then just degree type is checked
-//     */
-//    public static List<DegreeCurricularPlan> readByDegreeTypesAndState(final java.util.function.Predicate<DegreeType> predicate,
-//            final DegreeCurricularPlanState state) {
-//        List<DegreeCurricularPlan> result = new ArrayList<>();
-//        for (DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-//            if (predicate.test(degreeCurricularPlan.getDegree().getDegreeType())
-//                    && (state == null || degreeCurricularPlan.getState() == state)) {
-//
-//                result.add(degreeCurricularPlan);
-//            }
-//        }
-//        return result;
-//    }
 
     public static DegreeCurricularPlan readByNameAndDegreeSigla(final String name, final String degreeSigla) {
         for (final DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
@@ -1042,21 +965,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     public Double getEctsCredits() {
         return getDegree().getEctsCredits();
     }
-
-//    public static List<DegreeCurricularPlan> readByDegreeTypesAndStateWithExecutionDegreeForYear(
-//            final java.util.function.Predicate<DegreeType> degreeTypes, final DegreeCurricularPlanState state,
-//            final ExecutionYear executionYear) {
-//
-//        final List<DegreeCurricularPlan> result = new ArrayList<>();
-//        for (final DegreeCurricularPlan degreeCurricularPlan : readByDegreeTypesAndState(degreeTypes, state)) {
-//            if (degreeCurricularPlan.hasExecutionDegreeFor(executionYear)) {
-//                result.add(degreeCurricularPlan);
-//            }
-//        }
-//
-//        return result;
-//
-//    }
 
     public ExecutionYear getInauguralExecutionYear() {
         return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)
