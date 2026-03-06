@@ -231,4 +231,18 @@ public class CompetenceCourseTest {
                 () -> createCompetenceCourse("B", existingCode, new BigDecimal("2.0"), SEMESTER, startInterval, coursesUnit));
     }
 
+    @Test
+    public void testCourse_creationWithInvalidExecutionIntervals() {
+        Unit coursesUnit = Unit.findInternalUnitByAcronymPath(COURSES_UNIT_PATH).orElseThrow();
+        ExecutionInterval startInterval = ExecutionInterval.findCurrentAggregator(null);
+
+        assertThrows(DomainException.class,
+                () -> createCompetenceCourse("Invalid interval course", "INVALID_INTERVAL_CODE", new BigDecimal("1.0"), SEMESTER,
+                        null, coursesUnit));
+
+        assertThrows(DomainException.class,
+                () -> createCompetenceCourse("Invalid interval course", "INVALID_INTERVAL_CODE", new BigDecimal("1.0"), SEMESTER,
+                        startInterval, coursesUnit));
+    }
+
 }

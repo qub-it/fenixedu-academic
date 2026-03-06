@@ -171,6 +171,10 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
             throw new DomainException("error.CompetenceCourseInformation.required.ExecutionInterval");
         }
 
+        if (input != getExecutionInterval() && input.isAggregator()) {
+            throw new DomainException("error.CompetenceCourseInformation.invalid.ExecutionInterval.isAggregator");
+        }
+
         super.setExecutionPeriod(input);
     }
 
