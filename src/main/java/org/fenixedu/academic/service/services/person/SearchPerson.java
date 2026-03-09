@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -231,7 +232,7 @@ public class SearchPerson implements Serializable {
             }
 
         } else if (searchParameters.getDocumentIdNumber() != null && searchParameters.getDocumentIdNumber().length() > 0) {
-            persons = Person.findPersonByDocumentID(searchParameters.getDocumentIdNumber());
+            persons = Person.findByDocumentIdentification(searchParameters.getDocumentIdNumber()).collect(Collectors.toSet());
 
         } else if (searchParameters.getStudentNumber() != null) {
 
