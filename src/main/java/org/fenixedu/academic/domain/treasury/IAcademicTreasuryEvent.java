@@ -11,8 +11,6 @@ public interface IAcademicTreasuryEvent {
 
     public LocalizedString getDescription();
 
-    public String getDebtAccountURL();
-
     /* -------------------------
      * KIND OF EVENT INFORMATION
      * -------------------------
