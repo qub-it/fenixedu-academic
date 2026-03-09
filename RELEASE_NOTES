@@ -1,3 +1,5 @@
+- Refactor: Clean up IdDocument and IdDocumentTypeObject entities [#qubIT-Fenix-6491]
+
 54.6.1 (09-03-2026)
 - Refactor: Remove IAcademicTreasuryEvent#getDebtAccountURL method [#qubIT-Fenix-6552]
 
