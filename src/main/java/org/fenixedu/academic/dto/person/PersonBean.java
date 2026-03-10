@@ -925,7 +925,7 @@ public class PersonBean implements Serializable {
         person.setMaritalStatus(this.getMaritalStatus());
 
         // identification
-        person.setIdentification(this.getDocumentIdNumber(), this.getIdDocumentType());
+        person.setIdentification(this.getDocumentIdNumber(), this.getIdentificationDocumentType());
         person.setIdentificationDocumentSeriesNumber(getIdentificationDocumentSeriesNumber());
         person.setEmissionLocationOfDocumentId(this.getDocumentIdEmissionLocation());
         person.setEmissionDateOfDocumentIdYearMonthDay(this.getDocumentIdEmissionDate());

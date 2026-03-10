@@ -21,7 +21,6 @@ package org.fenixedu.academic.domain;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,8 +47,6 @@ import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.IDDocumentType;
-import org.fenixedu.academic.domain.person.IdDocument;
-import org.fenixedu.academic.domain.person.IdDocumentTypeObject;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
@@ -80,11 +77,6 @@ public class Person extends Person_Base {
     private static final Integer MAX_VALIDATION_REQUESTS = 5;
 
     public static final String PERSON_CREATE_SIGNAL = "academic.person.create";
-
-    private IdDocument getIdDocument() {
-        final Iterator<IdDocument> documentIterator = getIdDocumentsSet().iterator();
-        return documentIterator.hasNext() ? documentIterator.next() : null;
-    }
 
     public IdentificationDocument getDefaultIdentificationDocument() {
         final Iterator<IdentificationDocument> documentIterator = getIdentificationDocumentsSet().iterator();
@@ -136,12 +128,6 @@ public class Person extends Person_Base {
         if (documentIdNumber == null || Strings.isNullOrEmpty(documentIdNumber)) {
             throw new DomainException("error.person.empty.documentIdNumber");
         }
-        IdDocument idDocument = getIdDocument();
-        if (idDocument == null) {
-            idDocument = new IdDocument(this, documentIdNumber, (IdDocumentTypeObject) null);
-        } else {
-            idDocument.setValue(documentIdNumber);
-        }
 
         IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument == null) {
@@ -170,13 +156,6 @@ public class Person extends Person_Base {
             identificationDocument.setIdentificationDocumentType(identificationDocumentType);
         }
 
-        IdDocument idDocument = getIdDocument();
-        if (idDocument == null) {
-            idDocument = new IdDocument(this, null, idDocumentType);
-        } else {
-            idDocument.setIdDocumentType(idDocumentType);
-        }
-
         logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
                 "label.documentIdType");
         super.setIdDocumentType(idDocumentType);
@@ -191,14 +170,7 @@ public class Person extends Person_Base {
             throw new DomainException("error.person.empty.idDocumentType");
         }
 
-        IdDocument idDocument = getIdDocument();
         IDDocumentType idDocumentType = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
-        if (idDocument == null) {
-            idDocument = new IdDocument(this, documentNumber, idDocumentType);
-        } else {
-            idDocument.setValue(documentNumber);
-            idDocument.setIdDocumentType(idDocumentType);
-        }
 
         IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument == null) {
@@ -228,17 +200,6 @@ public class Person extends Person_Base {
         }
     }
 
-    @Deprecated
-    public void setIdentification(String documentIdNumber, final IDDocumentType idDocumentType) {
-        documentIdNumber = StringUtils.trimToNull(documentIdNumber);
-        if (documentIdNumber != null && idDocumentType != null
-                && checkIfDocumentNumberIdAndDocumentIdTypeExists(documentIdNumber, idDocumentType)) {
-            throw new DomainException("error.person.existent.docIdAndType");
-        }
-        setDocumentIdNumber(documentIdNumber);
-        setIdDocumentType(idDocumentType);
-    }
-
     public void setGivenNames(final String newGivenNames) {
         UserProfile profile = getProfile();
         profile.changeName(newGivenNames, profile.getFamilyNames(), profile.getDisplayName());
@@ -260,12 +221,6 @@ public class Person extends Person_Base {
     public void setFamilyNames(final String newFamilyNames) {
         UserProfile profile = getProfile();
         profile.changeName(profile.getGivenNames(), newFamilyNames, profile.getDisplayName());
-    }
-
-    private boolean checkIfDocumentNumberIdAndDocumentIdTypeExists(final String documentIDNumber,
-            final IDDocumentType documentType) {
-        final Person person = readByDocumentIdNumberAndIdDocumentType(documentIDNumber, documentType);
-        return person != null && !person.equals(this);
     }
 
     /**
@@ -404,7 +359,7 @@ public class Person extends Person_Base {
         setMaritalStatus(personBean.getMaritalStatus());
 
         // identification
-        setIdentification(personBean.getDocumentIdNumber(), personBean.getIdDocumentType());
+        setIdentification(personBean.getDocumentIdNumber(), personBean.getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
         setEmissionLocationOfDocumentId(personBean.getDocumentIdEmissionLocation());
         setEmissionDateOfDocumentIdYearMonthDay(personBean.getDocumentIdEmissionDate());
@@ -431,7 +386,8 @@ public class Person extends Person_Base {
             getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class).clearValue();
         }
 
-        if (getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+        if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
+                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
             setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
         }
     }
@@ -466,10 +422,6 @@ public class Person extends Person_Base {
 
         if (getTeacher() != null) {
             getTeacher().delete();
-        }
-
-        for (; !getIdDocumentsSet().isEmpty(); getIdDocumentsSet().iterator().next().delete()) {
-            ;
         }
 
         getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
@@ -534,14 +486,6 @@ public class Person extends Person_Base {
         return user == null ? null : user.getPerson();
     }
 
-    public static Collection<Person> readByDocumentIdNumber(final String documentIdNumber) {
-        final Collection<Person> result = new HashSet<Person>();
-        for (final IdDocument idDocument : IdDocument.find(documentIdNumber)) {
-            result.add(idDocument.getPerson());
-        }
-        return result;
-    }
-
     public static Stream<Person> findByDocumentIdentification(String documentValue) {
         return IdentificationDocument.find(documentValue).map(IdentificationDocument::getPerson);
     }
@@ -549,12 +493,6 @@ public class Person extends Person_Base {
     public static Optional<Person> findByDocumentIdentification(final String documentIdNumber,
             final IdentificationDocumentType identificationDocumentType) {
         return IdentificationDocument.find(documentIdNumber, identificationDocumentType).map(IdentificationDocument::getPerson);
-    }
-
-    public static Person readByDocumentIdNumberAndIdDocumentType(final String documentIdNumber,
-            final IDDocumentType idDocumentType) {
-        final IdDocument document = IdDocument.findFirst(documentIdNumber, idDocumentType);
-        return document == null ? null : document.getPerson();
     }
 
     public static Collection<Person> findByDateOfBirth(final YearMonthDay dateOfBirth, final Collection<Person> persons) {
@@ -641,16 +579,6 @@ public class Person extends Person_Base {
                     splittedName[0] + " " + splittedName[splittedName.length - 1]) : Collections.EMPTY_LIST;
         }
         return Collections.EMPTY_LIST;
-    }
-
-    public static Collection<Person> findPersonByDocumentID(final String documentIDValue) {
-        final Collection<Person> people = new ArrayList<Person>();
-        if (!StringUtils.isEmpty(documentIDValue)) {
-            for (final IdDocument idDocument : IdDocument.find(documentIDValue)) {
-                people.add(idDocument.getPerson());
-            }
-        }
-        return people;
     }
 
     public static Person readPersonByEmailAddress(final String email) {
@@ -878,7 +806,8 @@ public class Person extends Person_Base {
      * The value is ignored if the document is not an identity card.
      */
     public String getIdentificationDocumentSeriesNumber() {
-        if (getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+        if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
+                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
             String seriesNumber = getIdentificationDocumentSeriesNumberValue();
             String extraDigit = getIdentificationDocumentExtraDigitValue();
             if (StringUtils.isNotBlank(seriesNumber)) {
@@ -914,7 +843,8 @@ public class Person extends Person_Base {
     }
 
     public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
-        if (!StringUtils.isEmpty(identificationDocumentSeriesNumber) && getIdDocumentType() == IDDocumentType.IDENTITY_CARD) {
+        if (!StringUtils.isEmpty(identificationDocumentSeriesNumber) && IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
+                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
             if (identificationDocumentSeriesNumber.trim().length() == 1) {
                 final PersonIdentificationDocumentExtraInfo personIdentificationDocumentExtraInfo =
                         getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
