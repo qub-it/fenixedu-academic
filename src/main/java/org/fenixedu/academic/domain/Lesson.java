@@ -48,6 +48,7 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.YearMonthDay;
 
@@ -59,6 +60,12 @@ public class Lesson extends Lesson_Base {
     public static final Comparator<Lesson> LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME =
             Comparator.comparing(Lesson::getWeekDay).thenComparing(Lesson::getBeginHourMinuteSecond);
 
+    protected Lesson() {
+        super();
+        setRootDomainObject(Bennu.getInstance());
+    }
+
+    @Deprecated
     public Lesson(DiaSemana diaSemana, Calendar inicio, Calendar fim, Shift shift, FrequencyType frequency,
             ExecutionInterval executionInterval, OccupationPeriod period, Space room) {
         super();
@@ -79,6 +86,29 @@ public class Lesson extends Lesson_Base {
         if (room != null) {
             new LessonSpaceOccupation(room, this);
         }
+    }
+
+    public static Lesson create(final Shift shift, final WeekDay weekDay, final LocalTime startTime,
+            final LocalTime endTime, final FrequencyType frequency, final OccupationPeriod period, final Space space) {
+
+        final Lesson lesson = new Lesson();
+        lesson.setWeekDay(weekDay);
+        lesson.setBeginHourMinuteSecond(HourMinuteSecond.fromLocalTime(startTime));
+        lesson.setEndHourMinuteSecond(HourMinuteSecond.fromLocalTime(endTime));
+        lesson.setShift(shift);
+        lesson.setFrequency(frequency);
+        lesson.setPeriod(period);
+        lesson.setInitialFullPeriod(period);
+
+        if (lesson.getLessonDates().isEmpty()) {
+            throw new DomainException("error.Lesson.create.noValidDates");
+        }
+
+        if (space != null) {
+            new LessonSpaceOccupation(space, lesson);
+        }
+
+        return lesson;
     }
 
     public void edit(final Space newRoom) {

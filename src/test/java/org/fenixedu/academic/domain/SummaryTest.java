@@ -59,8 +59,8 @@ public class SummaryTest {
 
     @Test
     public void testSummary_lessons() {
-        Lesson lesson = ExecutionsAndSchedulesTest.createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0),
-                FrequencyType.WEEKLY, occupationPeriod, null);
+        Lesson lesson = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
 
         assertEquals(lesson.getLessonInstancesSet().size(), 0);
         assertEquals(lesson.getAssociatedSummaries().size(), 0);
@@ -79,8 +79,8 @@ public class SummaryTest {
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.summary.no.valid.date.to.lesson");
 
-        Lesson lesson = ExecutionsAndSchedulesTest.createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0),
-                FrequencyType.WEEKLY, occupationPeriod, null);
+        Lesson lesson = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
 
         new Summary(defaultTitle, defaultText, null, null, "Teacher A", lesson, new LocalDate(2023, 5, 16));
     }

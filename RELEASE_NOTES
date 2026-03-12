@@ -1,5 +1,6 @@
 - Refactor: Clean up IdDocument and IdDocumentTypeObject entities [#qubIT-Fenix-6491]
 - Refactor: Replace usages of deprecated YearMonthDay in lessons domain [#qubIT-Fenix-4690]
+- Refactor: New lesson create method [#qubIT-Fenix-4690]
 - Improvement: Force lesson time seconds to zero [#ISCTE-FENIXEDU-1428]
 
 54.6.1 (09-03-2026)

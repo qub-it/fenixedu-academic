@@ -18,7 +18,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.YearMonthDay;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +65,7 @@ public class LessonInstanceSpaceOccupationTest {
         Space lessonRoom = new Space(new Information.Builder().classification(classification).name("Lesson Room")
                 .validFrom(DateTime.now().minusDays(1)).build());
 
-        Lesson lesson = ExecutionsAndSchedulesTest.createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0),
+        Lesson lesson = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0),
                 FrequencyType.WEEKLY, occupationPeriod, lessonRoom);
 
         LessonSpaceOccupation lessonSpaceOccupation = lesson.getLessonSpaceOccupation();

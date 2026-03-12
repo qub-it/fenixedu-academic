@@ -8,7 +8,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +23,6 @@ import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -97,7 +95,7 @@ public class ExecutionsAndSchedulesTest {
                 List.of(new Interval(new DateTime(year, 9, 15, 0, 0), new DateTime(year, 12, 15, 0, 0))).iterator();
 
         shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
-        createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 createDefaultOccupationPeriod(intervals), null);
 
         final ExecutionInterval executionInterval = executionDegree.getExecutionYear().getFirstExecutionPeriod();
@@ -113,20 +111,10 @@ public class ExecutionsAndSchedulesTest {
         return occupationPeriod;
     }
 
+    @Deprecated
     public static Lesson createLesson(final Shift shift, final WeekDay weekDay, final LocalTime startTime, final LocalTime endTime,
             final FrequencyType frequency, final OccupationPeriod period, final Space space) {
-
-        final DiaSemana diaSemana = DiaSemana.fromWeekDay(weekDay);
-
-        final Calendar startTimeCalendar = Calendar.getInstance();
-        startTimeCalendar.setTimeInMillis(startTime.toDateTimeToday().getMillis());
-        final Calendar endTimeCalendar = Calendar.getInstance();
-        endTimeCalendar.setTimeInMillis(endTime.toDateTimeToday().getMillis());
-
-        final Lesson lesson =
-                new Lesson(diaSemana, startTimeCalendar, endTimeCalendar, shift, frequency, shift.getExecutionPeriod(), period,
-                        space);
-        return lesson;
+        return Lesson.create(shift, weekDay, startTime, endTime, frequency, period, space);
     }
 
     @Test
@@ -186,10 +174,11 @@ public class ExecutionsAndSchedulesTest {
 
         Shift shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T-test-total-hours");
 
-        Lesson lesson3h00m = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
-                occupationPeriod, null);
+        Lesson lesson3h00m =
+                Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
+                        occupationPeriod, null);
         Lesson lesson1h20m =
-                createLesson(shift, WeekDay.TUESDAY, new LocalTime(10, 0), new LocalTime(11, 20), FrequencyType.WEEKLY,
+                Lesson.create(shift, WeekDay.TUESDAY, new LocalTime(10, 0), new LocalTime(11, 20), FrequencyType.WEEKLY,
                         occupationPeriod, null);
 
         assertEquals(lesson3h00m.getLessonDates().size(), 13);
@@ -262,7 +251,7 @@ public class ExecutionsAndSchedulesTest {
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
         final Lesson lesson =
-                createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                         occupationPeriod, space);
 
         assertEquals(lesson.getAllLessonIntervals().size(), 12);
@@ -361,7 +350,7 @@ public class ExecutionsAndSchedulesTest {
 
         final OccupationPeriod occupationPeriod =
                 createDefaultOccupationPeriod(List.of(interval1, interval2, interval3).iterator());
-        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.BIWEEKLY,
+        Lesson lesson = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.BIWEEKLY,
                 occupationPeriod, space);
 
         final Set<LocalDate> lessonDates = lesson.getLessonDates();
@@ -410,7 +399,7 @@ public class ExecutionsAndSchedulesTest {
 
         final OccupationPeriod occupationPeriod =
                 createDefaultOccupationPeriod(List.of(interval1, interval2, interval3).iterator());
-        Lesson lesson = createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
 
         final Set<LocalDate> newDates = lesson.getLessonDates();
@@ -450,8 +439,8 @@ public class ExecutionsAndSchedulesTest {
         final Interval interval1 = new Interval(new DateTime(year, 10, 5, 0, 0), new DateTime(year, 10, 5, 23, 59));
 
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(List.of(interval1).iterator());
-        createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY, occupationPeriod,
-                null);
+        Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+                occupationPeriod, null);
     }
 
     @Test
@@ -463,19 +452,17 @@ public class ExecutionsAndSchedulesTest {
         Iterator<Interval> intervals =
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
-        final Lesson lesson1 =
-                createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0, 15), new LocalTime(11, 0, 20), FrequencyType.WEEKLY,
-                        occupationPeriod, space);
+        final Lesson lesson1 = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(10, 0, 15), new LocalTime(11, 0, 20),
+                FrequencyType.WEEKLY, occupationPeriod, space);
 
         assertEquals(lesson1.getBeginHourMinuteSecond(), new HourMinuteSecond(10, 0, 0));
         assertEquals(lesson1.getEndHourMinuteSecond(), new HourMinuteSecond(11, 0, 0));
 
-        final Lesson lesson2 =
-                createLesson(shift, WeekDay.MONDAY, new LocalTime(11, 0, 0), new LocalTime(12, 0, 20), FrequencyType.WEEKLY,
-                        occupationPeriod, space);
+        final Lesson lesson2 = Lesson.create(shift, WeekDay.MONDAY, new LocalTime(11, 0, 0), new LocalTime(12, 0, 20),
+                FrequencyType.WEEKLY, occupationPeriod, space);
 
         final Lesson lesson3 =
-                createLesson(shift, WeekDay.MONDAY, new LocalTime(12, 0, 0), new LocalTime(13, 0, 0), FrequencyType.WEEKLY,
+                Lesson.create(shift, WeekDay.MONDAY, new LocalTime(12, 0, 0), new LocalTime(13, 0, 0), FrequencyType.WEEKLY,
                         occupationPeriod, null);
 
         // ensure no space occupied exceptions are thrown due to seconds difference
@@ -490,13 +477,13 @@ public class ExecutionsAndSchedulesTest {
                 List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
 
-        Lesson lesson3 = createLesson(shift, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson3 = Lesson.create(shift, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson4 = createLesson(shift, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
+        Lesson lesson4 = Lesson.create(shift, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson1 = createLesson(shift, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson1 = Lesson.create(shift, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson2 = createLesson(shift, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson2 = Lesson.create(shift, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
 
         List<Lesson> sortedLessons =
@@ -524,16 +511,16 @@ public class ExecutionsAndSchedulesTest {
 
         Shift shift1 = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T100");
 
-        Lesson lesson3 = createLesson(shift1, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson3 = Lesson.create(shift1, WeekDay.FRIDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson4 = createLesson(shift1, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
+        Lesson lesson4 = Lesson.create(shift1, WeekDay.FRIDAY, new LocalTime(11, 0), new LocalTime(12, 0), FrequencyType.WEEKLY,
                 occupationPeriod, spaceX);
-        Lesson lesson1 = createLesson(shift1, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson1 = Lesson.create(shift1, WeekDay.WEDNESDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, null);
-        Lesson lesson2 = createLesson(shift1, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
+        Lesson lesson2 = Lesson.create(shift1, WeekDay.THURSDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY,
                 occupationPeriod, spaceY);
         Lesson lessonExtra =
-                createLesson(shift1, WeekDay.SATURDAY, new LocalTime(12, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
+                Lesson.create(shift1, WeekDay.SATURDAY, new LocalTime(12, 0), new LocalTime(13, 0), FrequencyType.WEEKLY,
                         occupationPeriod, spaceY);
         lessonExtra.setExtraLesson(true);
 
