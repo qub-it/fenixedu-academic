@@ -58,7 +58,7 @@ public class Summary extends Summary_Base {
         setSummaryText(summaryText);
 
         checkSpecialParameters(professorship, teacherName, lesson);
-        checkIfSummaryDateIsValid(dateYMD, executionCourse.getExecutionInterval(), lesson);
+        checkIfSummaryDateIsValid(dateYMD, lesson);
 
         setStudentsNumber(studentsNumber);
         setProfessorship(professorship);
@@ -100,7 +100,7 @@ public class Summary extends Summary_Base {
         lessonInstance.setSummary(this);
     }
 
-    private void checkIfSummaryDateIsValid(YearMonthDay date, ExecutionInterval executionSemester, Lesson lesson) {
+    private void checkIfSummaryDateIsValid(YearMonthDay date, Lesson lesson) {
         if (lesson.getAssociatedSummaries().stream().filter(s -> s != this)
                 .anyMatch(s -> s.getSummaryDateYearMonthDay().isEqual(date))) {
             throw new DomainException("error.summary.already.exists");
