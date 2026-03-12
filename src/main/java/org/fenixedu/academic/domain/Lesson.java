@@ -439,6 +439,11 @@ public class Lesson extends Lesson_Base {
         }
     }
 
+    @Override
+    public void setBeginHourMinuteSecond(HourMinuteSecond begin) {
+        super.setBeginHourMinuteSecond(begin != null ? begin.withField(DateTimeFieldType.secondOfMinute(), 0) : null);
+    }
+
     @Deprecated
     public java.util.Date getEnd() {
         org.fenixedu.academic.util.HourMinuteSecond hms = getEndHourMinuteSecond();
@@ -452,6 +457,11 @@ public class Lesson extends Lesson_Base {
         } else {
             setEndHourMinuteSecond(org.fenixedu.academic.util.HourMinuteSecond.fromDateFields(date));
         }
+    }
+
+    @Override
+    public void setEndHourMinuteSecond(HourMinuteSecond end) {
+        super.setEndHourMinuteSecond(end != null ? end.withField(DateTimeFieldType.secondOfMinute(), 0) : null);
     }
 
     @Deprecated

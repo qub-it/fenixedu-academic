@@ -22,8 +22,10 @@ import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
+import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.DiaSemana;
+import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Information;
@@ -450,6 +452,36 @@ public class ExecutionsAndSchedulesTest {
         final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(List.of(interval1).iterator());
         createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0), FrequencyType.WEEKLY, occupationPeriod,
                 null);
+    }
+
+    @Test
+    public void testLesson_timeWithNonZeroSeconds() {
+
+        Space space = new Space(new Information.Builder().classification(classification).name(UUID.randomUUID().toString())
+                .validFrom(DateTime.now().minusDays(1)).build());
+
+        Iterator<Interval> intervals =
+                List.of(new Interval(new DateTime(2023, 9, 15, 0, 0), new DateTime(2023, 12, 15, 0, 0))).iterator();
+        final OccupationPeriod occupationPeriod = createDefaultOccupationPeriod(intervals);
+        final Lesson lesson1 =
+                createLesson(shift, WeekDay.MONDAY, new LocalTime(10, 0, 15), new LocalTime(11, 0, 20), FrequencyType.WEEKLY,
+                        occupationPeriod, space);
+
+        assertEquals(lesson1.getBeginHourMinuteSecond(), new HourMinuteSecond(10, 0, 0));
+        assertEquals(lesson1.getEndHourMinuteSecond(), new HourMinuteSecond(11, 0, 0));
+
+        final Lesson lesson2 =
+                createLesson(shift, WeekDay.MONDAY, new LocalTime(11, 0, 0), new LocalTime(12, 0, 20), FrequencyType.WEEKLY,
+                        occupationPeriod, space);
+
+        final Lesson lesson3 =
+                createLesson(shift, WeekDay.MONDAY, new LocalTime(12, 0, 0), new LocalTime(13, 0, 0), FrequencyType.WEEKLY,
+                        occupationPeriod, null);
+
+        // ensure no space occupied exceptions are thrown due to seconds difference
+        LessonInstance lessonInstance2 = new LessonInstance(lesson2, new YearMonthDay(2023, 10, 18));
+        LessonInstance lessonInstance3 = new LessonInstance(lesson3, new YearMonthDay(2023, 10, 18));
+        new LessonInstanceSpaceOccupation(space, lessonInstance3);
     }
 
     @Test

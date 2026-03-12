@@ -71,9 +71,9 @@ public class LessonInstance extends LessonInstance_Base {
         HourMinuteSecond beginTime = lesson.getBeginHourMinuteSecond();
         HourMinuteSecond endTime = lesson.getEndHourMinuteSecond();
         DateTime beginDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), beginTime.getHour(),
-                beginTime.getMinuteOfHour(), beginTime.getSecondOfMinute(), 0);
+                beginTime.getMinuteOfHour(), 0, 0);
         DateTime endDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), endTime.getHour(),
-                endTime.getMinuteOfHour(), endTime.getSecondOfMinute(), 0);
+                endTime.getMinuteOfHour(), 0, 0);
 
         setRootDomainObject(Bennu.getInstance());
         setBeginDateTime(beginDateTime);
