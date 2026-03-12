@@ -211,12 +211,12 @@ public class Lesson extends Lesson_Base {
     }
 
     public void createAllLessonInstances() {
-        final SortedSet<YearMonthDay> dates = getAllLessonDatesWithoutInstanceDates();
+        final List<LocalDate> datesWithoutInstances = getAllLessonDatesWithoutInstances();
 
         final OccupationPeriod period = getPeriod();
         super.setPeriod(null); // to avoid dates and space overlaps
 
-        dates.forEach(date -> new LessonInstance(this, date));
+        datesWithoutInstances.forEach(date -> LessonInstance.create(this, date));
 
         if (getLessonSpaceOccupation() != null) {
             getLessonSpaceOccupation().delete();
@@ -277,6 +277,13 @@ public class Lesson extends Lesson_Base {
         return true;
     }
 
+    public List<LocalDate> getAllLessonDatesWithoutInstances() {
+        final Map<LocalDate, LessonInstance> lessonInstancesMap = getLessonInstancesForDatesMap();
+        final Set<LocalDate> deletedLessonDates = getDeletedLessonDates();
+        return lessonInstancesMap.entrySet().stream().filter(entry -> entry.getValue() == null)
+                .filter(entry -> !deletedLessonDates.contains(entry.getKey())).map(Map.Entry::getKey).sorted().toList();
+    }
+
     @Deprecated
     public SortedSet<YearMonthDay> getAllLessonDatesWithoutInstanceDates() {
         final Map<LocalDate, LessonInstance> lessonInstancesMap = getLessonInstancesForDatesMap();
@@ -332,9 +339,8 @@ public class Lesson extends Lesson_Base {
     }
 
     public Set<LocalDate> getDeletedLessonDates() {
-        final SortedSet<LocalDate> result = new TreeSet<LocalDate>();
         final OccupationPeriod period = Optional.ofNullable(getInitialFullPeriod()).orElse(getPeriod());
-        result.addAll(getLessonDatesForPeriod(period));
+        final SortedSet<LocalDate> result = new TreeSet<LocalDate>(getLessonDatesForPeriod(period));
         result.removeAll(getLessonDates());
         return result;
     }
@@ -346,10 +352,11 @@ public class Lesson extends Lesson_Base {
         return result;
     }
 
-    private boolean isDayValid(YearMonthDay day) {
-        return getPeriod().nestedOccupationPeriodsContainsDay(day);
+    public Optional<LessonInstance> findLessonInstanceFor(LocalDate date) {
+        return getLessonInstancesSet().stream().filter(li -> li.getDate().equals(date)).findAny();
     }
 
+    @Deprecated
     public LessonInstance getLessonInstanceFor(YearMonthDay date) {
         Collection<LessonInstance> lessonInstances = getLessonInstancesSet();
         for (LessonInstance lessonInstance : lessonInstances) {

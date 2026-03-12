@@ -337,11 +337,11 @@ public class ExecutionsAndSchedulesTest {
         assertFalse(space.isFree(new Interval(new DateTime(year, 11, 20, 10, 15), new DateTime(year, 11, 20, 10, 30))));
         assertTrue(space.isFree(new Interval(new DateTime(year, 11, 27, 10, 15), new DateTime(year, 11, 27, 10, 30))));
 
-//        new LessonInstance(lesson, new YearMonthDay(2023, 12, 17)); TODO ERROR: invalid date!
+        // LessonInstance.create(lesson, new LocalDate(2023, 12, 17)); // TODO ERROR: invalid date!
 
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.lessonInstance.already.exist");
-        new LessonInstance(lesson, new YearMonthDay(2023, 12, 18));
+        LessonInstance.create(lesson, new LocalDate(2023, 12, 18));
     }
 
     @Test
@@ -416,9 +416,9 @@ public class ExecutionsAndSchedulesTest {
         final Set<LocalDate> newDates = lesson.getLessonDates();
         assertEquals(newDates.size(), 9);
 
-        new LessonInstance(lesson, new YearMonthDay(2023, 10, 23));
-        new LessonInstance(lesson, new YearMonthDay(2023, 11, 13));
-        new LessonInstance(lesson, new YearMonthDay(2023, 12, 11));
+        LessonInstance.create(lesson, new LocalDate(2023, 10, 23));
+        LessonInstance.create(lesson, new LocalDate(2023, 11, 13));
+        LessonInstance.create(lesson, new LocalDate(2023, 12, 11));
 
         assertEquals(lesson.getLessonInstancesSet().size(), 3);
 
@@ -479,8 +479,8 @@ public class ExecutionsAndSchedulesTest {
                         occupationPeriod, null);
 
         // ensure no space occupied exceptions are thrown due to seconds difference
-        LessonInstance lessonInstance2 = new LessonInstance(lesson2, new YearMonthDay(2023, 10, 18));
-        LessonInstance lessonInstance3 = new LessonInstance(lesson3, new YearMonthDay(2023, 10, 18));
+        LessonInstance lessonInstance2 = LessonInstance.create(lesson2, new LocalDate(2023, 10, 18));
+        LessonInstance lessonInstance3 = LessonInstance.create(lesson3, new LocalDate(2023, 10, 18));
         new LessonInstanceSpaceOccupation(space, lessonInstance3);
     }
 

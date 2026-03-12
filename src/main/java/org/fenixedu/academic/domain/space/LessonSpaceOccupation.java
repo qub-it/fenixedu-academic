@@ -31,6 +31,8 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.YearMonthDay;
 
 public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
@@ -73,16 +75,13 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
     @Override
     public List<Interval> getIntervals() {
-        List<Interval> result = new ArrayList<>();
         if (!getLesson().wasFinished()) {
-            final HourMinuteSecond b = getLesson().getBeginHourMinuteSecond();
-            final HourMinuteSecond e = getLesson().getEndHourMinuteSecond();
-            for (final YearMonthDay yearMonthDay : getLesson().getAllLessonDatesWithoutInstanceDates()) {
-                result.add(new Interval(yearMonthDay.toLocalDate().toDateTime(b.toLocalTime()),
-                        yearMonthDay.toLocalDate().toDateTime(e.toLocalTime())));
-            }
+            final LocalTime begin = getLesson().getBeginHourMinuteSecond().toLocalTime();
+            final LocalTime end = getLesson().getEndHourMinuteSecond().toLocalTime();
+            return getLesson().getAllLessonDatesWithoutInstances().stream()
+                    .map(localDate -> new Interval(localDate.toDateTime(begin), localDate.toDateTime(end))).toList();
         }
-        return result;
+        return List.of();
     }
 
     @Override

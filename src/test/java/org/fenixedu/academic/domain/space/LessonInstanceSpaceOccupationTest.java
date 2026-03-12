@@ -16,6 +16,7 @@ import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.YearMonthDay;
 import org.junit.Before;
@@ -89,7 +90,7 @@ public class LessonInstanceSpaceOccupationTest {
         Space lessonInstanceRoom =
                 new Space(new Information.Builder().classification(classification).name("Lesson Instance Room").build());
 
-        LessonInstance instance1 = new LessonInstance(lesson, new YearMonthDay(2023, 9, 1));
+        LessonInstance instance1 = LessonInstance.create(lesson, new LocalDate(2023, 9, 1));
         LessonInstanceSpaceOccupation lessonInstanceSpaceOccupation =
                 new LessonInstanceSpaceOccupation(lessonInstanceRoom, instance1);
 
@@ -106,7 +107,7 @@ public class LessonInstanceSpaceOccupationTest {
         assertFalse(lessonInstanceRoom.isFree(intervals2022_2023));
         assertTrue(lessonInstanceRoom.isFree(intervals2024_2025));
 
-        LessonInstance lessonInstance2 = new LessonInstance(lesson, new YearMonthDay(2024, 1, 1));
+        LessonInstance lessonInstance2 = LessonInstance.create(lesson, new LocalDate(2024, 1, 1));
         lessonInstanceSpaceOccupation.add(lessonInstance2);
 
         lessonInstanceSpaceOccupationYearsIndex = lessonInstanceSpaceOccupation.getYearsIndex();

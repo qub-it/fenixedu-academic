@@ -37,6 +37,7 @@ import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.YearMonthDay;
 
@@ -52,6 +53,38 @@ public class LessonInstance extends LessonInstance_Base {
 
     };
 
+    protected LessonInstance() {
+        setRootDomainObject(Bennu.getInstance());
+    }
+
+    public static LessonInstance create(Lesson lesson, LocalDate day) {
+        if (day == null) {
+            throw new DomainException("error.LessonInstance.empty.day");
+        }
+
+        if (lesson == null) {
+            throw new DomainException("error.LessonInstance.empty.Lesson");
+        }
+
+        if (lesson.findLessonInstanceFor(day).isPresent()) {
+            throw new DomainException("error.lessonInstance.already.exist");
+        }
+
+        final DateTime beginDateTime = day.toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime().withSecondOfMinute(0));
+        final DateTime endDateTime = day.toDateTime(lesson.getEndHourMinuteSecond().toLocalTime().withSecondOfMinute(0));
+
+        final LessonInstance result = new LessonInstance();
+        result.setBeginDateTime(beginDateTime);
+        result.setEndDateTime(endDateTime);
+        result.setLesson(lesson);
+
+        Optional.ofNullable(lesson.getLessonSpaceOccupation()).map(LessonSpaceOccupation::getSpace)
+                .ifPresent(result::lessonInstanceSpaceOccupationManagement);
+
+        return result;
+    }
+
+    @Deprecated
     public LessonInstance(Lesson lesson, YearMonthDay day) {
         super();
 
