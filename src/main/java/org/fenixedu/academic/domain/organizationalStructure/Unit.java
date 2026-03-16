@@ -402,9 +402,13 @@ public class Unit extends Unit_Base {
      *            institution unit and contains the parent acronyms.
      */
     public static Optional<Unit> findInternalUnitByAcronymPath(final String path) {
+        return findUnitByAcronymPath(path, UnitUtils.readInstitutionUnit());
+    }
+
+    public static Optional<Unit> findUnitByAcronymPath(final String path, final Unit parentUnit) {
         final List<String> separatedPath = StringUtils.isNotBlank(path) ? List.of(path.split(">")) : List.of();
 
-        Unit unit = UnitUtils.readInstitutionUnit();
+        Unit unit = parentUnit;
 
         for (String acronym : separatedPath) {
             unit = unit.getChildUnitByAcronym(acronym.trim());
