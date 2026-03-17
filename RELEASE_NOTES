@@ -5,6 +5,7 @@
 
 54.7.1 (18-03-2026)
 - Refactor: Add new method to find units by acronyms path [#qubIT-Fenix-6848]
+- Improvement: Improves exception labels [#qubIT-Fenix-8044]
 
 54.7.0 (13-03-2026)
 - Refactor: Clean up IdDocument and IdDocumentTypeObject entities [#qubIT-Fenix-6491]

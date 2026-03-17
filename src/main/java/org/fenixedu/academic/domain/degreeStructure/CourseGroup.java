@@ -98,7 +98,8 @@ public class CourseGroup extends CourseGroup_Base {
             final ProgramConclusion programConclusion) {
         init(name, nameEn);
         if (parentCourseGroup == null) {
-            throw new DomainException("error.degreeStructure.CourseGroup.parentCourseGroup.cannot.be.null");
+            throw new DomainException("error.degreeStructure.CourseGroup.parentCourseGroup.cannot.be.null",
+                    getNameI18N().getContent(Locale.getDefault()));
         }
         parentCourseGroup.checkDuplicateChildNames(name, nameEn);
         new Context(parentCourseGroup, this, null, begin, end);
@@ -338,7 +339,9 @@ public class CourseGroup extends CourseGroup_Base {
         String normalizedName = StringFormatter.normalize(name);
         String normalizedNameEn = StringFormatter.normalize(nameEn);
         if (!verifyNames(normalizedName, normalizedNameEn)) {
-            throw new DomainException("error.existingCourseGroupWithSameName");
+            throw new DomainException("error.existingCourseGroupWithSameName",
+                    StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name,
+                    getParentDegreeCurricularPlan().getPresentationName());
         }
     }
 
@@ -348,7 +351,9 @@ public class CourseGroup extends CourseGroup_Base {
         for (Context parentContext : getParentContextsSet()) {
             CourseGroup parentCourseGroup = parentContext.getParentCourseGroup();
             if (!parentCourseGroup.verifyNames(normalizedName, normalizedNameEn, this)) {
-                throw new DomainException("error.existingCourseGroupWithSameName");
+                throw new DomainException("error.existingCourseGroupWithSameName",
+                        StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name,
+                        parentCourseGroup.getParentDegreeCurricularPlan().getPresentationName());
             }
         }
     }
@@ -821,7 +826,8 @@ public class CourseGroup extends CourseGroup_Base {
         if (degreeModule != null) {
             for (final Context parentContext : degreeModule.getParentContextsSet()) {
                 if (parentContext.getParentCourseGroup().getParentDegreeCurricularPlan() != getParentDegreeCurricularPlan()) {
-                    throw new DomainException("error.CourseGroup.mismatch.ParentDegreeCurricularPlan");
+                    throw new DomainException("error.CourseGroup.mismatch.ParentDegreeCurricularPlan",
+                            degreeModule.getNameI18N().getContent(), getParentDegreeCurricularPlan().getPresentationName());
                 }
             }
         }
