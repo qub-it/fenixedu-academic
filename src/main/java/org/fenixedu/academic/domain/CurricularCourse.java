@@ -496,11 +496,12 @@ public class CurricularCourse extends CurricularCourse_Base {
         super.addAssociatedExecutionCourses(associatedExecutionCourses);
     }
 
+    /**
+     * @deprecated Use {@link #getPresentationName(ExecutionInterval executionInterval)} instead.
+     */
+    @Deprecated
     public String getCodeAndName(final ExecutionInterval executionInterval) {
-        final String code = getCode();
-        final String name = getNameI18N(executionInterval).getContent();
-
-        return (StringUtils.isEmpty(code) ? "" : code + " - ") + name;
+        return getPresentationName(executionInterval);
     }
 
     @Override

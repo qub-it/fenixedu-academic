@@ -31,6 +31,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -631,5 +632,15 @@ abstract public class DegreeModule extends DegreeModule_Base {
     abstract public Set<CurricularCourse> getAllCurricularCourses();
 
     abstract public void applyToCurricularCourses(final ExecutionYear executionYear, final Predicate predicate);
+
+    public String getPresentationName(ExecutionInterval executionInterval) {
+        final String code = getCode();
+        final String name = getNameI18N(executionInterval).getContent();
+        return (StringUtils.isBlank(code) ? "" : code + " - ") + name;
+    }
+
+    public String getPresentationName() {
+        return getPresentationName(null);
+    }
 
 }
