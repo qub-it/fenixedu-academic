@@ -217,20 +217,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public boolean isActive() {
-        return getActive() != null ? getActive().booleanValue() : isActiveAccordingToCurricularStage();
-    }
-
-    @Deprecated(forRemoval = true)
-    public boolean isActiveAccordingToCurricularStage() {
-        final CurricularStage curricularStage = getCurricularStage();
-        return curricularStage == CurricularStage.APPROVED || curricularStage == CurricularStage.PUBLISHED;
-    }
-
-    @Deprecated(forRemoval = true)
-    @Override
-    public void setCurricularStage(CurricularStage curricularStage) {
-        super.setCurricularStage(curricularStage);
-        setActive(isActiveAccordingToCurricularStage());
+        return getActive();
     }
 
     private Boolean getCanBeDeleted() {

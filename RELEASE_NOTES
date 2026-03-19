@@ -1,3 +1,5 @@
+- Refactor: Remove degree curricular plan active field initialization and change it to primitive [#qubIT-Fenix-4442]
+
 54.7.1 (18-03-2026)
 - Refactor: Add new method to find units by acronyms path [#qubIT-Fenix-6848]
 

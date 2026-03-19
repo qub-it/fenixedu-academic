@@ -76,27 +76,6 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
-
-        initializeActiveDegreeCurricularPlans();
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeActiveDegreeCurricularPlans() {
-        final Set<DegreeCurricularPlan> dcpsToChange = DegreeCurricularPlan.findAll()
-                .filter(dcp -> dcp.getActive() == null || (dcp.isActive() != dcp.getActive().booleanValue()))
-                .collect(Collectors.toSet());
-
-        if (dcpsToChange.isEmpty()) {
-            return;
-        }
-
-        Log.info("---------------------------------------");
-        Log.info("Starting initialization of active degree curricular plans. Plans to change: " + dcpsToChange.size());
-
-        dcpsToChange.forEach(dcp -> dcp.setActive(dcp.isActive()));
-
-        Log.info("Finished initialization.");
-        Log.info("---------------------------------------");
     }
 
     @Atomic(mode = TxMode.WRITE)

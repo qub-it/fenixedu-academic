@@ -422,7 +422,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class DegreeCurricularPlan  {
         CurricularStage curricularStage;
-       	Boolean active;
+       	boolean active;
         Integer degreeDuration;
         String description;
         String descriptionEn;
