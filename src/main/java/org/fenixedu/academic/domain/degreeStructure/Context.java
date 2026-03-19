@@ -21,7 +21,6 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -151,8 +150,7 @@ public class Context extends Context_Base implements Comparable<Context> {
         if (curricularCourse.getCompetenceCourse() != null && curricularCourse.getCompetenceCourse().isAnual(executionYear)
                 && !curricularPeriod.hasChildOrderValue(1)) {
             throw new DomainException("competenceCourse.anual.but.trying.to.associate.curricular.course.not.to.first.period",
-                    curricularCourse.getCompetenceCourse().getNameI18N().getContent(Locale.getDefault()),
-                    curricularPeriod.getFullLabel(Locale.getDefault()));
+                    buildDegreeModuleLabel(curricularCourse), curricularPeriod.getFullLabel());
         }
     }
 
@@ -162,11 +160,10 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     private void checkParameters(CourseGroup courseGroup, DegreeModule degreeModule, ExecutionInterval beginExecutionPeriod) {
         if (courseGroup == null || degreeModule == null || beginExecutionPeriod == null) {
-            String degreeModuleName = degreeModule != null ? degreeModule.getNameI18N().getContent(Locale.getDefault()) : "";
-            String courseGroupName = courseGroup != null ? courseGroup.getNameI18N().getContent(Locale.getDefault()) : "";
-            String beginPeriodName = beginExecutionPeriod != null ? beginExecutionPeriod.getQualifiedNameI18N()
-                    .getContent(Locale.getDefault()) : "";
-            throw new DomainException("error.incorrectContextValues", degreeModuleName, courseGroupName, beginPeriodName);
+            String degreeModuleLabel = buildDegreeModuleLabel(degreeModule);
+            String courseGroupName = courseGroup != null ? courseGroup.getNameI18N().getContent() : "";
+            String beginPeriodName = beginExecutionPeriod != null ? beginExecutionPeriod.getQualifiedNameI18N().getContent() : "";
+            throw new DomainException("error.incorrectContextValues", degreeModuleLabel, courseGroupName, beginPeriodName);
         }
     }
 
@@ -176,9 +173,8 @@ public class Context extends Context_Base implements Comparable<Context> {
         for (final Context context : courseGroup.getChildContextsSet()) {
             if (context != this && context.hasChildDegreeModule(degreeModule) && context.hasCurricularPeriod(curricularPeriod)
                     && context.intersects(begin, end)) {
-                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup",
-                        degreeModule.getNameI18N().getContent(Locale.getDefault()),
-                        courseGroup.getNameI18N().getContent(Locale.getDefault()));
+                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup", buildDegreeModuleLabel(degreeModule),
+                        courseGroup.getNameI18N().getContent());
             }
         }
     }
@@ -288,14 +284,12 @@ public class Context extends Context_Base implements Comparable<Context> {
     protected void checkExecutionPeriods(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod,
             DegreeModule degreeModule) {
         if (beginExecutionPeriod == null) {
-            throw new DomainException("context.begin.execution.period.cannot.be.null",
-                    degreeModule.getNameI18N().getContent(Locale.getDefault()));
+            throw new DomainException("context.begin.execution.period.cannot.be.null", buildDegreeModuleLabel(degreeModule));
         }
         if (endExecutionPeriod != null && beginExecutionPeriod.isAfter(endExecutionPeriod)) {
             throw new DomainException("context.begin.is.after.end.execution.period",
-                    beginExecutionPeriod.getQualifiedNameI18N().getContent(Locale.getDefault()),
-                    endExecutionPeriod.getQualifiedNameI18N().getContent(Locale.getDefault()),
-                    degreeModule.getNameI18N().getContent(Locale.getDefault()));
+                    beginExecutionPeriod.getQualifiedNameI18N().getContent(),
+                    endExecutionPeriod.getQualifiedNameI18N().getContent(), buildDegreeModuleLabel(degreeModule));
         }
     }
 
@@ -321,9 +315,8 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     public boolean intersects(final ExecutionInterval begin, final ExecutionInterval end) {
         if (end != null && begin.isAfter(end)) {
-            throw new DomainException("context.begin.is.after.end.execution.period",
-                    begin.getQualifiedNameI18N().getContent(Locale.getDefault()),
-                    end.getQualifiedNameI18N().getContent(Locale.getDefault()), "");
+            throw new DomainException("context.begin.is.after.end.execution.period", begin.getQualifiedNameI18N().getContent(),
+                    end.getQualifiedNameI18N().getContent(), "");
         }
 
         if (begin.getExecutionYear().isAfterOrEquals(getBeginExecutionInterval())) {
@@ -485,4 +478,10 @@ public class Context extends Context_Base implements Comparable<Context> {
         super.setEndExecutionPeriod(endExecutionPeriod);
     }
 
+    private String buildDegreeModuleLabel(DegreeModule degreeModule) {
+        if (degreeModule instanceof CurricularCourse curricularCourse) {
+            return curricularCourse.getCodeAndName(null);
+        }
+        return degreeModule.getNameI18N().getContent();
+    }
 }

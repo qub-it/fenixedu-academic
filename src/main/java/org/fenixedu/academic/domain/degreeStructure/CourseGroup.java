@@ -21,12 +21,10 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -99,7 +97,7 @@ public class CourseGroup extends CourseGroup_Base {
         init(name, nameEn);
         if (parentCourseGroup == null) {
             throw new DomainException("error.degreeStructure.CourseGroup.parentCourseGroup.cannot.be.null",
-                    getNameI18N().getContent(Locale.getDefault()));
+                    getNameI18N().getContent());
         }
         parentCourseGroup.checkDuplicateChildNames(name, nameEn);
         new Context(parentCourseGroup, this, null, begin, end);
