@@ -124,7 +124,7 @@ public class Context extends Context_Base implements Comparable<Context> {
         this();
 
         checkParameters(courseGroup, degreeModule, begin);
-        checkExecutionPeriods(begin, end, degreeModule);
+        checkExecutionPeriods(begin, end);
         checkIfCanAddDegreeModuleToCourseGroup(courseGroup, degreeModule, curricularPeriod, begin.getExecutionYear());
         checkExistingCourseGroupContexts(courseGroup, degreeModule, curricularPeriod, begin, end);
 
@@ -150,7 +150,7 @@ public class Context extends Context_Base implements Comparable<Context> {
         if (curricularCourse.getCompetenceCourse() != null && curricularCourse.getCompetenceCourse().isAnual(executionYear)
                 && !curricularPeriod.hasChildOrderValue(1)) {
             throw new DomainException("competenceCourse.anual.but.trying.to.associate.curricular.course.not.to.first.period",
-                    buildDegreeModuleLabel(curricularCourse), curricularPeriod.getFullLabel());
+                    buildDegreeModuleNameForErrorHandling(curricularCourse), curricularPeriod.getFullLabel());
         }
     }
 
@@ -159,11 +159,15 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     private void checkParameters(CourseGroup courseGroup, DegreeModule degreeModule, ExecutionInterval beginExecutionPeriod) {
-        if (courseGroup == null || degreeModule == null || beginExecutionPeriod == null) {
-            String degreeModuleLabel = buildDegreeModuleLabel(degreeModule);
-            String courseGroupName = courseGroup != null ? courseGroup.getNameI18N().getContent() : "";
-            String beginPeriodName = beginExecutionPeriod != null ? beginExecutionPeriod.getQualifiedNameI18N().getContent() : "";
-            throw new DomainException("error.incorrectContextValues", degreeModuleLabel, courseGroupName, beginPeriodName);
+        if (degreeModule == null) {
+            throw new DomainException("error.Context.required.DegreeModule");
+        }
+        if (courseGroup == null) {
+            throw new DomainException("error.Context.required.CourseGroup", buildDegreeModuleNameForErrorHandling(degreeModule));
+        }
+        if (beginExecutionPeriod == null) {
+            throw new DomainException("error.Context.required.BeginExecutionPeriod",
+                    buildDegreeModuleNameForErrorHandling(degreeModule));
         }
     }
 
@@ -173,8 +177,8 @@ public class Context extends Context_Base implements Comparable<Context> {
         for (final Context context : courseGroup.getChildContextsSet()) {
             if (context != this && context.hasChildDegreeModule(degreeModule) && context.hasCurricularPeriod(curricularPeriod)
                     && context.intersects(begin, end)) {
-                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup", buildDegreeModuleLabel(degreeModule),
-                        courseGroup.getNameI18N().getContent());
+                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup",
+                        buildDegreeModuleNameForErrorHandling(degreeModule), buildDegreeModuleNameForErrorHandling(courseGroup));
             }
         }
     }
@@ -187,7 +191,7 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     protected void edit(final ExecutionInterval begin, final ExecutionInterval end) {
-        checkExecutionPeriods(begin, end, getChildDegreeModule());
+        checkExecutionPeriods(begin, end);
         checkExistingCourseGroupContexts(getParentCourseGroup(), getChildDegreeModule(), getCurricularPeriod(), begin, end);
         setBeginExecutionPeriod(begin);
         setEndExecutionPeriod(end);
@@ -281,15 +285,16 @@ public class Context extends Context_Base implements Comparable<Context> {
         return isValid(ExecutionInterval.getExecutionInterval(academicInterval));
     }
 
-    protected void checkExecutionPeriods(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod,
-            DegreeModule degreeModule) {
+    protected void checkExecutionPeriods(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod) {
         if (beginExecutionPeriod == null) {
-            throw new DomainException("context.begin.execution.period.cannot.be.null", buildDegreeModuleLabel(degreeModule));
+            throw new DomainException("context.begin.execution.period.cannot.be.null",
+                    buildDegreeModuleNameForErrorHandling(getChildDegreeModule()));
         }
         if (endExecutionPeriod != null && beginExecutionPeriod.isAfter(endExecutionPeriod)) {
             throw new DomainException("context.begin.is.after.end.execution.period",
                     beginExecutionPeriod.getQualifiedNameI18N().getContent(),
-                    endExecutionPeriod.getQualifiedNameI18N().getContent(), buildDegreeModuleLabel(degreeModule));
+                    endExecutionPeriod.getQualifiedNameI18N().getContent(),
+                    buildDegreeModuleNameForErrorHandling(getChildDegreeModule()));
         }
     }
 
@@ -478,7 +483,7 @@ public class Context extends Context_Base implements Comparable<Context> {
         super.setEndExecutionPeriod(endExecutionPeriod);
     }
 
-    private String buildDegreeModuleLabel(DegreeModule degreeModule) {
+    private String buildDegreeModuleNameForErrorHandling(DegreeModule degreeModule) {
         if (degreeModule instanceof CurricularCourse curricularCourse) {
             return curricularCourse.getCodeAndName(null);
         }
