@@ -337,9 +337,8 @@ public class CourseGroup extends CourseGroup_Base {
         String normalizedName = StringFormatter.normalize(name);
         String normalizedNameEn = StringFormatter.normalize(nameEn);
         if (!verifyNames(normalizedName, normalizedNameEn)) {
-            throw new DomainException("error.existingCourseGroupWithSameName",
-                    StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name,
-                    getParentDegreeCurricularPlan().getPresentationName());
+            throw new DomainException("error.existingCourseGroupWithSameNameInParent",
+                    StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name, getNameI18N().getContent());
         }
     }
 
@@ -350,8 +349,7 @@ public class CourseGroup extends CourseGroup_Base {
             CourseGroup parentCourseGroup = parentContext.getParentCourseGroup();
             if (!parentCourseGroup.verifyNames(normalizedName, normalizedNameEn, this)) {
                 throw new DomainException("error.existingCourseGroupWithSameName",
-                        StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name,
-                        parentCourseGroup.getParentDegreeCurricularPlan().getPresentationName());
+                        StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name);
             }
         }
     }
