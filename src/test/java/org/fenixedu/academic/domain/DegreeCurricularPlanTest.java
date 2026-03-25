@@ -5,8 +5,7 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.bennu.core.domain.UserProfile;
+import org.fenixedu.academic.domain.util.UserUtil;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 import pt.ist.fenixframework.FenixFramework;
 
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -48,11 +46,7 @@ public class DegreeCurricularPlanTest {
         DegreeTest.initDegree();
         final Degree degree = Degree.find(DEGREE_A_CODE);
 
-        // TODO: remove this user initialization to proper class
-        final UserProfile userProfile =
-                new UserProfile("Fenix", "Admin", "Fenix Admin", "fenix.admin@fenixedu.com", Locale.getDefault());
-        new User("admin", userProfile);
-        new Person(userProfile);
+        UserUtil.initAdminUser();
 
         degreeCurricularPlan = new DegreeCurricularPlan(degree, DCP_NAME_V1, AcademicPeriod.THREE_YEAR);
         degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
@@ -73,6 +67,8 @@ public class DegreeCurricularPlanTest {
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
     }
+
+
 
     @Test
     public void createDCP_withExistingName() {

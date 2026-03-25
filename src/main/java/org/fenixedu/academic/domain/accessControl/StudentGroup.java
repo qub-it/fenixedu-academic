@@ -406,9 +406,9 @@ public class StudentGroup extends FenixGroup {
             if (executionCourse != null && registration.getAttendingExecutionCoursesFor().contains(executionCourse)) {
                 return true;
             }
-            if (executionYear != null && cycle == null && firstTimeInDegree == null
-                    && registration.getEnrolments(executionYear).stream().anyMatch(e -> !e.isAnnulled())) {
-                return true;
+            if (executionYear != null && cycle == null && firstTimeInDegree == null) {
+                return registration.getDataByExecutionYear(executionYear).stream()
+                        .anyMatch(RegistrationDataByExecutionYear::getActive);
             }
             if (registration.isActive()) {
                 if (degreeType != null && registration.getDegree().getDegreeType() != degreeType) {

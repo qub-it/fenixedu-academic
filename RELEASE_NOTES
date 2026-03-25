@@ -1,3 +1,5 @@
+ - Bug fix: Getting all members of student group by execution year should be consistent with checking for a specific user [#UL-ISCSP-2389]
+
 54.7.2 (25-03-2026)
 - Refactor: Remove degree curricular plan active field initialization and change it to primitive [#qubIT-Fenix-4442]
 

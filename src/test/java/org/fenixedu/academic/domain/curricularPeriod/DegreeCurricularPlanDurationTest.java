@@ -43,7 +43,7 @@ public class DegreeCurricularPlanDurationTest {
     public void createDuration_1year() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod y1s1 = dcp.getCurricularPeriodFor(1, 1, SEMESTER);
         final CurricularPeriod y1s2 = dcp.getCurricularPeriodFor(1, 2, SEMESTER);
@@ -66,7 +66,7 @@ public class DegreeCurricularPlanDurationTest {
     public void createDuration_3years() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod y1s1 = dcp.getCurricularPeriodFor(1, 1, SEMESTER);
         final CurricularPeriod y1s2 = dcp.getCurricularPeriodFor(1, 2, SEMESTER);
@@ -89,7 +89,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_toNull() {
         final DegreeCurricularPlan degreeCurricularPlan =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(degreeCurricularPlan);
+        populateCurricularPeriodStructure(degreeCurricularPlan);
 
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.degreeCurricularPlan.duration.must.be.specified.in.years");
@@ -101,7 +101,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_toNotYear() {
         final DegreeCurricularPlan degreeCurricularPlan =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(degreeCurricularPlan);
+        populateCurricularPeriodStructure(degreeCurricularPlan);
 
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.degreeCurricularPlan.duration.must.be.specified.in.years");
@@ -113,7 +113,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_directChangeStructure() {
         final DegreeCurricularPlan degreeCurricularPlan =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(degreeCurricularPlan);
+        populateCurricularPeriodStructure(degreeCurricularPlan);
 
         exceptionRule.expect(DomainException.class);
         exceptionRule.expectMessage("error.degreeCurricularPlan.degreeStructure.cannot.be.invoked.publicly");
@@ -125,7 +125,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_from3To3Years() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod beforeStructure = dcp.getDegreeStructure();
         final CurricularPeriod y1s1 = dcp.getCurricularPeriodFor(1, 1, SEMESTER);
@@ -158,7 +158,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_from3To2Years() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod beforeStructure = dcp.getDegreeStructure();
         final CurricularPeriod y1s1 = dcp.getCurricularPeriodFor(1, 1, SEMESTER);
@@ -192,7 +192,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_from3To1Year() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod beforeStructure = dcp.getDegreeStructure();
         final CurricularPeriod y1 = beforeStructure.findChild(AcademicPeriod.YEAR, 1).orElseThrow();
@@ -224,7 +224,7 @@ public class DegreeCurricularPlanDurationTest {
     public void editDuration_from1To3Years() {
         final DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(Degree.find(DEGREE_A_CODE), UUID.randomUUID().toString(), AcademicPeriod.YEAR);
-        populatedCurricularPeriodStructure(dcp);
+        populateCurricularPeriodStructure(dcp);
 
         final CurricularPeriod beforeStructure = dcp.getDegreeStructure();
         final CurricularPeriod y1s1 = dcp.getCurricularPeriodFor(1, 1, SEMESTER);
@@ -258,7 +258,7 @@ public class DegreeCurricularPlanDurationTest {
         assertNull(dcp.getCurricularPeriodFor(3, 2, SEMESTER));
     }
 
-    private static void populatedCurricularPeriodStructure(final DegreeCurricularPlan degreeCurricularPlan) {
+    public static void populateCurricularPeriodStructure(final DegreeCurricularPlan degreeCurricularPlan) {
         final CurricularPeriod rootPeriod = degreeCurricularPlan.getDegreeStructure();
         if (rootPeriod.getAcademicPeriod().equals(AcademicPeriod.YEAR)) {
             new CurricularPeriod(SEMESTER, 1, rootPeriod);
