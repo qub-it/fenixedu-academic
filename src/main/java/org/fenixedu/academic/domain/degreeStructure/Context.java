@@ -149,7 +149,8 @@ public class Context extends Context_Base implements Comparable<Context> {
             final CurricularPeriod curricularPeriod, final ExecutionYear executionYear) {
         if (curricularCourse.getCompetenceCourse() != null && curricularCourse.getCompetenceCourse().isAnual(executionYear)
                 && !curricularPeriod.hasChildOrderValue(1)) {
-            throw new DomainException("competenceCourse.anual.but.trying.to.associate.curricular.course.not.to.first.period");
+            throw new DomainException("competenceCourse.anual.but.trying.to.associate.curricular.course.not.to.first.period",
+                    buildDegreeModuleNameForErrorHandling(curricularCourse), curricularPeriod.getFullLabel());
         }
     }
 
@@ -158,8 +159,15 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     private void checkParameters(CourseGroup courseGroup, DegreeModule degreeModule, ExecutionInterval beginExecutionPeriod) {
-        if (courseGroup == null || degreeModule == null || beginExecutionPeriod == null) {
-            throw new DomainException("error.incorrectContextValues");
+        if (degreeModule == null) {
+            throw new DomainException("error.Context.required.DegreeModule");
+        }
+        if (courseGroup == null) {
+            throw new DomainException("error.Context.required.CourseGroup", buildDegreeModuleNameForErrorHandling(degreeModule));
+        }
+        if (beginExecutionPeriod == null) {
+            throw new DomainException("error.Context.required.BeginExecutionPeriod",
+                    buildDegreeModuleNameForErrorHandling(degreeModule));
         }
     }
 
@@ -169,7 +177,8 @@ public class Context extends Context_Base implements Comparable<Context> {
         for (final Context context : courseGroup.getChildContextsSet()) {
             if (context != this && context.hasChildDegreeModule(degreeModule) && context.hasCurricularPeriod(curricularPeriod)
                     && context.intersects(begin, end)) {
-                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup");
+                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup",
+                        buildDegreeModuleNameForErrorHandling(degreeModule), buildDegreeModuleNameForErrorHandling(courseGroup));
             }
         }
     }
@@ -278,10 +287,14 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     protected void checkExecutionPeriods(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod) {
         if (beginExecutionPeriod == null) {
-            throw new DomainException("context.begin.execution.period.cannot.be.null");
+            throw new DomainException("context.begin.execution.period.cannot.be.null",
+                    buildDegreeModuleNameForErrorHandling(getChildDegreeModule()));
         }
         if (endExecutionPeriod != null && beginExecutionPeriod.isAfter(endExecutionPeriod)) {
-            throw new DomainException("context.begin.is.after.end.execution.period");
+            throw new DomainException("context.begin.is.after.end.execution.period",
+                    beginExecutionPeriod.getQualifiedNameI18N().getContent(),
+                    endExecutionPeriod.getQualifiedNameI18N().getContent(),
+                    buildDegreeModuleNameForErrorHandling(getChildDegreeModule()));
         }
     }
 
@@ -307,7 +320,8 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     public boolean intersects(final ExecutionInterval begin, final ExecutionInterval end) {
         if (end != null && begin.isAfter(end)) {
-            throw new DomainException("context.begin.is.after.end.execution.period");
+            throw new DomainException("context.begin.is.after.end.execution.period", begin.getQualifiedNameI18N().getContent(),
+                    end.getQualifiedNameI18N().getContent(), "");
         }
 
         if (begin.getExecutionYear().isAfterOrEquals(getBeginExecutionInterval())) {
@@ -469,4 +483,10 @@ public class Context extends Context_Base implements Comparable<Context> {
         super.setEndExecutionPeriod(endExecutionPeriod);
     }
 
+    private String buildDegreeModuleNameForErrorHandling(DegreeModule degreeModule) {
+        if (degreeModule instanceof CurricularCourse curricularCourse) {
+            return curricularCourse.getCodeAndName(null);
+        }
+        return degreeModule.getNameI18N().getContent();
+    }
 }

@@ -21,12 +21,10 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -98,7 +96,8 @@ public class CourseGroup extends CourseGroup_Base {
             final ProgramConclusion programConclusion) {
         init(name, nameEn);
         if (parentCourseGroup == null) {
-            throw new DomainException("error.degreeStructure.CourseGroup.parentCourseGroup.cannot.be.null");
+            throw new DomainException("error.degreeStructure.CourseGroup.parentCourseGroup.cannot.be.null",
+                    getNameI18N().getContent());
         }
         parentCourseGroup.checkDuplicateChildNames(name, nameEn);
         new Context(parentCourseGroup, this, null, begin, end);
@@ -338,7 +337,8 @@ public class CourseGroup extends CourseGroup_Base {
         String normalizedName = StringFormatter.normalize(name);
         String normalizedNameEn = StringFormatter.normalize(nameEn);
         if (!verifyNames(normalizedName, normalizedNameEn)) {
-            throw new DomainException("error.existingCourseGroupWithSameName");
+            throw new DomainException("error.existingCourseGroupWithSameNameInParent",
+                    StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name, getNameI18N().getContent());
         }
     }
 
@@ -348,7 +348,8 @@ public class CourseGroup extends CourseGroup_Base {
         for (Context parentContext : getParentContextsSet()) {
             CourseGroup parentCourseGroup = parentContext.getParentCourseGroup();
             if (!parentCourseGroup.verifyNames(normalizedName, normalizedNameEn, this)) {
-                throw new DomainException("error.existingCourseGroupWithSameName");
+                throw new DomainException("error.existingCourseGroupWithSameName",
+                        StringUtils.isNotBlank(nameEn) ? name + " (" + nameEn + ")" : name);
             }
         }
     }
@@ -821,7 +822,8 @@ public class CourseGroup extends CourseGroup_Base {
         if (degreeModule != null) {
             for (final Context parentContext : degreeModule.getParentContextsSet()) {
                 if (parentContext.getParentCourseGroup().getParentDegreeCurricularPlan() != getParentDegreeCurricularPlan()) {
-                    throw new DomainException("error.CourseGroup.mismatch.ParentDegreeCurricularPlan");
+                    throw new DomainException("error.CourseGroup.mismatch.ParentDegreeCurricularPlan",
+                            degreeModule.getNameI18N().getContent(), getParentDegreeCurricularPlan().getPresentationName());
                 }
             }
         }
