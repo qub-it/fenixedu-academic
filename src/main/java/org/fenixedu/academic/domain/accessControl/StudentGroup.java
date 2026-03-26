@@ -119,43 +119,43 @@ public class StudentGroup extends FenixGroup {
         return new StudentGroup(null, null, null, null, null, null, executionYear, null, firstTimeInDegree);
     }
 
-    public static StudentGroup get(DegreeType degreeType) {
-        return new StudentGroup(degreeType, null, null, null, null, null, null, null, null);
-    }
+//    public static StudentGroup get(DegreeType degreeType) {
+//        return new StudentGroup(degreeType, null, null, null, null, null, null, null, null);
+//    }
 
     public static StudentGroup get(Degree degree, CycleType cycle) {
         return new StudentGroup(null, degree, cycle, null, null, null, null, null, null);
     }
 
-    public static StudentGroup get(CycleType cycle) {
-        return new StudentGroup(null, null, cycle, null, null, null, null, null, null);
-    }
+//    public static StudentGroup get(CycleType cycle) {
+//        return new StudentGroup(null, null, cycle, null, null, null, null, null, null);
+//    }
 
-    public static StudentGroup get(CycleType cycle, ExecutionYear executionYear) {
-        return new StudentGroup(null, null, cycle, null, null, null, executionYear, null, null);
-    }
+//    public static StudentGroup get(CycleType cycle, ExecutionYear executionYear) {
+//        return new StudentGroup(null, null, cycle, null, null, null, executionYear, null, null);
+//    }
 
-    public static StudentGroup get(Space campus) {
-        return new StudentGroup(null, null, null, campus, null, null, null, null, null);
-    }
+//    public static StudentGroup get(Space campus) {
+//        return new StudentGroup(null, null, null, campus, null, null, null, null, null);
+//    }
 
     public static StudentGroup get(ExecutionCourse executionCourse) {
         return new StudentGroup(null, null, null, null, executionCourse, null, null, null, null);
     }
 
-    public static StudentGroup get(Degree degree, CurricularYear curricularYear, ExecutionYear executionYear) {
-        return new StudentGroup(null, degree, null, null, null, curricularYear, executionYear, null, null);
-    }
+//    public static StudentGroup get(Degree degree, CurricularYear curricularYear, ExecutionYear executionYear) {
+//        return new StudentGroup(null, degree, null, null, null, curricularYear, executionYear, null, null);
+//    }
 
-    public static StudentGroup get(Boolean withEnrolments) {
-        return new StudentGroup(null, null, null, null, null, null, null, withEnrolments, null);
-    }
+//    public static StudentGroup get(Boolean withEnrolments) {
+//        return new StudentGroup(null, null, null, null, null, null, null, withEnrolments, null);
+//    }
 
-    @Deprecated
-    public static StudentGroup get(DegreeType degreeType, Degree degree, CycleType cycle, Space campus,
-            ExecutionCourse executionCourse, CurricularYear curricularYear, ExecutionYear executionYear) {
-        return new StudentGroup(degreeType, degree, cycle, campus, executionCourse, curricularYear, executionYear, null, null);
-    }
+//    @Deprecated
+//    public static StudentGroup get(DegreeType degreeType, Degree degree, CycleType cycle, Space campus,
+//            ExecutionCourse executionCourse, CurricularYear curricularYear, ExecutionYear executionYear) {
+//        return new StudentGroup(degreeType, degree, cycle, campus, executionCourse, curricularYear, executionYear, null, null);
+//    }
 
     public static StudentGroup get(DegreeType degreeType, Degree degree, CycleType cycle, Space campus,
             ExecutionCourse executionCourse, CurricularYear curricularYear, ExecutionYear executionYear, Boolean withEnrolments,

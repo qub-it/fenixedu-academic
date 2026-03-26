@@ -160,8 +160,6 @@ public class StudentGroupTest {
     public void getMembers_returnsOnlyActiveStudents() {
         Set<User> members = studentGroup.getMembers().collect(Collectors.toSet());
 
-        members.forEach(u -> System.out.println("Member: " + u.getUsername()));
-
         assertTrue(members.contains(studentAUser));
         assertFalse(members.contains(studentBUser));
         assertTrue(members.contains(studentDUser));
