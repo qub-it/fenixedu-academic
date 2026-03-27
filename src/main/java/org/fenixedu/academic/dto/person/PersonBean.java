@@ -218,7 +218,7 @@ public class PersonBean implements Serializable {
         setDocumentIdEmissionDate(person.getEmissionDateOfDocumentIdYearMonthDay());
         setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
         setDocumentIdExpirationDate(person.getExpirationDateOfDocumentIdYearMonthDay());
-        setDocumentIdNumber(person.getDocumentIdNumber());
+        setDocumentIdNumber(person.getDefaultIdentificationDocument().getValue());
         setIdentificationDocumentType(person.getDefaultIdentificationDocument().getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumber());
         setFiscalCountry(person.getFiscalCountry());
