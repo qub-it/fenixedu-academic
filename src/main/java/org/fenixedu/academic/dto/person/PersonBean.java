@@ -18,9 +18,6 @@
  */
 package org.fenixedu.academic.dto.person;
 
-import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType.findIDDocumentType;
-import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType.findIdentificationDocumentType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +35,6 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.person.Gender;
-import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.joda.time.YearMonthDay;
@@ -71,8 +67,6 @@ public class PersonBean implements Serializable {
     private Gender gender; // read only
 
     private String documentIdNumber; // read only
-
-    private IDDocumentType idDocumentType;
 
     private IdentificationDocumentType identificationDocumentType;
 
@@ -197,23 +191,6 @@ public class PersonBean implements Serializable {
         setStudentNumber(studentNumber);
     }
 
-    public PersonBean(final String name, final String identificationNumber, final IDDocumentType idDocumentType,
-            final YearMonthDay dateOfBirth) {
-        setName(name);
-        setDocumentIdNumber(identificationNumber);
-        setIdDocumentType(idDocumentType);
-        setDateOfBirth(dateOfBirth);
-    }
-
-    public PersonBean(final String name, final String identificationNumber, final IDDocumentType idDocumentType,
-            final YearMonthDay dateOfBirth, final Integer studentNumber) {
-        setName(name);
-        setDocumentIdNumber(identificationNumber);
-        setIdDocumentType(idDocumentType);
-        setDateOfBirth(dateOfBirth);
-        setStudentNumber(studentNumber);
-    }
-
     public PersonBean(final Person person) {
         initPerson(person);
     }
@@ -242,7 +219,7 @@ public class PersonBean implements Serializable {
         setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
         setDocumentIdExpirationDate(person.getExpirationDateOfDocumentIdYearMonthDay());
         setDocumentIdNumber(person.getDocumentIdNumber());
-        setIdDocumentType(person.getIdDocumentType());
+        setIdentificationDocumentType(person.getDefaultIdentificationDocument().getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumber());
         setFiscalCountry(person.getFiscalCountry());
         setSocialSecurityNumber(person.getSocialSecurityNumber());
@@ -486,22 +463,12 @@ public class PersonBean implements Serializable {
         this.gender = gender;
     }
 
-    public IDDocumentType getIdDocumentType() {
-        return idDocumentType;
-    }
-
-    public void setIdDocumentType(final IDDocumentType idDocumentType) {
-        this.idDocumentType = idDocumentType;
-        this.identificationDocumentType = findIdentificationDocumentType(idDocumentType);
-    }
-
     public IdentificationDocumentType getIdentificationDocumentType() {
         return identificationDocumentType;
     }
 
     public void setIdentificationDocumentType(final IdentificationDocumentType identificationDocumentType) {
         this.identificationDocumentType = identificationDocumentType;
-        this.idDocumentType = findIDDocumentType(identificationDocumentType);
     }
 
     public boolean isEmailAvailable() {

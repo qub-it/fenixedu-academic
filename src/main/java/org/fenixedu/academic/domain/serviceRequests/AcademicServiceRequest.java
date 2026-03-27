@@ -48,7 +48,6 @@ import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -751,7 +750,8 @@ abstract public class AcademicServiceRequest extends AcademicServiceRequest_Base
     protected boolean hasMissingPersonalInfo() {
         return Strings.isNullOrEmpty(
                 getPerson().getName()) || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(
-                getPerson().getDocumentIdNumber()) || getPerson().getIdDocumentType() == null;
+                getPerson().getDefaultIdentificationDocument().getValue())
+                || getPerson().getDefaultIdentificationDocument().getIdentificationDocumentType() == null;
     }
 
     public void revertToProcessingState() {
