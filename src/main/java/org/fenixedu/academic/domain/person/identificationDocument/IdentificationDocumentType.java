@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -67,6 +68,24 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
 
     public static Stream<IdentificationDocumentType> findAll() {
         return Bennu.getInstance().getIdentificationDocumentTypesSet().stream();
+    }
+
+    public static IdentificationDocumentType findIdentificationDocumentType(IDDocumentType idDocumentType) {
+        if (idDocumentType == null) {
+            return null;
+        }
+
+        return IdentificationDocumentType.findByCode(idDocumentType.name())
+                .orElseThrow(() -> new DomainException("error.IdentificationDocumentType.not.found", idDocumentType.name()));
+    }
+
+    public static IDDocumentType findIDDocumentType(IdentificationDocumentType identificationDocumentType) {
+        if (identificationDocumentType == null) {
+            return null;
+        }
+
+        return IDDocumentType.findByCode(identificationDocumentType.getCode())
+                .orElseThrow(() -> new DomainException("error.IDDocumentType.not.found", identificationDocumentType.getCode()));
     }
 
 }

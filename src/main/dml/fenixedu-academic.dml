@@ -52,6 +52,7 @@ enum org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionT
 enum org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum                                       as AccountabilityTypeEnum;
 enum org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum                                                as PartyTypeEnum;
 enum org.fenixedu.academic.domain.person.Gender                                                                        as Gender;
+enum org.fenixedu.academic.domain.person.IDDocumentType                                                                as IDDocumentType;
 enum org.fenixedu.academic.domain.person.MaritalStatus                                                                 as MaritalStatus;
 enum org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory											   as ServiceRequestCategory;
 enum org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType                          as AcademicServiceRequestType;
@@ -1127,11 +1128,13 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             YearMonthDay dateOfBirthYearMonthDay;
             String districtOfBirth;
             String districtSubdivisionOfBirth;
+            String documentIdNumber;
             YearMonthDay emissionDateOfDocumentIdYearMonthDay;
             String emissionLocationOfDocumentId;
             YearMonthDay expirationDateOfDocumentIdYearMonthDay;
             String fiscalCode;
             Gender gender;
+            IDDocumentType idDocumentType;
             MaritalStatus maritalStatus;
             String nameOfFather;
             String nameOfMother;

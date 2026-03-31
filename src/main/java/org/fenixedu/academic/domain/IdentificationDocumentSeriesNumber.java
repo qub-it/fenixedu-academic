@@ -52,7 +52,7 @@ public class IdentificationDocumentSeriesNumber extends IdentificationDocumentSe
 
     @Override
     public void setValue(String value) {
-        validate(getPerson().getDefaultIdentificationDocument().getValue(), value);
+        validate(getPerson().getDocumentIdNumber(), value);
         super.setValue(value);
     }
 
