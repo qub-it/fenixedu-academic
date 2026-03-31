@@ -32,8 +32,8 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.RoleType;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.util.CollectionPager;
@@ -48,7 +48,7 @@ public class SearchPerson implements Serializable {
 
         private String email, username, documentIdNumber;
 
-        private IDDocumentType idDocumentType;
+        private IdentificationDocumentType identificationDocumentType;
 
         private String name;
 
@@ -88,7 +88,8 @@ public class SearchPerson implements Serializable {
             setUsername(username);
             setDocumentIdNumber(documentIdNumber);
             if (!StringUtils.isEmpty(idDocumentType)) {
-                setIdDocumentType(IDDocumentType.valueOf(idDocumentType));
+                setIdentificationDocumentType(IdentificationDocumentType.findByCode(idDocumentType)
+                        .orElseThrow(() -> new IllegalArgumentException("Identification document type not found")));
             }
             setStudentNumber(studentNumber);
             setPaymentCode(paymentCode);
@@ -110,7 +111,7 @@ public class SearchPerson implements Serializable {
             return StringUtils.isEmpty(this.email) && StringUtils.isEmpty(this.username)
                     && StringUtils.isEmpty(this.documentIdNumber) && this.role == null && this.degree == null
                     && this.degreeType == null && this.nameWords == null && this.studentNumber == null
-                    && this.idDocumentType == null && StringUtils.isEmpty(this.getPaymentCode());
+                    && this.identificationDocumentType == null && StringUtils.isEmpty(this.getPaymentCode());
         }
 
         private static String[] getNameWords(String name) {
@@ -133,8 +134,8 @@ public class SearchPerson implements Serializable {
             return documentIdNumber;
         }
 
-        public IDDocumentType getIdDocumentType() {
-            return idDocumentType;
+        public IdentificationDocumentType getIdentificationDocumentType() {
+            return identificationDocumentType;
         }
 
         public String getEmail() {
@@ -177,8 +178,8 @@ public class SearchPerson implements Serializable {
             this.documentIdNumber = (documentIdNumber != null && !documentIdNumber.equals("")) ? documentIdNumber.trim() : null;
         }
 
-        public void setIdDocumentType(IDDocumentType idDocumentType) {
-            this.idDocumentType = idDocumentType;
+        public void setIdentificationDocumentType(IdentificationDocumentType identificationDocumentType) {
+            this.identificationDocumentType = identificationDocumentType;
         }
 
         public void setName(String name) {
@@ -286,8 +287,8 @@ public class SearchPerson implements Serializable {
         public boolean evaluate(Object arg0) {
             Person person = (Person) arg0;
 
-            return verifyActiveState(searchParameters.getActivePersons(), person)
-                    && verifySimpleParameter(person.getDocumentIdNumber(), searchParameters.getDocumentIdNumber())
+            return verifyActiveState(searchParameters.getActivePersons(), person) && verifySimpleParameter(
+                    person.getDefaultIdentificationDocument().getValue(), searchParameters.getDocumentIdNumber())
                     && verifyUsernameEquality(searchParameters.getUsername(), person)
                     && verifyNameEquality(searchParameters.getNameWords(), person)
                     && verifyAnyEmailAddress(searchParameters.getEmail(), person)
@@ -297,10 +298,6 @@ public class SearchPerson implements Serializable {
 
         protected boolean verifyAnyEmailAddress(final String email, final Person person) {
             return email == null || email.trim().isEmpty() || person.hasEmailAddress(email);
-        }
-
-        protected boolean verifyIdDocumentType(IDDocumentType idDocumentType, Person person) {
-            return (idDocumentType == null || person.getIdDocumentType() == idDocumentType);
         }
 
         protected boolean verifyStudentNumber(Integer studentNumber, Person person) {
