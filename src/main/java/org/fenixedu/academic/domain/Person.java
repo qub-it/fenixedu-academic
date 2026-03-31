@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.person.Gender;
-import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
@@ -123,44 +122,6 @@ public class Person extends Person_Base {
         return getProfile().getFamilyNames();
     }
 
-    @Override
-    public void setDocumentIdNumber(final String documentIdNumber) {
-        if (documentIdNumber == null || Strings.isNullOrEmpty(documentIdNumber)) {
-            throw new DomainException("error.person.empty.documentIdNumber");
-        }
-
-        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        if (identificationDocument == null) {
-            IdentificationDocument.create(this, documentIdNumber, null);
-        } else {
-            identificationDocument.setValue(documentIdNumber);
-        }
-
-        logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getDocumentIdNumber(), documentIdNumber,
-                "label.documentNumber");
-        super.setDocumentIdNumber(documentIdNumber);
-    }
-
-    @Override
-    public void setIdDocumentType(final IDDocumentType idDocumentType) {
-        if (idDocumentType == null) {
-            throw new DomainException("error.person.empty.idDocumentType");
-        }
-
-        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findIdentificationDocumentType(idDocumentType);
-        if (identificationDocument == null) {
-            IdentificationDocument.create(this, null, identificationDocumentType);
-        } else {
-            identificationDocument.setIdentificationDocumentType(identificationDocumentType);
-        }
-
-        logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
-                "label.documentIdType");
-        super.setIdDocumentType(idDocumentType);
-    }
-
     public void setIdentificationDocument(final String documentNumber,
             final IdentificationDocumentType identificationDocumentType) {
         if (documentNumber == null || Strings.isNullOrEmpty(documentNumber)) {
@@ -170,8 +131,6 @@ public class Person extends Person_Base {
             throw new DomainException("error.person.empty.idDocumentType");
         }
 
-        IDDocumentType idDocumentType = IdentificationDocumentType.findIDDocumentType(identificationDocumentType);
-
         IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument == null) {
             IdentificationDocument.create(this, documentNumber, identificationDocumentType);
@@ -179,13 +138,6 @@ public class Person extends Person_Base {
             identificationDocument.setValue(documentNumber);
             identificationDocument.setIdentificationDocumentType(identificationDocumentType);
         }
-
-        logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getDocumentIdNumber(), documentNumber,
-                "label.documentNumber");
-        logSetterNullEnum("log.personInformation.edit.generalTemplate.personalId", getIdDocumentType(), idDocumentType,
-                "label.documentIdType");
-        super.setDocumentIdNumber(documentNumber);
-        super.setIdDocumentType(idDocumentType);
     }
 
     public void setIdentification(String documentIdNumber, final IdentificationDocumentType identificationDocumentType) {
