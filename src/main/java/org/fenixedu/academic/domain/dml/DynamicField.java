@@ -48,6 +48,12 @@ public class DynamicField extends DynamicField_Base {
     }
 
     public void delete() {
+        super.setRegistration(null);
+        super.setTeacher(null);
+        super.setCompetenceCourseInformation(null);
+        super.setDegreeInfo(null);
+        super.setParty(null);
+
         super.setDescriptor(null);
         super.setRoot(null);
         super.deleteDomainObject();

@@ -64,6 +64,7 @@ import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CurriculumLineLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -234,6 +235,8 @@ public class Registration extends Registration_Base {
     }
 
     public void delete() {
+
+        getDynamicFieldSet().forEach(DynamicField::delete);
 
         getRegistrationStatesSet().forEach(rs -> rs.delete());
 

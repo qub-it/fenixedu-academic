@@ -22,7 +22,8 @@
  */
 package org.fenixedu.academic.domain.organizationalStructure;
 
-import java.text.Collator;
+import static org.fenixedu.academic.util.StringFormatter.NAME_COMPARATOR;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,12 +46,11 @@ import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.contacts.WebAddress;
+import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.LocalizedString;
-
-import static org.fenixedu.academic.util.StringFormatter.NAME_COMPARATOR;
 
 public abstract class Party extends Party_Base implements Comparable<Party> {
 
@@ -239,6 +239,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
+
+        getDynamicFieldSet().forEach(DynamicField::delete);
 
         for (; !getPartyContactsSet().isEmpty(); getPartyContactsSet().iterator().next().deleteWithoutCheckRules()) {
             ;

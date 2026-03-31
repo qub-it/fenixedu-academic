@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
 
+import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -142,6 +143,9 @@ public class DegreeInfo extends DegreeInfo_Base {
     }
 
     public void delete() {
+
+        getDynamicFieldSet().forEach(DynamicField::delete);
+
         setRootDomainObject(null);
         setDegree(null);
         setExecutionYear(null);
