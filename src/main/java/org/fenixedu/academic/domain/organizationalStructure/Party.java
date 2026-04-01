@@ -46,7 +46,6 @@ import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.contacts.WebAddress;
-import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.StringNormalizer;
@@ -240,7 +239,10 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
-        getDynamicFieldSet().stream().peek(df -> df.setParty(null)).forEach(DynamicField::delete);
+        getDynamicFieldSet().forEach(df -> {
+            df.setParty(null);
+            df.delete();
+        });
 
         for (; !getPartyContactsSet().isEmpty(); getPartyContactsSet().iterator().next().deleteWithoutCheckRules()) {
             ;

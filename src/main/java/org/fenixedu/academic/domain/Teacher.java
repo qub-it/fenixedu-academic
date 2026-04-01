@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
@@ -277,7 +276,10 @@ public class Teacher extends Teacher_Base {
 
     public void delete() {
 
-        getDynamicFieldSet().stream().peek(df -> df.setTeacher(null)).forEach(DynamicField::delete);
+        getDynamicFieldSet().forEach(df -> {
+            df.setTeacher(null);
+            df.delete();
+        });
         
         getAuthorizationSet().stream().forEach(a -> a.delete());
 
