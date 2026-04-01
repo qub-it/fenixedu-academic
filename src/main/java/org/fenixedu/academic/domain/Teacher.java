@@ -277,7 +277,7 @@ public class Teacher extends Teacher_Base {
 
     public void delete() {
 
-        getDynamicFieldSet().forEach(DynamicField::delete);
+        getDynamicFieldSet().stream().peek(df -> df.setTeacher(null)).forEach(DynamicField::delete);
         
         getAuthorizationSet().stream().forEach(a -> a.delete());
 

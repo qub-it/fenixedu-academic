@@ -236,7 +236,7 @@ public class Registration extends Registration_Base {
 
     public void delete() {
 
-        getDynamicFieldSet().forEach(DynamicField::delete);
+        getDynamicFieldSet().stream().peek(df -> df.setRegistration(null)).forEach(DynamicField::delete);
 
         getRegistrationStatesSet().forEach(rs -> rs.delete());
 

@@ -144,7 +144,7 @@ public class DegreeInfo extends DegreeInfo_Base {
 
     public void delete() {
 
-        getDynamicFieldSet().forEach(DynamicField::delete);
+        getDynamicFieldSet().stream().peek(df -> df.setDegreeInfo(null)).forEach(DynamicField::delete);
 
         setRootDomainObject(null);
         setDegree(null);

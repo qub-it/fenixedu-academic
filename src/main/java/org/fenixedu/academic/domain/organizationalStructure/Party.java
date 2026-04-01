@@ -240,7 +240,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
-        getDynamicFieldSet().forEach(DynamicField::delete);
+        getDynamicFieldSet().stream().peek(df -> df.setParty(null)).forEach(DynamicField::delete);
 
         for (; !getPartyContactsSet().isEmpty(); getPartyContactsSet().iterator().next().deleteWithoutCheckRules()) {
             ;

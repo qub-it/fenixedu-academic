@@ -245,7 +245,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
 
     public void delete() {
 
-        getDynamicFieldSet().forEach(DynamicField::delete);
+        getDynamicFieldSet().stream().peek(df -> df.setCompetenceCourseInformation(null)).forEach(DynamicField::delete);
         
         getBibliographiesSet().forEach(bb -> bb.delete());
         getCourseLoadDurationsSet().forEach(
