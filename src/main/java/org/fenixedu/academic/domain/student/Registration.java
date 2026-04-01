@@ -235,6 +235,11 @@ public class Registration extends Registration_Base {
 
     public void delete() {
 
+        getDynamicFieldSet().forEach(df -> {
+            df.setRegistration(null);
+            df.delete();
+        });
+
         getRegistrationStatesSet().forEach(rs -> rs.delete());
 
         getStudentCurricularPlansSet().forEach(scp -> scp.delete());
