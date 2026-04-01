@@ -67,11 +67,12 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
         final String nameToSearch = name.toLowerCase();
         for (final ExternalCurricularCourse externalCurricularCourse : unit.getExternalCurricularCoursesSet()) {
             if (externalCurricularCourse.getName().toLowerCase().equals(nameToSearch)) {
-                if ((externalCurricularCourse.getCode() != null && externalCurricularCourse.getCode().equals(code))
-                        || externalCurricularCourse.getCode() == null && code == null) {
-                    throw new DomainException(
-                            "error.externalCurricularCourse.parent.unit.already.has.externalCurricularCourse.with.same.type");
-                }
+                throw new DomainException(
+                        "error.externalCurricularCourse.parent.unit.already.has.externalCurricularCourse.with.same.name", name);
+            }
+            if ((externalCurricularCourse.getCode() != null && externalCurricularCourse.getCode().equals(code))) {
+                throw new DomainException(
+                        "error.externalCurricularCourse.parent.unit.already.has.externalCurricularCourse.with.same.code", code);
             }
         }
     }
