@@ -76,6 +76,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     protected CompetenceCourse() {
         super();
         setRootDomainObject(Bennu.getInstance());
+        setActive(true);
     }
 
     public CompetenceCourse(String code, LocalizedString name, String acronym, BigDecimal credits, Unit unit,

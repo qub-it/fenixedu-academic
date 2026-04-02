@@ -20,9 +20,7 @@ package org.fenixedu.academic.servlet;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -32,7 +30,6 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -74,6 +71,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeAcademicPeriodOrder();
 
         initializeCurrentExecutionIntervals();
+
+        initializeCompetenceCourseActive();
 
         initializeProgramConclusionConfigs();
     }
@@ -181,6 +180,22 @@ public class FenixInitializer implements ServletContextListener {
                 });
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
+        Log.info("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeCompetenceCourseActive() {
+        Log.info("---------------------------------------");
+        Log.info("Starting initialization of CompetenceCourse.active");
+
+        final AtomicInteger counter = new AtomicInteger(0);
+        Bennu.getInstance().getCompetenceCoursesSet().stream().filter(cc -> !cc.getActive()).forEach(cc -> {
+            cc.setActive(true);
+            counter.incrementAndGet();
+        });
+
+        Log.info(
+                "Finished initialization of CompetenceCourse.active. Processed " + counter.get() + " CompetenceCourse instances.");
         Log.info("---------------------------------------");
     }
 }

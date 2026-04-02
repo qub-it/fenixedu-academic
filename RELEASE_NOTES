@@ -1,6 +1,7 @@
 - Refactor: Remove deprecated constructors of PersonBean and replace old id document references [#qubIT-Fenix-6491]
 - Refactor: Remove deprecated builder methods of StudentGroup [#qubIT-Fenix-7429]
 - Improvement: Improves exception labels [#qubIT-Fenix-8044]
+- Improvement: Mark competence course as active/inactive [#qubIT-Fenix-8218]
 - Bug fix: Adds delete listener for relations of DomainObject to DynamicField [#UCP-FENIXEDU-755]
 - Bug fix: Getting all members of student group by execution year should be consistent with checking for a specific user [#UL-ISCSP-2389]
 - Bug fix: Prevent creation of external curricular courses with same code [#qubIT-Fenix-8216]

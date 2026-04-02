@@ -318,9 +318,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class CompetenceCourse  {
         String code;
-        YearMonthDay creationDateYearMonthDay;
-
         String name;
+        boolean active;
+        YearMonthDay creationDateYearMonthDay;
     }
     
     	relation CompetenceCourseGradeScale {
