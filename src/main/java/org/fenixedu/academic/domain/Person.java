@@ -816,6 +816,7 @@ public class Person extends Person_Base {
                     personIdentificationDocumentExtraInfo.setValue(identificationDocumentSeriesNumber);
                 }
             }
+            getDefaultIdentificationDocument().setSuperExtraInfo(identificationDocumentSeriesNumber);
         }
     }
 

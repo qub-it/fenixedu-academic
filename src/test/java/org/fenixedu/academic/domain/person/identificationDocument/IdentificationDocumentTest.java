@@ -1,17 +1,21 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTypeTest.initIdentificationDocumentType;
+import static org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidatorTest.initIdentityCardValidator;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentTest;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.YearMonthDay;
 import org.junit.After;
@@ -25,13 +29,14 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class IdentificationDocumentTest {
 
-    public static final String ID_DOCUMENT_VALUE = "123456789";
+    public static final String ID_DOCUMENT_VALUE = "00000000";
     public static final String ID_DOCUMENT_TYPE = IdentificationDocumentType.IDENTITY_CARD_CODE;
     private static Person person;
 
     @Before
     public void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
+            initIdentityCardValidator();
             initIdentificationDocumentType();
             initIdentificationDocument();
             return null;
@@ -194,10 +199,6 @@ public class IdentificationDocumentTest {
         assertNotNull(newPerson);
         assertEquals("New Test Person", newPerson.getName());
 
-        IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
-        assertNotNull(identificationDocumentType);
-
         String newDocValue = "NEW_DOC_123456";
         IdentificationDocument newDoc = IdentificationDocument.create(newPerson, newDocValue, identificationDocumentType);
 
@@ -228,5 +229,59 @@ public class IdentificationDocumentTest {
         YearMonthDay expirationDate = new YearMonthDay(2030, 12, 31);
         identificationDocument.setExpirationDate(expirationDate.toLocalDate());
         assertEquals(expirationDate.toLocalDate(), identificationDocument.getExpirationDate());
+    }
+
+    public void testIdentificationDocument_extraInfoValidatorIsNull() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+
+        identificationDocumentType.setExtraInfoValidator(null);
+
+        String extraInfo = "0";
+        DomainException exception = assertThrows(DomainException.class, () -> identificationDocument.setExtraInfo(extraInfo));
+        assertEquals("error.IdentificationDocument.extraInfoValidator.is.null", exception.getKey());
+    }
+
+    @Test
+    public void testIdentificationDocument_extraInfoIsBlank() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+
+        String extraInfo = "";
+        DomainException exception = assertThrows(DomainException.class, () -> identificationDocument.setExtraInfo(extraInfo));
+        assertEquals("error.IdentificationDocument.extraInfo.cannot.be.empty", exception.getKey());
+    }
+
+    @Test
+    public void testIdentificationDocument_setExtraInfo_syncsWithPerson() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+
+        Person person = identificationDocument.getPerson();
+        assertNotNull(person);
+
+        String validExtraInfo = "0";
+        assertDoesNotThrow(() -> identificationDocument.setExtraInfo(validExtraInfo));
+        assertEquals(validExtraInfo, identificationDocument.getExtraInfo());
+        assertEquals(validExtraInfo, person.getIdentificationDocumentExtraDigitValue());
+
+        String validSeriesNumber = "0ZZ4";
+        assertDoesNotThrow(() -> person.setIdentificationDocumentSeriesNumber(validSeriesNumber));
+        assertEquals(validSeriesNumber, identificationDocument.getExtraInfo());
+        assertEquals(validSeriesNumber, person.getIdentificationDocumentSeriesNumberValue());
     }
 }

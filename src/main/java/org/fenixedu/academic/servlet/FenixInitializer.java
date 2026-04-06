@@ -35,6 +35,9 @@ import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
+import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -67,6 +70,8 @@ public class FenixInitializer implements ServletContextListener {
         registerChecksumFilterRules();
 
         registerHealthchecks();
+
+        registerIdentificationDocumentExtraInfoValidators();
 
         initializeAcademicPeriodOrder();
 
@@ -111,6 +116,18 @@ public class FenixInitializer implements ServletContextListener {
                 return Result.healthy("SMTP server returned response: " + response);
             }
         });
+    }
+
+    private void registerIdentificationDocumentExtraInfoValidators() {
+        IdentificationDocumentValidatorRegistry.register(IdentificationDocumentIdentityCardValidator.class.getName(),
+                new IdentificationDocumentIdentityCardValidator());
+        setIdentificationDocumentTypeExtraInfoValidator(IdentificationDocumentType.IDENTITY_CARD_CODE,
+                IdentificationDocumentIdentityCardValidator.class.getName());
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void setIdentificationDocumentTypeExtraInfoValidator(String typeCode, String validatorClassName) {
+        IdentificationDocumentType.findByCode(typeCode).ifPresent(type -> type.setExtraInfoValidator(validatorClassName));
     }
 
     @Override

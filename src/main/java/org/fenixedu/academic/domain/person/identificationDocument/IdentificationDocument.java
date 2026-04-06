@@ -5,6 +5,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.LocalDate;
 
@@ -73,6 +76,34 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
     public void syncExpirationDateOfDocumentIdYearMonthDayFromPerson(final LocalDate value) {
         super.setExpirationDate(value);
+    }
+
+    public void setExtraInfo(final String extraInfo) {
+        validateExtraInfo(extraInfo, getValue());
+        getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+        super.setExtraInfo(extraInfo);
+    }
+
+    public void setSuperExtraInfo(final String extraInfo) {
+        super.setExtraInfo(extraInfo);
+    }
+
+    public void validateExtraInfo(String extraInfo, String documentValue) {
+        if (!getIdentificationDocumentType().hasExtraInfoValidator()) {
+            throw new DomainException("error.IdentificationDocument.extraInfoValidator.is.null");
+        }
+        if (StringUtils.isBlank(extraInfo) || StringUtils.isBlank(documentValue)) {
+            throw new DomainException("error.IdentificationDocument.extraInfo.cannot.be.empty");
+        }
+
+        IdentificationDocumentExtraInfoValidator validator =
+                IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
+        if (validator == null) {
+            throw new DomainException("error.IdentificationDocument.validator.not.found",
+                    getIdentificationDocumentType().getExtraInfoValidator());
+        }
+
+        validator.validate(extraInfo, documentValue);
     }
 
     public static Optional<IdentificationDocument> find(final String idDocumentValue,
