@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.GenericPair;
@@ -150,6 +152,20 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
         final long modulesConcluded =
                 group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).value()).count();
         return modulesConcluded < getMaximumLimit().intValue();
+    }
+
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+        CourseGroup targetCourseGroup =
+                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
+                        .map(Context::getParentCourseGroup).orElse(null);
+
+        final DegreeModulesSelectionLimit rule = new DegreeModulesSelectionLimit((CourseGroup) targetModule, targetCourseGroup,
+                targetExecutionYear.getFirstExecutionPeriod(), null, getMinimumLimit(), getMaximumLimit());
+
+        rule.setCanEnrolAfterConclusion(getCanEnrolAfterConclusion());
+        
+        return rule;
     }
 
 }

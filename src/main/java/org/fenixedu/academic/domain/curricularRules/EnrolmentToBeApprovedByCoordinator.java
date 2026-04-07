@@ -21,9 +21,13 @@ package org.fenixedu.academic.domain.curricularRules;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.EnrolmentToBeApprovedByCoordinatorVerifier;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.dto.GenericPair;
@@ -62,6 +66,26 @@ public class EnrolmentToBeApprovedByCoordinator extends EnrolmentToBeApprovedByC
     @Override
     public VerifyRuleExecutor createVerifyRuleExecutor() {
         return new EnrolmentToBeApprovedByCoordinatorVerifier();
+    }
+
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+        DegreeCurricularPlan targetDCP = targetModule.getParentDegreeCurricularPlan();
+
+        CourseGroup targetCourseGroup =
+                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
+                        .map(Context::getParentCourseGroup).orElse(null);
+
+        CurricularPeriod sourceCurricularPeriod = getCurricularPeriod();
+        CurricularPeriod targetCurricularPeriod =
+                CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
+
+        EnrolmentToBeApprovedByCoordinator rule = new EnrolmentToBeApprovedByCoordinator(targetModule, targetCourseGroup,
+                targetExecutionYear.getFirstExecutionPeriod(), null);
+
+        rule.setCurricularPeriod(targetCurricularPeriod);
+
+        return rule;
     }
 
 }

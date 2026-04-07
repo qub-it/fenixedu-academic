@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.EvenOddRuleVerifier;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -107,4 +108,13 @@ public class EvenOddRule extends EvenOddRule_Base {
                 "label." + (getEven() ? "even" : "odd"))).getContent();
     }
 
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+        CourseGroup targetCourseGroup =
+                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
+                        .map(Context::getParentCourseGroup).orElse(null);
+
+        return new EvenOddRule(targetModule, targetCourseGroup, getCurricularPeriodOrder(), getAcademicPeriod(), getEven(),
+                targetExecutionYear.getFirstExecutionPeriod(), null);
+    }
 }
