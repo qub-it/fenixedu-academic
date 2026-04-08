@@ -100,19 +100,22 @@ public class ProgramConclusion extends ProgramConclusion_Base {
         return getSkipValidation();
     }
 
+    @Deprecated
     @Override
     public void setAverageEditable(boolean averageEditable) {
-        super.setAverageEditable(averageEditable);
+        super.setAverageEditable(false);
     }
 
+    @Deprecated
     @Override
     public void setAlumniProvider(boolean alumniProvider) {
-        super.setAlumniProvider(alumniProvider);
+        super.setAlumniProvider(false);
     }
 
+    @Deprecated
     @Override
     public void setSkipValidation(boolean skipValidation) {
-        super.setSkipValidation(skipValidation);
+        super.setSkipValidation(false);
     }
 
     public static Stream<ProgramConclusion> conclusionsFor(StudentCurricularPlan studentCurricularPlan) {
