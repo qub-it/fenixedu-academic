@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +66,10 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
 
     private void checkForExternalCurricularCourseWithSameNameAndCode(final Unit unit, final String name, final String code) {
         final String nameToSearch = name.toLowerCase();
-        for (final ExternalCurricularCourse externalCurricularCourse : unit.getExternalCurricularCoursesSet()) {
+
+        final Set<ExternalCurricularCourse> externalCurricularCoursesToCheck =
+                unit.getExternalCurricularCoursesSet().stream().filter(course -> course != this).collect(Collectors.toSet());
+        for (final ExternalCurricularCourse externalCurricularCourse : externalCurricularCoursesToCheck) {
             if (externalCurricularCourse.getName().toLowerCase().equals(nameToSearch)) {
                 throw new DomainException(
                         "error.externalCurricularCourse.parent.unit.already.has.externalCurricularCourse.with.same.name", name);
