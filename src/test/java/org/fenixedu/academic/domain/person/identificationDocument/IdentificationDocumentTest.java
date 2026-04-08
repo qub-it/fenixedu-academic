@@ -136,6 +136,12 @@ public class IdentificationDocumentTest {
 
         assertEquals(emissionDate, identificationDocument.getEmissionDateOfDocumentIdYearMonthDay());
         assertEquals(emissionDate, person.getEmissionDateOfDocumentIdYearMonthDay());
+
+        emissionDate = new YearMonthDay(2024, 1, 15);
+        person.setEmissionDateOfDocumentIdYearMonthDay(emissionDate);
+
+        assertEquals(emissionDate, identificationDocument.getEmissionDateOfDocumentIdYearMonthDay());
+        assertEquals(emissionDate, person.getEmissionDateOfDocumentIdYearMonthDay());
     }
 
     @Test
@@ -152,6 +158,12 @@ public class IdentificationDocumentTest {
 
         assertEquals(emissionLocation, identificationDocument.getEmissionLocationOfDocumentId());
         assertEquals(emissionLocation, person.getEmissionLocationOfDocumentId());
+
+        emissionLocation = "Porto";
+        person.setEmissionLocationOfDocumentId(emissionLocation);
+
+        assertEquals(emissionLocation, identificationDocument.getEmissionLocationOfDocumentId());
+        assertEquals(emissionLocation, person.getEmissionLocationOfDocumentId());
     }
 
     @Test
@@ -165,6 +177,12 @@ public class IdentificationDocumentTest {
 
         YearMonthDay expirationDate = new YearMonthDay(2030, 12, 31);
         identificationDocument.setExpirationDateOfDocumentIdYearMonthDay(expirationDate);
+
+        assertEquals(expirationDate, identificationDocument.getExpirationDateOfDocumentIdYearMonthDay());
+        assertEquals(expirationDate, person.getExpirationDateOfDocumentIdYearMonthDay());
+
+        expirationDate = new YearMonthDay(2032, 12, 31);
+        person.setExpirationDateOfDocumentIdYearMonthDay(expirationDate);
 
         assertEquals(expirationDate, identificationDocument.getExpirationDateOfDocumentIdYearMonthDay());
         assertEquals(expirationDate, person.getExpirationDateOfDocumentIdYearMonthDay());
@@ -189,6 +207,9 @@ public class IdentificationDocumentTest {
         assertEquals(emissionDate, identificationDocument.getEmissionDateOfDocumentIdYearMonthDay());
         assertEquals("Porto", identificationDocument.getEmissionLocationOfDocumentId());
         assertEquals(expirationDate, identificationDocument.getExpirationDateOfDocumentIdYearMonthDay());
+        assertEquals(emissionDate, testPerson.getEmissionDateOfDocumentIdYearMonthDay());
+        assertEquals("Porto", testPerson.getEmissionLocationOfDocumentId());
+        assertEquals(expirationDate, testPerson.getExpirationDateOfDocumentIdYearMonthDay());
     }
 
     @Test
