@@ -36,6 +36,10 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         this.deleteDomainObject();
     }
 
+    public boolean hasExtraInfo() {
+        return StringUtils.isNotBlank(getExtraInfo());
+    }
+
     @Override
     public void setEmissionLocation(final String emissionLocation) {
         super.setEmissionLocation(emissionLocation);
