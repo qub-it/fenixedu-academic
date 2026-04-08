@@ -4,6 +4,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 
 public interface IdentificationDocumentExtraInfoValidator {
 
-    void validate(String extraInfo, String documentValue) throws DomainException;
+    void validate(String extraInfo, String identificationDocumentValue) throws DomainException;
 
 }

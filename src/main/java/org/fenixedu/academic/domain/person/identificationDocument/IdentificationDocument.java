@@ -79,20 +79,10 @@ public class IdentificationDocument extends IdentificationDocument_Base {
     }
 
     public void setExtraInfo(final String extraInfo) {
-        validateExtraInfo(extraInfo, getValue());
-        getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
-        super.setExtraInfo(extraInfo);
-    }
-
-    public void setSuperExtraInfo(final String extraInfo) {
-        super.setExtraInfo(extraInfo);
-    }
-
-    public void validateExtraInfo(String extraInfo, String documentValue) {
         if (!getIdentificationDocumentType().hasExtraInfoValidator()) {
             throw new DomainException("error.IdentificationDocument.extraInfoValidator.is.null");
         }
-        if (StringUtils.isBlank(extraInfo) || StringUtils.isBlank(documentValue)) {
+        if (StringUtils.isBlank(extraInfo) || StringUtils.isBlank(getValue())) {
             throw new DomainException("error.IdentificationDocument.extraInfo.cannot.be.empty");
         }
 
@@ -103,27 +93,38 @@ public class IdentificationDocument extends IdentificationDocument_Base {
                     getIdentificationDocumentType().getExtraInfoValidator());
         }
 
-        validator.validate(extraInfo, documentValue);
+        validator.validate(extraInfo, getValue());
+        getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+        super.setExtraInfo(extraInfo);
     }
 
-    public static Optional<IdentificationDocument> find(final String idDocumentValue,
+    public void clearExtraInfo() {
+        super.setExtraInfo(null);
+    }
+
+    @Deprecated
+    public void setSuperExtraInfo(final String extraInfo) {
+        super.setExtraInfo(extraInfo);
+    }
+
+    public static Optional<IdentificationDocument> find(final String identificationDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
         if (identificationDocumentType == null) {
             return Optional.empty();
         }
 
         return identificationDocumentType.getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
+                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(identificationDocumentValue))
                 .findAny();
     }
 
-    public static Stream<IdentificationDocument> find(final String idDocumentValue) {
-        if (StringUtils.isBlank(idDocumentValue)) {
+    public static Stream<IdentificationDocument> find(final String identificationDocumentValue) {
+        if (StringUtils.isBlank(identificationDocumentValue)) {
             return Stream.empty();
         }
 
         return Bennu.getInstance().getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDocumentValue.equalsIgnoreCase(idDoc.getValue()));
+                .filter(idDoc -> identificationDocumentValue.equalsIgnoreCase(idDoc.getValue()));
     }
 
 }

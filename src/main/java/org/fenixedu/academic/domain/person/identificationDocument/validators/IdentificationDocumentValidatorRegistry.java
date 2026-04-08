@@ -7,11 +7,11 @@ public class IdentificationDocumentValidatorRegistry {
 
     private static final Map<String, IdentificationDocumentExtraInfoValidator> validators = new HashMap<>();
 
-    public static void register(String key, IdentificationDocumentExtraInfoValidator validator) {
-        validators.put(key, validator);
+    public static void register(String validatorName, IdentificationDocumentExtraInfoValidator validator) {
+        validators.put(validatorName, validator);
     }
 
-    public static IdentificationDocumentExtraInfoValidator get(String key) {
-        return validators.get(key);
+    public static IdentificationDocumentExtraInfoValidator get(String validatorName) {
+        return validators.get(validatorName);
     }
 }

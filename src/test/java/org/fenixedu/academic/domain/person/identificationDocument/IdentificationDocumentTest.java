@@ -274,10 +274,10 @@ public class IdentificationDocumentTest {
         Person person = identificationDocument.getPerson();
         assertNotNull(person);
 
-        String validExtraInfo = "0";
-        assertDoesNotThrow(() -> identificationDocument.setExtraInfo(validExtraInfo));
-        assertEquals(validExtraInfo, identificationDocument.getExtraInfo());
-        assertEquals(validExtraInfo, person.getIdentificationDocumentExtraDigitValue());
+        String validExtraDigit = "0";
+        assertDoesNotThrow(() -> identificationDocument.setExtraInfo(validExtraDigit));
+        assertEquals(validExtraDigit, identificationDocument.getExtraInfo());
+        assertEquals(validExtraDigit, person.getIdentificationDocumentExtraDigitValue());
 
         String validSeriesNumber = "0ZZ4";
         assertDoesNotThrow(() -> person.setIdentificationDocumentSeriesNumber(validSeriesNumber));

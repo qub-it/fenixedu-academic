@@ -8,25 +8,23 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 
 public class IdentificationDocumentIdentityCardValidator implements IdentificationDocumentExtraInfoValidator{
 
-    public IdentificationDocumentIdentityCardValidator(){}
-
     @Override
-    public void validate(final String extraInfo, final String documentValue) throws DomainException {
+    public void validate(final String extraInfo, final String identificationDocumentValue) throws DomainException {
         if (extraInfo != null && !extraInfo.isEmpty()) {
             if (extraInfo.length() == 1){
-                validateBI(extraInfo, documentValue);
+                validateBI(extraInfo, identificationDocumentValue);
             } else {
-                validateCC(extraInfo, documentValue);
+                validateCC(extraInfo, identificationDocumentValue);
             }
         }
     }
 
-    public void validateCC(final String extraInfo, final String documentValue) throws DomainException {
+    public void validateCC(final String extraInfo, final String identificationDocumentValue) {
         if (extraInfo != null && !extraInfo.isEmpty()) {
             Pattern pattern = Pattern.compile("^[0-9][A-Z,0-9][A-Z,0-9][0-9]$");
             Matcher matcher = pattern.matcher(extraInfo);
             if (matcher.matches()) {
-                if (!isValidCC(documentValue + extraInfo)) {
+                if (!isValidCC(identificationDocumentValue + extraInfo)) {
                     throw new DomainException("label.identificationDocumentSeriesNumber.invalid");
                 }
             } else {
@@ -37,11 +35,11 @@ public class IdentificationDocumentIdentityCardValidator implements Identificati
         }
     }
 
-    public void validateBI(final String extraInfo, final String documentValue) {
+    public void validateBI(final String extraInfo, final String identificationDocumentValue) {
         if (extraInfo == null || extraInfo.isEmpty() || !StringUtils.isNumeric(extraInfo)) {
             throw new DomainException("label.identificationDocumentExtraDigit.invalid.format");
         }
-        if (!isValidBI(documentValue + extraInfo)) {
+        if (!isValidBI(identificationDocumentValue + extraInfo)) {
             throw new DomainException("label.identificationDocumentExtraDigit.invalid");
         }
     }

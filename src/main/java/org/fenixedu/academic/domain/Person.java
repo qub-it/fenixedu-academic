@@ -340,6 +340,8 @@ public class Person extends Person_Base {
             getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class).clearValue();
         }
 
+        getDefaultIdentificationDocument().clearExtraInfo();
+
         if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
                 getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
             setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
@@ -759,6 +761,7 @@ public class Person extends Person_Base {
      * This method gets the identification document series number.
      * The value is ignored if the document is not an identity card.
      */
+    @Deprecated
     public String getIdentificationDocumentSeriesNumber() {
         if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
                 getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
@@ -773,18 +776,21 @@ public class Person extends Person_Base {
         return "";
     }
 
+    @Deprecated
     public String getIdentificationDocumentExtraDigitValue() {
         final PersonIdentificationDocumentExtraInfo result =
                 getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
         return result != null ? result.getValue() : null;
     }
 
+    @Deprecated
     public String getIdentificationDocumentSeriesNumberValue() {
         final PersonIdentificationDocumentExtraInfo result =
                 getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
         return result != null ? result.getValue() : null;
     }
 
+    @Deprecated
     public PersonIdentificationDocumentExtraInfo getPersonIdentificationDocumentExtraInfo(final Class clazz) {
         PersonIdentificationDocumentExtraInfo result = null;
         for (final PersonIdentificationDocumentExtraInfo info : getPersonIdentificationDocumentExtraInfoSet()) {
@@ -796,6 +802,7 @@ public class Person extends Person_Base {
         return result == null ? null : result;
     }
 
+    @Deprecated
     public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
         if (!StringUtils.isEmpty(identificationDocumentSeriesNumber) && IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
                 getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
@@ -820,6 +827,7 @@ public class Person extends Person_Base {
         }
     }
 
+    @Deprecated
     public void setIdentificationDocumentExtraDigit(final String identificationDocumentExtraDigit) {
         if (!StringUtils.isEmpty(identificationDocumentExtraDigit)) {
             final PersonIdentificationDocumentExtraInfo personIdentificationDocumentExtraInfo =
