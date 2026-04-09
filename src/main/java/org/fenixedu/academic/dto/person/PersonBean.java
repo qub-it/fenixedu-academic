@@ -72,6 +72,8 @@ public class PersonBean implements Serializable {
 
     private String identificationDocumentSeriesNumber;
 
+    private String identificationDocumentExtraInfo;
+
     private String documentIdEmissionLocation;
 
     private YearMonthDay documentIdEmissionDate;
@@ -437,6 +439,16 @@ public class PersonBean implements Serializable {
 
     public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
         this.identificationDocumentSeriesNumber = identificationDocumentSeriesNumber;
+        this.identificationDocumentExtraInfo = identificationDocumentSeriesNumber;
+    }
+
+    public String getIdentificationDocumentExtraInfo() {
+        return identificationDocumentExtraInfo;
+    }
+
+    public void setIdentificationDocumentExtraInfo(final String identificationDocumentExtraInfo) {
+        this.identificationDocumentExtraInfo = identificationDocumentExtraInfo;
+        this.identificationDocumentSeriesNumber = identificationDocumentExtraInfo;
     }
 
     public String getEmail() {

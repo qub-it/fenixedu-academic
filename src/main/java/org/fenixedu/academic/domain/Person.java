@@ -332,14 +332,6 @@ public class Person extends Person_Base {
         setNameOfMother(personBean.getMotherName());
         setNameOfFather(personBean.getFatherName());
 
-        if (getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class) != null) {
-            getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class).clearValue();
-        }
-
-        if (getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class) != null) {
-            getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class).clearValue();
-        }
-
         getDefaultIdentificationDocument().clearExtraInfo();
 
         if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
@@ -823,7 +815,6 @@ public class Person extends Person_Base {
                     personIdentificationDocumentExtraInfo.setValue(identificationDocumentSeriesNumber);
                 }
             }
-            getDefaultIdentificationDocument().setSuperExtraInfo(identificationDocumentSeriesNumber);
         }
     }
 

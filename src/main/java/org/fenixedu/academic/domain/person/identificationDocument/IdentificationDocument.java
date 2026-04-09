@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.IdentificationDocumentExtraDigit;
+import org.fenixedu.academic.domain.IdentificationDocumentSeriesNumber;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
@@ -98,17 +100,28 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         }
 
         validator.validate(extraInfo, getValue());
+
+        //TODO - remove on cleanup
         getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+
+        super.setExtraInfo(extraInfo);
+    }
+
+    public void forceExtraInfo(final String extraInfo) {
         super.setExtraInfo(extraInfo);
     }
 
     public void clearExtraInfo() {
-        super.setExtraInfo(null);
-    }
+        //TODO - remove on cleanup
+        if (getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class) != null) {
+            getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class).clearValue();
+        }
 
-    @Deprecated
-    public void setSuperExtraInfo(final String extraInfo) {
-        super.setExtraInfo(extraInfo);
+        if (getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class) != null) {
+            getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class).clearValue();
+        }
+
+        super.setExtraInfo(null);
     }
 
     public static Optional<IdentificationDocument> find(final String identificationDocumentValue,
