@@ -65,6 +65,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -998,7 +999,7 @@ public class Person extends Person_Base {
 
         final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument != null) {
-            identificationDocument.syncEmissionDateOfDocumentIdYearMonthDayFromPerson(arg);
+            identificationDocument.syncEmissionDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
         }
     }
 
@@ -1010,7 +1011,7 @@ public class Person extends Person_Base {
 
         final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
         if (identificationDocument != null) {
-            identificationDocument.syncExpirationDateOfDocumentIdYearMonthDayFromPerson(arg);
+            identificationDocument.syncExpirationDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
         }
     }
 
@@ -1018,12 +1019,12 @@ public class Person extends Person_Base {
         super.setEmissionLocationOfDocumentId(arg);
     }
 
-    public void syncEmissionDateOfDocumentIdYearMonthDayFromIdentificationDocument(final YearMonthDay arg) {
-        super.setEmissionDateOfDocumentIdYearMonthDay(arg);
+    public void syncEmissionDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
+        super.setEmissionDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
     }
 
-    public void syncExpirationDateOfDocumentIdYearMonthDayFromIdentificationDocument(final YearMonthDay arg) {
-        super.setExpirationDateOfDocumentIdYearMonthDay(arg);
+    public void syncExpirationDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
+        super.setExpirationDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
     }
 
     @Override
