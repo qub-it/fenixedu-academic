@@ -72,8 +72,6 @@ public class FenixInitializer implements ServletContextListener {
 
         initializeCurrentExecutionIntervals();
 
-        initializeCompetenceCourseActive();
-
         initializeProgramConclusionConfigs();
     }
 
@@ -183,19 +181,4 @@ public class FenixInitializer implements ServletContextListener {
         Log.info("---------------------------------------");
     }
 
-    @Atomic(mode = TxMode.WRITE)
-    private void initializeCompetenceCourseActive() {
-        Log.info("---------------------------------------");
-        Log.info("Starting initialization of CompetenceCourse.active");
-
-        final AtomicInteger counter = new AtomicInteger(0);
-        Bennu.getInstance().getCompetenceCoursesSet().stream().filter(cc -> !cc.getActive()).forEach(cc -> {
-            cc.setActive(true);
-            counter.incrementAndGet();
-        });
-
-        Log.info(
-                "Finished initialization of CompetenceCourse.active. Processed " + counter.get() + " CompetenceCourse instances.");
-        Log.info("---------------------------------------");
-    }
 }
