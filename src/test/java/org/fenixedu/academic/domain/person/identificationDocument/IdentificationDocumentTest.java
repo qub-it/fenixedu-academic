@@ -32,6 +32,7 @@ public class IdentificationDocumentTest {
     public static final String ID_DOCUMENT_VALUE = "00000000";
     public static final String ID_DOCUMENT_TYPE = IdentificationDocumentType.IDENTITY_CARD_CODE;
     private static Person person;
+    private static IdentificationDocument idDoc;
 
     @Before
     public void init() {
@@ -49,8 +50,7 @@ public class IdentificationDocumentTest {
         }
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE)
                 .orElseGet(IdentificationDocumentTypeTest::initIdentificationDocumentType);
-        IdentificationDocument identificationDocumentDocument =
-                IdentificationDocument.create(person, ID_DOCUMENT_VALUE, identificationDocumentType);
+        idDoc = IdentificationDocument.create(person, ID_DOCUMENT_VALUE, identificationDocumentType);
     }
 
     @After
@@ -232,56 +232,36 @@ public class IdentificationDocumentTest {
     }
 
     public void testIdentificationDocument_extraInfoValidatorIsNull() {
-        IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        IdentificationDocumentType identificationDocumentType = idDoc.getIdentificationDocumentType();
         assertNotNull(identificationDocumentType);
-
-        IdentificationDocument identificationDocument =
-                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
-        assertNotNull(identificationDocument);
 
         identificationDocumentType.setExtraInfoValidator(null);
 
         String extraInfo = "0";
-        DomainException exception = assertThrows(DomainException.class, () -> identificationDocument.setExtraInfo(extraInfo));
+        DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
         assertEquals("error.IdentificationDocument.extraInfoValidator.is.null", exception.getKey());
     }
 
     @Test
     public void testIdentificationDocument_extraInfoIsBlank() {
-        IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
-        assertNotNull(identificationDocumentType);
-
-        IdentificationDocument identificationDocument =
-                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
-        assertNotNull(identificationDocument);
-
         String extraInfo = "";
-        DomainException exception = assertThrows(DomainException.class, () -> identificationDocument.setExtraInfo(extraInfo));
+        DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
         assertEquals("error.IdentificationDocument.extraInfo.cannot.be.empty", exception.getKey());
     }
 
     @Test
     public void testIdentificationDocument_setExtraInfo_syncsWithPerson() {
-        IdentificationDocumentType identificationDocumentType =
-                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
-        assertNotNull(identificationDocumentType);
-        IdentificationDocument identificationDocument =
-                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
-        assertNotNull(identificationDocument);
-
-        Person person = identificationDocument.getPerson();
+        Person person = idDoc.getPerson();
         assertNotNull(person);
 
         String validExtraDigit = "0";
-        assertDoesNotThrow(() -> identificationDocument.setExtraInfo(validExtraDigit));
-        assertEquals(validExtraDigit, identificationDocument.getExtraInfo());
+        assertDoesNotThrow(() -> idDoc.setExtraInfo(validExtraDigit));
+        assertEquals(validExtraDigit, idDoc.getExtraInfo());
         assertEquals(validExtraDigit, person.getIdentificationDocumentExtraDigitValue());
 
         String validSeriesNumber = "0ZZ4";
         assertDoesNotThrow(() -> person.setIdentificationDocumentSeriesNumber(validSeriesNumber));
-        assertEquals(validSeriesNumber, identificationDocument.getExtraInfo());
+        assertEquals(validSeriesNumber, idDoc.getExtraInfo());
         assertEquals(validSeriesNumber, person.getIdentificationDocumentSeriesNumberValue());
     }
 }

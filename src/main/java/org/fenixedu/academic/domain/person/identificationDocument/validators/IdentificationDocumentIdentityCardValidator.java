@@ -16,19 +16,17 @@ public class IdentificationDocumentIdentityCardValidator implements Identificati
             } else {
                 validateCC(extraInfo, identificationDocumentValue);
             }
+        } else {
+            throw new DomainException("label.identificationDocumentExtraInfo.null.or.empty");
         }
     }
 
     public void validateCC(final String extraInfo, final String identificationDocumentValue) {
-        if (extraInfo != null && !extraInfo.isEmpty()) {
-            Pattern pattern = Pattern.compile("^[0-9][A-Z,0-9][A-Z,0-9][0-9]$");
-            Matcher matcher = pattern.matcher(extraInfo);
-            if (matcher.matches()) {
-                if (!isValidCC(identificationDocumentValue + extraInfo)) {
-                    throw new DomainException("label.identificationDocumentSeriesNumber.invalid");
-                }
-            } else {
-                throw new DomainException("label.identificationDocumentSeriesNumber.invalid.format");
+        Pattern pattern = Pattern.compile("^[0-9][A-Z,0-9][A-Z,0-9][0-9]$");
+        Matcher matcher = pattern.matcher(extraInfo);
+        if (matcher.matches()) {
+            if (!isValidCC(identificationDocumentValue + extraInfo)) {
+                throw new DomainException("label.identificationDocumentSeriesNumber.invalid");
             }
         } else {
             throw new DomainException("label.identificationDocumentSeriesNumber.invalid.format");
@@ -36,7 +34,7 @@ public class IdentificationDocumentIdentityCardValidator implements Identificati
     }
 
     public void validateBI(final String extraInfo, final String identificationDocumentValue) {
-        if (extraInfo == null || extraInfo.isEmpty() || !StringUtils.isNumeric(extraInfo)) {
+        if (!StringUtils.isNumeric(extraInfo)) {
             throw new DomainException("label.identificationDocumentExtraDigit.invalid.format");
         }
         if (!isValidBI(identificationDocumentValue + extraInfo)) {

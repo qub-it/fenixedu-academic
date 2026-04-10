@@ -66,14 +66,18 @@ public class IdentificationDocumentIdentityCardValidatorTest {
     public void testValidate_withOneDigit_null() {
         String identificationDocumentValue = "12345678";
 
-        assertDoesNotThrow(() -> validator.validate(null, identificationDocumentValue));
+        DomainException exception =
+                assertThrows(DomainException.class, () -> validator.validate(null, identificationDocumentValue));
+        assertEquals("label.identificationDocumentExtraInfo.null.or.empty", exception.getKey());
     }
 
     @Test
     public void testValidate_withOneDigit_empty() {
         String identificationDocumentValue = "12345678";
 
-        assertDoesNotThrow(() -> validator.validate("", identificationDocumentValue));
+        DomainException exception =
+                assertThrows(DomainException.class, () -> validator.validate("", identificationDocumentValue));
+        assertEquals("label.identificationDocumentExtraInfo.null.or.empty", exception.getKey());
     }
 
     @Test
