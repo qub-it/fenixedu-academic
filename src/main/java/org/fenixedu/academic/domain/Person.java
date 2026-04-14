@@ -50,6 +50,7 @@ import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.dto.person.IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO;
 import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.User;
@@ -1141,4 +1142,24 @@ public class Person extends Person_Base {
     public void setPartyType(PartyType partyType) {
         throw new DomainException("error.person.partyType.cannotChange");
     }
+
+    /**
+     * @deprecated This method is only used as a bridge for the deprecated document service requests, and should not be
+     *         used in any new code.
+     */
+    @Deprecated
+    public String getDocumentIdNumber() {
+        return getDefaultIdentificationDocument().getValue();
+    }
+
+    /**
+     * @deprecated This method is only used as a bridge for the deprecated document service requests, and should not be
+     *         used in any new code.
+     */
+    @Deprecated
+    public IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO getIdDocumentType() {
+        return new IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO(
+                getDefaultIdentificationDocument().getIdentificationDocumentType());
+    }
+
 }
