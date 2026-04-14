@@ -1,3 +1,4 @@
+55.0.1 (14-04-2026)
 - Bug fix: Add bridge methods to ensure compatibility with deprecated document service requests [#UL-FL-12683]
 
 55.0.0 (13-04-2026)
