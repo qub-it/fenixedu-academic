@@ -1187,6 +1187,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         LocalizedString name (REQUIRED);
         boolean active;
         String extraInfoValidator;
+        boolean hasExtraInfo;
     }
 
     class person.identificationDocument.IdentificationDocument {

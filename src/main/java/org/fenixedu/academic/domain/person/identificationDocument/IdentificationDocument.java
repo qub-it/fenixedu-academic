@@ -85,25 +85,22 @@ public class IdentificationDocument extends IdentificationDocument_Base {
     }
 
     public void setExtraInfo(final String extraInfo) {
-        if (!getIdentificationDocumentType().hasExtraInfoValidator()) {
-            throw new DomainException("error.IdentificationDocument.extraInfoValidator.is.null");
-        }
         if (StringUtils.isBlank(extraInfo) || StringUtils.isBlank(getValue())) {
             throw new DomainException("error.IdentificationDocument.extraInfo.cannot.be.empty");
         }
 
-        IdentificationDocumentExtraInfoValidator validator =
-                IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
-        if (validator == null) {
-            throw new DomainException("error.IdentificationDocument.validator.not.found",
-                    getIdentificationDocumentType().getExtraInfoValidator());
+        if (getIdentificationDocumentType().getHasExtraInfo()) {
+            IdentificationDocumentExtraInfoValidator validator =
+                    IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
+            if (validator == null) {
+                throw new DomainException("error.IdentificationDocument.validator.not.found",
+                        getIdentificationDocumentType().getExtraInfoValidator());
+            }
+
+            validator.validate(extraInfo, getValue());
         }
-
-        validator.validate(extraInfo, getValue());
-
-        //TODO - remove on cleanup
+        //TODO - remove on extra info cleanup
         getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
-
         super.setExtraInfo(extraInfo);
     }
 
@@ -112,7 +109,7 @@ public class IdentificationDocument extends IdentificationDocument_Base {
     }
 
     public void clearExtraInfo() {
-        //TODO - remove on cleanup
+        //TODO - remove on extra info cleanup
         if (getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class) != null) {
             getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class).clearValue();
         }

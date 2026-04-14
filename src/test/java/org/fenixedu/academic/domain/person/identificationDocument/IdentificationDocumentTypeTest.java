@@ -177,7 +177,7 @@ public class IdentificationDocumentTypeTest {
         IdentificationDocumentType identificationDocumentType =
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
-        assertTrue(identificationDocumentType.hasExtraInfoValidator());
+        assertTrue(identificationDocumentType.getHasExtraInfo());
         assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(),
                 identificationDocumentType.getExtraInfoValidator());
     }

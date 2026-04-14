@@ -238,8 +238,8 @@ public class IdentificationDocumentTest {
         identificationDocumentType.setExtraInfoValidator(null);
 
         String extraInfo = "0";
-        DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
-        assertEquals("error.IdentificationDocument.extraInfoValidator.is.null", exception.getKey());
+        assertDoesNotThrow(() -> idDoc.setExtraInfo(extraInfo));
+        assertEquals(extraInfo, idDoc.getExtraInfo());
     }
 
     @Test

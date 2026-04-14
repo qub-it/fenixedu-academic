@@ -63,7 +63,7 @@ public class IdentificationDocumentIdentityCardValidatorTest {
     }
 
     @Test
-    public void testValidate_withOneDigit_null() {
+    public void testValidate_withExtraInfo_null() {
         String identificationDocumentValue = "12345678";
 
         DomainException exception =
@@ -72,7 +72,7 @@ public class IdentificationDocumentIdentityCardValidatorTest {
     }
 
     @Test
-    public void testValidate_withOneDigit_empty() {
+    public void testValidate_withExtraInfo_empty() {
         String identificationDocumentValue = "12345678";
 
         DomainException exception =
