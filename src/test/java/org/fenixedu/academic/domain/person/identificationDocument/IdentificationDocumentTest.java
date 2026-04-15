@@ -199,6 +199,10 @@ public class IdentificationDocumentTest {
         assertNotNull(newPerson);
         assertEquals("New Test Person", newPerson.getName());
 
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+
         String newDocValue = "NEW_DOC_123456";
         IdentificationDocument newDoc = IdentificationDocument.create(newPerson, newDocValue, identificationDocumentType);
 
@@ -236,6 +240,7 @@ public class IdentificationDocumentTest {
         assertNotNull(identificationDocumentType);
 
         identificationDocumentType.setExtraInfoValidator(null);
+        identificationDocumentType.setHasExtraInfo(true);
 
         String extraInfo = "0";
         assertDoesNotThrow(() -> idDoc.setExtraInfo(extraInfo));
@@ -243,10 +248,15 @@ public class IdentificationDocumentTest {
     }
 
     @Test
-    public void testIdentificationDocument_extraInfoIsBlank() {
-        String extraInfo = "";
+    public void testIdentificationDocument_extraInfoNotAllowed() {
+        IdentificationDocumentType identificationDocumentType = idDoc.getIdentificationDocumentType();
+        assertNotNull(identificationDocumentType);
+
+        identificationDocumentType.setHasExtraInfo(false);
+
+        String extraInfo = "0";
         DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
-        assertEquals("error.IdentificationDocument.extraInfo.cannot.be.empty", exception.getKey());
+        assertEquals("error.IdentificationDocument.extraInfo.not.allowed", exception.getKey());
     }
 
     @Test

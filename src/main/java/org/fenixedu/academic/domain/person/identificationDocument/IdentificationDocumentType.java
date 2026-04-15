@@ -66,6 +66,10 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
         super.setExtraInfoValidator(extraInfoValidator);
     }
 
+    public boolean hasExtraInfoValidator() {
+        return StringUtils.isNotBlank(getExtraInfoValidator());
+    }
+
     public static Optional<IdentificationDocumentType> findByCode(final String code) {
         return findAll().filter(identificationDocumentType -> Objects.equals(identificationDocumentType.getCode(), code))
                 .findAny();

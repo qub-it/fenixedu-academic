@@ -38,10 +38,6 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         this.deleteDomainObject();
     }
 
-    public boolean hasExtraInfo() {
-        return StringUtils.isNotBlank(getExtraInfo());
-    }
-
     @Override
     public void setEmissionLocation(final String emissionLocation) {
         super.setEmissionLocation(emissionLocation);
@@ -84,12 +80,17 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         super.setExpirationDate(value);
     }
 
+    public boolean hasExtraInfo() {
+        return StringUtils.isNotBlank(getExtraInfo());
+    }
+
     public void setExtraInfo(final String extraInfo) {
-        if (StringUtils.isBlank(extraInfo) || StringUtils.isBlank(getValue())) {
-            throw new DomainException("error.IdentificationDocument.extraInfo.cannot.be.empty");
+        if (!getIdentificationDocumentType().getHasExtraInfo()) {
+            throw new DomainException("error.IdentificationDocument.extraInfo.not.allowed",
+                    getIdentificationDocumentType().getName().getContent());
         }
 
-        if (getIdentificationDocumentType().getHasExtraInfo()) {
+        if (getIdentificationDocumentType().hasExtraInfoValidator()) {
             IdentificationDocumentExtraInfoValidator validator =
                     IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
             if (validator == null) {
@@ -98,9 +99,11 @@ public class IdentificationDocument extends IdentificationDocument_Base {
             }
 
             validator.validate(extraInfo, getValue());
+
+            //TODO - remove on extra info cleanup
+            getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
         }
-        //TODO - remove on extra info cleanup
-        getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+
         super.setExtraInfo(extraInfo);
     }
 
