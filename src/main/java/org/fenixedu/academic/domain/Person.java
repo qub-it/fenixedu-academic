@@ -65,6 +65,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -983,6 +984,11 @@ public class Person extends Person_Base {
         logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getEmissionLocationOfDocumentId(), arg,
                 "label.documentIdEmissionLocation");
         super.setEmissionLocationOfDocumentId(arg);
+
+        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument != null) {
+            identificationDocument.syncEmissionLocationOfDocumentIdFromPerson(arg);
+        }
     }
 
     @Override
@@ -990,6 +996,11 @@ public class Person extends Person_Base {
         logSetterNullYearMonthDay("log.personInformation.edit.generalTemplate.personalId",
                 getEmissionDateOfDocumentIdYearMonthDay(), arg, "label.documentIdEmissionDate");
         super.setEmissionDateOfDocumentIdYearMonthDay(arg);
+
+        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument != null) {
+            identificationDocument.syncEmissionDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
+        }
     }
 
     @Override
@@ -997,6 +1008,23 @@ public class Person extends Person_Base {
         logSetterNullYearMonthDay("log.personInformation.edit.generalTemplate.personalId",
                 getExpirationDateOfDocumentIdYearMonthDay(), arg, "label.documentIdExpirationDate");
         super.setExpirationDateOfDocumentIdYearMonthDay(arg);
+
+        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument != null) {
+            identificationDocument.syncExpirationDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
+        }
+    }
+
+    public void syncEmissionLocationOfDocumentIdFromIdentificationDocument(final String arg) {
+        super.setEmissionLocationOfDocumentId(arg);
+    }
+
+    public void syncEmissionDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
+        super.setEmissionDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
+    }
+
+    public void syncExpirationDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
+        super.setExpirationDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
     }
 
     @Override

@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.joda.time.YearMonthDay;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,5 +120,113 @@ public class IdentificationDocumentTest {
         Optional<IdentificationDocument> identificationDocumentOpt =
                 IdentificationDocument.find("NON_EXISTENT_VALUE", identificationDocumentType);
         assertFalse(identificationDocumentOpt.isPresent());
+    }
+
+    @Test
+    public void testIdentificationDocument_emissionDateSync() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+        assertNotNull(identificationDocument.getPerson());
+
+        YearMonthDay emissionDate = new YearMonthDay(2025, 1, 15);
+        identificationDocument.setEmissionDate(emissionDate.toLocalDate());
+
+        assertEquals(emissionDate.toLocalDate(), identificationDocument.getEmissionDate());
+        assertEquals(emissionDate, person.getEmissionDateOfDocumentIdYearMonthDay());
+
+        emissionDate = new YearMonthDay(2024, 1, 15);
+        person.setEmissionDateOfDocumentIdYearMonthDay(emissionDate);
+
+        assertEquals(emissionDate.toLocalDate(), identificationDocument.getEmissionDate());
+        assertEquals(emissionDate, person.getEmissionDateOfDocumentIdYearMonthDay());
+    }
+
+    @Test
+    public void testIdentificationDocument_emissionLocationSync() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+        assertNotNull(identificationDocument.getPerson());
+
+        String emissionLocation = "Lisbon";
+        identificationDocument.setEmissionLocation(emissionLocation);
+
+        assertEquals(emissionLocation, identificationDocument.getEmissionLocation());
+        assertEquals(emissionLocation, person.getEmissionLocationOfDocumentId());
+
+        emissionLocation = "Porto";
+        person.setEmissionLocationOfDocumentId(emissionLocation);
+
+        assertEquals(emissionLocation, identificationDocument.getEmissionLocation());
+        assertEquals(emissionLocation, person.getEmissionLocationOfDocumentId());
+    }
+
+    @Test
+    public void testIdentificationDocument_expirationDateSync() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.find(ID_DOCUMENT_VALUE, identificationDocumentType).orElse(null);
+        assertNotNull(identificationDocument);
+        assertNotNull(identificationDocument.getPerson());
+
+        YearMonthDay expirationDate = new YearMonthDay(2030, 12, 31);
+        identificationDocument.setExpirationDate(expirationDate.toLocalDate());
+
+        assertEquals(expirationDate.toLocalDate(), identificationDocument.getExpirationDate());
+        assertEquals(expirationDate, person.getExpirationDateOfDocumentIdYearMonthDay());
+
+        expirationDate = new YearMonthDay(2032, 12, 31);
+        person.setExpirationDateOfDocumentIdYearMonthDay(expirationDate);
+
+        assertEquals(expirationDate.toLocalDate(), identificationDocument.getExpirationDate());
+        assertEquals(expirationDate, person.getExpirationDateOfDocumentIdYearMonthDay());
+    }
+
+    @Test
+    public void testIdentificationDocument_createWithNewPerson() {
+        Person newPerson = StudentTest.createStudent("New Test Person", "newtestperson").getPerson();
+        assertNotNull(newPerson);
+        assertEquals("New Test Person", newPerson.getName());
+
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+
+        String newDocValue = "NEW_DOC_123456";
+        IdentificationDocument newDoc = IdentificationDocument.create(newPerson, newDocValue, identificationDocumentType);
+
+        assertNotNull(newDoc);
+        assertEquals(newDocValue, newDoc.getValue());
+        assertEquals(newPerson, newDoc.getPerson());
+        assertEquals(identificationDocumentType, newDoc.getIdentificationDocumentType());
+        assertTrue(Bennu.getInstance().getIdentificationDocumentsSet().contains(newDoc));
+    }
+
+    @Test
+    public void testIdentificationDocument_settersWithNullPerson() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        IdentificationDocument identificationDocument =
+                IdentificationDocument.create(null, "NO_PERSON_DOC", identificationDocumentType);
+
+        assertNull(identificationDocument.getPerson());
+
+        YearMonthDay emissionDate = new YearMonthDay(2020, 1, 15);
+        identificationDocument.setEmissionDate(emissionDate.toLocalDate());
+        assertEquals(emissionDate.toLocalDate(), identificationDocument.getEmissionDate());
+
+        String emissionLocation = "Lisbon";
+        identificationDocument.setEmissionLocation(emissionLocation);
+        assertEquals(emissionLocation, identificationDocument.getEmissionLocation());
+
+        YearMonthDay expirationDate = new YearMonthDay(2030, 12, 31);
+        identificationDocument.setExpirationDate(expirationDate.toLocalDate());
+        assertEquals(expirationDate.toLocalDate(), identificationDocument.getExpirationDate());
     }
 }

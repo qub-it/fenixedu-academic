@@ -1189,6 +1189,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class person.identificationDocument.IdentificationDocument {
         String value;
+        LocalDate emissionDate;
+        String emissionLocation;
+        LocalDate expirationDate;
     }
     
     class person.personIdentifier.PersonIdentifier {
