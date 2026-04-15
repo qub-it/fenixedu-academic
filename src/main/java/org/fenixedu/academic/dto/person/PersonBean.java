@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -78,7 +79,11 @@ public class PersonBean implements Serializable {
 
     private YearMonthDay documentIdEmissionDate;
 
+    private LocalDate documentEmissionDate;
+
     private YearMonthDay documentIdExpirationDate;
+
+    private LocalDate documentExpirationDate;
 
     private Country fiscalCountry;
 
@@ -217,9 +222,9 @@ public class PersonBean implements Serializable {
         setDistrictOfBirth(person.getDistrictOfBirth());
         setDistrictSubdivisionOfBirth(person.getDistrictSubdivisionOfBirth());
 
-        setDocumentIdEmissionDate(person.getEmissionDateOfDocumentIdYearMonthDay());
-        setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());
-        setDocumentIdExpirationDate(person.getExpirationDateOfDocumentIdYearMonthDay());
+        setDocumentEmissionDate(person.getDefaultIdentificationDocument().getEmissionDate());
+        setDocumentIdEmissionLocation(person.getDefaultIdentificationDocument().getEmissionLocation());
+        setDocumentExpirationDate(person.getDefaultIdentificationDocument().getExpirationDate());
         setDocumentIdNumber(person.getDefaultIdentificationDocument().getValue());
         setIdentificationDocumentType(person.getDefaultIdentificationDocument().getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumber());
@@ -409,6 +414,14 @@ public class PersonBean implements Serializable {
         this.documentIdEmissionDate = documentIdEmissionDate;
     }
 
+    public LocalDate getDocumentEmissionDate() {
+        return documentEmissionDate;
+    }
+
+    public void setDocumentEmissionDate(final LocalDate documentEmissionDate) {
+        this.documentEmissionDate = documentEmissionDate;
+    }
+
     public String getDocumentIdEmissionLocation() {
         return documentIdEmissionLocation;
     }
@@ -423,6 +436,14 @@ public class PersonBean implements Serializable {
 
     public void setDocumentIdExpirationDate(final YearMonthDay documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
+    }
+
+    public LocalDate getDocumentExpirationDate() {
+        return documentExpirationDate;
+    }
+
+    public void setDocumentExpirationDate(final LocalDate documentExpirationDate) {
+        this.documentExpirationDate = documentExpirationDate;
     }
 
     public String getDocumentIdNumber() {
@@ -906,9 +927,9 @@ public class PersonBean implements Serializable {
         // identification
         person.setIdentification(this.getDocumentIdNumber(), this.getIdentificationDocumentType());
         person.setIdentificationDocumentSeriesNumber(getIdentificationDocumentSeriesNumber());
-        person.setEmissionLocationOfDocumentId(this.getDocumentIdEmissionLocation());
-        person.setEmissionDateOfDocumentIdYearMonthDay(this.getDocumentIdEmissionDate());
-        person.setExpirationDateOfDocumentIdYearMonthDay(this.getDocumentIdExpirationDate());
+        person.getDefaultIdentificationDocument().setEmissionLocation(this.getDocumentIdEmissionLocation());
+        person.getDefaultIdentificationDocument().setEmissionDate(this.getDocumentEmissionDate());
+        person.getDefaultIdentificationDocument().setExpirationDate(this.getDocumentExpirationDate());
         person.setEidentifier(this.getEidentifier());
         person.setHealthCardNumber(this.healthCardNumber);
 

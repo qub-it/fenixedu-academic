@@ -315,9 +315,11 @@ public class Person extends Person_Base {
         // identification
         setIdentification(personBean.getDocumentIdNumber(), personBean.getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
-        setEmissionLocationOfDocumentId(personBean.getDocumentIdEmissionLocation());
-        setEmissionDateOfDocumentIdYearMonthDay(personBean.getDocumentIdEmissionDate());
-        setExpirationDateOfDocumentIdYearMonthDay(personBean.getDocumentIdExpirationDate());
+
+        getDefaultIdentificationDocument().setEmissionLocation(personBean.getDocumentIdEmissionLocation());
+        getDefaultIdentificationDocument().setEmissionDate(personBean.getDocumentEmissionDate());
+        getDefaultIdentificationDocument().setExpirationDate(personBean.getDocumentExpirationDate());
+
         setEidentifier(personBean.getEidentifier());
         setHealthCardNumber(personBean.getHealthCardNumber());
 
