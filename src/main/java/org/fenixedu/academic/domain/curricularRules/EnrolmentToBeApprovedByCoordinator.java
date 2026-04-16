@@ -81,7 +81,7 @@ public class EnrolmentToBeApprovedByCoordinator extends EnrolmentToBeApprovedByC
                 CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
 
         EnrolmentToBeApprovedByCoordinator rule = new EnrolmentToBeApprovedByCoordinator(targetModule, targetCourseGroup,
-                targetExecutionYear.getFirstExecutionPeriod(), null);
+                targetExecutionYear, null);
 
         rule.setCurricularPeriod(targetCurricularPeriod);
 

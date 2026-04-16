@@ -269,7 +269,7 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
                 CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
 
         AnyCurricularCourse result = new AnyCurricularCourse((OptionalCurricularCourse) targetModule, targetCourseGroup,
-                targetExecutionYear.getFirstExecutionPeriod(), null, getMinimumCredits(), getMaximumCredits());
+                targetExecutionYear, null, getMinimumCredits(), getMaximumCredits());
 
         result.setCurricularPeriod(targetCurricularPeriod);
         result.getCompetenceCourseLevelTypesSet().addAll(getCompetenceCourseLevelTypesSet());

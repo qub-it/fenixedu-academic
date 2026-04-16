@@ -114,7 +114,7 @@ public class EvenOddRule extends EvenOddRule_Base {
                 getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
                         .map(Context::getParentCourseGroup).orElse(null);
 
-        return new EvenOddRule(targetModule, targetCourseGroup, getCurricularPeriodOrder(), getAcademicPeriod(), getEven(),
-                targetExecutionYear.getFirstExecutionPeriod(), null);
+        return new EvenOddRule(targetModule, targetCourseGroup, null, null  , getEven(),
+                targetExecutionYear, null);
     }
 }

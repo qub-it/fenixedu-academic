@@ -154,7 +154,7 @@ public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
                 getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
                         .map(Context::getParentCourseGroup).orElse(null);
 
-        return new CreditsLimit(targetModule, targetCourseGroup, targetExecutionYear.getFirstExecutionPeriod(), null,
+        return new CreditsLimit(targetModule, targetCourseGroup, targetExecutionYear, null,
                 getMinimumCredits(), getMaximumCredits());
     }
 

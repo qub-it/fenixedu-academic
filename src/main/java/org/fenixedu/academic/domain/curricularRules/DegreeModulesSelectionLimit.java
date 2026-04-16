@@ -161,7 +161,7 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
                         .map(Context::getParentCourseGroup).orElse(null);
 
         final DegreeModulesSelectionLimit rule = new DegreeModulesSelectionLimit((CourseGroup) targetModule, targetCourseGroup,
-                targetExecutionYear.getFirstExecutionPeriod(), null, getMinimumLimit(), getMaximumLimit());
+                targetExecutionYear, null, getMinimumLimit(), getMaximumLimit());
 
         rule.setCanEnrolAfterConclusion(getCanEnrolAfterConclusion());
         

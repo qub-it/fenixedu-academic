@@ -96,7 +96,7 @@ public class MinimumNumberOfCreditsToEnrol extends MinimumNumberOfCreditsToEnrol
                 getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
                         .map(Context::getParentCourseGroup).orElse(null);
 
-        return new MinimumNumberOfCreditsToEnrol(targetModule, targetCourseGroup, targetExecutionYear.getFirstExecutionPeriod(),
+        return new MinimumNumberOfCreditsToEnrol(targetModule, targetCourseGroup, targetExecutionYear,
                 null, getMinimumCredits());
     }
 
