@@ -9,15 +9,13 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 public class IdentificationDocumentIdentityCardValidator implements IdentificationDocumentExtraInfoValidator{
 
     @Override
-    public void validate(final String extraInfo, final String identificationDocumentValue) throws DomainException {
+    public void validate(final String extraInfo, final String identificationDocumentValue) {
         if (extraInfo != null && !extraInfo.isEmpty()) {
             if (extraInfo.length() == 1){
                 validateBI(extraInfo, identificationDocumentValue);
             } else {
                 validateCC(extraInfo, identificationDocumentValue);
             }
-        } else {
-            throw new DomainException("label.identificationDocumentExtraInfo.null.or.empty");
         }
     }
 
