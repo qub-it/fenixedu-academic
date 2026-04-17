@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -46,8 +47,10 @@ public class IdentificationDocumentTypeTest {
         String code = IdentificationDocumentType.IDENTITY_CARD_CODE;
         LocalizedString name = new LocalizedString(Locale.getDefault(), code);
 
-        return IdentificationDocumentType.findByCode(code)
+        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.findByCode(code)
                 .orElseGet(() -> IdentificationDocumentType.create(code, name));
+        identificationDocumentType.setExtraInfoValidator(IdentificationDocumentIdentityCardValidator.class.getName());
+        return identificationDocumentType;
     }
 
     public static void createIdentificationDocumentTypes() {
@@ -167,5 +170,15 @@ public class IdentificationDocumentTypeTest {
         IdentificationDocumentType.create(CODE, NAME);
 
         assertEquals(2, IdentificationDocumentType.findAll().count());
+    }
+
+    @Test
+    public void testIdentificationDocumentType_hasExtraInfoValidator() {
+        IdentificationDocumentType identificationDocumentType =
+                IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+        assertNotNull(identificationDocumentType);
+        assertTrue(identificationDocumentType.getHasExtraInfo());
+        assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(),
+                identificationDocumentType.getExtraInfoValidator());
     }
 }

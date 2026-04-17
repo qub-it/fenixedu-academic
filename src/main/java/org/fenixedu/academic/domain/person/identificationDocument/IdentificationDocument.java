@@ -4,7 +4,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.IdentificationDocumentExtraDigit;
+import org.fenixedu.academic.domain.IdentificationDocumentSeriesNumber;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.LocalDate;
 
@@ -75,24 +80,68 @@ public class IdentificationDocument extends IdentificationDocument_Base {
         super.setExpirationDate(value);
     }
 
-    public static Optional<IdentificationDocument> find(final String idDocumentValue,
+    public boolean hasExtraInfo() {
+        return StringUtils.isNotBlank(getExtraInfo());
+    }
+
+    public void setExtraInfo(final String extraInfo) {
+        if (!getIdentificationDocumentType().getHasExtraInfo()) {
+            throw new DomainException("error.IdentificationDocument.extraInfo.not.allowed",
+                    getIdentificationDocumentType().getName().getContent());
+        }
+
+        if (getIdentificationDocumentType().hasExtraInfoValidator()) {
+            IdentificationDocumentExtraInfoValidator validator =
+                    IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
+            if (validator == null) {
+                throw new DomainException("error.IdentificationDocument.validator.not.found",
+                        getIdentificationDocumentType().getExtraInfoValidator());
+            }
+
+            validator.validate(extraInfo, getValue());
+
+            //TODO - remove on extra info cleanup
+            getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+        }
+
+        super.setExtraInfo(extraInfo);
+    }
+
+    public void forceExtraInfo(final String extraInfo) {
+        super.setExtraInfo(extraInfo);
+    }
+
+    public void clearExtraInfo() {
+        //TODO - remove on extra info cleanup
+        if (getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class) != null) {
+            getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class).clearValue();
+        }
+
+        if (getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class) != null) {
+            getPerson().getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class).clearValue();
+        }
+
+        super.setExtraInfo(null);
+    }
+
+    public static Optional<IdentificationDocument> find(final String identificationDocumentValue,
             final IdentificationDocumentType identificationDocumentType) {
         if (identificationDocumentType == null) {
             return Optional.empty();
         }
 
         return identificationDocumentType.getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(idDocumentValue))
+                .filter(idDoc -> idDoc.getValue().equalsIgnoreCase(identificationDocumentValue))
                 .findAny();
     }
 
-    public static Stream<IdentificationDocument> find(final String idDocumentValue) {
-        if (StringUtils.isBlank(idDocumentValue)) {
+    public static Stream<IdentificationDocument> find(final String identificationDocumentValue) {
+        if (StringUtils.isBlank(identificationDocumentValue)) {
             return Stream.empty();
         }
 
         return Bennu.getInstance().getIdentificationDocumentsSet().stream()
-                .filter(idDoc -> idDocumentValue.equalsIgnoreCase(idDoc.getValue()));
+                .filter(idDoc -> identificationDocumentValue.equalsIgnoreCase(idDoc.getValue()));
     }
 
 }
