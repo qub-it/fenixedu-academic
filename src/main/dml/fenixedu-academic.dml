@@ -2604,7 +2604,7 @@ relation IdentificationDocumentPerson {
 
 relation IdentificationDocumentTypeIdentificationDocument {
     person.identificationDocument.IdentificationDocumentType playsRole identificationDocumentType {
-        multiplicity 0..1;
+        multiplicity 1..1;
     }
     person.identificationDocument.IdentificationDocument playsRole identificationDocuments {
         multiplicity *;
