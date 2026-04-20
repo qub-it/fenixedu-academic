@@ -1142,17 +1142,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 			LocalizedString title;
         }
 
-		class PersonIdentificationDocumentExtraInfo  {
-			DateTime registeredInSystemTimestamp;
-			String value;
-		}
-
-			class IdentificationDocumentExtraDigit extends PersonIdentificationDocumentExtraInfo {
-			}
-
-			class IdentificationDocumentSeriesNumber extends PersonIdentificationDocumentExtraInfo {
-			}
-
         class organizationalStructure.Unit extends organizationalStructure.Party {
             LocalizedString partyName;
             String acronym;
@@ -4232,22 +4221,6 @@ relation ExternalScholarshipProviderRootDomainObject {
 		multiplicity *;
 	}
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectExternalScholarshipProvider;
-}
-
-relation PersonPersonIdentificationDocumentExtraInfo {
-	Person playsRole person {
-		multiplicity 1..1;
-	}
-	PersonIdentificationDocumentExtraInfo playsRole personIdentificationDocumentExtraInfo {
-		multiplicity *;
-	}
-}
-
-relation PersonIdentificationDocumentExtraInfoRootDomainObject {
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    PersonIdentificationDocumentExtraInfo playsRole personIdentificationDocumentExtraInfo {
-        multiplicity *;
-    }
 }
 
 
