@@ -86,8 +86,8 @@ public class LessonInstanceSpaceOccupationTest {
         assertFalse(lessonRoom.isFree(intervals2021_2022));
         assertTrue(lessonRoom.isFree(intervals2025_2026));
 
-        Space lessonInstanceRoom =
-                new Space(new Information.Builder().classification(classification).name("Lesson Instance Room").build());
+        Space lessonInstanceRoom = new Space(new Information.Builder().classification(classification).name("Lesson Instance Room")
+                .validFrom(DateTime.now().minusDays(1)).build());
 
         LessonInstance instance1 = LessonInstance.create(lesson, new LocalDate(2023, 9, 1));
         LessonInstanceSpaceOccupation lessonInstanceSpaceOccupation =
