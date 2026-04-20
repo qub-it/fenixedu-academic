@@ -1,3 +1,5 @@
+- Improvement: Validate if registration state is created with an execution interval [#UL-FD-2341]
+
 55.1.0 (17-04-2026)
 - Refactor: Add extra info fields to identification documents entities [#qubIT-Fenix-6491]
 

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -52,6 +53,10 @@ public class RegistrationState extends RegistrationState_Base {
 
     public static RegistrationState createRegistrationState(Registration registration, Person responsible, DateTime creation,
             RegistrationStateType stateType, ExecutionInterval executionInterval) {
+
+        if (executionInterval == null) {
+            throw new DomainException("error.RegistrationState.executionInterval.required");
+        }
 
         final RegistrationState createdState = new RegistrationState();
         createdState.setRegistration(registration);
