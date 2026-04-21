@@ -7,18 +7,9 @@ import org.fenixedu.academic.util.ContentType;
 
 public interface UserPhotoStorageService {
 
-    @Deprecated
-    public void storePictureInStorage(Picture picture);
-
     public byte[] getOriginalPicture(Picture picture);
 
-    @Deprecated
-    public boolean isPictureCorrectlyStoredInDisk(Picture picture);
-
     public void initUserPhotoStorage();
-
-    @Deprecated
-    public boolean doesPictureDataContain100x100();
 
     public PictureOriginal createPictureForPhotograph(Photograph photograph, ContentType contentType, byte[] originalData,
             byte[] data100x100);
