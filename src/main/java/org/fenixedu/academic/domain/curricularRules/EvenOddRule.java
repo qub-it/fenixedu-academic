@@ -109,12 +109,9 @@ public class EvenOddRule extends EvenOddRule_Base {
     }
 
     @Override
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
-        CourseGroup targetCourseGroup =
-                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
-                        .map(Context::getParentCourseGroup).orElse(null);
-
-        return new EvenOddRule(targetModule, targetCourseGroup, null, null  , getEven(),
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
+        return new EvenOddRule(targetModule, contextCourseGroup, null, null  , getEven(),
                 targetExecutionYear, null);
     }
 }

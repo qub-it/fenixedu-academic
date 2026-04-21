@@ -69,18 +69,16 @@ public class EnrolmentToBeApprovedByCoordinator extends EnrolmentToBeApprovedByC
     }
 
     @Override
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
         DegreeCurricularPlan targetDCP = targetModule.getParentDegreeCurricularPlan();
 
-        CourseGroup targetCourseGroup =
-                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
-                        .map(Context::getParentCourseGroup).orElse(null);
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
 
         CurricularPeriod sourceCurricularPeriod = getCurricularPeriod();
         CurricularPeriod targetCurricularPeriod =
                 CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
 
-        EnrolmentToBeApprovedByCoordinator rule = new EnrolmentToBeApprovedByCoordinator(targetModule, targetCourseGroup,
+        EnrolmentToBeApprovedByCoordinator rule = new EnrolmentToBeApprovedByCoordinator(targetModule, contextCourseGroup,
                 targetExecutionYear, null);
 
         rule.setCurricularPeriod(targetCurricularPeriod);

@@ -155,12 +155,9 @@ public class DegreeModulesSelectionLimit extends DegreeModulesSelectionLimit_Bas
     }
 
     @Override
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
-        CourseGroup targetCourseGroup =
-                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
-                        .map(Context::getParentCourseGroup).orElse(null);
-
-        final DegreeModulesSelectionLimit rule = new DegreeModulesSelectionLimit((CourseGroup) targetModule, targetCourseGroup,
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
+        final DegreeModulesSelectionLimit rule = new DegreeModulesSelectionLimit((CourseGroup) targetModule, contextCourseGroup,
                 targetExecutionYear, null, getMinimumLimit(), getMaximumLimit());
 
         rule.setCanEnrolAfterConclusion(getCanEnrolAfterConclusion());

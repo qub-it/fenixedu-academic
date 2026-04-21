@@ -149,12 +149,9 @@ public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
     }
 
     @Override
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
-        CourseGroup targetCourseGroup =
-                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
-                        .map(Context::getParentCourseGroup).orElse(null);
-
-        return new CreditsLimit(targetModule, targetCourseGroup, targetExecutionYear, null,
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
+        return new CreditsLimit(targetModule, contextCourseGroup, targetExecutionYear, null,
                 getMinimumCredits(), getMaximumCredits());
     }
 

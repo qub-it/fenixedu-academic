@@ -257,18 +257,16 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
     }
 
     @Override
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
         DegreeCurricularPlan targetDCP = targetModule.getParentDegreeCurricularPlan();
 
-        CourseGroup targetCourseGroup =
-                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
-                        .map(Context::getParentCourseGroup).orElse(null);
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
 
         CurricularPeriod sourceCurricularPeriod = getCurricularPeriod();
         CurricularPeriod targetCurricularPeriod =
                 CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
 
-        AnyCurricularCourse result = new AnyCurricularCourse((OptionalCurricularCourse) targetModule, targetCourseGroup,
+        AnyCurricularCourse result = new AnyCurricularCourse((OptionalCurricularCourse) targetModule, contextCourseGroup,
                 targetExecutionYear, null, getMinimumCredits(), getMaximumCredits());
 
         result.setCurricularPeriod(targetCurricularPeriod);

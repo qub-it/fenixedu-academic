@@ -250,7 +250,7 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
         return getContextCourseGroup() != null;
     }
 
-    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
         return null;
     }
 }
