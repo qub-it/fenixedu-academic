@@ -412,6 +412,7 @@ public class PersonBean implements Serializable {
 
     public void setDocumentIdEmissionDate(final YearMonthDay documentIdEmissionDate) {
         this.documentIdEmissionDate = documentIdEmissionDate;
+        this.documentEmissionDate = documentIdEmissionDate != null ? documentIdEmissionDate.toLocalDate() : null;
     }
 
     public LocalDate getDocumentEmissionDate() {
@@ -420,6 +421,7 @@ public class PersonBean implements Serializable {
 
     public void setDocumentEmissionDate(final LocalDate documentEmissionDate) {
         this.documentEmissionDate = documentEmissionDate;
+        this.documentIdEmissionDate = documentEmissionDate != null ? new YearMonthDay(documentEmissionDate) : null;
     }
 
     public String getDocumentIdEmissionLocation() {
@@ -436,6 +438,7 @@ public class PersonBean implements Serializable {
 
     public void setDocumentIdExpirationDate(final YearMonthDay documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
+        this.documentExpirationDate = documentIdExpirationDate != null ? documentIdExpirationDate.toLocalDate() : null;
     }
 
     public LocalDate getDocumentExpirationDate() {
@@ -444,6 +447,7 @@ public class PersonBean implements Serializable {
 
     public void setDocumentExpirationDate(final LocalDate documentExpirationDate) {
         this.documentExpirationDate = documentExpirationDate;
+        this.documentIdExpirationDate = documentExpirationDate != null ? new YearMonthDay(documentExpirationDate) : null;
     }
 
     public String getDocumentIdNumber() {
