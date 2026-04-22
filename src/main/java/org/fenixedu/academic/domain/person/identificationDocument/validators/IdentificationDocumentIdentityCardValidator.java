@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public class IdentificationDocumentIdentityCardValidator implements IdentificationDocumentExtraInfoValidator{
 
@@ -81,5 +83,10 @@ public class IdentificationDocumentIdentityCardValidator implements Identificati
 
     private static int toInt(final char c) {
         return Character.isDigit(c) ? Character.getNumericValue(c) : ((int) c) - ((int) 'A') + 10;
+    }
+
+    @Override
+    public String getLocalizedName() {
+        return BundleUtil.getString(Bundle.APPLICATION, getClass().getName());
     }
 }
