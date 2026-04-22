@@ -1,3 +1,4 @@
+- Improvement: Expands support for copying curricular rules when duplicating degree curricular plans [#ISCTE-FENIXEDU-592]
 - Improvement: Validate if registration state is created with an execution interval [#UL-FD-2341]
 
 55.1.0 (17-04-2026)
@@ -19,7 +20,6 @@
 54.8.0 (02-04-2026)
 - Refactor: Remove deprecated constructors of PersonBean and replace old id document references [#qubIT-Fenix-6491]
 - Refactor: Remove deprecated builder methods of StudentGroup [#qubIT-Fenix-7429]
-- Improvement: Expands support for copying curricular rules when duplicating degree curricular plans [#ISCTE-FENIXEDU-592]
 - Improvement: Improves exception labels [#qubIT-Fenix-8044]
 - Improvement: Mark competence course as active/inactive [#qubIT-Fenix-8218]
 - Bug fix: Adds delete listener for relations of DomainObject to DynamicField [#UCP-FENIXEDU-755]
