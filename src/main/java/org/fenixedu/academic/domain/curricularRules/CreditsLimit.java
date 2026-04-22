@@ -26,6 +26,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -145,6 +146,13 @@ public class CreditsLimit extends CreditsLimit_Base implements ConclusionRule {
                 group.getCurriculumModulesSet().stream().filter(m -> m.isConcluded(executionYear).isValid())
                         .map(m -> m.getCreditsConcluded(executionYear)).collect(Collectors.summingDouble(v -> v));
         return creditsConcluded < getMaximumCredits();
+    }
+
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
+        return new CreditsLimit(targetModule, contextCourseGroup, targetExecutionYear, null,
+                getMinimumCredits(), getMaximumCredits());
     }
 
 }

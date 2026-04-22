@@ -1,3 +1,4 @@
+- Improvement: Expands support for copying curricular rules when duplicating degree curricular plans [#ISCTE-FENIXEDU-592]
 - Improvement: Validate if registration state is created with an execution interval [#UL-FD-2341]
 
 55.1.0 (17-04-2026)

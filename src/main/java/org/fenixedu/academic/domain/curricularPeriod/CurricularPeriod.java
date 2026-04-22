@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
@@ -303,6 +304,16 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
 
     public boolean hasChildOrderValue(final Integer order) {
         return hasChildOrder() && getChildOrder().equals(order);
+    }
+
+    public static CurricularPeriod findEquivalentCurricularPeriodForDegreeCurricularPlan(CurricularPeriod sourcePeriod,
+            DegreeCurricularPlan targetDCP) {
+        if (sourcePeriod == null || targetDCP == null) {
+            return null;
+        }
+
+        int year = sourcePeriod.getParentOrder() != null ? sourcePeriod.getParentOrder() : 1;
+        return targetDCP.getCurricularPeriodFor(year, sourcePeriod.getChildOrder(), sourcePeriod.getAcademicPeriod());
     }
 
 }

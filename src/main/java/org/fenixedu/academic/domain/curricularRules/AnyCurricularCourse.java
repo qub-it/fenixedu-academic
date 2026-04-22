@@ -28,10 +28,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -252,4 +256,31 @@ public class AnyCurricularCourse extends AnyCurricularCourse_Base {
         return VerifyRuleExecutor.NULL_VERIFY_EXECUTOR;
     }
 
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, CourseGroup targetCourseGroup, ExecutionYear targetExecutionYear) {
+        DegreeCurricularPlan targetDCP = targetModule.getParentDegreeCurricularPlan();
+
+        CourseGroup contextCourseGroup = getContextCourseGroup() == null ? null : targetCourseGroup;
+
+        CurricularPeriod sourceCurricularPeriod = getCurricularPeriod();
+        CurricularPeriod targetCurricularPeriod =
+                CurricularPeriod.findEquivalentCurricularPeriodForDegreeCurricularPlan(sourceCurricularPeriod, targetDCP);
+
+        AnyCurricularCourse result = new AnyCurricularCourse((OptionalCurricularCourse) targetModule, contextCourseGroup,
+                targetExecutionYear, null, getMinimumCredits(), getMaximumCredits());
+
+        result.setCurricularPeriod(targetCurricularPeriod);
+        result.getCompetenceCourseLevelTypesSet().addAll(getCompetenceCourseLevelTypesSet());
+        result.getCompetenceCoursesSet().addAll(getCompetenceCoursesSet());
+        result.getDegreeTypesSet().addAll(getDegreeTypesSet());
+        result.getDegreesSet().addAll(getDegreesSet());
+        result.getUnitsSet().addAll(getUnitsSet());
+        result.getDegreeCurricularPlansSet().addAll(getDegreeCurricularPlansSet());
+        result.getCourseGroupsSet().addAll(getCourseGroupsSet());
+        result.setNegation(getNegation());
+        result.setFilterExceptions(getFilterExceptions());
+        result.setFilterStudentDegree(getFilterStudentDegree());
+
+        return result;
+    }
 }
