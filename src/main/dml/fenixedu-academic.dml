@@ -1123,9 +1123,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             YearMonthDay dateOfBirthYearMonthDay;
             String districtOfBirth;
             String districtSubdivisionOfBirth;
-            YearMonthDay emissionDateOfDocumentIdYearMonthDay;
-            String emissionLocationOfDocumentId;
-            YearMonthDay expirationDateOfDocumentIdYearMonthDay;
             String fiscalCode;
             Gender gender;
             MaritalStatus maritalStatus;
