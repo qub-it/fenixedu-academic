@@ -167,9 +167,11 @@ public class Photograph extends Photograph_Base implements Comparable<Photograph
     public byte[] getCustomAvatar(int xRatio, int yRatio, int width, int height, PictureMode pictureMode) {
         final UserPhotoStorageService userPhotoStorageService = ServiceProvider.getService(UserPhotoStorageService.class);
         boolean usePictureStoredInPictureData = width == 100 && height == 100 && PictureMode.ZOOM == pictureMode;
-        final byte[] originalPictureBytes =
+        byte[] originalPictureBytes =
                 usePictureStoredInPictureData ? getOriginal().getPictureData() : userPhotoStorageService.getOriginalPicture(
                         getOriginal());
+        originalPictureBytes =
+                originalPictureBytes != null ? originalPictureBytes : mysteryManPhoto(xRatio, yRatio, width, height, pictureMode);
         return imageAsBytes(xRatio, yRatio, width, height, pictureMode, getOriginal().getPictureFileFormat(),
                 originalPictureBytes, !usePictureStoredInPictureData);
     }

@@ -1,3 +1,5 @@
+- Bug fix: Changes photograph to return mistery photo when does not have one available [#qubIT-Omnis-10950]
+
 55.2.2 (27-04-2026)
 - Refactor: Removes deprecated code related with storing pictures in disk [#qubIT-Fenix-8065]
 
