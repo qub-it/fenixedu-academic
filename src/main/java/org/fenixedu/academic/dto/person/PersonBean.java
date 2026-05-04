@@ -409,7 +409,15 @@ public class PersonBean implements Serializable {
     public void setDocumentEmissionDate(final LocalDate documentEmissionDate) {
         this.documentEmissionDate = documentEmissionDate;
     }
-    
+
+    public String getDocumentIdEmissionLocation() {
+        return documentIdEmissionLocation;
+    }
+
+    public void setDocumentIdEmissionLocation(final String documentIdEmissionLocation) {
+        this.documentIdEmissionLocation = documentIdEmissionLocation;
+    }
+
     public LocalDate getDocumentExpirationDate() {
         return documentExpirationDate;
     }

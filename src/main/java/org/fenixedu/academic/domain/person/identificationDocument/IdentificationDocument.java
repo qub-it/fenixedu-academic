@@ -11,7 +11,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.joda.time.LocalDate;
 
 public class IdentificationDocument extends IdentificationDocument_Base {
 
@@ -36,21 +35,6 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
         setRootDomainObject(null);
         this.deleteDomainObject();
-    }
-
-    @Override
-    public void setEmissionLocation(final String emissionLocation) {
-        super.setEmissionLocation(emissionLocation);
-    }
-
-    @Override
-    public void setEmissionDate(final LocalDate emissionDate) {
-        super.setEmissionDate(emissionDate);
-    }
-
-    @Override
-    public void setExpirationDate(final LocalDate expirationDate) {
-        super.setExpirationDate(expirationDate);
     }
 
     public boolean hasExtraInfo() {
