@@ -11,7 +11,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.joda.time.LocalDate;
 
 public class IdentificationDocument extends IdentificationDocument_Base {
 
@@ -36,48 +35,6 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
         setRootDomainObject(null);
         this.deleteDomainObject();
-    }
-
-    @Override
-    public void setEmissionLocation(final String emissionLocation) {
-        super.setEmissionLocation(emissionLocation);
-
-        final Person person = getPerson();
-        if (person != null) {
-            person.syncEmissionLocationOfDocumentIdFromIdentificationDocument(emissionLocation);
-        }
-    }
-
-    @Override
-    public void setEmissionDate(final LocalDate emissionDate) {
-        super.setEmissionDate(emissionDate);
-
-        final Person person = getPerson();
-        if (person != null) {
-            person.syncEmissionDateOfDocumentIdYearMonthDayFromIdentificationDocument(emissionDate);
-        }
-    }
-
-    @Override
-    public void setExpirationDate(final LocalDate expirationDate) {
-        super.setExpirationDate(expirationDate);
-
-        final Person person = getPerson();
-        if (person != null) {
-            person.syncExpirationDateOfDocumentIdYearMonthDayFromIdentificationDocument(expirationDate);
-        }
-    }
-
-    public void syncEmissionLocationOfDocumentIdFromPerson(final String value) {
-        super.setEmissionLocation(value);
-    }
-
-    public void syncEmissionDateOfDocumentIdYearMonthDayFromPerson(final LocalDate value) {
-        super.setEmissionDate(value);
-    }
-
-    public void syncExpirationDateOfDocumentIdYearMonthDayFromPerson(final LocalDate value) {
-        super.setExpirationDate(value);
     }
 
     public boolean hasExtraInfo() {

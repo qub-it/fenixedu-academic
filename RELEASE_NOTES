@@ -1,3 +1,5 @@
+- Refactor: IdentificationDocument expirationDate, emissionDate and emissionLocation cleanup [#qubIT-Fenix-6491]
+
 55.2.5 (06-05-2026)
 - Refactor: Initialize Identification Document Type active field [#qubIT-Fenix-6491]
 

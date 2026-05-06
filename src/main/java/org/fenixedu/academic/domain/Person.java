@@ -65,7 +65,6 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -315,9 +314,9 @@ public class Person extends Person_Base {
         // identification
         setIdentification(personBean.getDocumentIdNumber(), personBean.getIdentificationDocumentType());
         setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
-        setEmissionLocationOfDocumentId(personBean.getDocumentIdEmissionLocation());
-        setEmissionDateOfDocumentIdYearMonthDay(personBean.getDocumentIdEmissionDate());
-        setExpirationDateOfDocumentIdYearMonthDay(personBean.getDocumentIdExpirationDate());
+        getDefaultIdentificationDocument().setEmissionLocation(personBean.getDocumentIdEmissionLocation());
+        getDefaultIdentificationDocument().setEmissionDate(personBean.getDocumentEmissionDate());
+        getDefaultIdentificationDocument().setExpirationDate(personBean.getDocumentExpirationDate());
         setEidentifier(personBean.getEidentifier());
         setHealthCardNumber(personBean.getHealthCardNumber());
 
@@ -979,52 +978,19 @@ public class Person extends Person_Base {
         super.setMaritalStatus(argToSet);
     }
 
-    @Override
-    public void setEmissionLocationOfDocumentId(final String arg) {
-        logSetterNullString("log.personInformation.edit.generalTemplate.personalId", getEmissionLocationOfDocumentId(), arg,
-                "label.documentIdEmissionLocation");
-        super.setEmissionLocationOfDocumentId(arg);
-
-        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        if (identificationDocument != null) {
-            identificationDocument.syncEmissionLocationOfDocumentIdFromPerson(arg);
-        }
+    @Deprecated
+    public YearMonthDay getExpirationDateOfDocumentIdYearMonthDay() {
+        return new YearMonthDay(getDefaultIdentificationDocument().getExpirationDate());
     }
 
-    @Override
-    public void setEmissionDateOfDocumentIdYearMonthDay(final YearMonthDay arg) {
-        logSetterNullYearMonthDay("log.personInformation.edit.generalTemplate.personalId",
-                getEmissionDateOfDocumentIdYearMonthDay(), arg, "label.documentIdEmissionDate");
-        super.setEmissionDateOfDocumentIdYearMonthDay(arg);
-
-        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        if (identificationDocument != null) {
-            identificationDocument.syncEmissionDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
-        }
+    @Deprecated
+    public String getEmissionLocationOfDocumentId() {
+        return getDefaultIdentificationDocument().getEmissionLocation();
     }
 
-    @Override
-    public void setExpirationDateOfDocumentIdYearMonthDay(final YearMonthDay arg) {
-        logSetterNullYearMonthDay("log.personInformation.edit.generalTemplate.personalId",
-                getExpirationDateOfDocumentIdYearMonthDay(), arg, "label.documentIdExpirationDate");
-        super.setExpirationDateOfDocumentIdYearMonthDay(arg);
-
-        final IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        if (identificationDocument != null) {
-            identificationDocument.syncExpirationDateOfDocumentIdYearMonthDayFromPerson(arg != null ? arg.toLocalDate() : null);
-        }
-    }
-
-    public void syncEmissionLocationOfDocumentIdFromIdentificationDocument(final String arg) {
-        super.setEmissionLocationOfDocumentId(arg);
-    }
-
-    public void syncEmissionDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
-        super.setEmissionDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
-    }
-
-    public void syncExpirationDateOfDocumentIdYearMonthDayFromIdentificationDocument(final LocalDate arg) {
-        super.setExpirationDateOfDocumentIdYearMonthDay(arg == null ? null : new YearMonthDay(arg));
+    @Deprecated
+    public YearMonthDay getEmissionDateOfDocumentIdYearMonthDay() {
+        return new YearMonthDay(getDefaultIdentificationDocument().getEmissionDate());
     }
 
     @Override
