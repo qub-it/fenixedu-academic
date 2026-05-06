@@ -34,6 +34,7 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
         final IdentificationDocumentType identificationDocumentType = new IdentificationDocumentType();
         identificationDocumentType.setCode(code);
         identificationDocumentType.setName(name);
+        identificationDocumentType.setActive(true);
         return identificationDocumentType;
     }
 
@@ -73,6 +74,10 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
     public static Optional<IdentificationDocumentType> findByCode(final String code) {
         return findAll().filter(identificationDocumentType -> Objects.equals(identificationDocumentType.getCode(), code))
                 .findAny();
+    }
+
+    public static Stream<IdentificationDocumentType> findAllActive() {
+        return findAll().filter(IdentificationDocumentType::getActive);
     }
 
     public static Stream<IdentificationDocumentType> findAll() {

@@ -4,4 +4,5 @@ public interface IdentificationDocumentExtraInfoValidator {
 
     void validate(String extraInfo, String identificationDocumentValue);
 
+    String getLocalizedName();
 }

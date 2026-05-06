@@ -78,6 +78,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
+
+        setIdentificationDocumentTypeActive();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -195,6 +197,19 @@ public class FenixInitializer implements ServletContextListener {
                 });
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
+        Log.info("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void setIdentificationDocumentTypeActive() {
+        Log.info("---------------------------------------");
+        Log.info("Starting Identification document types activation");
+
+        IdentificationDocumentType.findAll().forEach(type -> {
+            type.setActive(!IdentificationDocumentType.CITIZEN_CARD_CODE.equals(type.getCode()));
+        });
+
+        Log.info("Ending Identification document types activation");
         Log.info("---------------------------------------");
     }
 
