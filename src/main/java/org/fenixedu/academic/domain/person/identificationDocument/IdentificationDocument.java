@@ -85,26 +85,28 @@ public class IdentificationDocument extends IdentificationDocument_Base {
     }
 
     public void setExtraInfo(final String extraInfo) {
-        if (!getIdentificationDocumentType().getHasExtraInfo()) {
-            throw new DomainException("error.IdentificationDocument.extraInfo.not.allowed",
-                    getIdentificationDocumentType().getName().getContent());
-        }
-
-        if (getIdentificationDocumentType().hasExtraInfoValidator()) {
-            IdentificationDocumentExtraInfoValidator validator =
-                    IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
-            if (validator == null) {
-                throw new DomainException("error.IdentificationDocument.validator.not.found",
-                        getIdentificationDocumentType().getExtraInfoValidator());
+        if (StringUtils.isNotBlank(extraInfo)) {
+            if (!getIdentificationDocumentType().getHasExtraInfo()) {
+                throw new DomainException("error.IdentificationDocument.extraInfo.not.allowed",
+                        getIdentificationDocumentType().getName().getContent());
             }
 
-            validator.validate(extraInfo, getValue());
+            if (getIdentificationDocumentType().hasExtraInfoValidator()) {
+                IdentificationDocumentExtraInfoValidator validator =
+                        IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
+                if (validator == null) {
+                    throw new DomainException("error.IdentificationDocument.validator.not.found",
+                            getIdentificationDocumentType().getExtraInfoValidator());
+                }
 
-            //TODO - remove on extra info cleanup
-            getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+                validator.validate(extraInfo, getValue());
+
+                //TODO - remove on extra info cleanup
+                getPerson().setIdentificationDocumentSeriesNumber(extraInfo);
+            }
+
+            super.setExtraInfo(extraInfo);
         }
-
-        super.setExtraInfo(extraInfo);
     }
 
     public void forceExtraInfo(final String extraInfo) {
