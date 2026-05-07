@@ -313,7 +313,8 @@ public class Person extends Person_Base {
 
         // identification
         setIdentification(personBean.getDocumentIdNumber(), personBean.getIdentificationDocumentType());
-        setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
+        getDefaultIdentificationDocument().clearExtraInfo();
+        getDefaultIdentificationDocument().setExtraInfo(personBean.getIdentificationDocumentExtraInfo());
         getDefaultIdentificationDocument().setEmissionLocation(personBean.getDocumentIdEmissionLocation());
         getDefaultIdentificationDocument().setEmissionDate(personBean.getDocumentEmissionDate());
         getDefaultIdentificationDocument().setExpirationDate(personBean.getDocumentExpirationDate());
@@ -330,13 +331,6 @@ public class Person extends Person_Base {
         setCountryOfBirth(personBean.getCountryOfBirth());
         setNameOfMother(personBean.getMotherName());
         setNameOfFather(personBean.getFatherName());
-
-        getDefaultIdentificationDocument().clearExtraInfo();
-
-        if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
-                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
-            setIdentificationDocumentSeriesNumber(personBean.getIdentificationDocumentSeriesNumber());
-        }
     }
 
     /**
@@ -379,10 +373,6 @@ public class Person extends Person_Base {
 
         for (PersonInformationLog log : getPersonInformationLogsSet()) {
             log.delete();
-        }
-
-        for (PersonIdentificationDocumentExtraInfo extraInfo : getPersonIdentificationDocumentExtraInfoSet()) {
-            extraInfo.delete();
         }
 
         if (getPersonalPhoto() != null) {
@@ -746,88 +736,6 @@ public class Person extends Person_Base {
     public static Person findByUsername(final String username) {
         final User user = User.findByUsername(username);
         return user == null ? null : user.getPerson();
-    }
-
-    /**
-     * This method gets the identification document series number.
-     * The value is ignored if the document is not an identity card.
-     */
-    @Deprecated
-    public String getIdentificationDocumentSeriesNumber() {
-        if (IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
-                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
-            String seriesNumber = getIdentificationDocumentSeriesNumberValue();
-            String extraDigit = getIdentificationDocumentExtraDigitValue();
-            if (StringUtils.isNotBlank(seriesNumber)) {
-                return seriesNumber;
-            } else if (StringUtils.isNotBlank(extraDigit)) {
-                return extraDigit;
-            }
-        }
-        return "";
-    }
-
-    @Deprecated
-    public String getIdentificationDocumentExtraDigitValue() {
-        final PersonIdentificationDocumentExtraInfo result =
-                getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
-        return result != null ? result.getValue() : null;
-    }
-
-    @Deprecated
-    public String getIdentificationDocumentSeriesNumberValue() {
-        final PersonIdentificationDocumentExtraInfo result =
-                getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
-        return result != null ? result.getValue() : null;
-    }
-
-    @Deprecated
-    public PersonIdentificationDocumentExtraInfo getPersonIdentificationDocumentExtraInfo(final Class clazz) {
-        PersonIdentificationDocumentExtraInfo result = null;
-        for (final PersonIdentificationDocumentExtraInfo info : getPersonIdentificationDocumentExtraInfoSet()) {
-            if (info.getClass() == clazz && (result == null
-                    || result.getRegisteredInSystemTimestamp().isBefore(info.getRegisteredInSystemTimestamp()))) {
-                result = info;
-            }
-        }
-        return result == null ? null : result;
-    }
-
-    @Deprecated
-    public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
-        if (!StringUtils.isEmpty(identificationDocumentSeriesNumber) && IdentificationDocumentType.IDENTITY_CARD_CODE.equals(
-                getDefaultIdentificationDocument().getIdentificationDocumentType().getCode())) {
-            if (identificationDocumentSeriesNumber.trim().length() == 1) {
-                final PersonIdentificationDocumentExtraInfo personIdentificationDocumentExtraInfo =
-                        getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
-                if (personIdentificationDocumentExtraInfo == null) {
-                    new IdentificationDocumentExtraDigit(this, identificationDocumentSeriesNumber);
-                } else {
-                    personIdentificationDocumentExtraInfo.setValue(identificationDocumentSeriesNumber);
-                }
-            } else {
-                final PersonIdentificationDocumentExtraInfo personIdentificationDocumentExtraInfo =
-                        getPersonIdentificationDocumentExtraInfo(IdentificationDocumentSeriesNumber.class);
-                if (personIdentificationDocumentExtraInfo == null) {
-                    new IdentificationDocumentSeriesNumber(this, identificationDocumentSeriesNumber);
-                } else {
-                    personIdentificationDocumentExtraInfo.setValue(identificationDocumentSeriesNumber);
-                }
-            }
-        }
-    }
-
-    @Deprecated
-    public void setIdentificationDocumentExtraDigit(final String identificationDocumentExtraDigit) {
-        if (!StringUtils.isEmpty(identificationDocumentExtraDigit)) {
-            final PersonIdentificationDocumentExtraInfo personIdentificationDocumentExtraInfo =
-                    getPersonIdentificationDocumentExtraInfo(IdentificationDocumentExtraDigit.class);
-            if (personIdentificationDocumentExtraInfo == null) {
-                new IdentificationDocumentExtraDigit(this, identificationDocumentExtraDigit);
-            } else {
-                personIdentificationDocumentExtraInfo.setValue(identificationDocumentExtraDigit);
-            }
-        }
     }
 
     @Override

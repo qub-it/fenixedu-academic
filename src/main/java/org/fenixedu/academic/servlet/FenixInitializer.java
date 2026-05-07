@@ -123,13 +123,6 @@ public class FenixInitializer implements ServletContextListener {
     private void registerIdentificationDocumentExtraInfoValidators() {
         IdentificationDocumentValidatorRegistry.register(IdentificationDocumentIdentityCardValidator.class.getName(),
                 new IdentificationDocumentIdentityCardValidator());
-        setIdentificationDocumentTypeExtraInfoValidator(IdentificationDocumentType.IDENTITY_CARD_CODE,
-                IdentificationDocumentIdentityCardValidator.class.getName());
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void setIdentificationDocumentTypeExtraInfoValidator(String typeCode, String validatorClassName) {
-        IdentificationDocumentType.findByCode(typeCode).ifPresent(type -> type.setExtraInfoValidator(validatorClassName));
     }
 
     @Override

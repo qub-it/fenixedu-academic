@@ -40,8 +40,6 @@ import org.fenixedu.academic.domain.person.identificationDocument.Identification
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
-import com.google.common.base.Strings;
-
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 
@@ -70,8 +68,6 @@ public class PersonBean implements Serializable {
     private String documentIdNumber; // read only
 
     private IdentificationDocumentType identificationDocumentType;
-
-    private String identificationDocumentSeriesNumber;
 
     private String identificationDocumentExtraInfo;
 
@@ -223,7 +219,7 @@ public class PersonBean implements Serializable {
         setDocumentExpirationDate(person.getDefaultIdentificationDocument().getExpirationDate());
         setDocumentIdNumber(person.getDefaultIdentificationDocument().getValue());
         setIdentificationDocumentType(person.getDefaultIdentificationDocument().getIdentificationDocumentType());
-        setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumber());
+        setIdentificationDocumentExtraInfo(person.getDefaultIdentificationDocument().getExtraInfo());
         setFiscalCountry(person.getFiscalCountry());
         setSocialSecurityNumber(person.getSocialSecurityNumber());
         
@@ -258,12 +254,6 @@ public class PersonBean implements Serializable {
         setHomepageAvailable(person.getAvailableWebSite());
 
         setPerson(person);
-
-        setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentSeriesNumberValue());
-
-        if (Strings.isNullOrEmpty(getIdentificationDocumentSeriesNumber())) {
-            setIdentificationDocumentSeriesNumber(person.getIdentificationDocumentExtraDigitValue());
-        }
         
         setFiscalAddress(person.getFiscalAddress());
         if(person.getFiscalAddress() != null) {
@@ -434,22 +424,12 @@ public class PersonBean implements Serializable {
         this.documentIdNumber = documentIdNumber;
     }
 
-    public String getIdentificationDocumentSeriesNumber() {
-        return identificationDocumentSeriesNumber;
-    }
-
-    public void setIdentificationDocumentSeriesNumber(final String identificationDocumentSeriesNumber) {
-        this.identificationDocumentSeriesNumber = identificationDocumentSeriesNumber;
-        this.identificationDocumentExtraInfo = identificationDocumentSeriesNumber;
-    }
-
     public String getIdentificationDocumentExtraInfo() {
         return identificationDocumentExtraInfo;
     }
 
     public void setIdentificationDocumentExtraInfo(final String identificationDocumentExtraInfo) {
         this.identificationDocumentExtraInfo = identificationDocumentExtraInfo;
-        this.identificationDocumentSeriesNumber = identificationDocumentExtraInfo;
     }
 
     public String getEmail() {
@@ -906,7 +886,7 @@ public class PersonBean implements Serializable {
 
         // identification
         person.setIdentification(this.getDocumentIdNumber(), this.getIdentificationDocumentType());
-        person.setIdentificationDocumentSeriesNumber(getIdentificationDocumentSeriesNumber());
+        person.getDefaultIdentificationDocument().setExtraInfo(this.getIdentificationDocumentExtraInfo());
         person.getDefaultIdentificationDocument().setEmissionLocation(this.getDocumentIdEmissionLocation());
         person.getDefaultIdentificationDocument().setEmissionDate(this.getDocumentEmissionDate());
         person.getDefaultIdentificationDocument().setExpirationDate(this.getDocumentExpirationDate());

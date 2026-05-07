@@ -192,20 +192,4 @@ public class IdentificationDocumentTest {
         DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
         assertEquals("error.IdentificationDocument.extraInfo.not.allowed", exception.getKey());
     }
-
-    @Test
-    public void testIdentificationDocument_setExtraInfo_syncsWithPerson() {
-        Person person = idDoc.getPerson();
-        assertNotNull(person);
-
-        String validExtraDigit = "0";
-        assertDoesNotThrow(() -> idDoc.setExtraInfo(validExtraDigit));
-        assertEquals(validExtraDigit, idDoc.getExtraInfo());
-        assertEquals(validExtraDigit, person.getIdentificationDocumentExtraDigitValue());
-
-        String validSeriesNumber = "0ZZ4";
-        assertDoesNotThrow(() -> person.setIdentificationDocumentSeriesNumber(validSeriesNumber));
-        assertEquals(validSeriesNumber, idDoc.getExtraInfo());
-        assertEquals(validSeriesNumber, person.getIdentificationDocumentSeriesNumberValue());
-    }
 }
