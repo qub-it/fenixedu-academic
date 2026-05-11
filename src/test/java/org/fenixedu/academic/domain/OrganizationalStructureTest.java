@@ -52,25 +52,29 @@ public class OrganizationalStructureTest {
     static void initTypes() {
         Stream.of(PartyTypeEnum.values()).forEach(partyTypeEnum -> new PartyType(partyTypeEnum));
 
-        Stream.of(AccountabilityTypeEnum.values())
-                .forEach(accountabilityTypeEnum -> new AccountabilityType(accountabilityTypeEnum,
+        Stream.of(AccountabilityTypeEnum.values()).forEach(
+                accountabilityTypeEnum -> new AccountabilityType(accountabilityTypeEnum,
                         new LocalizedString(Locale.getDefault(), accountabilityTypeEnum.getLocalizedName())));
     }
 
     static void initUnits() {
         final Unit planetUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.PLANET), buildLS.apply("Earth"), "E", null, null);
 
-        final Unit countryUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COUNTRY), buildLS.apply("Portugal"), "PT",
-                planetUnit, AccountabilityType.readByType(GEOGRAPHIC));
+        final Unit countryUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.COUNTRY), buildLS.apply("Portugal"), "PT", planetUnit,
+                        AccountabilityType.readByType(GEOGRAPHIC));
 
-        final Unit universityUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.UNIVERSITY), buildLS.apply("qub University"),
-                "QU", countryUnit, AccountabilityType.readByType(GEOGRAPHIC));
+        final Unit universityUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.UNIVERSITY), buildLS.apply("qub University"), "QU", countryUnit,
+                        AccountabilityType.readByType(GEOGRAPHIC));
 
-        final Unit schoolUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.SCHOOL), buildLS.apply("qub School"), "QS",
-                universityUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+        final Unit schoolUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.SCHOOL), buildLS.apply("qub School"), "QS", universityUnit,
+                        AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
-        final Unit coursesAgregatorUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Courses"),
-                "Courses", schoolUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+        final Unit coursesAgregatorUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Courses"), "Courses", schoolUnit,
+                        AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
         Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Degrees"), "Degrees", schoolUnit,
                 AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
@@ -139,7 +143,7 @@ public class OrganizationalStructureTest {
 
         assertTrue(StringUtils.isBlank(earthUnit.getParentUnitsPresentationName(" > ")));
         assertEquals(universityUnit.getParentUnitsPresentationName(" : "), "Earth (E) : Portugal (PT)");
-        
+
         assertEquals(StringUtils.countMatches(parentUnitsPresentationName, ">"), 1);
         assertEquals(parentUnitsPresentationName, "qub University (QU) > qub School (QS)");
     }
@@ -181,16 +185,22 @@ public class OrganizationalStructureTest {
         Person igPerson = createPerson("Ígor", "ig");
         Person amPerson = createPerson("André Miguel", "am");
         Person ivPerson = createPerson("Ivo", "iv");
+        Person mmPerson = createPerson("Maria Margarida", "mm");
+        Person mdPerson = createPerson("Mariana Dias", "md");
+        Person mpPerson = createPerson("Maria Pacheco", "mp");
 
-        List<Person> sortedPersons =
-                Stream.of(zPerson, afPerson, igPerson, amPerson, ivPerson).sorted(Party.COMPARATOR_BY_NAME).toList();
-//        System.out.println(sortedPersons.stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
+        List<Person> sortedPersons = Stream.of(zPerson, afPerson, igPerson, amPerson, ivPerson, mmPerson, mdPerson, mpPerson)
+                .sorted(Party.COMPARATOR_BY_NAME).toList();
+                System.out.println(sortedPersons.stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
 
         assertEquals(amPerson, sortedPersons.get(0));
         assertEquals(afPerson, sortedPersons.get(1));
         assertEquals(igPerson, sortedPersons.get(2));
         assertEquals(ivPerson, sortedPersons.get(3));
-        assertEquals(zPerson, sortedPersons.get(4));
+        assertEquals(mmPerson, sortedPersons.get(4));
+        assertEquals(mpPerson, sortedPersons.get(5));
+        assertEquals(mdPerson, sortedPersons.get(6));
+        assertEquals(zPerson, sortedPersons.get(7));
     }
 
     private static Person createPerson(final String name, final String username) {
