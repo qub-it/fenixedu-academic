@@ -1,3 +1,5 @@
+- Refactor: Remove Identification Document Type active field initialization code [#qubIT-Fenix-6491]
+
 55.3.1 (13-05-2026)
 - Bug Fix: Do not include the name of the owner of fiscal number, in the message that a fiscal number already exists [#qubIT-Fenix-8398]
 
