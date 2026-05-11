@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -33,9 +32,9 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
+import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.service.services.administrativeOffice.student.RegistrationConclusionProcess;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
@@ -50,6 +49,11 @@ import org.junit.runners.FenixFrameworkRunner;
 
 import pt.ist.fenixframework.FenixFramework;
 
+//TODO: add unit test for case where partial conclusion is configured in both student curricular plans but one of the plans
+//is empty (curriculum group for partial conclusion is not created in SCP) and getCurriculumGroup falls back to registration which returns last plan curricular plan
+//when conclusion bean is created over previous plan group should not return last plan but empty
+
+//TODO: how to ensure that conclude is not called on external curriculum groups
 @RunWith(FenixFrameworkRunner.class)
 public class RegistrationConclusionTest {
 
@@ -80,16 +84,7 @@ public class RegistrationConclusionTest {
     @Before
     public void setup() {
 
-        // NEW-TEST
-        //        Registration.setConclusionProcessEnabler((bean) -> skipConclusionValidation.contains(bean.getRegistration()));
-
-        // OLD-TEST
-        CurriculumGroup.setConclusionProcessEnabler(() -> new CurriculumGroup.ConclusionProcessEnabler() {
-            @Override
-            public boolean isAllowed(final CurriculumGroup curriculumGroup) {
-                return curriculumGroup.isConcluded() || skipConclusionValidation.contains(curriculumGroup.getRegistration());
-            }
-        });
+        Registration.setConclusionProcessEnabler((bean) -> skipConclusionValidation.contains(bean.getRegistration()));
 
         FenixFramework.getTransactionManager().withTransaction(() -> {
             this.finalConclusion = ProgramConclusion.findByCode("FINAL").get();
@@ -150,27 +145,15 @@ public class RegistrationConclusionTest {
         assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
     }
 
-    // OLD-TEST
-        @Test
-        public void givenConfigurationWithNumericGrade_whenEnteredGradeIsInvalid_thenThrowDomainException() {
-            exceptionRule.expect(DomainException.class);
-            exceptionRule.expectMessage("error.RegistrationConclusionProcess.final.average.is.invalid");
+    @Test
+    public void givenConfigurationWithNumericGrade_whenEnteredGradeIsInvalid_thenThrowDomainException() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.grade.invalid.grade");
 
-            final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-            conclusionBean.setEnteredAverageGrade("INVALID");
-            RegistrationConclusionProcess.run(conclusionBean);
-        }
-
-    //    NEW-TEST
-//    @Test
-//    public void givenConfigurationWithNumericGrade_whenEnteredGradeIsInvalid_thenThrowDomainException() {
-//        exceptionRule.expect(DomainException.class);
-//        exceptionRule.expectMessage("error.grade.invalid.grade");
-//
-//        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-//        conclusionBean.setEnteredAverageGrade("INVALID");
-//        RegistrationConclusionProcess.run(conclusionBean);
-//    }
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("INVALID");
+        RegistrationConclusionProcess.run(conclusionBean);
+    }
 
     @Test
     public void givenConfigurationWithNumericGrade_whenEnteredGradeIsValid_thenSuccess() {
@@ -182,29 +165,16 @@ public class RegistrationConclusionTest {
         assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
     }
 
-    // OLD-TEST
-        @Test
-        public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsBeforeStartDate_thenThrowDomainException() {
-            exceptionRule.expect(DomainException.class);
-            exceptionRule.expectMessage("error.RegistrationConclusionProcess.start.date.is.after.entered.date");
+    @Test
+    public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsBeforeStartDate_thenThrowDomainException() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.ConclusionProcessVersion.start.date.is.after.conclusion.date");
 
-            final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-            conclusionBean.setEnteredAverageGrade("10");
-            conclusionBean.setEnteredConclusionDate(conclusionBean.getRegistration().getStartDate().minusDays(1).toLocalDate());
-            RegistrationConclusionProcess.run(conclusionBean);
-        }
-
-    // NEW-TEST
-//    @Test
-//    public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsBeforeStartDate_thenThrowDomainException() {
-//        exceptionRule.expect(DomainException.class);
-//        exceptionRule.expectMessage("error.ConclusionProcessVersion.start.date.is.after.conclusion.date");
-//
-//        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-//        conclusionBean.setEnteredAverageGrade("10");
-//        conclusionBean.setEnteredConclusionDate(conclusionBean.getRegistration().getStartDate().minusDays(1).toLocalDate());
-//        RegistrationConclusionProcess.run(conclusionBean);
-//    }
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        conclusionBean.setEnteredConclusionDate(conclusionBean.getRegistration().getStartDate().minusDays(1).toLocalDate());
+        RegistrationConclusionProcess.run(conclusionBean);
+    }
 
     @Test
     public void givenRegistrationWithStartDate_whenEnteredConclusionDateIsAfterOrEqualsStartDate_thenSuccess() {
@@ -215,44 +185,6 @@ public class RegistrationConclusionTest {
         assertTrue(conclusionBean.isConclusionProcessed());
         assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
     }
-
-    // OLD-TEST
-        @Test
-        public void givenRegistrationWithoutCurriculumGroupForProgramConclusion_whenConcludeIsExecuted_thenThrowDomainException() {
-            exceptionRule.expect(DomainException.class);
-            exceptionRule.expectMessage("error.Registration.invalid.cycleCurriculumGroup");
-
-            final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
-            final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, ConclusionRulesTestUtil.MANDATORY_GROUP);
-            cycleGroup.setProgramConclusion(null);
-            mandatoryGroup.setProgramConclusion(this.partialConclusion);
-
-            final Registration newRegistration = createRegistration(degreeCurricularPlan, executionYear);
-            newRegistration.getLastStudentCurricularPlan().getAllCurriculumGroups().stream()
-                    .sorted(Comparator.comparing(CurriculumGroup::getFullPath).reversed())
-                    .filter(cg -> !cg.isRoot() && !cg.isCycleCurriculumGroup()).forEach(cg -> cg.delete());
-
-            newRegistration.conclude(null);
-        }
-
-    // OLD-TEST
-        @Test
-        public void givenRegistrationWithCurriculumGroupForProgramConclusion_whenConcludeIsExecutedWithInvalidCurriculumGroup_thenThrowDomainException() {
-            exceptionRule.expect(DomainException.class);
-            exceptionRule.expectMessage("error.Registration.invalid.cycleCurriculumGroup");
-
-            final CourseGroup cycleGroup = getChildGroup(degreeCurricularPlan.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
-            final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, ConclusionRulesTestUtil.MANDATORY_GROUP);
-            cycleGroup.setProgramConclusion(null);
-            mandatoryGroup.setProgramConclusion(this.partialConclusion);
-
-            final Registration newRegistration = createRegistration(degreeCurricularPlan, executionYear);
-            newRegistration.getLastStudentCurricularPlan().getAllCurriculumGroups().stream()
-                    .sorted(Comparator.comparing(CurriculumGroup::getFullPath).reversed())
-                    .filter(cg -> !cg.isRoot() && !cg.isCycleCurriculumGroup()).forEach(cg -> cg.delete());
-
-            newRegistration.conclude(registration.getLastStudentCurricularPlan().findCurriculumGroupFor(cycleGroup));
-        }
 
     @Test
     public void givenRegistrationWithConclusionProcess_whenConcludeIsExecuted_thenShouldUpdateExistingProcess() {
@@ -410,51 +342,49 @@ public class RegistrationConclusionTest {
 
     }
 
-    //NEW
-    //    @Test
-    //    public void givenRegistrationWithConclusionOnOnePlan_whenConcludeWithSameConclusionTypeInAnotherPlan_thenThrowDomainException() {
-    //        final Registration registration = createRegistration(this.degreeCurricularPlan, executionYear);
-    //        skipConclusionValidation.add(registration);
-    //
-    //        final StudentCurricularPlan curricularPlan = registration.getLastStudentCurricularPlan();
-    //        enrol(curricularPlan, executionYear, "C1");
-    //        approve(curricularPlan, executionYear, "C1");
-    //
-    //        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-    //        conclusionBean.setEnteredAverageGrade("10");
-    //        RegistrationConclusionProcess.run(conclusionBean);
-    //        assertTrue(conclusionBean.isConcluded());
-    //        assertTrue(conclusionBean.isConclusionProcessed());
-    //        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
-    //
-    //        final RegistrationConclusionBean finalConclusionBean = createConclusionBean(curricularPlan, finalConclusion);
-    //        finalConclusionBean.setEnteredAverageGrade("12");
-    //        RegistrationConclusionProcess.run(finalConclusionBean);
-    //        assertTrue(finalConclusionBean.isConcluded());
-    //        assertTrue(finalConclusionBean.isConclusionProcessed());
-    //        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, finalConclusion, finalConclusionBean));
-    //
-    //        final DegreeCurricularPlan newDegreeCurricularPlan =
-    //                createDegreeCurricularPlan(this.degreeCurricularPlan.getDegree(), "Plan 2", executionYear.getExecutionYear());
-    //        final CourseGroup cycleGroup = getChildGroup(newDegreeCurricularPlan.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
-    //        new CreditsLimit(cycleGroup, null, executionYear.getNextExecutionYear(), null, 12.0, 12.0);
-    //        cycleGroup.setProgramConclusion(partialConclusion);
-    //        ProgramConclusionConfig.create(new LocalizedString(), newDegreeCurricularPlan, partialConclusion)
-    //                .addIncludedModules(cycleGroup);
-    //
-    //        final StudentCurricularPlan newStudentCurricularPlan =
-    //                registration.createStudentCurricularPlan(newDegreeCurricularPlan, executionYear.getNextExecutionYear());
-    //        enrol(newStudentCurricularPlan, executionYear.getNextExecutionYear(), "C2");
-    //        approve(newStudentCurricularPlan, executionYear.getNextExecutionYear(), "C2");
-    //
-    //        exceptionRule.expect(DomainException.class);
-    //        exceptionRule.expectMessage("error.ProgramConclusionProcess.already.exists.in.registration.for.same.conclusion.type");
-    //
-    //        final RegistrationConclusionBean newConclusionBean = createConclusionBean(newStudentCurricularPlan, partialConclusion);
-    //        newConclusionBean.setEnteredAverageGrade("12");
-    //        RegistrationConclusionProcess.run(newConclusionBean);
-    //    }
+    @Test
+    public void givenRegistrationWithConclusionOnOnePlan_whenConcludeWithSameConclusionTypeInAnotherPlan_thenThrowDomainException() {
+        final Registration registration = createRegistration(this.degreeCurricularPlan, executionYear);
+        skipConclusionValidation.add(registration);
 
+        final StudentCurricularPlan curricularPlan = registration.getLastStudentCurricularPlan();
+        enrol(curricularPlan, executionYear, "C1");
+        approve(curricularPlan, executionYear, "C1");
+
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        RegistrationConclusionProcess.run(conclusionBean);
+        assertTrue(conclusionBean.isConcluded());
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
+
+        final RegistrationConclusionBean finalConclusionBean = createConclusionBean(curricularPlan, finalConclusion);
+        finalConclusionBean.setEnteredAverageGrade("12");
+        RegistrationConclusionProcess.run(finalConclusionBean);
+        assertTrue(finalConclusionBean.isConcluded());
+        assertTrue(finalConclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, finalConclusion, finalConclusionBean));
+
+        final DegreeCurricularPlan newDegreeCurricularPlan =
+                createDegreeCurricularPlan(this.degreeCurricularPlan.getDegree(), "Plan 2", executionYear.getExecutionYear());
+        final CourseGroup cycleGroup = getChildGroup(newDegreeCurricularPlan.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
+        new CreditsLimit(cycleGroup, null, executionYear.getNextExecutionYear(), null, 12.0, 12.0);
+        cycleGroup.setProgramConclusion(partialConclusion);
+        ProgramConclusionConfig.create(new LocalizedString(), newDegreeCurricularPlan, partialConclusion)
+                .addIncludedModules(cycleGroup);
+
+        final StudentCurricularPlan newStudentCurricularPlan =
+                registration.createStudentCurricularPlan(newDegreeCurricularPlan, executionYear.getNextExecutionYear());
+        enrol(newStudentCurricularPlan, executionYear.getNextExecutionYear(), "C2");
+        approve(newStudentCurricularPlan, executionYear.getNextExecutionYear(), "C2");
+
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.ProgramConclusionProcess.already.exists.in.registration.for.same.conclusion.type");
+
+        final RegistrationConclusionBean newConclusionBean = createConclusionBean(newStudentCurricularPlan, partialConclusion);
+        newConclusionBean.setEnteredAverageGrade("12");
+        RegistrationConclusionProcess.run(newConclusionBean);
+    }
 
     @Test
     public void givenRegistrationWithConclusionOnOnePlan_whenConcludeWithSameConclusionTypeInAnotherPlanAfterRevertingPreviousConclusion_thenSuccess() {
@@ -554,27 +484,25 @@ public class RegistrationConclusionTest {
 
     }
 
-    //NEW
-    //    @Test
-    //    public void givenConclusionProcess_whenCreatingConclusionProcessForSamePlanAndConclusionType_thenThrowDomainException() {
-    //        exceptionRule.expect(DomainException.class);
-    //        exceptionRule.expectMessage("error.ProgramConclusionProcess.already.exists.in.curricular.plan.for.same.conclusion.type");
-    //
-    //        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
-    //        conclusionBean.setEnteredAverageGrade("10");
-    //        RegistrationConclusionProcess.run(conclusionBean);
-    //        assertTrue(conclusionBean.isConclusionProcessed());
-    //        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
-    //
-    //        final RegistrationConclusionBean finalConclusionBean = createConclusionBean(curricularPlan, finalConclusion);
-    //        finalConclusionBean.setEnteredAverageGrade("12");
-    //        RegistrationConclusionProcess.run(finalConclusionBean);
-    //        assertTrue(finalConclusionBean.isConclusionProcessed());
-    //        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, finalConclusion, finalConclusionBean));
-    //
-    //        new ProgramConclusionProcess(conclusionBean);
-    //    }
+    @Test
+    public void givenConclusionProcess_whenCreatingConclusionProcessForSamePlanAndConclusionType_thenThrowDomainException() {
+        exceptionRule.expect(DomainException.class);
+        exceptionRule.expectMessage("error.ProgramConclusionProcess.already.exists.in.curricular.plan.for.same.conclusion.type");
 
+        final RegistrationConclusionBean conclusionBean = createConclusionBean(curricularPlan, partialConclusion);
+        conclusionBean.setEnteredAverageGrade("10");
+        RegistrationConclusionProcess.run(conclusionBean);
+        assertTrue(conclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, partialConclusion, conclusionBean));
+
+        final RegistrationConclusionBean finalConclusionBean = createConclusionBean(curricularPlan, finalConclusion);
+        finalConclusionBean.setEnteredAverageGrade("12");
+        RegistrationConclusionProcess.run(finalConclusionBean);
+        assertTrue(finalConclusionBean.isConclusionProcessed());
+        assertTrue(conclusionProcessDataMatchesConclusionBean(curricularPlan, finalConclusion, finalConclusionBean));
+
+        new ProgramConclusionProcess(conclusionBean);
+    }
 
     private RegistrationConclusionBean createConclusionBean(StudentCurricularPlan curricularPlan,
             ProgramConclusion programConclusion) {
