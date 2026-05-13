@@ -1,3 +1,5 @@
+- Bug Fix: Do not include the name of the owner of fiscal number, in the message that a fiscal number already exists [#qubIT-Fenix-8398]
+
 55.3.0 (11-05-2026)
 - Refactor: Registration conclusion API cleanup [#qubIT-Fenix-6554]
 - Refactor: Person identification document extra info cleanup [#qubIT-Fenix-6491]

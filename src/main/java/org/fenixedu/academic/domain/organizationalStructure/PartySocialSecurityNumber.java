@@ -83,8 +83,7 @@ public class PartySocialSecurityNumber extends PartySocialSecurityNumber_Base {
                 }
 
                 if (getSocialSecurityNumber().equals(otherPartySecurityNumber.getSocialSecurityNumber())) {
-                    throw new DomainException("error.PartySocialSecurityNumber.number.already.exists",
-                            otherPartySecurityNumber.getParty().getName());
+                    throw new DomainException("error.PartySocialSecurityNumber.number.already.exists");
                 }
             }
         }
