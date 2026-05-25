@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
-import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
@@ -78,8 +77,6 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
-
-        setIdentificationDocumentTypeActive();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -190,19 +187,6 @@ public class FenixInitializer implements ServletContextListener {
                 });
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
-        Log.info("---------------------------------------");
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    private void setIdentificationDocumentTypeActive() {
-        Log.info("---------------------------------------");
-        Log.info("Starting Identification document types activation");
-
-        IdentificationDocumentType.findAll().forEach(type -> {
-            type.setActive(!IdentificationDocumentType.CITIZEN_CARD_CODE.equals(type.getCode()));
-        });
-
-        Log.info("Ending Identification document types activation");
         Log.info("---------------------------------------");
     }
 
