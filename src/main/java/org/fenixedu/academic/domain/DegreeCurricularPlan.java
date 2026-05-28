@@ -230,6 +230,11 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public void delete() {
         if (getCanBeDeleted()) {
+            getDynamicFieldSet().forEach(df -> {
+                df.setDegreeCurricularPlan(null);
+                df.delete();
+            });
+
             setDegree(null);
             getRoot().delete();
             if (getDegreeStructure() != null) {

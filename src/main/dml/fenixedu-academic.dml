@@ -4882,6 +4882,11 @@ class dml.DynamicField {
 		dml.DynamicField playsRole dynamicField { multiplicity *; }
 		Teacher playsRole teacher { multiplicity 0..1; }
 	}
+
+	relation DynamicFieldsForDegreeCurricularPlan {
+	    dml.DynamicField playsRole dynamicField { multiplicity *; }
+	    DegreeCurricularPlan playsRole degreeCurricularPlan { multiplicity 0..1; }
+	}
 	
 class dml.DynamicFieldTag {
 	String code (REQUIRED);
