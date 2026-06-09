@@ -19,17 +19,13 @@
 package org.fenixedu.academic.servlet;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -38,14 +34,11 @@ import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
-import org.fenixedu.bennu.core.api.SystemResource;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.rest.Healthcheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.qubit.terra.framework.services.logging.Log;
-import com.sun.mail.smtp.SMTPTransport;
 
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.RequestChecksumFilter;
 import pt.ist.fenixWebFramework.servlets.filters.contentRewrite.RequestChecksumFilter.ChecksumPredicate;
@@ -67,8 +60,6 @@ public class FenixInitializer implements ServletContextListener {
         loadUnitNames();
 
         registerChecksumFilterRules();
-
-        registerHealthchecks();
 
         registerIdentificationDocumentExtraInfoValidators();
 
@@ -95,26 +86,6 @@ public class FenixInitializer implements ServletContextListener {
         root.getCurrentExecutionIntervalsSet().addAll(currentIntervals);
 
         Log.warn("Finished initialization of current execution intervals");
-    }
-
-    private void registerHealthchecks() {
-        SystemResource.registerHealthcheck(new Healthcheck() {
-            @Override
-            public String getName() {
-                return "SMTP";
-            }
-
-            @Override
-            protected Result check() throws Exception {
-                final Properties properties = new Properties();
-                properties.put("mail.transport.protocol", "smtp");
-                Transport transport = Session.getInstance(properties).getTransport();
-                transport.connect(FenixEduAcademicConfiguration.getConfiguration().getMailSmtpHost(), null, null);
-                String response = ((SMTPTransport) transport).getLastServerResponse();
-                transport.close();
-                return Result.healthy("SMTP server returned response: " + response);
-            }
-        });
     }
 
     private void registerIdentificationDocumentExtraInfoValidators() {

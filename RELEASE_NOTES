@@ -1,3 +1,5 @@
+- Refactor: Removes reference to SystemResource in FenixInitializer by no longer registering health check [#qubIT-Fenix-8350]
+
 55.3.3 (29-05-2026)
 - Improvement: Add dynamic field domain relation to degree curricular plan [#UL-REIT-4957]
 
