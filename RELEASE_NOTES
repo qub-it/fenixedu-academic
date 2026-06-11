@@ -1,3 +1,4 @@
+- Refactor: Improves CurriculumGroup domain methods [#qubIT-Fenix-8840]
 - Refactor: Removes reference to SystemResource in FenixInitializer by no longer registering health check [#qubIT-Fenix-8350]
 - Refactor: Removes FenixBootstrapper [#qubIT-Fenix-8343]
 
