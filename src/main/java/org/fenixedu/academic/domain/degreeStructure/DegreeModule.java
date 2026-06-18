@@ -20,16 +20,13 @@ package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.collections.Predicate;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -366,19 +363,17 @@ abstract public class DegreeModule extends DegreeModule_Base {
 
     public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
             final CourseGroup parentCourseGroup, final ExecutionYear executionYear) {
-        final List<ICurricularRule> curricularRules =
-                new ArrayList<ICurricularRule>(getCurricularRules(ruleType, parentCourseGroup, (ExecutionYear) null));
-        if (curricularRules.isEmpty()) {
-            return null;
-        }
+        final List<? extends ICurricularRule> curricularRules =
+                getCurricularRules(ruleType, parentCourseGroup, (ExecutionYear) null);
 
         if (executionYear == null) {
             return curricularRules.stream().sorted(ICurricularRule.COMPARATOR_BY_BEGIN.reversed())
                     .filter(ICurricularRule::isActive).findFirst().orElse(null);
         }
-
-        curricularRules.sort(ICurricularRule.COMPARATOR_BY_BEGIN);
-        final List<ICurricularRule> validRules = curricularRules.stream().filter(cr -> cr.isValid(executionYear)).toList();
+        
+        final List<? extends ICurricularRule> validRules =
+                curricularRules.stream().filter(cr -> cr.isValid(executionYear)).sorted(ICurricularRule.COMPARATOR_BY_BEGIN)
+                        .toList();
 
         if (validRules.size() > 1) {
             // TODO: remove this throw when curricular rule ensures
@@ -418,17 +413,18 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public DegreeModulesSelectionLimit getDegreeModulesSelectionLimitRule(final ExecutionInterval executionInterval) {
-        return (DegreeModulesSelectionLimit) getCurricularRules(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT,
-                executionInterval).stream().findFirst().orElse(null);
+        return getCurricularRules(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionInterval).stream().findFirst()
+                .map(DegreeModulesSelectionLimit.class::cast).orElse(null);
     }
 
     public CreditsLimit getCreditsLimitRule(final ExecutionInterval executionInterval) {
-        return (CreditsLimit) getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval).stream().findFirst()
-                .orElse(null);
+        return getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval).stream().findFirst()
+                .map(CreditsLimit.class::cast).orElse(null);
     }
 
     public List<Exclusiveness> getExclusivenessRules(final ExecutionInterval executionInterval) {
-        return (List<Exclusiveness>) getCurricularRules(CurricularRuleType.EXCLUSIVENESS, executionInterval);
+        return getCurricularRules(CurricularRuleType.EXCLUSIVENESS, executionInterval).stream().map(Exclusiveness.class::cast)
+                .toList();
     }
 
     public Collection<CycleCourseGroup> getParentCycleCourseGroups() {
