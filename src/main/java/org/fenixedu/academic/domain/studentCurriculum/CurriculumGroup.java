@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -248,17 +249,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public boolean hasAnyCurriculumModules(final Predicate<CurriculumModule> predicate) {
-        if (super.hasAnyCurriculumModules(predicate)) {
-            return true;
-        }
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.hasAnyCurriculumModules(predicate)) {
-                return true;
-            }
-        }
-
-        return false;
+        return super.hasAnyCurriculumModules(predicate) || getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.hasAnyCurriculumModules(predicate));
     }
 
     @Override
@@ -392,33 +384,20 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     final public boolean isApproved(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : this.getCurriculumModulesSet()) {
-            if (curriculumModule.isApproved(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getCurriculumModulesSet().stream().anyMatch(cm -> cm.isApproved(curricularCourse, executionInterval));
     }
 
     @Override
     final public boolean isEnroledInExecutionPeriod(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : this.getCurriculumModulesSet()) {
-            if (curriculumModule.isEnroledInExecutionPeriod(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.isEnroledInExecutionPeriod(curricularCourse, executionInterval));
     }
 
     @Override
     final public boolean hasEnrolmentWithEnroledState(final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : this.getCurriculumModulesSet()) {
-            if (curriculumModule.hasEnrolmentWithEnroledState(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.hasEnrolmentWithEnroledState(curricularCourse, executionInterval));
     }
 
     @Override
@@ -437,89 +416,47 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public boolean hasDegreeModule(DegreeModule degreeModule) {
-        if (super.hasDegreeModule(degreeModule)) {
-            return true;
-        } else {
-            for (final CurriculumModule curriculumModule : this.getCurriculumModulesSet()) {
-                if (curriculumModule.hasDegreeModule(degreeModule)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return super.hasDegreeModule(degreeModule) || getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.hasDegreeModule(degreeModule));
     }
 
     @Override
     final public boolean hasCurriculumModule(CurriculumModule curriculumModule) {
-        if (super.hasCurriculumModule(curriculumModule)) {
-            return true;
-        }
-        for (final CurriculumModule module : getCurriculumModulesSet()) {
-            if (module.hasCurriculumModule(curriculumModule)) {
-                return true;
-            }
-        }
-        return false;
+        return super.hasCurriculumModule(curriculumModule) || getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.hasCurriculumModule(curriculumModule));
     }
 
     @Override
     final public Enrolment findEnrolmentFor(final CurricularCourse curricularCourse, final ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            final Enrolment search = curriculumModule.findEnrolmentFor(curricularCourse, executionInterval);
-            if (search != null) {
-                return search;
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().map(cm -> cm.findEnrolmentFor(curricularCourse, executionInterval))
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     @Override
     final public Enrolment getApprovedEnrolment(final CurricularCourse curricularCourse) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            final Enrolment enrolment = curriculumModule.getApprovedEnrolment(curricularCourse);
-            if (enrolment != null) {
-                return enrolment;
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().map(cm -> cm.getApprovedEnrolment(curricularCourse)).filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     @Override
     final public Dismissal getDismissal(final CurricularCourse curricularCourse) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            final Dismissal dismissal = curriculumModule.getDismissal(curricularCourse);
-            if (dismissal != null) {
-                return dismissal;
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().map(cm -> cm.getDismissal(curricularCourse)).filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     @Override
     final public CurriculumLine getApprovedCurriculumLine(final CurricularCourse curricularCourse) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            final CurriculumLine curriculumLine = curriculumModule.getApprovedCurriculumLine(curricularCourse);
-            if (curriculumLine != null) {
-                return curriculumLine;
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().map(cm -> cm.getApprovedCurriculumLine(curricularCourse))
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public CurriculumGroup findCurriculumGroupFor(final CourseGroup courseGroup) {
         if (getDegreeModule() == courseGroup) {
             return this;
         }
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                final CurriculumGroup curriculumGroup = (CurriculumGroup) curriculumModule;
-                final CurriculumGroup searchCurriculumGroup = curriculumGroup.findCurriculumGroupFor(courseGroup);
-                if (searchCurriculumGroup != null) {
-                    return searchCurriculumGroup;
-                }
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf())
+                .map(cm -> ((CurriculumGroup) cm).findCurriculumGroupFor(courseGroup)).filter(Objects::nonNull).findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -626,42 +563,20 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     protected Integer searchChildOrderForChild(final CurriculumGroup child, final ExecutionInterval executionInterval) {
-        for (final Context context : getDegreeModule().getValidChildContexts(executionInterval)) {
-            if (context.getChildDegreeModule() == child.getDegreeModule()) {
-                return context.getChildOrder();
-            }
-        }
-        return null;
+        return getDegreeModule().getValidChildContexts(executionInterval).stream()
+                .filter(context -> context.getChildDegreeModule() == child.getDegreeModule()).map(Context::getChildOrder)
+                .findFirst().orElse(null);
     }
 
     public boolean hasCourseGroup(final CourseGroup courseGroup) {
-        if (getDegreeModule().equals(courseGroup)) {
-            return true;
-        }
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                CurriculumGroup group = (CurriculumGroup) curriculumModule;
-                if (group.hasCourseGroup(courseGroup)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return getDegreeModule().equals(courseGroup) || getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf())
+                .anyMatch(cm -> ((CurriculumGroup) cm).hasCourseGroup(courseGroup));
     }
 
     final public NoCourseGroupCurriculumGroup getNoCourseGroupCurriculumGroup(NoCourseGroupCurriculumGroupType groupType) {
-        for (final CurriculumGroup curriculumGroup : getCurriculumGroups()) {
-            if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
-                NoCourseGroupCurriculumGroup noCourseGroupCurriculumGroup = (NoCourseGroupCurriculumGroup) curriculumGroup;
-                if (noCourseGroupCurriculumGroup.getNoCourseGroupCurriculumGroupType().equals(groupType)) {
-                    return noCourseGroupCurriculumGroup;
-                }
-            }
-        }
-
-        return null;
+        return getCurriculumGroups().stream().filter(CurriculumGroup::isNoCourseGroupCurriculumGroup)
+                .map(NoCourseGroupCurriculumGroup.class::cast)
+                .filter(ng -> ng.getNoCourseGroupCurriculumGroupType().equals(groupType)).findFirst().orElse(null);
     }
 
     @Override
@@ -890,18 +805,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public boolean hasConcluded(final DegreeModule degreeModule, final ExecutionYear executionYear) {
-        if (getDegreeModule() == degreeModule) {
-            return isConcluded(executionYear).value();
-        }
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.hasConcluded(degreeModule, executionYear)) {
-                return true;
-            }
-        }
-
-        return false;
-
+        return getDegreeModule() == degreeModule ? isConcluded(executionYear).value() : getCurriculumModulesSet().stream()
+                .anyMatch(cm -> cm.hasConcluded(degreeModule, executionYear));
     }
 
     @Override
