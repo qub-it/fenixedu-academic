@@ -104,21 +104,11 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Attends getAttendsByStudent(final Registration registration) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.getRegistration() == registration) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.getRegistration() == registration).findFirst().orElse(null);
     }
 
     public Attends getAttendsByStudent(final Student student) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.isFor(student)) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.isFor(student)).findFirst().orElse(null);
     }
 
     // Delete Method
