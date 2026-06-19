@@ -48,14 +48,12 @@ import org.fenixedu.academic.domain.curricularRules.EnrolmentModel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
-import org.fenixedu.academic.domain.student.curriculum.ProgramConclusionProcess;
-import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.predicates.AndPredicate;
 import org.fenixedu.academic.util.predicates.ResultCollection;
@@ -271,13 +269,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public List<Dismissal> getChildDismissals() {
-        final List<Dismissal> result = new ArrayList<Dismissal>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isDismissal()) {
-                result.add((Dismissal) curriculumModule);
-            }
-        }
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isDismissal).map(Dismissal.class::cast)
+                .collect(Collectors.toList());
     }
 
     public double getChildCreditsDismissalEcts() {
@@ -303,25 +296,13 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public List<CurriculumLine> getChildCurriculumLines() {
-        final List<CurriculumLine> result = new ArrayList<CurriculumLine>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isLeaf()) {
-                result.add((CurriculumLine) curriculumModule);
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isLeaf).map(CurriculumLine.class::cast)
+                .collect(Collectors.toList());
     }
 
     public List<CurriculumGroup> getChildCurriculumGroups() {
-        final List<CurriculumGroup> result = new ArrayList<CurriculumGroup>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                result.add((CurriculumGroup) curriculumModule);
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf()).map(CurriculumGroup.class::cast)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -550,25 +531,12 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     final public Set<CurriculumLine> getCurriculumLines() {
-        Set<CurriculumLine> result = new TreeSet<CurriculumLine>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID);
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isLeaf()) {
-                result.add((CurriculumLine) curriculumModule);
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isLeaf).map(CurriculumLine.class::cast)
+                .collect(Collectors.toCollection(() -> new TreeSet<CurriculumLine>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID)));
     }
 
     final public boolean hasCurriculumLines() {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isLeaf()) {
-                return true;
-            }
-        }
-
-        return false;
+        return getCurriculumModulesSet().stream().anyMatch(CurriculumModule::isLeaf);
     }
 
     @Override
@@ -588,27 +556,14 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     final public Set<CurriculumGroup> getCurriculumGroups() {
-        Set<CurriculumGroup> result = new TreeSet<CurriculumGroup>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID);
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                result.add((CurriculumGroup) curriculumModule);
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf()).map(CurriculumGroup.class::cast)
+                .collect(Collectors.toCollection(() -> new TreeSet<CurriculumGroup>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID)));
     }
 
     public Set<CurriculumGroup> getCurriculumGroupsToEnrolmentProcess() {
-        final Set<CurriculumGroup> result = new TreeSet<CurriculumGroup>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID);
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf() && !curriculumModule.isNoCourseGroupCurriculumGroup()) {
-                result.add((CurriculumGroup) curriculumModule);
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf() && !cm.isNoCourseGroupCurriculumGroup())
+                .map(CurriculumGroup.class::cast)
+                .collect(Collectors.toCollection(() -> new TreeSet<CurriculumGroup>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID)));
     }
 
     public Set<CurriculumGroup> getBranchCurriculumGroups() {
