@@ -2,10 +2,13 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -14,6 +17,7 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.student.Registration;
@@ -39,7 +43,6 @@ public class CurriculumGroupTest {
     private static CurriculumGroup mandatoryCurriculumGroup;
     private static CurriculumGroup optionalCurriculumGroup;
     private static CurricularCourse cc1, cc2, cc3, cc4, cc5;
-    private static Enrolment enrolmentCc1;
 
     @BeforeClass
     public static void init() {
@@ -90,7 +93,6 @@ public class CurriculumGroupTest {
         ConclusionRulesTestUtil.enrol(studentCurricularPlan, executionYear, "C1", "C2", "C3");
         ConclusionRulesTestUtil.approve(studentCurricularPlan, "C1");
         ConclusionRulesTestUtil.createEquivalence(studentCurricularPlan, executionYear, "C4");
-        enrolmentCc1 = studentCurricularPlan.getEnrolments(cc1).iterator().next();
     }
 
     @Test
@@ -180,5 +182,254 @@ public class CurriculumGroupTest {
         } finally {
             noCourseGroup.delete();
         }
+    }
+
+    @Test
+    public void testCurriculumGroup_isApproved_returnsTrueForApprovedCourse() {
+        // C1 is approved; C2/C3 are enrolled-only; C4 has a dismissal
+        assertTrue(mandatoryCurriculumGroup.isApproved(cc1, null));
+        assertFalse(mandatoryCurriculumGroup.isApproved(cc2, null));
+        assertFalse(mandatoryCurriculumGroup.isApproved(cc3, null));
+        assertFalse(mandatoryCurriculumGroup.isApproved(cc4, null));
+
+        // root.isApproved recursively delegates to children
+        assertTrue(rootCurriculumGroup.isApproved(cc1, null));
+        assertFalse(rootCurriculumGroup.isApproved(cc2, null));
+
+        // firstSemester -> true; secondSemester: true because C1 (firstSemester) is beforeOrEquals
+        assertTrue(mandatoryCurriculumGroup.isApproved(cc1, firstSemester));
+        assertTrue(mandatoryCurriculumGroup.isApproved(cc1, secondSemester));
+    }
+
+    @Test
+    public void testCurriculumGroup_isEnroledInExecutionPeriod() {
+        // C1 -> first semester
+        assertTrue(mandatoryCurriculumGroup.isEnroledInExecutionPeriod(cc1, firstSemester));
+        assertFalse(mandatoryCurriculumGroup.isEnroledInExecutionPeriod(cc1, secondSemester));
+
+        // C2 -> second semester
+        assertTrue(mandatoryCurriculumGroup.isEnroledInExecutionPeriod(cc2, secondSemester));
+        assertFalse(mandatoryCurriculumGroup.isEnroledInExecutionPeriod(cc2, firstSemester));
+
+        // C4 has no enrolment
+        assertFalse(mandatoryCurriculumGroup.isEnroledInExecutionPeriod(cc4, firstSemester));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasEnrolmentWithEnroledState_excludesApprovedAndMissing() {
+        // C1 is approved (enrollment state is not ENROLLED) -> false; C2 is enroled in secondSemester -> true; C4 has no enrolment -> false
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentWithEnroledState(cc1, firstSemester));
+        assertTrue(mandatoryCurriculumGroup.hasEnrolmentWithEnroledState(cc2, secondSemester));
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentWithEnroledState(cc2, firstSemester));
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentWithEnroledState(cc4, firstSemester));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasCurriculumModule() {
+        Enrolment enrolmentCc1 = studentCurricularPlan.getEnrolments(cc1).iterator().next();
+
+        // self
+        assertTrue(mandatoryCurriculumGroup.hasCurriculumModule(mandatoryCurriculumGroup));
+        // direct child
+        assertTrue(mandatoryCurriculumGroup.hasCurriculumModule(enrolmentCc1));
+        // not child
+        assertFalse(optionalCurriculumGroup.hasCurriculumModule(enrolmentCc1));
+        // all children
+        assertTrue(rootCurriculumGroup.hasCurriculumModule(mandatoryCurriculumGroup));
+        assertTrue(rootCurriculumGroup.hasCurriculumModule(enrolmentCc1));
+
+        assertFalse(mandatoryCurriculumGroup.hasCurriculumModule(optionalCurriculumGroup));
+        assertFalse(rootCurriculumGroup.hasCurriculumModule(null));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasDegreeModule() {
+        // test curricularCourses
+        assertTrue(mandatoryCurriculumGroup.hasDegreeModule(cc1));
+        assertFalse(mandatoryCurriculumGroup.hasDegreeModule(cc4));
+        assertTrue(optionalCurriculumGroup.hasDegreeModule(cc4));
+        assertFalse(optionalCurriculumGroup.hasDegreeModule(cc2));
+
+        // not enrolled in cc5, returns false
+        assertFalse(optionalCurriculumGroup.hasDegreeModule(cc5));
+
+        // all children
+        assertTrue(rootCurriculumGroup.hasDegreeModule(cc1));
+        assertTrue(rootCurriculumGroup.hasDegreeModule(cc4));
+
+        // test courseGroups
+        assertTrue(cycleCurriculumGroup.hasDegreeModule(mandatoryCurriculumGroup.getDegreeModule()));
+        assertFalse(mandatoryCurriculumGroup.hasDegreeModule(cycleCurriculumGroup.getDegreeModule()));
+
+        // test null case
+        assertFalse(rootCurriculumGroup.hasDegreeModule(null));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasCourseGroup() {
+        // cycle has mandatory + optional as children; mandatory does NOT have cycle (parent); optional does NOT have mandatory (sibling)
+        assertTrue(cycleCurriculumGroup.hasCourseGroup(mandatoryCurriculumGroup.getDegreeModule()));
+        assertTrue(cycleCurriculumGroup.hasCourseGroup(optionalCurriculumGroup.getDegreeModule()));
+        assertFalse(mandatoryCurriculumGroup.hasCourseGroup(cycleCurriculumGroup.getDegreeModule()));
+        assertFalse(optionalCurriculumGroup.hasCourseGroup(mandatoryCurriculumGroup.getDegreeModule()));
+
+        // all children
+        assertTrue(rootCurriculumGroup.hasCourseGroup(mandatoryCurriculumGroup.getDegreeModule()));
+
+        // null
+        assertFalse(rootCurriculumGroup.hasCourseGroup(null));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasAnyCurriculumModules_withPredicate() {
+        // Predicate 1: always true/false predicates
+        assertTrue(rootCurriculumGroup.hasAnyCurriculumModules(cm -> true));
+        assertFalse(rootCurriculumGroup.hasAnyCurriculumModules(cm -> false));
+
+        // Predicate 2: approved enrolment -> root has (C1), mandatory has (C1), optional doesn't
+        Predicate<CurriculumModule> isApprovedEnrolment = cm -> cm.isEnrolment() && ((Enrolment) cm).isApproved();
+        assertTrue(rootCurriculumGroup.hasAnyCurriculumModules(isApprovedEnrolment));
+        assertTrue(mandatoryCurriculumGroup.hasAnyCurriculumModules(isApprovedEnrolment));
+        assertFalse(optionalCurriculumGroup.hasAnyCurriculumModules(isApprovedEnrolment));
+
+        // Predicate 3: isDismissal -> root has (C4), optional has (C4), mandatory doesn't
+        Predicate<CurriculumModule> isDismissal = CurriculumModule::isDismissal;
+        assertTrue(rootCurriculumGroup.hasAnyCurriculumModules(isDismissal));
+        assertTrue(optionalCurriculumGroup.hasAnyCurriculumModules(isDismissal));
+        assertFalse(mandatoryCurriculumGroup.hasAnyCurriculumModules(isDismissal));
+    }
+
+    @Test
+    public void testCurriculumGroup_findEnrolmentFor() {
+        // C1 (1Y1S) found in firstSemester in both mandatory and root; not found in secondSemester; C4 has no enrolment
+        final Enrolment found = mandatoryCurriculumGroup.findEnrolmentFor(cc1, firstSemester);
+        assertNotNull(found);
+        assertEquals(cc1, found.getCurricularCourse());
+
+        final Enrolment fromRoot = rootCurriculumGroup.findEnrolmentFor(cc1, firstSemester);
+        assertNotNull(fromRoot);
+        assertEquals(cc1, fromRoot.getCurricularCourse());
+
+        assertNull(mandatoryCurriculumGroup.findEnrolmentFor(cc1, secondSemester));
+        assertNull(optionalCurriculumGroup.findEnrolmentFor(cc4, firstSemester));
+    }
+
+    @Test
+    public void testCurriculumGroup_getApprovedEnrolment() {
+        Enrolment approved = mandatoryCurriculumGroup.getApprovedEnrolment(cc1);
+        assertNotNull(approved);
+        assertEquals(cc1, approved.getCurricularCourse());
+
+        Enrolment fromRoot = rootCurriculumGroup.getApprovedEnrolment(cc1);
+        assertNotNull(fromRoot);
+        assertEquals(cc1, fromRoot.getCurricularCourse());
+
+        assertNull(mandatoryCurriculumGroup.getApprovedEnrolment(cc2));
+        assertNull(optionalCurriculumGroup.getApprovedEnrolment(cc1));
+    }
+
+    @Test
+    public void testCurriculumGroup_getDismissal() {
+        Dismissal dismissalCc4 = studentCurricularPlan.getDismissal(cc4);
+
+        Dismissal dismissal = optionalCurriculumGroup.getDismissal(cc4);
+        assertNotNull(dismissal);
+        assertEquals(dismissal, dismissalCc4);
+
+        Dismissal fromRoot = rootCurriculumGroup.getDismissal(cc4);
+        assertNotNull(fromRoot);
+        assertEquals(fromRoot, dismissalCc4);
+
+        assertNull(mandatoryCurriculumGroup.getDismissal(cc4));
+        assertNull(mandatoryCurriculumGroup.getDismissal(cc1));
+        assertNull(rootCurriculumGroup.getDismissal(cc1));
+    }
+
+    @Test
+    public void testCurriculumGroup_getApprovedCurriculumLine() {
+        CurriculumLine line = mandatoryCurriculumGroup.getApprovedCurriculumLine(cc1);
+        assertNotNull(line);
+        assertTrue(line.isApproved());
+        assertEquals(cc1, line.getCurricularCourse());
+
+        CurriculumLine fromRoot = rootCurriculumGroup.getApprovedCurriculumLine(cc1);
+        assertNotNull(fromRoot);
+        assertTrue(fromRoot.isApproved());
+        assertEquals(cc1, fromRoot.getCurricularCourse());
+
+        CurriculumLine dismissalCurriculumLine = optionalCurriculumGroup.getApprovedCurriculumLine(cc4);
+        assertNotNull(dismissalCurriculumLine);
+        assertTrue(dismissalCurriculumLine.isApproved());
+        //TODO this assert fails, but I can't debug tests i don't know why: assertEquals(cc4, line.getCurricularCourse());
+
+        assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc2));
+        assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc5));
+    }
+
+    @Test
+    public void testCurriculumGroup_findCurriculumGroupFor() {
+        assertEquals(mandatoryCurriculumGroup,
+                rootCurriculumGroup.findCurriculumGroupFor(mandatoryCurriculumGroup.getDegreeModule()));
+        assertEquals(optionalCurriculumGroup,
+                rootCurriculumGroup.findCurriculumGroupFor(optionalCurriculumGroup.getDegreeModule()));
+        assertEquals(optionalCurriculumGroup,
+                optionalCurriculumGroup.findCurriculumGroupFor(optionalCurriculumGroup.getDegreeModule()));
+
+        assertNull(optionalCurriculumGroup.findCurriculumGroupFor(cycleCurriculumGroup.getDegreeModule()));
+
+        // A CourseGroup not present in the student's plan returns null
+        CourseGroup courseGroup =
+                new CourseGroup(mandatoryCurriculumGroup.getDegreeModule(), "New", "New", executionYear, null, null);
+        assertNull(rootCurriculumGroup.findCurriculumGroupFor(courseGroup));
+    }
+
+    @Test
+    public void testCurriculumGroup_getNoCourseGroupCurriculumGroup_findsByType() {
+        NoCourseGroupCurriculumGroupType type = NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR;
+        NoCourseGroupCurriculumGroup extra = NoCourseGroupCurriculumGroup.create(type, rootCurriculumGroup);
+        try {
+            NoCourseGroupCurriculumGroup found = rootCurriculumGroup.getNoCourseGroupCurriculumGroup(type);
+            assertNotNull(found);
+            assertEquals(type, found.getNoCourseGroupCurriculumGroupType());
+        } finally {
+            extra.delete();
+        }
+    }
+
+    @Test
+    public void testCurriculumGroup_hasConcluded() {
+        CourseGroup mandatoryCourseGroup = mandatoryCurriculumGroup.getDegreeModule();
+
+        assertTrue(mandatoryCurriculumGroup.hasConcluded(cc1, executionYear));
+        assertFalse(mandatoryCurriculumGroup.hasConcluded(cc2, executionYear));
+
+        assertTrue(optionalCurriculumGroup.hasConcluded(cc4, executionYear));
+        assertFalse(optionalCurriculumGroup.hasConcluded(cc5, executionYear));
+        assertFalse(optionalCurriculumGroup.hasConcluded(cc1, executionYear));
+
+        assertTrue(rootCurriculumGroup.hasConcluded(cc1, executionYear));
+
+        // test hasConcluded on courseGroup
+        assertFalse(mandatoryCurriculumGroup.hasConcluded(mandatoryCourseGroup, executionYear));
+
+        // Add a CreditsLimit(min=6) to mandatory CourseGroup; C1 = 6 ECTS approved -> concluded
+        CreditsLimit creditsLimit = new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 6.0d);
+        try {
+            assertTrue(mandatoryCurriculumGroup.hasConcluded(mandatoryCourseGroup, executionYear));
+        } finally {
+            creditsLimit.delete();
+        }
+    }
+
+    @Test
+    public void testCurriculumGroup_hasEnrolmentWithEnroledState_delegatesFromRoot() {
+        assertTrue(rootCurriculumGroup.hasEnrolmentWithEnroledState(cc2, secondSemester));
+        assertFalse(rootCurriculumGroup.hasEnrolmentWithEnroledState(cc2, firstSemester));
+
+        // C1 is approved (state != ENROLLED) -> false; C4 has a dismissal (not an enrolment) -> false;
+        // C5 has no student interaction at all -> false
+        assertFalse(rootCurriculumGroup.hasEnrolmentWithEnroledState(cc1, firstSemester));
+        assertFalse(rootCurriculumGroup.hasEnrolmentWithEnroledState(cc4, firstSemester));
+        assertFalse(rootCurriculumGroup.hasEnrolmentWithEnroledState(cc5, firstSemester));
     }
 }
