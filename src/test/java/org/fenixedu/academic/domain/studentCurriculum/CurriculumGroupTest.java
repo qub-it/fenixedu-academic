@@ -13,6 +13,9 @@ import java.util.function.Predicate;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.EvaluationSeasonTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -20,6 +23,7 @@ import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.degreeStructure.BranchType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.DismissalCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
@@ -38,7 +42,6 @@ import pt.ist.fenixframework.FenixFramework;
 public class CurriculumGroupTest {
 
     private static final String STUDENT_USERNAME = "curriculum.group.test.student";
-    private static final String GRADE_SCALE_NUMERIC = "TYPE20";
     private static StudentCurricularPlan studentCurricularPlan;
     private static ExecutionYear executionYear;
     private static ExecutionInterval firstSemester;
@@ -473,18 +476,12 @@ public class CurriculumGroupTest {
         assertTrue(cycleCurriculumGroup.getBranchCurriculumGroups().isEmpty());
 
         // Temporarily set BranchType.MAJOR on the optionalCourseGroup; cycleCourseGroup then detects it as a branch
-        final DegreeCurricularPlan dcp = studentCurricularPlan.getDegreeCurricularPlan();
-        final CourseGroup cycleCourseGroup =
-                ConclusionRulesTestUtil.getChildGroup(dcp.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
-        final CourseGroup optionalCourseGroup =
-                ConclusionRulesTestUtil.getChildGroup(cycleCourseGroup, ConclusionRulesTestUtil.OPTIONAL_GROUP);
-
-        optionalCourseGroup.setBranchType(BranchType.MAJOR);
+        optionalCurriculumGroup.getDegreeModule().setBranchType(BranchType.MAJOR);
         try {
             assertTrue(optionalCurriculumGroup.isBranchCurriculumGroup());
             assertTrue(cycleCurriculumGroup.getBranchCurriculumGroups().contains(optionalCurriculumGroup));
         } finally {
-            optionalCourseGroup.setBranchType(null);
+            optionalCurriculumGroup.getDegreeModule().setBranchType(null);
         }
     }
 
@@ -663,4 +660,132 @@ public class CurriculumGroupTest {
             extraGroup.delete();
         }
     }
+
+    @Test
+    public void testCurriculumGroup_getEnrolments() {
+        // mandatory has 3 enrolments (C1–C3); optional 0 (C4 is a dismissal, C5 never taken); root aggregates all 3 recursively
+        List<Enrolment> mandatoryEnrolments = mandatoryCurriculumGroup.getEnrolments();
+        assertEquals(3, mandatoryEnrolments.size());
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc1));
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc2));
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc3));
+
+        assertEquals(0, optionalCurriculumGroup.getEnrolments().size());
+
+        List<Enrolment> rootEnrolments = rootCurriculumGroup.getEnrolments();
+        assertEquals(3, rootEnrolments.size());
+        assertTrue(rootEnrolments.contains(enrolmentCc1));
+        assertTrue(rootEnrolments.contains(enrolmentCc2));
+        assertTrue(rootEnrolments.contains(enrolmentCc3));
+    }
+
+    @Test
+    public void testCurriculumGroup_getEnrolmentsSet() {
+        Set<Enrolment> mandatoryEnrolments = mandatoryCurriculumGroup.getEnrolmentsSet();
+        assertEquals(3, mandatoryEnrolments.size());
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc1));
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc2));
+        assertTrue(mandatoryEnrolments.contains(enrolmentCc3));
+
+        assertEquals(0, optionalCurriculumGroup.getEnrolmentsSet().size());
+
+        Set<Enrolment> rootEnrolments = rootCurriculumGroup.getEnrolmentsSet();
+        assertEquals(3, rootEnrolments.size());
+        assertTrue(rootEnrolments.contains(enrolmentCc1));
+        assertTrue(rootEnrolments.contains(enrolmentCc2));
+        assertTrue(rootEnrolments.contains(enrolmentCc3));
+    }
+
+    @Test
+    public void testCurriculumGroup_getCourseGroupContextsToEnrol() {
+        // Without an unenroled CourseGroup child, cycle returns empty; create one and verify it appears
+        assertTrue(cycleCurriculumGroup.getCourseGroupContextsToEnrol(firstSemester).isEmpty());
+
+        CourseGroup cycleCourseGroup = cycleCurriculumGroup.getDegreeModule();
+        CourseGroup newGroup = new CourseGroup(cycleCourseGroup, "TEST_ENROL", "Test Enrol Group", executionYear, null, null);
+
+        try {
+            List<Context> contexts = cycleCurriculumGroup.getCourseGroupContextsToEnrol(firstSemester);
+            assertEquals(1, contexts.size());
+            assertTrue(contexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == newGroup));
+        } finally {
+            newGroup.delete();
+        }
+    }
+
+    @Test
+    public void testCurriculumGroup_getCurricularCoursesToDismissal() {
+        // cycle/root have no direct CurricularCourse children -> empty
+        assertTrue(cycleCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).isEmpty());
+        assertTrue(rootCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).isEmpty());
+
+        // mandatory: C1 approved -> filtered out;
+        assertEquals(2, mandatoryCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).size());
+        assertTrue(mandatoryCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).contains(cc2));
+        assertTrue(mandatoryCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).contains(cc3));
+
+        // optional: C4 (dismissal) approved -> filtered out;
+        assertEquals(1, optionalCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).size());
+        assertTrue(optionalCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).contains(cc5));
+    }
+
+    @Test
+    public void testCurriculumGroup_isEnroledInSpecialSeason() {
+        // Create a special-season EnrolmentEvaluation on C1 (enroled in mandatory);
+        // groups containing C1 detect it recursively; optional has no C1 -> false
+        EvaluationSeason specialSeason = EvaluationSeason.findByCode(EvaluationSeasonTest.SPECIAL_SEASON_CODE).orElseThrow();
+        EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolmentCc1, specialSeason);
+
+        try {
+            assertTrue(mandatoryCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
+            assertTrue(cycleCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
+            assertTrue(rootCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
+            assertTrue(mandatoryCurriculumGroup.isEnroledInSpecialSeason(executionYear));
+            assertTrue(rootCurriculumGroup.isEnroledInSpecialSeason(executionYear));
+            assertFalse(optionalCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
+            assertFalse(optionalCurriculumGroup.isEnroledInSpecialSeason(executionYear));
+        } finally {
+            evaluation.delete();
+        }
+    }
+
+    /* Tests for private utility methods commented out because methods are private
+
+    @Test
+    public void testCurriculumGroup_hasEnrolmentForInterval() {
+        assertTrue(mandatoryCurriculumGroup.hasEnrolmentForInterval(cc1, firstSemester));
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentForInterval(cc1, secondSemester));
+
+        assertTrue(mandatoryCurriculumGroup.hasEnrolmentForInterval(cc2, secondSemester));
+
+        // C4 has a dismissal (not an enrolment) -> false; C5 has no enrolment -> false
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentForInterval(cc4, firstSemester));
+        assertFalse(mandatoryCurriculumGroup.hasEnrolmentForInterval(cc5, firstSemester));
+    }
+
+    @Test
+    public void testCurriculumGroup_canCreateGroupOrChilds() {
+        final CourseGroup mandatoryCourseGroup = mandatoryCurriculumGroup.getDegreeModule();
+
+        // No rules -> true
+        assertTrue(cycleCurriculumGroup.canCreateGroupOrChilds(cycleCurriculumGroup.getDegreeModule(), firstSemester));
+
+        // Non-preventing rule (CreditsLimit) -> true
+        CreditsLimit creditsLimit = new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 6.0d);
+        try {
+            assertTrue(mandatoryCurriculumGroup.canCreateGroupOrChilds(mandatoryCourseGroup, firstSemester));
+
+            // Preventing rule (Exclusiveness) -> false
+            CourseGroup optionalCourseGroup = optionalCurriculumGroup.getDegreeModule();
+            Exclusiveness exclusiveness = new Exclusiveness(mandatoryCourseGroup, optionalCourseGroup, null, firstSemester, null);
+            try {
+                assertFalse(mandatoryCurriculumGroup.canCreateGroupOrChilds(mandatoryCourseGroup, firstSemester));
+            } finally {
+                exclusiveness.delete();
+            }
+        } finally {
+            creditsLimit.delete();
+        }
+    }
+    */
 }
