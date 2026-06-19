@@ -1105,15 +1105,6 @@ public class Registration extends Registration_Base {
         return getDegree() == null ? null : getDegree().getDegreeType();
     }
 
-    public boolean isCurricularCourseApproved(final CurricularCourse curricularCourse) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.isCurricularCourseApproved(curricularCourse)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean isRegistered(final ExecutionInterval executionInterval) {
         return hasAnyActiveState(executionInterval) || hasAnyEnrolmentsIn(executionInterval);
     }
