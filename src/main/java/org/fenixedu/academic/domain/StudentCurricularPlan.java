@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -78,7 +77,6 @@ import org.fenixedu.academic.domain.studentCurriculum.curriculumLine.MoveCurricu
 import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.predicates.AndPredicate;
-import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
@@ -96,30 +94,8 @@ import pt.ist.fenixframework.Atomic;
 public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     static final public Comparator<StudentCurricularPlan> STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME =
-            new Comparator<StudentCurricularPlan>() {
-
-                @Override
-                public int compare(StudentCurricularPlan o1, StudentCurricularPlan o2) {
-                    final Degree degree1 = o1.getDegree();
-                    final Degree degree2 = o2.getDegree();
-                    final int ct = degree1.getDegreeType().compareTo(degree2.getDegreeType());
-                    return ct == 0 ? degree1.getName().compareTo(degree2.getName()) : ct;
-                }
-
-            };
-
-    /**
-     * @deprecated use {@link #COMPARATOR_BY_START_EXECUTION_AND_DATE}
-     *
-     */
-    @Deprecated(forRemoval = true)
-    static final public Comparator<StudentCurricularPlan> STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE =
-            new Comparator<StudentCurricularPlan>() {
-                @Override
-                public int compare(final StudentCurricularPlan o1, final StudentCurricularPlan o2) {
-                    return o1.getStartDateYearMonthDay().compareTo(o2.getStartDateYearMonthDay());
-                }
-            };
+            Comparator.comparing((StudentCurricularPlan p) -> p.getDegree().getDegreeType())
+                    .thenComparing(p -> p.getDegree().getName());
 
     public static final Comparator<StudentCurricularPlan> COMPARATOR_BY_START_EXECUTION_AND_DATE =
             Comparator.comparing(StudentCurricularPlan::getStartExecutionInterval)
@@ -205,16 +181,17 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public void delete() throws DomainException {
-
-        for (; !getEnrolmentsSet().isEmpty(); getEnrolmentsSet().iterator().next().delete()) {
-            ;
-        }
+        getEnrolmentsSet().forEach(e -> {
+            e.setStudentCurricularPlan(null);
+            e.delete();
+        });
 
         getRoot().delete();
 
-        for (; !getCreditsSet().isEmpty(); getCreditsSet().iterator().next().delete()) {
-            ;
-        }
+        getCreditsSet().forEach(c -> {
+            c.setStudentCurricularPlan(null);
+            c.delete();
+        });
 
         setStartExecutionInterval(null);
         setDegreeCurricularPlan(null);
@@ -377,7 +354,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         andPredicate.add(new CurriculumModulePredicateByExecutionYear(executionYear));
 
         return hasAnyCurriculumModules(andPredicate);
-
     }
 
     public boolean hasAnyCurriculumLines(final ExecutionInterval executionInterval) {
@@ -386,7 +362,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         andPredicate.add(new CurriculumModulePredicateByExecutionInterval(executionInterval));
 
         return hasAnyCurriculumModules(andPredicate);
-
     }
 
     final public boolean hasEnrolments(final Enrolment enrolment) {
@@ -412,99 +387,34 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public List<Enrolment> getEnrolments(final CurricularCourse curricularCourse) {
-        final List<Enrolment> results = new ArrayList<Enrolment>();
-
-        for (final Enrolment enrollment : this.getEnrolmentsSet()) {
-            if (enrollment.getCurricularCourse() == curricularCourse) {
-                results.add(enrollment);
-            }
-        }
-
-        return results;
+        return getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == curricularCourse)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     final public int countEnrolmentsByCurricularCourse(final CurricularCourse curricularCourse) {
-        int count = 0;
-        for (Enrolment enrolment : this.getEnrolmentsSet()) {
-            if (enrolment.getCurricularCourse() == curricularCourse) {
-                count++;
-            }
-        }
-        return count;
+        return (int) getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == curricularCourse).count();
     }
 
     public int countEnrolmentsByCurricularCourse(final CurricularCourse curricularCourse,
             final ExecutionInterval untilExecutionInterval) {
-        int count = 0;
-        for (Enrolment enrolment : getEnrolments(curricularCourse)) {
-            if (enrolment.getExecutionInterval().isBeforeOrEquals(untilExecutionInterval)) {
-                count++;
-            }
-        }
-        return count;
+        return (int) getEnrolments(curricularCourse).stream()
+                .filter(e -> e.getExecutionInterval().isBeforeOrEquals(untilExecutionInterval)).count();
     }
 
     public List<Enrolment> getEnrolmentsByExecutionYear(final ExecutionYear executionYear) {
-        final List<Enrolment> result = new ArrayList<Enrolment>();
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.getExecutionInterval().getExecutionYear() == executionYear) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(e -> e.getExecutionInterval().getExecutionYear() == executionYear)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
-        List<Enrolment> results = new ArrayList<Enrolment>();
-        for (Enrolment enrolment : this.getEnrolmentsSet()) {
-            if (enrolment.getExecutionInterval() == executionInterval) {
-                results.add(enrolment);
-            }
-        }
-        return results;
-    }
-
-    final public Collection<Enrolment> getStudentEnrollmentsWithEnrolledState() {
-        final List<Enrolment> result = new ArrayList<Enrolment>();
-
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.isEnroled() && !enrolment.isInvisible()) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
-    }
-
-    final public int getNumberOfEnrolledCurricularCourses() {
-        return getStudentEnrollmentsWithEnrolledState().size();
-    }
-
-    private Collection<Enrolment> getVisibleEnroledEnrolments(final ExecutionInterval executionInterval) {
-        final Collection<Enrolment> result = new ArrayList<Enrolment>();
-
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (!enrolment.isAnnulled() && !enrolment.isInvisible()
-                    && (executionInterval == null || enrolment.isValid(executionInterval))) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(e -> e.getExecutionInterval() == executionInterval)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     final public Collection<Enrolment> getLatestCurricularCoursesEnrolments(final ExecutionYear executionYear) {
-        final Map<CurricularCourse, Enrolment> result = new HashMap<CurricularCourse, Enrolment>();
-
-        for (final Enrolment enrolment : getEnrolmentsByExecutionYear(executionYear)) {
-            if (!result.containsKey(enrolment.getCurricularCourse())
-                    || result.get(enrolment.getCurricularCourse()).isBefore(enrolment)) {
-                result.put(enrolment.getCurricularCourse(), enrolment);
-            }
-        }
-
-        return result.values();
+        return getEnrolmentsByExecutionYear(executionYear).stream().collect(
+                Collectors.toMap(Enrolment::getCurricularCourse, e -> e,
+                        (existing, replacement) -> existing.isBefore(replacement) ? replacement : existing)).values();
     }
 
     public void addApprovedEnrolments(final Collection<Enrolment> enrolments) {
@@ -516,18 +426,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public Set<Enrolment> getDismissalApprovedEnrolments() {
-        Set<Enrolment> aprovedEnrolments = new HashSet<Enrolment>();
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.canBeUsedAsCreditsSource()) {
-                aprovedEnrolments.add(enrolment);
-            }
-        }
-        return aprovedEnrolments;
-    }
-
-    public Collection<? extends CurriculumModule> getCurriculumModules(final ResultCollection<CurriculumModule> collection) {
-        getRoot().getCurriculumModules(collection);
-        return collection.getResult();
+        return getEnrolmentsSet().stream().filter(Enrolment::canBeUsedAsCreditsSource).collect(Collectors.toSet());
     }
 
     public boolean hasAnyCurriculumModules(final Predicate<CurriculumModule> predicate) {
@@ -1015,7 +914,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     private Collection<CourseGroup> getCourseGroupsToApplyDismissals() {
-        return getRoot().getCurriculumGroups().stream().filter(i -> i.getDegreeModule() != null).map(i -> i.getDegreeModule())
+        return getRoot().getCurriculumGroups().stream().map(CurriculumGroup::getDegreeModule).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
@@ -1480,7 +1379,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public Stream<Enrolment> getEnrolmentStream() {
-        return getRoot().getCurriculumLineStream().filter(cl -> cl.isEnrolment()).map(cl -> (Enrolment) cl);
+        return getRoot().getCurriculumLineStream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast);
     }
 
 }
