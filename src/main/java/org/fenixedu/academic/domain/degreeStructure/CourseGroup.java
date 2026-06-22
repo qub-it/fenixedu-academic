@@ -227,30 +227,6 @@ public class CourseGroup extends CourseGroup_Base {
         return clazz == null || clazz.isAssignableFrom(degreeModule.getClass());
     }
 
-//    public List<Context> getSortedChildContextsWithCurricularCourses() {
-//        List<Context> result = this.getChildContexts(CurricularCourse.class);
-//        Collections.sort(result);
-//        return result;
-//    }
-
-//    public List<Context> getSortedChildContextsWithCurricularCoursesByExecutionYear(ExecutionYear executionYear) {
-//        List<Context> result = this.getValidChildContextsForExecutionAggregation(CurricularCourse.class, executionYear);
-//        Collections.sort(result);
-//        return result;
-//    }
-
-//    public List<Context> getSortedChildContextsWithCourseGroups() {
-//        List<Context> result = new ArrayList<Context>(this.getChildContexts(CourseGroup.class));
-//        Collections.sort(result);
-//        return result;
-//    }
-
-//    public List<Context> getSortedChildContextsWithCourseGroupsByExecutionYear(ExecutionYear executionYear) {
-//        List<Context> result = this.getValidChildContexts(CourseGroup.class, executionYear);
-//        Collections.sort(result);
-//        return result;
-//    }
-
     @Override
     public List<CurricularRule> getParticipatingCurricularRules() {
         final List<CurricularRule> result = new ArrayList<CurricularRule>();
@@ -372,22 +348,6 @@ public class CourseGroup extends CourseGroup_Base {
         return result;
     }
 
-//    public Set<DegreeModule> collectAllChildDegreeModules(final Class<? extends DegreeModule> clazz,
-//            final ExecutionInterval executionInterval) {
-//        final Set<DegreeModule> result = new HashSet<DegreeModule>();
-//        for (final Context context : getValidChildContexts(executionInterval)) {
-//            final DegreeModule degreeModule = context.getChildDegreeModule();
-//            if (clazz.isAssignableFrom(degreeModule.getClass())) {
-//                result.add(degreeModule);
-//            }
-//            if (!degreeModule.isLeaf()) {
-//                final CourseGroup courseGroup = (CourseGroup) degreeModule;
-//                result.addAll(courseGroup.collectAllChildDegreeModules(clazz, executionInterval));
-//            }
-//        }
-//        return result;
-//    }
-
     public void collectChildDegreeModulesIncludingFullPath(Class<? extends DegreeModule> clazz, List<List<DegreeModule>> result,
             List<DegreeModule> previousDegreeModulesPath, ExecutionYear executionYear) {
         final List<DegreeModule> currentDegreeModulesPath = previousDegreeModulesPath;
@@ -437,32 +397,17 @@ public class CourseGroup extends CourseGroup_Base {
     }
 
     private Collection<CourseGroup> filterCourseGroups(final Collection<DegreeModule> degreeModules) {
-        final Collection<CourseGroup> result = new HashSet<CourseGroup>();
-        for (final DegreeModule degreeModule : degreeModules) {
-            if (!degreeModule.isLeaf()) {
-                result.add((CourseGroup) degreeModule);
-            }
-        }
-        return result;
+        return degreeModules.stream().filter(dm -> !dm.isLeaf()).map(CourseGroup.class::cast).collect(Collectors.toSet());
     }
 
     private DegreeModulesSelectionLimit getDegreeModulesSelectionLimitRule(final Collection<CurricularRule> curricularRules) {
-        for (final CurricularRule curricularRule : curricularRules) {
-            if (curricularRule.getCurricularRuleType() == CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT) {
-                return (DegreeModulesSelectionLimit) curricularRule;
-            }
-        }
-        return null;
+        return curricularRules.stream()
+                .filter(r -> r.getCurricularRuleType() == CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT)
+                .map(DegreeModulesSelectionLimit.class::cast).findFirst().orElse(null);
     }
 
     private Collection<CurricularRule> getCurricularRulesByExecutionInterval(final ExecutionInterval executionInterval) {
-        final Collection<CurricularRule> result = new HashSet<CurricularRule>();
-        for (final CurricularRule curricularRule : this.getCurricularRulesSet()) {
-            if (curricularRule.isValid(executionInterval)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream().filter(r -> r.isValid(executionInterval)).collect(Collectors.toSet());
     }
 
     private Collection<DegreeModule> getDegreeModulesByExecutionInterval(final ExecutionInterval executionInterval) {
@@ -475,6 +420,7 @@ public class CourseGroup extends CourseGroup_Base {
                 .map(CurricularCourse.class::cast).anyMatch(child -> child.isEquivalent(curricularCourse));
     }
 
+    // TODO REMOVE OR READ THE GIT DIFF
     public Collection<Context> getContextsWithCurricularCourseByCurricularPeriod(final CurricularPeriod curricularPeriod,
             final ExecutionInterval executionSemester) {
         return getChildContextsSet().stream()
@@ -601,12 +547,6 @@ public class CourseGroup extends CourseGroup_Base {
 
     public boolean allowChildWith(final ExecutionInterval executionSemester) {
         return getMinimumExecutionPeriod().isBeforeOrEquals(executionSemester);
-    }
-
-    public Set<Context> getChildContextsSortedByDegreeModuleName() {
-        final Set<Context> contexts = new TreeSet<Context>(Context.COMPARATOR_BY_DEGREE_MODULE_NAME);
-        contexts.addAll(getChildContextsSet());
-        return contexts;
     }
 
     public Set<DegreeModule> getChildDegreeModules() {
