@@ -2,13 +2,16 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
 import java.util.UUID;
 
+import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.junit.Before;
@@ -31,6 +34,7 @@ public class ExecutionCourseTest {
     private static Registration regA;
     private static Registration regB;
     private ExecutionCourse emptyExecutionCourse;
+    private ExecutionCourse newExecutionCourse;
 
     @BeforeClass
     public static void init() {
@@ -54,6 +58,7 @@ public class ExecutionCourseTest {
     @Before
     public void setUp() {
         emptyExecutionCourse = createEmptyExecutionCourse();
+        newExecutionCourse = newExecutionCourse(executionCourse.getExecutionInterval());
     }
 
     private static ExecutionCourse createEmptyExecutionCourse() {
@@ -111,5 +116,92 @@ public class ExecutionCourseTest {
     public void getAttendsByStudent_withStudentWithoutRegistrations_returnsNull() {
         new Attends(regA, emptyExecutionCourse);
         assertNull(emptyExecutionCourse.getAttendsByStudent(studentWithoutRegistrations));
+    }
+
+    private static ExecutionCourse newExecutionCourse(final ExecutionInterval interval) {
+        return new ExecutionCourse("Fresh_" + UUID.randomUUID(), UUID.randomUUID().toString(), interval);
+    }
+
+    private static SchoolClass createSchoolClassFor(final ExecutionCourse ec, final String name) {
+        final ExecutionInterval interval = ec.getExecutionInterval();
+        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
+        final ExecutionDegree executionDegree = dcp.findExecutionDegree(interval).orElseThrow();
+        final SchoolClass schoolClass = new SchoolClass(executionDegree, interval, name, 1);
+        final Shift shift = new Shift(ec, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
+        shift.addAssociatedClasses(schoolClass);
+        return schoolClass;
+    }
+
+    @Test
+    public void testSetSigla() {
+        final String sigla = "UNIQUE_" + UUID.randomUUID();
+        newExecutionCourse.setSigla(sigla);
+        assertEquals(sigla, newExecutionCourse.getSigla());
+    }
+
+    @Test
+    public void testSetSigla_conflicts() {
+        final ExecutionInterval interval = newExecutionCourse.getExecutionInterval();
+        final String target = "CONFLICT_" + UUID.randomUUID();
+
+        final ExecutionCourse other1 = new ExecutionCourse("Other1", UUID.randomUUID().toString(), interval);
+        other1.setSigla(target);
+
+        newExecutionCourse.setSigla(target); // first conflict -> should get -0
+        assertEquals(target + "-0", newExecutionCourse.getSigla());
+
+        final ExecutionCourse other2 = new ExecutionCourse("Other2", UUID.randomUUID().toString(), interval);
+        other2.setSigla(target + "-0");
+
+        // second conflict -> should get -1
+        final ExecutionCourse anotherCourse = new ExecutionCourse("Another", UUID.randomUUID().toString(), interval);
+        anotherCourse.setSigla(target);
+        assertEquals(target + "-1", anotherCourse.getSigla());
+    }
+
+    @Test
+    public void testSetSigla_normalizesSpecialCharacters() {
+        newExecutionCourse.setSigla("B C");
+        assertEquals("B_C", newExecutionCourse.getSigla());
+
+        newExecutionCourse.setSigla("A/B");
+        assertEquals("A-B", newExecutionCourse.getSigla());
+
+        newExecutionCourse.setSigla("A/B C");
+        assertEquals("A-B_C", newExecutionCourse.getSigla());
+    }
+
+    @Test
+    public void testGetSchoolClasses() {
+        final SchoolClass schoolClass = createSchoolClassFor(newExecutionCourse, "TestClass_GS");
+        assertEquals(Set.of(schoolClass), newExecutionCourse.getSchoolClasses());
+    }
+
+    @Test
+    public void testGetSchoolClasses_multiple() {
+        final SchoolClass a = createSchoolClassFor(newExecutionCourse, "Multi_A");
+        final SchoolClass b = createSchoolClassFor(newExecutionCourse, "Multi_B");
+        assertEquals(Set.of(a, b), newExecutionCourse.getSchoolClasses());
+    }
+
+    @Test
+    public void testGetSchoolClasses_empty() {
+        assertTrue(newExecutionCourse.getSchoolClasses().isEmpty());
+    }
+
+    @Test
+    public void testGetSchoolClassesBy() {
+        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
+        final SchoolClass schoolClass = createSchoolClassFor(newExecutionCourse, "TestClass_GSBy");
+        assertEquals(Set.of(schoolClass), newExecutionCourse.getSchoolClassesBy(dcp));
+    }
+
+    @Test
+    public void testGetSchoolClassesBy_noMatch() {
+        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
+        createSchoolClassFor(newExecutionCourse, "TestClass_NoMatch");
+        final DegreeCurricularPlan otherDcp =
+                dcp.getDegree().getDegreeCurricularPlansSet().stream().filter(d -> !d.equals(dcp)).findAny().orElseThrow();
+        assertTrue(newExecutionCourse.getSchoolClassesBy(otherDcp).isEmpty());
     }
 }
