@@ -150,9 +150,10 @@ public class StudentCurricularPlanTest {
         StudentCurricularPlan scp = create(registration, dcpV2, executionInterval);
 
         assertNotNull(scp);
-        assertEquals(scp.getRegistration(), registration);
-        assertEquals(scp.getDegreeCurricularPlan(), dcpV2);
-        assertEquals(scp.getStartExecutionInterval(), executionInterval);
+        assertEquals(registration, scp.getRegistration());
+        assertEquals(scp.getRegistration(), scp.getStudent());
+        assertEquals(dcpV2, scp.getDegreeCurricularPlan());
+        assertEquals(executionInterval, scp.getStartExecutionInterval());
     }
 
     @Test
@@ -168,6 +169,7 @@ public class StudentCurricularPlanTest {
         assertNotNull(scp);
         assertNotNull(scp.getRootDomainObject());
         assertEquals(registration, scp.getRegistration());
+        assertEquals(scp.getRegistration(), scp.getStudent());
         assertEquals(dcpV2, scp.getDegreeCurricularPlan());
         assertEquals(executionInterval, scp.getStartExecutionInterval());
 
@@ -175,6 +177,7 @@ public class StudentCurricularPlanTest {
 
         assertNull(scp.getRootDomainObject());
         assertNull(scp.getRegistration());
+        assertNull(scp.getStudent());
         assertNull(scp.getDegreeCurricularPlan());
         assertNull(scp.getStartExecutionInterval());
     }

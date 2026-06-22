@@ -191,7 +191,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
         setStartExecutionInterval(null);
         setDegreeCurricularPlan(null);
-        setStudent(null);
+        setRegistration(null);
         setRootDomainObject(null);
 
         deleteDomainObject();
@@ -273,12 +273,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getDegreeCurricularPlan().getDegreeDuration();
     }
 
-    @Override
-    @Deprecated
-    final public Registration getStudent() {
-        return this.getRegistration();
-    }
-
     public void setStartDate(YearMonthDay startDate) {
         if (startDate != null && getStartExecutionInterval() != null) {
             final Interval startDateInterval =
@@ -289,12 +283,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             }
         }
         super.setStartDateYearMonthDay(startDate);
-    }
-
-    @Override
-    @Deprecated
-    public void setStudent(final Registration registration) {
-        this.setRegistration(registration);
     }
 
     public Registration getRegistration() {
@@ -1108,11 +1096,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return result;
     }
 
-    @Deprecated
-    public boolean isEmptyDegree() {
-        return getDegreeCurricularPlan().isEmpty();
-    }
-
     public Set<CurriculumGroup> getBranchCurriculumGroups() {
         return getRoot().getBranchCurriculumGroups();
     }
@@ -1133,36 +1116,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getRoot().getAprovedEctsCredits();
     }
 
-    @Deprecated
-    public java.util.Date getStartDate() {
-        org.joda.time.YearMonthDay ymd = getStartDateYearMonthDay();
-        return ymd == null ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
-    @Deprecated
-    public void setStartDate(java.util.Date date) {
-        if (date == null) {
-            setStartDateYearMonthDay(null);
-        } else {
-            setStartDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
-    }
-
-    @Deprecated
-    public java.util.Date getWhen() {
-        org.joda.time.DateTime dt = getWhenDateTime();
-        return dt == null ? null : new java.util.Date(dt.getMillis());
-    }
-
-    @Deprecated
-    public void setWhen(java.util.Date date) {
-        if (date == null) {
-            setWhenDateTime(null);
-        } else {
-            setWhenDateTime(new org.joda.time.DateTime(date.getTime()));
-        }
-    }
-
     public boolean isAllowedToDelete() {
         return getRegistration().getStudentCurricularPlansSet().size() > 1;
     }
@@ -1170,5 +1123,4 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     public Stream<Enrolment> getEnrolmentStream() {
         return getRoot().getCurriculumLineStream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast);
     }
-
 }
