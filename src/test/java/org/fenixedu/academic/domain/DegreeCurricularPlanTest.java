@@ -42,7 +42,7 @@ public class DegreeCurricularPlanTest {
         });
     }
 
-    static void initDegreeCurricularPlan() {
+    public static DegreeCurricularPlan initDegreeCurricularPlan() {
         DegreeTest.initDegree();
         final Degree degree = Degree.find(DEGREE_A_CODE);
 
@@ -66,6 +66,8 @@ public class DegreeCurricularPlanTest {
 
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
+        
+        return degreeCurricularPlan;
     }
 
 
