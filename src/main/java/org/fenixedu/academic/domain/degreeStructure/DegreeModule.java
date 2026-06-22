@@ -365,18 +365,6 @@ abstract public class DegreeModule extends DegreeModule_Base {
                 .collect(Collectors.toSet());
     }
 
-    /**
-     * @deprecated use getParentContextsSet instead
-     */
-    @Deprecated
-    public Set<CourseGroup> getParentCourseGroups() {
-        Set<CourseGroup> res = new HashSet<CourseGroup>();
-        for (Context context : getParentContextsSet()) {
-            res.add(context.getParentCourseGroup());
-        }
-        return res;
-    }
-
     public boolean isDissertation() {
         return false;
     }
