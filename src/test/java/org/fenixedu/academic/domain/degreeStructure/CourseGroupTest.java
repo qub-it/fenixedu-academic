@@ -353,4 +353,222 @@ public class CourseGroupTest {
         // cycle has no direct CurricularCourse children -> empty
         assertTrue(cycleCourseGroup.getChildCurricularCoursesValidOn(firstSemester).isEmpty());
     }
+
+    @Test
+    public void testCourseGroup_getChildDegreeModules_returnsDirectChildren() {
+        // getChildDegreeModules returns only direct children (not recursive)
+        final Set<DegreeModule> rootChildren = rootCourseGroup.getChildDegreeModules();
+        assertEquals(1, rootChildren.size());
+        assertTrue(rootChildren.contains(cycleCourseGroup));
+        assertFalse(rootChildren.contains(mandatoryCourseGroup)); // too deep
+
+        // cycle's direct children: mandatory + optional
+        final Set<DegreeModule> cycleChildren = cycleCourseGroup.getChildDegreeModules();
+        assertEquals(2, cycleChildren.size());
+        assertTrue(cycleChildren.contains(mandatoryCourseGroup));
+        assertTrue(cycleChildren.contains(optionalCourseGroup));
+
+        // mandatory's direct children: C1, C2, C3, C6
+        final Set<DegreeModule> mandatoryChildren = mandatoryCourseGroup.getChildDegreeModules();
+        assertEquals(4, mandatoryChildren.size());
+        assertTrue(mandatoryChildren.contains(cc1));
+        assertTrue(mandatoryChildren.contains(cc2));
+        assertTrue(mandatoryChildren.contains(cc3));
+        assertTrue(mandatoryChildren.contains(cc6));
+
+        // optional's direct children: C4, C5
+        final Set<DegreeModule> optionalChildren = optionalCourseGroup.getChildDegreeModules();
+        assertEquals(2, optionalChildren.size());
+        assertTrue(optionalChildren.contains(cc4));
+        assertTrue(optionalChildren.contains(cc5));
+
+        assertFalse(optionalChildren.contains(cc1));
+    }
+
+    @Test
+    public void testCourseGroup_getChildDegreeModulesValidOn_filtersByInterval() {
+        // mandatory: C1 (1Y1S) + C3 (2Y1S) match firstSemester; C2 (1Y2S) matches secondSemester
+        // C6 (1Y3S) does not match either (no 3rd semester in the year)
+        final Set<DegreeModule> firstSemesterModules = mandatoryCourseGroup.getChildDegreeModulesValidOn(firstSemester);
+        assertEquals(2, firstSemesterModules.size());
+        assertTrue(firstSemesterModules.contains(cc1));
+        assertTrue(firstSemesterModules.contains(cc3));
+        assertFalse(firstSemesterModules.contains(cc6));
+
+        final Set<DegreeModule> secondSemesterModules = mandatoryCourseGroup.getChildDegreeModulesValidOn(secondSemester);
+        assertEquals(1, secondSemesterModules.size());
+        assertTrue(secondSemesterModules.contains(cc2));
+        assertFalse(secondSemesterModules.contains(cc6));
+    }
+
+    @Test
+    public void testCourseGroup_getChildDegreeModulesValidOnExecutionAggregation_filtersByYear() {
+        // C6 (1Y3S) is NOT valid for executionYear aggregation (no 3rd-semester period in the year),
+        final Set<DegreeModule> mandatoryValid =
+                mandatoryCourseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear);
+        assertEquals(3, mandatoryValid.size());
+        assertTrue(mandatoryValid.contains(cc1));
+        assertTrue(mandatoryValid.contains(cc2));
+        assertTrue(mandatoryValid.contains(cc3));
+        assertFalse(mandatoryValid.contains(cc6));
+
+        final Set<DegreeModule> rootValid = rootCourseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear);
+        assertEquals(1, rootValid.size());
+        assertTrue(rootValid.contains(cycleCourseGroup));
+
+        // cycle: mandatory + optional
+        final Set<DegreeModule> cycleValid = cycleCourseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear);
+        assertEquals(2, cycleValid.size());
+        assertTrue(cycleValid.contains(mandatoryCourseGroup));
+        assertTrue(cycleValid.contains(optionalCourseGroup));
+    }
+
+    @Test
+    public void testCourseGroup_getChildCurricularCoursesValidOn_returnsOnlyCurricularCourses() {
+        // mandatory: C1 + C3 match firstSemester, C2 matches secondSemester, C6 (1Y3S) matches neither
+        final Set<CurricularCourse> firstSemesterModules = mandatoryCourseGroup.getChildCurricularCoursesValidOn(firstSemester);
+        assertEquals(2, firstSemesterModules.size());
+        assertTrue(firstSemesterModules.contains(cc1));
+        assertTrue(firstSemesterModules.contains(cc3));
+        assertFalse(firstSemesterModules.contains(cc6));
+        assertFalse(firstSemesterModules.stream().anyMatch(DegreeModule::isCourseGroup));
+
+        // secondSemester: only C2 matches
+        final Set<CurricularCourse> secondSemesterModules = mandatoryCourseGroup.getChildCurricularCoursesValidOn(secondSemester);
+        assertEquals(1, secondSemesterModules.size());
+        assertTrue(secondSemesterModules.contains(cc2));
+        assertFalse(secondSemesterModules.contains(cc6));
+
+        // cycle has no direct CurricularCourse children -> empty
+        assertTrue(cycleCourseGroup.getChildCurricularCoursesValidOn(firstSemester).isEmpty());
+    }
+
+    @Test
+    public void testCourseGroup_getParentCourseGroups_returnsParentGroups() {
+        assertTrue(rootCourseGroup.getParentCourseGroups().isEmpty());
+
+        Set<CourseGroup> cycleParents = cycleCourseGroup.getParentCourseGroups();
+        assertEquals(1, cycleParents.size());
+        assertTrue(cycleParents.contains(rootCourseGroup));
+
+        Set<CourseGroup> mandatoryParents = mandatoryCourseGroup.getParentCourseGroups();
+        assertEquals(1, mandatoryParents.size());
+        assertTrue(mandatoryParents.contains(cycleCourseGroup));
+    }
+
+    @Test
+    public void testCourseGroup_hasDegreeModule_findsRecursivelyExcludesSiblings() {
+        // root finds all modules recursively
+        assertTrue(rootCourseGroup.hasDegreeModule(cycleCourseGroup));
+        assertTrue(rootCourseGroup.hasDegreeModule(mandatoryCourseGroup));
+        assertTrue(rootCourseGroup.hasDegreeModule(optionalCourseGroup));
+        assertTrue(rootCourseGroup.hasDegreeModule(cc1));
+        assertTrue(rootCourseGroup.hasDegreeModule(cc4));
+
+        // mandatory finds itself and its children (C1–C3, C6)
+        assertTrue(mandatoryCourseGroup.hasDegreeModule(mandatoryCourseGroup));
+        assertTrue(mandatoryCourseGroup.hasDegreeModule(cc1));
+        assertTrue(mandatoryCourseGroup.hasDegreeModule(cc2));
+        assertTrue(mandatoryCourseGroup.hasDegreeModule(cc3));
+        assertTrue(mandatoryCourseGroup.hasDegreeModule(cc6));
+
+        // mandatory does NOT find a sibling group (optional) or sibling courses (C4)
+        assertFalse(mandatoryCourseGroup.hasDegreeModule(optionalCourseGroup));
+        assertFalse(mandatoryCourseGroup.hasDegreeModule(cc4));
+    }
+
+    @Test
+    public void testCourseGroup_hasDegreeModuleOnChilds_detectsDirectChildren() {
+        assertTrue(cycleCourseGroup.hasDegreeModuleOnChilds(mandatoryCourseGroup));
+        assertTrue(cycleCourseGroup.hasDegreeModuleOnChilds(optionalCourseGroup));
+        assertFalse(cycleCourseGroup.hasDegreeModuleOnChilds(cc1)); // C1 is under mandatory, not direct
+
+        assertTrue(mandatoryCourseGroup.hasDegreeModuleOnChilds(cc1));
+        assertTrue(mandatoryCourseGroup.hasDegreeModuleOnChilds(cc2));
+        assertTrue(mandatoryCourseGroup.hasDegreeModuleOnChilds(cc6));
+        assertFalse(mandatoryCourseGroup.hasDegreeModuleOnChilds(cc4)); // C4 is in optional
+    }
+
+    @Test
+    public void testCourseGroup_hasAnyChildContextWithCurricularCourse_trueForGroupsWithCourses() {
+        assertTrue(mandatoryCourseGroup.hasAnyChildContextWithCurricularCourse());
+        assertTrue(optionalCourseGroup.hasAnyChildContextWithCurricularCourse());
+
+        // cycle has only CourseGroup children (mandatory, optional), not direct CurricularCourse children -> false
+        assertFalse(cycleCourseGroup.hasAnyChildContextWithCurricularCourse());
+    }
+
+    @Test
+    public void testCourseGroup_hasAnyParentBranchCourseGroup_falseByDefault() {
+        assertFalse(rootCourseGroup.hasAnyParentBranchCourseGroup());
+        assertFalse(cycleCourseGroup.hasAnyParentBranchCourseGroup());
+        assertFalse(mandatoryCourseGroup.hasAnyParentBranchCourseGroup());
+        assertFalse(optionalCourseGroup.hasAnyParentBranchCourseGroup());
+
+        // When a group is itself a branch, it returns true
+        cycleCourseGroup.setBranchType(BranchType.MAJOR);
+        try {
+            assertFalse(rootCourseGroup.hasAnyParentBranchCourseGroup());
+            assertTrue(cycleCourseGroup.hasAnyParentBranchCourseGroup());
+            assertTrue(mandatoryCourseGroup.hasAnyParentBranchCourseGroup());
+            assertTrue(optionalCourseGroup.hasAnyParentBranchCourseGroup());
+        } finally {
+            cycleCourseGroup.setBranchType(null);
+        }
+    }
+
+    @Test
+    public void testCourseGroup_validate_matchesEquivalentCourse() {
+        assertTrue(mandatoryCourseGroup.validate(cc1));
+        // C4 is in optional, not mandatory -> false
+        assertFalse(mandatoryCourseGroup.validate(cc4));
+        // C1 is not a direct child of root -> false
+        assertFalse(rootCourseGroup.validate(cc1));
+    }
+
+    @Test
+    public void testCourseGroup_readCourseGroups_returnsAllCourseGroups() {
+        final List<CourseGroup> allGroups = CourseGroup.readCourseGroups();
+        assertTrue(allGroups.contains(rootCourseGroup));
+        assertTrue(allGroups.contains(cycleCourseGroup));
+        assertTrue(allGroups.contains(mandatoryCourseGroup));
+        assertTrue(allGroups.contains(optionalCourseGroup));
+    }
+
+    @Test
+    public void testCourseGroup_getAllCurricularCourses_collectsRecursively() {
+        final Set<CurricularCourse> rootCCs = rootCourseGroup.getAllCurricularCourses(firstSemester);
+        assertEquals(6, rootCCs.size());
+        assertTrue(rootCCs.contains(cc1));
+        assertTrue(rootCCs.contains(cc2));
+        assertTrue(rootCCs.contains(cc3));
+        assertTrue(rootCCs.contains(cc4));
+        assertTrue(rootCCs.contains(cc5));
+        assertTrue(rootCCs.contains(cc6));
+
+        final Set<CurricularCourse> cycleCCs = cycleCourseGroup.getAllCurricularCourses(secondSemester);
+        assertEquals(6, cycleCCs.size());
+
+        // mandatory collects C1–C3, C6
+        final Set<CurricularCourse> mandatoryCCs = mandatoryCourseGroup.getAllCurricularCourses(secondSemester);
+        assertEquals(4, mandatoryCCs.size());
+        assertTrue(mandatoryCCs.contains(cc1));
+        assertTrue(mandatoryCCs.contains(cc2));
+        assertTrue(mandatoryCCs.contains(cc3));
+        assertTrue(mandatoryCCs.contains(cc6));
+        assertFalse(mandatoryCCs.contains(cc4));
+
+        // optional collects C4, C5
+        final Set<CurricularCourse> optionalCCs = optionalCourseGroup.getAllCurricularCourses(firstSemester);
+        assertEquals(2, optionalCCs.size());
+        assertTrue(optionalCCs.contains(cc4));
+        assertTrue(optionalCCs.contains(cc5));
+        assertFalse(optionalCCs.contains(cc1));
+
+        // Null interval returns all CCs regardless of interval
+        final Set<CurricularCourse> nullIntervalCCs = rootCourseGroup.getAllCurricularCourses(null);
+        assertEquals(6, nullIntervalCCs.size());
+        assertTrue(nullIntervalCCs.contains(cc1));
+        assertTrue(nullIntervalCCs.contains(cc6));
+    }
 }
