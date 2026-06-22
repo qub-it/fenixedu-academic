@@ -18,6 +18,8 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
+import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -517,6 +519,62 @@ public class CourseGroupTest {
         // Null interval returns all CCs regardless of interval
         final Set<CurricularCourse> nullIntervalCCs = rootCourseGroup.getAllCurricularCourses(null);
         assertEquals(8, nullIntervalCCs.size());
+    }
+
+    @Test
+    public void testCourseGroup_getMaxEctsCredits_countsMaxEctsWithoutRules() {
+        // mandatory: 6 children, 6 ECTS each except cc8 which weighs 12 ECTS
+        assertEquals(42.0d, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+
+        // optional: 2 children, each 6 ECTS
+        assertEquals(12.0d, optionalCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+
+        // cycle: 2 CG children -> mandatory (42) + optional (12)
+        assertEquals(54, cycleCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+    }
+
+    @Test
+    public void testCourseGroup_getMaxEctsCredits_withCreditsLimitOverrides() {
+        // Add a CreditsLimit(min=1, max=12) to mandatory; getMaxEctsCredits should return the max limit
+        final CreditsLimit creditsLimit =
+                new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
+        try {
+            assertEquals(12.0d, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+        } finally {
+            creditsLimit.delete();
+        }
+    }
+
+    @Test
+    public void testCourseGroup_getMinEctsCredits_countsMinEctsWithoutRules() {
+        // mandatory: 6 children, 6 ECTS each except cc8 which weighs 12 ECTS
+        assertEquals(42.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+
+        // optional: 2 children, each 6 ECTS
+        assertEquals(12.0d, optionalCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+    }
+
+    @Test
+    public void testCourseGroup_getMinEctsCredits_withCreditsLimitOverrides() {
+        // Add a CreditsLimit(min=6, max=12) to mandatory; getMinEctsCredits should return the min limit
+        final CreditsLimit creditsLimit =
+                new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
+        try {
+            assertEquals(6.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+        } finally {
+            creditsLimit.delete();
+        }
+    }
+
+    @Test
+    public void testCourseGroup_getMinEctsCredits_withDegreeModulesSelectionLimit() {
+        final DegreeModulesSelectionLimit limit =
+                new DegreeModulesSelectionLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 1, 1);
+        try {
+            assertEquals(6.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+        } finally {
+            limit.delete();
+        }
     }
 
     /* Tests for private utility methods commented out because methods are private
