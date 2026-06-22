@@ -8,7 +8,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
@@ -41,23 +44,15 @@ public class DegreeModuleTest {
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static RootCourseGroup root;
 
-    private static CourseGroup groupA;
-    private static CourseGroup groupA1;
-    private static CurricularCourse courseA1;
-    private static CurricularCourse courseA2;
-    private static CurricularPeriod semesterPeriod;
-    private static CourseGroup groupB;
+    private static CourseGroup groupA, groupA1, groupB;
+    private static CurricularCourse courseA1, courseA2;
+    private static CurricularPeriod yearPeriod, semesterPeriod;
 
-    private static ExecutionYear currentYear;
-    private static ExecutionInterval semester1;
-    private static ExecutionInterval semester2;
-    private static ExecutionYear pastYear;
-    private static ExecutionInterval pastSemester1;
-    private static ExecutionInterval pastSemester2;
+    private static ExecutionYear currentYear, pastYear;
+    private static ExecutionInterval semester1, semester2, pastSemester1, pastSemester2;
 
     private static EnrolmentPeriodRestrictions enrolmentPeriodRestriction;
-    private static CreditsLimit creditsLimitCurrent;
-    private static CreditsLimit creditsLimitPast;
+    private static CreditsLimit creditsLimitCurrent, creditsLimitPast;
     private static Exclusiveness exclusivenessRule;
     private static DegreeModulesSelectionLimit selectionLimit;
 
@@ -76,8 +71,7 @@ public class DegreeModuleTest {
             degreeCurricularPlan = new DegreeCurricularPlan(degree, DCP_NAME_V1, AcademicPeriod.THREE_YEAR, semester1);
             root = degreeCurricularPlan.getRoot();
 
-            final CurricularPeriod yearPeriod =
-                    new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
+            yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
             semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
 
             pastYear = (ExecutionYear) currentYear.getPrevious();
@@ -116,6 +110,146 @@ public class DegreeModuleTest {
 
             return null;
         });
+    }
+
+    @Test
+    public void comparatorByMinEcts_sortByAscendingEcts() {
+        List<DegreeModule> modules = new ArrayList<>(List.of(groupA1, groupB));
+        modules.sort(DegreeModule.comparatorByMinEcts(semester1));
+
+        assertEquals(groupB, modules.get(0));   // 0.0
+        assertEquals(groupA1, modules.get(1));  // 30.0
+    }
+
+    @Test
+    public void comparatorByMinEcts_tiebreakerByExternalId() {
+        CourseGroup a = new CourseGroup(root, "AA", "AA", semester1, null);
+        CourseGroup b = new CourseGroup(root, "BB", "BB", semester1, null);
+
+        List<DegreeModule> modules = new ArrayList<>(List.of(b, a));
+        modules.sort(DegreeModule.comparatorByMinEcts(semester1));
+        assertTrue(modules.get(0).getExternalId().compareTo(modules.get(1).getExternalId()) < 0);
+
+        a.delete();
+        b.delete();
+    }
+
+    @Test
+    public void getAllParentCourseGroups_emptyForRootLevelGroup() {
+        assertTrue(groupA.getAllParentCourseGroups().isEmpty());
+    }
+
+    @Test
+    public void getAllParentCourseGroups_fromNestedGroup() {
+        assertEquals(Set.of(groupA), groupA1.getAllParentCourseGroups());
+    }
+
+    @Test
+    public void getAllParentCourseGroups_fromNestedCourse() {
+        assertEquals(Set.of(groupA), courseA2.getAllParentCourseGroups());
+    }
+
+    @Test
+    public void getAllParentCourseGroups_fromDeepNestedCourse() {
+        assertEquals(Set.of(groupA1, groupA), courseA1.getAllParentCourseGroups());
+    }
+
+    @Test
+    public void getAllParentCourseGroups_fromRootDirectGroup() {
+        assertTrue(groupB.getAllParentCourseGroups().isEmpty());
+    }
+
+    @Test
+    public void getAllParentCourseGroups_fromRoot() {
+        assertTrue(root.getAllParentCourseGroups().isEmpty());
+    }
+
+    @Test
+    public void getParentContextsByExecutionYear_currentYear() {
+        List<Context> result = courseA1.getParentContextsByExecutionYear(currentYear);
+        assertEquals(1, result.size());
+        assertEquals(groupA1, result.get(0).getParentCourseGroup());
+    }
+
+    @Test
+    public void getParentContextsByExecutionYear_invalidYear() {
+        assertTrue(courseA1.getParentContextsByExecutionYear(pastYear).isEmpty());
+    }
+
+    @Test
+    public void getParentContextsByExecutionYear_onRoot() {
+        assertTrue(root.getParentContextsByExecutionYear(currentYear).isEmpty());
+    }
+
+    @Test
+    public void getParentContextsByExecutionSemester_validInterval() {
+        List<Context> result = courseA1.getParentContextsByExecutionSemester(semester1);
+        assertEquals(1, result.size());
+        assertEquals(groupA1, result.get(0).getParentCourseGroup());
+    }
+
+    @Test
+    public void getParentContextsByExecutionSemester_nullInterval() {
+        List<Context> result = courseA1.getParentContextsByExecutionSemester(null);
+        assertEquals(1, result.size());
+        assertEquals(groupA1, result.get(0).getParentCourseGroup());
+    }
+
+    @Test
+    public void getParentContextsByExecutionSemester_invalidInterval() {
+        assertTrue(courseA1.getParentContextsByExecutionSemester(pastSemester1).isEmpty());
+    }
+
+    @Test
+    public void getParentContextsByExecutionSemester_curricularPeriodMismatch() {
+        assertTrue(courseA1.getParentContextsByExecutionSemester(semester2).isEmpty());
+    }
+
+    @Test
+    public void getParentContextsBy_valid() {
+        List<Context> result = courseA1.getParentContextsBy(semester1, groupA1);
+        assertEquals(1, result.size());
+        assertEquals(groupA1, result.get(0).getParentCourseGroup());
+    }
+
+    @Test
+    public void getParentContextsBy_invalidCourseGroup() {
+        assertTrue(courseA1.getParentContextsBy(semester1, groupA).isEmpty());
+    }
+
+    @Test
+    public void getParentContextsBy_invalidInterval() {
+        assertTrue(courseA1.getParentContextsBy(pastSemester1, groupA1).isEmpty());
+    }
+
+    @Test
+    public void hasAnyParentContexts_validInterval() {
+        assertTrue(courseA1.hasAnyParentContexts(semester1));
+    }
+
+    @Test
+    public void hasAnyParentContexts_invalidInterval() {
+        assertFalse(courseA1.hasAnyParentContexts(semester2));
+    }
+
+    @Test
+    public void hasAnyParentContexts_withNotOpen() {
+        assertFalse(courseA1.hasAnyParentContexts(pastSemester1));
+    }
+
+    @Test
+    public void hasAnyOpenParentContexts_withOpenInterval() {
+        assertTrue(courseA1.hasAnyOpenParentContexts(semester1));
+    }
+
+    @Test
+    public void hasAnyOpenParentContexts_withOpenButCpMismatch() {
+        assertTrue(courseA1.hasAnyOpenParentContexts(semester2));
+    }
+
+    @Test
+    public void hasAnyOpenParentContexts_withNotOpen() {
+        assertFalse(courseA1.hasAnyOpenParentContexts(pastSemester1));
     }
 
     @Test
@@ -323,6 +457,26 @@ public class DegreeModuleTest {
     @Test
     public void getExclusivenessRules_notFound() {
         assertTrue(groupB.getExclusivenessRules(semester1).isEmpty());
+    }
+
+    @Test
+    public void getParentCycleCourseGroups_withCycleParent_returnsCycle() {
+        CycleCourseGroup cycleGroup =
+                new CycleCourseGroup(root, "Test Cycle", "Test Cycle", CycleType.FIRST_CYCLE, semester1, null);
+        CurricularCourse course = new CurricularCourse();
+        new Context(cycleGroup, course, semesterPeriod, semester1, null);
+
+        Collection<CycleCourseGroup> result = course.getParentCycleCourseGroups();
+        assertEquals(1, result.size());
+        assertTrue(result.contains(cycleGroup));
+
+        course.delete();
+        cycleGroup.delete();
+    }
+
+    @Test
+    public void getParentCycleCourseGroups_withoutCycleParent_returnsEmpty() {
+        assertTrue(courseA1.getParentCycleCourseGroups().isEmpty());
     }
 
     @Test

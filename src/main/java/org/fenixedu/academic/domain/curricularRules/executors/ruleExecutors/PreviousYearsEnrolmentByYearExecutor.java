@@ -329,7 +329,7 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         final CreditsLimit creditsLimit = courseGroup.getCreditsLimitRule(executionYear);
         if (creditsLimit != null) {
             final SortedSet<DegreeModule> sortedChilds =
-                    new TreeSet<DegreeModule>(new DegreeModule.ComparatorByMinEcts(executionYear));
+                    new TreeSet<DegreeModule>(DegreeModule.comparatorByMinEcts(executionYear));
             sortedChilds.addAll(courseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
             int counter = 0;
             double total = 0d;
@@ -358,7 +358,7 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
         final CreditsLimit creditsLimit = courseGroup.getCreditsLimitRule(executionYear);
         if (creditsLimit != null) {
             final SortedSet<DegreeModule> sortedChilds =
-                    new TreeSet<DegreeModule>(new DegreeModule.ComparatorByMinEcts(executionYear));
+                    new TreeSet<DegreeModule>(DegreeModule.comparatorByMinEcts(executionYear));
             sortedChilds.addAll(courseGroup.getChildDegreeModulesValidOnExecutionAggregation(executionYear));
             int counter = 0;
             double total = 0d;
