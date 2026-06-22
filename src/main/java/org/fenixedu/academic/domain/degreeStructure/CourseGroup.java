@@ -52,17 +52,6 @@ import org.fenixedu.commons.i18n.I18N;
 import com.google.common.base.Strings;
 
 public class CourseGroup extends CourseGroup_Base {
-
-    static public List<CourseGroup> readCourseGroups() {
-        final List<CourseGroup> result = new ArrayList<CourseGroup>();
-        for (final DegreeModule degreeModule : Bennu.getInstance().getDegreeModulesSet()) {
-            if (degreeModule instanceof CourseGroup) {
-                result.add((CourseGroup) degreeModule);
-            }
-        }
-        return result;
-    }
-
     public CourseGroup() {
         super();
     }
@@ -476,18 +465,6 @@ public class CourseGroup extends CourseGroup_Base {
                 .map(Context::getChildDegreeModule).collect(Collectors.toSet());
     }
 
-    public boolean validate(CurricularCourse curricularCourse) {
-        for (final Context context : this.getChildContextsSet()) {
-            if (context.getChildDegreeModule() instanceof CurricularCourse) {
-                CurricularCourse childCurricularCourse = (CurricularCourse) context.getChildDegreeModule();
-                if (childCurricularCourse.isEquivalent(curricularCourse)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public Collection<Context> getContextsWithCurricularCourseByCurricularPeriod(final CurricularPeriod curricularPeriod,
             final ExecutionInterval executionSemester) {
         return getChildContextsSet().stream()
@@ -507,11 +484,7 @@ public class CourseGroup extends CourseGroup_Base {
     @Override
     @Deprecated
     public Set<CourseGroup> getParentCourseGroups() {
-        final Set<CourseGroup> result = new HashSet<CourseGroup>();
-        for (final Context context : getParentContextsSet()) {
-            result.add(context.getParentCourseGroup());
-        }
-        return result;
+        return getParentContextsSet().stream().map(Context::getParentCourseGroup).collect(Collectors.toSet());
     }
 
     public Stream<CourseGroup> getParentCourseGroupStream() {
@@ -595,15 +568,8 @@ public class CourseGroup extends CourseGroup_Base {
 
     @Override
     public boolean hasDegreeModule(final DegreeModule degreeModule) {
-        if (super.hasDegreeModule(degreeModule)) {
-            return true;
-        }
-        for (final Context context : getChildContextsSet()) {
-            if (context.getChildDegreeModule().hasDegreeModule(degreeModule)) {
-                return true;
-            }
-        }
-        return false;
+        return super.hasDegreeModule(degreeModule) || getChildContextsSet().stream()
+                .anyMatch(c -> c.getChildDegreeModule().hasDegreeModule(degreeModule));
     }
 
     public Context addCurricularCourse(final CurricularCourse curricularCourse, final CurricularPeriod curricularPeriod,
@@ -646,59 +612,29 @@ public class CourseGroup extends CourseGroup_Base {
     }
 
     public Set<DegreeModule> getChildDegreeModules() {
-        final Set<DegreeModule> result = new HashSet<DegreeModule>();
-        for (final Context context : getChildContextsSet()) {
-            result.add(context.getChildDegreeModule());
-        }
-        return result;
+        return getChildContextsSet().stream().map(Context::getChildDegreeModule).collect(Collectors.toSet());
     }
 
     public Set<DegreeModule> getChildDegreeModulesValidOn(final ExecutionInterval executionSemester) {
-        final Set<DegreeModule> result = new HashSet<DegreeModule>();
-        for (final Context context : getValidChildContexts(executionSemester)) {
-            result.add(context.getChildDegreeModule());
-        }
-
-        return result;
+        return getValidChildContexts(executionSemester).stream().map(Context::getChildDegreeModule).collect(Collectors.toSet());
     }
 
     public Set<DegreeModule> getChildDegreeModulesValidOnExecutionAggregation(final ExecutionYear executionYear) {
-        final Set<DegreeModule> result = new HashSet<DegreeModule>();
-        for (final Context context : getValidChildContextsForExecutionAggregation(executionYear)) {
-            result.add(context.getChildDegreeModule());
-        }
-
-        return result;
+        return getValidChildContextsForExecutionAggregation(executionYear).stream().map(Context::getChildDegreeModule)
+                .collect(Collectors.toSet());
     }
 
     public Set<CurricularCourse> getChildCurricularCoursesValidOn(final ExecutionInterval executionInterval) {
-        final Set<CurricularCourse> result = new HashSet<CurricularCourse>();
-
-        for (final Context context : getValidChildContexts(executionInterval)) {
-            if (context.getChildDegreeModule().isCurricularCourse()) {
-                result.add((CurricularCourse) context.getChildDegreeModule());
-            }
-        }
-
-        return result;
+        return getValidChildContexts(executionInterval).stream().map(Context::getChildDegreeModule)
+                .filter(DegreeModule::isCurricularCourse).map(CurricularCourse.class::cast).collect(Collectors.toSet());
     }
 
     public boolean hasDegreeModuleOnChilds(final DegreeModule degreeModuleToSearch) {
-        for (final Context context : getChildContextsSet()) {
-            if (context.getChildDegreeModule() == degreeModuleToSearch) {
-                return true;
-            }
-        }
-        return false;
+        return getChildContextsSet().stream().anyMatch(c -> c.getChildDegreeModule() == degreeModuleToSearch);
     }
 
     public boolean hasAnyChildContextWithCurricularCourse() {
-        for (final Context context : getChildContextsSet()) {
-            if (context.getChildDegreeModule().isCurricularCourse()) {
-                return true;
-            }
-        }
-        return false;
+        return getChildContextsSet().stream().anyMatch(c -> c.getChildDegreeModule().isCurricularCourse());
     }
 
     @Override
@@ -708,13 +644,9 @@ public class CourseGroup extends CourseGroup_Base {
 
     @Override
     public Set<CurricularCourse> getAllCurricularCourses(final ExecutionInterval executionInterval) {
-        final Set<CurricularCourse> result = new HashSet<CurricularCourse>();
-        for (final Context context : getChildContextsSet()) {
-            if (executionInterval == null || context.isOpen(executionInterval)) {
-                result.addAll(context.getChildDegreeModule().getAllCurricularCourses(executionInterval));
-            }
-        }
-        return result;
+        return getChildContextsSet().stream().filter(context -> executionInterval == null || context.isOpen(executionInterval))
+                .flatMap(context -> context.getChildDegreeModule().getAllCurricularCourses(executionInterval).stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -732,17 +664,8 @@ public class CourseGroup extends CourseGroup_Base {
     }
 
     public boolean hasAnyParentBranchCourseGroup() {
-
-        if (isBranchCourseGroup()) {
-            return true;
-        } else {
-            for (Context context : getParentContextsSet()) {
-                if (context.getParentCourseGroup().hasAnyParentBranchCourseGroup()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return isBranchCourseGroup() || getParentContextsSet().stream()
+                .anyMatch(c -> c.getParentCourseGroup().hasAnyParentBranchCourseGroup());
     }
 
     @Override

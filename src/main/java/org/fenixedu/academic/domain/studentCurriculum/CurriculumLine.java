@@ -118,12 +118,6 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
                 && !isAffinity();
     }
 
-    final protected void validateDegreeModuleLink(CurriculumGroup curriculumGroup, CurricularCourse curricularCourse) {
-        if (!curriculumGroup.getDegreeModule().validate(curricularCourse)) {
-            throw new DomainException("error.studentCurriculum.curriculumLine.invalid.curriculum.group");
-        }
-    }
-
     @Override
     public List<Enrolment> getEnrolments() {
         return Collections.emptyList();
