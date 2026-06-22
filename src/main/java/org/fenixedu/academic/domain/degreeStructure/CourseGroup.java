@@ -560,7 +560,6 @@ public class CourseGroup extends CourseGroup_Base {
     /**
      * @deprecated use getParentContextsSet directly instead
      */
-    @Override
     @Deprecated
     public Set<CourseGroup> getParentCourseGroups() {
         final Set<CourseGroup> result = new HashSet<CourseGroup>();
