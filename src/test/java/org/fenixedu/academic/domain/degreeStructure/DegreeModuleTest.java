@@ -166,15 +166,23 @@ public class DegreeModuleTest {
     @Test
     public void getVisibleCurricularRules_byExecutionYear_excludesNonVisible() {
         assertFalse(enrolmentPeriodRestriction.isVisible());
-        assertTrue(root.getCurricularRules(currentYear).contains(enrolmentPeriodRestriction));
-        assertFalse(root.getVisibleCurricularRules(currentYear).contains(enrolmentPeriodRestriction));
+
+        List<CurricularRule> allRules = root.getCurricularRules(currentYear);
+        assertEquals(1, allRules.size());
+        assertTrue(allRules.contains(enrolmentPeriodRestriction));
+
+        assertTrue(root.getVisibleCurricularRules(currentYear).isEmpty());
     }
 
     @Test
     public void getVisibleCurricularRules_byExecutionInterval_excludesNonVisible() {
         assertFalse(enrolmentPeriodRestriction.isVisible());
-        assertTrue(root.getCurricularRules(semester1).contains(enrolmentPeriodRestriction));
-        assertFalse(root.getVisibleCurricularRules(semester1).contains(enrolmentPeriodRestriction));
+
+        List<CurricularRule> allRules = root.getCurricularRules(semester1);
+        assertEquals(1, allRules.size());
+        assertTrue(allRules.contains(enrolmentPeriodRestriction));
+
+        assertTrue(root.getVisibleCurricularRules(semester1).isEmpty());
     }
 
     @Test
@@ -193,7 +201,9 @@ public class DegreeModuleTest {
 
     @Test
     public void getVisibleCurricularRules_byExecutionYear_validMatch() {
-        assertTrue(groupA.getVisibleCurricularRules(pastYear).contains(creditsLimitPast));
+        List<CurricularRule> rules = groupA.getVisibleCurricularRules(pastYear);
+        assertEquals(1, rules.size());
+        assertTrue(rules.contains(creditsLimitPast));
     }
 
     @Test
@@ -242,6 +252,7 @@ public class DegreeModuleTest {
     public void getCurricularRules_byTypeParentAndYear() {
         List<? extends ICurricularRule> rules = groupA1.getCurricularRules(CurricularRuleType.CREDITS_LIMIT, groupA, currentYear);
         assertEquals(1, rules.size());
+        assertEquals(creditsLimitCurrent, rules.get(0));
     }
 
     @Test
@@ -264,13 +275,12 @@ public class DegreeModuleTest {
 
     @Test
     public void getMostRecentActiveCurricularRule_noRules() {
-        assertNull(groupB.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, groupB, (ExecutionYear) null));
+        assertNull(groupB.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, groupB, null));
     }
 
     @Test
     public void getMostRecentActiveCurricularRule_nullYear() {
-        ICurricularRule result =
-                groupA1.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, groupA, (ExecutionYear) null);
+        ICurricularRule result = groupA1.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, groupA, null);
         assertEquals(creditsLimitCurrent, result);
     }
 
@@ -355,5 +365,7 @@ public class DegreeModuleTest {
 
         parentGroup.delete();
         tempOther.delete();
+        assertNull(parentGroup.getRootDomainObject());
+        assertNull(tempOther.getRootDomainObject());
     }
 }
