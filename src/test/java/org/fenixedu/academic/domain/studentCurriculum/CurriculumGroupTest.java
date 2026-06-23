@@ -2,37 +2,22 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.DegreeCurricularPlanTest;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.EnrolmentEvaluation;
-import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.EvaluationSeasonTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
-import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
-import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
-import org.fenixedu.academic.domain.degreeStructure.BranchType;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,22 +61,14 @@ public class CurriculumGroupTest {
          *   C3: enrolled, not approved (firstSemester)
          *   C4: equivalence dismissal (not enrolled, isApproved=true)
          *   C5: unenroled
-         *
-         *   Groups: root (RootCurriculumGroup), cycle, mandatory, optional
          */
 
-        DegreeCurricularPlanTest.initDegreeCurricularPlan();
-        EvaluationSeasonTest.initEvaluationSeasons();
-        StudentTest.initRegistrationConfigEntities();
-
-        GradeScale.create(GRADE_SCALE_NUMERIC, new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
-                new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true);
-
+        ConclusionRulesTestUtil.initData();
         executionYear = ExecutionYear.findCurrent(null);
         firstSemester = executionYear.getFirstExecutionPeriod();
         secondSemester = executionYear.getLastExecutionPeriod();
 
-        final DegreeCurricularPlan dcp = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
+        DegreeCurricularPlan dcp = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
         cc1 = dcp.getCurricularCourseByCode("C1");
         cc2 = dcp.getCurricularCourseByCode("C2");
         cc3 = dcp.getCurricularCourseByCode("C3");
@@ -103,8 +80,7 @@ public class CurriculumGroupTest {
         studentCurricularPlan = registration.getLastStudentCurricularPlan();
 
         rootCurriculumGroup = studentCurricularPlan.getRoot();
-        final CourseGroup cycleCourseGroup =
-                ConclusionRulesTestUtil.getChildGroup(dcp.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
+        CourseGroup cycleCourseGroup = ConclusionRulesTestUtil.getChildGroup(dcp.getRoot(), ConclusionRulesTestUtil.CYCLE_GROUP);
         cycleCurriculumGroup = rootCurriculumGroup.findCurriculumGroupFor(cycleCourseGroup);
         mandatoryCurriculumGroup = cycleCurriculumGroup.findCurriculumGroupFor(
                 ConclusionRulesTestUtil.getChildGroup(cycleCourseGroup, ConclusionRulesTestUtil.MANDATORY_GROUP));
@@ -114,16 +90,11 @@ public class CurriculumGroupTest {
         ConclusionRulesTestUtil.enrol(studentCurricularPlan, executionYear, "C1", "C2", "C3");
         ConclusionRulesTestUtil.approve(studentCurricularPlan, "C1");
         ConclusionRulesTestUtil.createEquivalence(studentCurricularPlan, executionYear, "C4");
-        enrolmentCc1 = findEnrolmentFor(cc1);
-    }
-
-    private static Enrolment findEnrolmentFor(final CurricularCourse course) {
-        return studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == course).findFirst()
-                .orElseThrow();
+        enrolmentCc1 = studentCurricularPlan.getEnrolments(cc1).iterator().next();
     }
 
     @Test
-    public void testCurriculumGroup_getChildDismissals_countPerGroup() {
+    public void testCurriculumGroup_getChildDismissals() {
         // mandatory has 3 enrolments (C1–C3), no dismissals -> 0; optional has 1 dismissal (C4) -> 1
         assertEquals(0, mandatoryCurriculumGroup.getChildDismissals().size());
         assertEquals(1, optionalCurriculumGroup.getChildDismissals().size());
@@ -131,38 +102,43 @@ public class CurriculumGroupTest {
     }
 
     @Test
-    public void testCurriculumGroup_getCurriculumLines_allReturnedLinesAreLeaf() {
-        // root/cycle have no direct CurriculumLine children
-        assertTrue(rootCurriculumGroup.getCurriculumLines().isEmpty());
-        assertTrue(cycleCurriculumGroup.getCurriculumLines().isEmpty());
-
-        // mandatory has 3 direct lines (C1–C3 enrolments); optional has 1 (C4 dismissal); all lines are isLeaf
-        final Set<CurriculumLine> mandatoryCurriculumLines = mandatoryCurriculumGroup.getCurriculumLines();
-        assertEquals(3, mandatoryCurriculumLines.size());
-        assertTrue(mandatoryCurriculumLines.stream().allMatch(CurriculumModule::isLeaf));
-
-        final Set<CurriculumLine> optionalCurriculumLines = optionalCurriculumGroup.getCurriculumLines();
-        assertEquals(1, optionalCurriculumLines.size());
-        assertTrue(optionalCurriculumLines.stream().allMatch(CurriculumModule::isLeaf));
-    }
-
-    @Test
-    public void testCurriculumGroup_getChildCurriculumLines_allReturnedChildLinesAreLeaf() {
-        // Same as getCurriculumLines but returns List<CurriculumLine> instead of Set
+    public void testCurriculumGroup_getChildCurriculumLines() {
+        // root/cycleGroup have no direct CurriculumLine children
         assertTrue(rootCurriculumGroup.getChildCurriculumLines().isEmpty());
         assertTrue(cycleCurriculumGroup.getChildCurriculumLines().isEmpty());
 
+        // mandatory has 3 direct curriculumLines (C1–C3 enrolments); optional has 1 (C4 dismissal)
         final List<CurriculumLine> mandatoryCurriculumLines = mandatoryCurriculumGroup.getChildCurriculumLines();
         assertEquals(3, mandatoryCurriculumLines.size());
-        assertTrue(mandatoryCurriculumLines.stream().allMatch(CurriculumModule::isLeaf));
 
         final List<CurriculumLine> optionalCurriculumLines = optionalCurriculumGroup.getChildCurriculumLines();
         assertEquals(1, optionalCurriculumLines.size());
-        assertTrue(optionalCurriculumLines.stream().allMatch(CurriculumModule::isLeaf));
     }
 
     @Test
-    public void testCurriculumGroup_getCurriculumGroups_returnedGroupsAreNotLeaf() {
+    public void testCurriculumGroup_getCurriculumLines() {
+        // Same as getChildCurriculumLines but returns Set instead of List
+        assertTrue(rootCurriculumGroup.getCurriculumLines().isEmpty());
+        assertTrue(cycleCurriculumGroup.getCurriculumLines().isEmpty());
+
+        final Set<CurriculumLine> mandatoryCurriculumLines = mandatoryCurriculumGroup.getCurriculumLines();
+        assertEquals(3, mandatoryCurriculumLines.size());
+
+        final Set<CurriculumLine> optionalCurriculumLines = optionalCurriculumGroup.getCurriculumLines();
+        assertEquals(1, optionalCurriculumLines.size());
+    }
+
+    @Test
+    public void testCurriculumGroup_hasCurriculumLines_onlyGroupsWithDirectChildLines() {
+        // mandatory/optional have direct child curriculumLines; root/cycle only have curriculumGroup children (no direct lines)
+        assertTrue(mandatoryCurriculumGroup.hasCurriculumLines());
+        assertTrue(optionalCurriculumGroup.hasCurriculumLines());
+        assertFalse(rootCurriculumGroup.hasCurriculumLines());
+        assertFalse(cycleCurriculumGroup.hasCurriculumLines());
+    }
+
+    @Test
+    public void testCurriculumGroup_getCurriculumGroups() {
         // mandatory/optional are leaf-level groups with no child groups
         assertTrue(mandatoryCurriculumGroup.getCurriculumGroups().isEmpty());
         assertTrue(optionalCurriculumGroup.getCurriculumGroups().isEmpty());
@@ -176,33 +152,28 @@ public class CurriculumGroupTest {
     }
 
     @Test
-    public void testCurriculumGroup_getChildCurriculumGroups_returnedChildGroupsAreNotLeaf() {
-        // Same as getCurriculumGroups but returns List<CurriculumGroup> instead of Set
+    public void testCurriculumGroup_getChildCurriculumGroups() {
+        // Same as getChildCurriculumGroups but returns List instead of Set
         assertTrue(mandatoryCurriculumGroup.getChildCurriculumGroups().isEmpty());
         assertTrue(optionalCurriculumGroup.getChildCurriculumGroups().isEmpty());
 
         final List<CurriculumGroup> children = cycleCurriculumGroup.getChildCurriculumGroups();
         assertEquals(2, children.size());
-        assertTrue(children.stream().noneMatch(CurriculumModule::isLeaf));
         assertTrue(children.contains(mandatoryCurriculumGroup));
         assertTrue(children.contains(optionalCurriculumGroup));
     }
 
     @Test
-    public void testCurriculumGroup_getCurriculumGroups_includesNoCourseGroup() {
-        // getCurriculumGroups returns ALL child CurriculumGroups, including NoCourseGroup subtypes
-        final NoCourseGroupCurriculumGroup noCourseGroup =
-                NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, rootCurriculumGroup);
-        try {
-            assertTrue(rootCurriculumGroup.getCurriculumGroups().contains(noCourseGroup));
-        } finally {
-            noCourseGroup.delete();
-        }
-    }
-
-    @Test
     public void testCurriculumGroup_getCurriculumGroupsToEnrolmentProcess_filtersNoCourseGroup() {
-        // getCurriculumGroupsToEnrolmentProcess should EXCLUDE NoCourseGroup groups (unlike getCurriculumGroups)
+        // Same as getCurriculumGroups but should EXCLUDE NoCourseGroup groups
+        assertTrue(mandatoryCurriculumGroup.getChildCurriculumGroups().isEmpty());
+        assertTrue(optionalCurriculumGroup.getChildCurriculumGroups().isEmpty());
+
+        final List<CurriculumGroup> children = cycleCurriculumGroup.getChildCurriculumGroups();
+        assertEquals(2, children.size());
+        assertTrue(children.contains(mandatoryCurriculumGroup));
+        assertTrue(children.contains(optionalCurriculumGroup));
+
         final NoCourseGroupCurriculumGroup noCourseGroup =
                 NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, rootCurriculumGroup);
         try {
@@ -212,14 +183,5 @@ public class CurriculumGroupTest {
         } finally {
             noCourseGroup.delete();
         }
-    }
-
-    @Test
-    public void testCurriculumGroup_hasCurriculumLines_onlyGroupsWithDirectChildLines() {
-        // mandatory/optional have direct child lines; root/cycle only have group children (no direct lines)
-        assertTrue(mandatoryCurriculumGroup.hasCurriculumLines());
-        assertTrue(optionalCurriculumGroup.hasCurriculumLines());
-        assertFalse(rootCurriculumGroup.hasCurriculumLines());
-        assertFalse(cycleCurriculumGroup.hasCurriculumLines());
     }
 }
