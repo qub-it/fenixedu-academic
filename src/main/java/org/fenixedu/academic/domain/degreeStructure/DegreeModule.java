@@ -20,11 +20,9 @@ package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -42,6 +40,7 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.curricularRules.Exclusiveness;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
+import org.fenixedu.academic.domain.curricularRules.PrecedenceRule;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -49,8 +48,9 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 abstract public class DegreeModule extends DegreeModule_Base {
 
-    static final public Comparator<DegreeModule> COMPARATOR_BY_NAME = Comparator
-            .<DegreeModule, LocalizedString> comparing(DegreeModule::getNameI18N).thenComparing(DegreeModule::getExternalId);
+    static final public Comparator<DegreeModule> COMPARATOR_BY_NAME =
+            Comparator.<DegreeModule, LocalizedString> comparing(DegreeModule::getNameI18N)
+                    .thenComparing(DegreeModule::getExternalId);
 
     public static class ComparatorByMinEcts implements Comparator<DegreeModule> {
 
@@ -79,12 +79,12 @@ abstract public class DegreeModule extends DegreeModule_Base {
     /**
      * We need a method to return a full name of a course group - from it's
      * parent course group to the degree curricular plan's root course group.
-     * 
+     *
      * Given this is impossible, for there are many routes from the root course
      * group to one particular course group, we choose (for now...) to get one
      * possible full name, always visiting the first element of every list of
      * contexts on our way to the root course group.
-     * 
+     *
      * @param result builder for with one possible full name of this course group
      * @param executionInterval
      */
@@ -121,41 +121,6 @@ abstract public class DegreeModule extends DegreeModule_Base {
         return getOneFullName(null);
     }
 
-    //TODO: DELETE
-//    public String getOneFullNameI18N(final Locale language) {
-//        return getOneFullNameI18N(null, language);
-//    }
-
-    //TODO: DELETE
-//    public String getOneFullNameI18N(final ExecutionSemester executionSemester, Locale language) {
-//        final StringBuilder result = new StringBuilder();
-//        getOneFullNameI18N(result, executionSemester, language);
-//        return result.toString();
-//    }
-
-    //TODO: DELETE
-//    protected void getOneFullNameI18N(final StringBuilder result, final ExecutionSemester executionSemester,
-//            final Locale language) {
-//        final String selfName = getNameI18N(executionSemester).getContent(language);
-//
-//        if (isRoot()) {
-//            result.append(selfName);
-//        } else {
-//            Collection<Context> parentContextsByExecutionPeriod = getParentContextsByExecutionSemester(executionSemester);
-//            if (parentContextsByExecutionPeriod.isEmpty()) {
-//                // if not existing, just return all (as previous implementation
-//                // of method
-//                parentContextsByExecutionPeriod = getParentContextsSet();
-//            }
-//
-//            final CourseGroup parentCourseGroup = parentContextsByExecutionPeriod.iterator().next().getParentCourseGroup();
-//
-//            parentCourseGroup.getOneFullNameI18N(result, executionSemester, language);
-//            result.append(FULL_NAME_SEPARATOR);
-//            result.append(selfName);
-//        }
-//    }
-
     public LocalizedString getNameI18N(final ExecutionInterval executionInterval) {
         LocalizedString LocalizedString = new LocalizedString();
 
@@ -172,11 +137,6 @@ abstract public class DegreeModule extends DegreeModule_Base {
         return LocalizedString;
     }
 
-    //TODO: DELETE
-//    private LocalizedString getNameI18N(final ExecutionYear executionYear) {
-//        return getNameI18N((executionYear == null) ? null : executionYear.getLastExecutionPeriod());
-//    }
-
     public LocalizedString getNameI18N() {
         return getNameI18N(null);
     }
@@ -189,39 +149,15 @@ abstract public class DegreeModule extends DegreeModule_Base {
         return getNameEn();
     }
 
-    //TODO: DELETE
-//    public LocalizedString getNameI18N(ExecutionInterval executionInterval) {
-//        if (executionInterval instanceof ExecutionSemester) {
-//            return getNameI18N((ExecutionSemester) executionInterval);
-//        }
-//        if (executionInterval instanceof ExecutionYear) {
-//            return getNameI18N((ExecutionYear) executionInterval);
-//        }
-//
-//        if (executionInterval == null) {
-//            return getNameI18N((ExecutionSemester) null);
-//        }
-//
-//        throw new DomainException("error.DegreeModule.getNameI18N.does.not.support.provided.executionInterval.type",
-//                executionInterval.getClass().getName());
-//    }
-
     public void delete() {
         if (getCanBeDeleted()) {
-            for (; !getParentContextsSet().isEmpty(); getParentContextsSet().iterator().next().delete()) {
-                ;
-            }
-            for (; !getCurricularRulesSet().isEmpty(); getCurricularRulesSet().iterator().next().delete()) {
-                ;
-            }
-            for (; !getParticipatingPrecedenceCurricularRulesSet().isEmpty(); getParticipatingPrecedenceCurricularRulesSet()
-                    .iterator().next().delete()) {
-                ;
-            }
-            for (; !getParticipatingExclusivenessCurricularRulesSet().isEmpty(); getParticipatingExclusivenessCurricularRulesSet()
-                    .iterator().next().delete()) {
-                ;
-            }
+            getParentContextsSet().forEach(Context::delete);
+
+            getCurricularRulesSet().forEach(CurricularRule::delete);
+
+            getParticipatingPrecedenceCurricularRulesSet().forEach(PrecedenceRule::delete);
+
+            getParticipatingExclusivenessCurricularRulesSet().forEach(Exclusiveness::delete);
         } else {
             if (!getCurriculumModulesSet().isEmpty()) {
                 throw new DomainException("courseGroup.notEmptyCurriculumModules");
@@ -269,56 +205,29 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public List<CurricularRule> getCurricularRules(final ExecutionYear executionYear) {
-        final List<CurricularRule> result = new ArrayList<CurricularRule>();
-        for (final CurricularRule curricularRule : this.getCurricularRulesSet()) {
-            if (isCurricularRuleValid(curricularRule, executionYear)) {
-                result.add(curricularRule);
-            }
-        }
-
-        return result;
+        return getCurricularRulesSet().stream().filter(cr -> isCurricularRuleValid(cr, executionYear))
+                .collect(Collectors.toList());
     }
 
     public List<CurricularRule> getCurricularRules(final ExecutionInterval executionInterval) {
-        final List<CurricularRule> result = new ArrayList<CurricularRule>();
-        for (final CurricularRule curricularRule : this.getCurricularRulesSet()) {
-            if (isCurricularRuleValid(curricularRule, executionInterval)) {
-                result.add(curricularRule);
-            }
-        }
-
-        return result;
+        return getCurricularRulesSet().stream().filter(cr -> isCurricularRuleValid(cr, executionInterval))
+                .collect(Collectors.toList());
     }
 
     public List<CurricularRule> getVisibleCurricularRules(final ExecutionYear executionYear) {
-        final List<CurricularRule> result = new ArrayList<CurricularRule>();
-        for (final CurricularRule curricularRule : this.getCurricularRulesSet()) {
-            if (curricularRule.isVisible() && (executionYear == null || curricularRule.isValid(executionYear))) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream().filter(cr -> cr.isVisible() && isCurricularRuleValid(cr, executionYear))
+                .collect(Collectors.toList());
     }
 
     public List<CurricularRule> getVisibleCurricularRules(final ExecutionInterval executionInterval) {
-        final List<CurricularRule> result = new ArrayList<CurricularRule>();
-        for (final CurricularRule curricularRule : this.getCurricularRulesSet()) {
-            if (curricularRule.isVisible() && isCurricularRuleValid(curricularRule, executionInterval)) {
-                result.add(curricularRule);
-            }
-        }
-
-        return result;
+        return getCurricularRulesSet().stream().filter(cr -> cr.isVisible() && isCurricularRuleValid(cr, executionInterval))
+                .collect(Collectors.toList());
     }
 
     public List<CurricularRule> getCurricularRules(final Context context, final ExecutionInterval executionInterval) {
-        final List<CurricularRule> result = new ArrayList<CurricularRule>();
-        for (final CurricularRule curricularRule : getCurricularRulesSet()) {
-            if (isCurricularRuleValid(curricularRule, executionInterval) && curricularRule.appliesToContext(context)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream()
+                .filter(cr -> isCurricularRuleValid(cr, executionInterval) && cr.appliesToContext(context))
+                .collect(Collectors.toList());
     }
 
     private boolean isCurricularRuleValid(final ICurricularRule curricularRule, final ExecutionInterval executionInterval) {
@@ -426,128 +335,57 @@ abstract public class DegreeModule extends DegreeModule_Base {
 
     public List<? extends ICurricularRule> getCurricularRules(final CurricularRuleType ruleType,
             final ExecutionInterval executionInterval) {
-        final List<ICurricularRule> result = new ArrayList<ICurricularRule>();
-        for (final ICurricularRule curricularRule : getCurricularRulesSet()) {
-            if (curricularRule.hasCurricularRuleType(ruleType) && isCurricularRuleValid(curricularRule, executionInterval)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
-    }
-
-    public boolean hasAnyCurricularRules(final CurricularRuleType ruleType, final ExecutionInterval executionInterval) {
-        for (final ICurricularRule curricularRule : getCurricularRulesSet()) {
-            if (curricularRule.hasCurricularRuleType(ruleType) && isCurricularRuleValid(curricularRule, executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return getCurricularRulesSet().stream()
+                .filter(cr -> cr.hasCurricularRuleType(ruleType) && isCurricularRuleValid(cr, executionInterval))
+                .collect(Collectors.toList());
     }
 
     public List<? extends ICurricularRule> getCurricularRules(final CurricularRuleType ruleType,
             final ExecutionYear executionYear) {
-        final List<ICurricularRule> result = new ArrayList<ICurricularRule>();
-        for (final ICurricularRule curricularRule : getCurricularRulesSet()) {
-            if (curricularRule.hasCurricularRuleType(ruleType) && isCurricularRuleValid(curricularRule, executionYear)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream()
+                .filter(cr -> cr.hasCurricularRuleType(ruleType) && isCurricularRuleValid(cr, executionYear))
+                .collect(Collectors.toList());
     }
 
     public List<? extends ICurricularRule> getCurricularRules(final CurricularRuleType ruleType,
             final CourseGroup parentCourseGroup, final ExecutionYear executionYear) {
-
-        final List<ICurricularRule> result = new ArrayList<ICurricularRule>();
-        for (final ICurricularRule curricularRule : getCurricularRulesSet()) {
-            if (curricularRule.hasCurricularRuleType(ruleType) && isCurricularRuleValid(curricularRule, executionYear)
-                    && curricularRule.appliesToCourseGroup(parentCourseGroup)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream()
+                .filter(cr -> cr.hasCurricularRuleType(ruleType) && isCurricularRuleValid(cr, executionYear)
+                        && cr.appliesToCourseGroup(parentCourseGroup)).collect(Collectors.toList());
     }
 
     public List<? extends ICurricularRule> getCurricularRules(final CurricularRuleType ruleType,
             final CourseGroup parentCourseGroup, final ExecutionInterval executionInterval) {
-
-        final List<ICurricularRule> result = new ArrayList<ICurricularRule>();
-        for (final ICurricularRule curricularRule : getCurricularRulesSet()) {
-            if (curricularRule.hasCurricularRuleType(ruleType) && isCurricularRuleValid(curricularRule, executionInterval)
-                    && curricularRule.appliesToCourseGroup(parentCourseGroup)) {
-                result.add(curricularRule);
-            }
-        }
-        return result;
+        return getCurricularRulesSet().stream()
+                .filter(cr -> cr.hasCurricularRuleType(ruleType) && isCurricularRuleValid(cr, executionInterval)
+                        && cr.appliesToCourseGroup(parentCourseGroup)).collect(Collectors.toList());
     }
 
     public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
             final CourseGroup parentCourseGroup, final ExecutionYear executionYear) {
-        final List<ICurricularRule> curricularRules =
-                new ArrayList<ICurricularRule>(getCurricularRules(ruleType, parentCourseGroup, (ExecutionYear) null));
-        Collections.sort(curricularRules, ICurricularRule.COMPARATOR_BY_BEGIN);
-
-        if (curricularRules.isEmpty()) {
-            return null;
-        }
+        final List<? extends ICurricularRule> curricularRules =
+                getCurricularRules(ruleType, parentCourseGroup, (ExecutionYear) null);
 
         if (executionYear == null) {
-            final ListIterator<ICurricularRule> iter = curricularRules.listIterator(curricularRules.size());
-            while (iter.hasPrevious()) {
-                final ICurricularRule curricularRule = iter.previous();
-                if (curricularRule.isActive()) {
-                    return curricularRule;
-                }
-            }
+            return curricularRules.stream().sorted(ICurricularRule.COMPARATOR_BY_BEGIN.reversed())
+                    .filter(ICurricularRule::isActive).findFirst().orElse(null);
+        }
+        
+        final List<? extends ICurricularRule> validRules =
+                curricularRules.stream().filter(cr -> cr.isValid(executionYear)).sorted(ICurricularRule.COMPARATOR_BY_BEGIN)
+                        .toList();
 
-            return null;
+        if (validRules.size() > 1) {
+            // TODO: remove this throw when curricular rule ensures
+            // that it can be only one active for execution period
+            // and replace by: return curricularRule
+
+            throw new DomainException("error.degree.module.has.more.than.one.credits.limit.for.executionYear",
+                    getParentDegreeCurricularPlan().getDegree().getCode(), getParentDegreeCurricularPlan().getName(), getName(),
+                    validRules.get(1).getBegin().getQualifiedName());
         }
 
-        ICurricularRule result = null;
-        for (final ICurricularRule curricularRule : curricularRules) {
-            if (curricularRule.isValid(executionYear)) {
-                if (result != null) {
-                    // TODO: remove this throw when curricular rule ensures
-                    // that it can be only one active for execution period
-                    // and replace by: return curricularRule
-
-                    throw new DomainException("error.degree.module.has.more.than.one.credits.limit.for.executionYear",
-                            getParentDegreeCurricularPlan().getDegree().getCode(), getParentDegreeCurricularPlan().getName(),
-                            getName(), curricularRule.getBegin().getQualifiedName());
-                }
-                result = curricularRule;
-            }
-        }
-
-        return result;
-    }
-
-    public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
-            final CourseGroup parentCourseGroup, final ExecutionInterval executionInterval) {
-
-        final List<ICurricularRule> curricularRules =
-                new ArrayList<ICurricularRule>(getCurricularRules(ruleType, parentCourseGroup, executionInterval));
-
-        if (curricularRules.isEmpty()) {
-            return null;
-        }
-
-        ICurricularRule result = null;
-        for (final ICurricularRule curricularRule : curricularRules) {
-            if (curricularRule.isValid(executionInterval)) {
-                if (result != null) {
-                    // TODO: remove this throw when curricular rule ensures
-                    // that it can be only one active for execution period
-                    // and replace by: return curricularRule
-                    throw new DomainException("error.degree.module.has.more.than.one.credits.limit.for.executionPeriod",
-                            getName());
-                }
-                result = curricularRule;
-            }
-        }
-
-        return result;
+        return validRules.isEmpty() ? null : validRules.get(0);
     }
 
     public Double getMaxEctsCredits() {
@@ -575,19 +413,18 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public DegreeModulesSelectionLimit getDegreeModulesSelectionLimitRule(final ExecutionInterval executionInterval) {
-        final List<DegreeModulesSelectionLimit> result =
-                (List<DegreeModulesSelectionLimit>) getCurricularRules(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT,
-                        executionInterval);
-        return result.isEmpty() ? null : (DegreeModulesSelectionLimit) result.iterator().next();
+        return getCurricularRules(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionInterval).stream().findFirst()
+                .map(DegreeModulesSelectionLimit.class::cast).orElse(null);
     }
 
     public CreditsLimit getCreditsLimitRule(final ExecutionInterval executionInterval) {
-        final List<? extends ICurricularRule> result = getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval);
-        return result.isEmpty() ? null : (CreditsLimit) result.iterator().next();
+        return getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval).stream().findFirst()
+                .map(CreditsLimit.class::cast).orElse(null);
     }
 
     public List<Exclusiveness> getExclusivenessRules(final ExecutionInterval executionInterval) {
-        return (List<Exclusiveness>) getCurricularRules(CurricularRuleType.EXCLUSIVENESS, executionInterval);
+        return getCurricularRules(CurricularRuleType.EXCLUSIVENESS, executionInterval).stream().map(Exclusiveness.class::cast)
+                .toList();
     }
 
     public Collection<CycleCourseGroup> getParentCycleCourseGroups() {
