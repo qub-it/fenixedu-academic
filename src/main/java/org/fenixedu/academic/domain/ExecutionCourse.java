@@ -234,12 +234,10 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public SortedSet<Degree> getDegreesSortedByDegreeName() {
-        final SortedSet<Degree> degrees = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            final DegreeCurricularPlan degreeCurricularPlan = curricularCourse.getDegreeCurricularPlan();
-            degrees.add(degreeCurricularPlan.getDegree());
-        }
-        return degrees;
+        return getAssociatedCurricularCoursesSet().stream()
+                .map(CurricularCourse::getDegreeCurricularPlan)
+                .map(DegreeCurricularPlan::getDegree)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)));
     }
 
     public Set<CompetenceCourse> getCompetenceCourses() {
@@ -426,12 +424,10 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Professorship getProfessorship(final Person person) {
-        for (final Professorship professorship : getProfessorshipsSet()) {
-            if (professorship.getPerson() == person) {
-                return professorship;
-            }
-        }
-        return null;
+        return getProfessorshipsSet().stream()
+                .filter(p -> p.getPerson() == person)
+                .findFirst()
+                .orElse(null);
     }
 
     /*
@@ -462,12 +458,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
     @Override
     public void addAssociatedCurricularCourses(final CurricularCourse curricularCourse) {
-        Collection<ExecutionCourse> executionCourses = curricularCourse.getAssociatedExecutionCoursesSet();
-
-        for (ExecutionCourse executionCourse : executionCourses) {
-            if (this != executionCourse && executionCourse.getExecutionInterval() == getExecutionInterval()) {
-                throw new DomainException("error.executionCourse.curricularCourse.already.associated");
-            }
+        if (curricularCourse.getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> this != ec && ec.getExecutionInterval() == getExecutionInterval())) {
+            throw new DomainException("error.executionCourse.curricularCourse.already.associated");
         }
 
         super.addAssociatedCurricularCourses(curricularCourse);
