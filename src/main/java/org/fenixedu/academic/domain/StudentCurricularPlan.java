@@ -181,17 +181,11 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     public void delete() throws DomainException {
-        getEnrolmentsSet().forEach(e -> {
-            e.setStudentCurricularPlan(null);
-            e.delete();
-        });
+        getEnrolmentsSet().forEach(Enrolment::delete);
 
         getRoot().delete();
 
-        getCreditsSet().forEach(c -> {
-            c.setStudentCurricularPlan(null);
-            c.delete();
-        });
+        getCreditsSet().forEach(Credits::delete);
 
         setStartExecutionInterval(null);
         setDegreeCurricularPlan(null);
@@ -387,8 +381,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public List<Enrolment> getEnrolments(final CurricularCourse curricularCourse) {
-        return getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == curricularCourse)
-                .collect(Collectors.toCollection(ArrayList::new));
+        return getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == curricularCourse).collect(Collectors.toList());
     }
 
     final public int countEnrolmentsByCurricularCourse(final CurricularCourse curricularCourse) {
@@ -403,12 +396,12 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     public List<Enrolment> getEnrolmentsByExecutionYear(final ExecutionYear executionYear) {
         return getEnrolmentsSet().stream().filter(e -> e.getExecutionInterval().getExecutionYear() == executionYear)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
 
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
         return getEnrolmentsSet().stream().filter(e -> e.getExecutionInterval() == executionInterval)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
 
     final public Collection<Enrolment> getLatestCurricularCoursesEnrolments(final ExecutionYear executionYear) {
