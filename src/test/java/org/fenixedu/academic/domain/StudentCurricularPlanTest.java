@@ -11,13 +11,16 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -41,6 +44,7 @@ public class StudentCurricularPlanTest {
     public static final String CURRICULAR_COURSE_B_NAME = "Course B";
     public static final String NEW_CC_NAME = "NEW_CC";
 
+    private static Student student;
     private static Registration registration;
     private static ExecutionYear executionYear;
     private static ExecutionInterval executionInterval;
@@ -68,7 +72,7 @@ public class StudentCurricularPlanTest {
         EvaluationSeasonTest.initEvaluationSeasons();
         initDissertationCompetenceCourseType();
 
-        Student student = StudentTest.createStudent("Student A", STUDENT_USERNAME);
+        student = StudentTest.createStudent("Student A", STUDENT_USERNAME);
 
         Degree degree = Degree.find(DEGREE_A_CODE);
         dcpV1 = degree.getDegreeCurricularPlansSet().stream()
@@ -134,6 +138,8 @@ public class StudentCurricularPlanTest {
         dcpV1.getCurricularCoursesSet().stream()
                 .filter(cc -> cc != curricularCourseA && cc != curricularCourseB)
                 .forEach(CurricularCourse::delete);
+
+        student.getRegistrationsSet().stream().filter(r -> r != registration).forEach(Registration::delete);
     }
 
     private StudentCurricularPlan create(Registration registration, DegreeCurricularPlan dcp, ExecutionInterval interval) {
@@ -198,6 +204,45 @@ public class StudentCurricularPlanTest {
     }
 
     @Test
+    public void testStudentCurricularPlan_comparatorByDegreeTypeAndDegreeName() {
+        // New DegreeCurricularPlan with different DegreeType
+        DegreeType masterDegreeType = DegreeType.findByCode(DegreeTest.MASTER_DEGREE_TYPE_CODE).orElseThrow();
+        Degree masterDegree =
+                DegreeTest.createDegree(masterDegreeType, DegreeTest.MASTER_DEGREE_TYPE_CODE, "Master", executionYear);
+        DegreeCurricularPlan masterDcp = new DegreeCurricularPlan(masterDegree, "Master_Degree", AcademicPeriod.TWO_YEAR);
+        masterDcp.createExecutionDegree(executionYear);
+
+        Registration mastersRegistration = StudentTest.createRegistration(student, masterDcp, executionYear);
+        StudentCurricularPlan mastersScp = mastersRegistration.getStudentCurricularPlansSet().iterator().next();
+
+        // New DegreeCurricularPlan with same DegreeType and different Degree name
+        DegreeType newDegreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
+        Degree newDegree = DegreeTest.createDegree(newDegreeType, "NEW_DEGREE", "New Degree", executionYear);
+        DegreeCurricularPlan newDcp = new DegreeCurricularPlan(newDegree, "New_Degree", AcademicPeriod.THREE_YEAR);
+        newDcp.createExecutionDegree(executionYear);
+
+        Registration newRegistration = StudentTest.createRegistration(student, newDcp, executionYear);
+        StudentCurricularPlan newScp = newRegistration.getStudentCurricularPlansSet().iterator().next();
+
+        List<StudentCurricularPlan> plans = Arrays.asList(newScp, mastersScp, scpV1);
+        plans.sort(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME);
+
+        assertEquals(scpV1, plans.get(0));
+        assertEquals(newScp, plans.get(1));
+        assertEquals(mastersScp, plans.get(2));
+
+        assertEquals(0,
+                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(scpV1, scpV1));
+        assertEquals(1,
+                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(mastersScp,
+                        scpV1));
+        assertEquals(10, // Same DegreeType but different Degree name
+                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp, scpV1));
+        assertEquals(-1, StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp,
+                mastersScp));
+    }
+
+    @Test
     public void testStudentCurricularPlan_getEnrolments() {
         Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
 
@@ -230,9 +275,21 @@ public class StudentCurricularPlanTest {
         assertEquals(1, scpV1.countEnrolmentsByCurricularCourse(curricularCourseA, executionInterval));
         assertEquals(0, scpV1.countEnrolmentsByCurricularCourse(curricularCourseB, executionInterval));
 
-        createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+        ExecutionInterval earlierInterval = executionInterval.getPrevious();
+        CurricularPeriod secondSemester = new CurricularPeriod(AcademicPeriod.SEMESTER, 2, semesterPeriod.getParent());
+        new Context(dcpV1.getRoot(), curricularCourseA, secondSemester, earlierInterval, null);
+        new Enrolment(scpV1, scpV1.getRoot(), curricularCourseA, earlierInterval, EnrollmentCondition.FINAL, STUDENT_USERNAME);
 
-        assertEquals(1, scpV1.countEnrolmentsByCurricularCourse(curricularCourseB, executionInterval));
+        assertEquals(2, scpV1.countEnrolmentsByCurricularCourse(curricularCourseA, executionInterval));
+
+        // We won't ever have 3 semesters...
+        // This is just for easier demonstration and test case of e.getExecutionInterval().isBeforeOrEquals(untilExecutionInterval)
+        ExecutionInterval laterInterval = executionInterval.getNext();
+        CurricularPeriod laterSemester = new CurricularPeriod(AcademicPeriod.SEMESTER, 3, semesterPeriod.getParent());
+        new Context(dcpV1.getRoot(), curricularCourseA, laterSemester, laterInterval, null);
+        new Enrolment(scpV1, scpV1.getRoot(), curricularCourseA, laterInterval, EnrollmentCondition.FINAL, STUDENT_USERNAME);
+
+        assertEquals(2, scpV1.countEnrolmentsByCurricularCourse(curricularCourseA, executionInterval));
     }
 
     @Test
