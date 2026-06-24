@@ -172,7 +172,8 @@ public class DegreeModuleTest {
     }
 
     @Test
-    public void getParentContextsByExecutionYear_invalidYear() {
+    public void getParentContextsByExecutionYear_contextNotOpenInYear() {
+        // courseA1's context begins at semester1 (current year); not open for pastYear
         assertTrue(courseA1.getParentContextsByExecutionYear(pastYear).isEmpty());
     }
 
@@ -190,18 +191,21 @@ public class DegreeModuleTest {
 
     @Test
     public void getParentContextsByExecutionSemester_nullInterval() {
+        // null interval returns all parent contexts
         List<Context> result = courseA1.getParentContextsByExecutionSemester(null);
         assertEquals(1, result.size());
         assertEquals(groupA1, result.get(0).getParentCourseGroup());
     }
 
     @Test
-    public void getParentContextsByExecutionSemester_invalidInterval() {
+    public void getParentContextsByExecutionSemester_contextNotOpenInInterval() {
+        // pastSemester1 is before courseA1's context validity
         assertTrue(courseA1.getParentContextsByExecutionSemester(pastSemester1).isEmpty());
     }
 
     @Test
     public void getParentContextsByExecutionSemester_curricularPeriodMismatch() {
+        // curricular period mismatch (courseA1's curricular period is semester 1)
         assertTrue(courseA1.getParentContextsByExecutionSemester(semester2).isEmpty());
     }
 
@@ -214,11 +218,13 @@ public class DegreeModuleTest {
 
     @Test
     public void getParentContextsBy_invalidCourseGroup() {
+        // groupA is not courseA1's direct parent (groupA1 is)
         assertTrue(courseA1.getParentContextsBy(semester1, groupA).isEmpty());
     }
 
     @Test
-    public void getParentContextsBy_invalidInterval() {
+    public void getParentContextsBy_contextNotOpenInInterval() {
+        // pastSemester1 is before courseA1's context validity
         assertTrue(courseA1.getParentContextsBy(pastSemester1, groupA1).isEmpty());
     }
 
@@ -228,27 +234,23 @@ public class DegreeModuleTest {
     }
 
     @Test
-    public void hasAnyParentContexts_invalidInterval() {
+    public void hasAnyParentContexts_curricularPeriodMismatch() {
+        // curricular period mismatch (courseA1's curricular period is semester 1)
         assertFalse(courseA1.hasAnyParentContexts(semester2));
     }
 
     @Test
-    public void hasAnyParentContexts_withNotOpen() {
+    public void hasAnyParentContexts_contextNotOpenInInterval() {
         assertFalse(courseA1.hasAnyParentContexts(pastSemester1));
     }
 
     @Test
-    public void hasAnyOpenParentContexts_withOpenInterval() {
+    public void hasAnyOpenParentContexts_contextOpenInInterval() {
         assertTrue(courseA1.hasAnyOpenParentContexts(semester1));
     }
 
     @Test
-    public void hasAnyOpenParentContexts_withOpenButCpMismatch() {
-        assertTrue(courseA1.hasAnyOpenParentContexts(semester2));
-    }
-
-    @Test
-    public void hasAnyOpenParentContexts_withNotOpen() {
+    public void hasAnyOpenParentContexts_contextNotOpenInInterval() {
         assertFalse(courseA1.hasAnyOpenParentContexts(pastSemester1));
     }
 

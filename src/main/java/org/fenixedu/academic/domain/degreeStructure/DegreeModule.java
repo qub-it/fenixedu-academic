@@ -21,10 +21,8 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -306,7 +304,7 @@ abstract public class DegreeModule extends DegreeModule_Base {
             return curricularRules.stream().sorted(ICurricularRule.COMPARATOR_BY_BEGIN.reversed())
                     .filter(ICurricularRule::isActive).findFirst().orElse(null);
         }
-        
+
         final List<? extends ICurricularRule> validRules =
                 curricularRules.stream().filter(cr -> cr.isValid(executionYear)).sorted(ICurricularRule.COMPARATOR_BY_BEGIN)
                         .toList();
@@ -341,8 +339,8 @@ abstract public class DegreeModule extends DegreeModule_Base {
             return ExecutionInterval.findActiveAggregators(getDegree().getCalendar()).stream().min(Comparator.naturalOrder())
                     .orElse(null);
         }
-        return getParentContextsSet().stream().map(Context::getBeginExecutionInterval)
-                .collect(Collectors.toCollection(TreeSet::new)).first();
+        return getParentContextsSet().stream().map(Context::getBeginExecutionInterval).min(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     public DegreeModulesSelectionLimit getDegreeModulesSelectionLimitRule(final ExecutionInterval executionInterval) {
