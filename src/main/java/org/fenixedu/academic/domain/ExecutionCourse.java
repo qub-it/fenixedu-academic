@@ -135,19 +135,11 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             deleteGroup(g);
         });
 
-        for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getLessonPlanningsSet().isEmpty(); getLessonPlanningsSet().iterator().next().delete()) {
-            ;
-        }
+        new HashSet<>(getProfessorshipsSet()).forEach(Professorship::delete);
+        new HashSet<>(getLessonPlanningsSet()).forEach(LessonPlanning::delete);
 
-        for (; !getAttendsSet().isEmpty(); getAttendsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getExecutionCourseLogsSet().isEmpty(); getExecutionCourseLogsSet().iterator().next().delete()) {
-            ;
-        }
+        new HashSet<>(getAttendsSet()).forEach(Attends::delete);
+        new HashSet<>(getExecutionCourseLogsSet()).forEach(ExecutionCourseLog::delete);
 
         getAssociatedCurricularCoursesSet().clear();
         getTeacherGroupSet().clear();
