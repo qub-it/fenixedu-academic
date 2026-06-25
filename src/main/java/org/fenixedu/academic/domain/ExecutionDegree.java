@@ -60,6 +60,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_YEAR =
             Comparator.comparing(ExecutionDegree::getExecutionYear);
 
+    @Deprecated
     static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME =
             Comparator.comparing(ExecutionDegree::getDegree, Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
 
