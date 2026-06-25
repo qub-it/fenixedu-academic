@@ -166,20 +166,17 @@ public class CurriculumGroupTest {
     @Test
     public void testCurriculumGroup_getCurriculumGroupsToEnrolmentProcess_filtersNoCourseGroup() {
         // Same as getCurriculumGroups but should EXCLUDE NoCourseGroup groups
-        assertTrue(mandatoryCurriculumGroup.getChildCurriculumGroups().isEmpty());
-        assertTrue(optionalCurriculumGroup.getChildCurriculumGroups().isEmpty());
-
-        final List<CurriculumGroup> children = cycleCurriculumGroup.getChildCurriculumGroups();
-        assertEquals(2, children.size());
-        assertTrue(children.contains(mandatoryCurriculumGroup));
-        assertTrue(children.contains(optionalCurriculumGroup));
+        Set<CurriculumGroup> enrolGroups = rootCurriculumGroup.getCurriculumGroupsToEnrolmentProcess();
+        assertEquals(1, enrolGroups.size());
+        assertTrue(enrolGroups.contains(cycleCurriculumGroup));
 
         final NoCourseGroupCurriculumGroup noCourseGroup =
                 NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, rootCurriculumGroup);
         try {
-            final Set<CurriculumGroup> enrolGroups = rootCurriculumGroup.getCurriculumGroupsToEnrolmentProcess();
-            assertFalse(enrolGroups.contains(noCourseGroup));
+            enrolGroups = rootCurriculumGroup.getCurriculumGroupsToEnrolmentProcess();
+            assertEquals(1, enrolGroups.size());
             assertTrue(enrolGroups.contains(cycleCurriculumGroup));
+            assertFalse(enrolGroups.contains(noCourseGroup));
         } finally {
             noCourseGroup.delete();
         }
