@@ -100,8 +100,7 @@ public class ExecutionDegreeTest {
 
     @Test
     public void comparatorByExecutionYear() {
-        List<ExecutionDegree> sorted = Stream.of(edA_new, edA)
-                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)
+        List<ExecutionDegree> sorted = Stream.of(edA_new, edA).sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR)
                 .toList();
 
         assertEquals(2, sorted.size());
@@ -112,7 +111,7 @@ public class ExecutionDegreeTest {
     @Test
     public void comparatorByDegreeTypeAndName_differentTypes() {
         List<ExecutionDegree> sorted = Stream.of(edMaster, edA)
-                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME)
+                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME)
                 .toList();
 
         assertEquals(2, sorted.size());
@@ -123,7 +122,7 @@ public class ExecutionDegreeTest {
     @Test
     public void comparatorByDegreeTypeAndName_sameType() {
         List<ExecutionDegree> sorted = Stream.of(edC, edA, edB)
-                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME)
+                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME)
                 .toList();
 
         assertEquals(3, sorted.size());
@@ -135,7 +134,7 @@ public class ExecutionDegreeTest {
     @Test
     public void comparatorByDegreeTypeAndNameAndExecutionYear() {
         List<ExecutionDegree> sorted = Stream.of(edA_new, edA)
-                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR)
+                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR)
                 .toList();
 
         assertEquals(2, sorted.size());
@@ -146,7 +145,7 @@ public class ExecutionDegreeTest {
     @Test
     public void comparatorByDegreeTypeAndNameAndExecutionYear_differentTypes() {
         List<ExecutionDegree> sorted = Stream.of(edMaster, edA)
-                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR)
+                .sorted(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR)
                 .toList();
 
         assertEquals(2, sorted.size());

@@ -330,7 +330,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
 
         final List<ExecutionDegree> sorted = new ArrayList<>(getExecutionDegreesSet());
-        Collections.sort(sorted, ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
+        Collections.sort(sorted, ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
 
         final ExecutionDegree first = sorted.iterator().next();
         if (sorted.size() == 1) {
@@ -353,7 +353,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public ExecutionDegree getFirstExecutionDegree() {
-        return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR).orElse(null);
+        return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR).orElse(null);
     }
 
     public Set<ExecutionCourse> getExecutionCourses(final ExecutionInterval executionInterval) {
@@ -899,7 +899,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         if (getExecutionDegreesSet().isEmpty()) {
             return false;
         }
-        SortedSet<ExecutionDegree> sortedExecutionDegrees = new TreeSet<>(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
+        SortedSet<ExecutionDegree> sortedExecutionDegrees = new TreeSet<>(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
         sortedExecutionDegrees.addAll(getExecutionDegreesSet());
         return sortedExecutionDegrees.last().getExecutionYear().equals(executionYear.getPreviousExecutionYear());
     }
@@ -959,12 +959,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public ExecutionYear getInauguralExecutionYear() {
-        return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)
+        return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR)
                 .map(ExecutionDegree::getExecutionYear).orElse(null);
     }
 
     public ExecutionYear getLastExecutionYear() {
-        return getExecutionDegreesSet().stream().max(ExecutionDegree.EXECUTION_DEGREE_COMPARATORY_BY_YEAR)
+        return getExecutionDegreesSet().stream().max(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR)
                 .map(ExecutionDegree::getExecutionYear).orElse(null);
     }
 

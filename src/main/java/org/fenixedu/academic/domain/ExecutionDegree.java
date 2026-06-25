@@ -57,18 +57,14 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     public static final Comparator<ExecutionDegree> COMPARATOR_BY_DEGREE_NAME =
             Comparator.comparing(ed -> ed.getDegree().getNameFor((AcademicInterval) null).getContent());
 
-    static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_YEAR =
+    static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATOR_BY_YEAR =
             Comparator.comparing(ExecutionDegree::getExecutionYear);
-
-    @Deprecated
-    static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME =
-            Comparator.comparing(ExecutionDegree::getDegree, Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
 
     static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME =
             Comparator.comparing(ExecutionDegree::getDegree, Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID);
 
-    static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR =
-            EXECUTION_DEGREE_COMPARATORY_BY_DEGREE_TYPE_AND_NAME.thenComparing(EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
+    static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR =
+            EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.thenComparing(EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
 
     private ExecutionDegree() {
         super();
@@ -134,7 +130,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
 
     public boolean isFirstYear() {
         final Collection<ExecutionDegree> executionDegrees = this.getDegreeCurricularPlan().getExecutionDegreesSet();
-        return this == Collections.min(executionDegrees, EXECUTION_DEGREE_COMPARATORY_BY_YEAR);
+        return this == Collections.min(executionDegrees, EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
     }
 
     @Deprecated(forRemoval = true)
