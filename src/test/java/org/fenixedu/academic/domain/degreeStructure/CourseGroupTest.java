@@ -1,11 +1,9 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -17,9 +15,7 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
@@ -37,9 +33,6 @@ public class CourseGroupTest {
     private static CourseGroup mandatoryCourseGroup;
     private static CourseGroup optionalCourseGroup;
     private static CurricularCourse cc1, cc2, cc3, cc4, cc5, cc6;
-
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
 
     @BeforeClass
     public static void init() {
@@ -119,7 +112,7 @@ public class CourseGroupTest {
         assertTrue(mandatoryCCsNull.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
 
         // previous execution interval returns empty
-        final ExecutionInterval previousInterval = (ExecutionInterval) executionYear.getPrevious();
+        final ExecutionInterval previousInterval = executionYear.getPrevious();
         assertTrue(cycleCourseGroup.getValidChildContexts(null, previousInterval).isEmpty());
         assertTrue(mandatoryCourseGroup.getValidChildContexts(CurricularCourse.class, previousInterval).isEmpty());
     }
@@ -198,7 +191,7 @@ public class CourseGroupTest {
         assertEquals(4, mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, null).size());
 
         // previous execution interval returns empty
-        final ExecutionInterval previousInterval = (ExecutionInterval) executionYear.getPrevious();
+        final ExecutionInterval previousInterval = executionYear.getPrevious();
         assertTrue(cycleCourseGroup.getOpenChildContexts(null, previousInterval).isEmpty());
         assertTrue(mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, previousInterval).isEmpty());
     }
@@ -283,7 +276,7 @@ public class CourseGroupTest {
         assertTrue(optionalOpen.contains(cc5));
 
         // previous interval returns empty for all groups
-        final ExecutionInterval previousInterval = (ExecutionInterval) executionYear.getPrevious();
+        final ExecutionInterval previousInterval = executionYear.getPrevious();
         assertTrue(mandatoryCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(previousInterval).isEmpty());
         assertTrue(cycleCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(previousInterval).isEmpty());
         assertTrue(optionalCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(previousInterval).isEmpty());
