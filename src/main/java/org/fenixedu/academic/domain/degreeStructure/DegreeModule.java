@@ -424,7 +424,7 @@ abstract public class DegreeModule extends DegreeModule_Base {
 
     public List<Exclusiveness> getExclusivenessRules(final ExecutionInterval executionInterval) {
         return getCurricularRules(CurricularRuleType.EXCLUSIVENESS, executionInterval).stream().map(Exclusiveness.class::cast)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Collection<CycleCourseGroup> getParentCycleCourseGroups() {

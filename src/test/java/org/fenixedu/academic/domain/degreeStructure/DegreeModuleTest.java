@@ -192,7 +192,7 @@ public class DegreeModuleTest {
 
     @Test
     public void getCurricularRules_byContextAndInterval_matchingContext() {
-        Context ctx = groupA1.getParentContextsSet().iterator().next();
+        Context ctx = groupA.getChildContexts(CourseGroup.class).iterator().next();
         assertEquals(groupA, ctx.getParentCourseGroup());
 
         List<CurricularRule> rules = groupA1.getCurricularRules(ctx, semester1);
@@ -203,7 +203,7 @@ public class DegreeModuleTest {
 
     @Test
     public void getCurricularRules_byContextAndInterval_returnsEmpty() {
-        Context ctx = groupA1.getParentContextsSet().iterator().next();
+        Context ctx = groupA.getChildContexts(CourseGroup.class).iterator().next();
         assertTrue(groupA1.getCurricularRules(ctx, pastSemester1).isEmpty());
     }
 
