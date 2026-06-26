@@ -363,6 +363,14 @@ abstract public class DegreeModule extends DegreeModule_Base {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * @deprecated use getParentContextsSet instead
+     */
+    @Deprecated
+    public Set<CourseGroup> getParentCourseGroups() {
+        return getParentContextsSet().stream().map(Context::getParentCourseGroup).collect(Collectors.toSet());
+    }
+
     public boolean isDissertation() {
         return false;
     }
