@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,7 +35,6 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.domain.User;
 import org.joda.time.Interval;
 
 public class Teacher extends Teacher_Base {
@@ -69,15 +67,6 @@ public class Teacher extends Teacher_Base {
 
     public String getTeacherId() {
         return getPerson().getUsername();
-    }
-
-    public static Teacher readByIstId(String istId) {
-        User user = User.findByUsername(istId);
-        if (user != null) {
-            return user.getPerson().getTeacher();
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -261,19 +250,6 @@ public class Teacher extends Teacher_Base {
         return false;
     }
 
-    public boolean teachesAny(final Collection<ExecutionCourse> executionCourses, ExecutionYear executionYear) {
-        for (final Professorship professorship : getProfessorships(executionYear)) {
-            if (executionCourses.contains(professorship.getExecutionCourse())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean teachesAny(final Collection<ExecutionCourse> executionCourses) {
-        return getPerson().teachesAny(executionCourses);
-    }
-
     public void delete() {
 
         getDynamicFieldSet().forEach(df -> {
@@ -302,14 +278,6 @@ public class Teacher extends Teacher_Base {
 
     public Collection<Professorship> getProfessorships() {
         return getPerson().getProfessorshipsSet();
-    }
-
-    public Iterator<Professorship> getProfessorshipsIterator() {
-        return getPerson().getProfessorshipsSet().iterator();
-    }
-
-    public Stream<TeacherAuthorization> getRevokedTeacherAuthorizationStream() {
-        return getRevokedAuthorizationSet().stream().sorted(Collections.reverseOrder());
     }
 
     public Stream<TeacherAuthorization> getTeacherAuthorizationStream() {
