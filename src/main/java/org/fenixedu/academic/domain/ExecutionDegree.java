@@ -55,7 +55,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
             Comparator.comparing((ExecutionDegree ed) -> ed.getDegree().getSigla()).thenComparing(ExecutionDegree::getExternalId);
 
     public static final Comparator<ExecutionDegree> COMPARATOR_BY_DEGREE_NAME =
-            Comparator.comparing(ed -> ed.getDegree().getNameFor((AcademicInterval) null).getContent());
+            Comparator.comparing(ed -> ed.getDegree().getNameI18N().getContent());
 
     static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATORY_BY_YEAR =
             Comparator.comparing(ExecutionDegree::getExecutionYear);
