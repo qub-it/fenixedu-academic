@@ -404,12 +404,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 .collect(Collectors.toList());
     }
 
-    final public Collection<Enrolment> getLatestCurricularCoursesEnrolments(final ExecutionYear executionYear) {
-        return getEnrolmentsByExecutionYear(executionYear).stream().collect(
-                Collectors.toMap(Enrolment::getCurricularCourse, e -> e,
-                        (existing, replacement) -> existing.isBefore(replacement) ? replacement : existing)).values();
-    }
-
     public void addApprovedEnrolments(final Collection<Enrolment> enrolments) {
         for (final Enrolment enrolment : getEnrolmentsSet()) {
             if (!enrolment.isInvisible() && enrolment.isApproved()) {

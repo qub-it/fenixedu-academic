@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -322,34 +321,6 @@ public class StudentCurricularPlanTest {
         assertEquals(1, scpV1.getEnrolmentsByExecutionPeriod(newExecutionInterval).size());
         assertFalse(scpV1.getEnrolmentsByExecutionPeriod(executionInterval).contains(enrolmentInCourseB));
         assertTrue(scpV1.getEnrolmentsByExecutionPeriod(newExecutionInterval).contains(enrolmentInCourseB));
-    }
-
-    @Test
-    public void testStudentCurricularPlan_getLatestCurricularCoursesEnrolments() {
-        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
-
-        Collection<Enrolment> latestEnrolments = scpV1.getLatestCurricularCoursesEnrolments(executionYear);
-        assertEquals(1, latestEnrolments.size());
-        assertTrue(latestEnrolments.contains(enrolmentInCourseA));
-
-        Enrolment enrolmentInCourseB = createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
-
-        latestEnrolments = scpV1.getLatestCurricularCoursesEnrolments(executionYear);
-        assertEquals(2, latestEnrolments.size());
-        assertTrue(latestEnrolments.contains(enrolmentInCourseA));
-        assertTrue(latestEnrolments.contains(enrolmentInCourseB));
-
-        ExecutionInterval laterInterval = executionYear.getLastExecutionPeriod();
-        CurricularPeriod secondSemester = new CurricularPeriod(AcademicPeriod.SEMESTER, 2, semesterPeriod.getParent());
-        new Context(dcpV1.getRoot(), curricularCourseA, secondSemester, laterInterval, null);
-        Enrolment newEnrolmentA = new Enrolment(scpV1, scpV1.getRoot(), curricularCourseA, laterInterval,
-                EnrollmentCondition.FINAL, STUDENT_USERNAME);
-
-        latestEnrolments = scpV1.getLatestCurricularCoursesEnrolments(executionYear);
-        assertEquals(2, latestEnrolments.size());
-        assertFalse(latestEnrolments.contains(enrolmentInCourseA));
-        assertTrue(latestEnrolments.contains(newEnrolmentA));
-        assertTrue(latestEnrolments.contains(enrolmentInCourseB));
     }
 
     @Test
