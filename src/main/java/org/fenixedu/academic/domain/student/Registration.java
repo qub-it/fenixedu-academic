@@ -418,10 +418,6 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    final public Collection<Enrolment> getLatestCurricularCoursesEnrolments(final ExecutionYear executionYear) {
-        return getStudentCurricularPlan(executionYear).getLatestCurricularCoursesEnrolments(executionYear);
-    }
-
     final public boolean hasEnrolments(final Enrolment enrolment) {
         if (enrolment == null) {
             return false;
