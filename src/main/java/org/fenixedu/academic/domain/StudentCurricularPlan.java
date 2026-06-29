@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -81,8 +80,6 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.YearMonthDay;
-
-import com.google.common.collect.Sets;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -516,15 +513,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final protected boolean hasEquivalenceIn(CurricularCourse curricularCourse, List<CurricularCourse> otherCourses) {
-        if (otherCourses.isEmpty()) {
-            return false;
-        }
-
-        if (isThisCurricularCoursesInTheList(curricularCourse, otherCourses)) {
-            return true;
-        }
-
-        return false;
+        return !otherCourses.isEmpty() && isThisCurricularCoursesInTheList(curricularCourse, otherCourses);
     }
 
     public boolean isEnroledInExecutionPeriod(final CurricularCourse curricularCourse,
@@ -537,7 +526,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     // -------------------------------------------------------------
 
     public double getEnrolmentsEctsCredits(final ExecutionYear executionYear) {
-        return executionYear.getChildIntervals().stream().mapToDouble(interval -> getEnrolmentsEctsCredits(interval)).sum();
+        return executionYear.getChildIntervals().stream().mapToDouble(this::getEnrolmentsEctsCredits).sum();
     }
 
     public double getEnrolmentsEctsCredits(final ExecutionInterval executionInterval) {
@@ -567,22 +556,10 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     // END: Only for enrollment purposes (PROTECTED)
     // -------------------------------------------------------------
     public Set<EnrolmentEvaluation> getEnroledImprovements(final ExecutionInterval input) {
-        final Set<EnrolmentEvaluation> result = Sets.newHashSet();
-
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            for (final EnrolmentEvaluation evaluation : enrolment.getEvaluationsSet()) {
-                final EvaluationSeason season = evaluation.getEvaluationSeason();
-
-                if (season.isImprovement()) {
-                    final Optional<EnrolmentEvaluation> search = enrolment.getEnrolmentEvaluation(season, input, (Boolean) null);
-                    if (search.isPresent() && search.get() == evaluation) {
-                        result.add(evaluation);
-                    }
-                }
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().flatMap(enrolment -> enrolment.getEvaluationsSet().stream()
+                .filter(evaluation -> evaluation.getEvaluationSeason().isImprovement())
+                .filter(evaluation -> enrolment.getEnrolmentEvaluation(evaluation.getEvaluationSeason(), input, null).orElse(null)
+                        == evaluation)).collect(Collectors.toSet());
     }
 
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
@@ -677,27 +654,11 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public Collection<CurriculumLine> getExtraCurricularCurriculumLines() {
-        final Collection<CurriculumLine> result = new ArrayList<CurriculumLine>();
-
-        if (hasExtraCurriculumGroup()) {
-            for (final CurriculumLine curriculumLine : getExtraCurriculumGroup().getCurriculumLines()) {
-                result.add(curriculumLine);
-            }
-        }
-
-        return result;
+        return hasExtraCurriculumGroup() ? getExtraCurriculumGroup().getCurriculumLines() : Set.of();
     }
 
     final public Collection<CurriculumLine> getStandaloneCurriculumLines() {
-        final Collection<CurriculumLine> result = new ArrayList<CurriculumLine>();
-
-        if (hasStandaloneCurriculumGroup()) {
-            for (final CurriculumLine curriculumLine : getStandaloneCurriculumGroup().getCurriculumLines()) {
-                result.add(curriculumLine);
-            }
-        }
-
-        return result;
+        return hasStandaloneCurriculumGroup() ? getStandaloneCurriculumGroup().getCurriculumLines() : Set.of();
     }
 
     public PropaedeuticsCurriculumGroup getPropaedeuticCurriculumGroup() {
@@ -709,15 +670,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public Collection<CurriculumLine> getPropaedeuticCurriculumLines() {
-        final Collection<CurriculumLine> result = new ArrayList<CurriculumLine>();
-
-        if (hasPropaedeuticsCurriculumGroup()) {
-            for (final CurriculumLine curriculumLine : getPropaedeuticCurriculumGroup().getCurriculumLines()) {
-                result.add(curriculumLine);
-            }
-        }
-
-        return result;
+        return hasPropaedeuticsCurriculumGroup() ? getPropaedeuticCurriculumGroup().getCurriculumLines() : Set.of();
     }
 
     /**
@@ -727,15 +680,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
      * @return get propaedeutic enrolments
      */
     final public Collection<Enrolment> getPropaedeuticEnrolments() {
-        final Collection<Enrolment> result = new ArrayList<Enrolment>();
-
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.isPropaedeutic()) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(Enrolment::isPropaedeutic).collect(Collectors.toSet());
     }
 
     public Collection<CurricularCourse> getAllCurricularCoursesToDismissal(final ExecutionInterval input) {
