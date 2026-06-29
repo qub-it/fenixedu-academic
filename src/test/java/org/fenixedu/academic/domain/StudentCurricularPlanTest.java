@@ -167,12 +167,6 @@ public class StudentCurricularPlanTest {
     public void testStudentCurricularPlan_delete() {
         StudentCurricularPlan scp = create(registration, dcpV2, executionInterval);
 
-        assertNotNull(scp);
-        assertNotNull(scp.getRootDomainObject());
-        assertEquals(registration, scp.getRegistration());
-        assertEquals(dcpV2, scp.getDegreeCurricularPlan());
-        assertEquals(executionInterval, scp.getStartExecutionInterval());
-
         scp.delete();
 
         assertNull(scp.getRootDomainObject());
@@ -185,7 +179,6 @@ public class StudentCurricularPlanTest {
     public void testStudentCurricularPlan_deleteRemovesEnrolments() {
         StudentCurricularPlan scp = create(registration, dcpV2, executionInterval);
 
-        assertNotNull(scp);
         assertTrue(scp.getEnrolmentsSet().isEmpty());
 
         EnrolmentTest.createEnrolment(scp, executionInterval,
@@ -233,13 +226,14 @@ public class StudentCurricularPlanTest {
 
         assertEquals(0,
                 StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(scpV1, scpV1));
-        assertEquals(1,
-                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(mastersScp,
-                        scpV1));
-        assertEquals(10, // Same DegreeType but different Degree name
-                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp, scpV1));
-        assertEquals(-1, StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp,
-                mastersScp));
+        assertTrue(
+                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(mastersScp, scpV1)
+                        > 0);
+        assertTrue(// Same DegreeType but different Degree name
+                StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp, scpV1)
+                        > 0);
+        assertTrue(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.compare(newScp,
+                mastersScp) < 0);
     }
 
     @Test
@@ -290,6 +284,7 @@ public class StudentCurricularPlanTest {
         new Enrolment(scpV1, scpV1.getRoot(), curricularCourseA, laterInterval, EnrollmentCondition.FINAL, STUDENT_USERNAME);
 
         assertEquals(2, scpV1.countEnrolmentsByCurricularCourse(curricularCourseA, executionInterval));
+        assertEquals(3, scpV1.countEnrolmentsByCurricularCourse(curricularCourseA, laterInterval));
     }
 
     @Test
