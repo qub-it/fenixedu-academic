@@ -127,10 +127,11 @@ public class ExecutionCourseTest {
     }
 
     @Test
-    public void testSetSigla() {
-        final String sigla = "UNIQUE_" + UUID.randomUUID();
-        emptyExecutionCourse.setSigla(sigla);
-        assertEquals(sigla, emptyExecutionCourse.getSigla());
+    public void testSetSigla_sameValue() {
+        final String s = "SAME_" + UUID.randomUUID();
+        emptyExecutionCourse.setSigla(s);
+        emptyExecutionCourse.setSigla(s);
+        assertEquals(s, emptyExecutionCourse.getSigla());
     }
 
     @Test
@@ -138,19 +139,18 @@ public class ExecutionCourseTest {
         final ExecutionInterval interval = emptyExecutionCourse.getExecutionInterval();
         final String target = "CONFLICT_" + UUID.randomUUID();
 
-        final ExecutionCourse other1 = new ExecutionCourse("Other1", UUID.randomUUID().toString(), interval);
-        other1.setSigla(target);
+        // existing course holds the sigla in uppercase
+        final ExecutionCourse other = new ExecutionCourse("Other", UUID.randomUUID().toString(), interval);
+        other.setSigla(target.toUpperCase());
 
-        emptyExecutionCourse.setSigla(target); // first conflict -> should get -0
-        assertEquals(target + "-0", emptyExecutionCourse.getSigla());
+        // first conflict is detected case-insensitively -> target-0
+        emptyExecutionCourse.setSigla(target.toLowerCase());
+        assertEquals(target.toLowerCase() + "-0", emptyExecutionCourse.getSigla());
 
-        final ExecutionCourse other2 = new ExecutionCourse("Other2", UUID.randomUUID().toString(), interval);
-        other2.setSigla(target + "-0");
-
-        // second conflict -> should get -1
+        // second conflict -> target-1
         final ExecutionCourse anotherCourse = new ExecutionCourse("Another", UUID.randomUUID().toString(), interval);
-        anotherCourse.setSigla(target);
-        assertEquals(target + "-1", anotherCourse.getSigla());
+        anotherCourse.setSigla(target.toLowerCase());
+        assertEquals(target.toLowerCase() + "-1", anotherCourse.getSigla());
     }
 
     @Test
@@ -182,13 +182,11 @@ public class ExecutionCourseTest {
     public void testGetSchoolClassesBy() {
         final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
         final SchoolClass schoolClass = createSchoolClassFor(emptyExecutionCourse, "TestClass_By");
-        assertEquals(Set.of(schoolClass), emptyExecutionCourse.getSchoolClassesBy(dcp));
-    }
 
-    @Test
-    public void testGetSchoolClassesBy_noMatch() {
-        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
-        createSchoolClassFor(emptyExecutionCourse, "TestClass_NoMatch");
+        // matches the DCP the school class belongs to
+        assertEquals(Set.of(schoolClass), emptyExecutionCourse.getSchoolClassesBy(dcp));
+
+        // does not match a different DCP
         final DegreeCurricularPlan otherDcp =
                 dcp.getDegree().getDegreeCurricularPlansSet().stream().filter(d -> !d.equals(dcp)).findAny().orElseThrow();
         assertTrue(emptyExecutionCourse.getSchoolClassesBy(otherDcp).isEmpty());

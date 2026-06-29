@@ -26,7 +26,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
@@ -378,8 +377,12 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private String findUniqueCode(final String code) {
-        return Stream.concat(Stream.of(code), IntStream.iterate(0, i -> i + 1).mapToObj(i -> code + "-" + i))
-                .filter(candidate -> !existsMatchingCode(candidate)).findFirst().orElseThrow();
+        String candidate = code;
+        int c = 0;
+        while (existsMatchingCode(candidate)) {
+            candidate = code + "-" + c++;
+        }
+        return candidate;
     }
 
     private boolean existsMatchingCode(final String code) {
