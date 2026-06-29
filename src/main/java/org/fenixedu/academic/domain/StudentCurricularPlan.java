@@ -385,7 +385,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public int countEnrolmentsByCurricularCourse(final CurricularCourse curricularCourse) {
-        return (int) getEnrolmentsSet().stream().filter(e -> e.getCurricularCourse() == curricularCourse).count();
+        return getEnrolments(curricularCourse).size();
     }
 
     public int countEnrolmentsByCurricularCourse(final CurricularCourse curricularCourse,
