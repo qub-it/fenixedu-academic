@@ -26,6 +26,9 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
+import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroupType;
+import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroupType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -471,6 +474,95 @@ public class StudentCurricularPlanTest {
         assertTrue(scpV1.getAllEnrollments().contains(enrolmentInCourseB));
     }
 
+    @Test
+    public void testStudentCurricularPlan_hasEquivalenceIn() {
+        CurricularCourse newCurricularCourse = createCurricularCourseWithSameCompetenceAsCurricularCourseA();
+
+        assertFalse(scpV1.hasEquivalenceIn(curricularCourseA, List.of()));
+        assertFalse(scpV1.hasEquivalenceIn(curricularCourseA, List.of(curricularCourseB)));
+        assertTrue(scpV1.hasEquivalenceIn(curricularCourseA, List.of(curricularCourseA)));
+        // curricularCourseA and newCurricularCourse share the same CompetenceCourse
+        assertTrue(scpV1.hasEquivalenceIn(curricularCourseA, List.of(newCurricularCourse, curricularCourseB)));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getEnrolmentsEctsCredits() {
+        createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        double creditsBeforeEnrolmentInCourseB = scpV1.getEnrolmentsEctsCredits(executionYear);
+
+        assertEquals(6d, creditsBeforeEnrolmentInCourseB, 0d); // 6 credits from curricularCourseA
+
+        createEnrolmentInCourse(curricularCourseB, curricularCourseBContext,
+                executionInterval); // 15 + 15 credits from curricularCourseB because it is annual (see CompetenceCourseTest:82)
+
+        assertEquals(36d, scpV1.getEnrolmentsEctsCredits(executionYear), 0d);
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getEnroledImprovements() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertTrue(scpV1.getEnroledImprovements(executionInterval).isEmpty());
+
+        EvaluationSeason improvementSeason =
+                EvaluationSeason.findByCode(EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE).orElseThrow();
+        EnrolmentEvaluation improvementEvaluation = new EnrolmentEvaluation(enrolmentInCourseA, improvementSeason);
+        improvementEvaluation.setExecutionPeriod(executionInterval);
+
+        assertEquals(1, scpV1.getEnroledImprovements(executionInterval).size());
+        assertTrue(scpV1.getEnroledImprovements(executionInterval).contains(improvementEvaluation));
+
+        improvementEvaluation.delete();
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getExtraCurricularCurriculumLines() {
+        assertTrue(scpV1.getExtraCurricularCurriculumLines().isEmpty());
+
+        Enrolment extraEnrolment =
+                createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, curricularCourseB,
+                        executionInterval);
+
+        assertEquals(1, scpV1.getExtraCurricularCurriculumLines().size());
+        assertTrue(scpV1.getExtraCurricularCurriculumLines().contains(extraEnrolment));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getStandaloneCurriculumLines() {
+        assertTrue(scpV1.getStandaloneCurriculumLines().isEmpty());
+
+        Enrolment standaloneEnrolment =
+                createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType.STANDALONE, curricularCourseB, executionInterval);
+
+        assertEquals(1, scpV1.getStandaloneCurriculumLines().size());
+        assertTrue(scpV1.getStandaloneCurriculumLines().contains(standaloneEnrolment));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getPropaedeuticCurriculumLines() {
+        assertTrue(scpV1.getPropaedeuticCurriculumLines().isEmpty());
+
+        Enrolment propaedeuticEnrolment =
+                createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType.PROPAEDEUTICS, curricularCourseB,
+                        executionInterval);
+
+        assertEquals(1, scpV1.getPropaedeuticCurriculumLines().size());
+        assertTrue(scpV1.getPropaedeuticCurriculumLines().contains(propaedeuticEnrolment));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getPropaedeuticEnrolments() {
+        assertTrue(scpV1.getPropaedeuticEnrolments().isEmpty());
+
+        Enrolment propaedeuticEnrolment =
+                createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType.PROPAEDEUTICS, curricularCourseB,
+                        executionInterval);
+
+        assertEquals(1, scpV1.getPropaedeuticEnrolments().size());
+        assertTrue(scpV1.getPropaedeuticEnrolments().contains(propaedeuticEnrolment));
+    }
+
     // Helpers
 
     private Enrolment createEnrolmentInCourse(CurricularCourse course, Context context, ExecutionInterval interval) {
@@ -492,6 +584,14 @@ public class StudentCurricularPlanTest {
         evaluation.confirmSubmission(admin, "Testing Enrolment Approval");
     }
 
+    private CurricularCourse createCurricularCourseWithSameCompetenceAsCurricularCourseA() {
+        CurricularCourse newCurricularCourse = new CurricularCourse();
+        newCurricularCourse.setCompetenceCourse(CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE));
+        newCurricularCourse.setName(NEW_CC_NAME);
+        new Context(dcpV1.getRoot(), newCurricularCourse, semesterPeriod, executionInterval, null);
+        return newCurricularCourse;
+    }
+
     private Enrolment createDissertationEnrolment() {
         CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_B_CODE);
         assertNotNull(competenceCourse);
@@ -499,5 +599,14 @@ public class StudentCurricularPlanTest {
                 CompetenceCourseType.findByCode(CompetenceCourseType.DISSERTATION).orElseThrow());
 
         return createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+    }
+
+    private Enrolment createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType type, CurricularCourse course,
+            ExecutionInterval interval) {
+        NoCourseGroupCurriculumGroup group = scpV1.getNoCourseGroupCurriculumGroup(type);
+        if (group == null) {
+            group = scpV1.createNoCourseGroupCurriculumGroup(type);
+        }
+        return new Enrolment(scpV1, group, course, interval, EnrollmentCondition.FINAL, STUDENT_USERNAME);
     }
 }
