@@ -5,6 +5,7 @@ import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -151,9 +152,9 @@ public class StudentCurricularPlanTest {
         StudentCurricularPlan scp = create(registration, dcpV2, executionInterval);
 
         assertNotNull(scp);
-        assertEquals(scp.getRegistration(), registration);
-        assertEquals(scp.getDegreeCurricularPlan(), dcpV2);
-        assertEquals(scp.getStartExecutionInterval(), executionInterval);
+        assertEquals(registration, scp.getRegistration());
+        assertEquals(dcpV2, scp.getDegreeCurricularPlan());
+        assertEquals(executionInterval, scp.getStartExecutionInterval());
     }
 
     @Test
@@ -339,6 +340,137 @@ public class StudentCurricularPlanTest {
         assertTrue(scpV1.getDismissalApprovedEnrolments().isEmpty());
     }
 
+    @Test
+    public void testStudentCurricularPlan_getLastApprovement() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertNull(scpV1.getLastApprovement());
+
+        approveEnrolment(enrolmentInCourseA);
+
+        assertEquals(enrolmentInCourseA, scpV1.getLastApprovement());
+
+        Enrolment enrolmentInCourseB = createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+        approveEnrolment(enrolmentInCourseB);
+
+        assertEquals(enrolmentInCourseB, scpV1.getLastApprovement());
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getAprovedEnrolments() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertTrue(scpV1.getAprovedEnrolments().isEmpty());
+
+        approveEnrolment(enrolmentInCourseA);
+
+        assertEquals(1, scpV1.getAprovedEnrolments().size());
+        assertTrue(scpV1.getAprovedEnrolments().contains(enrolmentInCourseA));
+
+        Enrolment enrolmentInCourseB = createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+
+        assertEquals(1, scpV1.getAprovedEnrolments().size());
+        assertFalse(scpV1.getAprovedEnrolments().contains(enrolmentInCourseB));
+
+        approveEnrolment(enrolmentInCourseB);
+
+        assertEquals(2, scpV1.getAprovedEnrolments().size());
+        assertTrue(scpV1.getAprovedEnrolments().contains(enrolmentInCourseB));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_hasAnyApprovedEnrolment() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertFalse(scpV1.hasAnyApprovedEnrolment());
+
+        approveEnrolment(enrolmentInCourseA);
+
+        assertTrue(scpV1.hasAnyApprovedEnrolment());
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getDissertationEnrolments() {
+        createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertEquals(1, scpV1.getEnrolmentsSet().size()); // enrolmentInCourseA
+        assertTrue(scpV1.getDissertationEnrolments().isEmpty());
+
+        Enrolment dissertationEnrolment = createDissertationEnrolment();
+
+        assertEquals(2, scpV1.getEnrolmentsSet().size()); // enrolmentInCourseA + dissertationEnrolment
+        assertEquals(1, scpV1.getDissertationEnrolments().size());
+        assertTrue(scpV1.getDissertationEnrolments().contains(dissertationEnrolment));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getLatestDissertationEnrolment() {
+        assertTrue(scpV1.getDissertationEnrolments().isEmpty());
+        assertNull(scpV1.getLatestDissertationEnrolment());
+
+        Enrolment dissertationEnrolment = createDissertationEnrolment();
+
+        assertTrue(scpV1.getDissertationEnrolments().contains(dissertationEnrolment));
+        assertEquals(dissertationEnrolment, scpV1.getLatestDissertationEnrolment());
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getEnrolmentByCurricularCourseAndExecutionPeriod() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertEquals(enrolmentInCourseA,
+                scpV1.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourseA, executionInterval));
+
+        assertNull(scpV1.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourseB, executionInterval));
+
+        ExecutionInterval laterInterval = executionYear.getLastExecutionPeriod();
+        assertNull(scpV1.getEnrolmentByCurricularCourseAndExecutionPeriod(curricularCourseA, laterInterval));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getEnrolmentsExecutionPeriods() {
+        createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertEquals(1, scpV1.getEnrolmentsExecutionPeriods().size());
+        assertTrue(scpV1.getEnrolmentsExecutionPeriods().contains(executionInterval));
+
+        Enrolment enrolmentInCourseB = createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+
+        assertEquals(1, scpV1.getEnrolmentsExecutionPeriods().size());
+
+        ExecutionInterval newExecutionInterval = executionYear.getLastExecutionPeriod();
+        enrolmentInCourseB.setExecutionPeriod(newExecutionInterval);
+
+        assertEquals(2, scpV1.getEnrolmentsExecutionPeriods().size());
+        assertTrue(scpV1.getEnrolmentsExecutionPeriods().contains(newExecutionInterval));
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getLastExecutionYear() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertEquals(executionYear, scpV1.getLastExecutionYear());
+
+        ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
+        enrolmentInCourseA.setExecutionPeriod(previousYear);
+
+        assertNotEquals(executionYear, scpV1.getLastExecutionYear());
+        assertEquals(previousYear, scpV1.getLastExecutionYear());
+    }
+
+    @Test
+    public void testStudentCurricularPlan_getAllEnrollments() {
+        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+
+        assertEquals(1, scpV1.getAllEnrollments().size());
+        assertTrue(scpV1.getAllEnrollments().contains(enrolmentInCourseA));
+
+        Enrolment enrolmentInCourseB = createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
+
+        assertEquals(2, scpV1.getAllEnrollments().size());
+        assertTrue(scpV1.getAllEnrollments().contains(enrolmentInCourseB));
+    }
+
     // Helpers
 
     private Enrolment createEnrolmentInCourse(CurricularCourse course, Context context, ExecutionInterval interval) {
@@ -358,5 +490,14 @@ public class StudentCurricularPlanTest {
 
         evaluation.edit(admin, grade, new Date(), new Date());
         evaluation.confirmSubmission(admin, "Testing Enrolment Approval");
+    }
+
+    private Enrolment createDissertationEnrolment() {
+        CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_B_CODE);
+        assertNotNull(competenceCourse);
+        competenceCourse.setCompetenceCourseType(
+                CompetenceCourseType.findByCode(CompetenceCourseType.DISSERTATION).orElseThrow());
+
+        return createEnrolmentInCourse(curricularCourseB, curricularCourseBContext, executionInterval);
     }
 }
