@@ -360,7 +360,7 @@ public class CurriculumGroupTest {
         CurriculumLine dismissalCurriculumLine = optionalCurriculumGroup.getApprovedCurriculumLine(cc4);
         assertNotNull(dismissalCurriculumLine);
         assertTrue(dismissalCurriculumLine.isApproved());
-        //TODO this assert fails, but I can't debug tests i don't know why: assertEquals(cc4, line.getCurricularCourse());
+        assertEquals(cc4, dismissalCurriculumLine.getCurricularCourse());
 
         assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc2));
         assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc5));
