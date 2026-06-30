@@ -1,5 +1,6 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
@@ -12,8 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.UUID;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -24,8 +27,12 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.domain.util.UserUtil;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -87,8 +94,9 @@ public class ExecutionCourseTest {
         final Student s = StudentTest.createStudent(name, username);
         final Degree degree = Degree.find(DEGREE_A_CODE);
         assertNotNull(degree);
-        final DegreeCurricularPlan dcp = degree.getDegreeCurricularPlansSet().stream()
-                .filter(p -> DCP_NAME_V1.equals(p.getName())).findAny().orElseThrow();
+        final DegreeCurricularPlan dcp =
+                degree.getDegreeCurricularPlansSet().stream().filter(p -> DCP_NAME_V1.equals(p.getName())).findAny()
+                        .orElseThrow();
         final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
         return StudentTest.createRegistration(s, dcp, executionYear);
     }
@@ -132,6 +140,117 @@ public class ExecutionCourseTest {
     public void getAttendsByStudent_withStudentWithoutRegistrations_returnsNull() {
         new Attends(regA, emptyExecutionCourse);
         assertNull(emptyExecutionCourse.getAttendsByStudent(studentWithoutRegistrations));
+    }
+
+    @Test
+    public void testGetDegreesSortedByDegreeName() {
+        // empty executioncourse
+        final ExecutionCourse newEmptyExecutionCourse =
+                new ExecutionCourse("Empty EC", "EMPTY", executionCourse.getExecutionInterval());
+        final SortedSet<Degree> emptyDegrees = newEmptyExecutionCourse.getDegreesSortedByDegreeName();
+        assertTrue(emptyDegrees.isEmpty());
+
+        // add second degree
+        final String DEGREE_B_CODE = "DB";
+        associateDegreeToExecutionCourse(DEGREE_B_CODE);
+
+        final SortedSet<Degree> degrees = executionCourse.getDegreesSortedByDegreeName();
+        assertEquals(2, degrees.size());
+        assertTrue(degrees.contains(Degree.find(DEGREE_A_CODE)));
+        assertTrue(degrees.contains(Degree.find(DEGREE_B_CODE)));
+
+        // check sorting
+        final Iterator<Degree> it = degrees.iterator();
+        assertSame(Degree.find(DEGREE_A_CODE), it.next());
+        assertSame(Degree.find(DEGREE_B_CODE), it.next());
+    }
+
+    @Test
+    public void testGetProfessorship_notFound() {
+        assertNull(executionCourse.getProfessorship(null));
+        final Person professorPerson = createPerson("Professor", "prof");
+        final Person unrelatedPerson = createPerson("Unrelated", "unrelated");
+
+        final Professorship professorship;
+        try {
+            Authenticate.mock(User.findByUsername(UserUtil.ADMIN_USERNAME), "none");
+            professorship = Professorship.create(false, executionCourse, professorPerson);
+        } finally {
+            Authenticate.unmock();
+        }
+
+        assertSame(professorship, executionCourse.getProfessorship(professorPerson));
+        assertNull(executionCourse.getProfessorship(unrelatedPerson));
+    }
+
+    @Test
+    public void addAssociatedCurricularCourses_success() {
+        final CurricularCourse curricularCourse = createCurricularCourse("CC1");
+        emptyExecutionCourse.addAssociatedCurricularCourses(curricularCourse);
+        assertTrue(emptyExecutionCourse.getAssociatedCurricularCoursesSet().contains(curricularCourse));
+    }
+
+    @Test
+    public void addAssociatedCurricularCourses_throwsWhenAlreadyAssociatedInSameInterval() {
+        final CurricularCourse curricularCourse = createCurricularCourse("CC2");
+        final ExecutionInterval interval = ExecutionInterval.findFirstCurrentChild(null);
+        final ExecutionCourse anotherEc = new ExecutionCourse("Another", "ANOTHER", interval);
+        emptyExecutionCourse.addAssociatedCurricularCourses(curricularCourse);
+        assertThrows(DomainException.class, () -> anotherEc.addAssociatedCurricularCourses(curricularCourse));
+    }
+
+    @Test
+    public void addAssociatedCurricularCourses_sameCurricularCourseDifferentInterval() {
+        final CurricularCourse curricularCourse = createCurricularCourse("CC3");
+        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
+        final ExecutionInterval nextInterval = currentInterval.getNext();
+        final ExecutionCourse nextEc = new ExecutionCourse("Next", "NEXT", nextInterval);
+        emptyExecutionCourse.addAssociatedCurricularCourses(curricularCourse);
+        nextEc.addAssociatedCurricularCourses(curricularCourse);
+        assertTrue(emptyExecutionCourse.getAssociatedCurricularCoursesSet().contains(curricularCourse));
+        assertTrue(nextEc.getAssociatedCurricularCoursesSet().contains(curricularCourse));
+    }
+
+    private static Person createPerson(final String name, final String username) {
+        final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
+        new User(username, userProfile);
+        return new Person(userProfile);
+    }
+
+    private static void associateDegreeToExecutionCourse(final String degreeCode) {
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+        final Degree degreeA = Degree.find(DEGREE_A_CODE);
+        final Person creator = User.findByUsername(UserUtil.ADMIN_USERNAME).getPerson();
+        final Degree degree = DegreeTest.createDegree(degreeA.getDegreeType(), degreeCode, "Degree " + degreeCode, executionYear);
+
+        final DegreeCurricularPlan dcp =
+                degree.createDegreeCurricularPlan("DCP_" + degreeCode, creator, AcademicPeriod.THREE_YEAR);
+
+        final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
+        final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
+        final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
+        final CurricularCourse curricularCourse = new CurricularCourse(null, competenceCourse, dcp.getRoot(), semesterPeriod,
+                executionYear.getFirstExecutionPeriod(),
+                        null);
+
+        executionCourse.addAssociatedCurricularCourses(curricularCourse);
+    }
+
+    private static CurricularCourse createCurricularCourse(final String degreeCode) {
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+        final Degree degreeA = Degree.find(DEGREE_A_CODE);
+        final Person creator = User.findByUsername(UserUtil.ADMIN_USERNAME).getPerson();
+        final Degree degree = DegreeTest.createDegree(degreeA.getDegreeType(), degreeCode, "Degree " + degreeCode, executionYear);
+
+        final DegreeCurricularPlan dcp =
+                degree.createDegreeCurricularPlan("DCP_" + degreeCode, creator, AcademicPeriod.THREE_YEAR);
+
+        final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
+        final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
+        final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
+        return new CurricularCourse(null, competenceCourse, dcp.getRoot(), semesterPeriod,
+                executionYear.getFirstExecutionPeriod(),
+                null);
     }
 
     private static SchoolClass createSchoolClassFor(final ExecutionCourse ec, final DegreeCurricularPlan dcp, final String name) {
