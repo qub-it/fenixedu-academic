@@ -24,6 +24,7 @@
 
 package org.fenixedu.academic.domain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,9 +50,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<ExecutionDegree> {
 
-    public static final Comparator<ExecutionDegree> COMPARATOR_BY_DEGREE_ABBREVIATION =
-            Comparator.comparing((ExecutionDegree ed) -> ed.getDegree().getSigla()).thenComparing(ExecutionDegree::getExternalId);
-
     public static final Comparator<ExecutionDegree> COMPARATOR_BY_DEGREE_NAME =
             Comparator.comparing(ed -> ed.getDegree().getNameFor((AcademicInterval) null).getContent());
 
@@ -63,9 +61,6 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
 
     static final public Comparator<ExecutionDegree> EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_EXECUTION_YEAR =
             EXECUTION_DEGREE_COMPARATOR_BY_DEGREE_TYPE_AND_DEGREE_NAME.thenComparing(EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
-
-    private static final Comparator<ExecutionDegree> COMPARATOR_BY_DEGREE_CURRICULAR_PLAN_ID_INTERNAL_DESC =
-            Comparator.comparing((ExecutionDegree ed) -> ed.getDegreeCurricularPlan().getExternalId()).reversed();
 
     private ExecutionDegree() {
         super();
@@ -132,8 +127,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     }
 
     public static List<ExecutionDegree> getAllByExecutionYear(ExecutionYear executionYear) {
-        return executionYear == null ? Collections.emptyList() : executionYear.getExecutionDegreesSet().stream()
-                .sorted(COMPARATOR_BY_DEGREE_CURRICULAR_PLAN_ID_INTERNAL_DESC).collect(Collectors.toList());
+        return executionYear == null ? Collections.emptyList() : new ArrayList<>(executionYear.getExecutionDegreesSet());
     }
 
     public static List<ExecutionDegree> getAllByExecutionYearAndDegreeType(ExecutionYear executionYear,
@@ -144,7 +138,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
 
         return executionYear.getExecutionDegreesSet().stream()
                 .filter(ed -> Arrays.stream(degreeTypes).anyMatch(type -> type == ed.getDegreeType()))
-                .sorted(COMPARATOR_BY_DEGREE_CURRICULAR_PLAN_ID_INTERNAL_DESC).collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     public static ExecutionDegree getByDegreeCurricularPlanAndExecutionYear(DegreeCurricularPlan degreeCurricularPlan,
@@ -160,7 +154,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     public List<Coordinator> getResponsibleCoordinators() {
         return getCoordinatorsListSet().stream().filter(Coordinator::getResponsible).collect(Collectors.toList());
     }
-    
+
     final public String getPresentationName() {
         return getDegreeCurricularPlan().getPresentationName(getExecutionYear());
     }

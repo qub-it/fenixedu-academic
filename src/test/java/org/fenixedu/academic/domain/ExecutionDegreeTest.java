@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -81,30 +82,6 @@ public class ExecutionDegreeTest {
         final UserProfile profile = new UserProfile("User", "", "User", username + "@test.com", Locale.getDefault());
         new User(username, profile);
         return new Person(profile);
-    }
-
-    @Test
-    public void comparatorByDegreeCode() {
-        List<ExecutionDegree> sorted =
-                Stream.of(edC, edA, edB).sorted(ExecutionDegree.COMPARATOR_BY_DEGREE_ABBREVIATION).toList();
-
-        assertEquals(3, sorted.size());
-        assertEquals(edA, sorted.get(0));  // "AAA" first
-        assertEquals(edB, sorted.get(1));  // "BBB" second
-        assertEquals(edC, sorted.get(2));  // "CCC" third
-    }
-
-    @Test
-    public void comparatorByDegreeCode_tieBreaker() {
-        List<ExecutionDegree> sorted = Stream.of(edA2, edA).sorted(ExecutionDegree.COMPARATOR_BY_DEGREE_ABBREVIATION).toList();
-
-        assertEquals(2, sorted.size());
-        assertEquals("AAA", sorted.get(0).getDegree().getSigla());
-        assertEquals("AAA", sorted.get(1).getDegree().getSigla());
-
-        String id0 = sorted.get(0).getExternalId();
-        String id1 = sorted.get(1).getExternalId();
-        assertTrue(id0.compareTo(id1) < 0);
     }
 
     @Test
@@ -193,11 +170,11 @@ public class ExecutionDegreeTest {
 
     @Test
     public void getAllByExecutionYearAndDegreeType_returnsExecutionDegrees() {
-        List<ExecutionDegree> resultByType = ExecutionDegree.getAllByExecutionYearAndDegreeType(currentYear, degreeType);
+        Collection<ExecutionDegree> resultByType = ExecutionDegree.getAllByExecutionYearAndDegreeType(currentYear, degreeType);
         assertEquals(4, resultByType.size()); // edA, edB, edC, edA2
         assertTrue(resultByType.stream().allMatch(ed -> ed.getDegreeType() == degreeType));
 
-        List<ExecutionDegree> resultByMultipleTypes =
+        Collection<ExecutionDegree> resultByMultipleTypes =
                 ExecutionDegree.getAllByExecutionYearAndDegreeType(currentYear, degreeType, masterDegreeType);
         assertEquals(5, resultByMultipleTypes.size()); // all execution degrees except for edA_new (nextYear)
         assertFalse(resultByMultipleTypes.contains(edA_new));
