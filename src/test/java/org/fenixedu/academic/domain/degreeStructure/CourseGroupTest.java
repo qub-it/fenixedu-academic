@@ -1,19 +1,27 @@
 package org.fenixedu.academic.domain.degreeStructure;
 
+import static org.fenixedu.academic.domain.degreeStructure.CompetenceCourseTypeTest.initCompetenceCourseType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
+import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +40,8 @@ public class CourseGroupTest {
     private static CourseGroup cycleCourseGroup;
     private static CourseGroup mandatoryCourseGroup;
     private static CourseGroup optionalCourseGroup;
-    private static CurricularCourse cc1, cc2, cc3, cc4, cc5, cc6;
+    private static CurricularCourse cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8;
+    private static CurricularPeriod period1Y1S, period1Y3S, period1Y;
 
     @BeforeClass
     public static void init() {
@@ -46,13 +55,8 @@ public class CourseGroupTest {
         /**
          * Data setup (DegreeCurricularPlan):
          *
-         *   Root -> Cycle -> Mandatory (C1: 1Y1S, C2: 1Y2S, C3: 2Y1S, C6: 1Y3S)
+         *   Root -> Cycle -> Mandatory (C1: 1Y1S, C2: 1Y2S, C3: 2Y1S, C6: 1Y3S, C7: 1Y1S, C8: 1Y)
          *                -> Optional  (C4: 2Y1S, C5: 2Y1S)
-         *
-         * C6 is in a 3rd-semester period (1Y3S). The execution year has only 2 semesters
-         * (child orders 1 and 2), so C6's context:
-         *   - isOpen(ExecutionYear)         -> true  (year-range matches, no semester check)
-         *   - isValidForExecutionAggregation -> false (no semester with child order 3 in the year)
          */
 
         ConclusionRulesTestUtil.initData();
@@ -73,10 +77,31 @@ public class CourseGroupTest {
         optionalCourseGroup = ConclusionRulesTestUtil.getChildGroup(cycleCourseGroup, ConclusionRulesTestUtil.OPTIONAL_GROUP);
 
         // Add a 3rd semester period (1Y3S) and C6 to demonstrate difference between isOpen(ExecutionYear) and isValid(ExecutionYear)
-        CurricularPeriod period1Y1S = dcp.getCurricularPeriodFor(1, 1, AcademicPeriod.SEMESTER);
-        CurricularPeriod period1Y3S = new CurricularPeriod(AcademicPeriod.SEMESTER, 3, period1Y1S.getParent());
+        period1Y1S = dcp.getCurricularPeriodFor(1, 1, AcademicPeriod.SEMESTER);
+        period1Y3S = new CurricularPeriod(AcademicPeriod.SEMESTER, 3, period1Y1S.getParent());
         cc6 = ConclusionRulesTestUtil.createCurricularCourse("C6", "Course 6", new BigDecimal(6), period1Y3S, firstSemester,
                 mandatoryCourseGroup);
+
+        // C7: 1Y1S with context begin=firstSemester, end=firstSemester.
+        // isOpen checks at year granularity, so it returns true for any semester of current year,
+        // but false for future/past years. isValid checks semester order so only firstSemester matches
+        cc7 = ConclusionRulesTestUtil.createCurricularCourse("C7", "Course 7", new BigDecimal(6), period1Y1S, firstSemester,
+                mandatoryCourseGroup);
+        cc7.getParentContextsSet().iterator().next().setEndExecutionInterval(firstSemester);
+
+        // C8: annual course in 1Y curricular period.
+        // making it valid for any semester within the open year.
+        period1Y =
+                dcp.getDegreeStructure().getChildsSet().stream().filter(cp -> AcademicPeriod.YEAR.equals(cp.getAcademicPeriod()))
+                        .filter(cp -> Integer.valueOf(1).equals(cp.getChildOrder())).findFirst().orElseThrow();
+
+        CompetenceCourse cc8competence =
+                new CompetenceCourse("C8", new LocalizedString(Locale.getDefault(), "Course 8"), null, new BigDecimal(12),
+                        Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow(),
+                        AcademicPeriod.YEAR, initCompetenceCourseType(), CompetenceCourseLevelType.UNKNOWN().orElse(null),
+                        firstSemester, new GradeScale());
+
+        cc8 = new CurricularCourse(12d, cc8competence, mandatoryCourseGroup, period1Y, firstSemester, null);
     }
 
     @Test
@@ -92,24 +117,26 @@ public class CourseGroupTest {
         assertTrue(ccInCycle.isEmpty());
         assertEquals(2, allInCycle.size());
 
-        // mandatory has 4 CC children
-        // C1 (1Y1S) and C3 (2Y1S) match firstSemester, C2 (1Y2S) and C6 (1Y3S) don't -> 2
+        // mandatory has 6 CC children
+        // C8 (annual) is valid for all semesters; C2 (1Y2S) and C6 (1Y3S) don't match firstSemester
         final List<Context> mandatoryCCs = mandatoryCourseGroup.getValidChildContexts(CurricularCourse.class, firstSemester);
-        assertEquals(2, mandatoryCCs.size());
+        assertEquals(4, mandatoryCCs.size());
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
         assertTrue(mandatoryCourseGroup.getValidChildContexts(CourseGroup.class, firstSemester).isEmpty());
 
-        // secondSemester matches only C2 (1Y2S)
+        // secondSemester matches C2 (1Y2S) and C8 (annual).
         final List<Context> mandatoryCCsSecond =
                 mandatoryCourseGroup.getValidChildContexts(CurricularCourse.class, secondSemester);
-        assertEquals(1, mandatoryCCsSecond.size());
+        assertEquals(2, mandatoryCCsSecond.size());
         assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
+        assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
 
-        // null interval returns all 4 (C6 included)
+        // null interval returns all 6
         final List<Context> mandatoryCCsNull = mandatoryCourseGroup.getValidChildContexts(CurricularCourse.class, null);
-        assertEquals(4, mandatoryCCsNull.size());
-        assertTrue(mandatoryCCsNull.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
+        assertEquals(6, mandatoryCCsNull.size());
 
         // previous execution interval returns empty
         final ExecutionInterval previousInterval = executionYear.getPrevious();
@@ -131,19 +158,22 @@ public class CourseGroupTest {
         assertTrue(ccInCycle.isEmpty());
         assertEquals(2, allInCycle.size());
 
-        // mandatory has 4 CurricularCourse children (C1–C3, C6) and 0 CourseGroup children
-        // null executionYear returns all 4 (C6 included)
+        // mandatory has 6 CurricularCourse children (C1–C3, C6–C8) and 0 CourseGroup children
+        // null executionYear returns all 6 (C6, C7, C8 included)
         final List<Context> mandatoryCCs =
                 mandatoryCourseGroup.getValidChildContextsForExecutionAggregation(CurricularCourse.class, null);
-        assertEquals(4, mandatoryCCs.size());
+        assertEquals(6, mandatoryCCs.size());
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
         assertTrue(mandatoryCourseGroup.getValidChildContextsForExecutionAggregation(CourseGroup.class, null).isEmpty());
 
-        // Filtering by current executionYear: C6 (1Y3S) is NOT valid because there is no 3rd-semester
-        assertEquals(3, mandatoryCourseGroup.getValidChildContextsForExecutionAggregation(null, executionYear).size());
+        // Filtering by current executionYear: C6 (1Y3S) is NOT valid because there is no 3rd-semester;
+        // C7 (1Y1S end=1S), C8 (annual) ARE valid
+        assertEquals(5, mandatoryCourseGroup.getValidChildContextsForExecutionAggregation(null, executionYear).size());
         assertEquals(2, cycleCourseGroup.getValidChildContextsForExecutionAggregation(null, executionYear).size());
 
         // Filtering by previous executionYear returns empty set
@@ -167,28 +197,32 @@ public class CourseGroupTest {
         assertTrue(ccInCycle.isEmpty());
         assertEquals(2, allInCycle.size());
 
-        // mandatory has 4 CC children, all open in firstSemester (isOpen ignores semester order) and 0 CourseGroup children.
-        // Note: isValid returns only 2 for firstSemester (C1, C3) but isOpen returns all 4
+        // mandatory has 6 CC children, all open in firstSemester (isOpen ignores semester order) and 0 CourseGroup children.
+        // Note: isValid returns only 4 for firstSemester (C1, C3, C7, C8) but isOpen returns all 6
         final List<Context> mandatoryCCs = mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, firstSemester);
-        assertEquals(4, mandatoryCCs.size());
+        assertEquals(6, mandatoryCCs.size());
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
         assertTrue(mandatoryCourseGroup.getOpenChildContexts(CourseGroup.class, firstSemester).isEmpty());
 
         // second semester returns same matches because isOpen ignores semester order
         final List<Context> mandatoryCCsSecond =
                 mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, secondSemester);
-        assertEquals(4, mandatoryCCsSecond.size());
+        assertEquals(6, mandatoryCCsSecond.size());
         assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
         assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
         assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
+        assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(mandatoryCCsSecond.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
         assertTrue(mandatoryCourseGroup.getOpenChildContexts(CourseGroup.class, secondSemester).isEmpty());
 
-        // null interval also returns all 4
-        assertEquals(4, mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, null).size());
+        // null interval also returns all 6
+        assertEquals(6, mandatoryCourseGroup.getOpenChildContexts(CurricularCourse.class, null).size());
 
         // previous execution interval returns empty
         final ExecutionInterval previousInterval = executionYear.getPrevious();
@@ -211,20 +245,22 @@ public class CourseGroupTest {
         assertTrue(ccInCycle.isEmpty());
         assertEquals(2, allInCycle.size());
 
-        // mandatory has 4 CurricularCourse children (C1–C3, C6) and 0 CourseGroup children.
-        // isOpen(ExecutionYear) returns true for C6 (year-range matches, no semester check),
-        // isValid(ExecutionYear) returns only 3 (C6 filtered out)
+        // mandatory has 6 CurricularCourse children (C1–C3, C6–C8) and 0 CourseGroup children.
+        // isOpen(ExecutionYear) returns true for all 6 (year-range matches, no semester check),
+        // isValid(ExecutionYear) returns only 5 (C6 filtered out)
         final List<Context> mandatoryCCs =
                 mandatoryCourseGroup.getOpenChildContextsForExecutionAggregation(CurricularCourse.class, executionYear);
-        assertEquals(4, mandatoryCCs.size());
+        assertEquals(6, mandatoryCCs.size());
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
         assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc6));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(mandatoryCCs.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
         assertTrue(mandatoryCourseGroup.getOpenChildContextsForExecutionAggregation(CourseGroup.class, executionYear).isEmpty());
 
-        // null year also returns all 4
-        assertEquals(4, mandatoryCourseGroup.getOpenChildContextsForExecutionAggregation(CurricularCourse.class, null).size());
+        // null year also returns all 6
+        assertEquals(6, mandatoryCourseGroup.getOpenChildContextsForExecutionAggregation(CurricularCourse.class, null).size());
 
         // previous execution year returns empty
         final ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
@@ -235,25 +271,33 @@ public class CourseGroupTest {
 
     @Test
     public void testCourseGroup_getContextsWithCurricularCourseByCurricularPeriod_filtersByPeriodAndInterval() {
-        final CurricularPeriod period1Y1S = dcp.getCurricularPeriodFor(1, 1, AcademicPeriod.SEMESTER);
         final CurricularPeriod period1Y2S = dcp.getCurricularPeriodFor(1, 2, AcademicPeriod.SEMESTER);
         final CurricularPeriod period2Y1S = dcp.getCurricularPeriodFor(2, 1, AcademicPeriod.SEMESTER);
-        final CurricularPeriod period1Y3S = dcp.getCurricularPeriodFor(1, 3, AcademicPeriod.SEMESTER);
 
-        // C1 (1Y1S) matches 1Y1S period in firstSemester
-        assertEquals(cc1,
-                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y1S, firstSemester).iterator()
-                        .next().getChildDegreeModule());
+        // C1 (1Y1S) and C7 (1Y1S) match 1Y1S period in firstSemester
+        Collection<Context> period1Y1SContexts =
+                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y1S, firstSemester);
+        assertEquals(2, period1Y1SContexts.size());
+        assertTrue(period1Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
+        assertTrue(period1Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
 
-        // C2 (1Y2S) matches 1Y2S period in secondSemester
-        assertEquals(cc2,
-                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y2S, secondSemester).iterator()
-                        .next().getChildDegreeModule());
+        // C2 (1Y2S)
+        Collection<Context> period1Y2SContexts =
+                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y2S, secondSemester);
+        assertEquals(1, period1Y2SContexts.size());
+        assertTrue(period1Y2SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc2));
 
-        // C3 (2Y1S) matches 2Y1S period in firstSemester
-        assertEquals(cc3,
-                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period2Y1S, firstSemester).iterator()
-                        .next().getChildDegreeModule());
+        // C3 (2Y1S)
+        Collection<Context> period2Y1SContexts =
+                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period2Y1S, firstSemester);
+        assertEquals(1, period2Y1SContexts.size());
+        assertTrue(period2Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
+
+        // C8 (annual, 1Y)
+        Collection<Context> period1YContexts =
+                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y, firstSemester);
+        assertEquals(1, period1YContexts.size());
+        assertTrue(period1YContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
 
         // test wrong interval
         assertTrue(mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y2S, firstSemester).isEmpty());
@@ -262,8 +306,8 @@ public class CourseGroupTest {
 
     @Test
     public void testCourseGroup_getOpenChildDegreeModulesByExecutionPeriod_allOpenInCurrentInterval() {
-        assertEquals(4, mandatoryCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(firstSemester).size());
-        assertEquals(4, mandatoryCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(secondSemester).size());
+        assertEquals(6, mandatoryCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(firstSemester).size());
+        assertEquals(6, mandatoryCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(secondSemester).size());
 
         final Set<DegreeModule> cycleOpen = cycleCourseGroup.getOpenChildDegreeModulesByExecutionPeriod(firstSemester);
         assertEquals(2, cycleOpen.size());
