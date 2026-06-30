@@ -116,9 +116,8 @@ public class ExecutionCourseTest {
         assertNull(emptyExecutionCourse.getAttendsByStudent(studentWithoutRegistrations));
     }
 
-    private static SchoolClass createSchoolClassFor(final ExecutionCourse ec, final String name) {
+    private static SchoolClass createSchoolClassFor(final ExecutionCourse ec, final DegreeCurricularPlan dcp, final String name) {
         final ExecutionInterval interval = ec.getExecutionInterval();
-        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
         final ExecutionDegree executionDegree = dcp.findExecutionDegree(interval).orElseThrow();
         final SchoolClass schoolClass = new SchoolClass(executionDegree, interval, name, 1);
         final Shift shift = new Shift(ec, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
@@ -167,21 +166,23 @@ public class ExecutionCourseTest {
 
     @Test
     public void testGetSchoolClasses() {
-        final SchoolClass schoolClass = createSchoolClassFor(emptyExecutionCourse, "TestClass");
+        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
+        final SchoolClass schoolClass = createSchoolClassFor(emptyExecutionCourse, dcp, "TestClass");
         assertEquals(Set.of(schoolClass), emptyExecutionCourse.getSchoolClasses());
     }
 
     @Test
     public void testGetSchoolClasses_multiple() {
-        final SchoolClass a = createSchoolClassFor(emptyExecutionCourse, "Multi_A");
-        final SchoolClass b = createSchoolClassFor(emptyExecutionCourse, "Multi_B");
+        final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
+        final SchoolClass a = createSchoolClassFor(emptyExecutionCourse, dcp, "Multi_A");
+        final SchoolClass b = createSchoolClassFor(emptyExecutionCourse, dcp, "Multi_B");
         assertEquals(Set.of(a, b), emptyExecutionCourse.getSchoolClasses());
     }
 
     @Test
     public void testGetSchoolClassesBy() {
         final DegreeCurricularPlan dcp = registration.getLastDegreeCurricularPlan();
-        final SchoolClass schoolClass = createSchoolClassFor(emptyExecutionCourse, "TestClass_By");
+        final SchoolClass schoolClass = createSchoolClassFor(emptyExecutionCourse, dcp, "TestClass_By");
 
         // matches the DCP the school class belongs to
         assertEquals(Set.of(schoolClass), emptyExecutionCourse.getSchoolClassesBy(dcp));
