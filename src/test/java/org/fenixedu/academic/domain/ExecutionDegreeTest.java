@@ -43,7 +43,7 @@ public class ExecutionDegreeTest {
         DegreeTest.initDegree();
 
         currentYear = ExecutionYear.findCurrent(null);
-        nextYear = ExecutionYear.readExecutionYearByName("2021/2022");
+        nextYear = currentYear.getNext().getExecutionYear();
 
         degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
         masterDegreeType = DegreeType.findByCode(DegreeTest.MASTER_DEGREE_TYPE_CODE).orElseThrow();

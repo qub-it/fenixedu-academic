@@ -143,7 +143,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
         }
 
         return executionYear.getExecutionDegreesSet().stream()
-                .filter(ed -> Arrays.stream(degreeTypes).anyMatch(type -> type.equals(ed.getDegreeType())))
+                .filter(ed -> Arrays.stream(degreeTypes).anyMatch(type -> type == ed.getDegreeType()))
                 .sorted(COMPARATOR_BY_DEGREE_CURRICULAR_PLAN_ID_INTERNAL_DESC).collect(Collectors.toList());
     }
 
@@ -160,19 +160,7 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
     public List<Coordinator> getResponsibleCoordinators() {
         return getCoordinatorsListSet().stream().filter(Coordinator::getResponsible).collect(Collectors.toList());
     }
-
-    public boolean hasAnyResponsibleCoordinators() {
-        return !getResponsibleCoordinators().isEmpty();
-    }
-
-    public boolean isCoordinationTeamFormed() {
-        return !getCoordinatorsListSet().isEmpty();
-    }
-
-    public boolean isCoordinationResponsibleChosen() {
-        return hasAnyResponsibleCoordinators();
-    }
-
+    
     final public String getPresentationName() {
         return getDegreeCurricularPlan().getPresentationName(getExecutionYear());
     }
