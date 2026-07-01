@@ -1,5 +1,17 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -13,16 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
+
 import pt.ist.fenixframework.FenixFramework;
-
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
-import static org.junit.Assert.*;
 
 @RunWith(FenixFrameworkRunner.class)
 public class AttendsTest {
@@ -136,6 +140,32 @@ public class AttendsTest {
             assertEquals(attends, foundAttends);
             assertFalse(enrolment.getAttendsSet().isEmpty());
         }
+    }
+
+    @Test
+    public void hasAnyShiftEnrolments() {
+        final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
+        assertFalse(attends.hasAnyShiftEnrolments());
+
+        final Shift shift = attends.getExecutionCourse().getShiftsSet().iterator().next();
+        shift.enrol(registration);
+        assertTrue(attends.hasAnyShiftEnrolments());
+
+        shift.unenrol(registration);
+    }
+
+    @Test
+    public void hasExecutionCourseTo() {
+        final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
+        final DegreeCurricularPlan dcp = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan();
+        assertTrue(attends.hasExecutionCourseTo(dcp));
+
+        final DegreeCurricularPlan otherDcp =
+                new DegreeCurricularPlan(dcp.getDegree(), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR,
+                        executionInterval);
+        assertFalse(attends.hasExecutionCourseTo(otherDcp));
+
+        otherDcp.delete();
     }
 
     @Test

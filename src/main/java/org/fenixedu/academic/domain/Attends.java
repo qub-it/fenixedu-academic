@@ -117,12 +117,8 @@ public class Attends extends Attends_Base {
     }
 
     public boolean hasAnyShiftEnrolments() {
-        for (Shift shift : this.getExecutionCourse().getAssociatedShifts()) {
-            if (shift.getStudentsSet().contains(this.getRegistration())) {
-                return true;
-            }
-        }
-        return false;
+        return getExecutionCourse().getAssociatedShifts().stream()
+                .anyMatch(shift -> shift.getStudentsSet().contains(getRegistration()));
     }
 
     /**
@@ -236,12 +232,7 @@ public class Attends extends Attends_Base {
     }
 
     public boolean hasExecutionCourseTo(final DegreeCurricularPlan degreeCurricularPlan) {
-        for (final CurricularCourse curricularCourse : getExecutionCourse().getAssociatedCurricularCoursesSet()) {
-            if (degreeCurricularPlan.hasDegreeModule(curricularCourse)) {
-                return true;
-            }
-        }
-        return false;
+        return getExecutionCourse().getAssociatedCurricularCoursesSet().stream().anyMatch(degreeCurricularPlan::hasDegreeModule);
     }
 
     boolean canMove(final StudentCurricularPlan from, final StudentCurricularPlan to) {
