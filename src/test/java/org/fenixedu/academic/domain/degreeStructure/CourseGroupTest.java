@@ -41,7 +41,7 @@ public class CourseGroupTest {
     private static CourseGroup mandatoryCourseGroup;
     private static CourseGroup optionalCourseGroup;
     private static CurricularCourse cc1, cc2, cc3, cc4, cc5, cc6, cc7, cc8;
-    private static CurricularPeriod period1Y1S, period1Y3S, period1Y;
+    private static CurricularPeriod period1Y1S, period1Y3S;
 
     @BeforeClass
     public static void init() {
@@ -89,19 +89,15 @@ public class CourseGroupTest {
                 mandatoryCourseGroup);
         cc7.getParentContextsSet().iterator().next().setEndExecutionInterval(firstSemester);
 
-        // C8: annual course in 1Y curricular period.
-        // making it valid for any semester within the open year.
-        period1Y =
-                dcp.getDegreeStructure().getChildsSet().stream().filter(cp -> AcademicPeriod.YEAR.equals(cp.getAcademicPeriod()))
-                        .filter(cp -> Integer.valueOf(1).equals(cp.getChildOrder())).findFirst().orElseThrow();
-
+        // C8: annual course. The context uses the first leaf period (1Y1S) because execution
+        // courses are connected to leaf execution intervals, not execution years.
         CompetenceCourse cc8competence =
                 new CompetenceCourse("C8", new LocalizedString(Locale.getDefault(), "Course 8"), null, new BigDecimal(12),
                         Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow(),
                         AcademicPeriod.YEAR, initCompetenceCourseType(), CompetenceCourseLevelType.UNKNOWN().orElse(null),
                         firstSemester, new GradeScale());
 
-        cc8 = new CurricularCourse(12d, cc8competence, mandatoryCourseGroup, period1Y, firstSemester, null);
+        cc8 = new CurricularCourse(12d, cc8competence, mandatoryCourseGroup, period1Y1S, firstSemester, null);
     }
 
     @Test
@@ -274,12 +270,13 @@ public class CourseGroupTest {
         final CurricularPeriod period1Y2S = dcp.getCurricularPeriodFor(1, 2, AcademicPeriod.SEMESTER);
         final CurricularPeriod period2Y1S = dcp.getCurricularPeriodFor(2, 1, AcademicPeriod.SEMESTER);
 
-        // C1 (1Y1S) and C7 (1Y1S) match 1Y1S period in firstSemester
+        // C1, C7 and C8 match 1Y1S period in firstSemester
         Collection<Context> period1Y1SContexts =
                 mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y1S, firstSemester);
-        assertEquals(2, period1Y1SContexts.size());
+        assertEquals(3, period1Y1SContexts.size());
         assertTrue(period1Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc1));
         assertTrue(period1Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc7));
+        assertTrue(period1Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
 
         // C2 (1Y2S)
         Collection<Context> period1Y2SContexts =
@@ -292,12 +289,6 @@ public class CourseGroupTest {
                 mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period2Y1S, firstSemester);
         assertEquals(1, period2Y1SContexts.size());
         assertTrue(period2Y1SContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc3));
-
-        // C8 (annual, 1Y)
-        Collection<Context> period1YContexts =
-                mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y, firstSemester);
-        assertEquals(1, period1YContexts.size());
-        assertTrue(period1YContexts.stream().anyMatch(ctx -> ctx.getChildDegreeModule() == cc8));
 
         // test wrong interval
         assertTrue(mandatoryCourseGroup.getContextsWithCurricularCourseByCurricularPeriod(period1Y2S, firstSemester).isEmpty());
