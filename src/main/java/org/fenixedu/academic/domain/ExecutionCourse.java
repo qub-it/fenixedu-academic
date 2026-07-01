@@ -28,6 +28,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.domain.accessControl.PersistentSpecialCriteriaOverExecutionCourseGroup;
+import org.fenixedu.academic.domain.accessControl.PersistentStudentGroup;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
@@ -115,28 +117,33 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
-        getStudentGroupSet().forEach(g -> {
-            g.setExecutionCourse(null);
-            deleteGroup(g);
-        });
-
-        getSpecialCriteriaOverExecutionCourseGroupSet().forEach(g -> {
-            g.setExecutionCourse(null);
-            deleteGroup(g);
-        });
-
-        for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getLessonPlanningsSet().isEmpty(); getLessonPlanningsSet().iterator().next().delete()) {
-            ;
+        while (!getStudentGroupSet().isEmpty()) {
+            final PersistentStudentGroup group = getStudentGroupSet().iterator().next();
+            group.setExecutionCourse(null);
+            deleteGroup(group);
         }
 
-        for (; !getAttendsSet().isEmpty(); getAttendsSet().iterator().next().delete()) {
-            ;
+        while (!getSpecialCriteriaOverExecutionCourseGroupSet().isEmpty()) {
+            final PersistentSpecialCriteriaOverExecutionCourseGroup group =
+                    getSpecialCriteriaOverExecutionCourseGroupSet().iterator().next();
+            group.setExecutionCourse(null);
+            deleteGroup(group);
         }
-        for (; !getExecutionCourseLogsSet().isEmpty(); getExecutionCourseLogsSet().iterator().next().delete()) {
-            ;
+
+        while (!getProfessorshipsSet().isEmpty()) {
+            getProfessorshipsSet().iterator().next().delete();
+        }
+
+        while (!getLessonPlanningsSet().isEmpty()) {
+            getLessonPlanningsSet().iterator().next().delete();
+        }
+
+        while (!getAttendsSet().isEmpty()) {
+            getAttendsSet().iterator().next().delete();
+        }
+
+        while (!getExecutionCourseLogsSet().isEmpty()) {
+            getExecutionCourseLogsSet().iterator().next().delete();
         }
 
         getAssociatedCurricularCoursesSet().clear();
