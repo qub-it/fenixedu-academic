@@ -316,7 +316,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
     public Set<ExecutionDegree> getExecutionDegrees() {
         return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
-                .map(dcp -> dcp.getExecutionDegreeByYear(getExecutionYear())).filter(Objects::nonNull)
+                .flatMap(dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream())
                 .collect(Collectors.toSet());
     }
 
