@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.contacts;
 
-import org.fenixedu.academic.util.FileUtils;
 import org.fenixedu.bennu.core.domain.User;
 
 public class PhysicalAddressValidationFile extends PhysicalAddressValidationFile_Base {
@@ -28,16 +27,6 @@ public class PhysicalAddressValidationFile extends PhysicalAddressValidationFile
         super();
         init(displayName, filename, content);
         setPyhsicalAddressValidation(validation);
-    }
-
-    @Override
-    public void setFilename(String filename) {
-        super.setFilename(FileUtils.cleanupUserInputFilename(filename));
-    }
-
-    @Override
-    public void setDisplayName(String displayName) {
-        super.setDisplayName(FileUtils.cleanupUserInputFileDisplayName(displayName));
     }
 
     @Override
