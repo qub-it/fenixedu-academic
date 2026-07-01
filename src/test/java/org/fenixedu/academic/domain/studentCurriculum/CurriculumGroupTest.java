@@ -317,12 +317,10 @@ public class CurriculumGroupTest {
     @Test
     public void testCurriculumGroup_getApprovedEnrolment() {
         Enrolment approved = mandatoryCurriculumGroup.getApprovedEnrolment(cc1);
-        assertNotNull(approved);
-        assertEquals(cc1, approved.getCurricularCourse());
+        assertTrue(approved.isApproved(cc1));
 
         Enrolment fromRoot = rootCurriculumGroup.getApprovedEnrolment(cc1);
-        assertNotNull(fromRoot);
-        assertEquals(cc1, fromRoot.getCurricularCourse());
+        assertTrue(fromRoot.isApproved(cc1));
 
         assertNull(mandatoryCurriculumGroup.getApprovedEnrolment(cc2));
         assertNull(optionalCurriculumGroup.getApprovedEnrolment(cc1));
@@ -334,10 +332,12 @@ public class CurriculumGroupTest {
 
         Dismissal dismissal = optionalCurriculumGroup.getDismissal(cc4);
         assertNotNull(dismissal);
+        assertTrue(dismissal.isDismissal());
         assertEquals(dismissal, dismissalCc4);
 
         Dismissal fromRoot = rootCurriculumGroup.getDismissal(cc4);
         assertNotNull(fromRoot);
+        assertTrue(fromRoot.isDismissal());
         assertEquals(fromRoot, dismissalCc4);
 
         assertNull(mandatoryCurriculumGroup.getDismissal(cc4));
@@ -348,19 +348,13 @@ public class CurriculumGroupTest {
     @Test
     public void testCurriculumGroup_getApprovedCurriculumLine() {
         CurriculumLine line = mandatoryCurriculumGroup.getApprovedCurriculumLine(cc1);
-        assertNotNull(line);
-        assertTrue(line.isApproved());
-        assertEquals(cc1, line.getCurricularCourse());
+        assertTrue(line.isApproved(cc1));
 
         CurriculumLine fromRoot = rootCurriculumGroup.getApprovedCurriculumLine(cc1);
-        assertNotNull(fromRoot);
-        assertTrue(fromRoot.isApproved());
-        assertEquals(cc1, fromRoot.getCurricularCourse());
+        assertTrue(fromRoot.isApproved(cc1));
 
         CurriculumLine dismissalCurriculumLine = optionalCurriculumGroup.getApprovedCurriculumLine(cc4);
-        assertNotNull(dismissalCurriculumLine);
-        assertTrue(dismissalCurriculumLine.isApproved());
-        assertEquals(cc4, dismissalCurriculumLine.getCurricularCourse());
+        assertTrue(dismissalCurriculumLine.isApproved(cc4));
 
         assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc2));
         assertNull(mandatoryCurriculumGroup.getApprovedCurriculumLine(cc5));

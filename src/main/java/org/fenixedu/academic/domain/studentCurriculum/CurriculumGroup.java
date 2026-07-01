@@ -563,20 +563,23 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     protected Integer searchChildOrderForChild(final CurriculumGroup child, final ExecutionInterval executionInterval) {
-        return getDegreeModule().getValidChildContexts(executionInterval).stream()
-                .filter(context -> context.getChildDegreeModule() == child.getDegreeModule()).map(Context::getChildOrder)
-                .findFirst().orElse(null);
+        for (final Context context : getDegreeModule().getValidChildContexts(executionInterval)) {
+            if (context.getChildDegreeModule() == child.getDegreeModule()) {
+                return context.getChildOrder();
+            }
+        }
+        return null;
     }
 
     public boolean hasCourseGroup(final CourseGroup courseGroup) {
-        return getDegreeModule().equals(courseGroup) || getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf())
+        return getDegreeModule() == courseGroup || getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf())
                 .map(CurriculumGroup.class::cast).anyMatch(cm -> cm.hasCourseGroup(courseGroup));
     }
 
     final public NoCourseGroupCurriculumGroup getNoCourseGroupCurriculumGroup(NoCourseGroupCurriculumGroupType groupType) {
         return getCurriculumGroups().stream().filter(CurriculumGroup::isNoCourseGroupCurriculumGroup)
-                .map(NoCourseGroupCurriculumGroup.class::cast)
-                .filter(ng -> ng.getNoCourseGroupCurriculumGroupType().equals(groupType)).findFirst().orElse(null);
+                .map(NoCourseGroupCurriculumGroup.class::cast).filter(ng -> ng.getNoCourseGroupCurriculumGroupType() == groupType)
+                .findFirst().orElse(null);
     }
 
     @Override
