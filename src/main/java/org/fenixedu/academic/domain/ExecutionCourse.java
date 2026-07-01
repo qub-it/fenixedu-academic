@@ -104,21 +104,11 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Attends getAttendsByStudent(final Registration registration) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.getRegistration() == registration) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.getRegistration() == registration).findFirst().orElse(null);
     }
 
     public Attends getAttendsByStudent(final Student student) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.isFor(student)) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.isFor(student)).findFirst().orElse(null);
     }
 
     // Delete Method
@@ -273,16 +263,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private Set<SchoolClass> getAllSchoolClassesOrBy(DegreeCurricularPlan degreeCurricularPlan) {
-        final Set<SchoolClass> result = new HashSet<SchoolClass>();
-        for (final Shift shift : getAssociatedShifts()) {
-            for (final SchoolClass schoolClass : shift.getAssociatedClassesSet()) {
-                if (degreeCurricularPlan == null
-                        || schoolClass.getExecutionDegree().getDegreeCurricularPlan() == degreeCurricularPlan) {
-                    result.add(schoolClass);
-                }
-            }
-        }
-        return result;
+        return getAssociatedShifts().stream().flatMap(shift -> shift.getAssociatedClassesSet().stream())
+                .filter(sc -> degreeCurricularPlan == null
+                        || sc.getExecutionDegree().getDegreeCurricularPlan() == degreeCurricularPlan).collect(Collectors.toSet());
     }
 
     public Set<SchoolClass> getSchoolClassesBy(DegreeCurricularPlan degreeCurricularPlan) {
@@ -394,23 +377,17 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private String findUniqueCode(final String code) {
-        if (!existsMatchingCode(code)) {
-            return code;
+        String candidate = code;
+        int c = 0;
+        while (existsMatchingCode(candidate)) {
+            candidate = code + "-" + c++;
         }
-        int c;
-        for (c = 0; existsMatchingCode(code + "-" + c); c++) {
-            ;
-        }
-        return code + "-" + c;
+        return candidate;
     }
 
     private boolean existsMatchingCode(final String code) {
-        for (final ExecutionCourse executionCourse : getExecutionInterval().getAssociatedExecutionCoursesSet()) {
-            if (executionCourse != this && executionCourse.getSigla().equalsIgnoreCase(code)) {
-                return true;
-            }
-        }
-        return false;
+        return getExecutionInterval().getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> ec != this && ec.getSigla().equalsIgnoreCase(code));
     }
 
     public Collection<DegreeCurricularPlan> getAssociatedDegreeCurricularPlans() {
