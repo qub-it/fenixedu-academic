@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * @author dcs-rjao
- * 
+ *
  *         2/Abr/2003
  */
 public class EnrolmentEvaluationState implements Serializable {
@@ -35,8 +35,8 @@ public class EnrolmentEvaluationState implements Serializable {
 
     public static final EnrolmentEvaluationState FINAL_OBJ = new EnrolmentEvaluationState(EnrolmentEvaluationState.FINAL, 2);
 
-    public static final EnrolmentEvaluationState TEMPORARY_OBJ = new EnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY,
-            1);
+    public static final EnrolmentEvaluationState TEMPORARY_OBJ =
+            new EnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY, 1);
 
     public static final EnrolmentEvaluationState ANNULED_OBJ = new EnrolmentEvaluationState(EnrolmentEvaluationState.ANNULED, 0);
 
@@ -45,28 +45,24 @@ public class EnrolmentEvaluationState implements Serializable {
     private final int weight;
 
     private EnrolmentEvaluationState(int state, int weight) {
-        this.state = new Integer(state);
+        this.state = state;
         this.weight = weight;
     }
 
     public static EnrolmentEvaluationState valueOf(Integer state) {
-        switch (state) {
-        case FINAL:
-            return FINAL_OBJ;
-        case TEMPORARY:
-            return TEMPORARY_OBJ;
-        case ANNULED:
-            return ANNULED_OBJ;
-        default:
-            return null;
-        }
+        return switch (state) {
+            case FINAL -> FINAL_OBJ;
+            case TEMPORARY -> TEMPORARY_OBJ;
+            case ANNULED -> ANNULED_OBJ;
+            default -> null;
+        };
     }
 
     /**
      * Getter for property state.
-     * 
+     *
      * @return Value of property state.
-     * 
+     *
      */
     public java.lang.Integer getState() {
         return state;
@@ -78,8 +74,7 @@ public class EnrolmentEvaluationState implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof EnrolmentEvaluationState) {
-            EnrolmentEvaluationState aux = (EnrolmentEvaluationState) o;
+        if (o instanceof final EnrolmentEvaluationState aux) {
             return this.state.equals(aux.getState());
         }
         return false;
@@ -89,7 +84,7 @@ public class EnrolmentEvaluationState implements Serializable {
     @Override
     public String toString() {
 
-        int value = this.state.intValue();
+        int value = this.state;
         String valueS = null;
 
         switch (value) {
