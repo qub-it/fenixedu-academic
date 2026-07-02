@@ -383,4 +383,102 @@ public class StudentTest {
         assertNull(student.readAttendByExecutionCourse(unknownCourse));
         assertNull(student.readAttendByExecutionCourse(null));
     }
+
+    @Test
+    public void testStudent_getAttendsForExecutionPeriod_returnsSortedAttendsForGivenInterval() {
+        // Add extra Attends in firstSemester to verify sorting
+        new Attends(registrationWithCoursesActive, new ExecutionCourse("Am the first one", "X1", firstSemester));
+        new Attends(registrationWithCoursesActive, new ExecutionCourse("Better be next", "X2", firstSemester));
+        new Attends(registrationWithCoursesActive, new ExecutionCourse("Definitely last", "X4", firstSemester));
+
+        SortedSet<Attends> attendsFirst = student.getAttendsForExecutionPeriod(firstSemester);
+        assertEquals(4, attendsFirst.size());
+        assertTrue(attendsFirst.stream().allMatch(a -> a.getExecutionCourse().getExecutionInterval() == firstSemester));
+
+        List<Attends> actualOrder = new ArrayList<>(attendsFirst);
+        List<Attends> expectedOrder = new ArrayList<>(actualOrder);
+        expectedOrder.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
+        assertEquals(expectedOrder, actualOrder);
+
+        SortedSet<Attends> attendsSecond = student.getAttendsForExecutionPeriod(secondSemester);
+        assertFalse(attendsSecond.isEmpty());
+        assertTrue(attendsSecond.stream().allMatch(a -> a.getExecutionCourse().getExecutionInterval() == secondSemester));
+
+        SortedSet<Attends> attendsPrevious = student.getAttendsForExecutionPeriod(previousInterval);
+        assertTrue(attendsPrevious.isEmpty());
+    }
+
+    @Test
+    public void testStudent_getRegistrationsFor_degreeCurricularPlan() {
+        List<Registration> forDcp1 = student.getRegistrationsFor(dcpWithCourses);
+        assertEquals(2, forDcp1.size());
+        assertTrue(forDcp1.contains(registrationWithCoursesActive));
+        assertTrue(forDcp1.contains(registrationWithCoursesConcludedNextYear));
+
+        List<Registration> forDcp2 = student.getRegistrationsFor(dcpWithoutCourses);
+        assertEquals(1, forDcp2.size());
+        assertTrue(forDcp2.contains(registrationWithoutCoursesActive));
+
+        List<Registration> forNull = student.getRegistrationsFor((DegreeCurricularPlan) null);
+        assertTrue(forNull.isEmpty());
+    }
+
+    @Test
+    public void testStudent_getRegistrationsFor_degree() {
+        List<Registration> forDegree1 = student.getRegistrationsFor(degreeWithCourses);
+        assertEquals(2, forDegree1.size());
+        assertTrue(forDegree1.contains(registrationWithCoursesActive));
+        assertTrue(forDegree1.contains(registrationWithCoursesConcludedNextYear));
+
+        List<Registration> forDegree2 = student.getRegistrationsFor(degreeWithoutCourses);
+        assertEquals(1, forDegree2.size());
+        assertTrue(forDegree2.contains(registrationWithoutCoursesActive));
+
+        List<Registration> forNull = student.getRegistrationsFor((Degree) null);
+        assertTrue(forNull.isEmpty());
+    }
+
+    @Test
+    public void testStudent_hasActiveRegistrations() {
+        assertTrue(student.hasActiveRegistrations());
+
+        // student with CONCLUDED registration
+        Student inactiveStudent = createStudent("Inactive Student", "inactive.student");
+        Registration inactiveReg = Registration.create(inactiveStudent, dcpWithCourses, executionYear, protocol, ingression);
+        RegistrationState.createRegistrationState(inactiveReg, null, null, concludedType, firstSemester);
+
+        assertFalse(inactiveStudent.hasActiveRegistrations());
+        RegistrationState state = registrationWithCoursesConcludedNextYear.getLastRegistrationState(nextYear);
+        assertEquals(concludedType, state.getType());
+        assertFalse(state.isActive());
+
+        // student with no registrations
+        Student emptyStudent = createStudent("Empty Student 3", "empty.student3");
+        assertFalse(emptyStudent.hasActiveRegistrations());
+        emptyStudent.delete();
+    }
+
+    @Test
+    public void testStudent_hasWorkingStudentStatuteInPeriod_returnsTrueWhenExists() {
+        assertTrue(student.hasWorkingStudentStatuteInPeriod(firstSemester));
+        assertFalse(student.hasWorkingStudentStatuteInPeriod(secondSemester));
+
+        Student emptyStudent = createStudent("Empty Student 4", "empty.student4");
+        assertFalse(emptyStudent.hasWorkingStudentStatuteInPeriod(firstSemester));
+        assertFalse(emptyStudent.hasWorkingStudentStatuteInPeriod(secondSemester));
+    }
+
+    @Test
+    public void testStudent_getPersonalIngressionDataByExecutionYear_returnsDataForGivenYear() {
+        PersonalIngressionData pid2 = new PersonalIngressionData(student, previousYear);
+        assertEquals(pid2, student.getPersonalIngressionDataByExecutionYear(previousYear));
+
+        assertNotNull(student.getPersonalIngressionDataByExecutionYear(executionYear));
+
+        // returns null for missing year
+        ExecutionYear nextNextYear = (ExecutionYear) executionYear.getNext().getNext();
+        assertNull(student.getPersonalIngressionDataByExecutionYear(nextNextYear));
+
+        assertNull(student.getPersonalIngressionDataByExecutionYear(null));
+    }
 }
