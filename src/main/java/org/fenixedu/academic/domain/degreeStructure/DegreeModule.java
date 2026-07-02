@@ -21,12 +21,10 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections.Predicate;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -52,23 +50,9 @@ abstract public class DegreeModule extends DegreeModule_Base {
             Comparator.<DegreeModule, LocalizedString> comparing(DegreeModule::getNameI18N)
                     .thenComparing(DegreeModule::getExternalId);
 
-    public static class ComparatorByMinEcts implements Comparator<DegreeModule> {
-
-        private final ExecutionInterval executionInterval;
-
-        public ComparatorByMinEcts(final ExecutionInterval executionInterval) {
-            this.executionInterval = executionInterval;
-
-        }
-
-        @Override
-        public int compare(DegreeModule leftDegreeModule, DegreeModule rightDegreeModule) {
-            int comparationResult = leftDegreeModule.getMinEctsCredits(this.executionInterval)
-                    .compareTo(rightDegreeModule.getMinEctsCredits(this.executionInterval));
-            return (comparationResult == 0) ? leftDegreeModule.getExternalId()
-                    .compareTo(rightDegreeModule.getExternalId()) : comparationResult;
-        }
-
+    public static Comparator<DegreeModule> comparatorByMinEcts(final ExecutionInterval executionInterval) {
+        return Comparator.comparing((DegreeModule dm) -> dm.getMinEctsCredits(executionInterval))
+                .thenComparing(DegreeModule::getExternalId);
     }
 
     public DegreeModule() {
@@ -183,18 +167,9 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public Set<CourseGroup> getAllParentCourseGroups() {
-        Set<CourseGroup> result = new HashSet<CourseGroup>();
-        collectParentCourseGroups(result, this);
-        return result;
-    }
-
-    private void collectParentCourseGroups(Set<CourseGroup> result, DegreeModule module) {
-        for (Context parent : module.getParentContextsSet()) {
-            if (!parent.getParentCourseGroup().isRoot()) {
-                result.add(parent.getParentCourseGroup());
-                collectParentCourseGroups(result, parent.getParentCourseGroup());
-            }
-        }
+        return getParentContextsSet().stream().map(Context::getParentCourseGroup).filter(pcg -> !pcg.isRoot())
+                .flatMap(pcg -> Stream.concat(Stream.of(pcg), pcg.getAllParentCourseGroups().stream()))
+                .collect(Collectors.toSet());
     }
 
     public List<CurricularRule> getParticipatingCurricularRules() {
@@ -244,52 +219,28 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public List<Context> getParentContextsByExecutionYear(final ExecutionYear executionYear) {
-        final List<Context> result = new ArrayList<Context>();
-        for (final Context context : getParentContextsSet()) {
-            if (executionYear == null || context.isValidForExecutionAggregation(executionYear)) {
-                result.add(context);
-            }
-        }
-        return result;
+        return getParentContextsSet().stream()
+                .filter(c -> executionYear == null || c.isValidForExecutionAggregation(executionYear))
+                .collect(Collectors.toList());
     }
 
     public List<Context> getParentContextsByExecutionSemester(final ExecutionInterval executionInterval) {
-        final List<Context> result = new ArrayList<Context>();
-        for (final Context context : getParentContextsSet()) {
-            if (executionInterval == null || context.isValid(executionInterval)) {
-                result.add(context);
-            }
-        }
-        return result;
+        return getParentContextsSet().stream().filter(c -> executionInterval == null || c.isValid(executionInterval))
+                .collect(Collectors.toList());
     }
 
     public List<Context> getParentContextsBy(final ExecutionInterval executionInterval, final CourseGroup parentCourseGroup) {
-        final List<Context> result = new ArrayList<Context>();
-        for (final Context context : getParentContextsSet()) {
-            if (context.isValid(executionInterval) && context.getParentCourseGroup() == parentCourseGroup) {
-                result.add(context);
-            }
-        }
-
-        return result;
+        return getParentContextsSet().stream()
+                .filter(c -> c.isValid(executionInterval) && c.getParentCourseGroup() == parentCourseGroup)
+                .collect(Collectors.toList());
     }
 
     public boolean hasAnyParentContexts(final ExecutionInterval executionInterval) {
-        for (final Context context : getParentContextsSet()) {
-            if (executionInterval == null || context.isValid(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getParentContextsSet().stream().anyMatch(c -> executionInterval == null || c.isValid(executionInterval));
     }
 
     public boolean hasAnyOpenParentContexts(final ExecutionInterval executionInterval) {
-        for (final Context context : getParentContextsSet()) {
-            if (executionInterval == null || context.isOpen(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getParentContextsSet().stream().anyMatch(c -> executionInterval == null || c.isOpen(executionInterval));
     }
 
     public boolean isBranchCourseGroup() {
@@ -314,23 +265,6 @@ abstract public class DegreeModule extends DegreeModule_Base {
 
     public DegreeType getDegreeType() {
         return getDegree().getDegreeType();
-    }
-
-    public boolean hasOnlyOneParentCourseGroup() {
-        return hasOnlyOneParentCourseGroup(null);
-    }
-
-    public boolean hasOnlyOneParentCourseGroup(final ExecutionInterval executionInterval) {
-        DegreeModule degreeModule = null;
-        for (final Context context : getParentContextsByExecutionSemester(executionInterval)) {
-            if (degreeModule == null) {
-                degreeModule = context.getParentCourseGroup();
-
-            } else if (degreeModule != context.getParentCourseGroup()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public List<? extends ICurricularRule> getCurricularRules(final CurricularRuleType ruleType,
@@ -370,7 +304,7 @@ abstract public class DegreeModule extends DegreeModule_Base {
             return curricularRules.stream().sorted(ICurricularRule.COMPARATOR_BY_BEGIN.reversed())
                     .filter(ICurricularRule::isActive).findFirst().orElse(null);
         }
-        
+
         final List<? extends ICurricularRule> validRules =
                 curricularRules.stream().filter(cr -> cr.isValid(executionYear)).sorted(ICurricularRule.COMPARATOR_BY_BEGIN)
                         .toList();
@@ -405,11 +339,8 @@ abstract public class DegreeModule extends DegreeModule_Base {
             return ExecutionInterval.findActiveAggregators(getDegree().getCalendar()).stream().min(Comparator.naturalOrder())
                     .orElse(null);
         }
-        final SortedSet<ExecutionInterval> executionIntervals = new TreeSet<ExecutionInterval>();
-        for (final Context context : getParentContextsSet()) {
-            executionIntervals.add(context.getBeginExecutionInterval());
-        }
-        return executionIntervals.first();
+        return getParentContextsSet().stream().map(Context::getBeginExecutionInterval).min(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     public DegreeModulesSelectionLimit getDegreeModulesSelectionLimitRule(final ExecutionInterval executionInterval) {
@@ -428,9 +359,8 @@ abstract public class DegreeModule extends DegreeModule_Base {
     }
 
     public Collection<CycleCourseGroup> getParentCycleCourseGroups() {
-        final Collection<CycleCourseGroup> res = new HashSet<CycleCourseGroup>();
-        getParentContextsSet().forEach(c -> res.addAll(c.getParentCourseGroup().getParentCycleCourseGroups()));
-        return res;
+        return getParentContextsSet().stream().flatMap(c -> c.getParentCourseGroup().getParentCycleCourseGroups().stream())
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -438,11 +368,7 @@ abstract public class DegreeModule extends DegreeModule_Base {
      */
     @Deprecated
     public Set<CourseGroup> getParentCourseGroups() {
-        Set<CourseGroup> res = new HashSet<CourseGroup>();
-        for (Context context : getParentContextsSet()) {
-            res.add(context.getParentCourseGroup());
-        }
-        return res;
+        return getParentContextsSet().stream().map(Context::getParentCourseGroup).collect(Collectors.toSet());
     }
 
     public boolean isDissertation() {
