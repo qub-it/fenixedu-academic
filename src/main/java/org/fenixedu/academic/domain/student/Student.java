@@ -183,11 +183,8 @@ public class Student extends Student_Base {
     }
 
     public SortedSet<Attends> getAttendsForExecutionPeriod(final ExecutionInterval executionInterval) {
-        SortedSet<Attends> attends = new TreeSet<>(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
-        for (Registration registration : getRegistrationsSet()) {
-            attends.addAll(registration.getAttendsForExecutionPeriod(executionInterval));
-        }
-        return attends;
+        return getRegistrationsSet().stream().flatMap(r -> r.getAttendsForExecutionPeriod(executionInterval).stream())
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME)));
     }
 
     public Stream<Registration> getRegistrationStream() {
@@ -195,26 +192,12 @@ public class Student extends Student_Base {
     }
 
     public List<Registration> getRegistrationsFor(final DegreeCurricularPlan degreeCurricularPlan) {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : super.getRegistrationsSet()) {
-            for (final DegreeCurricularPlan degreeCurricularPlanToTest : registration.getDegreeCurricularPlans()) {
-                if (degreeCurricularPlanToTest.equals(degreeCurricularPlan)) {
-                    result.add(registration);
-                    break;
-                }
-            }
-        }
-        return result;
+        return super.getRegistrationsSet().stream().filter(r -> r.getDegreeCurricularPlans().contains(degreeCurricularPlan))
+                .collect(Collectors.toList());
     }
 
     public List<Registration> getRegistrationsFor(final Degree degree) {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : super.getRegistrationsSet()) {
-            if (registration.getDegree() == degree) {
-                result.add(registration);
-            }
-        }
-        return result;
+        return super.getRegistrationsSet().stream().filter(r -> r.getDegree() == degree).collect(Collectors.toList());
     }
 
     public Registration getActiveRegistrationFor(final DegreeCurricularPlan degreeCurricularPlan) {
@@ -227,25 +210,13 @@ public class Student extends Student_Base {
     }
 
     public boolean hasActiveRegistrations() {
-        for (final Registration registration : super.getRegistrationsSet()) {
-            final RegistrationState registrationState = registration.getActiveState();
-            if (registrationState != null) {
-                if (registrationState.getType().getActive()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return super.getRegistrationsSet().stream().map(Registration::getActiveState).filter(Objects::nonNull)
+                .anyMatch(state -> state.getType().getActive());
     }
 
     public boolean hasWorkingStudentStatuteInPeriod(final ExecutionInterval executionInterval) {
-        for (StudentStatute studentStatute : getStudentStatutesSet()) {
-            if (studentStatute.getType().isWorkingStudentStatute()
-                    && studentStatute.isValidInExecutionInterval(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getStudentStatutesSet().stream()
+                .anyMatch(ss -> ss.getType().isWorkingStudentStatute() && ss.isValidInExecutionInterval(executionInterval));
     }
 
     public Attends getAttends(final ExecutionCourse executionCourse) {
@@ -285,13 +256,8 @@ public class Student extends Student_Base {
     }
 
     public PersonalIngressionData getPersonalIngressionDataByExecutionYear(final ExecutionYear executionYear) {
-        for (PersonalIngressionData pid : getPersonalIngressionsDataSet()) {
-            if (pid.getExecutionYear() == executionYear) {
-                return pid;
-            }
-        }
-
-        return null;
+        return getPersonalIngressionsDataSet().stream().filter(pid -> pid.getExecutionYear() == executionYear).findFirst()
+                .orElse(null);
     }
 
 }
