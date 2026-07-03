@@ -4,6 +4,7 @@
 - Refactor: Remove comparator logic from Party [#qubIT-Fenix-8960]
 - Refactor: Removes StudentCurricularPlan dead methods [#qubIT-Fenix-8847]
 - Refactor: Shift domain methods [#qubIT-Fenix-8983]
+- Refactor: Improves SchoolClass domain methods [#qubIT-Fenix-8926]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]
