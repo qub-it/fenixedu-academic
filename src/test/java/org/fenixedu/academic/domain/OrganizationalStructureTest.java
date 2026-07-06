@@ -22,6 +22,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.organizationalStructure.UnitAcronym;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
@@ -201,6 +202,15 @@ public class OrganizationalStructureTest {
         assertEquals(mpPerson, sortedPersons.get(5));
         assertEquals(mdPerson, sortedPersons.get(6));
         assertEquals(zPerson, sortedPersons.get(7));
+    }
+
+    @Test
+    public void testUnitAcronym_readUnitAcronymByAcronym() {
+        Unit institutionUnit = UnitUtils.readInstitutionUnit();
+
+        assertTrue(UnitAcronym.readUnitAcronymByAcronym(null).isEmpty());
+        assertEquals(institutionUnit.getUnitAcronym().getAcronym(),
+                UnitAcronym.readUnitAcronymByAcronym("QU").map(UnitAcronym::getAcronym).orElse(""));
     }
 
     private static Person createPerson(final String name, final String username) {

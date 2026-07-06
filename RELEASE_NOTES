@@ -6,6 +6,7 @@
 - Refactor: Clean up code in domain classes [#qubIT-Fenix-8924]
 - Refactor: Execution Degree domain methods [#qubIT-Fenix-8888]
 - Refactor: Improves StudentCurricularPlan domain methods [#qubIT-Fenix-8847]
+- Refactor: Remove unused logic in Unit Acronym [#qubIT-Fenix-8960]
 - Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
 - Improvement: Lesson space occupations subject should have course code and name [#qubIT-Fenix-8965]
 

@@ -21,7 +21,6 @@ package org.fenixedu.academic.domain.organizationalStructure;
 import java.util.Optional;
 
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.commons.StringNormalizer;
 
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
@@ -59,27 +58,10 @@ public class UnitAcronym extends UnitAcronym_Base {
     }
 
     public static Optional<UnitAcronym> readUnitAcronymByAcronym(final String acronym) {
-        return Optional.ofNullable(readUnitAcronymByAcronym(acronym, false));
-    }
-
-    public static UnitAcronym readUnitAcronymByAcronym(String acronym, boolean shouldNormalize) {
         if (acronym == null) {
-            return null;
+            return Optional.empty();
         }
-        final String acronymLowerCase = shouldNormalize ? normalize(acronym.toLowerCase()) : acronym.toLowerCase();
-
-        for (UnitAcronym unitAcronym : Bennu.getInstance().getUnitAcronymsSet()) {
-
-            if ((shouldNormalize && normalize(unitAcronym.getAcronym()).equals(acronymLowerCase))
-                    || unitAcronym.getAcronym().equals(acronymLowerCase)) {
-                return unitAcronym;
-            }
-        }
-        return null;
+        return Bennu.getInstance().getUnitAcronymsSet().stream()
+                .filter(unitAcronym -> unitAcronym.getAcronym().equals(acronym.toLowerCase())).findAny();
     }
-
-    public static String normalize(final String string) {
-        return string == null ? null : StringNormalizer.normalize(string).replace(' ', '-');
-    }
-
 }
