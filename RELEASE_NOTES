@@ -14,6 +14,7 @@
 - Refactor: Clean up child party methods in Party class [#qubIT-Fenix-8960]
 - Refactor: Update private parent party methods to return streams [#qubIT-Fenix-8960]
 - Refactor: District and DistrictSubdivision domain methods [#qubIT-Fenix-9019]
+- Refactor: Improves CurricularCourse domain methods [#qubIT-Fenix-8875]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]
