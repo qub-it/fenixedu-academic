@@ -723,7 +723,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         final Double d;
         if (super.getWeigth() == null || super.getWeigth() == 0d) {
             final CurricularCourse curricularCourse = getCurricularCourse();
-            d = curricularCourse == null ? null : curricularCourse.getWeigth();
+            d = curricularCourse == null ? null : curricularCourse.getWeight();
         } else {
             d = super.getWeigth();
         }

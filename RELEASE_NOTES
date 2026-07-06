@@ -2,6 +2,7 @@
 - Refactor: Remove physical address validation file entity [#qubIT-Fenix-8995]
 - Refactor: Remove CandidaciesLog entity [#qubIT-Fenix-8994]
 - Refactor: Improves CurricularCourse domain methods [#qubIT-Fenix-8875]
+- Refactor: Removes CurricularCourse dead methods [#qubIT-Fenix-8875]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]
