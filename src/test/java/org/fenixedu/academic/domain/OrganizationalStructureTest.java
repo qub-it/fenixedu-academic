@@ -192,7 +192,7 @@ public class OrganizationalStructureTest {
 
         List<Person> sortedPersons = Stream.of(zPerson, afPerson, igPerson, amPerson, ivPerson, mmPerson, mdPerson, mpPerson)
                 .sorted(Party.COMPARATOR_BY_NAME).toList();
-                System.out.println(sortedPersons.stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
+        System.out.println(sortedPersons.stream().map(p -> p.getName()).collect(Collectors.joining(", ")));
 
         assertEquals(amPerson, sortedPersons.get(0));
         assertEquals(afPerson, sortedPersons.get(1));
@@ -211,6 +211,22 @@ public class OrganizationalStructureTest {
         assertTrue(UnitAcronym.readUnitAcronymByAcronym(null).isEmpty());
         assertEquals(institutionUnit.getUnitAcronym().getAcronym(),
                 UnitAcronym.readUnitAcronymByAcronym("QU").map(UnitAcronym::getAcronym).orElse(""));
+    }
+
+    @Test
+    public void testParty_getParentParties() {
+        final Unit universityUnit = UnitUtils.readInstitutionUnit();
+        final Unit earthUnit = UnitUtils.readEarthUnit();
+        final Unit countryUnit = Unit.findUnitByAcronymPath("PT", earthUnit).orElse(null);
+
+        assertTrue(earthUnit.getParentUnits().isEmpty());
+        assertTrue(earthUnit.getParentUnits(GEOGRAPHIC).isEmpty());
+        assertTrue(earthUnit.getParentUnits(List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE)).isEmpty());
+        assertTrue(universityUnit.getParentUnits().contains(countryUnit));
+        assertTrue(universityUnit.getParentUnits(GEOGRAPHIC).contains(countryUnit));
+        assertTrue(universityUnit.getParentUnits(ORGANIZATIONAL_STRUCTURE).isEmpty());
+        assertTrue(universityUnit.getParentUnits(List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE)).contains(countryUnit));
+        assertTrue(universityUnit.getParentUnits(ORGANIZATIONAL_STRUCTURE).isEmpty());
     }
 
     private static Person createPerson(final String name, final String username) {

@@ -7,6 +7,7 @@
 - Refactor: Execution Degree domain methods [#qubIT-Fenix-8888]
 - Refactor: Improves StudentCurricularPlan domain methods [#qubIT-Fenix-8847]
 - Refactor: Remove unused logic in Unit Acronym [#qubIT-Fenix-8960]
+- Refactor: Clean up code from party class [#qubIT-Fenix-8960]
 - Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
 - Improvement: Lesson space occupations subject should have course code and name [#qubIT-Fenix-8965]
 - Bug Fix: Improve error message of existing customer with the same fiscal number [#qubIT-Fenix-8990]
