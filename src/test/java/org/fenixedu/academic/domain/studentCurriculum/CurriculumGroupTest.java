@@ -610,24 +610,22 @@ public class CurriculumGroupTest {
 
         try {
             // Root excludes itself (RootCurriculumGroup overrides) and NoCourseGroup -> 3: cycle, mandatory, optional
-            assertEquals(3, rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().size());
-            assertTrue(rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(cycleCurriculumGroup));
-            assertTrue(rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(mandatoryCurriculumGroup));
-            assertTrue(rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(optionalCurriculumGroup));
-            assertFalse(rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().contains(extraGroup));
+            final Set<CurriculumGroup> rootGroups =
+                    rootCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
+            assertEquals(3, rootGroups.size());
+            assertTrue(rootGroups.contains(cycleCurriculumGroup));
+            assertTrue(rootGroups.contains(mandatoryCurriculumGroup));
+            assertTrue(rootGroups.contains(optionalCurriculumGroup));
+            assertFalse(rootGroups.contains(extraGroup));
 
             // Cycle includes self + children, excluding NoCourseGroup -> 3: cycle, mandatory, optional
-            assertEquals(3, cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().size());
-            assertTrue(cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(cycleCurriculumGroup));
-            assertTrue(cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(mandatoryCurriculumGroup));
-            assertTrue(cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups()
-                    .contains(optionalCurriculumGroup));
-            assertFalse(cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().contains(extraGroup));
+            final Set<CurriculumGroup> cycleGroups =
+                    cycleCurriculumGroup.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
+            assertEquals(3, cycleGroups.size());
+            assertTrue(cycleGroups.contains(cycleCurriculumGroup));
+            assertTrue(cycleGroups.contains(mandatoryCurriculumGroup));
+            assertTrue(cycleGroups.contains(optionalCurriculumGroup));
+            assertFalse(cycleGroups.contains(extraGroup));
 
             // Leaf groups (mandatory/optional) have no group children -> just themselves
             Set<CurriculumGroup> mandatoryGroups =
