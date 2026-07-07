@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.OccupationPeriod;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -114,7 +115,8 @@ public class LessonSpaceOccupation extends LessonSpaceOccupation_Base {
 
     @Override
     public String getSubject() {
-        return getLesson().getShift().getExecutionCourse().getSigla();
+        final ExecutionCourse executionCourse = getLesson().getShift().getExecutionCourse();
+        return executionCourse.getCode() + " - " + executionCourse.getName();
     }
 
     @Override

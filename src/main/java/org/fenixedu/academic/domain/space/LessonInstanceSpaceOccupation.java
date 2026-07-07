@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.LessonInstance;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -90,7 +91,9 @@ public class LessonInstanceSpaceOccupation extends LessonInstanceSpaceOccupation
     @Override
     public String getSubject() {
         if (!getLessonInstancesSet().isEmpty()) {
-            return getLessonInstancesSet().iterator().next().getLesson().getShift().getExecutionCourse().getSigla();
+            final ExecutionCourse executionCourse =
+                    getLessonInstancesSet().iterator().next().getLesson().getShift().getExecutionCourse();
+            return executionCourse.getCode() + " - " + executionCourse.getName();
         }
         return "";
     }

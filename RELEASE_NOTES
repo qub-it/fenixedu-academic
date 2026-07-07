@@ -1,8 +1,9 @@
-- Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
 - Refactor: Remove unused methods from Teacher [#qubIT-Fenix-8900]
 - Refactor: Degree module entity [#qubIT-Fenix-8848]
 - Refactor: Remove unused interface package [#qubIT-Fenix-8947]
 - Refactor: Method to check if Country instance is stateless country [#qubIT-Fenix-8959]
+- Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
+- Improvement: Lesson space occupations subject should have course code and name [#qubIT-Fenix-8965]
 
 55.3.4 (11-06-2026)
 - Refactor: Removes reference to SystemResource in FenixInitializer by no longer registering health check [#qubIT-Fenix-8350]
