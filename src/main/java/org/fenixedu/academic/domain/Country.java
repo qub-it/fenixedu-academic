@@ -33,14 +33,16 @@ public class Country extends Country_Base {
     public static Comparator<Country> COMPARATOR_BY_NAME = new Comparator<Country>() {
         @Override
         public int compare(Country leftCountry, Country rightCountry) {
-            int comparationResult = Collator.getInstance().compare(leftCountry.getLocalizedName().getContent(),
-                    rightCountry.getLocalizedName().getContent());
+            int comparationResult = Collator.getInstance()
+                    .compare(leftCountry.getLocalizedName().getContent(), rightCountry.getLocalizedName().getContent());
             return (comparationResult == 0) ? leftCountry.getExternalId()
                     .compareTo(rightCountry.getExternalId()) : comparationResult;
         }
     };
 
     private static Set<Country> CPLP_COUNTRIES;
+
+    private static String STATELESS_COUNTRY_CODE = "XXA";
 
     private Country() {
         super();
@@ -137,6 +139,23 @@ public class Country extends Country_Base {
     public void delete() {
         setRootDomainObject(null);
         deleteDomainObject();
+    }
+
+    /**
+     * Used to identify a country to designate a statelessness person.
+     *
+     * Use this method if you want to filter out this country, to not
+     * present in options where does not make sense to present this country (for example, in addresses)
+     *
+     * @return
+     */
+    public boolean isStatelessCountry() {
+        // 2026-07-07 (#qubIT-Fenix-8959)
+        //
+        //  The XXA alpha-3 code is assigned by some government agencies to designate a stateless person, or a person without
+        //  nationality
+
+        return STATELESS_COUNTRY_CODE.equalsIgnoreCase(getThreeLetterCode());
     }
 
 }

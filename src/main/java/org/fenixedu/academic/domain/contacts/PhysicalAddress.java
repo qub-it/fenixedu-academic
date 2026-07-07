@@ -32,7 +32,26 @@ import org.joda.time.DateTime;
 public class PhysicalAddress extends PhysicalAddress_Base {
 
     static {
-        setResolver(PhysicalAddress.class, (pc) -> ((PhysicalAddress) pc).getAddress());
+        setResolver(PhysicalAddress.class, (pc) -> ((PhysicalAddress) pc).getPhysicalAddressPresentationValue());
+    }
+
+    private String getPhysicalAddressPresentationValue() {
+        StringBuilder sb = new StringBuilder(getAddress());
+
+        if (StringUtils.isNotEmpty(getPostalCode())) {
+            sb.append(", ").append(getPostalCode().trim());
+        }
+
+        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotEmpty(
+                getDistrictSubdivisionOfResidence())) {
+            sb.append(", ").append(getDistrictSubdivisionOfResidence());
+        }
+
+        if (getCountryOfResidence() != null) {
+            sb.append(", ").append(getCountryOfResidence().getCode());
+        }
+
+        return sb.toString();
     }
 
     public static Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS = new Comparator<PhysicalAddress>() {
@@ -85,8 +104,9 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     public PhysicalAddress(final Party party, final PartyContactType type, final Boolean defaultContact, final String address,
             final String areaCode, final String areaOfAreaCode, final String area, final String parishOfResidence,
             final String districtSubdivisionOfResidence, final String districtOfResidence, final Country countryOfResidence) {
-        this(party, type, defaultContact.booleanValue(), new PhysicalAddressData(address, areaCode, areaOfAreaCode, area,
-                parishOfResidence, districtSubdivisionOfResidence, districtOfResidence, countryOfResidence));
+        this(party, type, defaultContact.booleanValue(),
+                new PhysicalAddressData(address, areaCode, areaOfAreaCode, area, parishOfResidence,
+                        districtSubdivisionOfResidence, districtOfResidence, countryOfResidence));
 
         checkRules();
     }
