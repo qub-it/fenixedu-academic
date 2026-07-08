@@ -38,11 +38,11 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     private String getPhysicalAddressPresentationValue() {
         StringBuilder sb = new StringBuilder(getAddress());
 
-        if (StringUtils.isNotEmpty(getPostalCode())) {
+        if (StringUtils.isNotBlank(getPostalCode())) {
             sb.append(", ").append(getPostalCode().trim());
         }
 
-        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotEmpty(
+        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotBlank(
                 getDistrictSubdivisionOfResidence())) {
             sb.append(", ").append(getDistrictSubdivisionOfResidence());
         }
