@@ -72,14 +72,13 @@ public class EvaluationType implements Serializable {
     }
 
     public EvaluationType(int type) {
-        this.type = new Integer(type);
+        this.type = type;
     }
 
     @Override
     public boolean equals(Object obj) {
         boolean resultado = false;
-        if (obj instanceof EvaluationType) {
-            EvaluationType ds = (EvaluationType) obj;
+        if (obj instanceof final EvaluationType ds) {
             resultado = this.getType().equals(ds.getType());
         }
         return resultado;
@@ -87,22 +86,22 @@ public class EvaluationType implements Serializable {
 
     @Override
     public String toString() {
-        if (type.intValue() == EvaluationType.EXAM) {
+        if (type == EvaluationType.EXAM) {
             return EvaluationType.EXAM_STRING;
         }
-        if (type.intValue() == EvaluationType.FINAL) {
+        if (type == EvaluationType.FINAL) {
             return EvaluationType.FINAL_STRING;
         }
-        if (type.intValue() == EvaluationType.ONLINE_TEST) {
+        if (type == EvaluationType.ONLINE_TEST) {
             return EvaluationType.ONLINE_TEST_STRING;
         }
-        if (type.intValue() == EvaluationType.TEST) {
+        if (type == EvaluationType.TEST) {
             return EvaluationType.TEST_STRING;
         }
-        if (type.intValue() == EvaluationType.PROJECT) {
+        if (type == EvaluationType.PROJECT) {
             return EvaluationType.PROJECT_STRING;
         }
-        if (type.intValue() == EvaluationType.AD_HOC) {
+        if (type == EvaluationType.AD_HOC) {
             return EvaluationType.AD_HOC_STRING;
         }
 

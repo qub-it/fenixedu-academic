@@ -94,30 +94,23 @@ public class Job extends Job_Base {
     private void checkParameters(Person person, String employerName, String city, Country country, BusinessArea businessArea,
             String position) {
 
-        String[] args = {};
         if (person == null) {
-            throw new DomainException("job.creation.person.null", args);
+            throw new DomainException("job.creation.person.null");
         }
-        String[] args1 = {};
         if (country == null) {
-            throw new DomainException("job.creation.country.null", args1);
+            throw new DomainException("job.creation.country.null");
         }
-        String[] args2 = {};
         if (businessArea == null) {
-            throw new DomainException("job.creation.businessArea.null", args2);
+            throw new DomainException("job.creation.businessArea.null");
         }
-        String[] args3 = {};
-
         if (employerName == null || employerName.isEmpty()) {
-            throw new DomainException("job.creation.employerName.null", args3);
+            throw new DomainException("job.creation.employerName.null");
         }
-        String[] args4 = {};
         if (city == null || city.isEmpty()) {
-            throw new DomainException("job.creation.city.null", args4);
+            throw new DomainException("job.creation.city.null");
         }
-        String[] args5 = {};
         if (position == null || position.isEmpty()) {
-            throw new DomainException("job.creation.position.null", args5);
+            throw new DomainException("job.creation.position.null");
         }
     }
 
