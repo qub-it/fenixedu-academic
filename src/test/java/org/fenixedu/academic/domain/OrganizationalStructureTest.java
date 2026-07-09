@@ -217,7 +217,7 @@ public class OrganizationalStructureTest {
     public void testParty_getParentParties() {
         final Unit universityUnit = UnitUtils.readInstitutionUnit();
         final Unit earthUnit = UnitUtils.readEarthUnit();
-        final Unit countryUnit = Unit.findUnitByAcronymPath("PT", earthUnit).orElse(null);
+        final Unit countryUnit = Unit.findUnitByAcronymPath("PT", earthUnit).orElseThrow();
 
         assertTrue(earthUnit.getParentUnits().isEmpty());
         assertTrue(earthUnit.getParentUnits(GEOGRAPHIC).isEmpty());
@@ -226,7 +226,6 @@ public class OrganizationalStructureTest {
         assertTrue(universityUnit.getParentUnits(GEOGRAPHIC).contains(countryUnit));
         assertTrue(universityUnit.getParentUnits(ORGANIZATIONAL_STRUCTURE).isEmpty());
         assertTrue(universityUnit.getParentUnits(List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE)).contains(countryUnit));
-        assertTrue(universityUnit.getParentUnits(ORGANIZATIONAL_STRUCTURE).isEmpty());
     }
 
     private static Person createPerson(final String name, final String username) {
