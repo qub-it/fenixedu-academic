@@ -3,6 +3,7 @@
 - Refactor: Remove unused interface package [#qubIT-Fenix-8947]
 - Refactor: Method to check if Country instance is stateless country [#qubIT-Fenix-8959]
 - Refactor: Clean up code in domain classes [#qubIT-Fenix-8924]
+- Refactor: Execution Degree domain methods [#qubIT-Fenix-8888]
 - Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
 - Improvement: Lesson space occupations subject should have course code and name [#qubIT-Fenix-8965]
 
