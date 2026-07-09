@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.DomainObjectUtil;
@@ -55,13 +54,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public static final Comparator<Party> COMPARATOR_BY_NAME = Comparator.comparing(Party::getName, NAME_COMPARATOR);
 
-    static final public Comparator<Party> COMPARATOR_BY_NAME_AND_ID = (o1, o2) -> {
-        final ComparatorChain comparatorChain = new ComparatorChain();
-        comparatorChain.addComparator(Party.COMPARATOR_BY_NAME);
-        comparatorChain.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
-
-        return comparatorChain.compare(o1, o2);
-    };
+    static final public Comparator<Party> COMPARATOR_BY_NAME_AND_ID =
+            COMPARATOR_BY_NAME.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     public abstract String getPartyPresentationName();
 
