@@ -10,9 +10,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -23,9 +26,14 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
+import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
+import org.fenixedu.academic.domain.organizationalStructure.PartyType;
+import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
@@ -182,15 +190,6 @@ public class CompetenceCourseTest {
         assertNotNull(CourseLoadType.of(CourseLoadType.THEORETICAL_PRACTICAL));
         assertNotNull(CourseLoadType.of(CourseLoadType.PRACTICAL_LABORATORY));
         assertEquals(CourseLoadType.of(CourseLoadType.THEORETICAL).getCode(), CourseLoadType.THEORETICAL);
-    }
-
-    @Deprecated(forRemoval = true)
-    @Test
-    public void testCourse_find() {
-        assertEquals(CompetenceCourse.find(COURSE_A_CODE), competenceCourseA);
-        assertNull(CompetenceCourse.find("XX"));
-//        assertEquals(CompetenceCourse.findAll().size(), 2);
-        assertTrue(CompetenceCourse.findAll().contains(competenceCourseA));
     }
 
     @Test
@@ -393,5 +392,129 @@ public class CompetenceCourseTest {
         context.delete();
 
         assertNull(competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
+    }
+
+    @Test
+    public void testCompetenceCourse_hasActiveScopesInExecutionYear() {
+        // competenceCourseA doesn't have associated curricular courses with a context in testDegreeCurricularPlan yet
+        assertFalse(competenceCourseA.hasActiveScopesInExecutionYear(executionYear));
+
+        // Create a context for testCurricularCourse in testDegreeCurricularPlan (only valid in current execution year)
+        Context context = new Context(testDegreeCurricularPlan.getRoot(), testCurricularCourse, firstSemester, executionInterval,
+                executionInterval.getNext());
+
+        assertTrue(competenceCourseA.hasActiveScopesInExecutionYear(executionYear));
+        assertFalse(competenceCourseA.hasActiveScopesInExecutionYear(nextExecutionYear));
+
+        // Set context's end as null so that its validity extends to next execution year
+        context.setEndExecutionInterval(null);
+
+        assertTrue(competenceCourseA.hasActiveScopesInExecutionYear(executionYear));
+        assertTrue(competenceCourseA.hasActiveScopesInExecutionYear(nextExecutionYear));
+
+        context.delete();
+
+        assertFalse(competenceCourseA.hasActiveScopesInExecutionYear(executionYear));
+        assertFalse(competenceCourseA.hasActiveScopesInExecutionYear(nextExecutionYear));
+    }
+
+    @Test
+    public void testCompetenceCourse_getDepartmentUnit() {
+        Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+
+        Unit departmentUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.DEPARTMENT),
+                new LocalizedString(Locale.getDefault(), "Test Department"), "TD", schoolUnit,
+                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
+
+        Unit competenceCourseGroupUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP),
+                new LocalizedString(Locale.getDefault(), "Test CC Group"), "TCG", departmentUnit,
+                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
+
+        CompetenceCourse competenceCourse =
+                createCompetenceCourse("Department Course", "TEST_DEPARTMENT_COURSE", new BigDecimal("6.0"), SEMESTER,
+                        executionInterval, competenceCourseGroupUnit);
+
+        assertEquals(departmentUnit, competenceCourse.getDepartmentUnit(executionInterval));
+        assertEquals(departmentUnit, competenceCourse.getDepartmentUnit());
+
+        // competenceCourseA doesn't have a department unit because it was not setup in OrganizationalStructureTest
+        assertNull(competenceCourseA.getDepartmentUnit(executionInterval));
+        assertNull(competenceCourseA.getDepartmentUnit());
+    }
+
+    @Test
+    public void testCompetenceCourse_getNameI18N() {
+        // Create a competence course with namePT and without nameEN
+        CompetenceCourse competenceCourse = new CompetenceCourse();
+        CompetenceCourseInformation information = new CompetenceCourseInformation();
+        information.setCompetenceCourse(competenceCourse);
+        information.setName("Disciplina Teste");
+
+        LocalizedString nameI18N = competenceCourse.getNameI18N();
+
+        assertEquals("Disciplina Teste", nameI18N.getContent(LocaleUtils.PT));
+        assertTrue(StringUtils.isBlank(nameI18N.getContent(LocaleUtils.EN))); // initialized as empty String
+
+        information.setNameEn("Test Course");
+        nameI18N = competenceCourse.getNameI18N();
+
+        assertTrue(nameI18N.getContent(LocaleUtils.PT).contains("Disciplina Teste"));
+        assertTrue(nameI18N.getContent(LocaleUtils.EN).contains("Test Course"));
+    }
+
+    @Test
+    public void testCompetenceCourse_find() {
+        assertNull(CompetenceCourse.find("FIND_TEST_COURSE")); // CompetenceCourse with this code doesn't exist yet
+
+        CompetenceCourse competenceCourse = new CompetenceCourse();
+        competenceCourse.setCode("FIND_TEST_COURSE");
+
+        assertEquals(competenceCourse, CompetenceCourse.find("FIND_TEST_COURSE"));
+        assertEquals(competenceCourseA, CompetenceCourse.find(COURSE_A_CODE));
+        assertEquals(competenceCourseB, CompetenceCourse.find(COURSE_B_CODE));
+        assertEquals(3, CompetenceCourse.findAll().size());
+    }
+
+    @Test
+    public void testCompetenceCourse_isAnual() {
+        CompetenceCourse competenceCourse =
+                createCompetenceCourse("Annual Course Test", "ANNUAL_COURSE_TEST", new BigDecimal("6.0"), SEMESTER,
+                        executionInterval, coursesUnit);
+        CompetenceCourseInformation information = competenceCourse.getCompetenceCourseInformationsSet().iterator().next();
+
+        // Before: not annual (academic period set as SEMESTER)
+        assertFalse(competenceCourse.isAnual());
+        assertFalse(competenceCourse.isAnual(executionInterval));
+
+        information.setAcademicPeriod(AcademicPeriod.YEAR);
+
+        assertTrue(competenceCourse.isAnual());
+        assertTrue(competenceCourse.isAnual(executionInterval));
+    }
+
+    @Test
+    public void testCompetenceCourse_findByUnit() {
+        Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+
+        Unit competenceCourseGroupUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP),
+                new LocalizedString(Locale.getDefault(), "Test CC Group"), "TCG", schoolUnit,
+                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
+
+        CompetenceCourse competenceCourse =
+                createCompetenceCourse("Find By Unit Course", "TEST_FIND_BY_UNIT_COURSE", new BigDecimal("6.0"), SEMESTER,
+                        executionInterval, competenceCourseGroupUnit);
+
+        Collection<CompetenceCourse> competenceCourses =
+                CompetenceCourse.findByUnit(competenceCourseGroupUnit, true).collect(Collectors.toSet());
+
+        assertEquals(1, competenceCourses.size());
+        assertTrue(competenceCourses.contains(competenceCourse));
+
+        Collection<CompetenceCourse> persistedCompetenceCourses =
+                CompetenceCourse.findByUnit(coursesUnit, true).collect(Collectors.toSet());
+
+        assertEquals(2, persistedCompetenceCourses.size());
+        assertTrue(persistedCompetenceCourses.contains(competenceCourseA));
+        assertTrue(persistedCompetenceCourses.contains(competenceCourseB));
     }
 }
