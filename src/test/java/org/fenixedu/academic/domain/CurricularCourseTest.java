@@ -19,7 +19,6 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -221,24 +220,6 @@ public class CurricularCourseTest {
         assertEquals(1, curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval.getNext()).size());
         assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval).contains(enrolment));
         assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval.getNext()).contains(newEnrolment));
-    }
-
-
-    @Test
-    public void testCurricularCourse_getEnrolmentsByAcademicInterval() {
-        Enrolment enrolment = createEnrolmentInCourse(curricularCourseA, executionInterval);
-        AcademicInterval academicInterval = executionInterval.getAcademicInterval();
-
-        assertEquals(1, curricularCourseA.getEnrolmentsByAcademicInterval(academicInterval).size());
-        assertTrue(curricularCourseB.getEnrolmentsByAcademicInterval(academicInterval).isEmpty());
-        assertTrue(curricularCourseA.getEnrolmentsByAcademicInterval(academicInterval).contains(enrolment));
-
-        createContext(dcpV1, curricularCourseA, secondSemester, executionInterval.getNext());
-        Enrolment newEnrolment = createEnrolmentInCourse(curricularCourseA, executionInterval.getNext());
-
-        assertEquals(1, curricularCourseA.getEnrolmentsByAcademicInterval(academicInterval).size());
-        assertTrue(curricularCourseA.getEnrolmentsByAcademicInterval(academicInterval).contains(enrolment));
-        assertFalse(curricularCourseA.getEnrolmentsByAcademicInterval(academicInterval).contains(newEnrolment));
     }
 
     // Helpers

@@ -52,14 +52,14 @@ public class CurricularCourse extends CurricularCourse_Base {
 
     public CurricularCourse() {
         super();
-        setWeight(new BigDecimal(0));
+        setWeigth(0d);
     }
 
     public CurricularCourse(Double weight, CompetenceCourse competenceCourse, CourseGroup parentCourseGroup,
             CurricularPeriod curricularPeriod, ExecutionInterval begin, ExecutionInterval end) {
 
         this();
-        setWeight(weight == null ? null : new BigDecimal(weight));
+        setWeigth(weight);
         setCompetenceCourse(competenceCourse);
         new Context(parentCourseGroup, this, curricularPeriod, begin, end);
     }
@@ -205,20 +205,29 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getEctsCredits(executionInterval);
     }
 
-    /**
-     * @deprecated {@link #getEnrolmentsByAcademicInterval(AcademicInterval)}
-     */
-    @Deprecated
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
         return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
                 .filter(e -> !e.isAnnulled() && e.getExecutionInterval() == executionInterval).collect(Collectors.toList());
     }
 
+    @Deprecated(forRemoval = true)
     public List<Enrolment> getEnrolmentsByAcademicInterval(AcademicInterval academicInterval) {
-        return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
-                .filter(e -> !e.isAnnulled())
-                .filter(e -> e.getExecutionInterval().getAcademicInterval().equals(academicInterval) || e.getExecutionYear()
-                        .getAcademicInterval().equals(academicInterval)).collect(Collectors.toList());
+        List<Enrolment> result = new ArrayList<Enrolment>();
+        addActiveEnrollments(result, academicInterval);
+        return result;
+    }
+
+    @Deprecated(forRemoval = true)
+    private void addActiveEnrollments(List<Enrolment> enrolments, AcademicInterval academicInterval) {
+        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
+            if (curriculumModule.isEnrolment()) {
+                final Enrolment enrolment = (Enrolment) curriculumModule;
+                if (!enrolment.isAnnulled() && (enrolment.getExecutionInterval().getAcademicInterval().equals(academicInterval)
+                        || enrolment.getExecutionInterval().getExecutionYear().getAcademicInterval().equals(academicInterval))) {
+                    enrolments.add(enrolment);
+                }
+            }
+        }
     }
 
     public List<Enrolment> getEnrolments() {
