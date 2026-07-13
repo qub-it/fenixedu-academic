@@ -24,19 +24,4 @@ public class PhysicalAddressValidation extends PhysicalAddressValidation_Base {
         super();
         setPartyContact(physicalAddress);
     }
-
-    public void setFile(String filename, String displayName, byte[] content) {
-        new PhysicalAddressValidationFile(this, filename, displayName, content);
-    }
-
-    @Override
-    public void delete() {
-        final PhysicalAddressValidationFile file = getFile();
-        if (file != null) {
-            setFile(null);
-            file.delete();
-        }
-        super.delete();
-    }
-
 }
