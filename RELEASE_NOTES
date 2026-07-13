@@ -8,6 +8,7 @@
 - Refactor: Improves StudentCurricularPlan domain methods [#qubIT-Fenix-8847]
 - Improvement: Present the postal code, city and country of residence code in the address presentation value [#qubIT-Fenix-8963]
 - Improvement: Lesson space occupations subject should have course code and name [#qubIT-Fenix-8965]
+- Bug Fix: Improve error message of existing customer with the same fiscal number [#qubIT-Fenix-8990]
 
 55.3.4 (11-06-2026)
 - Refactor: Removes reference to SystemResource in FenixInitializer by no longer registering health check [#qubIT-Fenix-8350]
