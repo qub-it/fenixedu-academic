@@ -27,10 +27,6 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ShiftTest {
 
-    private static ExecutionDegree executionDegree;
-    private static ExecutionYear executionYear;
-    private static ExecutionInterval executionInterval;
-    private static ExecutionCourse ec;
     private static SchoolClass schoolClass1;
     private static SchoolClass schoolClass2;
     private static Shift shift;
@@ -48,8 +44,8 @@ public class ShiftTest {
         DegreeCurricularPlanTest.initDegreeCurricularPlan();
         StudentTest.initRegistrationConfigEntities();
 
-        executionYear = ExecutionYear.findCurrent(null);
-        executionInterval = executionYear.getFirstExecutionPeriod();
+        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+        final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
         final Degree degree = Degree.find(DEGREE_A_CODE);
         final DegreeCurricularPlan dcp =
@@ -57,12 +53,12 @@ public class ShiftTest {
                         .orElseThrow();
         DegreeCurricularPlanDurationTest.populateCurricularPeriodStructure(dcp);
 
-        executionDegree = dcp.createExecutionDegree(executionYear);
+        final ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
 
         schoolClass1 = new SchoolClass(executionDegree, executionInterval, "SC1", 1);
         schoolClass2 = new SchoolClass(executionDegree, executionInterval, "SC2", 1);
 
-        ec = new ExecutionCourse("EC", UUID.randomUUID().toString(), executionInterval);
+        final ExecutionCourse ec = new ExecutionCourse("EC", UUID.randomUUID().toString(), executionInterval);
         shift = new Shift(ec, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "TP1");
 
         // two weeks with lessons on Monday and Tuesday, 3 hours and 1 hour 20 minutes respectively
