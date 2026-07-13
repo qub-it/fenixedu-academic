@@ -55,9 +55,11 @@ import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
 import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -379,17 +381,10 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return firstInformation != null ? firstInformation.getExecutionInterval() : null;
     }
 
-    public Boolean hasActiveScopesInExecutionYear(ExecutionYear executionYear) {
+    public boolean hasActiveScopesInExecutionYear(ExecutionYear executionYear) {
         Collection<ExecutionInterval> executionIntervals = executionYear.getChildIntervals();
-        Collection<CurricularCourse> curricularCourses = this.getAssociatedCurricularCoursesSet();
-        for (ExecutionInterval executionInterval : executionIntervals) {
-            for (CurricularCourse curricularCourse : curricularCourses) {
-                if (curricularCourse.hasAnyActiveContext(executionInterval)) {
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;
+        return getAssociatedCurricularCoursesSet().stream()
+                .anyMatch(cc -> executionIntervals.stream().anyMatch(cc::hasAnyActiveContext));
     }
 
     /**
@@ -419,7 +414,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
      * @return Department unit for the given semester
      */
     public Unit getDepartmentUnit(ExecutionInterval interval) {
-        return getParentUnits(u -> u.isDepartmentUnit(), interval).findFirst().orElse(null);
+        return getParentUnits(Unit::isDepartmentUnit, interval).findFirst().orElse(null);
     }
 
     /**
@@ -470,16 +465,16 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public LocalizedString getNameI18N(ExecutionInterval interval) {
-        LocalizedString LocalizedString = new LocalizedString();
+        LocalizedString localizedString = new LocalizedString();
         String name = getName(interval);
-        if (name != null && name.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.PT, name);
+        if (StringUtils.isNotBlank(name)) {
+            localizedString = localizedString.with(LocaleUtils.PT, name);
         }
         String nameEn = getNameEn(interval);
-        if (nameEn != null && nameEn.length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.EN, nameEn);
+        if (StringUtils.isNotBlank(nameEn)) {
+            localizedString = localizedString.with(LocaleUtils.EN, nameEn);
         }
-        return LocalizedString;
+        return localizedString;
     }
 
     public LocalizedString getObjectivesI18N() {
@@ -565,19 +560,13 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public static CompetenceCourse find(final String code) {
-        if (StringUtils.isNotBlank(code)) {
-            for (final CompetenceCourse iter : Bennu.getInstance().getCompetenceCoursesSet()) {
-                if (StringUtils.equals(code, iter.getCode())) {
-                    return iter;
-                }
-            }
-        }
-        return null;
+        return StringUtils.isNotBlank(code) ? Bennu.getInstance().getCompetenceCoursesSet().stream()
+                .filter(cc -> StringUtils.equals(code, cc.getCode())).findFirst().orElse(null) : null;
     }
 
     public boolean isAnual(final ExecutionInterval input) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(input);
-        return information != null ? information.isAnual() : null;
+        return information != null && information.isAnual();
     }
 
     public AcademicPeriod getAcademicPeriod(final ExecutionInterval input) {
@@ -592,9 +581,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     public static Stream<CompetenceCourse> findByUnit(final Unit unit, final boolean includeSubUnits) {
         final Collection<Unit> units = includeSubUnits ? unit.getAllSubUnits() : new HashSet<>();
         units.add(unit);
-        return units.stream().filter(u -> u.isCompetenceCourseGroupUnit())
+        return units.stream().filter(Party::isCompetenceCourseGroupUnit)
                 .flatMap(u -> u.getCompetenceCourseInformationsSet().stream()
                         .filter(cci -> cci.getCompetenceCourse().getCompetenceCourseGroupUnit() == u)) // ensure that active information is from unit
-                .map(cci -> cci.getCompetenceCourse()).distinct();
+                .map(CompetenceCourseInformation::getCompetenceCourse).distinct();
     }
 }
