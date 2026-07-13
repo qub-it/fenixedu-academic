@@ -61,7 +61,8 @@ public class UnitAcronym extends UnitAcronym_Base {
         if (acronym == null) {
             return Optional.empty();
         }
+        final String lowerCaseAcronym = acronym.toLowerCase();
         return Bennu.getInstance().getUnitAcronymsSet().stream()
-                .filter(unitAcronym -> unitAcronym.getAcronym().equals(acronym.toLowerCase())).findAny();
+                .filter(unitAcronym -> unitAcronym.getAcronym().equals(lowerCaseAcronym)).findAny();
     }
 }
