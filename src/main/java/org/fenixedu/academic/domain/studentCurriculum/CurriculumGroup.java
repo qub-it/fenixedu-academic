@@ -507,46 +507,27 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         if (isBranchCurriculumGroup()) {
             return Set.of(this);
         }
-
-        final Set<CurriculumGroup> result = new HashSet<>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule instanceof CurriculumGroup) {
-                result.addAll(((CurriculumGroup) curriculumModule).getBranchCurriculumGroups());
-            }
-        }
-
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumGroup.class::isInstance)
+                .flatMap(cm -> ((CurriculumGroup) cm).getBranchCurriculumGroups().stream()).collect(Collectors.toSet());
     }
 
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-        result.add(this);
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroups());
-        }
-        return result;
+        return Stream.concat(Stream.of(this),
+                        getCurriculumModulesSet().stream().flatMap(cm -> cm.getAllCurriculumGroups().stream()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-        result.add(this);
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups());
-        }
-        return result;
+        return Stream.concat(Stream.of(this), getCurriculumModulesSet().stream()
+                        .flatMap(cm -> cm.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().stream()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<CurriculumLine> getAllCurriculumLines() {
-        Set<CurriculumLine> result = new HashSet<CurriculumLine>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumLines());
-        }
-        return result;
+        return getCurriculumModulesSet().stream().flatMap(cm -> cm.getAllCurriculumLines().stream()).collect(Collectors.toSet());
     }
 
     public Integer getChildOrder() {
@@ -638,34 +619,16 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     final public int getNumberOfChildCurriculumGroupsWithCourseGroup() {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                final CurriculumGroup curriculumGroup = (CurriculumGroup) curriculumModule;
-                if (!curriculumGroup.isNoCourseGroupCurriculumGroup()) {
-                    result++;
-                }
-            }
-        }
-        return result;
+        return (int) getCurriculumModulesSet().stream().filter(cm -> !cm.isLeaf() && !cm.isNoCourseGroupCurriculumGroup())
+                .count();
     }
 
     /**
      * This method returns the number of approved child CurriculumLines
      */
     final public int getNumberOfApprovedChildCurriculumLines() {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.isDismissal() && curriculumLine.hasCurricularCourse()) {
-                    result++;
-                } else if (curriculumLine.isEnrolment() && ((Enrolment) curriculumLine).isApproved()) {
-                    result++;
-                }
-            }
-        }
-        return result;
+        return (int) getCurriculumModulesSet().stream().filter(CurriculumModule::isCurriculumLine).map(CurriculumLine.class::cast)
+                .filter(CurriculumGroup::isApprovedCurriculumLine).count();
     }
 
     /**
@@ -692,68 +655,41 @@ public class CurriculumGroup extends CurriculumGroup_Base {
      * CurriculumLines (except NoCourseGroupCurriculumGroups)
      */
     public int getNumberOfAllApprovedCurriculumLines() {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.isDismissal() && curriculumLine.hasCurricularCourse()) {
-                    result++;
-                } else if (curriculumLine.isEnrolment() && ((Enrolment) curriculumLine).isApproved()) {
-                    result++;
-                }
-            } else {
-                result += ((CurriculumGroup) curriculumModule).getNumberOfAllApprovedCurriculumLines();
+        return getCurriculumModulesSet().stream().mapToInt(cm -> {
+            if (cm.isCurriculumLine()) {
+                return isApprovedCurriculumLine((CurriculumLine) cm) ? 1 : 0;
             }
-        }
-        return result;
+            return ((CurriculumGroup) cm).getNumberOfAllApprovedCurriculumLines();
+        }).sum();
+    }
+
+    private static boolean isApprovedCurriculumLine(final CurriculumLine curriculumLine) {
+        return curriculumLine.isDismissal() && curriculumLine.hasCurricularCourse()
+                || curriculumLine.isEnrolment() && curriculumLine.isApproved();
     }
 
     final public int getNumberOfChildEnrolments(final ExecutionInterval executionInterval) {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule instanceof Enrolment) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (enrolment.isValid(executionInterval) && enrolment.isEnroled()) {
-                    result++;
-                }
-            }
-        }
-        return result;
+        return (int) getCurriculumModulesSet().stream().filter(Enrolment.class::isInstance).map(Enrolment.class::cast)
+                .filter(e -> e.isValid(executionInterval) && e.isEnroled()).count();
     }
 
     final public int getNumberOfChildEnrolments(final ExecutionYear executionYear) {
-        //NOTE: this method cannot be implemented iterating over semesters, because annual curricular courses would be 
+        //NOTE: this method cannot be implemented iterating over semesters, because annual curricular courses would be
         //accounted twice (they are valid on both semesters)
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule instanceof Enrolment) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (enrolment.isValid(executionYear) && enrolment.isEnroled()) {
-                    result++;
-                }
-            }
-        }
-        return result;
+        return (int) getCurriculumModulesSet().stream().filter(Enrolment.class::isInstance).map(Enrolment.class::cast)
+                .filter(e -> e.isValid(executionYear) && e.isEnroled()).count();
     }
 
     @Override
     public int getNumberOfAllApprovedEnrolments(final ExecutionInterval executionInterval) {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result += curriculumModule.getNumberOfAllApprovedEnrolments(executionInterval);
-        }
-        return result;
+        return getCurriculumModulesSet().stream().mapToInt(cm -> cm.getNumberOfAllApprovedEnrolments(executionInterval)).sum();
     }
 
     @Override
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
-        final Set<IDegreeModuleToEvaluate> result = new HashSet<IDegreeModuleToEvaluate>();
-        result.add(new EnroledCurriculumModuleWrapper(this, executionInterval));
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getDegreeModulesToEvaluate(executionInterval));
-        }
-        return result;
+        return Stream.concat(Stream.of(new EnroledCurriculumModuleWrapper(this, executionInterval)),
+                        getCurriculumModulesSet().stream().flatMap(cm -> cm.getDegreeModulesToEvaluate(executionInterval).stream()))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -949,11 +885,8 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public Collection<NoCourseGroupCurriculumGroup> getNoCourseGroupCurriculumGroups() {
-        Collection<NoCourseGroupCurriculumGroup> res = new HashSet<NoCourseGroupCurriculumGroup>();
-        for (CurriculumGroup curriculumGroup : getCurriculumGroups()) {
-            res.addAll(curriculumGroup.getNoCourseGroupCurriculumGroups());
-        }
-        return res;
+        return getCurriculumGroups().stream().flatMap(cg -> cg.getNoCourseGroupCurriculumGroups().stream())
+                .collect(Collectors.toSet());
     }
 
     public int getNoCourseGroupCurriculumGroupsCount() {
@@ -1018,25 +951,11 @@ public class CurriculumGroup extends CurriculumGroup_Base {
     }
 
     public Set<Enrolment> getEnrolmentsBy(final ExecutionYear executionYear) {
-        final Set<Enrolment> result = new HashSet<Enrolment>();
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.getExecutionYear() == executionYear) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(e -> e.getExecutionYear() == executionYear).collect(Collectors.toSet());
     }
 
     public Set<Enrolment> getEnrolmentsBy(final ExecutionInterval executionInterval) {
-        final Set<Enrolment> result = new HashSet<Enrolment>();
-        for (final Enrolment enrolment : getEnrolmentsSet()) {
-            if (enrolment.getExecutionInterval() == executionInterval) {
-                result.add(enrolment);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(e -> e.getExecutionInterval() == executionInterval).collect(Collectors.toSet());
     }
 
     public boolean hasEnrolmentInCurricularCourseBefore(final CurricularCourse curricularCourse,
