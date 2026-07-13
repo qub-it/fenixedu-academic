@@ -781,10 +781,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         	String description;
         }
         
-        class contacts.PhysicalAddressValidationFile extends .org.fenixedu.bennu.io.domain.GenericFile {
-        
-        }
-
     class curricularPeriod.CurricularPeriod  {
         Integer childOrder;
         AcademicPeriod academicPeriod;
@@ -2716,11 +2712,6 @@ relation PrevContactPartyContact {
 relation PartyPartyContactValidation {
     contacts.PartyContact playsRole partyContact;
     contacts.PartyContactValidation playsRole partyContactValidation;
-}
-
-relation PhysicalAddressValidationPhysicalAddressValidationFile {
-	contacts.PhysicalAddressValidation playsRole pyhsicalAddressValidation;
-	contacts.PhysicalAddressValidationFile playsRole file;
 }
 
 relation PartyPartyType {
