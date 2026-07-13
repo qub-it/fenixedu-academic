@@ -24,7 +24,6 @@
 
 package org.fenixedu.academic.domain;
 
-import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -52,28 +51,12 @@ public class Attends extends Attends_Base {
         }
     }
 
-    public static final Comparator<Attends> COMPARATOR_BY_STUDENT_NUMBER = new Comparator<Attends>() {
+    public static final Comparator<Attends> COMPARATOR_BY_STUDENT_NUMBER =
+            Comparator.comparing((Attends a) -> a.getRegistration().getStudent().getNumber())
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-        @Override
-        public int compare(Attends attends1, Attends attends2) {
-            final Integer n1 = attends1.getRegistration().getStudent().getNumber();
-            final Integer n2 = attends2.getRegistration().getStudent().getNumber();
-            int res = n1.compareTo(n2);
-            return res != 0 ? res : DomainObjectUtil.COMPARATOR_BY_ID.compare(attends1, attends2);
-        }
-    };
-
-    public static final Comparator<Attends> ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME = new Comparator<Attends>() {
-
-        @Override
-        public int compare(Attends o1, Attends o2) {
-            final ExecutionCourse executionCourse1 = o1.getExecutionCourse();
-            final ExecutionCourse executionCourse2 = o2.getExecutionCourse();
-            final int c = Collator.getInstance().compare(executionCourse1.getNome(), executionCourse2.getNome());
-            return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c;
-        }
-
-    };
+    public static final Comparator<Attends> ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME =
+            Comparator.comparing(Attends::getExecutionCourse, ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR);
 
     protected Attends() {
         super();
@@ -117,8 +100,8 @@ public class Attends extends Attends_Base {
     }
 
     public boolean hasAnyShiftEnrolments() {
-        return getExecutionCourse().getAssociatedShifts().stream()
-                .anyMatch(shift -> shift.getStudentsSet().contains(getRegistration()));
+        return getRegistration().getShiftEnrolmentsSet().stream()
+                .anyMatch(se -> se.getShift().getExecutionCourse() == getExecutionCourse());
     }
 
     /**
