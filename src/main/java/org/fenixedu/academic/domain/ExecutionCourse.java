@@ -125,18 +125,20 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             deleteGroup(g);
         });
 
-        for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getLessonPlanningsSet().isEmpty(); getLessonPlanningsSet().iterator().next().delete()) {
-            ;
+        while (!getProfessorshipsSet().isEmpty()) {
+            getProfessorshipsSet().iterator().next().delete();
         }
 
-        for (; !getAttendsSet().isEmpty(); getAttendsSet().iterator().next().delete()) {
-            ;
+        while (!getLessonPlanningsSet().isEmpty()) {
+            getLessonPlanningsSet().iterator().next().delete();
         }
-        for (; !getExecutionCourseLogsSet().isEmpty(); getExecutionCourseLogsSet().iterator().next().delete()) {
-            ;
+
+        while (!getAttendsSet().isEmpty()) {
+            getAttendsSet().iterator().next().delete();
+        }
+
+        while (!getExecutionCourseLogsSet().isEmpty()) {
+            getExecutionCourseLogsSet().iterator().next().delete();
         }
 
         getAssociatedCurricularCoursesSet().clear();

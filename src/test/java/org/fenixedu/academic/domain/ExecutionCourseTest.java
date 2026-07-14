@@ -8,19 +8,25 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -415,5 +421,56 @@ public class ExecutionCourseTest {
         final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
         final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
         return new CurricularCourse(6.0, competenceCourse, dcp.getRoot(), semesterPeriod, executionInterval, null);
+    }
+
+    @Test
+    public void delete_emptyExecutionCourse() {
+        emptyExecutionCourse.delete();
+        assertNull(emptyExecutionCourse.getExecutionPeriod());
+        assertNull(emptyExecutionCourse.getRootDomainObject());
+    }
+
+    @Test
+    public void delete_blockedWhenHasAttends() {
+        new Attends(regA, emptyExecutionCourse);
+        assertThrows(DomainException.class, () -> emptyExecutionCourse.delete(),
+                BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasAttends"));
+    }
+
+    @Test
+    public void delete_blockedWhenHasShifts() {
+        new Shift(emptyExecutionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
+        assertThrows(DomainException.class, () -> emptyExecutionCourse.delete(),
+                BundleUtil.getString(Bundle.APPLICATION, "error.ExecutionCourse.cannotBeDeleted.hasShifts"));
+    }
+
+    @Test
+    public void delete_removesLessonPlannings() {
+        final LessonPlanning p1 = new LessonPlanning(new LocalizedString(Locale.ENGLISH, "title1"),
+                new LocalizedString(Locale.ENGLISH, "planning1"), CourseLoadType.of(CourseLoadType.THEORETICAL),
+                emptyExecutionCourse);
+        final LessonPlanning p2 = new LessonPlanning(new LocalizedString(Locale.ENGLISH, "title2"),
+                new LocalizedString(Locale.ENGLISH, "planning2"), CourseLoadType.of(CourseLoadType.THEORETICAL),
+                emptyExecutionCourse);
+        emptyExecutionCourse.delete();
+        assertNull(p1.getExecutionCourse());
+        assertNull(p2.getExecutionCourse());
+    }
+
+    @Test
+    public void delete_removesExecutionCourseLogs() {
+        final ExecutionCourseLog log = new ContentManagementLog(emptyExecutionCourse, "test log");
+        emptyExecutionCourse.delete();
+        assertNull(log.getExecutionCourse());
+    }
+
+    @Test
+    public void delete_removesProfessorships() {
+        final Professorship professorship = new Professorship();
+        professorship.setExecutionCourse(emptyExecutionCourse);
+        professorship.setPerson(regA.getStudent().getPerson());
+        emptyExecutionCourse.delete();
+        assertTrue(emptyExecutionCourse.getProfessorshipsSet().isEmpty());
+        assertNull(professorship.getExecutionCourse());
     }
 }
