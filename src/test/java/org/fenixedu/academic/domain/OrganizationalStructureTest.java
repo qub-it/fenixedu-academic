@@ -5,6 +5,7 @@ import static org.fenixedu.academic.domain.organizationalStructure.Accountabilit
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -28,6 +29,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,14 +85,20 @@ public class OrganizationalStructureTest {
         Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), buildLS.apply("Courses Group"), "CC",
                 coursesAgregatorUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
+        final Unit inactiveUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.SCHOOL), buildLS.apply("Inactive School"), "IS", universityUnit,
+                        AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+        inactiveUnit.setEndDateYearMonthDay(new YearMonthDay().minusDays(1)); // ends yesterday, inactive unit
+
         final Bennu rootDomainObject = Bennu.getInstance();
         rootDomainObject.setEarthUnit(planetUnit);
         rootDomainObject.setInstitutionUnit(universityUnit);
+        rootDomainObject.setExternalInstitutionUnit(universityUnit);
     }
 
     @Test
     public void testUnits_readAll() {
-        assertEquals(Unit.readAllUnits().size(), 7);
+        assertEquals(Unit.readAllUnits().size(), 8);
     }
 
     @Test
@@ -276,4 +284,114 @@ public class OrganizationalStructureTest {
         return new Person(userProfile);
     }
 
+    @Test
+    public void testUnitUtils_readExternalInstitutionUnitByName() {
+        // root level
+        assertEquals("qub University", UnitUtils.readExternalInstitutionUnitByName("qub University").getName());
+        // depth 1
+        assertEquals("qub School", UnitUtils.readExternalInstitutionUnitByName("qub School").getName());
+        // depth 2
+        assertEquals("Courses", UnitUtils.readExternalInstitutionUnitByName("Courses").getName());
+        assertEquals("Degrees", UnitUtils.readExternalInstitutionUnitByName("Degrees").getName());
+        // depth 3
+        assertEquals("Courses Group", UnitUtils.readExternalInstitutionUnitByName("Courses Group").getName());
+
+        // not found
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("Non Existent Unit"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("qub school"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("COURSES"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName(""));
+    }
+
+    @Test
+    public void testUnitUtils_readAllActiveUnitsByType() {
+        List<Unit> universities = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.UNIVERSITY);
+        assertEquals(1, universities.size());
+        assertEquals("qub University", universities.get(0).getName());
+
+        List<Unit> schools = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCHOOL);
+        assertEquals(1, schools.size());
+        assertEquals("qub School", schools.get(0).getName());
+
+        List<Unit> aggregateUnits = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.AGGREGATE_UNIT);
+        assertEquals(2, aggregateUnits.size());
+        assertTrue(aggregateUnits.stream().anyMatch(u -> "Courses".equals(u.getName())));
+        assertTrue(aggregateUnits.stream().anyMatch(u -> "Degrees".equals(u.getName())));
+
+        // no units of type
+        List<Unit> result = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCIENTIFIC_AREA);
+        assertTrue(result.isEmpty());
+
+        // only returns active units
+        schools = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCHOOL);
+        // "qub School" is active, "Inactive School" has endDate in the past
+        assertEquals(1, schools.size());
+        assertEquals("qub School", schools.get(0).getName());
+        assertTrue(schools.stream().noneMatch(u -> "Inactive School".equals(u.getName())));
+    }
+
+    @Test
+    public void testUnits_getChildUnitByAcronym() {
+        final Unit universityUnit = UnitUtils.readInstitutionUnit();
+        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit coursesAgregatorUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
+
+        assertNotNull(schoolUnit.getChildUnitByAcronym("Courses"));
+        assertEquals("qub School", universityUnit.getChildUnitByAcronym("QS").getName());
+        assertEquals("Courses", schoolUnit.getChildUnitByAcronym("Courses").getName());
+        assertEquals("Degrees", schoolUnit.getChildUnitByAcronym("Degrees").getName());
+        assertEquals("Courses Group", coursesAgregatorUnit.getChildUnitByAcronym("CC").getName());
+
+        // only searches direct descendants
+        assertNull(universityUnit.getChildUnitByAcronym("Courses"));
+        assertNull(coursesAgregatorUnit.getChildUnitByAcronym("Courses"));
+        assertNull(coursesAgregatorUnit.getChildUnitByAcronym("Degrees"));
+
+        // subunit with acronym not found
+        assertNull(schoolUnit.getChildUnitByAcronym("NON_EXISTENT"));
+        assertNull(schoolUnit.getChildUnitByAcronym(""));
+        assertNull(schoolUnit.getChildUnitByAcronym(null));
+    }
+
+    @Test
+    public void testUnits_readAllUnitsBehavior() {
+        final List<Unit> allUnits = Unit.readAllUnits();
+        assertEquals(8, allUnits.size());
+
+        assertTrue(allUnits.stream().anyMatch(u -> "Earth".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "Portugal".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "qub University".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "qub School".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "Courses".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "Degrees".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "Courses Group".equals(u.getName())));
+        assertTrue(allUnits.stream().anyMatch(u -> "Inactive School".equals(u.getName())));
+    }
+
+    @Test
+    public void testUnit_getCountry() {
+        Country portugalCountry = new Country(buildLS.apply("Portugal"), buildLS.apply("Portuguese"), "PT", "PRT");
+        Country spainCountry = new Country(buildLS.apply("Spain"), buildLS.apply("Spanish"), "ES", "ESP");
+
+        final Unit earthUnit = UnitUtils.readEarthUnit();
+        final Unit universityUnit = UnitUtils.readInstitutionUnit();
+        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        // no country, returns null
+        assertNull(earthUnit.getCountry());
+        assertNull(universityUnit.getCountry());
+
+        // set country on university, school and courses should inherit
+        universityUnit.setCountry(portugalCountry);
+        assertEquals(portugalCountry, universityUnit.getCountry());
+        assertEquals(portugalCountry, schoolUnit.getCountry());
+        assertEquals(portugalCountry, coursesUnit.getCountry());
+
+        // set different country on school → school returns its own, courses still inherits from school
+        schoolUnit.setCountry(spainCountry);
+        assertEquals(portugalCountry, universityUnit.getCountry());
+        assertEquals(spainCountry, schoolUnit.getCountry());
+        assertEquals(spainCountry, coursesUnit.getCountry());
+    }
 }
