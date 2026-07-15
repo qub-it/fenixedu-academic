@@ -554,7 +554,8 @@ public class StudentCurricularPlanTest {
 
     @Test
     public void testStudentCurricularPlan_hasEquivalenceIn() {
-        CurricularCourse newCurricularCourse = createCurricularCourseWithSameCompetenceAsCurricularCourseA();
+        CurricularCourse newCurricularCourse = new CurricularCourse();
+        newCurricularCourse.setCompetenceCourse(CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE));
 
         assertFalse(scpV1.hasEquivalenceIn(curricularCourseA, List.of()));
         assertFalse(scpV1.hasEquivalenceIn(curricularCourseA, List.of(curricularCourseB)));
@@ -660,14 +661,6 @@ public class StudentCurricularPlanTest {
 
         evaluation.edit(admin, grade, new Date(), new Date());
         evaluation.confirmSubmission(admin, "Testing Enrolment Approval");
-    }
-
-    private static CurricularCourse createCurricularCourseWithSameCompetenceAsCurricularCourseA() {
-        CurricularCourse newCurricularCourse = new CurricularCourse();
-        newCurricularCourse.setCompetenceCourse(CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE));
-        newCurricularCourse.setName(NEW_CC_NAME);
-        new Context(dcpV1.getRoot(), newCurricularCourse, semesterPeriod, executionInterval, null);
-        return newCurricularCourse;
     }
 
     private static Enrolment createDissertationEnrolment(String competenceCourseCode, CurricularCourse curricularCourse,
