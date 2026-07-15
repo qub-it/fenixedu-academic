@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.DomainObjectUtil;
@@ -55,40 +54,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public static final Comparator<Party> COMPARATOR_BY_NAME = Comparator.comparing(Party::getName, NAME_COMPARATOR);
 
-    static final public Comparator<Party> COMPARATOR_BY_SUBPARTY = new Comparator<Party>() {
-        @Override
-        public int compare(final Party o1, final Party o2) {
-            if ((o1 instanceof Person) && (o2 instanceof Unit)) {
-                return 1;
-            } else if ((o1 instanceof Unit) && (o2 instanceof Person)) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    };
-
-    static final public Comparator<Party> COMPARATOR_BY_NAME_AND_ID = new Comparator<Party>() {
-        @Override
-        public int compare(final Party o1, final Party o2) {
-            final ComparatorChain comparatorChain = new ComparatorChain();
-            comparatorChain.addComparator(Party.COMPARATOR_BY_NAME);
-            comparatorChain.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
-
-            return comparatorChain.compare(o1, o2);
-        }
-    };
-
-    static final public Comparator<Party> COMPARATOR_BY_SUBPARTY_AND_NAME_AND_ID = new Comparator<Party>() {
-        @Override
-        public int compare(final Party o1, final Party o2) {
-            final ComparatorChain comparatorChain = new ComparatorChain();
-            comparatorChain.addComparator(Party.COMPARATOR_BY_SUBPARTY);
-            comparatorChain.addComparator(Party.COMPARATOR_BY_NAME);
-            comparatorChain.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
-            return comparatorChain.compare(o1, o2);
-        }
-    };
+    static final public Comparator<Party> COMPARATOR_BY_NAME_AND_ID =
+            COMPARATOR_BY_NAME.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     public abstract String getPartyPresentationName();
 
