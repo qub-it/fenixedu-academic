@@ -403,12 +403,12 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     @Override
-    public void addAssociatedExecutionCourses(final ExecutionCourse associatedExecutionCourse) {
-        if (getAssociatedExecutionCoursesSet().stream().anyMatch(ec -> ec != associatedExecutionCourse
-                && ec.getExecutionInterval() == associatedExecutionCourse.getExecutionInterval())) {
+    public void addAssociatedExecutionCourses(final ExecutionCourse executionCourse) {
+        if (getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> ec != executionCourse && ec.getExecutionInterval() == executionCourse.getExecutionInterval())) {
             throw new DomainException("error.executionCourse.curricularCourse.already.associated");
         }
-        super.addAssociatedExecutionCourses(associatedExecutionCourse);
+        super.addAssociatedExecutionCourses(executionCourse);
     }
 
     public String getCodeAndName(final ExecutionInterval executionInterval) {
