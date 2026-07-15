@@ -228,6 +228,34 @@ public class OrganizationalStructureTest {
         assertTrue(universityUnit.getParentUnits(List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE)).contains(countryUnit));
     }
 
+    @Test
+    public void testParty_getChildParties() {
+        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit degreesAgregatorUnit = Unit.findInternalUnitByAcronymPath("QS>Degrees").orElseThrow();
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
+        final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        assertTrue(coursesGroupUnit.getSubUnits().isEmpty());
+        assertTrue(schoolUnit.getSubUnits(PartyTypeEnum.COUNTRY).isEmpty());
+        assertTrue(schoolUnit.getSubUnits(List.of(GEOGRAPHIC)).isEmpty());
+        assertTrue(schoolUnit.getSubUnits().contains(degreesAgregatorUnit));
+        assertTrue(schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT).contains(degreesAgregatorUnit));
+        assertFalse(schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT).contains(coursesGroupUnit));
+        final Collection<Unit> subUnits = schoolUnit.getSubUnits(List.of(ORGANIZATIONAL_STRUCTURE));
+        assertTrue(subUnits.contains(degreesAgregatorUnit));
+        assertTrue(subUnits.contains(coursesUnit));
+    }
+
+    @Test
+    public void testParty_getChildAccountabilities() {
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
+        final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        assertTrue(coursesGroupUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).isEmpty());
+        assertTrue(coursesUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).stream()
+                .anyMatch(accountability -> accountability.getChildParty() == coursesGroupUnit));
+    }
+
     private static Person createPerson(final String name, final String username) {
         final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
         new User(username, userProfile);

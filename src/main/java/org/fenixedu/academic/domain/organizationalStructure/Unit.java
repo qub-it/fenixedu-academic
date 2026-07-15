@@ -353,11 +353,11 @@ public class Unit extends Unit_Base {
     }
 
     public Collection<Unit> getSubUnits(List<AccountabilityTypeEnum> accountabilityTypeEnums) {
-        return (Collection<Unit>) getChildParties(accountabilityTypeEnums, Unit.class);
+        return (Collection<Unit>) getChildParties(accountabilityTypeEnums, Unit.class).collect(Collectors.toSet());
     }
 
     public Collection<Unit> getSubUnits(final PartyTypeEnum type) {
-        return (Collection<Unit>) getChildParties(type, Unit.class);
+        return (Collection<Unit>) getChildParties(type, Unit.class).collect(Collectors.toSet());
     }
 
     public Accountability addParentUnit(Unit parentUnit, AccountabilityType accountabilityType) {

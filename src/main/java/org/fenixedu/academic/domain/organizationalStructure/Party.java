@@ -27,7 +27,6 @@ import static org.fenixedu.academic.util.StringFormatter.NAME_COMPARATOR;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -144,50 +143,31 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public Collection<Unit> getSubUnits() {
-        return (Collection<Unit>) getChildParties(Unit.class);
+        return (Collection<Unit>) getChildParties(Unit.class).collect(Collectors.toSet());
     }
 
-    private Collection<? extends Party> getChildParties(Class<? extends Party> childPartyClass) {
-        final Set<Party> result = new HashSet<Party>();
-        for (final Accountability accountability : getChildsSet()) {
-            if (childPartyClass.isAssignableFrom(accountability.getChildParty().getClass())) {
-                result.add(accountability.getChildParty());
-            }
-        }
-        return result;
+    private Stream<? extends Party> getChildParties(Class<? extends Party> childPartyClass) {
+        return getChildsSet().stream().map(Accountability::getChildParty)
+                .filter(childParty -> childPartyClass.isAssignableFrom(childParty.getClass()));
     }
 
-    protected Collection<? extends Party> getChildParties(List<AccountabilityTypeEnum> accountabilityTypeEnums,
+    protected Stream<? extends Party> getChildParties(List<AccountabilityTypeEnum> accountabilityTypeEnums,
             Class<? extends Party> childPartyClass) {
-        final Set<Party> result = new HashSet<Party>();
-        for (final Accountability accountability : getChildsSet()) {
-            if (accountabilityTypeEnums.contains(accountability.getAccountabilityType().getType())
-                    && childPartyClass.isAssignableFrom(accountability.getChildParty().getClass())) {
-                result.add(accountability.getChildParty());
-            }
-        }
-        return result;
+        return getChildsSet().stream()
+                .filter(accountability -> accountabilityTypeEnums.contains(accountability.getAccountabilityType().getType())
+                        && childPartyClass.isAssignableFrom(accountability.getChildParty().getClass()))
+                .map(Accountability::getChildParty);
     }
 
-    protected Collection<? extends Party> getChildParties(PartyTypeEnum type, Class<? extends Party> childPartyClass) {
-        final Set<Party> result = new HashSet<Party>();
-        for (final Accountability accountability : getChildsSet()) {
-            if (accountability.getChildParty().getType() == type
-                    && childPartyClass.isAssignableFrom(accountability.getChildParty().getClass())) {
-                result.add(accountability.getChildParty());
-            }
-        }
-        return result;
+    protected Stream<? extends Party> getChildParties(PartyTypeEnum type, Class<? extends Party> childPartyClass) {
+        return getChildsSet().stream().map(Accountability::getChildParty)
+                .filter(childParty -> childParty.getType() == type && childPartyClass.isAssignableFrom(childParty.getClass()));
     }
 
     public Collection<? extends Accountability> getChildAccountabilities(AccountabilityTypeEnum accountabilityTypeEnum) {
-        final Set<Accountability> result = new HashSet<Accountability>();
-        for (final Accountability accountability : getChildsSet()) {
-            if (accountability.getAccountabilityType().getType() == accountabilityTypeEnum) {
-                result.add(accountability);
-            }
-        }
-        return result;
+        return getChildsSet().stream()
+                .filter(accountability -> accountability.getAccountabilityType().getType() == accountabilityTypeEnum)
+                .collect(Collectors.toSet());
     }
 
     public void delete() {

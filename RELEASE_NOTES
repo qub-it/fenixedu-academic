@@ -10,6 +10,7 @@
 - Refactor: Improves SchoolClass domain methods [#qubIT-Fenix-8926]
 - Refactor: Improve readability of Country entity methods and add tests [#qubIT-Fenix-9025]
 - Refactor: Remove Evaluation Type entity [#qubIT-Fenix-8996]
+- Refactor: Clean up child party methods in Party class [#qubIT-Fenix-8960]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]
