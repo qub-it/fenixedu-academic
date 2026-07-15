@@ -188,8 +188,7 @@ public class SchoolClass extends SchoolClass_Base {
     }
 
     private void enrolInSchoolClassAndShifts(final Registration registration) {
-        registration.getSchoolClassesSet()
-                .add(this); // must add first in order to correct evaluation of shift capacities based on school classes
+        registration.getSchoolClassesSet().add(this); // must add first in order to correct evaluation of shift capacities based on school classes
 
         final Comparator<Shift> vacanciesComparator = Comparator.comparing(Shift::getVacancies).reversed();
 
@@ -202,9 +201,8 @@ public class SchoolClass extends SchoolClass_Base {
 
             for (final CourseLoadType courseLoadType : shiftsByLoadType.keySet()) {
                 if (registration.findEnrolledShiftFor(executionCourse, courseLoadType).isEmpty()) {
-                    final List<Shift> shiftsOrderedByVacancies =
-                            shiftsByLoadType.get(courseLoadType).stream().sorted(vacanciesComparator)
-                                    .collect(Collectors.toList());
+                    final List<Shift> shiftsOrderedByVacancies = shiftsByLoadType.get(courseLoadType).stream()
+                            .sorted(vacanciesComparator).collect(Collectors.toList());
 
                     if (!enrolInOneShift(shiftsOrderedByVacancies, registration)) {
                         throw new DomainException("error.registration.enrolSchoolClass.shiftFull",
