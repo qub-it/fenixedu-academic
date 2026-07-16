@@ -56,10 +56,16 @@ public class ExecutionCourseTest {
     private ExecutionCourse emptyExecutionCourse;
     private static ExecutionDegree executionDegree;
 
+    private static ExecutionInterval currentExecutionInterval;
+    private static ExecutionYear currentExecutionYear;
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             EnrolmentTest.initEnrolments();
+
+            currentExecutionInterval = ExecutionInterval.findFirstCurrentChild(null);
+            currentExecutionYear = ExecutionYear.findCurrent(null);
 
             student = Student.readStudentByNumber(1);
             registration = student.getRegistrationStream().findAny().orElseThrow();
@@ -86,8 +92,7 @@ public class ExecutionCourseTest {
 
     private static ExecutionCourse createEmptyExecutionCourse() {
         final String uuid = UUID.randomUUID().toString();
-        final ExecutionInterval interval = ExecutionInterval.findFirstCurrentChild(null);
-        return new ExecutionCourse(uuid, uuid, interval);
+        return createExecutionCourse(uuid, uuid, currentExecutionInterval);
     }
 
     private static Registration createNewRegistration(final String name, final String username) {
@@ -97,8 +102,7 @@ public class ExecutionCourseTest {
         final DegreeCurricularPlan dcp =
                 degree.getDegreeCurricularPlansSet().stream().filter(p -> DCP_NAME_V1.equals(p.getName())).findAny()
                         .orElseThrow();
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-        return StudentTest.createRegistration(s, dcp, executionYear);
+        return StudentTest.createRegistration(s, dcp, currentExecutionYear);
     }
 
     @Test
@@ -146,7 +150,7 @@ public class ExecutionCourseTest {
     public void testGetDegreesSortedByDegreeName() {
         // empty executioncourse
         final ExecutionCourse newEmptyExecutionCourse =
-                new ExecutionCourse("Empty EC", "EMPTY", executionCourse.getExecutionInterval());
+                createExecutionCourse("Empty EC", "EMPTY", executionCourse.getExecutionInterval());
         final SortedSet<Degree> emptyDegrees = newEmptyExecutionCourse.getDegreesSortedByDegreeName();
         assertTrue(emptyDegrees.isEmpty());
 
@@ -193,8 +197,7 @@ public class ExecutionCourseTest {
     @Test
     public void addAssociatedCurricularCourses_throwsWhenAlreadyAssociatedInSameInterval() {
         final CurricularCourse curricularCourse = createCurricularCourse("CC2");
-        final ExecutionInterval interval = ExecutionInterval.findFirstCurrentChild(null);
-        final ExecutionCourse anotherEc = new ExecutionCourse("Another", "ANOTHER", interval);
+        final ExecutionCourse anotherEc = createExecutionCourse("Another", "ANOTHER", currentExecutionInterval);
         emptyExecutionCourse.addAssociatedCurricularCourses(curricularCourse);
         assertThrows(DomainException.class, () -> anotherEc.addAssociatedCurricularCourses(curricularCourse));
     }
@@ -202,9 +205,8 @@ public class ExecutionCourseTest {
     @Test
     public void addAssociatedCurricularCourses_sameCurricularCourseDifferentInterval() {
         final CurricularCourse curricularCourse = createCurricularCourse("CC3");
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
-        final ExecutionInterval nextInterval = currentInterval.getNext();
-        final ExecutionCourse nextEc = new ExecutionCourse("Next", "NEXT", nextInterval);
+        final ExecutionInterval nextInterval = currentExecutionInterval.getNext();
+        final ExecutionCourse nextEc = createExecutionCourse("Next", "NEXT", nextInterval);
         emptyExecutionCourse.addAssociatedCurricularCourses(curricularCourse);
         nextEc.addAssociatedCurricularCourses(curricularCourse);
         assertTrue(emptyExecutionCourse.getAssociatedCurricularCoursesSet().contains(curricularCourse));
@@ -218,29 +220,19 @@ public class ExecutionCourseTest {
     }
 
     private static void associateDegreeToExecutionCourse(final String degreeCode) {
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-        final Degree degreeA = Degree.find(DEGREE_A_CODE);
-        final Person creator = User.findByUsername(UserUtil.ADMIN_USERNAME).getPerson();
-        final Degree degree = DegreeTest.createDegree(degreeA.getDegreeType(), degreeCode, "Degree " + degreeCode, executionYear);
-
-        final DegreeCurricularPlan dcp =
-                degree.createDegreeCurricularPlan("DCP_" + degreeCode, creator, AcademicPeriod.THREE_YEAR);
-
-        final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
-        final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
-        final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
-        final CurricularCourse curricularCourse = new CurricularCourse(null, competenceCourse, dcp.getRoot(), semesterPeriod,
-                executionYear.getFirstExecutionPeriod(),
-                        null);
-
+        final CurricularCourse curricularCourse = createCurricularCourse(degreeCode);
         executionCourse.addAssociatedCurricularCourses(curricularCourse);
     }
 
+    private static ExecutionCourse createExecutionCourse(final String name, final String code, final ExecutionInterval interval) {
+        return new ExecutionCourse(name, code, interval);
+    }
+
     private static CurricularCourse createCurricularCourse(final String degreeCode) {
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
         final Degree degreeA = Degree.find(DEGREE_A_CODE);
         final Person creator = User.findByUsername(UserUtil.ADMIN_USERNAME).getPerson();
-        final Degree degree = DegreeTest.createDegree(degreeA.getDegreeType(), degreeCode, "Degree " + degreeCode, executionYear);
+        final Degree degree =
+                DegreeTest.createDegree(degreeA.getDegreeType(), degreeCode, "Degree " + degreeCode, currentExecutionYear);
 
         final DegreeCurricularPlan dcp =
                 degree.createDegreeCurricularPlan("DCP_" + degreeCode, creator, AcademicPeriod.THREE_YEAR);
@@ -249,7 +241,7 @@ public class ExecutionCourseTest {
         final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
         final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
         return new CurricularCourse(null, competenceCourse, dcp.getRoot(), semesterPeriod,
-                executionYear.getFirstExecutionPeriod(),
+                currentExecutionYear.getFirstExecutionPeriod(),
                 null);
     }
 
@@ -272,11 +264,10 @@ public class ExecutionCourseTest {
 
     @Test
     public void testSetSigla_conflicts() {
-        final ExecutionInterval interval = emptyExecutionCourse.getExecutionInterval();
         final String target = "CONFLICT_" + UUID.randomUUID();
 
         // existing course holds the sigla in uppercase
-        final ExecutionCourse other = new ExecutionCourse("Other", UUID.randomUUID().toString(), interval);
+        final ExecutionCourse other = createExecutionCourse("Other", UUID.randomUUID().toString(), currentExecutionInterval);
         other.setSigla(target.toUpperCase());
 
         // first conflict is detected case-insensitively -> target-0
@@ -284,7 +275,8 @@ public class ExecutionCourseTest {
         assertEquals(target.toLowerCase() + "-0", emptyExecutionCourse.getSigla());
 
         // second conflict -> target-1
-        final ExecutionCourse anotherCourse = new ExecutionCourse("Another", UUID.randomUUID().toString(), interval);
+        final ExecutionCourse anotherCourse =
+                createExecutionCourse("Another", UUID.randomUUID().toString(), currentExecutionInterval);
         anotherCourse.setSigla(target.toLowerCase());
         assertEquals(target.toLowerCase() + "-1", anotherCourse.getSigla());
     }
@@ -344,15 +336,14 @@ public class ExecutionCourseTest {
         final DegreeCurricularPlan dcp =
                 executionCourse.getAssociatedCurricularCoursesSet().iterator().next().getDegreeCurricularPlan();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
 
         // two CurricularCourse instances sharing the same CompetenceCourse, associated with an empty execution course
         final CompetenceCourse sharedCompetenceCourse =
                 CompetenceCourseTest.createCompetenceCourse("Shared Course", "SHR" + UUID.randomUUID(), new BigDecimal("6.0"),
-                        AcademicPeriod.SEMESTER, currentInterval, coursesUnit);
+                        AcademicPeriod.SEMESTER, currentExecutionInterval, coursesUnit);
 
-        final CurricularCourse cc1 = createCurricularCourse(dcp, sharedCompetenceCourse, currentInterval);
-        final CurricularCourse cc2 = createCurricularCourse(dcp, sharedCompetenceCourse, currentInterval);
+        final CurricularCourse cc1 = createCurricularCourse(dcp, sharedCompetenceCourse, currentExecutionInterval);
+        final CurricularCourse cc2 = createCurricularCourse(dcp, sharedCompetenceCourse, currentExecutionInterval);
         cc1.addAssociatedExecutionCourses(emptyExecutionCourse);
         cc2.addAssociatedExecutionCourses(emptyExecutionCourse);
 
@@ -366,18 +357,17 @@ public class ExecutionCourseTest {
         final DegreeCurricularPlan dcp =
                 executionCourse.getAssociatedCurricularCoursesSet().iterator().next().getDegreeCurricularPlan();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
 
         // two CurricularCourse instances, each with a different CompetenceCourse, associated with an empty execution course
         final CompetenceCourse competenceCourseA =
                 CompetenceCourseTest.createCompetenceCourse("Course X", "CX" + UUID.randomUUID(), new BigDecimal("6.0"),
-                        AcademicPeriod.SEMESTER, currentInterval, coursesUnit);
+                        AcademicPeriod.SEMESTER, currentExecutionInterval, coursesUnit);
         final CompetenceCourse competenceCourseB =
                 CompetenceCourseTest.createCompetenceCourse("Course Y", "CY" + UUID.randomUUID(), new BigDecimal("6.0"),
-                        AcademicPeriod.SEMESTER, currentInterval, coursesUnit);
+                        AcademicPeriod.SEMESTER, currentExecutionInterval, coursesUnit);
 
-        final CurricularCourse ccA = createCurricularCourse(dcp, competenceCourseA, currentInterval);
-        final CurricularCourse ccB = createCurricularCourse(dcp, competenceCourseB, currentInterval);
+        final CurricularCourse ccA = createCurricularCourse(dcp, competenceCourseA, currentExecutionInterval);
+        final CurricularCourse ccB = createCurricularCourse(dcp, competenceCourseB, currentExecutionInterval);
         ccA.addAssociatedExecutionCourses(emptyExecutionCourse);
         ccB.addAssociatedExecutionCourses(emptyExecutionCourse);
 
@@ -407,28 +397,27 @@ public class ExecutionCourseTest {
         final DegreeCurricularPlan dcp =
                 executionCourse.getAssociatedCurricularCoursesSet().iterator().next().getDegreeCurricularPlan();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
-        final ExecutionInterval executionInterval = ExecutionInterval.findFirstCurrentChild(null);
-        assertSame(executionInterval, emptyExecutionCourse.getExecutionInterval());
+        assertSame(currentExecutionInterval, emptyExecutionCourse.getExecutionInterval());
 
         // first competence course, with a single information
         final CompetenceCourse singleInfoCompetenceCourse =
                 CompetenceCourseTest.createCompetenceCourse("Single Info Course", "SIC" + UUID.randomUUID(),
-                        new BigDecimal("6.0"), AcademicPeriod.SEMESTER, executionInterval, coursesUnit);
-        final CurricularCourse singleInfoCc = createCurricularCourse(dcp, singleInfoCompetenceCourse, executionInterval);
+                        new BigDecimal("6.0"), AcademicPeriod.SEMESTER, currentExecutionInterval, coursesUnit);
+        final CurricularCourse singleInfoCc = createCurricularCourse(dcp, singleInfoCompetenceCourse, currentExecutionInterval);
         singleInfoCc.addAssociatedExecutionCourses(emptyExecutionCourse);
 
         // second competence course, with multiple information
         final CompetenceCourse multiInfoCompetenceCourse =
                 CompetenceCourseTest.createCompetenceCourse("Multi Info Course", "MIC" + UUID.randomUUID(), new BigDecimal("6.0"),
-                        AcademicPeriod.SEMESTER, executionInterval, coursesUnit);
+                        AcademicPeriod.SEMESTER, currentExecutionInterval, coursesUnit);
         final CompetenceCourseInformation currentInfo =
                 multiInfoCompetenceCourse.getCompetenceCourseInformationsSet().iterator().next();
 
         // future information version, should not be picked as current
-        final ExecutionYear nextExecutionYear = (ExecutionYear) ExecutionYear.findCurrentAggregator(null).getNext();
+        final ExecutionYear nextExecutionYear = (ExecutionYear) currentExecutionYear.getNext();
         new CompetenceCourseInformation(currentInfo, nextExecutionYear.getFirstExecutionPeriod());
 
-        final CurricularCourse multiInfoCc = createCurricularCourse(dcp, multiInfoCompetenceCourse, executionInterval);
+        final CurricularCourse multiInfoCc = createCurricularCourse(dcp, multiInfoCompetenceCourse, currentExecutionInterval);
         multiInfoCc.addAssociatedExecutionCourses(emptyExecutionCourse);
 
         final Set<CompetenceCourseInformation> informations = emptyExecutionCourse.getCompetenceCoursesInformations();
@@ -450,24 +439,22 @@ public class ExecutionCourseTest {
     @Test
     public void testGetExecutionDegrees_multipleDegreeCurricularPlans() {
         final Degree degree = Degree.find(DEGREE_A_CODE);
-        final ExecutionYear currentExecutionYear = ExecutionYear.findCurrent(null);
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
 
         // DCP with a curricular course associated to the empty execution course
         final DegreeCurricularPlan dcpA =
-                createDcpWithAssociatedExecutionCourse(degree, "A", currentInterval, coursesUnit, emptyExecutionCourse);
+                createDcpWithAssociatedExecutionCourse(degree, "A", currentExecutionInterval, coursesUnit, emptyExecutionCourse);
         final ExecutionDegree executionDegreeA = dcpA.createExecutionDegree(currentExecutionYear);
 
         // different DCP, with another curricular course associated to the same execution course
         final DegreeCurricularPlan dcpB =
-                createDcpWithAssociatedExecutionCourse(degree, "B", currentInterval, coursesUnit, emptyExecutionCourse);
+                createDcpWithAssociatedExecutionCourse(degree, "B", currentExecutionInterval, coursesUnit, emptyExecutionCourse);
         final ExecutionDegree executionDegreeB = dcpB.createExecutionDegree(currentExecutionYear);
 
         // DCP with its own execution degree, but with no curricular course associated to the execution course
         final DegreeCurricularPlan unrelatedDcp =
                 new DegreeCurricularPlan(degree, "DCP_UNRELATED_" + UUID.randomUUID(), AcademicPeriod.THREE_YEAR,
-                        currentInterval);
+                        currentExecutionInterval);
         final ExecutionDegree unrelatedExecutionDegree = unrelatedDcp.createExecutionDegree(currentExecutionYear);
 
         final Set<ExecutionDegree> executionDegrees = emptyExecutionCourse.getExecutionDegrees();
@@ -488,21 +475,20 @@ public class ExecutionCourseTest {
     @Test
     public void testGetAssociatedDegreeCurricularPlans_multipleDegreeCurricularPlans() {
         final Degree degree = Degree.find(DEGREE_A_CODE);
-        final ExecutionInterval currentInterval = ExecutionInterval.findFirstCurrentChild(null);
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
 
         // DCP with a curricular course associated to the empty execution course
         final DegreeCurricularPlan dcpA =
-                createDcpWithAssociatedExecutionCourse(degree, "A", currentInterval, coursesUnit, emptyExecutionCourse);
+                createDcpWithAssociatedExecutionCourse(degree, "A", currentExecutionInterval, coursesUnit, emptyExecutionCourse);
 
         // different DCP with another curricular course associated to the same execution course
         final DegreeCurricularPlan dcpB =
-                createDcpWithAssociatedExecutionCourse(degree, "B", currentInterval, coursesUnit, emptyExecutionCourse);
+                createDcpWithAssociatedExecutionCourse(degree, "B", currentExecutionInterval, coursesUnit, emptyExecutionCourse);
 
         // DCP with no curricular course associated to the execution course
         final DegreeCurricularPlan unrelatedDcp =
                 new DegreeCurricularPlan(degree, "DCP_UNRELATED_" + UUID.randomUUID(), AcademicPeriod.THREE_YEAR,
-                        currentInterval);
+                        currentExecutionInterval);
 
         final Collection<DegreeCurricularPlan> plans = emptyExecutionCourse.getAssociatedDegreeCurricularPlans();
         assertEquals(2, plans.size());
@@ -513,8 +499,7 @@ public class ExecutionCourseTest {
 
     @Test
     public void executionCourseWithoutAssociations_returnsEmptyCollections() {
-        final ExecutionInterval interval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
-        final ExecutionCourse emptyCourse = new ExecutionCourse("TestCourse", "TC", interval);
+        final ExecutionCourse emptyCourse = createExecutionCourse("TestCourse", "TC", currentExecutionInterval);
 
         assertTrue(emptyCourse.getCompetenceCourses().isEmpty());
         assertTrue(emptyCourse.getCompetenceCoursesInformations().isEmpty());
