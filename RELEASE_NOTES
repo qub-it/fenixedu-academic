@@ -1,3 +1,4 @@
+- Refactor: Removed unused exception classes [#qubIT-Fenix-8939]
 - Refactor: Removed unused util classes [#qubIT-Fenix-8924]
 - Refactor: Remove physical address validation file entity [#qubIT-Fenix-8995]
 - Refactor: Remove CandidaciesLog entity [#qubIT-Fenix-8994]
