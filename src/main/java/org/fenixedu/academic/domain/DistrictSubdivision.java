@@ -18,26 +18,13 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.TreeSet;
+import java.util.Optional;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.commons.StringNormalizer;
 
 //TODO: Refactor remaining object to use district subdivision instead of strings
 public class DistrictSubdivision extends DistrictSubdivision_Base {
-
-    public static Comparator<DistrictSubdivision> COMPARATOR_BY_NAME = new Comparator<DistrictSubdivision>() {
-        @Override
-        public int compare(DistrictSubdivision leftDistrictSubdivision, DistrictSubdivision rightDistrictSubdivision) {
-            int comparationResult = leftDistrictSubdivision.getName().compareTo(rightDistrictSubdivision.getName());
-            return (comparationResult == 0) ? leftDistrictSubdivision.getExternalId().compareTo(
-                    rightDistrictSubdivision.getExternalId()) : comparationResult;
-        }
-    };
 
     private DistrictSubdivision() {
         super();
@@ -73,34 +60,9 @@ public class DistrictSubdivision extends DistrictSubdivision_Base {
 
     }
 
-    static public Collection<DistrictSubdivision> findByName(String name, int size) {
-        String normalizedName = StringNormalizer.normalize(name);
-        Collection<DistrictSubdivision> result = new TreeSet<DistrictSubdivision>(COMPARATOR_BY_NAME);
-
-        for (DistrictSubdivision districtSubdivision : Bennu.getInstance().getDistrictSubdivisionsSet()) {
-            if (StringNormalizer.normalize(districtSubdivision.getName()).contains(normalizedName)) {
-                result.add(districtSubdivision);
-                if (result.size() >= size) {
-                    break;
-                }
-            }
-        }
-
-        return result;
+    static public Optional<DistrictSubdivision> findByCode(final String code) {
+        return Optional.ofNullable(code).flatMap(
+                c -> Bennu.getInstance().getDistrictSubdivisionsSet().stream().filter(ds -> ds.getCode().equalsIgnoreCase(c))
+                        .findFirst());
     }
-
-    static public DistrictSubdivision readByCode(final String code) {
-        DistrictSubdivision result = null;
-
-        if (!StringUtils.isEmpty(code)) {
-            for (final DistrictSubdivision iter : Bennu.getInstance().getDistrictSubdivisionsSet()) {
-                if (iter.getCode().equalsIgnoreCase(code)) {
-                    result = iter;
-                }
-            }
-        }
-
-        return result;
-    }
-
 }

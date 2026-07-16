@@ -18,21 +18,11 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.Comparator;
-
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 //TODO: Refactor remaining object to use district instead of strings
 public class District extends District_Base {
-
-    public static Comparator<District> COMPARATOR_BY_NAME = new Comparator<District>() {
-        @Override
-        public int compare(District leftDistrict, District rightDistrict) {
-            int comparationResult = leftDistrict.getName().compareTo(rightDistrict.getName());
-            return (comparationResult == 0) ? leftDistrict.getExternalId().compareTo(rightDistrict.getExternalId()) : comparationResult;
-        }
-    };
 
     private District() {
         super();
@@ -62,35 +52,16 @@ public class District extends District_Base {
     }
 
     public DistrictSubdivision getDistrictSubdivisionByName(final String name) {
-
-        for (final DistrictSubdivision districtSubdivision : getDistrictSubdivisionsSet()) {
-            if (districtSubdivision.getName().equals(name)) {
-                return districtSubdivision;
-            }
-        }
-
-        return null;
-
+        return getDistrictSubdivisionsSet().stream().filter(ds -> ds.getName().equals(name)).findFirst().orElse(null);
     }
 
     static public District readByCode(final String code) {
-        for (final District district : Bennu.getInstance().getDistrictsSet()) {
-            if (district.getCode().equals(code)) {
-                return district;
-            }
-        }
-
-        return null;
+        return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getCode().equals(code)).findFirst()
+                .orElse(null);
     }
 
     static public District readByName(final String name) {
-        for (final District district : Bennu.getInstance().getDistrictsSet()) {
-            if (district.getName().equals(name)) {
-                return district;
-            }
-        }
-
-        return null;
+        return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getName().equals(name)).findFirst()
+                .orElse(null);
     }
-
 }
