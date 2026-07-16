@@ -231,26 +231,13 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     public List<Enrolment> getEnrolments() {
-        final List<Enrolment> result = new ArrayList<Enrolment>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                result.add((Enrolment) curriculumModule);
-            }
-        }
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
+                .collect(Collectors.toList());
     }
 
     public List<Enrolment> getEnrolmentsByExecutionYear(ExecutionYear executionYear) {
-        List<Enrolment> result = new ArrayList<Enrolment>();
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (enrolment.getExecutionInterval().getExecutionYear().equals(executionYear)) {
-                    result.add(enrolment);
-                }
-            }
-        }
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
+                .filter(e -> e.getExecutionYear() == executionYear).collect(Collectors.toList());
     }
 
     protected String getBaseName() {
@@ -308,32 +295,12 @@ public class CurricularCourse extends CurricularCourse_Base {
 
     @Deprecated
     public RegimeType getRegime(final ExecutionInterval interval) {
-        final CompetenceCourse competenceCourse = getCompetenceCourse();
-        return competenceCourse == null ? null : competenceCourse.getRegime(interval);
+        return getCompetenceCourse() == null ? null : getCompetenceCourse().getRegime(interval);
     }
 
     @Deprecated
-    public RegimeType getRegime(final ExecutionYear executionYear) {
-        final CompetenceCourse competenceCourse = getCompetenceCourse();
-        return competenceCourse == null ? null : competenceCourse.getRegime(executionYear);
-    }
-
-    @Deprecated
-    public RegimeType getRegime() {
-        if (getCompetenceCourse() != null) {
-            return getCompetenceCourse().getRegime();
-        }
-        return isOptionalCurricularCourse() ? RegimeType.SEMESTRIAL : null;
-    }
-
-    @Deprecated
-    public boolean hasRegime() {
-        return getRegime() != null;
-    }
-
-    @Deprecated
-    public boolean hasRegime(final ExecutionYear executionYear) {
-        return getRegime(executionYear) != null;
+    public boolean hasRegime(final ExecutionInterval interval) {
+        return getRegime(interval) != null;
     }
 
     public boolean isOptionalCurricularCourse() {
@@ -349,7 +316,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     @Override
     public boolean isDissertation() {
         CompetenceCourse competenceCourse = getCompetenceCourse();
-        return competenceCourse == null ? false : competenceCourse.isDissertation();
+        return competenceCourse != null && competenceCourse.isDissertation();
     }
 
     public boolean isAnual() {
@@ -391,12 +358,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     public boolean isActive(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (isActive(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return executionYear.getChildIntervals().stream().anyMatch(this::isActive);
     }
 
     public boolean isActive(final ExecutionInterval interval) {
@@ -418,12 +380,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     public boolean hasAnyExecutionCourseIn(ExecutionInterval executionInterval) {
-        for (ExecutionCourse executionCourse : getAssociatedExecutionCoursesSet()) {
-            if (executionCourse.getExecutionInterval().equals(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getAssociatedExecutionCoursesSet().stream().anyMatch(ec -> ec.getExecutionInterval().equals(executionInterval));
     }
 
     @Override
@@ -446,16 +403,12 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     @Override
-    public void addAssociatedExecutionCourses(final ExecutionCourse associatedExecutionCourses) {
-        Collection<ExecutionCourse> executionCourses = getAssociatedExecutionCoursesSet();
-
-        for (ExecutionCourse executionCourse : executionCourses) {
-            if (associatedExecutionCourses != executionCourse
-                    && executionCourse.getExecutionInterval() == associatedExecutionCourses.getExecutionInterval()) {
-                throw new DomainException("error.executionCourse.curricularCourse.already.associated");
-            }
+    public void addAssociatedExecutionCourses(final ExecutionCourse executionCourse) {
+        if (getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> ec != executionCourse && ec.getExecutionInterval() == executionCourse.getExecutionInterval())) {
+            throw new DomainException("error.executionCourse.curricularCourse.already.associated");
         }
-        super.addAssociatedExecutionCourses(associatedExecutionCourses);
+        super.addAssociatedExecutionCourses(executionCourse);
     }
 
     public String getCodeAndName(final ExecutionInterval executionInterval) {

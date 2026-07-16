@@ -8,18 +8,24 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.RegimeType;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -220,6 +226,151 @@ public class CurricularCourseTest {
         assertEquals(1, curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval.getNext()).size());
         assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval).contains(enrolment));
         assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval.getNext()).contains(newEnrolment));
+    }
+
+    @Test
+    public void testCurricularCourse_getEnrolments() {
+        assertTrue(curricularCourseA.getEnrolments().isEmpty());
+
+        Enrolment enrolment = createEnrolmentInCourse(curricularCourseA, executionInterval);
+
+        assertEquals(1, curricularCourseA.getEnrolments().size());
+        assertTrue(curricularCourseA.getEnrolments().contains(enrolment));
+        assertTrue(curricularCourseB.getEnrolments().isEmpty());
+
+        enrolment.delete();
+
+        assertTrue(curricularCourseA.getEnrolments().isEmpty());
+    }
+
+    @Test
+    public void testCurricularCourse_getEnrolmentsByExecutionYear() {
+        Enrolment enrolment = createEnrolmentInCourse(curricularCourseA, executionInterval);
+
+        assertEquals(1, curricularCourseA.getEnrolmentsByExecutionYear(executionYear).size());
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(executionYear).contains(enrolment));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).isEmpty());
+
+        Enrolment newEnrolment = createEnrolmentInCourse(curricularCourseA, nextExecutionYear.getFirstExecutionPeriod());
+
+        assertEquals(1, curricularCourseA.getEnrolmentsByExecutionYear(executionYear).size());
+        assertEquals(1, curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).size());
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(executionYear).contains(enrolment));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).contains(newEnrolment));
+    }
+
+    @Test
+    public void testCurricularCourse_getRegime() {
+        assertEquals(RegimeType.SEMESTRIAL, curricularCourseA.getRegime(executionInterval));
+        assertEquals(RegimeType.ANUAL, curricularCourseB.getRegime(executionInterval));
+
+        // Testing that it works for ExecutionYears as well since getRegime(ExecutionYear) was deleted
+        assertEquals(RegimeType.SEMESTRIAL, curricularCourseA.getRegime(executionYear));
+        assertEquals(RegimeType.ANUAL, curricularCourseB.getRegime(executionYear));
+
+        CurricularCourse withoutCompetenceCourse = new CurricularCourse();
+
+        assertNull(withoutCompetenceCourse.getRegime(executionInterval));
+        assertNull(withoutCompetenceCourse.getRegime(executionYear));
+    }
+
+    @Test
+    public void testCurricularCourse_hasRegime() {
+        assertTrue(curricularCourseA.hasRegime(executionInterval));
+        assertTrue(curricularCourseB.hasRegime(executionInterval));
+
+        // Testing that it works for ExecutionYears as well since hasRegime(ExecutionYear) was replaced with hasRegime(ExecutionInterval)
+        assertTrue(curricularCourseA.hasRegime(executionYear));
+        assertTrue(curricularCourseB.hasRegime(executionYear));
+
+        CurricularCourse withoutCompetenceCourse = new CurricularCourse();
+
+        assertFalse(withoutCompetenceCourse.hasRegime(executionInterval));
+        assertFalse(withoutCompetenceCourse.hasRegime(executionYear));
+    }
+
+    @Test
+    public void testCurricularCourse_isDissertation() {
+        assertFalse(curricularCourseB.isDissertation());
+
+        CompetenceCourseType originalType = curricularCourseB.getCompetenceCourse().getCompetenceCourseType();
+        CompetenceCourseType dissertationType = CompetenceCourseType.findByCode(CompetenceCourseType.DISSERTATION).orElse(null);
+
+        if (dissertationType == null) {
+            dissertationType = CompetenceCourseType.create(CompetenceCourseType.DISSERTATION,
+                    new LocalizedString(Locale.getDefault(), "Dissertation"), true);
+        }
+
+        competenceCourseB.setCompetenceCourseType(dissertationType);
+        assertTrue(curricularCourseB.isDissertation());
+
+        // Restore competenceCourseB's type
+        competenceCourseB.setCompetenceCourseType(originalType);
+    }
+
+    @Test
+    public void testCurricularCourse_isActive_withExecutionYear() {
+        CurricularCourse curricularCourse = new CurricularCourse();
+
+        assertFalse(curricularCourse.isActive(executionYear));
+        assertFalse(curricularCourse.isActive(nextExecutionYear));
+        assertFalse(curricularCourse.isActive(executionYear.getPrevious()));
+
+        Context context = createContext(dcpV1, curricularCourse, firstSemester, executionInterval);
+
+        // We are only creating Contexts with null end (check private method createContext)
+        // Context#isValid(ExecutionInterval) checks academic period and child order match (this method is called by curricularCourse.isActive)
+        // Context#isOpen(ExecutionInterval), which is called in isValid, checks start date (end date is ignored since it is null)
+        assertTrue(curricularCourse.isActive(executionYear));
+        assertTrue(curricularCourse.isActive(nextExecutionYear));
+        assertFalse(curricularCourse.isActive(executionYear.getPrevious()));
+
+        // Setting end date to verify that the curricularCourse becomes active only in the current executionYear
+        context.setEndExecutionInterval(executionInterval.getNext());
+
+        assertTrue(curricularCourse.isActive(executionYear));
+        assertFalse(curricularCourse.isActive(nextExecutionYear));
+        assertFalse(curricularCourse.isActive(executionYear.getPrevious()));
+    }
+
+    @Test
+    public void testCurricularCourse_hasAnyExecutionCourseIn() {
+        assertFalse(curricularCourseA.hasAnyExecutionCourseIn(executionInterval));
+
+        ExecutionCourse executionCourse = createExecutionCourse(curricularCourseA, executionInterval);
+        curricularCourseA.addAssociatedExecutionCourses(executionCourse);
+
+        assertTrue(curricularCourseA.hasAnyExecutionCourseIn(executionInterval));
+
+        executionCourse.delete();
+
+        assertFalse(curricularCourseA.hasAnyExecutionCourseIn(executionInterval));
+    }
+
+    @Test
+    public void testCurricularCourse_addAssociatedExecutionCourses() {
+        ExecutionCourse executionCourse = createExecutionCourse(curricularCourseA, executionInterval);
+        curricularCourseA.addAssociatedExecutionCourses(executionCourse);
+
+        assertTrue(curricularCourseA.getAssociatedExecutionCoursesSet().contains(executionCourse));
+
+        ExecutionCourse newExecutionCourse = createExecutionCourse(curricularCourseA, executionInterval.getNext());
+        curricularCourseA.addAssociatedExecutionCourses(newExecutionCourse);
+
+        assertEquals(2, curricularCourseA.getAssociatedExecutionCoursesSet().size());
+        assertTrue(curricularCourseA.getAssociatedExecutionCoursesSet().contains(executionCourse));
+    }
+
+    @Test
+    public void testCurricularCourse_addAssociatedExecutionCourses_duplicateThrows() {
+        ExecutionCourse executionCourse = createExecutionCourse(curricularCourseA, executionInterval);
+        curricularCourseA.addAssociatedExecutionCourses(executionCourse);
+
+        // Create a new ExecutionCourse for the same CurricularCourse in the same ExecutionInterval
+        ExecutionCourse newExecutionCourse = createExecutionCourse(curricularCourseA, executionInterval);
+
+        assertThrows(DomainException.class, () -> curricularCourseA.addAssociatedExecutionCourses(newExecutionCourse),
+                "error.executionCourse.curricularCourse.already.associated");
     }
 
     // Helpers
