@@ -1,6 +1,8 @@
 package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE;
+import static org.fenixedu.academic.domain.EvaluationSeasonTest.SPECIAL_SEASON_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -23,6 +25,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -368,6 +371,54 @@ public class AttendsTest {
         assertNull(enrolment.getAttendsByExecutionCourse(executionCoursePrevious));
 
         enrolment.getAttendsSet().forEach(Attends::delete);
+    }
+
+    @Test
+    public void getAttendsStateType() {
+        FenixFramework.getTransactionManager().withTransaction(() -> {
+            final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
+            final Enrolment enrolment = attends.getEnrolment();
+
+            // 1. NOT_ENROLED: no associated enrolment
+            attends.setEnrolment(null);
+            assertEquals(Attends.StudentAttendsStateType.NOT_ENROLED, attends.getAttendsStateType());
+
+            // 2. ENROLED: valid enrolment for the attends execution interval
+            attends.setEnrolment(enrolment);
+            assertEquals(Attends.StudentAttendsStateType.ENROLED, attends.getAttendsStateType());
+
+            // 3. IMPROVEMENT: attends in a different execution interval with an improvement evaluation
+            final ExecutionInterval nextInterval = executionInterval.getNext();
+            final ExecutionCourse ecNext = new ExecutionCourse("Test", "TEST_IMP", nextInterval);
+            ecNext.addAssociatedCurricularCourses(curricularCourse);
+            final Attends attendsNext = enrolment.findOrCreateAttends(ecNext);
+            final EvaluationSeason improvementSeason = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
+            new EnrolmentEvaluation(enrolment, improvementSeason).editImprovementExecutionInterval(nextInterval);
+            assertEquals(Attends.StudentAttendsStateType.IMPROVEMENT, attendsNext.getAttendsStateType());
+
+            // 4. SPECIAL_SEASON: valid enrolment with a special season evaluation
+            final EvaluationSeason specialSeason = EvaluationSeason.findByCode(SPECIAL_SEASON_CODE).orElseThrow();
+            new EnrolmentEvaluation(enrolment, specialSeason);
+            assertEquals(Attends.StudentAttendsStateType.SPECIAL_SEASON, attends.getAttendsStateType());
+
+            // 5. null: enrolment exists but is not valid for the attends execution interval
+            final Enrolment adhocEnrolment = createAdhocEnrolmentWithoutAttends();
+            final ExecutionCourse ecOther = new ExecutionCourse("Test", "TEST_NULL", nextInterval);
+            ecOther.addAssociatedCurricularCourses(adhocEnrolment.getCurricularCourse());
+            final Attends attendsOther = adhocEnrolment.findOrCreateAttends(ecOther);
+            assertNull(attendsOther.getAttendsStateType());
+
+            attendsNext.delete();
+            attendsOther.delete();
+            enrolment.getEvaluationsSet().stream()
+                    .filter(e -> e.getEvaluationSeason() == improvementSeason || e.getEvaluationSeason() == specialSeason)
+                    .toList().forEach(e -> {
+                        e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+                        e.delete();
+                    });
+
+            return null;
+        });
     }
 
     private static Enrolment createAdhocEnrolmentWithoutAttends() {
