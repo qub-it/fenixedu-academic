@@ -18,6 +18,8 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Optional;
+
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -55,13 +57,25 @@ public class District extends District_Base {
         return getDistrictSubdivisionsSet().stream().filter(ds -> ds.getName().equals(name)).findFirst().orElse(null);
     }
 
+    @Deprecated
     static public District readByCode(final String code) {
         return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getCode().equals(code)).findFirst()
                 .orElse(null);
     }
 
+    @Deprecated
     static public District readByName(final String name) {
         return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getName().equals(name)).findFirst()
                 .orElse(null);
+    }
+
+    public static Optional<District> findByCode(final String code) {
+        return Optional.ofNullable(code).flatMap(
+                c -> Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getCode().equals(c)).findFirst());
+    }
+
+    public static Optional<District> findByName(final String name) {
+        return Optional.ofNullable(name).flatMap(
+                n -> Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getName().equals(n)).findFirst());
     }
 }

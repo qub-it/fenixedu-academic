@@ -39,21 +39,29 @@ public class DistrictTest {
     }
 
     @Test
-    public void testDistrict_readByCode() {
+    public void testDistrict_findByCode() {
         assertEquals(lisbonDistrict, District.readByCode("11"));
-
         assertNull(District.readByCode("XX"));
         assertNull(District.readByCode(""));
         assertNull(District.readByCode(null));
+
+        assertTrue(District.findByCode("11").filter(d -> d == lisbonDistrict).isPresent());
+        assertTrue(District.findByCode("XX").isEmpty());
+        assertTrue(District.findByCode("").isEmpty());
+        assertTrue(District.findByCode(null).isEmpty());
     }
 
     @Test
-    public void testDistrict_readByName() {
+    public void testDistrict_findByName() {
         assertEquals(lisbonDistrict, District.readByName("Lisboa"));
-
         assertNull(District.readByName("NonExistent"));
         assertNull(District.readByName(""));
         assertNull(District.readByName(null));
+
+        assertTrue(District.findByName("Lisboa").filter(d -> d == lisbonDistrict).isPresent());
+        assertTrue(District.findByName("NonExistent").isEmpty());
+        assertTrue(District.findByName("").isEmpty());
+        assertTrue(District.findByName(null).isEmpty());
     }
 
     @Test

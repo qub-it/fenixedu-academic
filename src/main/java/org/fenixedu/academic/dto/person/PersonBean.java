@@ -238,7 +238,7 @@ public class PersonBean implements Serializable {
             
             if(getCountryOfResidence() != null && getCountryOfResidence().isDefaultCountry()) {
                 if(StringUtils.isNotEmpty(getDistrictOfResidence()) && StringUtils.isNotEmpty(getDistrictSubdivisionOfResidence())) {
-                    District district = District.readByName(getDistrictOfResidence());
+                    District district = District.findByName(getDistrictOfResidence()).orElse(null);
                     setDistrictSubdivisionOfResidenceObject(district != null ? district.getDistrictSubdivisionByName(getDistrictSubdivisionOfResidence()) : null);
                 }
             }
