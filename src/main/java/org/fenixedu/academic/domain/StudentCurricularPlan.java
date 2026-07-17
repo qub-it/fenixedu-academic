@@ -1147,6 +1147,21 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return getRoot().getAprovedEctsCredits();
     }
 
+    @Deprecated
+    public java.util.Date getStartDate() {
+        org.joda.time.YearMonthDay ymd = getStartDateYearMonthDay();
+        return ymd == null ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
+    }
+
+    @Deprecated
+    public void setStartDate(java.util.Date date) {
+        if (date == null) {
+            setStartDateYearMonthDay(null);
+        } else {
+            setStartDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
+        }
+    }
+
     public boolean isAllowedToDelete() {
         return getRegistration().getStudentCurricularPlansSet().size() > 1;
     }
