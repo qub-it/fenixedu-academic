@@ -110,17 +110,17 @@ public class SchoolClassTest {
         // shift has capacity, enrols student registration
         schoolClass.getAssociatedShiftsSet().add(shift1);
         SchoolClass.replaceSchoolClass(reg, schoolClass, executionInterval);
-        assertTrue(reg.getSchoolClassesSet().contains(schoolClass));
+        assertTrue(reg.findSchoolClass(executionInterval).filter(sc -> sc == schoolClass).isPresent());
         assertTrue(reg.getShiftsSet().contains(shift1));
 
         // student already enrolled, replaceSchoolClass still works (unenrols + re-enrols)
         try {
             SchoolClass.replaceSchoolClass(reg, schoolClass, executionInterval);
-            assertTrue(reg.getSchoolClassesSet().contains(schoolClass));
+            assertTrue(reg.findSchoolClass(executionInterval).filter(sc -> sc == schoolClass).isPresent());
             assertTrue(reg.getShiftsSet().contains(shift1));
         } finally {
             SchoolClass.replaceSchoolClass(reg, null, executionInterval);
-            assertTrue(reg.getSchoolClassesSet().isEmpty());
+            assertTrue(reg.findSchoolClass(executionInterval).isEmpty());
             schoolClass.getAssociatedShiftsSet().clear();
         }
 
@@ -141,7 +141,7 @@ public class SchoolClassTest {
             schoolClass.getAssociatedShiftsSet().add(fullShift);
             schoolClass.getAssociatedShiftsSet().add(availableShift);
             SchoolClass.replaceSchoolClass(reg, schoolClass, executionInterval);
-            assertTrue(reg.getSchoolClassesSet().contains(schoolClass));
+            assertTrue(reg.findSchoolClass(executionInterval).filter(sc -> sc == schoolClass).isPresent());
             assertTrue(reg.getShiftsSet().contains(availableShift));
             assertFalse(reg.getShiftsSet().contains(fullShift));
         } finally {
