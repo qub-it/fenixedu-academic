@@ -123,14 +123,9 @@ public class Shift extends Shift_Base {
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
-        for (; !getAssociatedLessonsSet().isEmpty(); getAssociatedLessonsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getAssociatedShiftProfessorshipSet().isEmpty(); getAssociatedShiftProfessorshipSet().iterator().next().delete()) {
-            ;
-        }
-
-        getShiftCapacitiesSet().forEach(sc -> sc.delete());
+        getAssociatedLessonsSet().forEach(Lesson::delete);
+        getAssociatedShiftProfessorshipSet().forEach(ShiftProfessorship::delete);
+        getShiftCapacitiesSet().forEach(ShiftCapacity::delete);
 
         getAssociatedClassesSet().clear();
         setCourseLoadType(null);
@@ -155,41 +150,19 @@ public class Shift extends Shift_Base {
     }
 
     public BigDecimal getTotalHours() {
-        Collection<Lesson> lessons = getAssociatedLessonsSet();
-        BigDecimal lessonTotalHours = BigDecimal.ZERO;
-        for (Lesson lesson : lessons) {
-            lessonTotalHours = lessonTotalHours.add(lesson.getTotalHours());
-        }
-        return lessonTotalHours;
+        return getAssociatedLessonsSet().stream().map(Lesson::getTotalHours).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public Duration getTotalDuration() {
-        Duration duration = Duration.ZERO;
-        Collection<Lesson> lessons = getAssociatedLessonsSet();
-        for (Lesson lesson : lessons) {
-            duration = duration.plus(lesson.getTotalDuration());
-        }
-        return duration;
+        return getAssociatedLessonsSet().stream().map(Lesson::getTotalDuration).reduce(Duration.ZERO, Duration::plus);
     }
 
     public BigDecimal getMaxLessonDuration() {
-        BigDecimal maxHours = BigDecimal.ZERO;
-        for (Lesson lesson : getAssociatedLessonsSet()) {
-            BigDecimal lessonHours = lesson.getUnitHours();
-            if (maxHours.compareTo(lessonHours) == -1) {
-                maxHours = lessonHours;
-            }
-        }
-        return maxHours;
+        return getAssociatedLessonsSet().stream().map(Lesson::getUnitHours).max(BigDecimal::compareTo).orElse(BigDecimal.ZERO);
     }
 
     public BigDecimal getUnitHours() {
-        BigDecimal hours = BigDecimal.ZERO;
-        Collection<Lesson> lessons = getAssociatedLessonsSet();
-        for (Lesson lesson : lessons) {
-            hours = hours.add(lesson.getUnitHours());
-        }
-        return hours;
+        return getAssociatedLessonsSet().stream().map(Lesson::getUnitHours).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public BigDecimal getCourseLoadTotalHours() {
@@ -199,9 +172,8 @@ public class Shift extends Shift_Base {
     }
 
     public SortedSet<Lesson> getLessonsOrderedByWeekDayAndStartTime() {
-        final SortedSet<Lesson> lessons = new TreeSet<Lesson>(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME);
-        lessons.addAll(getAssociatedLessonsSet());
-        return lessons;
+        return getAssociatedLessonsSet().stream()
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Lesson.LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME)));
     }
 
     public boolean isFreeFor(final Registration registration) {
@@ -219,7 +191,7 @@ public class Shift extends Shift_Base {
     /**
      * Enrolls provided registration in this shift and its first suitable capacity, and unenroll it from other shifts of same
      * type and course
-     * 
+     *
      * @param registration registration to enroll in this shift
      * @return <code>true</code> if registration enrolled successfully in this shift
      */
@@ -301,16 +273,8 @@ public class Shift extends Shift_Base {
     }
 
     public String getClassesPrettyPrint() {
-        StringBuilder builder = new StringBuilder();
-        int index = 0;
-        for (SchoolClass schoolClass : getAssociatedClassesSet()) {
-            builder.append(schoolClass.getName());
-            index++;
-            if (index < getAssociatedClassesSet().size()) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
+        return getAssociatedClassesSet().stream().sorted(SchoolClass.COMPARATOR_BY_NAME).map(SchoolClass::getName)
+                .collect(Collectors.joining(", "));
     }
 
     @Deprecated
