@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +37,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 /**
- * 
+ *
  * @author Luis Cruz &amp; Sara Ribeiro
  */
 public class SchoolClass extends SchoolClass_Base {
@@ -126,21 +125,14 @@ public class SchoolClass extends SchoolClass_Base {
     }
 
     public Set<Shift> findPossibleShiftsToAdd() {
-        final ExecutionDegree executionDegree = getExecutionDegree();
-        final DegreeCurricularPlan degreeCurricularPlan = executionDegree.getDegreeCurricularPlan();
+        final Set<CurricularCourse> curricularCourses = getExecutionDegree().getDegreeCurricularPlan().getCurricularCoursesSet();
+        Stream<Shift> allShifts =
+                curricularCourses.stream().filter(cc -> cc.isActive(getExecutionInterval(), getCurricularYear()))
+                        .flatMap(cc -> cc.getAssociatedExecutionCoursesSet().stream())
+                        .filter(ec -> ec.getExecutionInterval() == getExecutionInterval())
+                        .flatMap(ec -> ec.getShiftsSet().stream());
 
-        final Set<Shift> shifts = new HashSet<Shift>();
-        for (final CurricularCourse curricularCourse : degreeCurricularPlan.getCurricularCoursesSet()) {
-            if (curricularCourse.isActive(getExecutionInterval(), getCurricularYear())) {
-                for (final ExecutionCourse executionCourse : curricularCourse.getAssociatedExecutionCoursesSet()) {
-                    if (executionCourse.getExecutionInterval() == getExecutionInterval()) {
-                        shifts.addAll(executionCourse.getAssociatedShifts());
-                    }
-                }
-            }
-        }
-        shifts.removeAll(getAssociatedShiftsSet());
-        return shifts;
+        return allShifts.filter(s -> !getAssociatedShiftsSet().contains(s)).collect(Collectors.toSet());
     }
 
     public AcademicInterval getAcademicInterval() {
@@ -157,7 +149,6 @@ public class SchoolClass extends SchoolClass_Base {
     }
 
     public boolean isFreeFor(final Registration registration) {
-
         final Map<ExecutionCourse, List<Shift>> shiftsByExecutionCourse =
                 findShiftsFor(registration).collect(Collectors.groupingBy(Shift::getExecutionCourse));
 
@@ -224,12 +215,8 @@ public class SchoolClass extends SchoolClass_Base {
     }
 
     private static boolean enrolInOneShift(Collection<Shift> shiftsOrderedByVacancies, Registration registration) {
-        for (final Shift shift : shiftsOrderedByVacancies) {
-            if (shift.getStudentsSet().contains(registration) || shift.enrol(registration)) {
-                return true;
-            }
-        }
-        return false;
+        return shiftsOrderedByVacancies.stream()
+                .anyMatch(s -> s.getStudentsSet().contains(registration) || s.enrol(registration));
     }
 
     private void unenrolInSchoolClassAndShifts(final Registration registration) {
