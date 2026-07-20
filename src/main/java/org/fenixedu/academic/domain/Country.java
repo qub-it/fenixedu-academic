@@ -20,8 +20,9 @@ package org.fenixedu.academic.domain;
 
 import java.text.Collator;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.util.LocaleUtils;
@@ -30,19 +31,13 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public class Country extends Country_Base {
 
-    public static Comparator<Country> COMPARATOR_BY_NAME = new Comparator<Country>() {
-        @Override
-        public int compare(Country leftCountry, Country rightCountry) {
-            int comparationResult = Collator.getInstance()
-                    .compare(leftCountry.getLocalizedName().getContent(), rightCountry.getLocalizedName().getContent());
-            return (comparationResult == 0) ? leftCountry.getExternalId()
-                    .compareTo(rightCountry.getExternalId()) : comparationResult;
-        }
-    };
+    public static final Comparator<Country> COMPARATOR_BY_NAME =
+            Comparator.comparing((Country c) -> c.getLocalizedName().getContent(), Collator.getInstance())
+                    .thenComparing(Country::getExternalId);
 
     private static Set<Country> CPLP_COUNTRIES;
 
-    private static String STATELESS_COUNTRY_CODE = "XXA";
+    private static final String STATELESS_COUNTRY_CODE = "XXA";
 
     private Country() {
         super();
@@ -82,7 +77,7 @@ public class Country extends Country_Base {
      * @return default country
      */
     public static Country readDefault() {
-        return readAll().stream().filter(country -> country.isDefaultCountry()).findAny().orElse(null);
+        return readAll().stream().filter(Country::isDefaultCountry).findAny().orElse(null);
     }
 
     public static Set<Country> readAll() {
@@ -118,16 +113,8 @@ public class Country extends Country_Base {
 
     public synchronized static Set<Country> getCPLPCountries() {
         if (CPLP_COUNTRIES == null) {
-            CPLP_COUNTRIES = new HashSet<Country>();
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("PT"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("BR"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("AO"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("CV"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("GW"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("MZ"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("ST"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("TL"));
-            CPLP_COUNTRIES.add(Country.readByTwoLetterCode("MO"));
+            CPLP_COUNTRIES = Stream.of("PT", "BR", "AO", "CV", "GW", "MZ", "ST", "TL", "MO").map(Country::readByTwoLetterCode)
+                    .collect(Collectors.toSet());
         }
         return CPLP_COUNTRIES;
     }
