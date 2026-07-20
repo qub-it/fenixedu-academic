@@ -39,26 +39,14 @@ import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
 public class Context extends Context_Base implements Comparable<Context> {
 
-    public static final Comparator<Context> COMPARATOR_BY_DEGREE_MODULE_NAME = new Comparator<Context>() {
+    private static final Collator COLLATOR = Collator.getInstance();
 
-        @Override
-        public int compare(Context o1, Context o2) {
-            final DegreeModule d1 = o1.getChildDegreeModule();
-            final DegreeModule d2 = o2.getChildDegreeModule();
-            final int c = Collator.getInstance().compare(d1.getName(), d2.getName());
-            return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(d1, d2) : c;
-        }
+    public static final Comparator<Context> COMPARATOR_BY_DEGREE_MODULE_NAME =
+            Comparator.comparing((Context ctx) -> ctx.getChildDegreeModule().getName(), COLLATOR)
+                    .thenComparing(Context::getChildDegreeModule, DomainObjectUtil.COMPARATOR_BY_ID);
 
-    };
-
-    public static Comparator<Context> COMPARATOR_BY_CURRICULAR_YEAR = new Comparator<Context>() {
-        @Override
-        public int compare(Context leftContext, Context rightContext) {
-            int comparationResult = leftContext.getCurricularYear().compareTo(rightContext.getCurricularYear());
-            return (comparationResult == 0) ? leftContext.getExternalId()
-                    .compareTo(rightContext.getExternalId()) : comparationResult;
-        }
-    };
+    public static Comparator<Context> COMPARATOR_BY_CURRICULAR_YEAR =
+            Comparator.comparing(Context::getCurricularYear).thenComparing(Context::getExternalId);
 
     static {
         getRelationCourseGroupContext().addListener(new RelationAdapter<CourseGroup, Context>() {
@@ -174,13 +162,13 @@ public class Context extends Context_Base implements Comparable<Context> {
     private void checkExistingCourseGroupContexts(final CourseGroup courseGroup, final DegreeModule degreeModule,
             final CurricularPeriod curricularPeriod, final ExecutionInterval begin, final ExecutionInterval end) {
 
-        for (final Context context : courseGroup.getChildContextsSet()) {
-            if (context != this && context.hasChildDegreeModule(degreeModule) && context.hasCurricularPeriod(curricularPeriod)
-                    && context.intersects(begin, end)) {
-                throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup",
-                        buildDegreeModuleNameForErrorHandling(degreeModule), buildDegreeModuleNameForErrorHandling(courseGroup));
-            }
-        }
+        courseGroup.getChildContextsSet().stream().filter(ctx -> ctx != this)
+                .filter(ctx -> ctx.hasChildDegreeModule(degreeModule)).filter(ctx -> ctx.hasCurricularPeriod(curricularPeriod))
+                .filter(ctx -> ctx.intersects(begin, end)).findFirst().ifPresent(ctx -> {
+                    throw new DomainException("courseGroup.contextAlreadyExistForCourseGroup",
+                            buildDegreeModuleNameForErrorHandling(degreeModule),
+                            buildDegreeModuleNameForErrorHandling(courseGroup));
+                });
     }
 
     public void edit(final CourseGroup parent, final CurricularPeriod curricularPeriod, final ExecutionInterval begin,
@@ -273,12 +261,7 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     public boolean isValidForExecutionAggregation(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getExecutionPeriodsSet()) {
-            if (isValid(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return executionYear.getExecutionPeriodsSet().stream().anyMatch(this::isValid);
     }
 
     public boolean isValid(AcademicInterval academicInterval) {
@@ -305,12 +288,7 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     public boolean isOpen(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (isOpen(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return executionYear.getChildIntervals().stream().anyMatch(this::isOpen);
     }
 
     public boolean isOpen() {
