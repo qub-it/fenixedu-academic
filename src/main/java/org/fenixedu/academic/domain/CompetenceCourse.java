@@ -65,10 +65,9 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     private static final Collator COLLATOR = Collator.getInstance();
 
-    public static final Comparator<CompetenceCourse> COMPETENCE_COURSE_COMPARATOR_BY_NAME = (cc1, cc2) -> {
-        final int compareByName = COLLATOR.compare(cc1.getName(), cc2.getName());
-        return compareByName != 0 ? compareByName : DomainObjectUtil.COMPARATOR_BY_ID.compare(cc1, cc2);
-    };
+    public static final Comparator<CompetenceCourse> COMPETENCE_COURSE_COMPARATOR_BY_NAME =
+            Comparator.comparing((CompetenceCourse cc) -> cc.getName(), COLLATOR)
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected CompetenceCourse() {
         super();
