@@ -19,17 +19,14 @@
 package org.fenixedu.academic.domain;
 
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.beanutils.BeanComparator;
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -129,45 +126,34 @@ public class Professorship extends Professorship_Base {
     public static List<Professorship> readByDegreeCurricularPlanAndExecutionYear(DegreeCurricularPlan degreeCurricularPlan,
             ExecutionYear executionYear) {
 
-        Set<Professorship> professorships = new HashSet<Professorship>();
-        for (CurricularCourse curricularCourse : degreeCurricularPlan.getCurricularCoursesSet()) {
-            for (ExecutionCourse executionCourse : curricularCourse.getExecutionCoursesByExecutionYear(executionYear)) {
-                professorships.addAll(executionCourse.getProfessorshipsSet());
-            }
-        }
-        return new ArrayList<Professorship>(professorships);
+        return degreeCurricularPlan.getCurricularCoursesSet().stream()
+                .flatMap(cc -> cc.getExecutionCoursesByExecutionYear(executionYear).stream())
+                .flatMap(ec -> ec.getProfessorshipsSet().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public static List<Professorship> readByDegreeCurricularPlanAndExecutionPeriod(DegreeCurricularPlan degreeCurricularPlan,
             ExecutionInterval executionInterval) {
 
-        Set<Professorship> professorships = new HashSet<Professorship>();
-        for (CurricularCourse curricularCourse : degreeCurricularPlan.getCurricularCoursesSet()) {
-            for (ExecutionCourse executionCourse : curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval)) {
-                professorships.addAll(executionCourse.getProfessorshipsSet());
-            }
-        }
-        return new ArrayList<Professorship>(professorships);
+        return degreeCurricularPlan.getCurricularCoursesSet().stream()
+                .flatMap(cc -> cc.getExecutionCoursesByExecutionPeriod(executionInterval).stream())
+                .flatMap(ec -> ec.getProfessorshipsSet().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public static List<Professorship> readByDegreeCurricularPlansAndExecutionYear(
             List<DegreeCurricularPlan> degreeCurricularPlans, ExecutionYear executionYear) {
 
-        Set<Professorship> professorships = new HashSet<Professorship>();
-        for (DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
-            for (CurricularCourse curricularCourse : degreeCurricularPlan.getCurricularCoursesSet()) {
-                if (executionYear != null) {
-                    for (ExecutionCourse executionCourse : curricularCourse.getExecutionCoursesByExecutionYear(executionYear)) {
-                        professorships.addAll(executionCourse.getProfessorshipsSet());
-                    }
-                } else {
-                    for (ExecutionCourse executionCourse : curricularCourse.getAssociatedExecutionCoursesSet()) {
-                        professorships.addAll(executionCourse.getProfessorshipsSet());
-                    }
-                }
-            }
-        }
-        return new ArrayList<Professorship>(professorships);
+        return degreeCurricularPlans.stream()
+                .flatMap(dcp -> dcp.getCurricularCoursesSet().stream())
+                .flatMap(cc -> (executionYear != null
+                        ? cc.getExecutionCoursesByExecutionYear(executionYear).stream()
+                        : cc.getAssociatedExecutionCoursesSet().stream()))
+                .flatMap(ec -> ec.getProfessorshipsSet().stream())
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public Teacher getTeacher() {
@@ -203,19 +189,17 @@ public class Professorship extends Professorship_Base {
     }
 
     public String getDegreeSiglas() {
-        Set<String> degreeSiglas = new HashSet<String>();
-        for (CurricularCourse curricularCourse : getExecutionCourse().getAssociatedCurricularCoursesSet()) {
-            degreeSiglas.add(curricularCourse.getDegreeCurricularPlan().getDegree().getSigla());
-        }
-        return StringUtils.join(degreeSiglas, ", ");
+        return getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                .map(cc -> cc.getDegreeCurricularPlan().getDegree().getSigla())
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     public String getDegreePlanNames() {
-        Set<String> degreeSiglas = new HashSet<String>();
-        for (CurricularCourse curricularCourse : getExecutionCourse().getAssociatedCurricularCoursesSet()) {
-            degreeSiglas.add(curricularCourse.getDegreeCurricularPlan().getName());
-        }
-        return StringUtils.join(degreeSiglas, ", ");
+        return getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                .map(cc -> cc.getDegreeCurricularPlan().getName())
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     public Stream<Shift> getShifts() {
