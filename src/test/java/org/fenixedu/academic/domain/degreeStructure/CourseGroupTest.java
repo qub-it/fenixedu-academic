@@ -524,13 +524,13 @@ public class CourseGroupTest {
     @Test
     public void testCourseGroup_getMaxEctsCredits_countsMaxEctsWithoutRules() {
         // mandatory: 6 children, 6 ECTS each except cc8 which weighs 12 ECTS
-        assertEquals(42.0d, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+        assertEquals(42, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0);
 
         // optional: 2 children, each 6 ECTS
-        assertEquals(12.0d, optionalCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+        assertEquals(12, optionalCourseGroup.getMaxEctsCredits(firstSemester), 0);
 
         // cycle: 2 CG children -> mandatory (42) + optional (12)
-        assertEquals(54, cycleCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+        assertEquals(54, cycleCourseGroup.getMaxEctsCredits(firstSemester), 0);
     }
 
     @Test
@@ -539,7 +539,7 @@ public class CourseGroupTest {
         final CreditsLimit creditsLimit =
                 new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
         try {
-            assertEquals(12.0d, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0.001d);
+            assertEquals(12, mandatoryCourseGroup.getMaxEctsCredits(firstSemester), 0);
         } finally {
             creditsLimit.delete();
         }
@@ -548,10 +548,10 @@ public class CourseGroupTest {
     @Test
     public void testCourseGroup_getMinEctsCredits_countsMinEctsWithoutRules() {
         // mandatory: 6 children, 6 ECTS each except cc8 which weighs 12 ECTS
-        assertEquals(42.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+        assertEquals(42, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0);
 
         // optional: 2 children, each 6 ECTS
-        assertEquals(12.0d, optionalCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+        assertEquals(12, optionalCourseGroup.getMinEctsCredits(firstSemester), 0);
     }
 
     @Test
@@ -560,7 +560,7 @@ public class CourseGroupTest {
         final CreditsLimit creditsLimit =
                 new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
         try {
-            assertEquals(6.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+            assertEquals(6, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0);
         } finally {
             creditsLimit.delete();
         }
@@ -571,7 +571,7 @@ public class CourseGroupTest {
         final DegreeModulesSelectionLimit limit =
                 new DegreeModulesSelectionLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 1, 1);
         try {
-            assertEquals(6.0d, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0.001d);
+            assertEquals(6, mandatoryCourseGroup.getMinEctsCredits(firstSemester), 0);
         } finally {
             limit.delete();
         }
