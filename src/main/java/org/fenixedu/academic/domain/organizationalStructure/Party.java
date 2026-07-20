@@ -143,25 +143,26 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public Collection<Unit> getSubUnits() {
-        return (Collection<Unit>) getChildParties(Unit.class).collect(Collectors.toSet());
+        return getChildParties(Unit.class).collect(Collectors.toSet());
     }
 
-    private Stream<? extends Party> getChildParties(Class<? extends Party> childPartyClass) {
-        return getChildsSet().stream().map(Accountability::getChildParty)
-                .filter(childParty -> childPartyClass.isAssignableFrom(childParty.getClass()));
+    private <T extends Party> Stream<T> getChildParties(Class<T> childPartyClass) {
+        return getChildsSet().stream().map(Accountability::getChildParty).filter(childPartyClass::isInstance)
+                .map(childPartyClass::cast);
     }
 
-    protected Stream<? extends Party> getChildParties(List<AccountabilityTypeEnum> accountabilityTypeEnums,
-            Class<? extends Party> childPartyClass) {
+    protected <T extends Party> Stream<T> getChildParties(List<AccountabilityTypeEnum> accountabilityTypeEnums,
+            Class<T> childPartyClass) {
         return getChildsSet().stream()
                 .filter(accountability -> accountabilityTypeEnums.contains(accountability.getAccountabilityType().getType())
                         && childPartyClass.isAssignableFrom(accountability.getChildParty().getClass()))
-                .map(Accountability::getChildParty);
+                .map(Accountability::getChildParty).map(childPartyClass::cast);
     }
 
-    protected Stream<? extends Party> getChildParties(PartyTypeEnum type, Class<? extends Party> childPartyClass) {
+    protected <T extends Party> Stream<T> getChildParties(PartyTypeEnum type, Class<T> childPartyClass) {
         return getChildsSet().stream().map(Accountability::getChildParty)
-                .filter(childParty -> childParty.getType() == type && childPartyClass.isAssignableFrom(childParty.getClass()));
+                .filter(childParty -> childParty.getType() == type && childPartyClass.isAssignableFrom(childParty.getClass()))
+                .map(childPartyClass::cast);
     }
 
     public Collection<? extends Accountability> getChildAccountabilities(AccountabilityTypeEnum accountabilityTypeEnum) {

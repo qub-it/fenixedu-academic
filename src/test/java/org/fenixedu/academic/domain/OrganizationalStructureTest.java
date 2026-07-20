@@ -235,15 +235,24 @@ public class OrganizationalStructureTest {
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
         final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
 
+        // coursesGroupUnit must not have children
         assertTrue(coursesGroupUnit.getSubUnits().isEmpty());
+
+        // schoolUnit must have 2 children, with degreesAggregatorUnit of AggregateUnit Party Type
+        // and both degreesAggregatorUnit and coursesUnits of OrganizationalStructure Accountability Type
+        assertEquals(2, schoolUnit.getSubUnits().size());
+
         assertTrue(schoolUnit.getSubUnits(PartyTypeEnum.COUNTRY).isEmpty());
         assertTrue(schoolUnit.getSubUnits(List.of(GEOGRAPHIC)).isEmpty());
         assertTrue(schoolUnit.getSubUnits().contains(degreesAgregatorUnit));
-        assertTrue(schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT).contains(degreesAgregatorUnit));
-        assertFalse(schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT).contains(coursesGroupUnit));
-        final Collection<Unit> subUnits = schoolUnit.getSubUnits(List.of(ORGANIZATIONAL_STRUCTURE));
-        assertTrue(subUnits.contains(degreesAgregatorUnit));
-        assertTrue(subUnits.contains(coursesUnit));
+
+        final Collection<Unit> aggregateUnitSubUnits = schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT);
+        assertTrue(aggregateUnitSubUnits.contains(degreesAgregatorUnit));
+        assertFalse(aggregateUnitSubUnits.contains(coursesGroupUnit));
+
+        final Collection<Unit> organizationalStructureSubUnits = schoolUnit.getSubUnits(List.of(ORGANIZATIONAL_STRUCTURE));
+        assertTrue(organizationalStructureSubUnits.contains(degreesAgregatorUnit));
+        assertTrue(organizationalStructureSubUnits.contains(coursesUnit));
     }
 
     @Test
@@ -251,7 +260,12 @@ public class OrganizationalStructureTest {
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
         final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
 
+        // coursesGroupUnit must not have any child accountabilities setup
         assertTrue(coursesGroupUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).isEmpty());
+
+        // coursesUnit must be connected to at least coursesGroupUnit through an accountability of type OrganizationalStructure
+        assertFalse(coursesUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).isEmpty());
+        assertTrue(coursesUnit.getChildAccountabilities(GEOGRAPHIC).isEmpty());
         assertTrue(coursesUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).stream()
                 .anyMatch(accountability -> accountability.getChildParty() == coursesGroupUnit));
     }
