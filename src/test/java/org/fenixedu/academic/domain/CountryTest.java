@@ -41,18 +41,16 @@ public class CountryTest {
     }
 
     @Test
-    public void testComparatorOrderByNames() {
+    public void testComparator_orderByNames() {
         // France < Portugal < Spain
         assertTrue(Country.COMPARATOR_BY_NAME.compare(france, portugal) < 0);
         assertTrue(Country.COMPARATOR_BY_NAME.compare(portugal, spain) < 0);
 
         assertEquals(0, Country.COMPARATOR_BY_NAME.compare(france, france));
-    }
 
-    @Test
-    public void testComparator_reverseOrder() {
-        int result = Country.COMPARATOR_BY_NAME.compare(france, spain);
-        assertEquals(-result, Country.COMPARATOR_BY_NAME.compare(spain, france));
+        // reverse order
+        assertEquals(Country.COMPARATOR_BY_NAME.compare(france, spain),
+                Country.COMPARATOR_BY_NAME.reversed().compare(spain, france));
     }
 
     @Test
@@ -97,6 +95,7 @@ public class CountryTest {
 
         assertTrue(Country.isCPLPCountry(portugal));
         assertTrue(Country.isCPLPCountry(brazil));
+        assertTrue(Country.isCPLPCountry(angola));
         assertFalse(Country.isCPLPCountry(spain));
         assertFalse(Country.isCPLPCountry(france));
     }
