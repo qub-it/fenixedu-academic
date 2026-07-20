@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -59,23 +60,21 @@ public class District extends District_Base {
 
     @Deprecated
     static public District readByCode(final String code) {
-        return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getCode().equals(code)).findFirst()
-                .orElse(null);
+        return findByCode(code).orElse(null);
     }
 
     @Deprecated
     static public District readByName(final String name) {
-        return Bennu.getInstance().getDistrictsSet().stream().filter(district -> district.getName().equals(name)).findFirst()
-                .orElse(null);
+        return findByName(name).orElse(null);
     }
 
     public static Optional<District> findByCode(final String code) {
-        return Optional.ofNullable(code).flatMap(
-                c -> Bennu.getInstance().getDistrictsSet().stream().filter(district -> c.equals(district.getCode())).findFirst());
+        return StringUtils.isBlank(code) ? Optional.empty() : Bennu.getInstance().getDistrictsSet().stream()
+                .filter(district -> code.equals(district.getCode())).findFirst();
     }
 
     public static Optional<District> findByName(final String name) {
-        return Optional.ofNullable(name).flatMap(
-                n -> Bennu.getInstance().getDistrictsSet().stream().filter(district -> n.equals(district.getName())).findFirst());
+        return StringUtils.isBlank(name) ? Optional.empty() : Bennu.getInstance().getDistrictsSet().stream()
+                .filter(district -> name.equals(district.getName())).findFirst();
     }
 }

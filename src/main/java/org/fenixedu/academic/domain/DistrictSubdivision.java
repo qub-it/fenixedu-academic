@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain;
 
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -61,8 +62,7 @@ public class DistrictSubdivision extends DistrictSubdivision_Base {
     }
 
     static public Optional<DistrictSubdivision> findByCode(final String code) {
-        return Optional.ofNullable(code).flatMap(
-                c -> Bennu.getInstance().getDistrictSubdivisionsSet().stream().filter(ds -> ds.getCode().equalsIgnoreCase(c))
-                        .findFirst());
+        return StringUtils.isBlank(code) ? Optional.empty() : Bennu.getInstance().getDistrictSubdivisionsSet().stream()
+                .filter(ds -> ds.getCode().equalsIgnoreCase(code)).findFirst();
     }
 }
