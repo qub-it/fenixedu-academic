@@ -1,4 +1,4 @@
-- Refactor: Refactor AccountabilityType to use Stream API and deprecate unused methods [#qubIT-Fenix-9118]
+- Refactor: AccountabilityType domain methods [#qubIT-Fenix-9118]
 - Refactor: Removed unused exception classes [#qubIT-Fenix-8939]
 - Refactor: Removed unused util classes [#qubIT-Fenix-8924]
 - Refactor: Remove physical address validation file entity [#qubIT-Fenix-8995]
