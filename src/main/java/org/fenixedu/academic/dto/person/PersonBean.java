@@ -248,7 +248,7 @@ public class PersonBean implements Serializable {
         setMobile(person.hasDefaultMobilePhone() ? person.getDefaultMobilePhone().getNumber() : null);
         setWebAddress(person.hasDefaultWebAddress() ? person.getDefaultWebAddress().getUrl() : null);
 
-        setEmail(person.getEmail());
+        setEmail(person.getDefaultEmailAddressValue());
 
         setEmailAvailable(person.getAvailableEmail());
         setHomepageAvailable(person.getAvailableWebSite());

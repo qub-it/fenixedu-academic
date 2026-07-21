@@ -485,22 +485,6 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         }
     }
 
-    /**
-     * @deprecated {@link #getDefaultWebAddressUrl()}
-     */
-    @Deprecated
-    public String getWebAddress() {
-        return getDefaultWebAddressUrl();
-    }
-
-    /**
-     * @deprecated {@link #setDefaultWebAddressUrl(String)}
-     */
-    @Deprecated
-    public void setWebAddress(String webAddress) {
-        setDefaultWebAddressUrl(webAddress);
-    }
-
     /*
      * Phone
      */
@@ -556,22 +540,6 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         } else {
             Phone.createPhone(this, number, PartyContactType.WORK, false);
         }
-    }
-
-    /**
-     * @deprecated {@link #getDefaultPhoneNumber()}
-     */
-    @Deprecated
-    public String getPhone() {
-        return getDefaultPhoneNumber();
-    }
-
-    /**
-     * @deprecated {@link #setDefaultPhoneNumber(String)}
-     */
-    @Deprecated
-    public void setPhone(String phone) {
-        setDefaultPhoneNumber(phone);
     }
 
     // Currently, a Person can only have one WorkPhone (so use get(0) -
@@ -637,22 +605,6 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         if (valid) {
             mobilePhone.setValid();
         }
-    }
-
-    /**
-     * @deprecated {@link getDefaultMobilePhoneNumber}
-     */
-    @Deprecated
-    public String getMobile() {
-        return getDefaultMobilePhoneNumber();
-    }
-
-    /**
-     * @deprecated {@link setDefaultMobilePhoneNumber}
-     */
-    @Deprecated
-    public void setMobile(String mobile) {
-        setDefaultMobilePhoneNumber(mobile);
     }
 
     /*
@@ -742,22 +694,6 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     public String getInstitutionalOrDefaultEmailAddressValue() {
         EmailAddress email = getInstitutionalOrDefaultEmailAddress();
         return (email != null ? email.getValue() : StringUtils.EMPTY);
-    }
-
-    /**
-     * @deprecated {@link #getDefaultEmailAddressValue()}
-     */
-    @Deprecated
-    public String getEmail() {
-        return getDefaultEmailAddressValue();
-    }
-
-    /**
-     * @deprecated {@link #setDefaultEmailAddressValue(String)}
-     */
-    @Deprecated
-    public void setEmail(String email) {
-        setDefaultEmailAddressValue(email);
     }
 
     /*
