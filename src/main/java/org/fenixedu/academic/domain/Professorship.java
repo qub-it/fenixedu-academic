@@ -21,12 +21,10 @@ package org.fenixedu.academic.domain;
 import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.beanutils.BeanComparator;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -43,7 +41,7 @@ import pt.ist.fenixframework.Atomic;
 public class Professorship extends Professorship_Base {
 
     public static final Comparator<Professorship> COMPARATOR_BY_PERSON_NAME =
-            new BeanComparator("person.name", Collator.getInstance());
+            Comparator.comparing(p -> p.getPerson().getName(), Collator.getInstance());
 
     public static final String PROFESSORSHIP_CREATED = "academic.professorship.created";
 
@@ -53,14 +51,6 @@ public class Professorship extends Professorship_Base {
     }
 
     public boolean belongsToExecutionInterval(ExecutionInterval executionInterval) {
-        return this.getExecutionCourse().getExecutionInterval().equals(executionInterval);
-    }
-
-    /**
-     * @deprecated Use {@link #belongsToExecutionInterval(ExecutionInterval)
-     */
-    @Deprecated
-    public boolean belongsToExecutionPeriod(ExecutionInterval executionInterval) {
         return this.getExecutionCourse().getExecutionInterval().equals(executionInterval);
     }
 
@@ -123,39 +113,6 @@ public class Professorship extends Professorship_Base {
         return getDeletionBlockers().isEmpty();
     }
 
-    public static List<Professorship> readByDegreeCurricularPlanAndExecutionYear(DegreeCurricularPlan degreeCurricularPlan,
-            ExecutionYear executionYear) {
-
-        return degreeCurricularPlan.getCurricularCoursesSet().stream()
-                .flatMap(cc -> cc.getExecutionCoursesByExecutionYear(executionYear).stream())
-                .flatMap(ec -> ec.getProfessorshipsSet().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    public static List<Professorship> readByDegreeCurricularPlanAndExecutionPeriod(DegreeCurricularPlan degreeCurricularPlan,
-            ExecutionInterval executionInterval) {
-
-        return degreeCurricularPlan.getCurricularCoursesSet().stream()
-                .flatMap(cc -> cc.getExecutionCoursesByExecutionPeriod(executionInterval).stream())
-                .flatMap(ec -> ec.getProfessorshipsSet().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
-    public static List<Professorship> readByDegreeCurricularPlansAndExecutionYear(
-            List<DegreeCurricularPlan> degreeCurricularPlans, ExecutionYear executionYear) {
-
-        return degreeCurricularPlans.stream()
-                .flatMap(dcp -> dcp.getCurricularCoursesSet().stream())
-                .flatMap(cc -> (executionYear != null
-                        ? cc.getExecutionCoursesByExecutionYear(executionYear).stream()
-                        : cc.getAssociatedExecutionCoursesSet().stream()))
-                .flatMap(ec -> ec.getProfessorshipsSet().stream())
-                .distinct()
-                .collect(Collectors.toList());
-    }
-
     public Teacher getTeacher() {
         return getPerson().getTeacher();
     }
@@ -190,20 +147,11 @@ public class Professorship extends Professorship_Base {
 
     public String getDegreeSiglas() {
         return getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                .map(cc -> cc.getDegreeCurricularPlan().getDegree().getSigla())
-                .distinct()
-                .collect(Collectors.joining(", "));
-    }
-
-    public String getDegreePlanNames() {
-        return getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                .map(cc -> cc.getDegreeCurricularPlan().getName())
-                .distinct()
+                .map(cc -> cc.getDegreeCurricularPlan().getDegree().getSigla()).distinct().sorted()
                 .collect(Collectors.joining(", "));
     }
 
     public Stream<Shift> getShifts() {
         return getAssociatedShiftProfessorshipSet().stream().map(ShiftProfessorship::getShift);
     }
-
 }

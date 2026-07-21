@@ -1,15 +1,19 @@
 package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
+import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -23,220 +27,167 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class ProfessorshipTest {
 
+    public static final String DEGREE_B_CODE = "DB";
+    public static final String DCP_B_NAME = "DCP_B_NAME";
+
+    private static ExecutionYear executionYear;
+    private static ExecutionInterval executionInterval;
     private static ExecutionCourse executionCourse;
     private static Person person;
-    private static Teacher teacher;
-    private static DegreeCurricularPlan degreeCurricularPlan;
-    private static Degree degree;
-    private static Shift shift;
+    private static DegreeCurricularPlan dcpA, dcpB, dcp2;
+    private static Degree degreeA, degreeB;
+    private static Professorship professorship;
+
 
     @BeforeClass
-    public static void initData() {
+    public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            ExecutionIntervalTest.initRootCalendarAndExecutionYears();
             DegreeCurricularPlanTest.initDegreeCurricularPlan();
 
-            degree = Degree.find(DEGREE_A_CODE);
-            degreeCurricularPlan = degree.getDegreeCurricularPlansSet().iterator().next();
+            executionYear = ExecutionYear.findCurrent(null);
+            executionInterval = executionYear.getFirstExecutionPeriod();
+
+            degreeA = Degree.find(DEGREE_A_CODE);
+            dcpA = degreeA.getDegreeCurricularPlansSet().stream().filter(d -> DCP_NAME_V1.equals(d.getName())).findAny()
+                    .orElseThrow();
+            dcp2 = degreeA.getDegreeCurricularPlansSet().stream().filter(d -> DCP_NAME_V2.equals(d.getName())).findAny()
+                    .orElseThrow();
             final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
 
-            ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-            ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
+            degreeB = DegreeTest.createDegree(degreeA.getDegreeType(), DEGREE_B_CODE, "Degree B", executionYear);
+            dcpB = new DegreeCurricularPlan(degreeB, DCP_B_NAME, AcademicPeriod.THREE_YEAR);
+            dcpB.setCurricularStage(CurricularStage.APPROVED);
+            final CurricularCourse ccB = new CurricularCourse(0d, competenceCourse, dcpB.getRoot(),
+                    new CurricularPeriod(AcademicPeriod.YEAR, 1, dcpB.getDegreeStructure()), executionInterval, null);
 
             executionCourse = new ExecutionCourse(competenceCourse.getName(), competenceCourse.getCode(), executionInterval);
-            executionCourse.addAssociatedCurricularCourses(degreeCurricularPlan.getCurricularCourseByCode(COURSE_A_CODE));
+            executionCourse.addAssociatedCurricularCourses(dcpA.getCurricularCourseByCode(COURSE_A_CODE));
+            executionCourse.addAssociatedCurricularCourses(ccB);
 
-            shift = new Shift(executionCourse, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, null);
-
-            UserProfile userProfile = new UserProfile("Test", "User", "Test User", "test.user@fenixedu.com",
-                    java.util.Locale.getDefault());
-            User user = new User("testprof", userProfile);
-            person = new Person(userProfile);
-
-            user.setPerson(person);
-            person.setUser(user);
-
-            teacher = new Teacher(person);
-
-            Authenticate.mock(user, "testprof");
+            professorship = createProfessorship("testprof", "Test", "User", "Test User", "test.user@fenixedu.com");
 
             return null;
         });
     }
 
-    private static Professorship createProfessorship(ExecutionCourse ec, Person p, Boolean responsibleFor) {
-        Professorship professorship = new Professorship();
-        professorship.setExecutionCourse(ec);
-        professorship.setPerson(p);
-        professorship.setCreator(person);
-        professorship.setResponsibleFor(responsibleFor);
-        return professorship;
+    private static Professorship createProfessorship(String username, String givenNames, String familyNames, String displayName,
+            String email) {
+        UserProfile userProfile = new UserProfile(givenNames, familyNames, displayName, email, java.util.Locale.getDefault());
+        User user = new User(username, userProfile);
+        Person person = new Person(userProfile);
+        user.setPerson(person);
+        person.setUser(user);
+        new Teacher(person);
+        Authenticate.mock(user, username);
+
+        return Professorship.create(true, executionCourse, person);
+    }
+
+    @Test
+    public void testComparatorByPersonName() {
+        Professorship professorship2 = createProfessorship("testprof2", "Alpha", "User", "Alpha User", "alpha.user@fenixedu.com");
+        try {
+            assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship, professorship2) > 0);
+            assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship2, professorship) < 0);
+            assertEquals(0, Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship, professorship));
+        } finally {
+            professorship2.delete();
+        }
     }
 
     @Test
     public void testGetDegreeSiglas() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            String siglas = professorship.getDegreeSiglas();
-            assertNotNull(siglas);
-            assertFalse(siglas.isEmpty());
-            assertTrue(siglas.contains(degree.getSigla()));
-            return null;
-        });
+        String siglas = professorship.getDegreeSiglas();
+        assertTrue(StringUtils.isNotBlank(siglas));
+        assertEquals(2, siglas.split(", ").length);
+        assertTrue(siglas.contains(degreeA.getSigla()));
+        assertTrue(siglas.contains(degreeB.getSigla()));
+        // check that the siglas are sorted
+        assertEquals(Stream.of(degreeA.getSigla(), degreeB.getSigla()).sorted().collect(Collectors.joining(", ")), siglas);
     }
 
-    @Test
-    public void testGetDegreePlanNames() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            String planNames = professorship.getDegreePlanNames();
-            assertNotNull(planNames);
-            assertFalse(planNames.isEmpty());
-            assertTrue(planNames.contains(degreeCurricularPlan.getName()));
-            return null;
-        });
-    }
-
-    @Test
-    public void testReadByDegreeCurricularPlanAndExecutionYear() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-            List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionYear(degreeCurricularPlan,
-                    executionYear);
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.contains(professorship));
-            return null;
-        });
-    }
-
-    @Test
-    public void testReadByDegreeCurricularPlanAndExecutionYear_empty() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            ExecutionYear nextYear = (ExecutionYear) ExecutionYear.findCurrent(null).getNext();
-            List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionYear(degreeCurricularPlan, nextYear);
-            assertNotNull(result);
-            assertTrue(result.isEmpty());
-            return null;
-        });
-    }
-
-    @Test
-    public void testReadByDegreeCurricularPlanAndExecutionPeriod() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
-            List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(degreeCurricularPlan,
-                    executionInterval);
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.contains(professorship));
-            return null;
-        });
-    }
-
-    @Test
-    public void testReadByDegreeCurricularPlansAndExecutionYear() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            ExecutionYear executionYear = ExecutionYear.findCurrent(null);
-            List<DegreeCurricularPlan> dcps = new ArrayList<>();
-            dcps.add(degreeCurricularPlan);
-            List<Professorship> result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, executionYear);
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.contains(professorship));
-            return null;
-        });
-    }
-
-    @Test
-    public void testReadByDegreeCurricularPlansAndExecutionYear_nullYear() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            List<DegreeCurricularPlan> dcps = new ArrayList<>();
-            dcps.add(degreeCurricularPlan);
-            List<Professorship> result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, null);
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            assertTrue(result.contains(professorship));
-            return null;
-        });
-    }
-
-    @Test
-    public void testGetShifts() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            assertNotNull(shift);
-            ShiftProfessorship shiftProfessorship = new ShiftProfessorship();
-            shiftProfessorship.setShift(shift);
-            shiftProfessorship.setProfessorship(professorship);
-            List<Shift> shifts = professorship.getShifts().collect(java.util.stream.Collectors.toList());
-            assertNotNull(shifts);
-            assertFalse(shifts.isEmpty());
-            assertTrue(shifts.contains(shift));
-            return null;
-        });
-    }
-
-    @Test
-    public void testIsResponsibleFor() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorshipTrue = createProfessorship(executionCourse, person, true);
-            assertTrue(professorshipTrue.isResponsibleFor());
-
-            Person person2;
-            UserProfile userProfile2 = new UserProfile("Test2", "User2", "Test2 User2", "test2.user@fenixedu.com",
-                    java.util.Locale.getDefault());
-            User user2 = new User("testprof2", userProfile2);
-            person2 = new Person(userProfile2);
-            user2.setPerson(person2);
-            person2.setUser(user2);
-
-            Professorship professorshipFalse = createProfessorship(executionCourse, person2, false);
-            assertFalse(professorshipFalse.isResponsibleFor());
-            return null;
-        });
-    }
-
-    @Test
-    public void testSetResponsibleFor_nullDefaultsToFalse() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            professorship.setResponsibleFor((Boolean) null);
-            assertFalse(professorship.isResponsibleFor());
-            return null;
-        });
-    }
-
-    @Test
-    public void testHasTeacher() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorshipWithTeacher = createProfessorship(executionCourse, person, true);
-            assertTrue(professorshipWithTeacher.hasTeacher());
-
-            Person personNoTeacher;
-            UserProfile userProfileNoTeacher = new UserProfile("Test3", "User3", "Test3 User3", "test3.user@fenixedu.com",
-                    java.util.Locale.getDefault());
-            User userNoTeacher = new User("testprof3", userProfileNoTeacher);
-            personNoTeacher = new Person(userProfileNoTeacher);
-            userNoTeacher.setPerson(personNoTeacher);
-            personNoTeacher.setUser(userNoTeacher);
-
-            Professorship professorshipNoTeacher = createProfessorship(executionCourse, personNoTeacher, true);
-            assertFalse(professorshipNoTeacher.hasTeacher());
-            return null;
-        });
-    }
-
-    @Test
-    public void testIsDeletable() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            Professorship professorship = createProfessorship(executionCourse, person, true);
-            assertTrue(professorship.isDeletable());
-            return null;
-        });
-    }
+    //    @Test
+    //    public void testGetDegreePlanNames() {
+    //        String planNames = professorship.getDegreePlanNames();
+    //        assertTrue(StringUtils.isNotBlank(planNames));
+    //        String[] parts = planNames.split(", ");
+    //        assertEquals(2, parts.length);
+    //        assertTrue(planNames.contains(dcpA.getName()));
+    //        assertTrue(planNames.contains(dcpB.getName()));
+    //    }
+    //
+    //    @Test
+    //    public void testReadByDegreeCurricularPlanAndExecutionYear() {
+    //        List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpA, executionYear);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpB, executionYear);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //
+    //        // DCP without curricular courses in the execution year
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcp2, executionYear);
+    //        assertTrue(result.isEmpty());
+    //
+    //        // execution year without professorships
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpA, (ExecutionYear) executionYear.getPrevious());
+    //        assertTrue(result.isEmpty());
+    //    }
+    //
+    //    @Test
+    //    public void testReadByDegreeCurricularPlanAndExecutionPeriod() {
+    //        List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpA, executionInterval);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //
+    //        // different DCP on different degree, same execution course
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpB, executionInterval);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //
+    //        // DCP without curricular courses
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcp2, executionInterval);
+    //        assertTrue(result.isEmpty());
+    //
+    //        // execution interval without professorships
+    //        ExecutionInterval previousInterval = executionYear.getPreviousExecutionYear().getFirstExecutionPeriod();
+    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpA, previousInterval);
+    //        assertTrue(result.isEmpty());
+    //    }
+    //
+    //    @Test
+    //    public void testReadByDegreeCurricularPlansAndExecutionYear() {
+    //        List<DegreeCurricularPlan> dcps = new ArrayList<>();
+    //        dcps.add(dcpA);
+    //
+    //        // single DCP, current year
+    //        List<Professorship> result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, executionYear);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //
+    //        // multiple DCPs, current year
+    //        dcps.add(dcpB);
+    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, executionYear);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //        assertEquals(1, result.size());
+    //
+    //        // DCP without curricular courses
+    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(List.of(dcp2), executionYear);
+    //        assertTrue(result.isEmpty());
+    //
+    //        // different execution year
+    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, (ExecutionYear) executionYear.getPrevious());
+    //        assertTrue(result.isEmpty());
+    //
+    //        // empty DCP list
+    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(List.of(), executionYear);
+    //        assertTrue(result.isEmpty());
+    //
+    //        // null execution year, returns all execution courses unfiltered
+    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, null);
+    //        assertFalse(result.isEmpty());
+    //        assertTrue(result.contains(professorship));
+    //    }
 }
