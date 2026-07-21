@@ -862,16 +862,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
         return hasAnyCurriculumModules(andPredicate);
     }
 
-    @Override
-    public boolean isEnroledInSpecialSeason(final ExecutionInterval executionInterval) {
-        return getCurriculumModulesSet().stream().anyMatch(cm -> cm.isEnroledInSpecialSeason(executionInterval));
-    }
-
-    @Override
-    public boolean isEnroledInSpecialSeason(final ExecutionYear executionYear) {
-        return getCurriculumModulesSet().stream().anyMatch(cm -> cm.isEnroledInSpecialSeason(executionYear));
-    }
-
     public Set<Enrolment> getEnrolmentsBy(final ExecutionYear executionYear) {
         return getEnrolmentsSet().stream().filter(e -> e.getExecutionYear() == executionYear).collect(Collectors.toSet());
     }
