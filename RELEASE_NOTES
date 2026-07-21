@@ -1,4 +1,3 @@
-- Refactor: Replace for-loops with streams in Professorship [#qubIT-Fenix-9113]
 - Refactor: Removed unused exception classes [#qubIT-Fenix-8939]
 - Refactor: Removed unused util classes [#qubIT-Fenix-8924]
 - Refactor: Remove physical address validation file entity [#qubIT-Fenix-8995]
@@ -8,6 +7,7 @@
 - Refactor: Shift domain methods [#qubIT-Fenix-8983]
 - Refactor: Improves SchoolClass domain methods [#qubIT-Fenix-8926]
 - Refactor: Improve readability of Country entity methods and add tests [#qubIT-Fenix-9025]
+- Refactor: Professorship domain methods [#qubIT-Fenix-9113]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]

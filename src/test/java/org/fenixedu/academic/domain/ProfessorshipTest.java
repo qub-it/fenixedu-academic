@@ -6,9 +6,6 @@ import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
@@ -95,10 +92,9 @@ public class ProfessorshipTest {
     public void testGetDegreeSiglas() {
         String siglas = professorship.getDegreeSiglas();
         assertTrue(StringUtils.isNotBlank(siglas));
-        assertEquals(2, siglas.split(", ").length);
-        assertTrue(siglas.contains(degreeA.getSigla()));
-        assertTrue(siglas.contains(degreeB.getSigla()));
-        // check that the siglas are sorted
-        assertEquals(Stream.of(degreeA.getSigla(), degreeB.getSigla()).sorted().collect(Collectors.joining(", ")), siglas);
+        String[] parts = siglas.split(", ");
+        assertEquals(2, parts.length);
+        assertEquals(degreeA.getSigla(), parts[0]);
+        assertEquals(degreeB.getSigla(), parts[1]);
     }
 }
