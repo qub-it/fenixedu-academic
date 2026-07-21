@@ -567,12 +567,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     // -------------------------------------------------------------
     // END: Only for enrollment purposes (PROTECTED)
     // -------------------------------------------------------------
-    public Set<EnrolmentEvaluation> getEnroledImprovements(final ExecutionInterval input) {
-        return getEnrolmentsSet().stream().flatMap(enrolment -> enrolment.getEvaluationsSet().stream()
-                .filter(evaluation -> evaluation.getEvaluationSeason().isImprovement())
-                .filter(evaluation -> enrolment.getEnrolmentEvaluation(evaluation.getEvaluationSeason(), input, null).orElse(null)
-                        == evaluation)).collect(Collectors.toSet());
-    }
 
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
         return getRoot().getDegreeModulesToEvaluate(executionInterval);
