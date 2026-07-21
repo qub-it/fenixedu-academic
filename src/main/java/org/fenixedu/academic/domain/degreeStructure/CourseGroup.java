@@ -21,6 +21,7 @@ package org.fenixedu.academic.domain.degreeStructure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -496,12 +497,9 @@ public class CourseGroup extends CourseGroup_Base {
         final List<CreditsLimit> creditsLimitRules =
                 (List<CreditsLimit>) getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval);
         if (!creditsLimitRules.isEmpty()) {
-            for (final CreditsLimit creditsLimit : creditsLimitRules) {
-                if (getParentCourseGroupStream().anyMatch(g -> g == creditsLimit.getContextCourseGroup())) {
-                    return creditsLimit.getMaximumCredits();
-                }
-            }
-            return creditsLimitRules.iterator().next().getMaximumCredits();
+            return creditsLimitRules.stream()
+                    .filter(cl -> getParentCourseGroupStream().anyMatch(g -> g == cl.getContextCourseGroup())).findFirst()
+                    .map(CreditsLimit::getMaximumCredits).orElse(creditsLimitRules.get(0).getMaximumCredits());
         }
 
         final Collection<DegreeModule> modulesByExecutionPeriod = getOpenChildDegreeModulesByExecutionPeriod(executionInterval);
@@ -515,26 +513,21 @@ public class CourseGroup extends CourseGroup_Base {
 
     private Double countMaxEctsCredits(final Collection<DegreeModule> modulesByExecutionPeriod,
             final ExecutionInterval executionInterval, final Integer maximumLimit) {
+        List<Double> ectsCredits = modulesByExecutionPeriod.stream().map(dm -> dm.getMaxEctsCredits(executionInterval))
+                .sorted(Comparator.reverseOrder()).collect(Collectors.toList());
 
-        final List<Double> ectsCredits = new ArrayList<Double>();
-        for (final DegreeModule degreeModule : modulesByExecutionPeriod) {
-            ectsCredits.add(degreeModule.getMaxEctsCredits(executionInterval));
-        }
-        Collections.sort(ectsCredits, new ReverseComparator());
-        return sumEctsCredits(ectsCredits, maximumLimit.intValue());
+        return sumEctsCredits(ectsCredits, maximumLimit);
     }
 
     @Override
     public Double getMinEctsCredits(final ExecutionInterval executionInterval) {
         final List<CreditsLimit> creditsLimitRules =
                 (List<CreditsLimit>) getCurricularRules(CurricularRuleType.CREDITS_LIMIT, executionInterval);
+
         if (!creditsLimitRules.isEmpty()) {
-            for (final CreditsLimit creditsLimit : creditsLimitRules) {
-                if (getParentCourseGroupStream().anyMatch(g -> g == creditsLimit.getContextCourseGroup())) {
-                    return creditsLimit.getMinimumCredits();
-                }
-            }
-            return creditsLimitRules.iterator().next().getMinimumCredits();
+            return creditsLimitRules.stream()
+                    .filter(cl -> getParentCourseGroupStream().anyMatch(g -> g == cl.getContextCourseGroup())).findFirst()
+                    .map(CreditsLimit::getMinimumCredits).orElse(creditsLimitRules.get(0).getMinimumCredits());
         }
 
         final Collection<DegreeModule> modulesByExecutionPeriod = getOpenChildDegreeModulesByExecutionPeriod(executionInterval);
@@ -548,13 +541,10 @@ public class CourseGroup extends CourseGroup_Base {
 
     private Double countMinEctsCredits(final Collection<DegreeModule> modulesByExecutionPeriod,
             final ExecutionInterval executionInterval, final Integer minimumLimit) {
+        List<Double> ectsCredits = modulesByExecutionPeriod.stream().map(dm -> dm.getMinEctsCredits(executionInterval)).sorted()
+                .collect(Collectors.toList());
 
-        final List<Double> ectsCredits = new ArrayList<Double>();
-        for (final DegreeModule degreeModule : modulesByExecutionPeriod) {
-            ectsCredits.add(degreeModule.getMinEctsCredits(executionInterval));
-        }
-        Collections.sort(ectsCredits);
-        return sumEctsCredits(ectsCredits, minimumLimit.intValue());
+        return sumEctsCredits(ectsCredits, minimumLimit);
     }
 
     private Double sumEctsCredits(final List<Double> ectsCredits, int limit) {
