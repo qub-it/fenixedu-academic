@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.dto.DomainObjectDeletionBean;
 import org.fenixedu.academic.dto.student.StudentStatuteBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -56,23 +55,9 @@ public class Student extends Student_Base {
 
     public static final String STUDENT_DELETE_SIGNAL = "academic.student.delete.signal";
 
-    public final static Comparator<Student> NAME_COMPARATOR = new Comparator<Student>() {
+    public final static Comparator<Student> NAME_COMPARATOR = Comparator.comparing(o -> o.getPerson().getName());
 
-        @Override
-        public int compare(final Student o1, final Student o2) {
-            return o1.getPerson().getName().compareTo(o2.getPerson().getName());
-        }
-
-    };
-
-    public final static Comparator<Student> NUMBER_COMPARATOR = new Comparator<Student>() {
-
-        @Override
-        public int compare(final Student o1, final Student o2) {
-            return o1.getNumber().compareTo(o2.getNumber());
-        }
-
-    };
+    public final static Comparator<Student> NUMBER_COMPARATOR = Comparator.comparing(Student::getNumber);
 
     public Student(final Person person, final Integer number) {
         super();
@@ -138,19 +123,11 @@ public class Student extends Student_Base {
     }
 
     public List<Registration> getActiveRegistrationsIn(final ExecutionInterval executionInterval) {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : getRegistrationsSet()) {
-            if (registration.hasActiveLastState(executionInterval)) {
-                result.add(registration);
-            }
-        }
-        return result;
+        return getRegistrationStream().filter(r -> r.hasActiveLastState(executionInterval)).collect(Collectors.toList());
     }
 
     public Registration getLastRegistration() {
-        Collection<Registration> activeRegistrations = getRegistrationsSet();
-        return activeRegistrations.isEmpty() ? null : (Registration) Collections.max(activeRegistrations,
-                Registration.COMPARATOR_BY_START_DATE);
+        return getRegistrationStream().max(Registration.COMPARATOR_BY_START_DATE).orElse(null);
     }
 
     public static Integer generateStudentNumber() {
@@ -183,14 +160,8 @@ public class Student extends Student_Base {
     }
 
     public Collection<StudentStatuteBean> getStatutes(final ExecutionInterval executionInterval) {
-        final List<StudentStatuteBean> result = new ArrayList<>();
-        for (final StudentStatute statute : getStudentStatutesSet()) {
-            if (statute.isValidInExecutionInterval(executionInterval)) {
-                result.add(new StudentStatuteBean(statute, executionInterval));
-            }
-        }
-
-        return result;
+        return getStudentStatutesSet().stream().filter(statute -> statute.isValidInExecutionInterval(executionInterval))
+                .map(statute -> new StudentStatuteBean(statute, executionInterval)).collect(Collectors.toList());
     }
 
     public Collection<StatuteType> getStatutesTypesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
@@ -199,40 +170,21 @@ public class Student extends Student_Base {
     }
 
     public Collection<StudentStatuteBean> getStatutesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
-        final Collection<StudentStatuteBean> result = new ArrayList<>();
-        for (final StudentStatute statute : getStudentStatutesSet()) {
-            if (statute.isValidOnAnyExecutionPeriodFor(executionYear)) {
-                result.add(new StudentStatuteBean(statute));
-            }
-        }
-
-        return result;
+        return getStudentStatutesSet().stream().filter(statute -> statute.isValidOnAnyExecutionPeriodFor(executionYear))
+                .map(StudentStatuteBean::new).collect(Collectors.toList());
     }
 
     public Set<Enrolment> getApprovedEnrolments() {
-        final Set<Enrolment> aprovedEnrolments = new HashSet<>();
-        for (final Registration registration : getRegistrationsSet()) {
-            aprovedEnrolments.addAll(registration.getApprovedEnrolments());
-        }
-        return aprovedEnrolments;
+        return getRegistrationsSet().stream().flatMap(r -> r.getApprovedEnrolments().stream()).collect(Collectors.toSet());
     }
 
     public Attends readAttendByExecutionCourse(final ExecutionCourse executionCourse) {
-        for (final Registration registration : getRegistrationsSet()) {
-            Attends attends = registration.readRegistrationAttendByExecutionCourse(executionCourse);
-            if (attends != null) {
-                return attends;
-            }
-        }
-        return null;
+        return getRegistrationsSet().stream().flatMap(r -> r.findAttends(executionCourse).stream()).findFirst().orElse(null);
     }
 
     public SortedSet<Attends> getAttendsForExecutionPeriod(final ExecutionInterval executionInterval) {
-        SortedSet<Attends> attends = new TreeSet<>(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
-        for (Registration registration : getRegistrationsSet()) {
-            attends.addAll(registration.getAttendsForExecutionPeriod(executionInterval));
-        }
-        return attends;
+        return getRegistrationsSet().stream().flatMap(r -> r.getAttendsForExecutionPeriod(executionInterval).stream())
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME)));
     }
 
     public Stream<Registration> getRegistrationStream() {
@@ -240,26 +192,12 @@ public class Student extends Student_Base {
     }
 
     public List<Registration> getRegistrationsFor(final DegreeCurricularPlan degreeCurricularPlan) {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : super.getRegistrationsSet()) {
-            for (final DegreeCurricularPlan degreeCurricularPlanToTest : registration.getDegreeCurricularPlans()) {
-                if (degreeCurricularPlanToTest.equals(degreeCurricularPlan)) {
-                    result.add(registration);
-                    break;
-                }
-            }
-        }
-        return result;
+        return super.getRegistrationsSet().stream().filter(r -> r.getDegreeCurricularPlans().contains(degreeCurricularPlan))
+                .collect(Collectors.toList());
     }
 
     public List<Registration> getRegistrationsFor(final Degree degree) {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : super.getRegistrationsSet()) {
-            if (registration.getDegree() == degree) {
-                result.add(registration);
-            }
-        }
-        return result;
+        return super.getRegistrationsSet().stream().filter(r -> r.getDegree() == degree).collect(Collectors.toList());
     }
 
     public Registration getActiveRegistrationFor(final DegreeCurricularPlan degreeCurricularPlan) {
@@ -272,25 +210,13 @@ public class Student extends Student_Base {
     }
 
     public boolean hasActiveRegistrations() {
-        for (final Registration registration : super.getRegistrationsSet()) {
-            final RegistrationState registrationState = registration.getActiveState();
-            if (registrationState != null) {
-                if (registrationState.getType().getActive()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return super.getRegistrationsSet().stream().map(Registration::getActiveState).filter(Objects::nonNull)
+                .anyMatch(state -> state.getType().getActive());
     }
 
     public boolean hasWorkingStudentStatuteInPeriod(final ExecutionInterval executionInterval) {
-        for (StudentStatute studentStatute : getStudentStatutesSet()) {
-            if (studentStatute.getType().isWorkingStudentStatute()
-                    && studentStatute.isValidInExecutionInterval(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return getStudentStatutesSet().stream()
+                .anyMatch(ss -> ss.getType().isWorkingStudentStatute() && ss.isValidInExecutionInterval(executionInterval));
     }
 
     public Attends getAttends(final ExecutionCourse executionCourse) {
@@ -330,13 +256,8 @@ public class Student extends Student_Base {
     }
 
     public PersonalIngressionData getPersonalIngressionDataByExecutionYear(final ExecutionYear executionYear) {
-        for (PersonalIngressionData pid : getPersonalIngressionsDataSet()) {
-            if (pid.getExecutionYear() == executionYear) {
-                return pid;
-            }
-        }
-
-        return null;
+        return getPersonalIngressionsDataSet().stream().filter(pid -> pid.getExecutionYear() == executionYear).findFirst()
+                .orElse(null);
     }
 
 }
