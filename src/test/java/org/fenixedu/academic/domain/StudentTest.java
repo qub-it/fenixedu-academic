@@ -194,7 +194,8 @@ public class StudentTest {
 
     public static Registration createRegistration(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
             final ExecutionYear executionYear) {
-        return Registration.create(student, degreeCurricularPlan, executionYear, protocol, ingression);
+        return Registration.create(student, degreeCurricularPlan, executionYear, RegistrationProtocol.findByCode(PROTOCOL_CODE),
+                IngressionType.findIngressionTypeByCode(INGRESSION_CODE).orElseThrow());
     }
 
     public static void initRegistrationConfigEntities() {
