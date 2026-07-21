@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.EvaluationType;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public abstract class Evaluation extends Evaluation_Base {
@@ -62,10 +61,6 @@ public abstract class Evaluation extends Evaluation_Base {
 //        }
 //        return new Mark(attends, this, markValue);
 //    }
-
-    public EvaluationType getEvaluationType() {
-        return null;
-    }
 
     public Mark getMarkByAttend(Attends attends) {
         for (Mark mark : getMarksSet()) {
