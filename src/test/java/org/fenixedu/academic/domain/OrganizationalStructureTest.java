@@ -228,6 +228,48 @@ public class OrganizationalStructureTest {
         assertTrue(universityUnit.getParentUnits(List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE)).contains(countryUnit));
     }
 
+    @Test
+    public void testParty_getChildParties() {
+        final Unit schoolUnit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit degreesAgregatorUnit = Unit.findInternalUnitByAcronymPath("QS>Degrees").orElseThrow();
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
+        final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        // coursesGroupUnit must not have children
+        assertTrue(coursesGroupUnit.getSubUnits().isEmpty());
+
+        // schoolUnit must have 2 children, with degreesAggregatorUnit of AggregateUnit Party Type
+        // and both degreesAggregatorUnit and coursesUnits of OrganizationalStructure Accountability Type
+        assertEquals(2, schoolUnit.getSubUnits().size());
+
+        assertTrue(schoolUnit.getSubUnits(PartyTypeEnum.COUNTRY).isEmpty());
+        assertTrue(schoolUnit.getSubUnits(List.of(GEOGRAPHIC)).isEmpty());
+        assertTrue(schoolUnit.getSubUnits().contains(degreesAgregatorUnit));
+
+        final Collection<Unit> aggregateUnitSubUnits = schoolUnit.getSubUnits(PartyTypeEnum.AGGREGATE_UNIT);
+        assertTrue(aggregateUnitSubUnits.contains(degreesAgregatorUnit));
+        assertFalse(aggregateUnitSubUnits.contains(coursesGroupUnit));
+
+        final Collection<Unit> organizationalStructureSubUnits = schoolUnit.getSubUnits(List.of(ORGANIZATIONAL_STRUCTURE));
+        assertTrue(organizationalStructureSubUnits.contains(degreesAgregatorUnit));
+        assertTrue(organizationalStructureSubUnits.contains(coursesUnit));
+    }
+
+    @Test
+    public void testParty_getChildAccountabilities() {
+        final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses").orElseThrow();
+        final Unit coursesGroupUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+
+        // coursesGroupUnit must not have any child accountabilities setup
+        assertTrue(coursesGroupUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).isEmpty());
+
+        // coursesUnit must be connected to at least coursesGroupUnit through an accountability of type OrganizationalStructure
+        assertFalse(coursesUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).isEmpty());
+        assertTrue(coursesUnit.getChildAccountabilities(GEOGRAPHIC).isEmpty());
+        assertTrue(coursesUnit.getChildAccountabilities(ORGANIZATIONAL_STRUCTURE).stream()
+                .anyMatch(accountability -> accountability.getChildParty() == coursesGroupUnit));
+    }
+
     private static Person createPerson(final String name, final String username) {
         final UserProfile userProfile = new UserProfile(name, "", name, username + "@fenixedu.com", Locale.getDefault());
         new User(username, userProfile);
