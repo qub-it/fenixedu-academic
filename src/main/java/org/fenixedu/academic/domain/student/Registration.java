@@ -1018,7 +1018,7 @@ public class Registration extends Registration_Base {
     }
 
     final public String getEmail() {
-        return getPerson().getEmail();
+        return getPerson().getDefaultEmailAddressValue();
     }
 
     public ExecutionYear getIngressionYear() {
