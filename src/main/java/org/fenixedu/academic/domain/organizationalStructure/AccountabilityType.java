@@ -126,7 +126,7 @@ public class AccountabilityType extends AccountabilityType_Base {
             throw new DomainException("error.AccountabilityType.cannotDelete.hasAssociatedAccountabilities");
         }
 
-        getConnectionRulesSet().forEach(cr -> cr.delete());
+        getConnectionRulesSet().forEach(ConnectionRule::delete);
 
         setRootDomainObject(null);
         super.deleteDomainObject();
