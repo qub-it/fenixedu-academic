@@ -2,7 +2,6 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
-import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -33,8 +32,7 @@ public class ProfessorshipTest {
     private static ExecutionYear executionYear;
     private static ExecutionInterval executionInterval;
     private static ExecutionCourse executionCourse;
-    private static Person person;
-    private static DegreeCurricularPlan dcpA, dcpB, dcp2;
+    private static DegreeCurricularPlan dcpA, dcpB;
     private static Degree degreeA, degreeB;
     private static Professorship professorship;
 
@@ -49,8 +47,6 @@ public class ProfessorshipTest {
 
             degreeA = Degree.find(DEGREE_A_CODE);
             dcpA = degreeA.getDegreeCurricularPlansSet().stream().filter(d -> DCP_NAME_V1.equals(d.getName())).findAny()
-                    .orElseThrow();
-            dcp2 = degreeA.getDegreeCurricularPlansSet().stream().filter(d -> DCP_NAME_V2.equals(d.getName())).findAny()
                     .orElseThrow();
             final CompetenceCourse competenceCourse = CompetenceCourse.find(COURSE_A_CODE);
 
@@ -105,89 +101,4 @@ public class ProfessorshipTest {
         // check that the siglas are sorted
         assertEquals(Stream.of(degreeA.getSigla(), degreeB.getSigla()).sorted().collect(Collectors.joining(", ")), siglas);
     }
-
-    //    @Test
-    //    public void testGetDegreePlanNames() {
-    //        String planNames = professorship.getDegreePlanNames();
-    //        assertTrue(StringUtils.isNotBlank(planNames));
-    //        String[] parts = planNames.split(", ");
-    //        assertEquals(2, parts.length);
-    //        assertTrue(planNames.contains(dcpA.getName()));
-    //        assertTrue(planNames.contains(dcpB.getName()));
-    //    }
-    //
-    //    @Test
-    //    public void testReadByDegreeCurricularPlanAndExecutionYear() {
-    //        List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpA, executionYear);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpB, executionYear);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //
-    //        // DCP without curricular courses in the execution year
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcp2, executionYear);
-    //        assertTrue(result.isEmpty());
-    //
-    //        // execution year without professorships
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionYear(dcpA, (ExecutionYear) executionYear.getPrevious());
-    //        assertTrue(result.isEmpty());
-    //    }
-    //
-    //    @Test
-    //    public void testReadByDegreeCurricularPlanAndExecutionPeriod() {
-    //        List<Professorship> result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpA, executionInterval);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //
-    //        // different DCP on different degree, same execution course
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpB, executionInterval);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //
-    //        // DCP without curricular courses
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcp2, executionInterval);
-    //        assertTrue(result.isEmpty());
-    //
-    //        // execution interval without professorships
-    //        ExecutionInterval previousInterval = executionYear.getPreviousExecutionYear().getFirstExecutionPeriod();
-    //        result = Professorship.readByDegreeCurricularPlanAndExecutionPeriod(dcpA, previousInterval);
-    //        assertTrue(result.isEmpty());
-    //    }
-    //
-    //    @Test
-    //    public void testReadByDegreeCurricularPlansAndExecutionYear() {
-    //        List<DegreeCurricularPlan> dcps = new ArrayList<>();
-    //        dcps.add(dcpA);
-    //
-    //        // single DCP, current year
-    //        List<Professorship> result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, executionYear);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //
-    //        // multiple DCPs, current year
-    //        dcps.add(dcpB);
-    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, executionYear);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //        assertEquals(1, result.size());
-    //
-    //        // DCP without curricular courses
-    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(List.of(dcp2), executionYear);
-    //        assertTrue(result.isEmpty());
-    //
-    //        // different execution year
-    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, (ExecutionYear) executionYear.getPrevious());
-    //        assertTrue(result.isEmpty());
-    //
-    //        // empty DCP list
-    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(List.of(), executionYear);
-    //        assertTrue(result.isEmpty());
-    //
-    //        // null execution year, returns all execution courses unfiltered
-    //        result = Professorship.readByDegreeCurricularPlansAndExecutionYear(dcps, null);
-    //        assertFalse(result.isEmpty());
-    //        assertTrue(result.contains(professorship));
-    //    }
 }
