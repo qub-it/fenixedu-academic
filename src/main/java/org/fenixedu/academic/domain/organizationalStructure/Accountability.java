@@ -50,17 +50,13 @@ public class Accountability extends Accountability_Base {
         super.deleteDomainObject();
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public static Comparator<Accountability> getComparatorByBeginDate() {
-        return new Comparator<Accountability>() {
-
-            @Override
-            public int compare(Accountability left, Accountability right) {
-                final int result = left.getBeginDate().compareTo(right.getBeginDate());
-
-                return result == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(left, right) : result;
-
-            }
-        };
+        return Comparator.comparing(Accountability::getBeginDate)
+                .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
     }
 
     public boolean belongsToPeriod(YearMonthDay begin, YearMonthDay end) {
@@ -71,36 +67,68 @@ public class Accountability extends Accountability_Base {
         return belongsToPeriod(currentDate, currentDate);
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase. Use {@link #isActive(YearMonthDay)} instead.
+     */
+    @Deprecated
     public boolean isActive() {
         return isActive(new YearMonthDay());
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public boolean isFinished() {
         return getEndDate() != null && getEndDate().isBefore(new YearMonthDay());
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public LocalDate getBeginLocalDate() {
         final YearMonthDay result = getBeginDate();
         return result == null ? null : result.toLocalDate();
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public void setBeginLocalDate(final LocalDate input) {
         super.setBeginDate(input == null ? null : new YearMonthDay(input));
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public LocalDate getEndLocalDate() {
         final YearMonthDay result = getEndDate();
         return result == null ? null : result.toLocalDate();
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public void setEndLocalDate(final LocalDate input) {
         super.setEndDate(input == null ? null : new YearMonthDay(input));
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public Date getBeginDateInDateType() {
         return (getBeginDate() != null) ? getBeginDate().toDateTimeAtCurrentTime().toDate() : null;
     }
 
+    /**
+     * @deprecated This method has no known callers in the codebase.
+     */
+    @Deprecated
     public Date getEndDateInDateType() {
         return (getEndDate() != null) ? getEndDate().toDateTimeAtCurrentTime().toDate() : null;
     }
