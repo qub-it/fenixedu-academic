@@ -4,7 +4,10 @@ import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -31,8 +34,7 @@ public class ProfessorshipTest {
     private static ExecutionCourse executionCourse;
     private static DegreeCurricularPlan dcpA, dcpB;
     private static Degree degreeA, degreeB;
-    private static Professorship professorship;
-
+    private static Professorship respProfessorship, nonRespProfessorship;
 
     @BeforeClass
     public static void init() {
@@ -57,40 +59,40 @@ public class ProfessorshipTest {
             executionCourse.addAssociatedCurricularCourses(dcpA.getCurricularCourseByCode(COURSE_A_CODE));
             executionCourse.addAssociatedCurricularCourses(ccB);
 
-            professorship = createProfessorship("testprof", "Test", "User", "Test User", "test.user@fenixedu.com");
+            respProfessorship = createProfessorship("testprofA", true);
+            nonRespProfessorship = createProfessorship("testprofB", false);
 
             return null;
         });
     }
 
-    private static Professorship createProfessorship(String username, String givenNames, String familyNames, String displayName,
-            String email) {
-        UserProfile userProfile = new UserProfile(givenNames, familyNames, displayName, email, java.util.Locale.getDefault());
+    private static Professorship createProfessorship(String username, boolean responsibleFor) {
+        final UserProfile userProfile =
+                new UserProfile("User" + username, "", "User" + username, username + "@test.com", Locale.getDefault());
         User user = new User(username, userProfile);
         Person person = new Person(userProfile);
-        user.setPerson(person);
-        person.setUser(user);
         new Teacher(person);
         Authenticate.mock(user, username);
 
-        return Professorship.create(true, executionCourse, person);
+        return Professorship.create(responsibleFor, executionCourse, person);
     }
 
     @Test
     public void testComparatorByPersonName() {
-        Professorship professorship2 = createProfessorship("testprof2", "Alpha", "User", "Alpha User", "alpha.user@fenixedu.com");
-        try {
-            assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship, professorship2) > 0);
-            assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship2, professorship) < 0);
-            assertEquals(0, Professorship.COMPARATOR_BY_PERSON_NAME.compare(professorship, professorship));
-        } finally {
-            professorship2.delete();
-        }
+        assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(respProfessorship, nonRespProfessorship) < 0);
+        assertTrue(Professorship.COMPARATOR_BY_PERSON_NAME.compare(nonRespProfessorship, respProfessorship) > 0);
+        assertEquals(0, Professorship.COMPARATOR_BY_PERSON_NAME.compare(respProfessorship, respProfessorship));
+    }
+
+    @Test
+    public void testIsResponsibleFor() {
+        assertTrue(respProfessorship.isResponsibleFor());
+        assertFalse(nonRespProfessorship.isResponsibleFor());
     }
 
     @Test
     public void testGetDegreeSiglas() {
-        String siglas = professorship.getDegreeSiglas();
+        String siglas = respProfessorship.getDegreeSiglas();
         assertTrue(StringUtils.isNotBlank(siglas));
         String[] parts = siglas.split(", ");
         assertEquals(2, parts.length);
