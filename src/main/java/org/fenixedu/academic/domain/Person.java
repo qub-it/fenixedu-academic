@@ -49,6 +49,8 @@ import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
+import org.fenixedu.academic.domain.person.personIdentifier.PersonIdentifier;
+import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.person.IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO;
 import org.fenixedu.academic.dto.person.PersonBean;
@@ -94,7 +96,8 @@ public class Person extends Person_Base {
     @Override
     public LocalizedString getPartyName() {
         Builder builder = new LocalizedString.Builder();
-        CoreConfiguration.supportedLocales().forEach(locale -> builder.with(locale, getName()));
+        String name = getName();
+        CoreConfiguration.supportedLocales().forEach(locale -> builder.with(locale, name));
         return builder.build();
     }
 
@@ -258,9 +261,6 @@ public class Person extends Person_Base {
         getUser().openLoginPeriod();
     }
 
-    /**
-     * @deprecated Use {@link #ensureOpenUserAccount()} instead.
-     */
     @Deprecated
     public void ensureUserAccount() {
         if (getUser() == null) {
@@ -368,9 +368,7 @@ public class Person extends Person_Base {
 
         getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
 
-        while (!getVaccineAdministrationsSet().isEmpty()) {
-            getVaccineAdministrationsSet().iterator().next().delete();
-        }
+        getVaccineAdministrationsSet().forEach(VaccineAdministration::delete);
 
         getPersonInformationLogsSet().forEach(PersonInformationLog::delete);
 
@@ -378,7 +376,7 @@ public class Person extends Person_Base {
             getPersonalPhoto().delete();
         }
 
-        getIdentifiersSet().forEach(id -> id.delete());
+        getIdentifiersSet().forEach(PersonIdentifier::delete);
 
         final UserProfile profile = getProfile();
         if (profile != null) {
@@ -484,9 +482,6 @@ public class Person extends Person_Base {
         return getProfile().getDisplayName();
     }
 
-    /**
-     * @deprecated No external references found in the codebase.
-     */
     @Deprecated
     public String getHomepageWebAddress() {
         if (isDefaultWebAddressVisible() && getDefaultWebAddress().hasUrl()) {
@@ -576,9 +571,6 @@ public class Person extends Person_Base {
         return null;
     }
 
-    /**
-     * @deprecated No external references found in the codebase.
-     */
     @Deprecated
     public Photograph getPersonalPhotoEvenIfRejected() {
         return super.getPersonalPhoto();
@@ -650,9 +642,6 @@ public class Person extends Person_Base {
                 .orElse(null);
     }
 
-    /**
-     * @deprecated Teacher.java has its own equivalent method.
-     */
     @Deprecated
     public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
         return getProfessorshipByExecutionCourse(executionCourse) != null;
@@ -678,9 +667,6 @@ public class Person extends Person_Base {
         return professorships;
     }
 
-    /**
-     * @deprecated No external references found in the codebase.
-     */
     @Deprecated
     public boolean teachesAny(final Collection<ExecutionCourse> executionCourses) {
         for (final Professorship professorship : getProfessorshipsSet()) {
@@ -769,9 +755,6 @@ public class Person extends Person_Base {
         return getNumberOfValidationRequests() <= MAX_VALIDATION_REQUESTS;
     }
 
-    /**
-     * @deprecated No external references found in the codebase.
-     */
     @Deprecated
     @Atomic
     public void incValidationRequest() {
@@ -1037,9 +1020,6 @@ public class Person extends Person_Base {
         contact.logRefuse(this);
     }
 
-    /**
-     * @deprecated No external references found in the codebase.
-     */
     @Deprecated
     public static Group convertToUserGroup(final Collection<Person> persons) {
         return Group.users(persons.stream().map(Person::getUser).filter(Objects::nonNull));
