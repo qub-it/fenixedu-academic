@@ -122,7 +122,7 @@ public class Professorship extends Professorship_Base {
     }
 
     public boolean isResponsibleFor() {
-        return getResponsibleFor().booleanValue();
+        return getResponsibleFor();
     }
 
     public void setResponsibleFor(boolean responsibleFor) {
