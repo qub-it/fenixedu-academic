@@ -94,9 +94,7 @@ public class Person extends Person_Base {
     @Override
     public LocalizedString getPartyName() {
         Builder builder = new LocalizedString.Builder();
-        for (Locale locale : CoreConfiguration.supportedLocales()) {
-            builder.with(locale, getName());
-        }
+        CoreConfiguration.supportedLocales().forEach(locale -> builder.with(locale, getName()));
         return builder.build();
     }
 
@@ -260,6 +258,10 @@ public class Person extends Person_Base {
         getUser().openLoginPeriod();
     }
 
+    /**
+     * @deprecated Use {@link #ensureOpenUserAccount()} instead.
+     */
+    @Deprecated
     public void ensureUserAccount() {
         if (getUser() == null) {
             setUser(new User(getProfile()));
@@ -277,12 +279,10 @@ public class Person extends Person_Base {
     }
 
     public Registration getStudentByType(final DegreeType degreeType) {
-        for (final Registration registration : this.getStudents()) {
-            if (registration.getDegreeType() == degreeType) {
-                return registration;
-            }
-        }
-        return null;
+        return getStudents().stream()
+                .filter(registration -> registration.getDegreeType() == degreeType)
+                .findFirst()
+                .orElse(null);
     }
 
     private String valueToUpdateIfNewNotNull(final String actualValue, final String newValue) {
@@ -348,10 +348,11 @@ public class Person extends Person_Base {
     @Override
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
-        for (PartyContact partyContact : getPartyContactsSet()) {
+
+        getPartyContactsSet().forEach(partyContact -> {
             partyContact.setActive(Boolean.FALSE);
             partyContact.delete();
-        }
+        });
 
         while (getPersonalPhotoEvenIfRejected() != null) {
             getPersonalPhotoEvenIfRejected().delete();
@@ -367,13 +368,11 @@ public class Person extends Person_Base {
 
         getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
 
-        for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
-            ;
+        while (!getVaccineAdministrationsSet().isEmpty()) {
+            getVaccineAdministrationsSet().iterator().next().delete();
         }
 
-        for (PersonInformationLog log : getPersonInformationLogsSet()) {
-            log.delete();
-        }
+        getPersonInformationLogsSet().forEach(PersonInformationLog::delete);
 
         if (getPersonalPhoto() != null) {
             getPersonalPhoto().delete();
@@ -433,13 +432,10 @@ public class Person extends Person_Base {
     }
 
     public static Collection<Person> findByDateOfBirth(final YearMonthDay dateOfBirth, final Collection<Person> persons) {
-        final List<Person> result = new ArrayList<Person>();
-        for (final Person person : persons) {
-            if (person.getDateOfBirthYearMonthDay() == null || person.getDateOfBirthYearMonthDay().equals(dateOfBirth)) {
-                result.add(person);
-            }
-        }
-        return result;
+        return persons.stream()
+                .filter(person -> person.getDateOfBirthYearMonthDay() == null
+                        || person.getDateOfBirthYearMonthDay().equals(dateOfBirth))
+                .collect(Collectors.toList());
     }
 
     public static Stream<Person> findPersonStream(final String name, final int size) {
@@ -488,6 +484,10 @@ public class Person extends Person_Base {
         return getProfile().getDisplayName();
     }
 
+    /**
+     * @deprecated No external references found in the codebase.
+     */
+    @Deprecated
     public String getHomepageWebAddress() {
         if (isDefaultWebAddressVisible() && getDefaultWebAddress().hasUrl()) {
             return getDefaultWebAddress().getUrl();
@@ -576,6 +576,10 @@ public class Person extends Person_Base {
         return null;
     }
 
+    /**
+     * @deprecated No external references found in the codebase.
+     */
+    @Deprecated
     public Photograph getPersonalPhotoEvenIfRejected() {
         return super.getPersonalPhoto();
     }
@@ -646,6 +650,10 @@ public class Person extends Person_Base {
                 .orElse(null);
     }
 
+    /**
+     * @deprecated Teacher.java has its own equivalent method.
+     */
+    @Deprecated
     public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
         return getProfessorshipByExecutionCourse(executionCourse) != null;
     }
@@ -670,6 +678,10 @@ public class Person extends Person_Base {
         return professorships;
     }
 
+    /**
+     * @deprecated No external references found in the codebase.
+     */
+    @Deprecated
     public boolean teachesAny(final Collection<ExecutionCourse> executionCourses) {
         for (final Professorship professorship : getProfessorshipsSet()) {
             if (executionCourses.contains(professorship.getExecutionCourse())) {
@@ -757,6 +769,10 @@ public class Person extends Person_Base {
         return getNumberOfValidationRequests() <= MAX_VALIDATION_REQUESTS;
     }
 
+    /**
+     * @deprecated No external references found in the codebase.
+     */
+    @Deprecated
     @Atomic
     public void incValidationRequest() {
         getCanValidateContacts();
@@ -1021,6 +1037,10 @@ public class Person extends Person_Base {
         contact.logRefuse(this);
     }
 
+    /**
+     * @deprecated No external references found in the codebase.
+     */
+    @Deprecated
     public static Group convertToUserGroup(final Collection<Person> persons) {
         return Group.users(persons.stream().map(Person::getUser).filter(Objects::nonNull));
     }
