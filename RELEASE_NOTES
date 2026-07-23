@@ -12,6 +12,7 @@
 - Refactor: Remove Evaluation Type entity [#qubIT-Fenix-8996]
 - Refactor: Clean up child party methods in Party class [#qubIT-Fenix-8960]
 - Refactor: Update private parent party methods to return streams [#qubIT-Fenix-8960]
+- Refactor: Improves Context domain methods and adds unit tests [#qubIT-Fenix-9112]
 
 56.0.0 (13-07-2026)
 - Refactor: Improve profile deletion/dissociation for entities with auto-generated profiles [#qubIT-Omnis-11210]
