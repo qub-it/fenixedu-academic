@@ -328,67 +328,6 @@ public class Context extends Context_Base implements Comparable<Context> {
         }
     }
 
-    @Deprecated
-    public Integer getOrder() {
-        return super.getChildOrder();
-    }
-
-    @Deprecated
-    public void setOrder(Integer order) {
-        super.setChildOrder(order);
-    }
-
-    //TODO: DELETE
-//    @Deprecated
-//    public boolean containsCurricularYear(final Integer curricularYear) {
-//        final CurricularPeriod firstCurricularPeriod = getCurricularPeriod().getParent();
-//        final int firstCurricularPeriodOrder = firstCurricularPeriod.getAbsoluteOrderOfChild();
-//        return curricularYear.intValue() == firstCurricularPeriodOrder;
-//    }
-
-    //TODO: DELETE
-//    @Deprecated
-//    public boolean containsSemester(final Integer semester) {
-//        final CurricularPeriod firstCurricularPeriod = getCurricularPeriod();
-//        final int firstCurricularPeriodOrder = firstCurricularPeriod.getChildOrder();
-//        return semester.intValue() == firstCurricularPeriodOrder;
-//    }
-
-//    @Deprecated
-//    public boolean containsSemesterAndCurricularYear(final Integer semester, final Integer curricularYear,
-//            final RegimeType regimeType) {
-//
-//        final int argumentOrder = (curricularYear - 1) * 2 + semester.intValue();
-//        final CurricularPeriod firstCurricularPeriod = getCurricularPeriod();
-//        final int firstCurricularPeriodOrder = firstCurricularPeriod.getAbsoluteOrderOfChild();
-//        final int duration;
-//        if (regimeType == RegimeType.ANUAL) {
-//            duration = 2;
-//        } else if (regimeType == RegimeType.SEMESTRIAL) {
-//            duration = 1;
-//        } else {
-//            throw new IllegalArgumentException("Unknown regimeType: " + regimeType);
-//        }
-//        final int lastCurricularPeriodOrder = firstCurricularPeriodOrder + duration - 1;
-//        return firstCurricularPeriodOrder <= argumentOrder && argumentOrder <= lastCurricularPeriodOrder;
-//    }
-
-    /**
-     * @deprecated use {@code #setBeginExecutionInterval(ExecutionInterval)}
-     */
-    @Deprecated
-    @Override
-    public void setBeginExecutionPeriod(ExecutionInterval beginExecutionPeriod) {
-        if (beginExecutionPeriod == null) {
-            throw new DomainException("curricular.rule.begin.execution.period.cannot.be.null");
-        }
-        super.setBeginExecutionPeriod(beginExecutionPeriod);
-    }
-
-    public void removeBeginExecutionPeriod() {
-        super.setBeginExecutionPeriod(null);
-    }
-
     public Integer getCurricularYear() {
         return getCurricularPeriod().getParent().getAbsoluteOrderOfChild();
     }
@@ -444,21 +383,24 @@ public class Context extends Context_Base implements Comparable<Context> {
     }
 
     /**
+     * @deprecated use {@code #setBeginExecutionInterval(ExecutionInterval)}
+     */
+    @Deprecated
+    @Override
+    public void setBeginExecutionPeriod(ExecutionInterval beginExecutionPeriod) {
+        if (beginExecutionPeriod == null) {
+            throw new DomainException("curricular.rule.begin.execution.period.cannot.be.null");
+        }
+        super.setBeginExecutionPeriod(beginExecutionPeriod);
+    }
+
+    /**
      * @deprecated use {@code #getEndExecutionInterval()}
      */
     @Deprecated
     @Override
     public ExecutionInterval getEndExecutionPeriod() {
         return super.getEndExecutionPeriod() != null ? super.getEndExecutionPeriod().getExecutionYear() : null;
-    }
-
-    /**
-     * @deprecated use {@code #setEndExecutionInterval(ExecutionInterval)}
-     */
-    @Deprecated
-    @Override
-    public void setEndExecutionPeriod(ExecutionInterval endExecutionPeriod) {
-        super.setEndExecutionPeriod(endExecutionPeriod);
     }
 
     private String buildDegreeModuleNameForErrorHandling(DegreeModule degreeModule) {
