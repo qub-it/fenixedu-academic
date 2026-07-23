@@ -104,21 +104,11 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Attends getAttendsByStudent(final Registration registration) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.getRegistration() == registration) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.getRegistration() == registration).findFirst().orElse(null);
     }
 
     public Attends getAttendsByStudent(final Student student) {
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.isFor(student)) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(a -> a.isFor(student)).findFirst().orElse(null);
     }
 
     // Delete Method
@@ -135,18 +125,20 @@ public class ExecutionCourse extends ExecutionCourse_Base {
             deleteGroup(g);
         });
 
-        for (; !getProfessorshipsSet().isEmpty(); getProfessorshipsSet().iterator().next().delete()) {
-            ;
-        }
-        for (; !getLessonPlanningsSet().isEmpty(); getLessonPlanningsSet().iterator().next().delete()) {
-            ;
+        while (!getProfessorshipsSet().isEmpty()) {
+            getProfessorshipsSet().iterator().next().delete();
         }
 
-        for (; !getAttendsSet().isEmpty(); getAttendsSet().iterator().next().delete()) {
-            ;
+        while (!getLessonPlanningsSet().isEmpty()) {
+            getLessonPlanningsSet().iterator().next().delete();
         }
-        for (; !getExecutionCourseLogsSet().isEmpty(); getExecutionCourseLogsSet().iterator().next().delete()) {
-            ;
+
+        while (!getAttendsSet().isEmpty()) {
+            getAttendsSet().iterator().next().delete();
+        }
+
+        while (!getExecutionCourseLogsSet().isEmpty()) {
+            getExecutionCourseLogsSet().iterator().next().delete();
         }
 
         getAssociatedCurricularCoursesSet().clear();
@@ -234,38 +226,20 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public SortedSet<Degree> getDegreesSortedByDegreeName() {
-        final SortedSet<Degree> degrees = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            final DegreeCurricularPlan degreeCurricularPlan = curricularCourse.getDegreeCurricularPlan();
-            degrees.add(degreeCurricularPlan.getDegree());
-        }
-        return degrees;
+        return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
+                .map(DegreeCurricularPlan::getDegree)
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)));
     }
 
     public Set<CompetenceCourse> getCompetenceCourses() {
-        final Set<CompetenceCourse> competenceCourses = new HashSet<CompetenceCourse>();
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            final CompetenceCourse competenceCourse = curricularCourse.getCompetenceCourse();
-            if (competenceCourse != null) {
-                competenceCourses.add(competenceCourse);
-            }
-        }
-        return competenceCourses;
+        return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getCompetenceCourse).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public Set<CompetenceCourseInformation> getCompetenceCoursesInformations() {
-        final Set<CompetenceCourseInformation> competenceCourseInformations = new HashSet<CompetenceCourseInformation>();
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            final CompetenceCourse competenceCourse = curricularCourse.getCompetenceCourse();
-            if (competenceCourse != null) {
-                final CompetenceCourseInformation competenceCourseInformation =
-                        competenceCourse.findInformationMostRecentUntil(getExecutionInterval());
-                if (competenceCourseInformation != null) {
-                    competenceCourseInformations.add(competenceCourseInformation);
-                }
-            }
-        }
-        return competenceCourseInformations;
+        return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getCompetenceCourse).filter(Objects::nonNull)
+                .map(cc -> cc.findInformationMostRecentUntil(getExecutionInterval())).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     public Stream<Shift> findShiftsByLoadType(final CourseLoadType loadType) {
@@ -273,16 +247,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private Set<SchoolClass> getAllSchoolClassesOrBy(DegreeCurricularPlan degreeCurricularPlan) {
-        final Set<SchoolClass> result = new HashSet<SchoolClass>();
-        for (final Shift shift : getAssociatedShifts()) {
-            for (final SchoolClass schoolClass : shift.getAssociatedClassesSet()) {
-                if (degreeCurricularPlan == null
-                        || schoolClass.getExecutionDegree().getDegreeCurricularPlan() == degreeCurricularPlan) {
-                    result.add(schoolClass);
-                }
-            }
-        }
-        return result;
+        return getAssociatedShifts().stream().flatMap(shift -> shift.getAssociatedClassesSet().stream())
+                .filter(sc -> degreeCurricularPlan == null
+                        || sc.getExecutionDegree().getDegreeCurricularPlan() == degreeCurricularPlan).collect(Collectors.toSet());
     }
 
     public Set<SchoolClass> getSchoolClassesBy(DegreeCurricularPlan degreeCurricularPlan) {
@@ -340,15 +307,9 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Set<ExecutionDegree> getExecutionDegrees() {
-        Set<ExecutionDegree> result = new HashSet<ExecutionDegree>();
-        for (CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            ExecutionDegree executionDegree =
-                    curricularCourse.getDegreeCurricularPlan().getExecutionDegreeByYear(getExecutionYear());
-            if (executionDegree != null) {
-                result.add(executionDegree);
-            }
-        }
-        return result;
+        return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
+                .flatMap(dcp -> dcp.findExecutionDegree(getExecutionInterval()).stream())
+                .collect(Collectors.toSet());
     }
 
     public Interval getMaxLessonsInterval() {
@@ -394,31 +355,22 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     private String findUniqueCode(final String code) {
-        if (!existsMatchingCode(code)) {
-            return code;
+        String candidate = code;
+        int c = 0;
+        while (existsMatchingCode(candidate)) {
+            candidate = code + "-" + c++;
         }
-        int c;
-        for (c = 0; existsMatchingCode(code + "-" + c); c++) {
-            ;
-        }
-        return code + "-" + c;
+        return candidate;
     }
 
     private boolean existsMatchingCode(final String code) {
-        for (final ExecutionCourse executionCourse : getExecutionInterval().getAssociatedExecutionCoursesSet()) {
-            if (executionCourse != this && executionCourse.getSigla().equalsIgnoreCase(code)) {
-                return true;
-            }
-        }
-        return false;
+        return getExecutionInterval().getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> ec != this && ec.getSigla().equalsIgnoreCase(code));
     }
 
     public Collection<DegreeCurricularPlan> getAssociatedDegreeCurricularPlans() {
-        Collection<DegreeCurricularPlan> result = new HashSet<DegreeCurricularPlan>();
-        for (CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            result.add(curricularCourse.getDegreeCurricularPlan());
-        }
-        return result;
+        return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
+                .collect(Collectors.toSet());
     }
 
     public boolean isDeletable() {
@@ -426,12 +378,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     }
 
     public Professorship getProfessorship(final Person person) {
-        for (final Professorship professorship : getProfessorshipsSet()) {
-            if (professorship.getPerson() == person) {
-                return professorship;
-            }
-        }
-        return null;
+        return getProfessorshipsSet().stream().filter(p -> p.getPerson() == person).findFirst().orElse(null);
     }
 
     /*
@@ -462,14 +409,12 @@ public class ExecutionCourse extends ExecutionCourse_Base {
 
     @Override
     public void addAssociatedCurricularCourses(final CurricularCourse curricularCourse) {
-        Collection<ExecutionCourse> executionCourses = curricularCourse.getAssociatedExecutionCoursesSet();
 
-        for (ExecutionCourse executionCourse : executionCourses) {
-            if (this != executionCourse && executionCourse.getExecutionInterval() == getExecutionInterval()) {
-                throw new DomainException("error.executionCourse.curricularCourse.already.associated");
-            }
+        if (curricularCourse.getAssociatedExecutionCoursesSet().stream()
+                .anyMatch(ec -> this != ec && ec.getExecutionInterval() == getExecutionInterval())) {
+            throw new DomainException("error.executionCourse.curricularCourse.already.associated");
         }
-
+        
         super.addAssociatedCurricularCourses(curricularCourse);
         Signal.emit(ExecutionCourse.EDITED_SIGNAL, new DomainObjectEvent<ExecutionCourse>(this));
     }
