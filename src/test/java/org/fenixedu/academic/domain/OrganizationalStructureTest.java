@@ -5,6 +5,7 @@ import static org.fenixedu.academic.domain.organizationalStructure.Accountabilit
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
@@ -28,6 +29,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,9 @@ import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class OrganizationalStructureTest {
+
+    private static Unit planetUnit, countryUnit, universityUnit, schoolUnit, coursesAgregatorUnit, degreesUnit, coursesGroupUnit,
+            inactiveUnit;
 
     private final static Function<String, LocalizedString> buildLS =
             s -> new LocalizedString.Builder().with(Locale.getDefault(), s).build();
@@ -59,38 +64,56 @@ public class OrganizationalStructureTest {
     }
 
     static void initUnits() {
-        final Unit planetUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.PLANET), buildLS.apply("Earth"), "E", null, null);
+        planetUnit = Unit.createNewUnit(PartyType.of(PartyTypeEnum.PLANET), buildLS.apply("Earth"), "E", null, null);
 
-        final Unit countryUnit =
+        countryUnit =
                 Unit.createNewUnit(PartyType.of(PartyTypeEnum.COUNTRY), buildLS.apply("Portugal"), "PT", planetUnit,
                         AccountabilityType.readByType(GEOGRAPHIC));
 
-        final Unit universityUnit =
+        universityUnit =
                 Unit.createNewUnit(PartyType.of(PartyTypeEnum.UNIVERSITY), buildLS.apply("qub University"), "QU", countryUnit,
                         AccountabilityType.readByType(GEOGRAPHIC));
 
-        final Unit schoolUnit =
+        schoolUnit =
                 Unit.createNewUnit(PartyType.of(PartyTypeEnum.SCHOOL), buildLS.apply("qub School"), "QS", universityUnit,
                         AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
-        final Unit coursesAgregatorUnit =
+        coursesAgregatorUnit =
                 Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Courses"), "Courses", schoolUnit,
                         AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
-        Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Degrees"), "Degrees", schoolUnit,
+        degreesUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.AGGREGATE_UNIT), buildLS.apply("Degrees"), "Degrees", schoolUnit,
                 AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
 
-        Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), buildLS.apply("Courses Group"), "CC",
+        coursesGroupUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.COMPETENCE_COURSE_GROUP), buildLS.apply("Courses Group"), "CC",
                 coursesAgregatorUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+
+        inactiveUnit =
+                Unit.createNewUnit(PartyType.of(PartyTypeEnum.SCHOOL), buildLS.apply("Inactive School"), "IS", universityUnit,
+                        AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+        inactiveUnit.setEndDateYearMonthDay(new YearMonthDay().minusDays(1)); // ends yesterday, inactive unit
 
         final Bennu rootDomainObject = Bennu.getInstance();
         rootDomainObject.setEarthUnit(planetUnit);
         rootDomainObject.setInstitutionUnit(universityUnit);
+        rootDomainObject.setExternalInstitutionUnit(universityUnit);
     }
 
     @Test
     public void testUnits_readAll() {
-        assertEquals(Unit.readAllUnits().size(), 7);
+        List<Unit> allUnits = Unit.readAllUnits();
+        assertEquals(8, allUnits.size());
+
+        assertTrue(allUnits.contains(planetUnit));
+        assertTrue(allUnits.contains(countryUnit));
+        assertTrue(allUnits.contains(universityUnit));
+        assertTrue(allUnits.contains(schoolUnit));
+        assertTrue(allUnits.contains(coursesAgregatorUnit));
+        assertTrue(allUnits.contains(degreesUnit));
+        assertTrue(allUnits.contains(coursesGroupUnit));
+        assertTrue(allUnits.contains(inactiveUnit));
     }
 
     @Test
@@ -276,4 +299,85 @@ public class OrganizationalStructureTest {
         return new Person(userProfile);
     }
 
+    @Test
+    public void testUnitUtils_readExternalInstitutionUnitByName() {
+        // root level
+        assertEquals(universityUnit, UnitUtils.readExternalInstitutionUnitByName("qub University"));
+        // depth 1
+        assertEquals(schoolUnit, UnitUtils.readExternalInstitutionUnitByName("qub School"));
+        // depth 2
+        assertEquals(coursesAgregatorUnit, UnitUtils.readExternalInstitutionUnitByName("Courses"));
+        assertEquals(degreesUnit, UnitUtils.readExternalInstitutionUnitByName("Degrees"));
+        // depth 3
+        assertEquals(coursesGroupUnit, UnitUtils.readExternalInstitutionUnitByName("Courses Group"));
+
+        // not found
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("Non Existent Unit"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("qub school"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName("COURSES"));
+        assertNull(UnitUtils.readExternalInstitutionUnitByName(""));
+    }
+
+    @Test
+    public void testUnitUtils_readAllActiveUnitsByType() {
+        List<Unit> universities = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.UNIVERSITY);
+        assertEquals(1, universities.size());
+        assertEquals(universityUnit, universities.get(0));
+
+        List<Unit> aggregateUnits = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.AGGREGATE_UNIT);
+        assertEquals(2, aggregateUnits.size());
+        assertTrue(aggregateUnits.contains(coursesAgregatorUnit));
+        assertTrue(aggregateUnits.contains(degreesUnit));
+
+        // no units of type
+        List<Unit> result = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCIENTIFIC_AREA);
+        assertTrue(result.isEmpty());
+
+        // only returns active units
+        List<Unit> schools = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCHOOL);
+        // "qub School" is active, "Inactive School" has endDate in the past
+        assertEquals(1, schools.size());
+        assertEquals(schoolUnit, schools.get(0));
+        assertFalse(schools.contains(inactiveUnit));
+    }
+
+    @Test
+    public void testUnits_getChildUnitByAcronym() {
+        assertEquals(schoolUnit, universityUnit.getChildUnitByAcronym("QS"));
+        assertEquals(coursesAgregatorUnit, schoolUnit.getChildUnitByAcronym("Courses"));
+        assertEquals(degreesUnit, schoolUnit.getChildUnitByAcronym("Degrees"));
+        assertEquals(coursesGroupUnit, coursesAgregatorUnit.getChildUnitByAcronym("CC"));
+
+        // only searches direct descendants
+        assertNull(universityUnit.getChildUnitByAcronym("Courses"));
+        assertNull(coursesAgregatorUnit.getChildUnitByAcronym("Courses"));
+        assertNull(coursesAgregatorUnit.getChildUnitByAcronym("Degrees"));
+
+        // subunit with acronym not found
+        assertNull(schoolUnit.getChildUnitByAcronym("NON_EXISTENT"));
+        assertNull(schoolUnit.getChildUnitByAcronym(""));
+        assertNull(schoolUnit.getChildUnitByAcronym(null));
+    }
+
+    @Test
+    public void testUnit_getCountry() {
+        Country portugalCountry = new Country(buildLS.apply("Portugal"), buildLS.apply("Portuguese"), "PT", "PRT");
+        Country spainCountry = new Country(buildLS.apply("Spain"), buildLS.apply("Spanish"), "ES", "ESP");
+
+        // no country, returns null
+        assertNull(planetUnit.getCountry());
+        assertNull(universityUnit.getCountry());
+
+        // set country on university, school and courses should inherit
+        universityUnit.setCountry(portugalCountry);
+        assertEquals(portugalCountry, universityUnit.getCountry());
+        assertEquals(portugalCountry, schoolUnit.getCountry());
+        assertEquals(portugalCountry, coursesGroupUnit.getCountry());
+
+        // set different country on school → school returns its own, courses still inherits from school
+        schoolUnit.setCountry(spainCountry);
+        assertEquals(portugalCountry, universityUnit.getCountry());
+        assertEquals(spainCountry, schoolUnit.getCountry());
+        assertEquals(spainCountry, coursesGroupUnit.getCountry());
+    }
 }

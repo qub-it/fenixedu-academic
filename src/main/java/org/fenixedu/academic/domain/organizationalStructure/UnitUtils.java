@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -41,35 +43,20 @@ public class UnitUtils {
         if (unit.getName().equals(name)) {
             return unit;
         }
-        for (final Accountability acc : unit.getChildsSet()) {
-            final Party child = acc.getChildParty();
-            if (child instanceof Unit) {
-                final Unit childUnit = (Unit) child;
-                final Unit result = readExternalInstitutionUnitByName(childUnit, name);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-        return null;
+        return unit.getChildsSet().stream().map(Accountability::getChildParty).filter(Unit.class::isInstance)
+                .map(Unit.class::cast).map(childUnit -> readExternalInstitutionUnitByName(childUnit, name))
+                .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     public static List<Unit> readAllActiveUnitsByType(PartyTypeEnum type) {
-        final List<Unit> result = new ArrayList<Unit>();
-        final YearMonthDay now = new YearMonthDay();
         PartyType partyType = PartyType.readPartyTypeByType(type);
-        if (partyType != null) {
-            Collection<Party> parties = partyType.getPartiesSet();
-            for (Party party : parties) {
-                if (party.isUnit()) {
-                    Unit unit = (Unit) party;
-                    if (unit.isActive(now)) {
-                        result.add(unit);
-                    }
-                }
-            }
+        if (partyType == null) {
+            return Collections.emptyList();
         }
-        return result;
+        final YearMonthDay now = new YearMonthDay();
+
+        return partyType.getPartiesSet().stream().filter(Party::isUnit).map(Unit.class::cast).filter(unit -> unit.isActive(now))
+                .collect(Collectors.toList());
     }
 
     public static Unit readExternalInstitutionUnit() {

@@ -31,8 +31,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -379,22 +377,12 @@ public class Unit extends Unit_Base {
     }
 
     public Unit getChildUnitByAcronym(String acronym) {
-        for (Unit subUnit : getSubUnits()) {
-            if ((subUnit.getAcronym() != null) && (subUnit.getAcronym().equals(acronym))) {
-                return subUnit;
-            }
-        }
-        return null;
+        return getSubUnits().stream().filter(subUnit -> Objects.equals(subUnit.getAcronym(), acronym)).findFirst().orElse(null);
     }
 
     public static List<Unit> readAllUnits() {
-        final List<Unit> allUnits = new ArrayList<Unit>();
-        for (final Party party : Bennu.getInstance().getPartysSet()) {
-            if (party.isUnit()) {
-                allUnits.add((Unit) party);
-            }
-        }
-        return allUnits;
+        return Bennu.getInstance().getPartysSet().stream().filter(Party::isUnit).map(Unit.class::cast)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -486,21 +474,6 @@ public class Unit extends Unit_Base {
         return parentUnits;
     }
 
-    /**
-     * still used in: student/enrollment/bolonha/chooseExternalUnit.jsp
-     * after that usage, method should be removed
-     */
-    @Deprecated
-    public SortedSet<Unit> getSortedExternalChilds() {
-        final SortedSet<Unit> result = new TreeSet<Unit>(Unit.COMPARATOR_BY_NAME_AND_ID);
-        for (final Unit unit : getSubUnits()) {
-            if (!unit.isInternal()) {
-                result.add(unit);
-            }
-        }
-        return result;
-    }
-
     public LocalizedString getNameI18n() {
         return getPartyName();
     }
@@ -522,16 +495,8 @@ public class Unit extends Unit_Base {
 
     @Override
     public Country getCountry() {
-        if (super.getCountry() != null) {
-            return super.getCountry();
-        }
-        for (final Unit unit : getParentUnits()) {
-            final Country country = unit.getCountry();
-            if (country != null) {
-                return country;
-            }
-        }
-        return null;
+        return Optional.ofNullable(super.getCountry()).orElseGet(
+                () -> getParentUnits().stream().map(Unit::getCountry).filter(Objects::nonNull).findFirst().orElse(null));
     }
 
     public boolean isOfficial() {
