@@ -607,5 +607,75 @@ public class CourseGroupTest {
         assertTrue(mandatoryCourseGroup.getDegreeModulesByExecutionInterval(previousInterval).isEmpty());
         assertTrue(cycleCourseGroup.getDegreeModulesByExecutionInterval(previousInterval).isEmpty());
     }
+
+    @Test
+    public void testCourseGroup_filterCourseGroups_returnsOnlyNonLeafModules() {
+        // Mixed: CourseGroups + CurricularCourses -> only CourseGroups returned
+        final Collection<CourseGroup> mixed =
+                cycleCourseGroup.filterCourseGroups(Set.of(mandatoryCourseGroup, cc1, optionalCourseGroup, cc2));
+        assertEquals(2, mixed.size());
+        assertTrue(mixed.contains(mandatoryCourseGroup));
+        assertTrue(mixed.contains(optionalCourseGroup));
+
+        // Empty input -> empty result
+        assertTrue(cycleCourseGroup.filterCourseGroups(Set.of()).isEmpty());
+    }
+
+    @Test
+    public void testCourseGroup_getDegreeModulesSelectionLimitRule_filtersByRuleType() {
+        // No rules -> null
+        assertNull(mandatoryCourseGroup.getDegreeModulesSelectionLimitRule(Set.of()));
+
+        // non-matching rule types (CreditsLimit) -> null
+        CreditsLimit creditsLimit =
+                new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
+        try {
+            assertNull(mandatoryCourseGroup.getDegreeModulesSelectionLimitRule(
+                    mandatoryCourseGroup.getCurricularRulesByExecutionInterval(firstSemester)));
+
+            // DEGREE_MODULES_SELECTION_LIMIT rule present -> returned
+            DegreeModulesSelectionLimit limit =
+                    new DegreeModulesSelectionLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 1, 1);
+            try {
+                assertEquals(limit, mandatoryCourseGroup.getDegreeModulesSelectionLimitRule(
+                        mandatoryCourseGroup.getCurricularRulesByExecutionInterval(firstSemester)));
+            } finally {
+                limit.delete();
+            }
+        } finally {
+            creditsLimit.delete();
+        }
+    }
+
+    @Test
+    public void testCourseGroup_getCurricularRulesByExecutionInterval_filtersByInterval() {
+        // No rules -> empty
+        assertTrue(mandatoryCourseGroup.getCurricularRulesByExecutionInterval(firstSemester).isEmpty());
+
+        // Rule valid for interval -> returned
+        final CreditsLimit creditsLimit =
+                new CreditsLimit(mandatoryCourseGroup, mandatoryCourseGroup, firstSemester, null, 6.0d, 12.0d);
+        try {
+            Collection<CurricularRule> rules = mandatoryCourseGroup.getCurricularRulesByExecutionInterval(firstSemester);
+            assertEquals(1, rules.size());
+            assertTrue(rules.contains(creditsLimit));
+
+            // Different execution interval -> filtered out
+            assertTrue(mandatoryCourseGroup.getCurricularRulesByExecutionInterval(executionYear.getPrevious()).isEmpty());
+
+            // Rule on another CourseGroup -> not included
+            CreditsLimit otherRule = new CreditsLimit(optionalCourseGroup, optionalCourseGroup, firstSemester, null, 6.0d, 12.0d);
+            try {
+                Collection<CurricularRule> sameRules = mandatoryCourseGroup.getCurricularRulesByExecutionInterval(firstSemester);
+                assertEquals(1, sameRules.size());
+                assertTrue(sameRules.contains(creditsLimit));
+                assertFalse(sameRules.contains(otherRule));
+            } finally {
+                otherRule.delete();
+            }
+        } finally {
+            creditsLimit.delete();
+        }
+    }
     */
 }
