@@ -1,3 +1,4 @@
+- Refactor: Improves CourseGroup domain methods [#qubIT-Fenix-8849]
 - Refactor: Improves CurriculumGroup domain methods [#qubIT-Fenix-8840]
 - Refactor: Improves Student domain methods [#qubIT-Fenix-8839]
 - Refactor: Removed unused exception classes [#qubIT-Fenix-8939]
