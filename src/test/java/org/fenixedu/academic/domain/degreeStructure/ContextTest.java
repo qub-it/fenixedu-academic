@@ -4,6 +4,7 @@ import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -134,6 +135,24 @@ public class ContextTest {
     }
 
     @Test
+    public void testContext_create() {
+        Context context = createContext(root, curricularCourseD, firstSemesterFirstYear, nextYearExecutionInterval, null);
+
+        assertEquals(root, context.getParentCourseGroup());
+        assertEquals(curricularCourseD, context.getChildDegreeModule());
+        assertEquals(firstSemesterFirstYear, context.getCurricularPeriod());
+        assertNotNull(context.getRootDomainObject());
+    }
+
+    @Test
+    public void testContext_create_duplicateCourseGroupNamesThrows() {
+        // A second CourseGroup with the same name in the same parent should throw
+        assertThrows(DomainException.class,
+                () -> new CourseGroup(root, "Child CourseGroup", "Child CourseGroup", executionInterval, null),
+                "error.existingCourseGroupWithSameNameInParent");
+    }
+
+    @Test
     public void testContext_checkExistingCourseGroupContexts() {
         assertNotNull(contextA_1Y1S);
         assertNotNull(contextB_1Y1S);
@@ -164,6 +183,32 @@ public class ContextTest {
         assertThrows(DomainException.class,
                 () -> createContext(childCourseGroup, curricularCourseA, firstSemesterFirstYear, executionInterval, null),
                 "courseGroup.contextAlreadyExistForCourseGroup");
+    }
+
+    @Test
+    public void testContext_edit() {
+        Context context =
+                createContext(root, curricularCourseD, firstSemesterFirstYear, previousYearExecutionInterval, executionInterval);
+
+        context.edit(root, secondSemesterFirstYear, executionInterval, nextYearExecutionInterval);
+
+        assertEquals(secondSemesterFirstYear, context.getCurricularPeriod());
+
+        // getBeginExecutionInterval and getEndExecutionInterval actually return the ExecutionYear (see implementation)
+        assertEquals(executionYear, context.getBeginExecutionInterval());
+        assertEquals(nextExecutionYear, context.getEndExecutionInterval());
+    }
+
+    @Test
+    public void testContext_delete() {
+        Context context = createContext(root, curricularCourseD, firstSemesterFirstYear, nextYearExecutionInterval, null);
+
+        context.delete();
+
+        assertNull(context.getParentCourseGroup());
+        assertNull(context.getChildDegreeModule());
+        assertNull(context.getCurricularPeriod());
+        assertNull(context.getRootDomainObject());
     }
 
     @Test
