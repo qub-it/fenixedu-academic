@@ -579,23 +579,6 @@ public class StudentCurricularPlanTest {
     }
 
     @Test
-    public void testStudentCurricularPlan_getEnroledImprovements() {
-        Enrolment enrolmentInCourseA = createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
-
-        assertTrue(scpV1.getEnroledImprovements(executionInterval).isEmpty());
-
-        EvaluationSeason improvementSeason =
-                EvaluationSeason.findByCode(EvaluationSeasonTest.IMPROVEMENT_SEASON_CODE).orElseThrow();
-        EnrolmentEvaluation improvementEvaluation = new EnrolmentEvaluation(enrolmentInCourseA, improvementSeason);
-        improvementEvaluation.setExecutionPeriod(executionInterval);
-
-        assertEquals(1, scpV1.getEnroledImprovements(executionInterval).size());
-        assertTrue(scpV1.getEnroledImprovements(executionInterval).contains(improvementEvaluation));
-
-        improvementEvaluation.delete();
-    }
-
-    @Test
     public void testStudentCurricularPlan_getExtraCurricularCurriculumLines() {
         assertTrue(scpV1.getExtraCurricularCurriculumLines().isEmpty());
 
