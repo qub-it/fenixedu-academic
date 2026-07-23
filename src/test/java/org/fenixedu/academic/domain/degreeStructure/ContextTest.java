@@ -212,10 +212,45 @@ public class ContextTest {
     }
 
     @Test
+    public void testContext_isValid() {
+        // Semestral course: only open in first semester
+        assertFalse(contextA_1Y1S.isValid(previousYearExecutionInterval));
+        assertTrue(contextA_1Y1S.isValid(executionInterval));
+        assertFalse(contextA_1Y1S.isValid(executionInterval.getNext()));
+        assertTrue(contextA_1Y1S.isValid(nextYearExecutionInterval));
+        assertFalse(contextA_1Y1S.isValid(nextYearExecutionInterval.getNext()));
+
+        // Annual course: open in first and second semesters
+        assertFalse(contextB_1Y1S.isValid(previousYearExecutionInterval));
+        assertTrue(contextB_1Y1S.isValid(executionInterval));
+        assertTrue(contextB_1Y1S.isValid(executionInterval.getNext()));
+        assertTrue(contextB_1Y1S.isValid(nextYearExecutionInterval));
+        assertTrue(contextB_1Y1S.isValid(nextYearExecutionInterval.getNext()));
+
+        // CourseGroup contexts are always valid when open (no curricular period matching needed)
+        assertFalse(contextCG_root.isValid(previousYearExecutionInterval));
+        assertTrue(contextCG_root.isValid(executionInterval));
+        assertTrue(contextCG_root.isValid(nextYearExecutionInterval));
+    }
+
+    @Test
     public void testContext_isValidForExecutionAggregation() {
         assertFalse(contextA_1Y1S.isValidForExecutionAggregation(previousExecutionYear));
         assertTrue(contextA_1Y1S.isValidForExecutionAggregation(executionYear));
         assertTrue(contextA_1Y1S.isValidForExecutionAggregation(nextExecutionYear)); // because end is null
+    }
+
+    @Test
+    public void testContext_isOpen_withExecutionInterval() {
+        assertFalse(contextA_1Y1S.isOpen(previousYearExecutionInterval));
+        assertTrue(contextA_1Y1S.isOpen(executionInterval));
+        assertTrue(contextA_1Y1S.isOpen(executionInterval.getNext()));
+        assertTrue(contextA_1Y1S.isOpen(nextYearExecutionInterval));
+
+        assertFalse(contextCG_root.isOpen(previousYearExecutionInterval));
+        assertTrue(contextCG_root.isOpen(executionInterval));
+        assertTrue(contextCG_root.isOpen(executionInterval.getNext()));
+        assertTrue(contextCG_root.isOpen(nextYearExecutionInterval));
     }
 
     @Test
@@ -227,6 +262,38 @@ public class ContextTest {
         assertFalse(contextCG_root.isOpen(previousExecutionYear));
         assertTrue(contextCG_root.isOpen(executionYear));
         assertTrue(contextCG_root.isOpen(nextExecutionYear));
+    }
+
+    @Test
+    public void testContext_intersects() {
+        assertFalse(contextA_1Y1S.intersects(previousYearExecutionInterval, previousYearExecutionInterval.getNext()));
+        assertTrue(contextA_1Y1S.intersects(previousYearExecutionInterval, executionInterval));
+        assertTrue(contextA_1Y1S.intersects(executionInterval, executionInterval));
+        assertTrue(contextA_1Y1S.intersects(executionInterval, nextYearExecutionInterval));
+        assertTrue(contextA_1Y1S.intersects(executionInterval, null));
+        assertThrows(DomainException.class, () -> contextA_1Y1S.intersects(nextYearExecutionInterval, executionInterval),
+                "context.begin.is.after.end.execution.period");
+
+        assertTrue(contextCG_root.intersects(executionInterval, executionInterval.getNext()));
+        assertTrue(contextCG_root.intersects(executionInterval, null));
+        assertFalse(contextCG_root.intersects(previousYearExecutionInterval, previousYearExecutionInterval.getNext()));
+    }
+
+    @Test
+    public void testContext_containsInterval() {
+        // contextA contains the intervals from executionInterval onwards (end == null)
+        assertFalse(contextA_1Y1S.containsInterval(previousYearExecutionInterval, executionInterval));
+        assertTrue(contextA_1Y1S.containsInterval(executionInterval, executionInterval));
+        assertTrue(contextA_1Y1S.containsInterval(executionInterval, nextYearExecutionInterval));
+
+        Context context =
+                createContext(root, curricularCourseD, firstSemesterSecondYear, previousExecutionYear, nextExecutionYear);
+
+        assertTrue(context.containsInterval(executionYear, nextExecutionYear));
+        assertTrue(context.containsInterval(executionYear, previousExecutionYear));
+        ExecutionInterval afternextYearExecutionInterval =
+                nextExecutionYear.getNext().getExecutionYear().getFirstExecutionPeriod();
+        assertFalse(context.containsInterval(executionYear, afternextYearExecutionInterval));
     }
 
     // Helpers
