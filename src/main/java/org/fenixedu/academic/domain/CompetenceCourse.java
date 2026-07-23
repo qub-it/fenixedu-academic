@@ -63,15 +63,11 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CompetenceCourse extends CompetenceCourse_Base {
 
-    public static final Comparator<CompetenceCourse> COMPETENCE_COURSE_COMPARATOR_BY_NAME = new Comparator<CompetenceCourse>() {
+    private static final Collator COLLATOR = Collator.getInstance();
 
-        @Override
-        public int compare(CompetenceCourse o1, CompetenceCourse o2) {
-            final int result = Collator.getInstance().compare(o1.getName(), o2.getName());
-            return result != 0 ? result : DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2);
-        }
-
-    };
+    public static final Comparator<CompetenceCourse> COMPETENCE_COURSE_COMPARATOR_BY_NAME =
+            Comparator.comparing((CompetenceCourse cc) -> cc.getName(), COLLATOR)
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected CompetenceCourse() {
         super();
@@ -87,7 +83,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         setCode(code);
         setCompetenceCourseType(competenceCourseType);
 
-        super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
+        super.setGradeScale(Optional.ofNullable(gradeScale).or(GradeScale::findUniqueDefault)
                 .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
 
         final String nameDefault = name.getContent(Locale.getDefault());
@@ -150,9 +146,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         if (!getAssociatedCurricularCoursesSet().isEmpty()) {
             throw new DomainException("mustDeleteCurricularCoursesFirst");
         }
-        for (; !getCompetenceCourseInformationsSet().isEmpty(); getCompetenceCourseInformationsSet().iterator().next().delete()) {
-            ;
-        }
+        getCompetenceCourseInformationsSet().forEach(CompetenceCourseInformation::delete);
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
