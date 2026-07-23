@@ -347,16 +347,6 @@ public class CurricularCourse extends CurricularCourse_Base {
         return false;
     }
 
-    @Deprecated
-    public ExecutionDegree getExecutionDegreeFor(AcademicInterval academicInterval) {
-        return getDegreeCurricularPlan().getExecutionDegreeByAcademicInterval(academicInterval);
-    }
-
-    @Deprecated
-    public ExecutionDegree getExecutionDegreeFor(ExecutionYear executionYear) {
-        return getDegreeCurricularPlan().getExecutionDegreeByYear(executionYear);
-    }
-
     public boolean isActive(final ExecutionYear executionYear) {
         return executionYear.getChildIntervals().stream().anyMatch(this::isActive);
     }
