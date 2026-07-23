@@ -38,7 +38,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
 
-    public ExternalCurricularCourse(final Unit unit, final String name, final String code) {
+    public ExternalCurricularCourse(final Unit unit, final String name, final String code, final String nameEn) {
         super();
         if (unit == null) {
             throw new DomainException("error.externalCurricularCourse.unit.cannot.be.null");
@@ -53,15 +53,17 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
         setUnit(unit);
         setName(name);
         setCode(code);
+        setNameEn(nameEn);
     }
 
-    public void edit(final String name, final String code) {
+    public void edit(final String name, final String code, final String nameEn) {
         if (StringUtils.isEmpty(name)) {
             throw new DomainException("error.externalCurricularCourse.name.cannot.be.empty");
         }
         checkForExternalCurricularCourseWithSameNameAndCode(getUnit(), name, code);
         setName(name);
         setCode(code);
+        setNameEn(nameEn);
     }
 
     private void checkForExternalCurricularCourseWithSameNameAndCode(final Unit unit, final String name, final String code) {
