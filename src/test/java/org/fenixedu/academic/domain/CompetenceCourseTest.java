@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain;
 import static org.fenixedu.academic.domain.degreeStructure.CompetenceCourseTypeTest.initCompetenceCourseType;
 import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -18,6 +19,7 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -309,5 +311,87 @@ public class CompetenceCourseTest {
         assertTrue(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseA, competenceCourseB) < 0);
         assertTrue(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseB, competenceCourseA) > 0);
         assertEquals(0, CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseA, competenceCourseA));
+    }
+
+    @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionInterval() {
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionInterval));
+
+        // Creating a new CompetenceCourseInformation in the same execution interval
+        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(executionInterval));
+
+        // Testing findInformationMostRecentUntil for a later interval
+        assertEquals(nextCourseInformation,
+                competenceCourseA.findInformationMostRecentUntil(nextExecutionYear.getFirstExecutionPeriod()));
+    }
+
+    @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionYear() {
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionYear));
+
+        // Creating a new CompetenceCourseInformation in the next execution year
+        CompetenceCourseInformation newInformation =
+                new CompetenceCourseInformation(courseInformation, nextExecutionYear.getFirstExecutionPeriod());
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(nextExecutionYear));
+
+        newInformation.delete();
+
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(nextExecutionYear));
+    }
+
+    @Test
+    public void testCompetenceCourse_isBasic() {
+        // Initial state:
+        //  - courseInformation in executionInterval (basic=false)
+        //  - nextCourseInformation in nextExecutionYear.getFirstExecutionPeriod() (basic=false)
+        assertFalse(competenceCourseA.isBasic(executionInterval)); // courseInformation
+        assertFalse(competenceCourseA.isBasic()); // when no argument is passed, we get max by interval -> nextCourseInformation
+
+        // Create newInformation in executionInterval, override basic to true
+        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
+        newInformation.setBasic(true);
+
+        assertTrue(competenceCourseA.isBasic(executionInterval));  // newInformation is the latest in executionInterval
+        assertFalse(competenceCourseA.isBasic());                  // nextCourseInformation in nextYear is still the max
+
+        // Set newInformation's execution interval to become the latest version
+        newInformation.setExecutionInterval(nextExecutionYear.getLastExecutionPeriod());
+
+        assertTrue(competenceCourseA.isBasic(nextExecutionYear));  // newInformation is the latest in nextExecutionYear
+        assertTrue(competenceCourseA.isBasic());                   // newInformation is now the max by interval
+    }
+
+    @Test
+    public void testCompetenceCourse_getCurricularCourseContexts() {
+        assertTrue(competenceCourseA.getCurricularCourseContexts().isEmpty());
+
+        Context context =
+                new Context(testDegreeCurricularPlan.getRoot(), testCurricularCourse, firstSemester, executionInterval, null);
+
+        assertEquals(1, competenceCourseA.getCurricularCourseContexts().size());
+        assertEquals(context, competenceCourseA.getCurricularCourseContexts().stream().findFirst().orElseThrow());
+
+        context.delete();
+
+        assertTrue(competenceCourseA.getCurricularCourseContexts().isEmpty());
+    }
+
+    @Test
+    public void testCompetenceCourse_getCurricularCourse() {
+        // competenceCourseA doesn't have associated curricular courses with a context in testDegreeCurricularPlan yet
+        assertNull(competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
+
+        // Create a context for testCurricularCourse in testDegreeCurricularPlan
+        Context context =
+                new Context(testDegreeCurricularPlan.getRoot(), testCurricularCourse, firstSemester, executionInterval, null);
+
+        assertEquals(testCurricularCourse, competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
+
+        context.delete();
+
+        assertNull(competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
     }
 }
