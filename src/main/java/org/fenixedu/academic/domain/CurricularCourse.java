@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -48,24 +46,9 @@ import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CurricularCourse extends CurricularCourse_Base {
 
-    static final public Comparator<CurricularCourse> CURRICULAR_COURSE_COMPARATOR_BY_DEGREE_AND_NAME =
-            new Comparator<CurricularCourse>() {
-                @Override
-                public int compare(CurricularCourse o1, CurricularCourse o2) {
-                    final Degree degree1 = o1.getDegree();
-                    final Degree degree2 = o2.getDegree();
-                    final Collator collator = Collator.getInstance();
-                    final int degreeTypeComp = degree1.getDegreeType().compareTo(degree2.getDegreeType());
-                    if (degreeTypeComp != 0) {
-                        return degreeTypeComp;
-                    }
-                    final int degreeNameComp = collator.compare(degree1.getNome(), degree2.getNome());
-                    if (degreeNameComp == 0) {
-                        return degreeNameComp;
-                    }
-                    return CurricularCourse.COMPARATOR_BY_NAME.compare(o1, o2);
-                }
-            };
+    public static final Comparator<CurricularCourse> CURRICULAR_COURSE_COMPARATOR_BY_DEGREE_AND_NAME =
+            Comparator.comparing(CurricularCourse::getDegree, Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID)
+                    .thenComparing(CurricularCourse.COMPARATOR_BY_NAME);
 
     public CurricularCourse() {
         super();
@@ -173,23 +156,17 @@ public class CurricularCourse extends CurricularCourse_Base {
     /**
      * @deprecated use {@link #findExecutionCourses(ExecutionInterval)}
      */
+    @Deprecated
     public List<ExecutionCourse> getExecutionCoursesByExecutionYear(final ExecutionYear executionYear) {
-        return (List<ExecutionCourse>) CollectionUtils.select(getAssociatedExecutionCoursesSet(), new Predicate() {
-            @Override
-            public boolean evaluate(Object o) {
-                ExecutionCourse executionCourse = (ExecutionCourse) o;
-                return executionCourse.getExecutionInterval().getExecutionYear().equals(executionYear);
-            }
-        });
+        return getAssociatedExecutionCoursesSet().stream().filter(ec -> ec.getExecutionYear() == executionYear)
+                .collect(Collectors.toList());
     }
 
-//    @Override
     @Deprecated
     final public Double getCredits() {
         return getEctsCredits();
     }
 
-//    @Override
     public Double getEctsCredits() {
         return getEctsCredits(null);
     }
@@ -228,34 +205,19 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getEctsCredits(executionInterval);
     }
 
-    @Deprecated
-    private void addActiveEnrollments(final Collection<Enrolment> enrolments, final ExecutionInterval executionInterval) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (!enrolment.isAnnulled() && enrolment.getExecutionInterval() == executionInterval) {
-                    enrolments.add(enrolment);
-                }
-            }
-        }
-    }
-
-    /**
-     * @deprecated {@link #getEnrolmentsByAcademicInterval(AcademicInterval)}
-     */
-    @Deprecated
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
-        List<Enrolment> result = new ArrayList<Enrolment>();
-        addActiveEnrollments(result, executionInterval);
-        return result;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
+                .filter(e -> !e.isAnnulled() && e.getExecutionInterval() == executionInterval).collect(Collectors.toList());
     }
 
+    @Deprecated(forRemoval = true)
     public List<Enrolment> getEnrolmentsByAcademicInterval(AcademicInterval academicInterval) {
         List<Enrolment> result = new ArrayList<Enrolment>();
         addActiveEnrollments(result, academicInterval);
         return result;
     }
 
+    @Deprecated(forRemoval = true)
     private void addActiveEnrollments(List<Enrolment> enrolments, AcademicInterval academicInterval) {
         for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
             if (curriculumModule.isEnrolment()) {
