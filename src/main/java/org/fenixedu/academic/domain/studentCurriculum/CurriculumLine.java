@@ -276,16 +276,6 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
         return false;
     }
 
-    @Override
-    public boolean isEnroledInSpecialSeason(ExecutionInterval executionInterval) {
-        return false;
-    }
-
-    @Override
-    public boolean isEnroledInSpecialSeason(ExecutionYear executionYear) {
-        return false;
-    }
-
     public boolean hasCreatedBy() {
         return getCreatedBy() != null && !getCreatedBy().isEmpty();
     }

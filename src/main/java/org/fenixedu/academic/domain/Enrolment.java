@@ -844,16 +844,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     @Override
-    public boolean isEnroledInSpecialSeason(final ExecutionInterval executionInterval) {
-        return isValid(executionInterval) && hasSpecialSeason();
-    }
-
-    @Override
-    public boolean isEnroledInSpecialSeason(final ExecutionYear executionYear) {
-        return isValid(executionYear) && hasSpecialSeason();
-    }
-
-    @Override
     public int getNumberOfAllApprovedEnrolments(final ExecutionInterval executionInterval) {
         return isValid(executionInterval) && isApproved() ? 1 : 0;
     }

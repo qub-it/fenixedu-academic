@@ -729,26 +729,6 @@ public class CurriculumGroupTest {
         assertTrue(optionalCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).contains(cc5));
     }
 
-    @Test
-    public void testCurriculumGroup_isEnroledInSpecialSeason() {
-        // Create a special-season EnrolmentEvaluation on C1 (enroled in mandatory);
-        // groups containing C1 detect it recursively; optional has no C1 -> false
-        EvaluationSeason specialSeason = EvaluationSeason.findByCode(EvaluationSeasonTest.SPECIAL_SEASON_CODE).orElseThrow();
-        EnrolmentEvaluation evaluation = new EnrolmentEvaluation(enrolmentCc1, specialSeason);
-
-        try {
-            assertTrue(mandatoryCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
-            assertTrue(cycleCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
-            assertTrue(rootCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
-            assertTrue(mandatoryCurriculumGroup.isEnroledInSpecialSeason(executionYear));
-            assertTrue(rootCurriculumGroup.isEnroledInSpecialSeason(executionYear));
-            assertFalse(optionalCurriculumGroup.isEnroledInSpecialSeason(firstSemester));
-            assertFalse(optionalCurriculumGroup.isEnroledInSpecialSeason(executionYear));
-        } finally {
-            evaluation.delete();
-        }
-    }
-
     /* Tests for private utility methods commented out because methods are private
 
     @Test

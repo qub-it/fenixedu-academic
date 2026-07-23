@@ -388,11 +388,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     abstract public boolean hasEnrolment(ExecutionYear executionYear);
 
     abstract public boolean hasEnrolment(ExecutionInterval executionInterval);
-
-    abstract public boolean isEnroledInSpecialSeason(final ExecutionInterval executionInterval);
-
-    abstract public boolean isEnroledInSpecialSeason(final ExecutionYear executionYear);
-
+    
     /**
      * This enum represent possible conclusion values when checking registration
      * processed - UNKNOWN: is used when some group doesn't have information to
