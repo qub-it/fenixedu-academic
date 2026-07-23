@@ -49,6 +49,8 @@ import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.MaritalStatus;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocument;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
+import org.fenixedu.academic.domain.person.personIdentifier.PersonIdentifier;
+import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.person.IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO;
 import org.fenixedu.academic.dto.person.PersonBean;
@@ -94,9 +96,8 @@ public class Person extends Person_Base {
     @Override
     public LocalizedString getPartyName() {
         Builder builder = new LocalizedString.Builder();
-        for (Locale locale : CoreConfiguration.supportedLocales()) {
-            builder.with(locale, getName());
-        }
+        String name = getName();
+        CoreConfiguration.supportedLocales().forEach(locale -> builder.with(locale, name));
         return builder.build();
     }
 
@@ -260,6 +261,7 @@ public class Person extends Person_Base {
         getUser().openLoginPeriod();
     }
 
+    @Deprecated
     public void ensureUserAccount() {
         if (getUser() == null) {
             setUser(new User(getProfile()));
@@ -277,12 +279,10 @@ public class Person extends Person_Base {
     }
 
     public Registration getStudentByType(final DegreeType degreeType) {
-        for (final Registration registration : this.getStudents()) {
-            if (registration.getDegreeType() == degreeType) {
-                return registration;
-            }
-        }
-        return null;
+        return getStudents().stream()
+                .filter(registration -> registration.getDegreeType() == degreeType)
+                .findFirst()
+                .orElse(null);
     }
 
     private String valueToUpdateIfNewNotNull(final String actualValue, final String newValue) {
@@ -348,10 +348,11 @@ public class Person extends Person_Base {
     @Override
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
-        for (PartyContact partyContact : getPartyContactsSet()) {
+
+        getPartyContactsSet().forEach(partyContact -> {
             partyContact.setActive(Boolean.FALSE);
             partyContact.delete();
-        }
+        });
 
         while (getPersonalPhotoEvenIfRejected() != null) {
             getPersonalPhotoEvenIfRejected().delete();
@@ -367,19 +368,15 @@ public class Person extends Person_Base {
 
         getIdentificationDocumentsSet().forEach(IdentificationDocument::delete);
 
-        for (; !getVaccineAdministrationsSet().isEmpty(); getVaccineAdministrationsSet().iterator().next().delete()) {
-            ;
-        }
+        getVaccineAdministrationsSet().forEach(VaccineAdministration::delete);
 
-        for (PersonInformationLog log : getPersonInformationLogsSet()) {
-            log.delete();
-        }
+        getPersonInformationLogsSet().forEach(PersonInformationLog::delete);
 
         if (getPersonalPhoto() != null) {
             getPersonalPhoto().delete();
         }
 
-        getIdentifiersSet().forEach(id -> id.delete());
+        getIdentifiersSet().forEach(PersonIdentifier::delete);
 
         final UserProfile profile = getProfile();
         if (profile != null) {
@@ -433,13 +430,10 @@ public class Person extends Person_Base {
     }
 
     public static Collection<Person> findByDateOfBirth(final YearMonthDay dateOfBirth, final Collection<Person> persons) {
-        final List<Person> result = new ArrayList<Person>();
-        for (final Person person : persons) {
-            if (person.getDateOfBirthYearMonthDay() == null || person.getDateOfBirthYearMonthDay().equals(dateOfBirth)) {
-                result.add(person);
-            }
-        }
-        return result;
+        return persons.stream()
+                .filter(person -> person.getDateOfBirthYearMonthDay() == null
+                        || person.getDateOfBirthYearMonthDay().equals(dateOfBirth))
+                .collect(Collectors.toList());
     }
 
     public static Stream<Person> findPersonStream(final String name, final int size) {
@@ -488,6 +482,7 @@ public class Person extends Person_Base {
         return getProfile().getDisplayName();
     }
 
+    @Deprecated
     public String getHomepageWebAddress() {
         if (isDefaultWebAddressVisible() && getDefaultWebAddress().hasUrl()) {
             return getDefaultWebAddress().getUrl();
@@ -576,6 +571,7 @@ public class Person extends Person_Base {
         return null;
     }
 
+    @Deprecated
     public Photograph getPersonalPhotoEvenIfRejected() {
         return super.getPersonalPhoto();
     }
@@ -646,6 +642,7 @@ public class Person extends Person_Base {
                 .orElse(null);
     }
 
+    @Deprecated
     public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
         return getProfessorshipByExecutionCourse(executionCourse) != null;
     }
@@ -670,6 +667,7 @@ public class Person extends Person_Base {
         return professorships;
     }
 
+    @Deprecated
     public boolean teachesAny(final Collection<ExecutionCourse> executionCourses) {
         for (final Professorship professorship : getProfessorshipsSet()) {
             if (executionCourses.contains(professorship.getExecutionCourse())) {
@@ -757,6 +755,7 @@ public class Person extends Person_Base {
         return getNumberOfValidationRequests() <= MAX_VALIDATION_REQUESTS;
     }
 
+    @Deprecated
     @Atomic
     public void incValidationRequest() {
         getCanValidateContacts();
@@ -1021,6 +1020,7 @@ public class Person extends Person_Base {
         contact.logRefuse(this);
     }
 
+    @Deprecated
     public static Group convertToUserGroup(final Collection<Person> persons) {
         return Group.users(persons.stream().map(Person::getUser).filter(Objects::nonNull));
     }
