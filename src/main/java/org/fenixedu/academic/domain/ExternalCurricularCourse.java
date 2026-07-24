@@ -55,12 +55,13 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
         setCode(code);
     }
 
-    public void edit(final String name, final String code) {
+    public void edit(final String name, final String nameEn, final String code) {
         if (StringUtils.isEmpty(name)) {
             throw new DomainException("error.externalCurricularCourse.name.cannot.be.empty");
         }
         checkForExternalCurricularCourseWithSameNameAndCode(getUnit(), name, code);
         setName(name);
+        setNameEn(nameEn);
         setCode(code);
     }
 
