@@ -6,10 +6,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -56,30 +56,29 @@ public class AccountabilityTypeTest {
     }
 
     @Test
-    public void testReadByType_found() {
-        final AccountabilityType result = AccountabilityType.readByType(GEOGRAPHIC);
-        assertNotNull(result);
-        assertEquals(GEOGRAPHIC, result.getType());
+    public void testFindByType_found() {
+        final Optional<AccountabilityType> result = AccountabilityType.findByType(GEOGRAPHIC);
+        assertTrue(result.isPresent());
+        assertEquals(GEOGRAPHIC, result.get().getType());
 
         // typeEnum == null should never match
-        assertNull(AccountabilityType.readByType(null));
+        assertFalse(AccountabilityType.findByType(null).isPresent());
     }
 
     @Test
-    public void testReadByType_notFound() {
-        final AccountabilityType existing = AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE);
-        assertNotNull(existing);
+    public void testFindByType_notFound() {
+        final Optional<AccountabilityType> existing = AccountabilityType.findByType(ORGANIZATIONAL_STRUCTURE);
+        assertTrue(existing.isPresent());
 
-        existing.delete();
+        existing.get().delete();
 
-        final AccountabilityType result = AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE);
-        assertNull(result);
+        final Optional<AccountabilityType> result = AccountabilityType.findByType(ORGANIZATIONAL_STRUCTURE);
+        assertFalse(result.isPresent());
     }
 
     @Test
     public void testAddConnectionRule() {
-        final AccountabilityType type = getExistingAccountabilityType(GEOGRAPHIC);
-        assertNotNull(type);
+        final AccountabilityType type = AccountabilityType.findByType(GEOGRAPHIC).orElseThrow();
 
         // before adding the rule, no connection should be possible
         assertFalse(type.hasConnectionRuleFor(parentPartyType, childPartyType));
@@ -100,8 +99,7 @@ public class AccountabilityTypeTest {
 
     @Test
     public void testHasConnectionRuleForAndCanConnect_falseForDifferentPairWhenRuleExists() {
-        final AccountabilityType type = getExistingAccountabilityType(GEOGRAPHIC);
-        assertNotNull(type);
+        final AccountabilityType type = AccountabilityType.findByType(GEOGRAPHIC).orElseThrow();
 
         type.addConnectionRule(parentPartyType, childPartyType, Boolean.TRUE);
 
@@ -115,8 +113,7 @@ public class AccountabilityTypeTest {
 
     @Test
     public void testGetConnectionRuleFor_found() {
-        final AccountabilityType type = getExistingAccountabilityType(GEOGRAPHIC);
-        assertNotNull(type);
+        final AccountabilityType type = AccountabilityType.findByType(GEOGRAPHIC).orElseThrow();
 
         type.addConnectionRule(parentPartyType, childPartyType, Boolean.TRUE);
 
@@ -127,17 +124,14 @@ public class AccountabilityTypeTest {
 
     @Test
     public void testGetConnectionRuleForAndCanConnect_falseWhenNoRuleExists() {
-        final AccountabilityType type = getExistingAccountabilityType(ORGANIZATIONAL_STRUCTURE);
-        assertNotNull(type);
+        final AccountabilityType type = AccountabilityType.findByType(ORGANIZATIONAL_STRUCTURE).orElseThrow();
 
-        assertNull(type.getConnectionRuleFor(unrelatedParentPartyType, unrelatedChildPartyType));
         assertFalse(type.canConnect(unrelatedParentPartyType, unrelatedChildPartyType));
     }
 
     @Test
     public void testGetConnectionRuleFor_multipleRules() {
-        final AccountabilityType type = getExistingAccountabilityType(GEOGRAPHIC);
-        assertNotNull(type);
+        final AccountabilityType type = AccountabilityType.findByType(GEOGRAPHIC).orElseThrow();
 
         type.addConnectionRule(parentPartyType, childPartyType, Boolean.TRUE);
         type.addConnectionRule(unrelatedParentPartyType, unrelatedChildPartyType, Boolean.FALSE);
@@ -153,9 +147,5 @@ public class AccountabilityTypeTest {
         assertEquals(unrelatedChildPartyType, rule2.getAllowedChildPartyType());
 
         assertNotEquals(rule1, rule2);
-    }
-
-    private AccountabilityType getExistingAccountabilityType(AccountabilityTypeEnum accountabilityTypeEnum) {
-        return AccountabilityType.readByType(accountabilityTypeEnum);
     }
 }

@@ -53,10 +53,14 @@ public class AccountabilityType extends AccountabilityType_Base {
         super.setType(type);
     }
 
-    public static AccountabilityType readByType(AccountabilityTypeEnum typeEnum) {
+    public static Optional<AccountabilityType> findByType(AccountabilityTypeEnum typeEnum) {
         return Bennu.getInstance().getAccountabilityTypesSet().stream()
-                .filter(at -> at.getType() != null && at.getType().equals(typeEnum))
-                .findFirst().orElse(null);
+                .filter(at -> at.getType() != null && at.getType().equals(typeEnum)).findFirst();
+    }
+
+    @Deprecated
+    public static AccountabilityType readByType(AccountabilityTypeEnum typeEnum) {
+        return findByType(typeEnum).orElse(null);
     }
 
     @Override
