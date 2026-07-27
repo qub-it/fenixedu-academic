@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.organizationalStructure;
 
 import java.util.Comparator;
-import java.util.Date;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -87,13 +86,6 @@ public class Accountability extends Accountability_Base {
 
     public void setEndLocalDate(final LocalDate input) {
         super.setEndDate(input == null ? null : new YearMonthDay(input));
-    }
-
-    public Date getBeginDateInDateType() {
-        return (getBeginDate() != null) ? getBeginDate().toDateTimeAtCurrentTime().toDate() : null;
-    }
-    public Date getEndDateInDateType() {
-        return (getEndDate() != null) ? getEndDate().toDateTimeAtCurrentTime().toDate() : null;
     }
 
     @Override
