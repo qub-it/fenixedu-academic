@@ -2,19 +2,21 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.util.UserUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +36,7 @@ public class TeacherTest {
     private static ExecutionInterval firstSemester, secondSemester;
     private static ExecutionYear executionYear, nextYear;
     private static CurricularCourse curricularCourse;
-    private static Professorship professorship1;
+    private static Professorship professorship1, professorship2, professorship3;
 
     @BeforeClass
     public static void init() {
@@ -75,6 +77,8 @@ public class TeacherTest {
         Authenticate.mock(User.findByUsername(UserUtil.ADMIN_USERNAME), "none");
         try {
             professorship1 = Professorship.create(true, executionCourseResponsibleS1, teacher.getPerson());
+            professorship2 = Professorship.create(false, executionCourseNotResponsibleS2, teacher.getPerson());
+            professorship3 = Professorship.create(true, executionCourseResponsibleNextYearS1, teacher.getPerson());
         } finally {
             Authenticate.unmock();
         }
@@ -156,5 +160,61 @@ public class TeacherTest {
         // previousYear
         ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
         assertTrue(teacher.getLecturedExecutionCoursesByExecutionYear(previousYear).isEmpty());
+    }
+
+    @Test
+    public void testTeacher_getLecturedExecutionCoursesByExecutionPeriod() {
+        // firstSemester
+        List<ExecutionCourse> firstSemesterCourses = teacher.getLecturedExecutionCoursesByExecutionPeriod(firstSemester);
+        assertEquals(1, firstSemesterCourses.size());
+        assertTrue(firstSemesterCourses.contains(executionCourseResponsibleS1));
+
+        // secondSemester
+        List<ExecutionCourse> secondSemesterCourses = teacher.getLecturedExecutionCoursesByExecutionPeriod(secondSemester);
+        assertEquals(1, secondSemesterCourses.size());
+        assertTrue(secondSemesterCourses.contains(executionCourseNotResponsibleS2));
+
+        // previous interval
+        ExecutionInterval previousInterval = ((ExecutionYear) executionYear.getPrevious()).getFirstExecutionPeriod();
+        assertTrue(teacher.getLecturedExecutionCoursesByExecutionPeriod(previousInterval).isEmpty());
+    }
+
+    @Test
+    public void testTeacher_getAllLecturedExecutionCourses() {
+        List<ExecutionCourse> allCourses = teacher.getAllLecturedExecutionCourses();
+        assertEquals(3, allCourses.size());
+        assertTrue(allCourses.contains(executionCourseResponsibleS1));
+        assertTrue(allCourses.contains(executionCourseNotResponsibleS2));
+        assertTrue(allCourses.contains(executionCourseResponsibleNextYearS1));
+    }
+
+    @Test
+    public void testTeacher_getProfessorshipByExecutionCourse() {
+        assertEquals(professorship1, teacher.getProfessorshipByExecutionCourse(executionCourseResponsibleS1));
+        assertEquals(professorship2, teacher.getProfessorshipByExecutionCourse(executionCourseNotResponsibleS2));
+        assertEquals(professorship3, teacher.getProfessorshipByExecutionCourse(executionCourseResponsibleNextYearS1));
+
+        assertNull(teacher.getProfessorshipByExecutionCourse(unknownCourse));
+        assertNull(teacher.getProfessorshipByExecutionCourse(null));
+    }
+
+    @Test
+    public void testTeacher_findByUsername() {
+        Optional<Teacher> result = Teacher.findByUsername(TEACHER_USERNAME);
+        assertTrue(result.isPresent());
+        assertEquals(teacher, result.get());
+
+        result = Teacher.findByUsername("nonexistent");
+        assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void testTeacher_isResponsibleFor_CurricularCourse_Interval() {
+        assertTrue(teacher.isResponsibleFor(curricularCourse, firstSemester));
+        assertFalse(teacher.isResponsibleFor(curricularCourse, secondSemester));
+
+        // Previous interval has no ECs linked -> false
+        ExecutionInterval previousInterval = ((ExecutionYear) executionYear.getPrevious()).getFirstExecutionPeriod();
+        assertFalse(teacher.isResponsibleFor(curricularCourse, previousInterval));
     }
 }
