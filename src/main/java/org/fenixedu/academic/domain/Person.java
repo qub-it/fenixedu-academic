@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -329,8 +328,8 @@ public class Person extends Person_Base {
             partyContact.delete();
         });
 
-        while (getPersonalPhotoEvenIfRejected() != null) {
-            getPersonalPhotoEvenIfRejected().delete();
+        while (super.getPersonalPhoto() != null) {
+            super.getPersonalPhoto().delete();
         }
 
         if (getStudent() != null) {
@@ -346,10 +345,6 @@ public class Person extends Person_Base {
         getVaccineAdministrationsSet().forEach(VaccineAdministration::delete);
 
         getPersonInformationLogsSet().forEach(PersonInformationLog::delete);
-
-        if (getPersonalPhoto() != null) {
-            getPersonalPhoto().delete();
-        }
 
         getIdentifiersSet().forEach(PersonIdentifier::delete);
 
@@ -457,7 +452,7 @@ public class Person extends Person_Base {
 
     @Deprecated
     public boolean hasAvailableWebSite() {
-        return getAvailableWebSite() != null && getAvailableWebSite().booleanValue();
+        return isDefaultWebAddressVisible();
     }
 
     public String getFirstAndLastName() {
@@ -529,11 +524,6 @@ public class Person extends Person_Base {
         return null;
     }
 
-    @Deprecated
-    public Photograph getPersonalPhotoEvenIfRejected() {
-        return super.getPersonalPhoto();
-    }
-
     @Override
     public void setPersonalPhoto(final Photograph photo) {
         if (super.getPersonalPhoto() != null) {
@@ -554,35 +544,11 @@ public class Person extends Person_Base {
     }
 
     public boolean isDefaultEmailVisible() {
-        return getDefaultEmailAddress() == null ? false : getDefaultEmailAddress().getVisibleToPublic();
+        return getDefaultEmailAddress() != null && getDefaultEmailAddress().getVisibleToPublic();
     }
 
     public boolean isDefaultWebAddressVisible() {
-        return getDefaultWebAddress() == null ? false : getDefaultWebAddress().getVisibleToPublic();
-    }
-
-    @Deprecated
-    public Boolean getAvailableEmail() {
-        return isDefaultEmailVisible();
-    }
-
-    @Deprecated
-    public void setAvailableEmail(final Boolean available) {
-        if (getDefaultEmailAddress() != null) {
-            getDefaultEmailAddress().setVisibleToPublic(available);
-        }
-    }
-
-    @Deprecated
-    public Boolean getAvailableWebSite() {
-        return isDefaultWebAddressVisible();
-    }
-
-    @Deprecated
-    public void setAvailableWebSite(final Boolean available) {
-        if (getDefaultWebAddress() != null) {
-            getDefaultWebAddress().setVisibleToPublic(available);
-        }
+        return getDefaultWebAddress() != null && getDefaultWebAddress().getVisibleToPublic();
     }
 
     public String getPresentationName() {
@@ -600,39 +566,15 @@ public class Person extends Person_Base {
                 .orElse(null);
     }
 
-    @Deprecated
-    public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
-        return getProfessorshipByExecutionCourse(executionCourse) != null;
-    }
-
     public List<Professorship> getProfessorships(final ExecutionInterval executionInterval) {
-        final List<Professorship> professorships = new ArrayList<Professorship>();
-        for (final Professorship professorship : getProfessorshipsSet()) {
-            if (professorship.getExecutionCourse().getExecutionInterval().equals(executionInterval)) {
-                professorships.add(professorship);
-            }
-        }
-        return professorships;
+        return getProfessorshipsSet().stream().filter(ps -> ps.getExecutionCourse().getExecutionInterval() == executionInterval)
+                .collect(Collectors.toList());
     }
 
     public List<Professorship> getProfessorships(final ExecutionYear executionYear) {
-        final List<Professorship> professorships = new ArrayList<Professorship>();
-        for (final Professorship professorship : getProfessorshipsSet()) {
-            if (professorship.getExecutionCourse().getExecutionInterval().getExecutionYear().equals(executionYear)) {
-                professorships.add(professorship);
-            }
-        }
-        return professorships;
-    }
-
-    @Deprecated
-    public boolean teachesAny(final Collection<ExecutionCourse> executionCourses) {
-        for (final Professorship professorship : getProfessorshipsSet()) {
-            if (executionCourses.contains(professorship.getExecutionCourse())) {
-                return true;
-            }
-        }
-        return false;
+        return getProfessorshipsSet().stream()
+                .filter(ps -> ps.getExecutionCourse().getExecutionInterval().getExecutionYear() == executionYear)
+                .collect(Collectors.toList());
     }
 
     private static Function<Person, EmailAddress> customEmailAddressForSendingEmailsProvider = null;
