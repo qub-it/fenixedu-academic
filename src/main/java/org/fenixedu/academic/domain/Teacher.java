@@ -148,48 +148,39 @@ public class Teacher extends Teacher_Base {
     }
 
     public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (Professorship professorship : getProfessorships()) {
-            ExecutionCourse executionCourse = professorship.getExecutionCourse();
-
-            if (executionCourse.getExecutionInterval().equals(executionInterval)) {
-                executionCourses.add(executionCourse);
-            }
-        }
-        return executionCourses;
+        return getProfessorships().stream().map(Professorship::getExecutionCourse)
+                .filter(ec -> ec.getExecutionInterval().equals(executionInterval)).collect(Collectors.toList());
     }
 
     public List<ExecutionCourse> getAllLecturedExecutionCourses() {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (Professorship professorship : this.getProfessorships()) {
-            executionCourses.add(professorship.getExecutionCourse());
-        }
-        return executionCourses;
+        return getProfessorships().stream().map(Professorship::getExecutionCourse).collect(Collectors.toList());
     }
 
     public Professorship getProfessorshipByExecutionCourse(final ExecutionCourse executionCourse) {
-        return (Professorship) CollectionUtils.find(getProfessorships(), new Predicate() {
-            @Override
-            public boolean evaluate(Object arg0) {
-                Professorship professorship = (Professorship) arg0;
-                return professorship.getExecutionCourse() == executionCourse;
-            }
-        });
-    }
-
-    public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
-        return (getProfessorshipByExecutionCourse(executionCourse) != null);
+        return getProfessorships().stream().filter(p -> p.getExecutionCourse() == executionCourse).findFirst().orElse(null);
     }
 
     /*
      * PRIVATE METHODS *
      * */
 
+    /**
+     * @deprecated use {@code #findByUsername(String)}
+     */
+    @Deprecated
     public static Teacher readTeacherByUsername(final String userName) {
         final Person person = Person.readPersonByUsername(userName);
         return (person.getTeacher() != null) ? person.getTeacher() : null;
     }
 
+    public static Optional<Teacher> findByUsername(String username) {
+        Person person = Person.readPersonByUsername(username);
+        return Optional.ofNullable(person).map(Person::getTeacher);
+    }
+
+    // TODO: The only two callers pass a single element.
+    // Refactor them to use findByUsername(String) instead, then remove this method.
+    @Deprecated
     public static List<Teacher> readByNumbers(Collection<String> teacherId) {
         List<Teacher> selectedTeachers = new ArrayList<Teacher>();
         for (final Teacher teacher : Bennu.getInstance().getTeachersSet()) {
@@ -213,14 +204,8 @@ public class Teacher extends Teacher_Base {
     }
 
     public boolean isResponsibleFor(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        for (final ExecutionCourse executionCourse : curricularCourse.getAssociatedExecutionCoursesSet()) {
-            if (executionCourse.getExecutionInterval() == executionInterval) {
-                if (isResponsibleFor(executionCourse) != null) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return curricularCourse.getAssociatedExecutionCoursesSet().stream()
+                .filter(ec -> ec.getExecutionInterval() == executionInterval).anyMatch(ec -> isResponsibleFor(ec) != null);
     }
 
     public void delete() {
