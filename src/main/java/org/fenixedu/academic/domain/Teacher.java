@@ -25,10 +25,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -39,25 +38,9 @@ import org.joda.time.Interval;
 
 public class Teacher extends Teacher_Base {
 
-    public static final Comparator<Teacher> TEACHER_COMPARATOR_BY_CATEGORY_AND_NUMBER = new Comparator<Teacher>() {
-
-        @Override
-        public int compare(Teacher teacher1, Teacher teacher2) {
-            final int teacherIdCompare = teacher1.getPerson().getUsername().compareTo(teacher2.getPerson().getUsername());
-
-            if (teacher1.getLastCategory() == null && teacher2.getLastCategory() == null) {
-                return teacherIdCompare;
-            } else if (teacher1.getLastCategory() == null) {
-                return 1;
-            } else if (teacher2.getLastCategory() == null) {
-                return -1;
-            } else {
-                final int categoryCompare = teacher1.getLastCategory().compareTo(teacher2.getLastCategory());
-                return categoryCompare == 0 ? teacherIdCompare : categoryCompare;
-            }
-        }
-
-    };
+    public static final Comparator<Teacher> TEACHER_COMPARATOR_BY_CATEGORY_AND_NUMBER =
+            Comparator.comparing((Teacher teacher) -> teacher.getLastCategory(), Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(teacher -> teacher.getPerson().getUsername());
 
     public Teacher(Person person) {
         super();
@@ -65,7 +48,14 @@ public class Teacher extends Teacher_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
+    /**
+     * @deprecated use {@code #getUsername()}
+     */
     public String getTeacherId() {
+        return getUsername();
+    }
+
+    public String getUsername() {
         return getPerson().getUsername();
     }
 
@@ -98,23 +88,9 @@ public class Teacher extends Teacher_Base {
      * BUSINESS SERVICES *
      */
 
-    public List<Professorship> responsibleFors() {
-        final List<Professorship> result = new ArrayList<Professorship>();
-        for (final Professorship professorship : this.getProfessorships()) {
-            if (professorship.isResponsibleFor()) {
-                result.add(professorship);
-            }
-        }
-        return result;
-    }
-
     public Professorship isResponsibleFor(ExecutionCourse executionCourse) {
-        for (final Professorship professorship : this.getProfessorships()) {
-            if (professorship.getResponsibleFor() && professorship.getExecutionCourse() == executionCourse) {
-                return professorship;
-            }
-        }
-        return null;
+        return getProfessorships().stream().filter(Professorship::getResponsibleFor)
+                .filter(p -> p.getExecutionCourse() == executionCourse).findFirst().orElse(null);
     }
 
     /**
@@ -167,11 +143,8 @@ public class Teacher extends Teacher_Base {
     }
 
     public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionYear(ExecutionYear executionYear) {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            executionCourses.addAll(getLecturedExecutionCoursesByExecutionPeriod(executionInterval));
-        }
-        return executionCourses;
+        return executionYear.getChildIntervals().stream().flatMap(ei -> getLecturedExecutionCoursesByExecutionPeriod(ei).stream())
+                .collect(Collectors.toList());
     }
 
     public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
