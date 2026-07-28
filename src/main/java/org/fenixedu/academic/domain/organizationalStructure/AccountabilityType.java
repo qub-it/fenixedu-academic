@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.organizationalStructure;
 
-import java.util.Collection;
 import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,14 +53,14 @@ public class AccountabilityType extends AccountabilityType_Base {
         super.setType(type);
     }
 
+    public static Optional<AccountabilityType> findByType(AccountabilityTypeEnum typeEnum) {
+        return Bennu.getInstance().getAccountabilityTypesSet().stream()
+                .filter(at -> at.getType() != null && at.getType().equals(typeEnum)).findFirst();
+    }
+
+    @Deprecated
     public static AccountabilityType readByType(AccountabilityTypeEnum typeEnum) {
-        Collection<AccountabilityType> allAccountabilityTypes = Bennu.getInstance().getAccountabilityTypesSet();
-        for (AccountabilityType accountabilityType : allAccountabilityTypes) {
-            if (accountabilityType.getType() != null && accountabilityType.getType().equals(typeEnum)) {
-                return accountabilityType;
-            }
-        }
-        return null;
+        return findByType(typeEnum).orElse(null);
     }
 
     @Override
@@ -91,10 +90,12 @@ public class AccountabilityType extends AccountabilityType_Base {
         return getType() != null || (getTypeName() != null && !getTypeName().isEmpty());
     }
 
+    @Deprecated
     public boolean isFunction() {
         return false;
     }
 
+    @Deprecated
     public boolean isSharedFunction() {
         return false;
     }
@@ -108,13 +109,9 @@ public class AccountabilityType extends AccountabilityType_Base {
     }
 
     public ConnectionRule getConnectionRuleFor(PartyType parentType, PartyType childType) {
-        for (final ConnectionRule connectionRule : getConnectionRulesSet()) {
-            if (connectionRule.isValid(parentType, childType)) {
-                return connectionRule;
-            }
-        }
-
-        return null;
+        return getConnectionRulesSet().stream()
+                .filter(cr -> cr.isValid(parentType, childType))
+                .findFirst().orElse(null);
     }
 
     public ConnectionRule addConnectionRule(PartyType parentType, PartyType childType, Boolean managedByUser) {
@@ -124,14 +121,8 @@ public class AccountabilityType extends AccountabilityType_Base {
     }
 
     public boolean canConnect(PartyType parentType, PartyType childType) {
-
-        for (final ConnectionRule connectionRule : getConnectionRulesSet()) {
-            if (connectionRule.isValid(parentType, childType)) {
-                return true;
-            }
-        }
-
-        return false;
+        return getConnectionRulesSet().stream()
+                .anyMatch(cr -> cr.isValid(parentType, childType));
     }
 
     public void delete() {
@@ -139,7 +130,7 @@ public class AccountabilityType extends AccountabilityType_Base {
             throw new DomainException("error.AccountabilityType.cannotDelete.hasAssociatedAccountabilities");
         }
 
-        getConnectionRulesSet().forEach(cr -> cr.delete());
+        getConnectionRulesSet().forEach(ConnectionRule::delete);
 
         setRootDomainObject(null);
         super.deleteDomainObject();
