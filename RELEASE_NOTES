@@ -2,6 +2,7 @@
 - Refactor: AccountabilityType domain methods [#qubIT-Fenix-9118]
 - Refactor: Improve Accountability domain methods [#qubIT-Fenix-9132]
 - Refactor: Professorship domain methods [#qubIT-Fenix-9113]
+- Refactor: Remove District readBy methods [#qubIT-Fenix-9019]
 - Bug Fix: Program conclusion number unique validation [#qubIT-Fenix-9167]
 
 57.0.0 (24-07-2026)
