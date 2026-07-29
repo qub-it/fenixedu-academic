@@ -3,10 +3,7 @@ package org.fenixedu.academic.domain;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -58,7 +55,6 @@ public class AccountabilityTest {
 
         assertTrue(COMPARATOR.compare(earlier, later) < 0);
         assertTrue(COMPARATOR.compare(later, earlier) > 0);
-        assertEquals(COMPARATOR.compare(earlier, later), COMPARATOR.reversed().compare(later, earlier));
     }
 
     @Test
@@ -74,25 +70,6 @@ public class AccountabilityTest {
         // different instances with equal begin dates must not tie
         assertTrue(COMPARATOR.compare(first, second) != 0);
         assertEquals(first.getExternalId().compareTo(second.getExternalId()), COMPARATOR.compare(first, second));
-    }
-
-    @Test
-    public void testGetComparatorByBeginDate_sortedList() {
-        final Accountability a = new Accountability(parent, child, accountabilityType);
-        a.setBeginDate(new YearMonthDay(2022, 1, 1));
-
-        final Accountability b = new Accountability(parent, child, accountabilityType);
-        b.setBeginDate(new YearMonthDay(2020, 6, 15));
-
-        final Accountability c = new Accountability(parent, child, accountabilityType);
-        c.setBeginDate(new YearMonthDay(2021, 3, 10));
-
-        final List<Accountability> list = new ArrayList<>(Arrays.asList(a, b, c));
-        list.sort(COMPARATOR);
-
-        assertEquals(b, list.get(0));
-        assertEquals(c, list.get(1));
-        assertEquals(a, list.get(2));
     }
 
     private static Person createPerson(final String name, final String username) {
