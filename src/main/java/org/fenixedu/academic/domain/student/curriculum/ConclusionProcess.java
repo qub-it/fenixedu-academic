@@ -19,10 +19,12 @@
 package org.fenixedu.academic.domain.student.curriculum;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
@@ -172,7 +174,8 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
     }
 
     public boolean isNumberInvalid(String number) {
-        return findAll().stream().filter(cp -> cp.getNumber() != null).anyMatch(cp -> cp.getNumber() == number);
+        return findAll().stream().filter(cp -> cp != this && StringUtils.isNotBlank(cp.getNumber()))
+                .anyMatch(cp -> Objects.equals(cp.getNumber(), number));
     }
 
     @Override
