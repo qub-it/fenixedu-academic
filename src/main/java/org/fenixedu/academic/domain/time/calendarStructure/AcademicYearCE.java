@@ -59,25 +59,6 @@ public class AcademicYearCE extends AcademicYearCE_Base {
 
             return currentChildsWeightsSum + childAcademicPeriod.getWeight() > 1f;
         }
-//        if (childEntry.isAcademicSemester()) {
-//            return getChildEntries(childEntry.getClass()).size() >= 2;
-//        }
-//        if (childEntry.isAcademicTrimester()) {
-//            return getChildEntries(childEntry.getClass()).size() >= 4;
-//        }
         return false;
     }
-
-//    private void createExecutionYear() {
-//        ExecutionYear executionYear = ExecutionYear.readBy(getBegin().toYearMonthDay(), getEnd().toYearMonthDay());
-//        if (executionYear == null) {
-//            new ExecutionYear(new AcademicInterval(this, getRootEntry()), getTitle().getContent());
-//        }
-//    }
-
-//    @Override
-//    public int getAcademicSemesterOfAcademicYear(AcademicChronology academicChronology) {
-//        throw new DomainException("error.unsupported.operation");
-//    }
-
 }

@@ -34,17 +34,6 @@ public class AcademicMonths extends AcademicPeriod {
 
     @Override
     public Collection<AcademicPeriod> getPossibleChilds() {
-//        final Set<AcademicPeriod> result = new HashSet<>();
-//
-//        if (getValue() > 1) {
-//            result.add(AcademicPeriod.MONTH);
-//        }
-//
-//        result.add(AcademicPeriod.WEEK);
-//        result.add(AcademicPeriod.DAY);
-//
-//        return result;
-
         return Collections.emptySet();
     }
 

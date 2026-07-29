@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.time.calendarStructure;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -90,15 +89,6 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
         return begin;
     }
 
-//    public AcademicCalendarEntry getEntryByInstant(long instant, Class<? extends AcademicCalendarEntry> entryClass,
-//            Class<? extends AcademicCalendarEntry> parentEntryClass) {
-//        AcademicCalendarEntry entryResult = null;
-//        for (AcademicCalendarEntry entry : getChildEntries(Long.valueOf(instant), entryClass, parentEntryClass)) {
-//            entryResult = (entryResult == null || entry.getBegin().isAfter(entryResult.getBegin())) ? entry : entryResult;
-//        }
-//        return entryResult;
-//    }
-    
     public AcademicCalendarEntry getEntryByInstant(long instant, AcademicPeriod academicPeriod) {
         AcademicCalendarEntry entryResult = null;
         for (AcademicCalendarEntry entry : getAllChildEntries(academicPeriod)) {
@@ -133,16 +123,6 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
         }
         return null;
     }
-
-//    private List<AcademicCalendarEntry> getChildEntries(Long instant, Class<? extends AcademicCalendarEntry> subEntryClass,
-//            Class<? extends AcademicCalendarEntry> parentEntryClass) {
-//        if (subEntryClass == null || parentEntryClass == null) {
-//            return Collections.emptyList();
-//        }
-//        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
-//        getFirstChildEntries(instant, subEntryClass, parentEntryClass, allChildEntries);
-//        return allChildEntries;
-//    }
 
     @Override
     public DateTime getEnd() {

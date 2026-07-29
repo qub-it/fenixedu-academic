@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.time.calendarStructure;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.chronologies.AcademicChronology;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -121,10 +119,6 @@ public class AcademicInterval extends AbstractInterval implements Serializable {
         return result;
     }
 
-//    public AcademicCalendarEntry getAcademicCalendarEntryInIntervalChronology() {
-//        return getAcademicChronology().findSameEntry(getAcademicCalendarEntry());
-//    }
-
     public AcademicCalendarRootEntry getAcademicCalendar() {
         return academicCalendarRootEntry;
     }
@@ -183,34 +177,6 @@ public class AcademicInterval extends AbstractInterval implements Serializable {
         return new AcademicInterval(entryExternalId, academicCalendarExternalId);
     }
 
-    // Operations for get periods.
-
-//    public int getAcademicSemesterOfAcademicYear() {
-//        return getAcademicCalendarEntry().getAcademicSemesterOfAcademicYear(getAcademicChronology());
-//    }
-
-//    public AcademicSemesterCE plusSemester(int amount) {
-//        int index = getStart().get(AcademicSemesterDateTimeFieldType.academicSemester());
-//        return getAcademicChronology().getAcademicSemesterIn(index + amount);
-//    }
-//
-//    public AcademicSemesterCE minusSemester(int amount) {
-//        int index = getStart().get(AcademicSemesterDateTimeFieldType.academicSemester());
-//        return getAcademicChronology().getAcademicSemesterIn(index - amount);
-//    }
-
-//    public AcademicYearCE plusYear(int amount) {
-//        int index = getStart().get(AcademicYearDateTimeFieldType.academicYear());
-//        return getAcademicChronology().getAcademicYearIn(index + amount);
-//    }
-//
-//    public AcademicYearCE minusYear(int amount) {
-//        int index = getStart().get(AcademicYearDateTimeFieldType.academicYear());
-//        return getAcademicChronology().getAcademicYearIn(index - amount);
-//    }
-
-    // ///////
-
     public static AcademicInterval getDefaultAcademicInterval(List<AcademicInterval> academicIntervals) {
         DateTime now = new DateTime();
 
@@ -233,48 +199,6 @@ public class AcademicInterval extends AbstractInterval implements Serializable {
 
         throw new UnsupportedOperationException("Unknown AcademicPeriod " + academicPeriod);
     }
-
-//    @Deprecated
-//    public static List<AcademicInterval> readAcademicIntervals(AcademicPeriod academicPeriod) {
-//        Bennu rootDomainObject = Bennu.getInstance();
-//
-//        if (academicPeriod.equals(AcademicPeriod.SEMESTER)) {
-//            List<AcademicInterval> result = new ArrayList<AcademicInterval>();
-//            for (ExecutionInterval semester : rootDomainObject.getExecutionPeriodsSet()) {
-//                result.add(semester.getAcademicInterval());
-//            }
-//
-//            return result;
-//        } else if (academicPeriod.equals(AcademicPeriod.YEAR)) {
-//            List<AcademicInterval> result = new ArrayList<AcademicInterval>();
-//            for (ExecutionYear executionYear : rootDomainObject.getExecutionYearsSet()) {
-//                result.add(executionYear.getAcademicInterval());
-//            }
-//
-//            return result;
-//        }
-//        throw new UnsupportedOperationException("Unknown AcademicPeriod " + academicPeriod);
-//    }
-
-//    @Deprecated
-//    public static List<AcademicInterval> readActiveAcademicIntervals(AcademicPeriod academicPeriod) {
-//        if (academicPeriod.equals(AcademicPeriod.SEMESTER)) {
-//            List<AcademicInterval> result = new ArrayList<AcademicInterval>();
-//            for (ExecutionInterval semester : ExecutionInterval.findActiveChilds()) {
-//                result.add(semester.getAcademicInterval());
-//            }
-//
-//            return result;
-//        } else if (academicPeriod.equals(AcademicPeriod.YEAR)) {
-//            List<AcademicInterval> result = new ArrayList<AcademicInterval>();
-//            for (ExecutionYear executionYear : ExecutionYear.readNotClosedExecutionYears()) {
-//                result.add(executionYear.getAcademicInterval());
-//            }
-//
-//            return result;
-//        }
-//        throw new UnsupportedOperationException("Unknown AcademicPeriod " + academicPeriod);
-//    }
 
     public AcademicInterval getNextAcademicInterval() {
         AcademicCalendarEntry nextAcademicCalendarEntry = getAcademicCalendarEntry().getNextAcademicCalendarEntry();

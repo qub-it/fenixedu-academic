@@ -273,16 +273,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         return getRootEntry().getAcademicChronology();
     }
 
-//    // renamed from getChildEntriesWithTemplateEntries
-//    protected List<AcademicCalendarEntry> getChildEntries(Class<? extends AcademicCalendarEntry> subEntryClass) {
-//        if (subEntryClass == null) {
-//            return Collections.emptyList();
-//        }
-//        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
-//        getChildEntries(null, allChildEntries, null, null, subEntryClass);
-//        return allChildEntries;
-//    }
-
     protected List<AcademicCalendarEntry> getChildEntries(final AcademicPeriod subEntryAcademicPeriod) {
         return getChildEntriesSet().stream().filter(e -> e.getAcademicPeriod().equals(subEntryAcademicPeriod))
                 .collect(Collectors.toList());

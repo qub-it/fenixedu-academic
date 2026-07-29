@@ -37,10 +37,6 @@ public class AcademicDays extends AcademicPeriod {
     public Collection<AcademicPeriod> getPossibleChilds() {
         final Set<AcademicPeriod> result = new HashSet<>();
 
-//        if (getValue() > 1) {
-//            result.add(AcademicPeriod.DAY);
-//        }
-
         return result;
     }
 

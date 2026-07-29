@@ -54,14 +54,6 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
         new ExecutionInterval(executionYear, new AcademicInterval(this, getRootEntry()), getTitle().getContent());
     }
 
-//    @Override
-//    public int getAcademicSemesterOfAcademicYear(final AcademicChronology academicChronology) {
-//        final AcademicYearCE academicYearCE = (AcademicYearCE) academicChronology.findSameEntry(getParentEntry());
-//        List<AcademicCalendarEntry> list =
-//                academicYearCE.getChildEntries(academicYearCE.getBegin(), getBegin().minusDays(1), getClass());
-//        return list.size() + 1;
-//    }
-
     @Override
     public String getPresentationName() {
         return getParentEntry().getTitle().getContent() + " - " + getTitle().getContent() + " - [" + getType() + "]";
