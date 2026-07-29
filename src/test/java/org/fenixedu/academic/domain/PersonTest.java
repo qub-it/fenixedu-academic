@@ -53,6 +53,7 @@ public class PersonTest {
             Installation.ensureInstallation();
             StudentTest.initRegistrationConfigEntities();
             ExecutionsAndSchedulesTest.initExecutions();
+            CountryTest.initCountries();
 
             executionYear = ExecutionYear.findCurrent(null);
             firstSemester = executionYear.getFirstExecutionPeriod();
@@ -187,6 +188,57 @@ public class PersonTest {
         // value to null: old value should be the localized name of FEMALE
         person.setGender(null);
         assertLogPreviousValue(person, Gender.FEMALE.getLocalizedName());
+    }
+
+    @Test
+    public void testLogSetterCountry() {
+        Person person = createPerson("LogCountry Test", "person.logcountry.test");
+        person.getPersonInformationLogsSet().clear();
+
+        Country portugal = Country.readByTwoLetterCode("PT");
+        Country france = Country.readByTwoLetterCode("FR");
+
+        // null to value: old value should be "(no value)"
+        person.setCountry(portugal);
+        assertLogPreviousValue(person, "(no value)");
+
+        // same value: no log should be created
+        person.setCountry(portugal);
+        assertTrue(person.getPersonInformationLogsSet().isEmpty());
+
+        // value to different value: old value should be the previous country nationality
+        france.setCountryNationality(null);
+        person.setCountry(france);
+        assertLogPreviousValue(person, "Portuguese");
+
+        // value to null: old value should be the previous country name (instead of nationality)
+        person.setCountry(null);
+        assertLogPreviousValue(person, "France");
+    }
+
+    @Test
+    public void testLogSetterCountryOfBirth() {
+        Person person = createPerson("LogCOB Test", "person.logcob.test");
+        person.getPersonInformationLogsSet().clear();
+
+        Country portugal = Country.readByTwoLetterCode("PT");
+        Country spain = Country.readByTwoLetterCode("ES");
+
+        // null to value: old value should be "(no value)"
+        person.setCountryOfBirth(portugal);
+        assertLogPreviousValue(person, "(no value)");
+
+        // same value: no log should be created
+        person.setCountryOfBirth(portugal);
+        assertTrue(person.getPersonInformationLogsSet().isEmpty());
+
+        // value to different value: old value should be previous country name
+        person.setCountryOfBirth(spain);
+        assertLogPreviousValue(person, "Portugal");
+
+        // value to null: old value should be previous country name
+        person.setCountryOfBirth(null);
+        assertLogPreviousValue(person, "Spain");
     }
 
     @Test

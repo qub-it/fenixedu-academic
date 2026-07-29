@@ -1,5 +1,11 @@
 package org.fenixedu.academic.domain.person.contacts;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Locale;
+
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
@@ -9,11 +15,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
+
 import pt.ist.fenixframework.FenixFramework;
-
-import java.util.Locale;
-
-import static org.junit.Assert.*;
 
 @RunWith(FenixFrameworkRunner.class)
 public class PersonEmailTest {
@@ -102,4 +105,25 @@ public class PersonEmailTest {
         assertEquals("personal2@example.com", person.getEmailAddressForSendingEmails().getValue());
     }
 
+    @Test
+    public void testGetEmailAddressForSendingEmailsWithForcedInstitutionalFallsBackToDefault() {
+        Installation.getInstance().setForceSendingEmailsToInstituitionAddress(true);
+
+        UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
+        Person person = new Person(userProfile);
+        EmailAddress.createEmailAddress(person, "default@example.com", PartyContactType.PERSONAL, true).setValid();
+
+        assertEquals("default@example.com", person.getEmailAddressForSendingEmails().getValue());
+
+        Installation.getInstance().setForceSendingEmailsToInstituitionAddress(false);
+    }
+
+    @Test
+    public void testGetEmailAddressForSendingEmailsWithValidNonDefaultContact() {
+        UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
+        Person person = new Person(userProfile);
+        EmailAddress.createEmailAddress(person, "personal@example.com", PartyContactType.PERSONAL, false).setValid();
+
+        assertEquals("personal@example.com", person.getEmailAddressForSendingEmails().getValue());
+    }
 }

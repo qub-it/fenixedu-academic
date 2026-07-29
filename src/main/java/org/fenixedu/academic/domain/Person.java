@@ -65,7 +65,6 @@ import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
-import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.base.Strings;
@@ -584,8 +583,7 @@ public class Person extends Person_Base {
     }
 
     public EmailAddress getEmailAddressForSendingEmails() {
-        final Boolean disableSendEmails = getDisableSendEmails();
-        if (disableSendEmails != null && disableSendEmails.booleanValue()) {
+        if (Boolean.TRUE.equals(getDisableSendEmails())) {
             return null;
         }
 
@@ -596,19 +594,14 @@ public class Person extends Person_Base {
         boolean firstInstitutional = Installation.getInstance().getForceSendingEmailsToInstituitionAddress();
 
         final EmailAddress emailAddress = firstInstitutional ? Optional.ofNullable(getInstitutionalEmailAddress())
-                .orElseGet(() -> getDefaultEmailAddress()) : Optional.ofNullable(getDefaultEmailAddress())
-                        .orElseGet(() -> getInstitutionalEmailAddress());
+                .orElseGet(this::getDefaultEmailAddress) : Optional.ofNullable(getDefaultEmailAddress())
+                .orElseGet(this::getInstitutionalEmailAddress);
         if (emailAddress != null) {
             return emailAddress;
         }
 
-        for (final PartyContact partyContact : getPartyContactsSet()) {
-            if (partyContact.isEmailAddress() && partyContact.isActiveAndValid() && partyContact.isValid()) {
-                final EmailAddress otherEmailAddress = (EmailAddress) partyContact;
-                return otherEmailAddress;
-            }
-        }
-        return null;
+        return getPartyContactsSet().stream().filter(PartyContact::isEmailAddress).filter(PartyContact::isActiveAndValid)
+                .filter(PartyContact::isValid).map(EmailAddress.class::cast).findFirst().orElse(null);
     }
 
     public String getEmailForSendingEmails() {
@@ -640,31 +633,6 @@ public class Person extends Person_Base {
     @Atomic
     public void setNumberOfValidationRequests(final Integer numberOfValidationRequests) {
         super.setNumberOfValidationRequests(numberOfValidationRequests);
-    }
-
-    public boolean getCanValidateContacts() {
-        final DateTime now = new DateTime();
-        final DateTime requestDate = getLastValidationRequestDate();
-        if (requestDate == null || getNumberOfValidationRequests() == null) {
-            return true;
-        }
-        final DateTime plus30 = requestDate.plusDays(30);
-        if (now.isAfter(plus30) || now.isEqual(plus30)) {
-            setNumberOfValidationRequests(0);
-        }
-        return getNumberOfValidationRequests() <= MAX_VALIDATION_REQUESTS;
-    }
-
-    @Deprecated
-    @Atomic
-    public void incValidationRequest() {
-        getCanValidateContacts();
-        Integer numberOfValidationRequests = getNumberOfValidationRequests();
-        numberOfValidationRequests = numberOfValidationRequests == null ? 0 : numberOfValidationRequests;
-        if (numberOfValidationRequests <= MAX_VALIDATION_REQUESTS) {
-            setNumberOfValidationRequests(numberOfValidationRequests + 1);
-            setLastValidationRequestDate(new DateTime());
-        }
     }
 
     @Override
@@ -789,29 +757,21 @@ public class Person extends Person_Base {
 
     // Nationality
     @Override
-    public void setCountry(final Country arg) {
-        String argNew, argOld;
+    public void setCountry(final Country country) {
+        final Country oldCountry = getCountry();
+        final String emptyLabel = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
 
-        if (getCountry() != null) {
-            if (getCountry().getCountryNationality() != null) {
-                argOld = getCountry().getCountryNationality().getContent();
-            } else {
-                argOld = getCountry().getName();
-            }
-        } else {
-            argOld = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
+        String argOld = emptyLabel;
+        if (oldCountry != null) {
+            argOld = oldCountry.getCountryNationality() != null ? oldCountry.getCountryNationality()
+                    .getContent() : oldCountry.getName();
+        }
+        String argNew = emptyLabel;
+        if (country != null) {
+            argNew = country.getCountryNationality() != null ? country.getCountryNationality().getContent() : country.getName();
         }
 
-        if (arg != null) {
-            if (arg.getCountryNationality() != null) {
-                argNew = arg.getCountryNationality().getContent();
-            } else {
-                argNew = arg.getName();
-            }
-        } else {
-            argNew = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
-        }
-        super.setCountry(arg);
+        super.setCountry(country);
         logSetter("log.personInformation.edit.generalTemplate.filiation", argOld, argNew, "label.nationality");
     }
 
@@ -838,21 +798,13 @@ public class Person extends Person_Base {
 
     // Not to be confused with Nationality
     @Override
-    public void setCountryOfBirth(final Country arg) {
-        String argNew, argOld;
+    public void setCountryOfBirth(final Country countryOfBirth) {
+        final String emptyLabel = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
 
-        if (getCountryOfBirth() != null) {
-            argOld = getCountryOfBirth().getName();
-        } else {
-            argOld = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
-        }
+        String argOld = getCountryOfBirth() != null ? getCountryOfBirth().getName() : emptyLabel;
+        String argNew = countryOfBirth != null ? countryOfBirth.getName() : emptyLabel;
 
-        if (arg != null) {
-            argNew = arg.getName();
-        } else {
-            argNew = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
-        }
-        super.setCountryOfBirth(arg);
+        super.setCountryOfBirth(countryOfBirth);
         logSetter("log.personInformation.edit.generalTemplate.filiation", argOld, argNew, "label.countryOfBirth");
     }
 
@@ -892,11 +844,6 @@ public class Person extends Person_Base {
     @Override
     public void logRefuseContact(final PartyContact contact) {
         contact.logRefuse(this);
-    }
-
-    @Deprecated
-    public static Group convertToUserGroup(final Collection<Person> persons) {
-        return Group.users(persons.stream().map(Person::getUser).filter(Objects::nonNull));
     }
 
     @Override

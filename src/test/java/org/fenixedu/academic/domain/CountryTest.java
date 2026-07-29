@@ -31,13 +31,17 @@ public class CountryTest {
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            portugal = new Country(localizeString("Portugal"), localizeString("Portuguese"), "PT", "PRT");
-            spain = new Country(localizeString("Spain"), localizeString("Spanish"), "ES", "ESP");
-            france = new Country(localizeString("France"), localizeString("Fraench"), "FR", "FRA");
-            brazil = new Country(localizeString("Brazil"), localizeString("Brazilian"), "BR", "BRA");
-            angola = new Country(localizeString("Angola"), localizeString("Angolan"), "AO", "AGO");
+            initCountries();
             return null;
         });
+    }
+
+    public static void initCountries() {
+        portugal = new Country(localizeString("Portugal"), localizeString("Portuguese"), "PT", "PRT");
+        spain = new Country(localizeString("Spain"), localizeString("Spanish"), "ES", "ESP");
+        france = new Country(localizeString("France"), localizeString("Fraench"), "FR", "FRA");
+        brazil = new Country(localizeString("Brazil"), localizeString("Brazilian"), "BR", "BRA");
+        angola = new Country(localizeString("Angola"), localizeString("Angolan"), "AO", "AGO");
     }
 
     @Test
