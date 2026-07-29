@@ -50,14 +50,7 @@ public class Teacher extends Teacher_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    /**
-     * @deprecated use {@code #getUsername()}
-     */
     public String getTeacherId() {
-        return getUsername();
-    }
-
-    public String getUsername() {
         return getPerson().getUsername();
     }
 
