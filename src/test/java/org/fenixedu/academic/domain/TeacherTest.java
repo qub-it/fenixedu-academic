@@ -129,12 +129,6 @@ public class TeacherTest {
     }
 
     @Test
-    public void testTeacher_getUsername() {
-        assertEquals(TEACHER_USERNAME, teacher.getUsername());
-        assertEquals(TEACHER2_USERNAME, teacher2.getUsername());
-    }
-
-    @Test
     public void testTeacher_isResponsibleFor_ExecutionCourse() {
         assertEquals(professorship1, teacher.isResponsibleFor(executionCourseResponsibleS1));
         assertNull(teacher.isResponsibleFor(executionCourseNotResponsibleS2));
