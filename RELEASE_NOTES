@@ -1,5 +1,6 @@
 - Refactor: Deletes unused isEnroledInSpecialSeason domain method [#qubIT-Fenix-8839]
 - Refactor: AccountabilityType domain methods [#qubIT-Fenix-9118]
+- Refactor: DegreeInfo domain methods [#qubIT-Fenix-9164]
 
 57.0.0 (24-07-2026)
 - Refactor: Improves CourseGroup domain methods [#qubIT-Fenix-8849]
