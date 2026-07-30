@@ -39,12 +39,7 @@ public class Holiday extends Holiday_Base {
     }
 
     public static boolean isHoliday(final LocalDate date) {
-        for (final Holiday holiday : Bennu.getInstance().getHolidaysSet()) {
-            if (holiday.getDate().isMatch(date)) {
-                return true;
-            }
-        }
-        return false;
+        return Bennu.getInstance().getHolidaysSet().stream().anyMatch(holiday -> holiday.getDate().isMatch(date));
     }
 
 }
