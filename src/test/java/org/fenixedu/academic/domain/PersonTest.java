@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.contacts.EmailAddress;
+import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
 import org.fenixedu.academic.domain.person.vaccine.VaccineType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -119,6 +121,84 @@ public class PersonTest {
     }
 
     @Test
+    public void testLogSetterNullString() {
+        Person person = createPerson("LogString Test", "person.logstr.test");
+        person.getPersonInformationLogsSet().clear();
+
+        // null to value: old value should be "(no value)", not null
+        person.setProfession("Engineer");
+        assertLogPreviousValue(person, "(no value)");
+
+        // value to different value: old value should be "Engineer"
+        person.setProfession("Doctor");
+        assertLogPreviousValue(person, "Engineer");
+
+        // empty to value: old value should be "(no value)" because empty is treated as null
+        person.setProfession("");
+        person.getPersonInformationLogsSet().clear();
+        person.setProfession("Engineer");
+        assertLogPreviousValue(person, "(no value)");
+
+        // value to null: old value should be "Engineer"
+        person.setProfession(null);
+        assertLogPreviousValue(person, "Engineer");
+    }
+
+    @Test
+    public void testLogSetterNullYearMonthDay() {
+        Person person = createPerson("LogYMD Test", "person.logydm.test");
+        person.getPersonInformationLogsSet().clear();
+
+        // null to value: old value should be "Date Empty" not null
+        person.setDateOfBirthYearMonthDay(new YearMonthDay(1990, 6, 15));
+        assertLogPreviousValue(person, "Date Empty");
+
+        // value to different value: old value should be the formatted date "1990/06/15"
+        person.setDateOfBirthYearMonthDay(new YearMonthDay(2000, 1, 1));
+        assertLogPreviousValue(person, "1990/06/15");
+
+        // value to null: old value should be the formatted date "2000/01/01"
+        person.setDateOfBirthYearMonthDay(null);
+        assertLogPreviousValue(person, "2000/01/01");
+    }
+
+    @Test
+    public void testLogSetterNullEnum() {
+        Person person = createPerson("LogEnum Test", "person.logenum.test");
+        person.getPersonInformationLogsSet().clear();
+
+        // null to value: old value should be "(no value)", not null
+        person.setGender(Gender.MALE);
+        assertLogPreviousValue(person, "(no value)");
+
+        // value to different value: old value should be the localized name of MALE
+        person.setGender(Gender.FEMALE);
+        assertLogPreviousValue(person, Gender.MALE.getLocalizedName());
+
+        // value to null: old value should be the localized name of FEMALE
+        person.setGender(null);
+        assertLogPreviousValue(person, Gender.FEMALE.getLocalizedName());
+    }
+
+    @Test
+    public void testHasEmailAddress() {
+        EmailAddress.createEmailAddress(personA, "contact@test.com", PartyContactType.PERSONAL, true);
+        EmailAddress.createEmailAddress(personA, "institutional@test.com", PartyContactType.INSTITUTIONAL, false);
+
+        assertTrue(personA.hasEmailAddress("contact@test.com"));
+        assertTrue(personA.hasEmailAddress("institutional@test.com"));
+        assertTrue(personA.hasEmailAddress("CONTACT@TEST.COM"));
+
+        assertFalse(personA.hasEmailAddress("other@test.com"));
+        assertFalse(personA.hasEmailAddress(null));
+
+        // partyContact is not email address
+        PartyContact phone = Phone.createPhone(personA, "912345678", PartyContactType.PERSONAL, false);
+        assertFalse(phone.isEmailAddress());
+        assertFalse(personA.hasEmailAddress("912345678"));
+    }
+
+    @Test
     public void testDelete_cleansUpAssociatedCollections() {
         // create a dedicated person for deletion testing
         Person personToDelete = createPerson("Delete Me", "person.delete.test");
@@ -147,5 +227,11 @@ public class PersonTest {
         assertTrue(personToDelete.getPartyContactsSet().isEmpty());
         assertTrue(personToDelete.getVaccineAdministrationsSet().isEmpty());
         assertTrue(personToDelete.getPersonInformationLogsSet().isEmpty());
+    }
+
+    private void assertLogPreviousValue(Person person, String expected) {
+        PersonInformationLog log = person.getPersonInformationLogsSet().iterator().next();
+        assertTrue(log.getDescription().contains(expected));
+        person.getPersonInformationLogsSet().clear();
     }
 }

@@ -260,14 +260,7 @@ public class Person extends Person_Base {
         }
         getUser().openLoginPeriod();
     }
-
-    @Deprecated
-    public void ensureUserAccount() {
-        if (getUser() == null) {
-            setUser(new User(getProfile()));
-        }
-    }
-
+    
     public Person editPersonalInformation(final PersonBean personBean) {
         setProperties(personBean);
         return this;
@@ -283,24 +276,6 @@ public class Person extends Person_Base {
                 .filter(registration -> registration.getDegreeType() == degreeType)
                 .findFirst()
                 .orElse(null);
-    }
-
-    private String valueToUpdateIfNewNotNull(final String actualValue, final String newValue) {
-
-        if (newValue == null || newValue.length() == 0) {
-            return actualValue;
-        }
-        return newValue;
-
-    }
-
-    private Object valueToUpdateIfNewNotNull(final Object actualValue, final Object newValue) {
-
-        if (newValue == null) {
-            return actualValue;
-        }
-        return newValue;
-
     }
 
     private void setProperties(final PersonBean personBean) {
@@ -463,16 +438,6 @@ public class Person extends Person_Base {
     }
 
     @Deprecated
-    public boolean hasAnyStudents() {
-        return getStudentsCount() > 0;
-    }
-
-    @Deprecated
-    public int getStudentsCount() {
-        return getStudent() != null ? getStudent().getRegistrationsSet().size() : 0;
-    }
-
-    @Deprecated
     public Set<Registration> getStudentsSet() {
         return getStudent() != null ? getStudent().getRegistrationsSet() : Collections.EMPTY_SET;
     }
@@ -519,15 +484,8 @@ public class Person extends Person_Base {
     }
 
     public boolean hasEmailAddress(final String email) {
-        for (final PartyContact partyContact : getPartyContactsSet()) {
-            if (partyContact.isEmailAddress()) {
-                final EmailAddress emailAddress = (EmailAddress) partyContact;
-                if (emailAddress.hasValue(email)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getPartyContactsSet().stream().filter(PartyContact::isEmailAddress).map(EmailAddress.class::cast)
+                .anyMatch(emailAddress -> emailAddress.hasValue(email));
     }
 
     public boolean isPhotoAvailableToCurrentUser() {
@@ -811,52 +769,26 @@ public class Person extends Person_Base {
 
     private void logSetterNullString(final String keyInfoType, final String oldValue, final String newValue,
             final String keyLabel) {
-        String argNew, argOld;
-        argOld = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.APPLICATION, "label.empty"), oldValue);
-        argNew = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.APPLICATION, "label.empty"), newValue);
+        final String emptyLabel = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
+        String argOld = StringUtils.defaultIfEmpty(oldValue, emptyLabel);
+        String argNew = StringUtils.defaultIfEmpty(newValue, emptyLabel);
         logSetter(keyInfoType, argOld, argNew, keyLabel);
     }
 
     private void logSetterNullYearMonthDay(final String keyInfoType, final YearMonthDay oldValue, final YearMonthDay newValue,
             final String keyLabel) {
-        Object argNew, argOld;
-        String strNew, strOld;
-        argOld = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.HTML, "text.dateEmpty"), oldValue);
-        argNew = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.HTML, "text.dateEmpty"), newValue);
-
-        if (argOld instanceof YearMonthDay) {
-            strOld = ((YearMonthDay) argOld).toString("yyyy/MM/dd");
-        } else {
-            strOld = (String) argOld;
-        }
-
-        if (argNew instanceof YearMonthDay) {
-            strNew = ((YearMonthDay) argNew).toString("yyyy/MM/dd");
-        } else {
-            strNew = (String) argNew;
-        }
-        logSetter(keyInfoType, strOld, strNew, keyLabel);
+        final String emptyLabel = BundleUtil.getString(Bundle.HTML, "text.dateEmpty");
+        String argOld = oldValue != null ? oldValue.toString("yyyy/MM/dd") : emptyLabel;
+        String argNew = newValue != null ? newValue.toString("yyyy/MM/dd") : emptyLabel;
+        logSetter(keyInfoType, argOld, argNew, keyLabel);
     }
 
     private void logSetterNullEnum(final String keyInfoType, final IPresentableEnum oldValue, final IPresentableEnum newValue,
             final String keyLabel) {
-        Object argNew, argOld;
-        String strNew, strOld;
-        argOld = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.APPLICATION, "label.empty"), oldValue);
-        argNew = valueToUpdateIfNewNotNull(BundleUtil.getString(Bundle.APPLICATION, "label.empty"), newValue);
-
-        if (argOld instanceof Enum) {
-            strOld = ((IPresentableEnum) argOld).getLocalizedName();
-        } else {
-            strOld = (String) argOld;
-        }
-
-        if (argNew instanceof Enum) {
-            strNew = ((IPresentableEnum) argNew).getLocalizedName();
-        } else {
-            strNew = (String) argNew;
-        }
-        logSetter(keyInfoType, strOld, strNew, keyLabel);
+        final String emptyLabel = BundleUtil.getString(Bundle.APPLICATION, "label.empty");
+        String argOld = oldValue != null ? oldValue.getLocalizedName() : emptyLabel;
+        String argNew = newValue != null ? newValue.getLocalizedName() : emptyLabel;
+        logSetter(keyInfoType, argOld, argNew, keyLabel);
     }
 
     @Override
