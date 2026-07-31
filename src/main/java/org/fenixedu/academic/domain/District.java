@@ -58,16 +58,6 @@ public class District extends District_Base {
         return getDistrictSubdivisionsSet().stream().filter(ds -> ds.getName().equals(name)).findFirst().orElse(null);
     }
 
-    @Deprecated
-    static public District readByCode(final String code) {
-        return findByCode(code).orElse(null);
-    }
-
-    @Deprecated
-    static public District readByName(final String name) {
-        return findByName(name).orElse(null);
-    }
-
     public static Optional<District> findByCode(final String code) {
         return StringUtils.isBlank(code) ? Optional.empty() : Bennu.getInstance().getDistrictsSet().stream()
                 .filter(district -> code.equals(district.getCode())).findFirst();
