@@ -250,8 +250,8 @@ public class PersonBean implements Serializable {
 
         setEmail(person.getEmail());
 
-        setEmailAvailable(person.getAvailableEmail());
-        setHomepageAvailable(person.getAvailableWebSite());
+        setEmailAvailable(person.isDefaultEmailVisible());
+        setHomepageAvailable(person.isDefaultWebAddressVisible());
 
         setPerson(person);
         

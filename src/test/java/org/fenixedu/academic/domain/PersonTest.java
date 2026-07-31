@@ -1,11 +1,13 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil.ADMIN_USERNAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -14,6 +16,7 @@ import org.fenixedu.academic.domain.contacts.EmailAddress;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
+import org.fenixedu.academic.domain.contacts.WebAddress;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.person.Gender;
 import org.fenixedu.academic.domain.person.vaccine.VaccineAdministration;
@@ -22,6 +25,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.LocalDate;
@@ -36,6 +40,8 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class PersonTest {
 
+    private static ExecutionYear executionYear;
+    private static ExecutionInterval firstSemester, secondSemester;
     private static Person personA, personB, personC;
     private static Student studentA;
     private static Registration registrationA;
@@ -48,6 +54,10 @@ public class PersonTest {
             StudentTest.initRegistrationConfigEntities();
             ExecutionsAndSchedulesTest.initExecutions();
 
+            executionYear = ExecutionYear.findCurrent(null);
+            firstSemester = executionYear.getFirstExecutionPeriod();
+            secondSemester = executionYear.getLastExecutionPeriod();
+
             personA = createPerson("Person A", "person.test.a");
             personB = createPerson("Person B", "person.test.b");
             personC = createPerson("Person C", "person.test.c");
@@ -57,7 +67,6 @@ public class PersonTest {
             final Degree degree = Degree.find(DegreeTest.DEGREE_A_CODE);
             final DegreeCurricularPlan dcp = degree.getDegreeCurricularPlansSet().stream()
                     .filter(p -> DegreeCurricularPlanTest.DCP_NAME_V1.equals(p.getName())).findAny().orElseThrow();
-            final ExecutionYear executionYear = ExecutionYear.findCurrent(degree.getCalendar());
 
             degreeTypeA = degree.getDegreeType();
             degreeTypeB = DegreeType.findByCode(DegreeTest.MASTER_DEGREE_TYPE_CODE).orElseThrow();
@@ -196,6 +205,82 @@ public class PersonTest {
         PartyContact phone = Phone.createPhone(personA, "912345678", PartyContactType.PERSONAL, false);
         assertFalse(phone.isEmailAddress());
         assertFalse(personA.hasEmailAddress("912345678"));
+    }
+
+    @Test
+    public void testIsDefaultEmailVisible() {
+        // no email address
+        assertFalse(personB.isDefaultEmailVisible());
+
+        // personal email is not default, not valid and not visible to public
+        EmailAddress personalEmail =
+                EmailAddress.createEmailAddress(personB, "personal@test.com", PartyContactType.PERSONAL, false);
+        assertNull(personB.getDefaultEmailAddress());
+        assertFalse(personB.isDefaultEmailVisible());
+
+        // validate and set to default
+        personalEmail.setValid();
+        personalEmail.changeToDefault();
+        assertTrue(personB.getDefaultEmailAddress().isDefault());
+        assertFalse(personB.isDefaultEmailVisible());
+
+        // visible to public
+        personalEmail.setVisibleToPublic(true);
+        assertTrue(personB.isDefaultEmailVisible());
+    }
+
+    @Test
+    public void testIsDefaultWebAddressVisible() {
+        // no web address
+        assertFalse(personB.isDefaultWebAddressVisible());
+
+        // personal web address is not visible to public
+        WebAddress personalWeb = WebAddress.createWebAddress(personB, "http://personal.test", PartyContactType.PERSONAL, true);
+        assertTrue(personB.getDefaultWebAddress().isDefault());
+        assertFalse(personB.getDefaultWebAddress().getVisibleToPublic());
+        assertFalse(personB.isDefaultWebAddressVisible());
+
+        // visible to public
+        personalWeb.setVisibleToPublic(true);
+        assertTrue(personB.isDefaultWebAddressVisible());
+    }
+
+    @Test
+    public void testGetProfessorships() {
+        ExecutionCourse courseA = new ExecutionCourse("Course A", "CIA", firstSemester);
+        ExecutionCourse courseB = new ExecutionCourse("Course B", "CIB", firstSemester);
+        ExecutionCourse courseC = new ExecutionCourse("Course C", "CIC", secondSemester);
+        ExecutionCourse courseD =
+                new ExecutionCourse("Course D", "CID", executionYear.getNext().getExecutionYear().getFirstExecutionPeriod());
+
+        List<Professorship> professorships = new ArrayList<>();
+        try {
+            Authenticate.mock(User.findByUsername(ADMIN_USERNAME), "none");
+
+            professorships.add(Professorship.create(false, courseA, personC));
+            professorships.add(Professorship.create(false, courseB, personC));
+            professorships.add(Professorship.create(false, courseC, personC));
+            professorships.add(Professorship.create(false, courseD, personC));
+
+            // first semester, 2 professorships
+            List<Professorship> firstSemProfs = personC.getProfessorships(firstSemester);
+            assertEquals(2, firstSemProfs.size());
+            assertTrue(firstSemProfs.stream().allMatch(p -> p.getExecutionCourse().getExecutionInterval().equals(firstSemester)));
+
+            // second semester, 1 professorship
+            List<Professorship> secondSemProfs = personC.getProfessorships(secondSemester);
+            assertEquals(1, secondSemProfs.size());
+            assertEquals(courseC, secondSemProfs.get(0).getExecutionCourse());
+
+            // entire execution year, professorship for courseD is not included because it belongs to the next execution year
+            List<Professorship> yearProfs = personC.getProfessorships(executionYear);
+            assertEquals(3, yearProfs.size());
+            assertTrue(yearProfs.stream().noneMatch(p -> p.getExecutionCourse() == courseD));
+        } finally {
+            Authenticate.unmock();
+            professorships.forEach(Professorship::delete);
+            List.of(courseA, courseB, courseC, courseD).forEach(ExecutionCourse::delete);
+        }
     }
 
     @Test
