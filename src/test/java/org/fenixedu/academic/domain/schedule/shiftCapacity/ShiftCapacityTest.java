@@ -10,7 +10,6 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -47,7 +46,6 @@ public class ShiftCapacityTest {
         final DegreeCurricularPlan dcp2 =
                 new DegreeCurricularPlan(degree, UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
 
-        dcp1.setCurricularStage(CurricularStage.APPROVED);
         final ExecutionDegree executionDegree = dcp1.createExecutionDegree(executionYear);
 
         final Student student = StudentTest.createStudent("Test Student", UUID.randomUUID().toString());
@@ -96,7 +94,6 @@ public class ShiftCapacityTest {
                 new DegreeCurricularPlan(degree, UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR);
 
         final ExecutionYear executionYear = ExecutionYear.findCurrent(dcp1.getDegree().getCalendar());
-        dcp1.setCurricularStage(CurricularStage.APPROVED);
         final ExecutionDegree executionDegree = dcp1.createExecutionDegree(executionYear);
 
         final Student student = StudentTest.createStudent("Test Student", UUID.randomUUID().toString());

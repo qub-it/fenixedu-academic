@@ -4,6 +4,7 @@
 - Refactor: Professorship domain methods [#qubIT-Fenix-9113]
 - Refactor: Remove District readBy methods [#qubIT-Fenix-9019]
 - Refactor: Person class stream/lambda conversion and unused methods deprecation [#qubIT-Fenix-9126]
+- Refactor: Remove references to deprecated CurricularStage [#qubIT-Fenix-4442]
 - Bug Fix: Program conclusion number unique validation [#qubIT-Fenix-9167]
 
 57.0.0 (24-07-2026)

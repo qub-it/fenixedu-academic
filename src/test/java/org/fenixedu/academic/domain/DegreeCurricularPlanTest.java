@@ -2,7 +2,6 @@ package org.fenixedu.academic.domain;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.util.UserUtil;
@@ -49,7 +48,6 @@ public class DegreeCurricularPlanTest {
         UserUtil.initAdminUser();
 
         degreeCurricularPlan = new DegreeCurricularPlan(degree, DCP_NAME_V1, AcademicPeriod.THREE_YEAR);
-        degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
 
         new DegreeCurricularPlan(degree, DCP_NAME_V2, AcademicPeriod.THREE_YEAR);
         new DegreeCurricularPlan(degree, DCP_NAME_V3, AcademicPeriod.THREE_YEAR);

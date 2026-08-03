@@ -51,7 +51,6 @@ import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
 import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -109,30 +108,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
             final String initials = WordUtils.initials(capitalize);
             competenceCourseInformation.setAcronym(initials);
         }
-    }
-
-    @Deprecated(forRemoval = true)
-    public CompetenceCourse(String name, String nameEn, Boolean basic, AcademicPeriod academicPeriod,
-            CompetenceCourseLevelType competenceCourseLevel, CompetenceCourseType competenceCourseType,
-            CurricularStage curricularStage,
-            Unit unit, ExecutionInterval startInterval, final GradeScale gradeScale) {
-
-        this();
-        setCompetenceCourseType(competenceCourseType);
-
-        super.setGradeScale(Optional.ofNullable(gradeScale).or(() -> GradeScale.findUniqueDefault())
-                .orElseThrow(() -> new DomainException("error.CompetenceCourse.gradeScale.required")));
-
-        CompetenceCourseInformation competenceCourseInformation = new CompetenceCourseInformation(name.trim(), nameEn.trim(),
-                basic, academicPeriod, competenceCourseLevel, startInterval, unit);
-        super.addCompetenceCourseInformations(competenceCourseInformation);
-
-        // acronym creation
-        final String strip = name.strip();
-        final String normalize = Normalizer.normalize(strip, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
-        final String capitalize = StringUtils.capitalize(normalize);
-        final String initials = WordUtils.initials(capitalize);
-        competenceCourseInformation.setAcronym(initials);
     }
 
     public Stream<BibliographicReference> findBibliographies() {

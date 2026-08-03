@@ -45,7 +45,6 @@ enum org.fenixedu.academic.domain.curriculum.CurricularCourseType               
 enum org.fenixedu.academic.domain.curriculum.EnrollmentCondition                                                       as EnrollmentCondition;
 enum org.fenixedu.academic.domain.curriculum.EnrollmentState                                                           as EnrollmentState;
 enum org.fenixedu.academic.domain.degreeStructure.BranchType                                                           as BranchType;
-enum org.fenixedu.academic.domain.degreeStructure.CurricularStage                                                      as CurricularStage;
 enum org.fenixedu.academic.domain.degreeStructure.CycleType                                                            as CycleType;
 enum org.fenixedu.academic.domain.degreeStructure.RegimeType                                                           as degreeStructure.RegimeType;
 enum org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutionType                                    as AcademicalInstitutionType;
@@ -420,7 +419,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
 
     class DegreeCurricularPlan  {
-        CurricularStage curricularStage;
        	boolean active;
         Integer degreeDuration;
         String description;

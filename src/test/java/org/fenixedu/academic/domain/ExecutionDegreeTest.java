@@ -13,7 +13,6 @@ import java.util.SortedSet;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
@@ -74,7 +73,6 @@ public class ExecutionDegreeTest {
     private static ExecutionDegree createExecutionDegree(Degree degree, String dcpName, ExecutionYear year) {
         DegreeCurricularPlan dcp =
                 new DegreeCurricularPlan(degree, dcpName, AcademicPeriod.THREE_YEAR, year.getFirstExecutionPeriod());
-        dcp.setCurricularStage(CurricularStage.APPROVED);
         return dcp.createExecutionDegree(year);
     }
 

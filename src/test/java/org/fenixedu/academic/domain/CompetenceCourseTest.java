@@ -19,7 +19,6 @@ import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -88,7 +87,6 @@ public class CompetenceCourseTest {
         degree.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
 
         testDegreeCurricularPlan = new DegreeCurricularPlan(degree, "CC_DCP", AcademicPeriod.THREE_YEAR);
-        testDegreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
 
         CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, testDegreeCurricularPlan.getDegreeStructure());
         firstSemester = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);

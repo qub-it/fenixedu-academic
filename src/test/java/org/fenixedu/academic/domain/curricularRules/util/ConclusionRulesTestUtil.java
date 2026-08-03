@@ -38,7 +38,6 @@ import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -115,7 +114,6 @@ public class ConclusionRulesTestUtil {
 
         final DegreeCurricularPlan degreeCurricularPlan =
                 degree.createDegreeCurricularPlan(name, user.getPerson(), AcademicPeriod.THREE_YEAR);
-        degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
         degreeCurricularPlan.setCurricularRuleValidationType(EnrolmentModel.YEAR);
         final CurricularPeriod firstYearPeriod =
                 new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());

@@ -24,7 +24,6 @@ import org.fenixedu.academic.domain.curricularRules.EnrolmentToBeApprovedByCoord
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
 import org.fenixedu.bennu.core.domain.User;
@@ -61,7 +60,6 @@ public class StudentCurriculumBeanForEnrolmentTest {
 
         final DegreeCurricularPlan degreeCurricularPlan =
                 degree.createDegreeCurricularPlan("Plan 1", user.getPerson(), AcademicPeriod.THREE_YEAR);
-        degreeCurricularPlan.setCurricularStage(CurricularStage.APPROVED);
         final CurricularPeriod firstYearPeriod =
                 new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
         new CurricularPeriod(AcademicPeriod.SEMESTER, 1, firstYearPeriod);

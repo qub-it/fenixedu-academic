@@ -11,7 +11,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
@@ -51,7 +50,6 @@ public class ProfessorshipTest {
 
             degreeB = DegreeTest.createDegree(degreeA.getDegreeType(), DEGREE_B_CODE, "Degree B", executionYear);
             dcpB = new DegreeCurricularPlan(degreeB, DCP_B_NAME, AcademicPeriod.THREE_YEAR);
-            dcpB.setCurricularStage(CurricularStage.APPROVED);
             final CurricularCourse ccB = new CurricularCourse(0d, competenceCourse, dcpB.getRoot(),
                     new CurricularPeriod(AcademicPeriod.YEAR, 1, dcpB.getDegreeStructure()), executionInterval, null);
 

@@ -44,7 +44,6 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.BranchType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.CurricularStage;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -141,7 +140,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         setName(name);
         createDefaultCourseGroups();
         editDuration(duration);
-        setCurricularStage(CurricularStage.APPROVED);
     }
 
     public DegreeCurricularPlan(final Degree degree, final String name, final AcademicPeriod duration,
@@ -156,7 +154,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         setName(name);
         createDefaultCourseGroups();
         editDuration(duration);
-        setCurricularStage(CurricularStage.APPROVED);
         initBeginExecutionPeriodForDegreeCurricularPlan(getRoot(), begin.getExecutionYear().getFirstExecutionPeriod());
     }
 
@@ -210,10 +207,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     @Deprecated
     public boolean isEmpty() {
         return false;
-    }
-
-    private boolean isDraft() {
-        return getCurricularStage() == CurricularStage.DRAFT;
     }
 
     public boolean isActive() {
@@ -633,16 +626,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return result;
     }
 
-    static public List<DegreeCurricularPlan> readByCurricularStage(final CurricularStage curricularStage) {
-        final List<DegreeCurricularPlan> result = new ArrayList<>();
-        for (final DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-            if (degreeCurricularPlan.getCurricularStage().equals(curricularStage)) {
-                result.add(degreeCurricularPlan);
-            }
-        }
-        return result;
-    }
-
     public static DegreeCurricularPlan readByNameAndDegreeSigla(final String name, final String degreeSigla) {
         for (final DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
             if (degreeCurricularPlan.getName().equalsIgnoreCase(name)
@@ -654,11 +637,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public ExecutionDegree createExecutionDegree(final ExecutionYear executionYear) {
-
-        if (isDraft()) {
-            throw new DomainException("degree.curricular.plan.not.approved.cannot.create.execution.degree", this.getName());
-        }
-
         if (this.hasAnyExecutionDegreeFor(executionYear)) {
             throw new DomainException("degree.curricular.plan.already.has.execution.degree.for.this.year", this.getName(),
                     executionYear.getYear());
