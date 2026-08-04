@@ -58,13 +58,8 @@ public abstract class PartyContact extends PartyContact_Base {
         }
     }
 
-    public static Comparator<PartyContact> COMPARATOR_BY_TYPE = new Comparator<PartyContact>() {
-        @Override
-        public int compare(final PartyContact contact, final PartyContact otherContact) {
-            int result = contact.getType().compareTo(otherContact.getType());
-            return result == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(contact, otherContact) : result;
-        }
-    };
+    public static final Comparator<PartyContact> COMPARATOR_BY_TYPE =
+            Comparator.comparing(PartyContact::getType).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected PartyContact() {
         super();
@@ -99,9 +94,9 @@ public abstract class PartyContact extends PartyContact_Base {
         checkParameters(party, type);
         super.setParty(party);
         super.setType(type);
-        setVisibleToPublic(new Boolean(visibleToPublic));
-        setVisibleToStudents(new Boolean(visibleToStudents));
-        setVisibleToStaff(new Boolean(visibleToStaff));
+        setVisibleToPublic(visibleToPublic);
+        setVisibleToStudents(visibleToStudents);
+        setVisibleToStaff(visibleToStaff);
         setDefaultContactInformation(defaultContact);
         setLastModifiedDate(new DateTime());
     }
@@ -115,7 +110,7 @@ public abstract class PartyContact extends PartyContact_Base {
     @Override
     public void setVisibleToPublic(final Boolean visibleToPublic) {
         super.setVisibleToPublic(visibleToPublic);
-        if (visibleToPublic.booleanValue()) {
+        if (Boolean.TRUE.equals(visibleToPublic)) {
             super.setVisibleToStudents(Boolean.TRUE);
             super.setVisibleToStaff(Boolean.TRUE);
         }
@@ -124,7 +119,7 @@ public abstract class PartyContact extends PartyContact_Base {
     @Override
     public void setVisibleToStudents(final Boolean visibleToStudents) {
         super.setVisibleToStudents(visibleToStudents);
-        if (!visibleToStudents.booleanValue()) {
+        if (Boolean.FALSE.equals(visibleToStudents)) {
             super.setVisibleToPublic(Boolean.FALSE);
         }
     }
@@ -132,7 +127,7 @@ public abstract class PartyContact extends PartyContact_Base {
     @Override
     public void setVisibleToStaff(final Boolean visibleToStaff) {
         super.setVisibleToStaff(visibleToStaff);
-        if (!visibleToStaff.booleanValue()) {
+        if (Boolean.FALSE.equals(visibleToStaff)) {
             super.setVisibleToPublic(Boolean.FALSE);
         }
     }
@@ -147,10 +142,7 @@ public abstract class PartyContact extends PartyContact_Base {
         if (getVisibleToStaff() && ContactRoot.getInstance().getStaffVisibility().isMember(Authenticate.getUser())) {
             return true;
         }
-        if (ContactRoot.getInstance().getManagementVisibility().isMember(Authenticate.getUser())) {
-            return true;
-        }
-        return false;
+        return ContactRoot.getInstance().getManagementVisibility().isMember(Authenticate.getUser());
     }
 
     public void setDefaultContactInformation(final boolean defaultContact) {
@@ -202,20 +194,11 @@ public abstract class PartyContact extends PartyContact_Base {
     }
 
     public boolean isDefault() {
-        return hasDefaultContactValue() && getDefaultContact().booleanValue();
-    }
-
-    private boolean hasDefaultContactValue() {
-        return getDefaultContact() != null;
+        return Boolean.TRUE.equals(getDefaultContact());
     }
 
     public boolean isInstitutionalType() {
         return getType() == PartyContactType.INSTITUTIONAL;
-    }
-
-    @Deprecated
-    public boolean isWorkType() {
-        return getType() == PartyContactType.WORK;
     }
 
     @Deprecated
@@ -290,11 +273,8 @@ public abstract class PartyContact extends PartyContact_Base {
 
     public void setAnotherContactAsDefault() {
         if (isDefault()) {
-            final List<PartyContact> contacts = (List<PartyContact>) getParty().getPartyContacts(getClass());
-            if (!contacts.isEmpty() && contacts.size() > 1) {
-                contacts.remove(this);
-                contacts.iterator().next().setDefaultContact(Boolean.TRUE);
-            }
+            getParty().getPartyContactStream(getClass()).filter(contact -> contact != this).findFirst()
+                    .ifPresent(contact -> contact.setDefaultContact(Boolean.TRUE));
         }
     }
 
