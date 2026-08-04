@@ -601,7 +601,7 @@ public class Person extends Person_Base {
         }
 
         return getPartyContactsSet().stream().filter(PartyContact::isEmailAddress).filter(PartyContact::isActiveAndValid)
-                .filter(PartyContact::isValid).map(EmailAddress.class::cast).findFirst().orElse(null);
+                .map(EmailAddress.class::cast).findFirst().orElse(null);
     }
 
     public String getEmailForSendingEmails() {
