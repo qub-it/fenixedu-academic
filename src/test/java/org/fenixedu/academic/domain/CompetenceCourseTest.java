@@ -42,7 +42,7 @@ public class CompetenceCourseTest {
     public static final String COURSE_A_CODE = "CA";
     public static final String COURSE_B_CODE = "CB"; // annual
 
-    private static ExecutionYear executionYear, nextExecutionYear;
+    private static ExecutionYear previousExecutionYear, executionYear, nextExecutionYear;
     private static ExecutionInterval executionInterval;
     private static CurricularPeriod firstSemester;
     private static CompetenceCourse competenceCourseA, competenceCourseB;
@@ -70,6 +70,7 @@ public class CompetenceCourseTest {
 
         executionYear = ExecutionYear.findCurrent(null);
         executionInterval = executionYear.getFirstExecutionPeriod();
+        previousExecutionYear = (ExecutionYear) executionYear.getPrevious();
         nextExecutionYear = (ExecutionYear) executionYear.getNext();
         coursesUnit = Unit.findInternalUnitByAcronymPath(COURSES_UNIT_PATH).orElseThrow();
 
@@ -312,7 +313,27 @@ public class CompetenceCourseTest {
     }
 
     @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withNull() {
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(null));
+
+        // Creating a new CompetenceCourseInformation in execution interval
+        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
+
+        // Most recent information will still be the one associated with nextExecutionYear.getFirstExecutionPeriod()
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(null));
+
+        // Set newInformation's executionInterval to nextExecutionYear.getLastExecutionPeriod() making it the most recent information
+        newInformation.setExecutionInterval(nextExecutionYear.getLastExecutionPeriod());
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(null));
+    }
+
+    @Test
     public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionInterval() {
+        // Querying with an interval before the first information returns the oldest information
+        assertEquals(courseInformation,
+                competenceCourseA.findInformationMostRecentUntil(previousExecutionYear.getFirstExecutionPeriod()));
+
         assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionInterval));
 
         // Creating a new CompetenceCourseInformation in the same execution interval
@@ -327,6 +348,9 @@ public class CompetenceCourseTest {
 
     @Test
     public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionYear() {
+        // Querying with an interval before the first information returns the oldest information
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(previousExecutionYear));
+
         assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionYear));
 
         // Creating a new CompetenceCourseInformation in the next execution year
