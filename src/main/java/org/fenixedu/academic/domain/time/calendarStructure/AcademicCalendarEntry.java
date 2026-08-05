@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -32,6 +33,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.chronologies.AcademicChronology;
 import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -39,15 +41,8 @@ import org.joda.time.DateTime;
 
 public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
 
-    public static final Comparator<AcademicCalendarEntry> COMPARATOR_BY_BEGIN_DATE = new Comparator<AcademicCalendarEntry>() {
-
-        @Override
-        public int compare(final AcademicCalendarEntry o1, final AcademicCalendarEntry o2) {
-            int c1 = o1.getBegin().compareTo(o2.getBegin());
-            return c1 == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c1;
-        }
-
-    };
+    public static final Comparator<AcademicCalendarEntry> COMPARATOR_BY_BEGIN_DATE =
+            Comparator.comparing(AcademicCalendarEntry::getBegin).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected AcademicCalendarEntry() {
         super();
@@ -144,7 +139,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     }
 
     private void setTimeInterval(DateTime begin, DateTime end) {
-
         if (begin == null) {
             throw new DomainException("error.AcademicCalendarEntry.empty.begin.dateTime");
         }
@@ -168,7 +162,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     }
 
     private void refreshParentTimeInterval() {
-
         AcademicCalendarEntry parentEntry = getParentEntry();
 
         if (!parentEntry.isRoot()) {
@@ -202,11 +195,9 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     }
 
     private GenericPair<DateTime, DateTime> getChildMaxAndMinDateTimes() {
-
         Set<AcademicCalendarEntry> childEntries = getChildEntriesSet();
 
         if (!childEntries.isEmpty()) {
-
             DateTime begin = null;
             DateTime end = null;
 
@@ -220,14 +211,13 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
             }
 
             return new GenericPair<DateTime, DateTime>(begin, end);
-
         } else {
             return null;
         }
     }
 
     public List<AcademicCalendarEntry> getFullPath() {
-        List<AcademicCalendarEntry> result = new ArrayList<AcademicCalendarEntry>();
+        List<AcademicCalendarEntry> result = new ArrayList<>();
         result.add(this);
         AcademicCalendarEntry parentEntry = getParentEntry();
         while (parentEntry != null) {
@@ -249,7 +239,7 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     public LocalizedString getType() {
         LocalizedString type = new LocalizedString();
         String key = "label." + getClass().getSimpleName() + ".type";
-        type = type.with(org.fenixedu.academic.util.LocaleUtils.PT,
+        type = type.with(LocaleUtils.PT,
                 BundleUtil.getString(Bundle.MANAGER, new Locale("pt", "PT"), key));
         return type;
     }
@@ -282,14 +272,10 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         if (subEntryAcademicPeriod == null) {
             return Collections.emptyList();
         }
-        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
-        for (AcademicCalendarEntry child : getChildEntriesSet()) {
-            if (subEntryAcademicPeriod.equals(child.getAcademicPeriod())) {
-                allChildEntries.add(child);
-            }
-            allChildEntries.addAll(child.getAllChildEntries(subEntryAcademicPeriod));
-        }
-        return allChildEntries;
+
+        return getChildEntriesSet().stream().flatMap(
+                child -> Stream.concat(Stream.of(child).filter(ce -> subEntryAcademicPeriod.equals(ce.getAcademicPeriod())),
+                        child.getAllChildEntries(subEntryAcademicPeriod).stream())).collect(Collectors.toList());
     }
 
     public boolean belongsToPeriod(DateTime begin, DateTime end) {
@@ -317,27 +303,15 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     }
 
     public AcademicCalendarEntry getNextAcademicCalendarEntry() {
-        AcademicCalendarEntry closest = null;
-        for (AcademicCalendarEntry entry : this.getRootEntry().getAllChildEntries(this.getAcademicPeriod())) {
-            if (entry.getBegin().isAfter(this.getBegin())) {
-                if (closest == null || entry.getBegin().isBefore(closest.getBegin())) {
-                    closest = entry;
-                }
-            }
-        }
-        return closest;
+        return getRootEntry().getAllChildEntries(getAcademicPeriod()).stream()
+                .filter(entry -> entry.getBegin().isAfter(getBegin())).min(Comparator.comparing(AcademicCalendarEntry::getBegin))
+                .orElse(null);
     }
 
     public AcademicCalendarEntry getPreviousAcademicCalendarEntry() {
-        AcademicCalendarEntry closest = null;
-        for (AcademicCalendarEntry entry : this.getRootEntry().getAllChildEntries(this.getAcademicPeriod())) {
-            if (entry.getBegin().isBefore(this.getBegin())) {
-                if (closest == null || entry.getBegin().isAfter(closest.getBegin())) {
-                    closest = entry;
-                }
-            }
-        }
-        return closest;
+        return getRootEntry().getAllChildEntries(getAcademicPeriod()).stream()
+                .filter(entry -> entry.getBegin().isBefore(getBegin())).max(Comparator.comparing(AcademicCalendarEntry::getBegin))
+                .orElse(null);
     }
 
     /**
@@ -349,13 +323,12 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         final AcademicPeriod academicPeriod = getAcademicPeriod();
 
         // not using directly getChildEntries(academicPeriod) in order optimize performance avoiding unecessary list collect, because this method will be invoked intensively
-        return getParentEntry() != null ? getParentEntry().getChildEntriesSet().stream()
-                .filter(e -> e.getAcademicPeriod().equals(academicPeriod)).sorted(COMPARATOR_BY_BEGIN_DATE)
-                .collect(Collectors.toList()).indexOf(this) + 1 : 0;
+        return getParentEntry() != null ?
+                getParentEntry().getChildEntriesSet().stream().filter(e -> e.getAcademicPeriod().equals(academicPeriod))
+                        .sorted(COMPARATOR_BY_BEGIN_DATE).toList().indexOf(this) + 1 : 0;
     }
 
     public static AcademicCalendarEntry findDefaultCalendar() {
         return Bennu.getInstance().getDefaultAcademicCalendar();
     }
-
 }
