@@ -16,6 +16,10 @@ public class IdentificationDocumentTypeBridgeForDeprecatedServiceRequestDTO {
         this.identificationDocumentType = identificationDocumentType;
     }
 
+    public String getLocalizedName() {
+        return identificationDocumentType != null ? identificationDocumentType.getName().getContent() : null;
+    }
+
     public LocalizedString getLocalizedNameI18N() {
         return identificationDocumentType != null ? identificationDocumentType.getName() : null;
     }
