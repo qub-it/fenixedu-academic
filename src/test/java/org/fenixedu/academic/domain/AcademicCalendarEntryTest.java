@@ -1,6 +1,7 @@
 package org.fenixedu.academic.domain;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -123,5 +124,83 @@ public class AcademicCalendarEntryTest {
 
         // firstEntry.getPrevious returns null
         assertNull(semester1_2025.getPreviousAcademicCalendarEntry());
+    }
+
+    // -------------------------------
+    // AcademicCalendarRootEntry tests
+    // -------------------------------
+
+    @Test
+    public void testAcademicCalendarRootEntry_getBegin() {
+        assertEquals(year2025.getBegin(), rootEntry.getBegin());
+        assertNotEquals(year2026.getBegin(), rootEntry.getBegin());
+    }
+
+    @Test
+    public void testAcademicCalendarRootEntry_getEntryByInstant() {
+        long instant = new DateTime(2026, 2, 15, 12, 0).getMillis();
+
+        assertEquals(year2025, rootEntry.getEntryByInstant(instant, AcademicPeriod.YEAR));
+        assertEquals(semester2_2025, rootEntry.getEntryByInstant(instant, AcademicPeriod.SEMESTER));
+
+        instant = new DateTime(2026, 10, 15, 12, 0).getMillis();
+
+        assertEquals(year2026, rootEntry.getEntryByInstant(instant, AcademicPeriod.YEAR));
+        assertEquals(semester1_2026, rootEntry.getEntryByInstant(instant, AcademicPeriod.SEMESTER));
+
+        // Test for invalid instants
+        instant = new DateTime(2020, 1, 1, 0, 0).getMillis();
+
+        assertNull(rootEntry.getEntryByInstant(instant, AcademicPeriod.YEAR));
+        assertNull(rootEntry.getEntryByInstant(instant, AcademicPeriod.SEMESTER));
+
+        instant = new DateTime(2028, 1, 1, 0, 0).getMillis();
+
+        assertNull(rootEntry.getEntryByInstant(instant, AcademicPeriod.YEAR));
+        assertNull(rootEntry.getEntryByInstant(instant, AcademicPeriod.SEMESTER));
+    }
+
+    @Test
+    public void testAcademicCalendarRootEntry_getEntryIndexByInstant() {
+        long instant = new DateTime(2026, 2, 15, 12, 0).getMillis();
+
+        assertEquals(Integer.valueOf(1), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
+        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+
+        instant = new DateTime(2026, 10, 15, 12, 0).getMillis();
+
+        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
+        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+
+        // Test for invalid instant
+        instant = new DateTime(2020, 1, 1, 0, 0).getMillis();
+
+        assertNull(rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
+        assertNull(rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+
+        // Scenario in the future: check branch entry.getEnd().isBefore(instant) of getEntryIndexByInstant
+        instant = new DateTime(2028, 1, 1, 0, 0).getMillis();
+
+        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
+        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+    }
+
+    @Test
+    public void testAcademicCalendarRootEntry_getEntryByIndex() {
+        assertEquals(year2025, rootEntry.getEntryByIndex(1, AcademicPeriod.YEAR));
+        assertEquals(year2026, rootEntry.getEntryByIndex(2, AcademicPeriod.YEAR));
+
+        assertEquals(semester1_2025, rootEntry.getEntryByIndex(1, AcademicPeriod.SEMESTER));
+        assertEquals(semester2_2025, rootEntry.getEntryByIndex(2, AcademicPeriod.SEMESTER));
+        assertEquals(semester1_2026, rootEntry.getEntryByIndex(3, AcademicPeriod.SEMESTER));
+
+        assertNull(rootEntry.getEntryByIndex(0, AcademicPeriod.YEAR));
+        assertNull(rootEntry.getEntryByIndex(4, AcademicPeriod.SEMESTER));
+    }
+
+    @Test
+    public void testAcademicCalendarRootEntry_getAcademicCalendarByTitle() {
+        assertEquals(rootEntry, AcademicCalendarRootEntry.getAcademicCalendarByTitle("Test Calendar"));
+        assertNull(AcademicCalendarRootEntry.getAcademicCalendarByTitle("Non Existent Calendar"));
     }
 }
