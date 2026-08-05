@@ -1,3 +1,4 @@
+58.0.0 (05-08-2026)
 - Refactor: Deletes unused isEnroledInSpecialSeason domain method [#qubIT-Fenix-8839]
 - Refactor: AccountabilityType domain methods [#qubIT-Fenix-9118]
 - Refactor: Improve Accountability domain methods [#qubIT-Fenix-9132]
