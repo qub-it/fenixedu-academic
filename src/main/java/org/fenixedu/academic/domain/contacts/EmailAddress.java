@@ -30,11 +30,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.joda.time.DateTime;
 
 public class EmailAddress extends EmailAddress_Base {
-
-    static {
-        setResolver(EmailAddress.class, (pc) -> ((EmailAddress) pc).getValue());
-    }
-
+    
     public static Comparator<EmailAddress> COMPARATOR_BY_EMAIL = new Comparator<EmailAddress>() {
         @Override
         public int compare(final EmailAddress contact, final EmailAddress otherContact) {
@@ -95,6 +91,11 @@ public class EmailAddress extends EmailAddress_Base {
         if (!EmailValidator.getInstance().isValid(value)) {
             throw new DomainException("error.domain.contacts.EmailAddress.invalid.format", value);
         }
+    }
+
+    @Override
+    public String getPresentationValue() {
+        return getValue();
     }
 
     @Override

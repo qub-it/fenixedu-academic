@@ -31,29 +31,6 @@ import org.joda.time.DateTime;
 
 public class PhysicalAddress extends PhysicalAddress_Base {
 
-    static {
-        setResolver(PhysicalAddress.class, (pc) -> ((PhysicalAddress) pc).getPhysicalAddressPresentationValue());
-    }
-
-    private String getPhysicalAddressPresentationValue() {
-        StringBuilder sb = new StringBuilder(getAddress());
-
-        if (StringUtils.isNotBlank(getPostalCode())) {
-            sb.append(", ").append(getPostalCode().trim());
-        }
-
-        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotBlank(
-                getDistrictSubdivisionOfResidence())) {
-            sb.append(", ").append(getDistrictSubdivisionOfResidence());
-        }
-
-        if (getCountryOfResidence() != null) {
-            sb.append(", ").append(getCountryOfResidence().getCode());
-        }
-
-        return sb.toString();
-    }
-
     public static Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS = new Comparator<PhysicalAddress>() {
         @Override
         public int compare(final PhysicalAddress contact, final PhysicalAddress otherContact) {
@@ -160,6 +137,26 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         if (getCountryOfResidence() == null) {
             throw new DomainException("error.PhysicalAddres.countryOfResidence.required");
         }
+    }
+
+    @Override
+    public String getPresentationValue() {
+        StringBuilder sb = new StringBuilder(getAddress());
+
+        if (StringUtils.isNotBlank(getPostalCode())) {
+            sb.append(", ").append(getPostalCode().trim());
+        }
+
+        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotBlank(
+                getDistrictSubdivisionOfResidence())) {
+            sb.append(", ").append(getDistrictSubdivisionOfResidence());
+        }
+
+        if (getCountryOfResidence() != null) {
+            sb.append(", ").append(getCountryOfResidence().getCode());
+        }
+
+        return sb.toString();
     }
 
     @Override
