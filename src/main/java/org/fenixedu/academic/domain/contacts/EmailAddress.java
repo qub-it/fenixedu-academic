@@ -35,22 +35,9 @@ public class EmailAddress extends EmailAddress_Base {
         setResolver(EmailAddress.class, (pc) -> ((EmailAddress) pc).getValue());
     }
 
-    public static Comparator<EmailAddress> COMPARATOR_BY_EMAIL = new Comparator<EmailAddress>() {
-        @Override
-        public int compare(final EmailAddress contact, final EmailAddress otherContact) {
-            final String value = contact.getValue();
-            final String otherValue = otherContact.getValue();
-            int result = 0;
-            if (value != null && otherValue != null) {
-                result = value.compareTo(otherValue);
-            } else if (value != null) {
-                result = 1;
-            } else if (otherValue != null) {
-                result = -1;
-            }
-            return result == 0 ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static Comparator<EmailAddress> COMPARATOR_BY_EMAIL =
+            Comparator.comparing(EmailAddress::getValue, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
             final Boolean isDefault, final Boolean visibleToPublic, final Boolean visibleToStudents,
