@@ -1,3 +1,4 @@
+- Refactor: EmailAddress domain methods [#qubIT-Fenix-9195]
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Refactor: Improves Context domain methods and adds unit tests [#qubIT-Fenix-9112]
 
