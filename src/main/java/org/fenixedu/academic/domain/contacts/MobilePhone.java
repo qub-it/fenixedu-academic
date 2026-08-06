@@ -28,39 +28,19 @@ import org.joda.time.DateTime;
 
 public class MobilePhone extends MobilePhone_Base {
 
-    public static Comparator<MobilePhone> COMPARATOR_BY_NUMBER = new Comparator<MobilePhone>() {
-        @Override
-        public int compare(MobilePhone contact, MobilePhone otherContact) {
-            final String number = contact.getNumber();
-            final String otherNumber = otherContact.getNumber();
-            int result = 0;
-            if (number != null && otherNumber != null) {
-                result = number.compareTo(otherNumber);
-            } else if (number != null) {
-                result = 1;
-            } else if (otherNumber != null) {
-                result = -1;
-            }
-            return (result == 0) ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static Comparator<MobilePhone> COMPARATOR_BY_NUMBER =
+            Comparator.comparing(MobilePhone::getNumber, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, Boolean isDefault,
             Boolean visibleToPublic, Boolean visibleToStudents, Boolean visibleToStaff) {
-        MobilePhone result = null;
-        if (!StringUtils.isEmpty(number)) {
-            result = new MobilePhone(party, type, visibleToPublic, visibleToStudents, visibleToStaff, isDefault, number);
-        }
-        return result;
+        return !StringUtils.isEmpty(number) ? new MobilePhone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
+                isDefault, number) : null;
     }
 
     public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, boolean isDefault) {
-        for (MobilePhone phone : party.getMobilePhones()) {
-            if (phone.getNumber().equals(number)) {
-                return phone;
-            }
-        }
-        return (!StringUtils.isEmpty(number)) ? new MobilePhone(party, type, isDefault, number) : null;
+        return party.getMobilePhones().stream().filter(phone -> phone.getNumber().equals(number)).findFirst()
+                .orElseGet(() -> !StringUtils.isEmpty(number) ? new MobilePhone(party, type, isDefault, number) : null);
     }
 
     protected MobilePhone() {
