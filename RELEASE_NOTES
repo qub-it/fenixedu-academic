@@ -1,3 +1,4 @@
+59.0.0 (07-08-2026)
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Refactor: Person domain methods [#qubIT-Fenix-9126]
 - Refactor: Remove deprecated enum CurricularStage [#qubIT-Fenix-4442]
