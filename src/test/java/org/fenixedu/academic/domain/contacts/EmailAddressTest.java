@@ -79,7 +79,9 @@ public class EmailAddressTest {
         validEmail.setValid();
 
         // same value but never validated, must be excluded
-        EmailAddress.createEmailAddress(person, sharedValue, PartyContactType.PERSONAL, true);
+        final Person person2 = createPerson("Person2", "person2");
+        final EmailAddress invalidEmail = EmailAddress.createEmailAddress(person2, sharedValue, PartyContactType.PERSONAL, true);
+        assertEquals(invalidEmail.getValue(), validEmail.getValue());
 
         final List<EmailAddress> matches = EmailAddress.findAllActiveAndValid(sharedValue).toList();
         assertEquals(1, matches.size());
