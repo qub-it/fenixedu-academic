@@ -316,7 +316,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     @Override
     public boolean isDissertation() {
         CompetenceCourse competenceCourse = getCompetenceCourse();
-        return competenceCourse != null && competenceCourse.isDissertation();
+        return competenceCourse != null && competenceCourse.isFinalWork();
     }
 
     public boolean isAnual() {
