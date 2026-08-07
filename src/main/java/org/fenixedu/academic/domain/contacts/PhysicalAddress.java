@@ -141,22 +141,23 @@ public class PhysicalAddress extends PhysicalAddress_Base {
 
     @Override
     public String getPresentationValue() {
-        StringBuilder sb = new StringBuilder(getAddress());
+        List<String> addressParts = new ArrayList<>();
+        addressParts.add(getAddress());
 
         if (StringUtils.isNotBlank(getPostalCode())) {
-            sb.append(", ").append(getPostalCode().trim());
+            addressParts.add(getPostalCode().trim());
         }
 
-        if (getCountryOfResidence() != null && !getCountryOfResidence().isDefaultCountry() && StringUtils.isNotBlank(
-                getDistrictSubdivisionOfResidence())) {
-            sb.append(", ").append(getDistrictSubdivisionOfResidence());
+        Country country = getCountryOfResidence();
+        if (country != null) {
+            if (!country.isDefaultCountry() && StringUtils.isNotBlank(getDistrictSubdivisionOfResidence())) {
+                addressParts.add(getDistrictSubdivisionOfResidence());
+            }
+
+            addressParts.add(country.getCode());
         }
 
-        if (getCountryOfResidence() != null) {
-            sb.append(", ").append(getCountryOfResidence().getCode());
-        }
-
-        return sb.toString();
+        return String.join(", ", addressParts);
     }
 
     @Override
