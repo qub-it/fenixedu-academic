@@ -5,10 +5,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
+import java.util.Set;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.UserProfile;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,5 +101,57 @@ public class PartyContactTest {
         // set another contact as default
         email.setAnotherContactAsDefault();
         assertTrue(email2.isDefault());
+    }
+
+    @Test
+    public void testGetPresentationValue() {
+        Person person = createPerson("Person", "person");
+
+        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
+        assertEquals("test@example.com", email.getPresentationValue());
+
+        Phone phone = Phone.createPhone(person, "911111111", PartyContactType.PERSONAL, true);
+        assertEquals("911111111", phone.getPresentationValue());
+
+        MobilePhone mobile = MobilePhone.createMobilePhone(person, "922222222", PartyContactType.PERSONAL, true);
+        assertEquals("922222222", mobile.getPresentationValue());
+
+        WebAddress web = WebAddress.createWebAddress(person, "http://example.com", PartyContactType.PERSONAL, true);
+        assertEquals("http://example.com", web.getPresentationValue());
+
+        Country portugal =
+                new Country(new LocalizedString(Locale.ENGLISH, "Portugal"), new LocalizedString(Locale.ENGLISH, "Portuguese"),
+                        "PT", "PRT");
+        PhysicalAddressData data = new PhysicalAddressData("Rua X", "1000", "Lisboa", null, null, "Lisboa", null, portugal);
+        PhysicalAddress physical = PhysicalAddress.createPhysicalAddress(person, data, PartyContactType.PERSONAL, true);
+        assertEquals("Rua X, 1000 Lisboa, Lisboa, PT", physical.getPresentationValue());
+    }
+
+    @Test
+    public void testReadPartyContactsOfType() {
+        Person person = createPerson("Person", "person");
+        Person otherPerson = createPerson("Other Person", "other.person");
+
+        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress otherEmail =
+                EmailAddress.createEmailAddress(otherPerson, "other@example.com", PartyContactType.PERSONAL, true);
+        Phone phone = Phone.createPhone(person, "911111111", PartyContactType.PERSONAL, true);
+        MobilePhone mobile = MobilePhone.createMobilePhone(person, "922222222", PartyContactType.PERSONAL, true);
+
+        // single type
+        Set<PartyContact> emails = PartyContact.readPartyContactsOfType(EmailAddress.class);
+        assertTrue(emails.contains(email));
+        assertTrue(emails.contains(otherEmail));
+        assertFalse(emails.contains(phone));
+        assertTrue(emails.stream().allMatch(EmailAddress.class::isInstance));
+
+        // multiple types
+        Set<PartyContact> phones = PartyContact.readPartyContactsOfType(Phone.class, MobilePhone.class);
+        assertTrue(phones.contains(phone));
+        assertTrue(phones.contains(mobile));
+        assertFalse(phones.contains(email));
+        assertTrue(phones.stream().allMatch(c -> c instanceof Phone || c instanceof MobilePhone));
+
+        assertTrue(PartyContact.readPartyContactsOfType().isEmpty());
     }
 }

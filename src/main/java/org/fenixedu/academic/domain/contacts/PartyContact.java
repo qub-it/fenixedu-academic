@@ -18,14 +18,13 @@
  */
 package org.fenixedu.academic.domain.contacts;
 
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Person;
@@ -38,25 +37,6 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
 
 public abstract class PartyContact extends PartyContact_Base {
-
-    public interface ContactResolver<T extends PartyContact> {
-        public String getPresentationValue(T partyContact);
-    }
-
-    private static final Map<Class<? extends PartyContact>, ContactResolver<? extends PartyContact>> DEFAULT_RESOLVERS =
-            new HashMap<>();
-
-    private static ContactResolver<? extends PartyContact> getResolver(final Class<?> class1) {
-        synchronized (DEFAULT_RESOLVERS) {
-            return DEFAULT_RESOLVERS.get(class1);
-        }
-    }
-
-    public static void setResolver(final Class<? extends PartyContact> class1, final ContactResolver<?> contactResolver) {
-        synchronized (DEFAULT_RESOLVERS) {
-            DEFAULT_RESOLVERS.put(class1, contactResolver);
-        }
-    }
 
     public static final Comparator<PartyContact> COMPARATOR_BY_TYPE =
             Comparator.comparing(PartyContact::getType).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
@@ -188,10 +168,7 @@ public abstract class PartyContact extends PartyContact_Base {
         setDefaultContactInformation(defaultContact);
     }
 
-    public String getPresentationValue() {
-        final ContactResolver resolver = getResolver(getClass());
-        return resolver == null ? null : resolver.getPresentationValue(this);
-    }
+    public abstract String getPresentationValue();
 
     public boolean isDefault() {
         return Boolean.TRUE.equals(getDefaultContact());
@@ -282,14 +259,9 @@ public abstract class PartyContact extends PartyContact_Base {
         return getType().name();
     }
 
+    @Deprecated
     public static Set<PartyContact> readPartyContactsOfType(final Class<? extends PartyContact>... contactClasses) {
-        Set<PartyContact> contacts = new HashSet<PartyContact>();
-
-        for (Class<? extends PartyContact> clazz : contactClasses) {
-            contacts.addAll(getAllInstancesOf(clazz));
-        }
-
-        return contacts;
+        return Arrays.stream(contactClasses).flatMap(PartyContact::findAllByType).collect(Collectors.toSet());
     }
 
     // getActive() isValid() Result
@@ -321,13 +293,6 @@ public abstract class PartyContact extends PartyContact_Base {
         if (getPrevPartyContact() != null) {
             getPrevPartyContact().deleteWithoutCheckRules();
         }
-    }
-
-    public boolean isValidationCodeGenerated() {
-        if (getPartyContactValidation() != null) {
-            return getPartyContactValidation().getToken() != null;
-        }
-        return false;
     }
 
     /***************************************************************************
@@ -528,8 +493,7 @@ public abstract class PartyContact extends PartyContact_Base {
         }
     }
 
-    private static Set<PartyContact> getAllInstancesOf(final Class<? extends PartyContact> type) {
-        return ContactRoot.getInstance().getPartyContactsSet().stream().filter(type::isInstance).collect(Collectors.toSet());
+    public static Stream<PartyContact> findAllByType(final Class<? extends PartyContact> type) {
+        return ContactRoot.getInstance().getPartyContactsSet().stream().filter(type::isInstance);
     }
-
 }

@@ -12,6 +12,7 @@
 - Refactor: Remove District readBy methods [#qubIT-Fenix-9019]
 - Refactor: Person class stream/lambda conversion and unused methods deprecation [#qubIT-Fenix-9126]
 - Refactor: Remove references to deprecated CurricularStage [#qubIT-Fenix-4442]
+- Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Bug Fix: Program conclusion number unique validation [#qubIT-Fenix-9167]
 - Bug Fix: Make identification document type API compatible with legacy odt templates print engines [#UL-FC-6119]
 
