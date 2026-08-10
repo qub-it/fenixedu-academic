@@ -80,13 +80,18 @@ public class Phone extends Phone_Base {
 
     public void edit(final String number) {
         if (!StringUtils.equals(getNumber(), number)) {
-            super.setNumber(number);
+            setNumber(number);
             if (!waitsValidation()) {
                 new PhoneValidation(this);
             }
             setLastModifiedDate(new DateTime());
         }
+    }
 
+    @Override
+    public void setNumber(final String number) {
+        checkParameters(number);
+        super.setNumber(number);
     }
 
     public boolean hasNumber() {

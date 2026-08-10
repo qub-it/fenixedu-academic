@@ -5,12 +5,14 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Comparator;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -110,5 +112,22 @@ public class PhoneTest {
         second.setValid();
         final MobilePhone found = MobilePhone.createMobilePhone(person, number, PartyContactType.PERSONAL, true);
         assertEquals(second, found);
+    }
+
+    @Test
+    public void testSetNumber() {
+        final Person person = createPerson("Person", "set.number.person");
+
+        final Phone phone = Phone.createPhone(person, "910000001", PartyContactType.PERSONAL, true);
+        assertThrows(DomainException.class, () -> phone.setNumber(null));
+        assertThrows(DomainException.class, () -> phone.setNumber(""));
+        phone.setNumber("910000002");
+        assertEquals("910000002", phone.getNumber());
+
+        final MobilePhone mobilePhone = MobilePhone.createMobilePhone(person, "910000003", PartyContactType.PERSONAL, true);
+        assertThrows(DomainException.class, () -> mobilePhone.setNumber(null));
+        assertThrows(DomainException.class, () -> mobilePhone.setNumber(""));
+        mobilePhone.setNumber("910000004");
+        assertEquals("910000004", mobilePhone.getNumber());
     }
 }
