@@ -31,22 +31,9 @@ import org.joda.time.DateTime;
 
 public class PhysicalAddress extends PhysicalAddress_Base {
 
-    public static Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS = new Comparator<PhysicalAddress>() {
-        @Override
-        public int compare(final PhysicalAddress contact, final PhysicalAddress otherContact) {
-            final String address = contact.getAddress();
-            final String otherAddress = otherContact.getAddress();
-            int result = 0;
-            if (address != null && otherAddress != null) {
-                result = address.compareTo(otherAddress);
-            } else if (address != null) {
-                result = 1;
-            } else if (otherAddress != null) {
-                result = -1;
-            }
-            return result == 0 ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static final Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS =
+            Comparator.comparing(PhysicalAddress::getAddress, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     static public PhysicalAddress createPhysicalAddress(final Party party, final PhysicalAddressData data,
             final PartyContactType type, final Boolean isDefault) {
@@ -190,11 +177,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     }
 
     public String getPostalCode() {
-        final StringBuilder result = new StringBuilder();
-        result.append(getAreaCode());
-        result.append(" ");
-        result.append(getAreaOfAreaCode());
-        return result.toString();
+        return getAreaCode() + " " + getAreaOfAreaCode();
     }
 
     @Override
@@ -253,5 +236,4 @@ public class PhysicalAddress extends PhysicalAddress_Base {
 
         return String.join(" ", compounds);
     }
-
 }
