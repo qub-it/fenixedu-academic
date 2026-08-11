@@ -83,11 +83,6 @@ public class Teacher extends Teacher_Base {
      * BUSINESS SERVICES *
      */
 
-    public Professorship isResponsibleFor(ExecutionCourse executionCourse) {
-        return getProfessorships().stream().filter(Professorship::getResponsibleFor)
-                .filter(p -> p.getExecutionCourse() == executionCourse).findFirst().orElse(null);
-    }
-
     /**
      * Gets the latest unit of the teacher (usually the unit represents a department)
      * 
@@ -135,23 +130,6 @@ public class Teacher extends Teacher_Base {
      */
     public TeacherCategory getLastCategory() {
         return getLastCategory(AcademicInterval.readDefaultAcademicInterval(AcademicPeriod.SEMESTER)).orElse(null);
-    }
-
-    public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionYear(ExecutionYear executionYear) {
-        return executionYear.getChildIntervals().stream().flatMap(ei -> getLecturedExecutionCoursesByExecutionPeriod(ei).stream())
-                .collect(Collectors.toList());
-    }
-
-    public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (Professorship professorship : getProfessorships()) {
-            ExecutionCourse executionCourse = professorship.getExecutionCourse();
-
-            if (executionCourse.getExecutionInterval().equals(executionInterval)) {
-                executionCourses.add(executionCourse);
-            }
-        }
-        return executionCourses;
     }
 
     public List<ExecutionCourse> getAllLecturedExecutionCourses() {
@@ -205,17 +183,6 @@ public class Teacher extends Teacher_Base {
 
     public List<Professorship> getProfessorships(ExecutionYear executionYear) {
         return getPerson().getProfessorships(executionYear);
-    }
-
-    public boolean isResponsibleFor(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        for (final ExecutionCourse executionCourse : curricularCourse.getAssociatedExecutionCoursesSet()) {
-            if (executionCourse.getExecutionInterval() == executionInterval) {
-                if (isResponsibleFor(executionCourse) != null) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public void delete() {

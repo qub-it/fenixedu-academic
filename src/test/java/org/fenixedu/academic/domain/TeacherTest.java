@@ -127,30 +127,4 @@ public class TeacherTest {
         assertEquals(teacherNoCategory, teachers.get(3));
         assertEquals(teacherNoCategory2, teachers.get(4));
     }
-
-    @Test
-    public void testTeacher_isResponsibleFor_ExecutionCourse() {
-        assertEquals(professorship1, teacher.isResponsibleFor(executionCourseResponsibleS1));
-        assertNull(teacher.isResponsibleFor(executionCourseNotResponsibleS2));
-        assertNull(teacher.isResponsibleFor(unknownCourse));
-        assertNull(teacher.isResponsibleFor(null));
-    }
-
-    @Test
-    public void testTeacher_getLecturedExecutionCoursesByExecutionYear() {
-        // currentYear
-        List<ExecutionCourse> currentYearCourses = teacher.getLecturedExecutionCoursesByExecutionYear(executionYear);
-        assertEquals(2, currentYearCourses.size());
-        assertTrue(currentYearCourses.contains(executionCourseResponsibleS1));
-        assertTrue(currentYearCourses.contains(executionCourseNotResponsibleS2));
-
-        // nextYear
-        List<ExecutionCourse> nextYearCourses = teacher.getLecturedExecutionCoursesByExecutionYear(nextYear);
-        assertEquals(1, nextYearCourses.size());
-        assertTrue(nextYearCourses.contains(executionCourseResponsibleNextYearS1));
-
-        // previousYear
-        ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
-        assertTrue(teacher.getLecturedExecutionCoursesByExecutionYear(previousYear).isEmpty());
-    }
 }
