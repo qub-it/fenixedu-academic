@@ -251,6 +251,15 @@ public class ContextTest {
         assertTrue(contextCG_root.isOpen(executionInterval));
         assertTrue(contextCG_root.isOpen(executionInterval.getNext()));
         assertTrue(contextCG_root.isOpen(nextYearExecutionInterval));
+
+        // Test Context with non-null end
+        Context newContext =
+                createContext(root, curricularCourseA, firstSemesterSecondYear, executionInterval, executionInterval.getNext());
+
+        assertFalse(newContext.isOpen(previousYearExecutionInterval));
+        assertTrue(newContext.isOpen(executionInterval));
+        assertTrue(newContext.isOpen(executionInterval.getNext()));
+        assertFalse(newContext.isOpen(nextYearExecutionInterval)); // end is before nextExecutionYear
     }
 
     @Test
