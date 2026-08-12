@@ -1,3 +1,4 @@
+- Refactor: Improves DegreeCurricularPlan domain methods [#qubIT-Fenix-9223]
 - Refactor: PhysicalAddress and WebAddress domain methods [#qubIT-Fenix-9195]
 - Refactor: MobilePhone and Phone domain methods [#qubIT-Fenix-9195]
 - Refactor: EmailAddress domain methods [#qubIT-Fenix-9195]
