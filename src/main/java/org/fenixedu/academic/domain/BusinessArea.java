@@ -18,9 +18,6 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -51,25 +48,4 @@ public class BusinessArea extends BusinessArea_Base {
         this(level, code, description);
         setParentArea(parentArea);
     }
-
-    public static List<BusinessArea> getParentBusinessAreas() {
-        List<BusinessArea> parentAreas = new ArrayList<BusinessArea>();
-        for (BusinessArea area : Bennu.getInstance().getBusinessAreasSet()) {
-            if (area.getParentArea() == null) {
-                parentAreas.add(area);
-            }
-        }
-        return parentAreas;
-    }
-
-    public static Object getChildBusinessAreas(BusinessArea parentArea) {
-        List<BusinessArea> childAreas = new ArrayList<BusinessArea>();
-        for (BusinessArea area : Bennu.getInstance().getBusinessAreasSet()) {
-            if (area.getParentArea() != null && area.getParentArea().equals(parentArea)) {
-                childAreas.add(area);
-            }
-        }
-        return childAreas;
-    }
-
 }
