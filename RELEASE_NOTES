@@ -1,3 +1,5 @@
+- Refactor: Job and BusinessArea classes and SalaryType deletion [#qubIT-Fenix-9224]
+
 59.0.0 (07-08-2026)
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Refactor: Person domain methods [#qubIT-Fenix-9126]

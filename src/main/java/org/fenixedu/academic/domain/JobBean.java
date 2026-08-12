@@ -26,9 +26,6 @@ public class JobBean implements Serializable {
 
     static private final long serialVersionUID = 5885003369040710968L;
 
-    private BusinessArea parentBusinessArea;
-    private BusinessArea childBusinessArea;
-
     private String city;
     private String employerName;
     private String position;
@@ -39,26 +36,6 @@ public class JobBean implements Serializable {
     private Country country;
 
     public JobBean() {
-    }
-
-    public BusinessArea getParentBusinessArea() {
-        return this.parentBusinessArea;
-    }
-
-    public void setParentBusinessArea(BusinessArea parentBusinessArea) {
-        this.parentBusinessArea = parentBusinessArea;
-    }
-
-    public boolean hasParentBusinessArea() {
-        return getParentBusinessArea() != null;
-    }
-
-    public BusinessArea getChildBusinessArea() {
-        return this.childBusinessArea;
-    }
-
-    public void setChildBusinessArea(BusinessArea childBusinessArea) {
-        this.childBusinessArea = childBusinessArea;
     }
 
     public String getCity() {
