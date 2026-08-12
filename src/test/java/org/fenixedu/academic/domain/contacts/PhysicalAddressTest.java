@@ -11,6 +11,7 @@ import org.fenixedu.academic.domain.CountryTest;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.UserProfile;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,10 @@ import pt.ist.fenixframework.FenixFramework;
 public class PhysicalAddressTest {
 
     private static final Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS = PhysicalAddress.COMPARATOR_BY_ADDRESS;
+    private static final String ADDRESS = "Rua das Flores";
 
+    private static Person person;
+    private static PhysicalAddress address;
     private static Country portugal;
 
     @BeforeClass
@@ -31,6 +35,7 @@ public class PhysicalAddressTest {
             Installation.ensureInstallation();
             CountryTest.initCountries();
 
+            person = createPerson("Person", "person");
             portugal = Country.readByTwoLetterCode("PT");
             return null;
         });
@@ -46,29 +51,32 @@ public class PhysicalAddressTest {
                 new PhysicalAddressData(address, "1000", "123", null, null, "Lisboa", null, portugal), type, true);
     }
 
+    @Before
+    public void initPersonAddress() {
+        person.getPartyContactsSet().forEach(partyContact -> {
+            partyContact.setActive(Boolean.FALSE);
+            partyContact.delete();
+        });
+        address = createPhysicalAddress(person, PartyContactType.PERSONAL, ADDRESS);
+    }
+
     @Test
     public void testComparatorByAddress() {
-        final Person person = createPerson("Person", "address.comparator.person");
-
-        final PhysicalAddress personal = createPhysicalAddress(person, PartyContactType.PERSONAL, "Rua das Flores");
-        final PhysicalAddress work = createPhysicalAddress(person, PartyContactType.WORK, "Rua das Flores");
+        final PhysicalAddress work = createPhysicalAddress(person, PartyContactType.WORK, ADDRESS);
         final PhysicalAddress avenue = createPhysicalAddress(person, PartyContactType.PERSONAL, "Avenida da Liberdade");
 
         // addresses ordered by the address value
-        assertTrue(COMPARATOR_BY_ADDRESS.compare(avenue, personal) < 0);
-        assertTrue(COMPARATOR_BY_ADDRESS.compare(personal, avenue) > 0);
+        assertTrue(COMPARATOR_BY_ADDRESS.compare(avenue, address) < 0);
+        assertTrue(COMPARATOR_BY_ADDRESS.compare(address, avenue) > 0);
 
         // equal addresses fall back to the contact type (PERSONAL before WORK)
-        assertTrue(COMPARATOR_BY_ADDRESS.compare(personal, work) < 0);
+        assertTrue(COMPARATOR_BY_ADDRESS.compare(address, work) < 0);
 
-        assertEquals(0, COMPARATOR_BY_ADDRESS.compare(personal, personal));
+        assertEquals(0, COMPARATOR_BY_ADDRESS.compare(address, address));
     }
 
     @Test
     public void testGetPostalCode() {
-        final Person person = createPerson("Person", "postal.code.person");
-        final PhysicalAddress address = createPhysicalAddress(person, PartyContactType.PERSONAL, "Rua das Flores");
-
         address.setAreaCode("1234");
         address.setAreaOfAreaCode("567");
 
@@ -77,15 +85,13 @@ public class PhysicalAddressTest {
 
     @Test
     public void testGetUiFiscalPresentationValue() {
-        final Person person = createPerson("Person", "ui.fiscal.person");
-
-        final PhysicalAddress address = createPhysicalAddress(person, PartyContactType.PERSONAL, "Rua das Flores");
-        assertEquals("Rua das Flores 1000 Lisboa Portugal", address.getUiFiscalPresentationValue());
+        assertEquals("Rua das Flores, 1000 123, Lisboa, Portugal", address.getUiFiscalPresentationValue());
 
         // empty fields are skipped
         address.setAreaCode(null);
+        address.setAreaOfAreaCode(null);
         address.setDistrictSubdivisionOfResidence(null);
         address.setCountryOfResidence(null);
-        assertEquals("Rua das Flores", address.getUiFiscalPresentationValue());
+        assertEquals(ADDRESS, address.getUiFiscalPresentationValue());
     }
 }

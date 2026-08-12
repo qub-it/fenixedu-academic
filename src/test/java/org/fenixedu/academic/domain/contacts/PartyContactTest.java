@@ -124,7 +124,7 @@ public class PartyContactTest {
                         "PT", "PRT");
         PhysicalAddressData data = new PhysicalAddressData("Rua X", "1000", "Lisboa", null, null, "Lisboa", null, portugal);
         PhysicalAddress physical = PhysicalAddress.createPhysicalAddress(person, data, PartyContactType.PERSONAL, true);
-        assertEquals("Rua X, 1000 Lisboa, Lisboa, PT", physical.getPresentationValue());
+        assertEquals("Rua X, 1000 Lisboa, Lisboa, Portugal", physical.getPresentationValue());
     }
 
     @Test

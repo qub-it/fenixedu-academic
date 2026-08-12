@@ -129,7 +129,10 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     @Override
     public String getPresentationValue() {
         List<String> addressParts = new ArrayList<>();
-        addressParts.add(getAddress());
+
+        if (StringUtils.isNotBlank(getAddress())) {
+            addressParts.add(getAddress());
+        }
 
         if (StringUtils.isNotBlank(getPostalCode())) {
             addressParts.add(getPostalCode().trim());
@@ -141,7 +144,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
                 addressParts.add(getDistrictSubdivisionOfResidence());
             }
 
-            addressParts.add(country.getCode());
+            addressParts.add(country.getLocalizedName().getContent());
         }
 
         return String.join(", ", addressParts);
@@ -177,7 +180,17 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     }
 
     public String getPostalCode() {
-        return getAreaCode() + " " + getAreaOfAreaCode();
+        List<String> postalCode = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(getAreaCode())) {
+            postalCode.add(getAreaCode());
+        }
+
+        if (StringUtils.isNotBlank(getAreaOfAreaCode())) {
+            postalCode.add(getAreaOfAreaCode());
+        }
+
+        return String.join(" ", postalCode);
     }
 
     @Override
@@ -215,25 +228,11 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         return Boolean.TRUE.equals(super.getFiscalAddress());
     }
 
+    /**
+     * @deprecated use {@link #getPresentationValue()}
+     */
+    @Deprecated
     public String getUiFiscalPresentationValue() {
-        final List<String> compounds = new ArrayList<>();
-
-        if (StringUtils.isNotEmpty(getAddress())) {
-            compounds.add(getAddress());
-        }
-
-        if (StringUtils.isNotEmpty(getAreaCode())) {
-            compounds.add(getAreaCode());
-        }
-
-        if (StringUtils.isNotEmpty(getDistrictSubdivisionOfResidence())) {
-            compounds.add(getDistrictSubdivisionOfResidence());
-        }
-
-        if (getCountryOfResidence() != null) {
-            compounds.add(getCountryOfResidence().getLocalizedName().getContent());
-        }
-
-        return String.join(" ", compounds);
+        return getPresentationValue();
     }
 }
