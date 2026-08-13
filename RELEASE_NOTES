@@ -1,3 +1,4 @@
+- Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Refactor: Improves Context domain methods and adds unit tests [#qubIT-Fenix-9112]
 
 59.0.0 (07-08-2026)

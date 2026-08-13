@@ -28,10 +28,6 @@ import org.joda.time.DateTime;
 
 public class Phone extends Phone_Base {
 
-    static {
-        setResolver(Phone.class, (pc) -> ((Phone) pc).getNumber());
-    }
-
     public static Comparator<Phone> COMPARATOR_BY_NUMBER = new Comparator<Phone>() {
         @Override
         public int compare(Phone contact, Phone otherContact) {
@@ -90,6 +86,11 @@ public class Phone extends Phone_Base {
         if (StringUtils.isEmpty(number)) {
             throw new DomainException("error.contacts.Phone.invalid.number");
         }
+    }
+
+    @Override
+    public String getPresentationValue() {
+        return getNumber();
     }
 
     @Override
