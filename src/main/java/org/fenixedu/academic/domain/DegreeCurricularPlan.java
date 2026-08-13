@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -287,11 +286,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Set<ExecutionYear> getExecutionYears() {
-        Set<ExecutionYear> result = new HashSet<>();
-        for (final ExecutionDegree executionDegree : getExecutionDegreesSet()) {
-            result.add(executionDegree.getExecutionYear());
-        }
-        return result;
+        return getExecutionDegreesSet().stream().map(ExecutionDegree::getExecutionYear).collect(Collectors.toSet());
     }
 
     public ExecutionYear getMostRecentExecutionYear() {
@@ -299,12 +294,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public boolean hasAnyExecutionDegreeFor(final ExecutionYear executionYear) {
-        for (final ExecutionDegree executionDegree : this.getExecutionDegreesSet()) {
-            if (executionDegree.getExecutionYear() == executionYear) {
-                return true;
-            }
-        }
-        return false;
+        return getExecutionDegreesSet().stream().anyMatch(executionDegree -> executionDegree.getExecutionYear() == executionYear);
     }
 
     public boolean hasExecutionDegreeFor(final ExecutionYear executionYear) {
@@ -316,33 +306,19 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             return null;
         }
 
-        final ExecutionYear currentYear = ExecutionYear.findCurrent(getDegree().getCalendar());
-        ExecutionDegree result = getExecutionDegreeByYear(currentYear);
-        if (result != null) {
-            return result;
+        // Prefer the execution degree for the current year.
+        ExecutionYear currentYear = ExecutionYear.findCurrent(getDegree().getCalendar());
+        ExecutionDegree current = findExecutionDegree(currentYear.getFirstExecutionPeriod()).orElse(null);
+        if (current != null) {
+            return current;
         }
 
-        final List<ExecutionDegree> sorted = new ArrayList<>(getExecutionDegreesSet());
-        Collections.sort(sorted, ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
-
-        final ExecutionDegree first = sorted.iterator().next();
-        if (sorted.size() == 1) {
-            return first;
-        }
-
-        if (first.getExecutionYear().isAfter(currentYear)) {
-            return first;
-        } else {
-            final ListIterator<ExecutionDegree> iter = sorted.listIterator(sorted.size());
-            while (iter.hasPrevious()) {
-                final ExecutionDegree executionDegree = iter.previous();
-                if (executionDegree.getExecutionYear().isBeforeOrEquals(currentYear)) {
-                    return executionDegree;
-                }
-            }
-        }
-
-        return null;
+        // If there is no execution degree for the current year, use the most recent previous year.
+        // If there are no previous years, use the earliest future execution degree.
+        return getExecutionDegreesSet().stream().filter(ed -> ed.getExecutionYear().isBeforeOrEquals(currentYear))
+                .max(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR).orElseGet(
+                        () -> getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR)
+                                .orElse(null));
     }
 
     public ExecutionDegree getFirstExecutionDegree() {
@@ -590,23 +566,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public static Set<DegreeCurricularPlan> readBolonhaDegreeCurricularPlans() {
-        final Set<DegreeCurricularPlan> result = new HashSet<>();
-
-        for (final Degree degree : Degree.readBolonhaDegrees()) {
-            result.addAll(degree.getDegreeCurricularPlansSet());
-        }
-
-        return result;
+        return Degree.findAll().flatMap(degree -> degree.getDegreeCurricularPlansSet().stream()).collect(Collectors.toSet());
     }
 
     public static DegreeCurricularPlan readByNameAndDegreeSigla(final String name, final String degreeSigla) {
-        for (final DegreeCurricularPlan degreeCurricularPlan : readNotEmptyDegreeCurricularPlans()) {
-            if (degreeCurricularPlan.getName().equalsIgnoreCase(name)
-                    && degreeCurricularPlan.getDegree().getSigla().equalsIgnoreCase(degreeSigla)) {
-                return degreeCurricularPlan;
-            }
-        }
-        return null;
+        return findAll().filter(dcp -> StringUtils.equalsIgnoreCase(dcp.getName(), name) && StringUtils.equalsIgnoreCase(
+                dcp.getDegree().getSigla(), degreeSigla)).findFirst().orElse(null);
     }
 
     public ExecutionDegree createExecutionDegree(final ExecutionYear executionYear) {
@@ -829,10 +794,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public ExecutionInterval getBegin() {
-        Set<ExecutionYear> beginContextExecutionYears = getBeginContextExecutionYears();
-        return beginContextExecutionYears.isEmpty() ? null : Collections.min(beginContextExecutionYears,
-                ExecutionYear.COMPARATOR_BY_YEAR);
-
+        return getBeginContextExecutionYears().stream().min(ExecutionYear.COMPARATOR_BY_YEAR).orElse(null);
     }
 
     public Set<ExecutionYear> getBeginContextExecutionYears() {
