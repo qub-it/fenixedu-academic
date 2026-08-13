@@ -28,37 +28,17 @@ import org.joda.time.DateTime;
 
 public class Phone extends Phone_Base {
 
-    public static Comparator<Phone> COMPARATOR_BY_NUMBER = new Comparator<Phone>() {
-        @Override
-        public int compare(Phone contact, Phone otherContact) {
-            final String number = contact.getNumber();
-            final String otherNumber = otherContact.getNumber();
-            int result = 0;
-            if (number != null && otherNumber != null) {
-                result = number.compareTo(otherNumber);
-            } else if (number != null) {
-                result = 1;
-            } else if (otherNumber != null) {
-                result = -1;
-            }
-            return (result == 0) ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static Comparator<Phone> COMPARATOR_BY_NUMBER =
+            Comparator.comparing(Phone::getNumber, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     public static Phone createPhone(Party party, String number, PartyContactType type, Boolean isDefault, Boolean visibleToPublic,
             Boolean visibleToStudents, Boolean visibleToStaff) {
-        Phone result = null;
-        if (!StringUtils.isEmpty(number)) {
-            result = new Phone(party, type, visibleToPublic, visibleToStudents, visibleToStaff, isDefault, number);
-        }
-        return result;
+        return !StringUtils.isEmpty(number) ? new Phone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
+                isDefault, number) : null;
     }
 
     public static Phone createPhone(Party party, String number, PartyContactType type, boolean isDefault) {
-        // for (Phone phone : party.getPhones()) {
-        // if (phone.getNumber().equals(number))
-        // return phone;
-        // }
         return (!StringUtils.isEmpty(number)) ? new Phone(party, type, isDefault, number) : null;
     }
 
@@ -100,13 +80,18 @@ public class Phone extends Phone_Base {
 
     public void edit(final String number) {
         if (!StringUtils.equals(getNumber(), number)) {
-            super.setNumber(number);
+            setNumber(number);
             if (!waitsValidation()) {
                 new PhoneValidation(this);
             }
             setLastModifiedDate(new DateTime());
         }
+    }
 
+    @Override
+    public void setNumber(final String number) {
+        checkParameters(number);
+        super.setNumber(number);
     }
 
     public boolean hasNumber() {
