@@ -30,23 +30,10 @@ import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.joda.time.DateTime;
 
 public class EmailAddress extends EmailAddress_Base {
-    
-    public static Comparator<EmailAddress> COMPARATOR_BY_EMAIL = new Comparator<EmailAddress>() {
-        @Override
-        public int compare(final EmailAddress contact, final EmailAddress otherContact) {
-            final String value = contact.getValue();
-            final String otherValue = otherContact.getValue();
-            int result = 0;
-            if (value != null && otherValue != null) {
-                result = value.compareTo(otherValue);
-            } else if (value != null) {
-                result = 1;
-            } else if (otherValue != null) {
-                result = -1;
-            }
-            return result == 0 ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+
+    public static Comparator<EmailAddress> COMPARATOR_BY_EMAIL =
+            Comparator.comparing(EmailAddress::getValue, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
             final Boolean isDefault, final Boolean visibleToPublic, final Boolean visibleToStudents,
@@ -170,27 +157,18 @@ public class EmailAddress extends EmailAddress_Base {
     }
 
     static public EmailAddress find(final String emailAddressString) {
-        for (final PartyContact contact : ContactRoot.getInstance().getPartyContactsSet()) {
-            if (contact.isEmailAddress()) {
-                final EmailAddress emailAddress = (EmailAddress) contact;
-                if (emailAddress.hasValue(emailAddressString)) {
-                    return emailAddress;
-                }
-            }
-        }
-        return null;
+        return ContactRoot.getInstance().getPartyContactsSet().stream().filter(PartyContact::isEmailAddress)
+                .map(EmailAddress.class::cast).filter(email -> email.hasValue(emailAddressString)).findFirst().orElse(null);
     }
 
     public static Stream<EmailAddress> findAllActiveAndValid(final String emailAddressString) {
-        return ContactRoot.getInstance().getPartyContactsSet().stream().filter(partyContact -> partyContact.isEmailAddress())
-                .map(partyContact -> (EmailAddress) partyContact)
-                .filter(emailAddress -> emailAddress.hasValue(emailAddressString))
-                .filter(emailAddress -> emailAddress.isActiveAndValid());
+        return ContactRoot.getInstance().getPartyContactsSet().stream().filter(PartyContact::isEmailAddress)
+                .map(EmailAddress.class::cast).filter(emailAddress -> emailAddress.hasValue(emailAddressString))
+                .filter(PartyContact::isActiveAndValid);
     }
 
     private void updateProfileEmail() {
-        if (getParty() != null && getParty() instanceof Person) {
-            Person person = (Person) getParty();
+        if (getParty() instanceof Person person) {
             person.getProfile().setEmail(person.getEmailForSendingEmails());
         }
     }
