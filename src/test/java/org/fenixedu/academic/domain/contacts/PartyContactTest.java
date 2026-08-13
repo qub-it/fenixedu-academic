@@ -110,10 +110,10 @@ public class PartyContactTest {
         EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
         assertEquals("test@example.com", email.getPresentationValue());
 
-        Phone phone = Phone.createPhone(person, "911111111", PartyContactType.PERSONAL, true);
+        Phone phone = Phone.create(person, "911111111", PartyContactType.PERSONAL, true);
         assertEquals("911111111", phone.getPresentationValue());
 
-        MobilePhone mobile = MobilePhone.createMobilePhone(person, "922222222", PartyContactType.PERSONAL, true);
+        MobilePhone mobile = MobilePhone.create(person, "922222222", PartyContactType.PERSONAL, true);
         assertEquals("922222222", mobile.getPresentationValue());
 
         WebAddress web = WebAddress.createWebAddress(person, "http://example.com", PartyContactType.PERSONAL, true);
@@ -135,8 +135,8 @@ public class PartyContactTest {
         EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
         EmailAddress otherEmail =
                 EmailAddress.createEmailAddress(otherPerson, "other@example.com", PartyContactType.PERSONAL, true);
-        Phone phone = Phone.createPhone(person, "911111111", PartyContactType.PERSONAL, true);
-        MobilePhone mobile = MobilePhone.createMobilePhone(person, "922222222", PartyContactType.PERSONAL, true);
+        Phone phone = Phone.create(person, "911111111", PartyContactType.PERSONAL, true);
+        MobilePhone mobile = MobilePhone.create(person, "922222222", PartyContactType.PERSONAL, true);
 
         // single type
         Set<PartyContact> emails = PartyContact.readPartyContactsOfType(EmailAddress.class);
