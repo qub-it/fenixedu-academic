@@ -88,7 +88,7 @@ public class Coordinator extends Coordinator_Base {
 
     public static Stream<Coordinator> findCoordinators(final Degree degree, final ExecutionYear executionYear,
             final boolean responsiblesOnly) {
-        return degree.getDegreeCurricularPlansSet().stream().map(dcp -> dcp.getExecutionDegreeByYear(executionYear))
+        return degree.getDegreeCurricularPlansSet().stream().map(dcp -> dcp.findExecutionDegree(executionYear).orElse(null))
                 .filter(Objects::nonNull)
                 .flatMap(ed -> responsiblesOnly ? ed.getResponsibleCoordinators().stream() : ed.getCoordinatorsListSet().stream())
                 .distinct();

@@ -251,7 +251,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return dcp.toString();
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public ExecutionDegree getExecutionDegreeByYear(final ExecutionYear executionYear) {
         for (final ExecutionDegree executionDegree : getExecutionDegreesSet()) {
             if (executionDegree.getExecutionYear() == executionYear) {
@@ -262,12 +262,14 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Optional<ExecutionDegree> findExecutionDegree(final ExecutionInterval interval) {
-        final ExecutionYear executionYear = interval.getExecutionYear();
-        return getExecutionDegreesSet().stream().filter(ed -> ed.getExecutionYear() == executionYear).findAny();
+        if (interval == null) {
+            return Optional.empty();
+        }
+        return getExecutionDegreesSet().stream().filter(ed -> ed.getExecutionYear() == interval.getExecutionYear()).findAny();
     }
 
     // FIXME: Optimization Required
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public ExecutionDegree getExecutionDegreeByAcademicInterval(final AcademicInterval academicInterval) {
         AcademicCalendarEntry academicCalendarEntry = academicInterval.getAcademicCalendarEntry();
         while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {
@@ -308,7 +310,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public boolean hasExecutionDegreeFor(final ExecutionYear executionYear) {
-        return getExecutionDegreeByYear(executionYear) != null;
+        return findExecutionDegree(executionYear).isPresent();
     }
 
     public ExecutionDegree getMostRecentExecutionDegree() {
@@ -317,7 +319,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
 
         final ExecutionYear currentYear = ExecutionYear.findCurrent(getDegree().getCalendar());
-        ExecutionDegree result = getExecutionDegreeByYear(currentYear);
+        ExecutionDegree result = findExecutionDegree(currentYear).orElse(null);
         if (result != null) {
             return result;
         }
