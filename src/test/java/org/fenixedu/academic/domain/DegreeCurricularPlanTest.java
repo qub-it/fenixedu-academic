@@ -1,6 +1,15 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Set;
+import java.util.UUID;
+
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -11,19 +20,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
+
 import pt.ist.fenixframework.FenixFramework;
-
-import java.util.Set;
-import java.util.UUID;
-
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(FenixFrameworkRunner.class)
 public class DegreeCurricularPlanTest {
 
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static CurricularCourse curricularCourse;
+    private static ExecutionYear executionYear;
+    private static ExecutionInterval executionInterval;
 
     public static final String DCP_NAME_V1 = "DCP_NAME_V1";
     public static final String DCP_NAME_V2 = "DCP_NAME_V2";
@@ -62,7 +68,8 @@ public class DegreeCurricularPlanTest {
                 new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
         final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
 
-        final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
+        executionYear = ExecutionYear.findCurrent(null);
+        executionInterval = executionYear.getFirstExecutionPeriod();
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
     }
 
@@ -108,6 +115,59 @@ public class DegreeCurricularPlanTest {
         final Set<CurricularCourse> allCurricularCourses = degreeCurricularPlan.getAllCurricularCourses();
         assertTrue(allCurricularCourses.size() == 1);
         assertTrue(allCurricularCourses.contains(curricularCourse));
+    }
+
+    @Test
+    public void testFindExecutionDegree() {
+        ExecutionYear next = executionYear.getNext().getExecutionYear();
+
+        DegreeType degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
+        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", executionYear);
+        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, executionInterval);
+
+        assertNull(dcp.findExecutionDegree(executionYear).orElse(null));
+        assertNull(dcp.findExecutionDegree(executionInterval).orElse(null));
+        assertTrue(dcp.findExecutionDegree(next).isEmpty());
+
+        ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
+
+        assertEquals(executionDegree, dcp.findExecutionDegree(executionYear).orElse(null));
+        assertEquals(executionDegree, dcp.findExecutionDegree(executionInterval).orElse(null));
+        assertTrue(dcp.findExecutionDegree(next).isEmpty());
+
+        assertTrue(dcp.findExecutionDegree(null).isEmpty());
+
+        executionDegree.delete();
+        dcp.delete();
+        testDegree.delete();
+    }
+
+    @Test
+    public void testFindExecutionDegree_AcademicInterval_matches_ExecutionInterval() {
+        ExecutionYear previous = executionYear.getPrevious().getExecutionYear();
+        ExecutionYear next = executionYear.getNext().getExecutionYear();
+
+        DegreeType degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
+        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", executionYear);
+        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, executionInterval);
+
+        ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
+
+        assertEquals(executionDegree, dcp.findExecutionDegree(executionYear).orElse(null));
+        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(executionYear.getAcademicInterval()));
+
+        assertEquals(executionDegree, dcp.findExecutionDegree(executionInterval).orElse(null));
+        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(executionInterval.getAcademicInterval()));
+
+        assertTrue(dcp.findExecutionDegree(previous).isEmpty());
+        assertNull(dcp.getExecutionDegreeByAcademicInterval(previous.getAcademicInterval()));
+
+        assertTrue(dcp.findExecutionDegree(next).isEmpty());
+        assertNull(dcp.getExecutionDegreeByAcademicInterval(next.getAcademicInterval()));
+
+        executionDegree.delete();
+        dcp.delete();
+        testDegree.delete();
     }
 
 }

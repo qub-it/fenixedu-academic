@@ -176,7 +176,7 @@ public class Registration extends Registration_Base {
             throw new DomainException("error.Registration.ingressionType.cannot.be.null");
         }
 
-        final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);
+        final ExecutionDegree executionDegree = degreeCurricularPlan.findExecutionDegree(executionYear).orElse(null);
         if (executionDegree == null) {
             throw new DomainException("error.Registration.execution.degree.for.year.was.not.found");
         }

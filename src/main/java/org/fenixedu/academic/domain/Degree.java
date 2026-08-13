@@ -336,8 +336,8 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     public List<ExecutionDegree> getExecutionDegreesForExecutionYear(final ExecutionYear executionYear) {
-        return getDegreeCurricularPlansSet().stream().map(dcp -> dcp.getExecutionDegreeByYear(executionYear))
-                .filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+        return getDegreeCurricularPlansSet().stream().map(dcp -> dcp.findExecutionDegree(executionYear).orElse(null))
+                .filter(Objects::nonNull).toList();
     }
 
     public List<ExecutionYear> getDegreeCurricularPlansExecutionYears() {
