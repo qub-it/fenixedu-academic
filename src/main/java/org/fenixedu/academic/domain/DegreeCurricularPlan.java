@@ -577,6 +577,14 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return getDegree().getPresentationName(executionYear, locale) + " - " + getName();
     }
 
+    /**
+     * @deprecated DegreeCurricularPlans cannot be empty anymore so usage of this method is unecessary
+     */
+    @Deprecated
+    public static List<DegreeCurricularPlan> readNotEmptyDegreeCurricularPlans() {
+        return new ArrayList<>(Bennu.getInstance().getDegreeCurricularPlansSet());
+    }
+
     public static Stream<DegreeCurricularPlan> findAll() {
         return Bennu.getInstance().getDegreeCurricularPlansSet().stream();
     }
