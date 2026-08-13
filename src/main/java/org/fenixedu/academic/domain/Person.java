@@ -239,8 +239,8 @@ public class Person extends Person_Base {
             PhysicalAddress.createPhysicalAddress(this, personBean.getPhysicalAddressData(), PartyContactType.PERSONAL, true);
         }
 
-        Phone.createPhone(this, personBean.getPhone(), PartyContactType.PERSONAL, true);
-        MobilePhone.createMobilePhone(this, personBean.getMobile(), PartyContactType.PERSONAL, true);
+        Phone.create(this, personBean.getPhone(), PartyContactType.PERSONAL, true);
+        MobilePhone.create(this, personBean.getMobile(), PartyContactType.PERSONAL, true);
         final EmailAddress emailAddress =
                 EmailAddress.createEmailAddress(this, personBean.getEmail(), PartyContactType.PERSONAL, true);
         if (validateEmail) {
