@@ -30,39 +30,19 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 
 public class WebAddress extends WebAddress_Base {
 
-    public static Comparator<WebAddress> COMPARATOR_BY_URL = new Comparator<WebAddress>() {
-        @Override
-        public int compare(WebAddress contact, WebAddress otherContact) {
-            final String url = contact.getUrl();
-            final String otherUrl = otherContact.getUrl();
-            int result = 0;
-            if (url != null && otherUrl != null) {
-                result = url.compareTo(otherUrl);
-            } else if (url != null) {
-                result = 1;
-            } else if (otherUrl != null) {
-                result = -1;
-            }
-            return (result == 0) ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static final Comparator<WebAddress> COMPARATOR_BY_URL =
+            Comparator.comparing(WebAddress::getUrl, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     public static WebAddress createWebAddress(Party party, String url, PartyContactType type, Boolean isDefault,
             Boolean visibleToPublic, Boolean visibleToStudents, Boolean visibleToStaff) {
-        WebAddress result = null;
-        if (!StringUtils.isEmpty(url)) {
-            result = new WebAddress(party, type, visibleToPublic, visibleToStudents, visibleToStaff, isDefault, url);
-        }
-        return result;
+        return !StringUtils.isEmpty(url) ? new WebAddress(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
+                isDefault, url) : null;
     }
 
     public static WebAddress createWebAddress(Party party, String url, PartyContactType type, boolean isDefault) {
-        for (WebAddress webAddress : party.getWebAddresses()) {
-            if (webAddress.getUrl().equals(url)) {
-                return webAddress;
-            }
-        }
-        return (!StringUtils.isEmpty(url)) ? new WebAddress(party, type, isDefault, url) : null;
+        return party.getWebAddresses().stream().filter(webAddress -> webAddress.getUrl().equals(url)).findFirst()
+                .orElseGet(() -> !StringUtils.isEmpty(url) ? new WebAddress(party, type, isDefault, url) : null);
     }
 
     protected WebAddress() {
@@ -73,16 +53,14 @@ public class WebAddress extends WebAddress_Base {
     protected WebAddress(final Party party, final PartyContactType type, final boolean defaultContact, final String url) {
         this();
         super.init(party, type, defaultContact);
-        checkParameters(url);
-        super.setUrl(url);
+        setUrl(url);
     }
 
     protected WebAddress(final Party party, final PartyContactType type, final boolean visibleToPublic,
             final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String url) {
         this();
         super.init(party, type, visibleToPublic, visibleToStudents, visibleToStaff, defaultContact);
-        checkParameters(url);
-        super.setUrl(url);
+        setUrl(url);
     }
 
     private void checkParameters(final String url) {
@@ -102,11 +80,17 @@ public class WebAddress extends WebAddress_Base {
     }
 
     public void edit(final String url) {
-        super.setUrl(url);
+        setUrl(url);
     }
 
     public boolean hasUrl() {
-        return getUrl() != null && getUrl().length() > 0;
+        return StringUtils.isNotEmpty(getUrl());
+    }
+
+    @Override
+    public void setUrl(final String url) {
+        checkParameters(url);
+        super.setUrl(url);
     }
 
     @Override

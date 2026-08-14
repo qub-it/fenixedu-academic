@@ -31,22 +31,9 @@ import org.joda.time.DateTime;
 
 public class PhysicalAddress extends PhysicalAddress_Base {
 
-    public static Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS = new Comparator<PhysicalAddress>() {
-        @Override
-        public int compare(final PhysicalAddress contact, final PhysicalAddress otherContact) {
-            final String address = contact.getAddress();
-            final String otherAddress = otherContact.getAddress();
-            int result = 0;
-            if (address != null && otherAddress != null) {
-                result = address.compareTo(otherAddress);
-            } else if (address != null) {
-                result = 1;
-            } else if (otherAddress != null) {
-                result = -1;
-            }
-            return result == 0 ? COMPARATOR_BY_TYPE.compare(contact, otherContact) : result;
-        }
-    };
+    public static final Comparator<PhysicalAddress> COMPARATOR_BY_ADDRESS =
+            Comparator.comparing(PhysicalAddress::getAddress, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(COMPARATOR_BY_TYPE);
 
     static public PhysicalAddress createPhysicalAddress(final Party party, final PhysicalAddressData data,
             final PartyContactType type, final Boolean isDefault) {
@@ -142,7 +129,10 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     @Override
     public String getPresentationValue() {
         List<String> addressParts = new ArrayList<>();
-        addressParts.add(getAddress());
+
+        if (StringUtils.isNotBlank(getAddress())) {
+            addressParts.add(getAddress());
+        }
 
         if (StringUtils.isNotBlank(getPostalCode())) {
             addressParts.add(getPostalCode().trim());
@@ -154,7 +144,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
                 addressParts.add(getDistrictSubdivisionOfResidence());
             }
 
-            addressParts.add(country.getCode());
+            addressParts.add(country.getLocalizedName().getContent());
         }
 
         return String.join(", ", addressParts);
@@ -190,11 +180,17 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     }
 
     public String getPostalCode() {
-        final StringBuilder result = new StringBuilder();
-        result.append(getAreaCode());
-        result.append(" ");
-        result.append(getAreaOfAreaCode());
-        return result.toString();
+        List<String> postalCode = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(getAreaCode())) {
+            postalCode.add(getAreaCode());
+        }
+
+        if (StringUtils.isNotBlank(getAreaOfAreaCode())) {
+            postalCode.add(getAreaOfAreaCode());
+        }
+
+        return String.join(" ", postalCode);
     }
 
     @Override
@@ -232,26 +228,11 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         return Boolean.TRUE.equals(super.getFiscalAddress());
     }
 
+    /**
+     * @deprecated use {@link #getPresentationValue()}
+     */
+    @Deprecated
     public String getUiFiscalPresentationValue() {
-        final List<String> compounds = new ArrayList<>();
-
-        if (StringUtils.isNotEmpty(getAddress())) {
-            compounds.add(getAddress());
-        }
-
-        if (StringUtils.isNotEmpty(getAreaCode())) {
-            compounds.add(getAreaCode());
-        }
-
-        if (StringUtils.isNotEmpty(getDistrictSubdivisionOfResidence())) {
-            compounds.add(getDistrictSubdivisionOfResidence());
-        }
-
-        if (getCountryOfResidence() != null) {
-            compounds.add(getCountryOfResidence().getLocalizedName().getContent());
-        }
-
-        return String.join(" ", compounds);
+        return getPresentationValue();
     }
-
 }
