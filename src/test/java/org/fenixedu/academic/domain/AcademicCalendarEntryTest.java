@@ -25,8 +25,8 @@ import pt.ist.fenixframework.FenixFramework;
 public class AcademicCalendarEntryTest {
 
     private static AcademicCalendarRootEntry rootEntry;
-    private static AcademicYearCE year2025, year2026;
-    private static AcademicIntervalCE semester1_2025, semester2_2025, semester1_2026;
+    private static AcademicYearCE year2024, year2025, year2026;
+    private static AcademicIntervalCE semester2_2024, semester1_2025, semester2_2025, semester1_2026;
 
     @BeforeClass
     public static void init() {
@@ -39,11 +39,18 @@ public class AcademicCalendarEntryTest {
     private static void initSetup() {
         rootEntry = new AcademicCalendarRootEntry(buildLocalizedString("Test Calendar"), buildLocalizedString("Test Calendar Description"));
 
+        year2024 = new AcademicYearCE(rootEntry, buildLocalizedString("2024/2025"), buildLocalizedString("Year 2024/2025"),
+                new DateTime(2024, 9, 1, 0, 0), new DateTime(2025, 8, 31, 23, 59), rootEntry);
+
         year2025 = new AcademicYearCE(rootEntry, buildLocalizedString("2025/2026"), buildLocalizedString("Year 2025/2026"),
                 new DateTime(2025, 9, 1, 0, 0), new DateTime(2026, 8, 31, 23, 59), rootEntry);
 
         year2026 = new AcademicYearCE(rootEntry, buildLocalizedString("2026/2027"), buildLocalizedString("Year 2026/2027"),
                 new DateTime(2026, 9, 1, 0, 0), new DateTime(2027, 8, 31, 23, 59), rootEntry);
+
+        semester2_2024 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2024, buildLocalizedString("2nd Semester"),
+                buildLocalizedString("2nd Semester 2024/2025"), new DateTime(2024, 9, 1, 0, 0), new DateTime(2025, 1, 31, 23, 59),
+                rootEntry);
 
         semester1_2025 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2025, buildLocalizedString("1st Semester"),
                 buildLocalizedString("1st Semester 2025/2026"), new DateTime(2025, 9, 1, 0, 0), new DateTime(2026, 1, 31, 23, 59),
@@ -83,14 +90,16 @@ public class AcademicCalendarEntryTest {
 
         childEntries = rootEntry.getAllChildEntries(AcademicPeriod.YEAR);
 
-        assertEquals(2, childEntries.size());
+        assertEquals(3, childEntries.size());
+        assertTrue(childEntries.contains(year2024));
         assertTrue(childEntries.contains(year2025));
         assertTrue(childEntries.contains(year2026));
 
         // Now test getAllChildEntries recursiveness
 
         childEntries = rootEntry.getAllChildEntries(AcademicPeriod.SEMESTER);
-        assertEquals(3, childEntries.size());
+        assertEquals(4, childEntries.size());
+        assertTrue(childEntries.contains(semester2_2024));
         assertTrue(childEntries.contains(semester1_2025));
         assertTrue(childEntries.contains(semester2_2025));
         assertTrue(childEntries.contains(semester1_2026));
@@ -101,11 +110,14 @@ public class AcademicCalendarEntryTest {
 
     @Test
     public void testAcademicCalendarEntry_getNextAcademicCalendarEntry() {
+        assertEquals(year2025, year2024.getNextAcademicCalendarEntry());
         assertEquals(year2026, year2025.getNextAcademicCalendarEntry());
 
         // lastEntry.getNext returns null
         assertNull(year2026.getNextAcademicCalendarEntry());
 
+        assertEquals(semester1_2025, semester2_2024.getNextAcademicCalendarEntry());
+        assertEquals(semester2_2025, semester1_2025.getNextAcademicCalendarEntry());
         assertEquals(semester1_2026, semester2_2025.getNextAcademicCalendarEntry());
 
         // lastEntry.getNext returns null
@@ -115,13 +127,16 @@ public class AcademicCalendarEntryTest {
     @Test
     public void testAcademicCalendarEntry_getPreviousAcademicCalendarEntry() {
         assertEquals(year2025, year2026.getPreviousAcademicCalendarEntry());
+        assertEquals(year2024, year2025.getPreviousAcademicCalendarEntry());
 
         // firstEntry.getPrevious returns null
-        assertNull(year2025.getPreviousAcademicCalendarEntry());
+        assertNull(year2024.getPreviousAcademicCalendarEntry());
 
         assertEquals(semester2_2025, semester1_2026.getPreviousAcademicCalendarEntry());
+        assertEquals(semester1_2025, semester2_2025.getPreviousAcademicCalendarEntry());
+        assertEquals(semester2_2024, semester1_2025.getPreviousAcademicCalendarEntry());
 
         // firstEntry.getPrevious returns null
-        assertNull(semester1_2025.getPreviousAcademicCalendarEntry());
+        assertNull(semester2_2024.getPreviousAcademicCalendarEntry());
     }
 }

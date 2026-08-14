@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -273,9 +272,14 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
             return Collections.emptyList();
         }
 
-        return getChildEntriesSet().stream().flatMap(
-                child -> Stream.concat(Stream.of(child).filter(ce -> subEntryAcademicPeriod.equals(ce.getAcademicPeriod())),
-                        child.getAllChildEntries(subEntryAcademicPeriod).stream())).collect(Collectors.toList());
+        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
+        for (AcademicCalendarEntry child : getChildEntriesSet()) {
+            if (subEntryAcademicPeriod.equals(child.getAcademicPeriod())) {
+                allChildEntries.add(child);
+            }
+            allChildEntries.addAll(child.getAllChildEntries(subEntryAcademicPeriod));
+        }
+        return allChildEntries;
     }
 
     public boolean belongsToPeriod(DateTime begin, DateTime end) {
