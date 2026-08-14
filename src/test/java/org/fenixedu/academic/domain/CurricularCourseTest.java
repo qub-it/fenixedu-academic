@@ -5,6 +5,7 @@ import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.fenixedu.academic.domain.StudentTest.STUDENT_A_USERNAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -257,6 +259,49 @@ public class CurricularCourseTest {
         assertEquals(1, curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).size());
         assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(executionYear).contains(enrolment));
         assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).contains(newEnrolment));
+    }
+
+    @Test
+    public void testCurricularCourse_getEnrolmentsByAcademicInterval_matches_ExecutionPeriod() {
+        Enrolment enrolment = createEnrolmentInCourse(curricularCourseA, executionInterval);
+
+        assertEquals(new HashSet<>(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval)),
+                new HashSet<>(curricularCourseA.getEnrolmentsByAcademicInterval(executionInterval.getAcademicInterval())));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(executionInterval).contains(enrolment));
+
+        ExecutionInterval nextInterval = executionInterval.getNext();
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionPeriod(nextInterval).isEmpty());
+        assertTrue(curricularCourseA.getEnrolmentsByAcademicInterval(nextInterval.getAcademicInterval()).isEmpty());
+    }
+
+    @Test
+    public void testCurricularCourse_getEnrolmentsByAcademicInterval_matches_ExecutionYear() {
+        // Both methods match the same enrolments for non-annulled enrolments
+        Enrolment enrolment = createEnrolmentInCourse(curricularCourseA, executionInterval);
+
+        assertEquals(new HashSet<>(curricularCourseA.getEnrolmentsByExecutionYear(executionYear)),
+                new HashSet<>(curricularCourseA.getEnrolmentsByAcademicInterval(executionYear.getAcademicInterval())));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(executionYear).contains(enrolment));
+
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).isEmpty());
+        assertTrue(curricularCourseA.getEnrolmentsByAcademicInterval(nextExecutionYear.getAcademicInterval()).isEmpty());
+
+        // Create a new enrolment that will be annulled
+        // (getEnrolmentsByAcademicInterval filters annulled; getEnrolmentsByExecutionYear does not)
+        createContext(dcpV1, curricularCourseA, firstSemester, nextExecutionYear.getFirstExecutionPeriod());
+        Enrolment nextEnrolment = createEnrolmentInCourse(curricularCourseA, nextExecutionYear.getFirstExecutionPeriod());
+
+        assertEquals(new HashSet<>(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear)),
+                new HashSet<>(curricularCourseA.getEnrolmentsByAcademicInterval(nextExecutionYear.getAcademicInterval())));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).contains(nextEnrolment));
+
+        // Annul enrolment and assert the changes
+        nextEnrolment.annul();
+
+        assertNotEquals(new HashSet<>(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear)),
+                new HashSet<>(curricularCourseA.getEnrolmentsByAcademicInterval(nextExecutionYear.getAcademicInterval())));
+        assertTrue(curricularCourseA.getEnrolmentsByExecutionYear(nextExecutionYear).contains(nextEnrolment));
+        assertTrue(curricularCourseA.getEnrolmentsByAcademicInterval(nextExecutionYear.getAcademicInterval()).isEmpty());
     }
 
     @Test
