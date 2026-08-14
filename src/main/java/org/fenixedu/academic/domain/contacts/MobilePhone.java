@@ -32,12 +32,41 @@ public class MobilePhone extends MobilePhone_Base {
             Comparator.comparing(MobilePhone::getNumber, Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(COMPARATOR_BY_TYPE);
 
+    public static MobilePhone create(Party party, String number, PartyContactType type, boolean isDefault) {
+        if (StringUtils.isEmpty(number)) {
+            return null;
+        }
+
+        MobilePhone mobilePhone = new MobilePhone();
+        mobilePhone.init(party, type, isDefault);
+        mobilePhone.setNumber(number);
+        return mobilePhone;
+    }
+
+    public static MobilePhone create(Party party, String number, PartyContactType type, boolean isDefault,
+            boolean visibleToPublic) {
+        MobilePhone mobilePhone = MobilePhone.create(party, number, type, isDefault);
+        if (mobilePhone == null) {
+            return null;
+        }
+
+        mobilePhone.setVisibleToPublic(visibleToPublic);
+        return mobilePhone;
+    }
+
+    public static MobilePhone findOrCreate(Party party, String number, PartyContactType type, boolean isDefault) {
+        return party.getMobilePhones().stream().filter(phone -> phone.getNumber().equals(number)).findFirst()
+                .orElseGet(() -> MobilePhone.create(party, number, type, isDefault));
+    }
+
+    @Deprecated(forRemoval = true)
     public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, Boolean isDefault,
             Boolean visibleToPublic, Boolean visibleToStudents, Boolean visibleToStaff) {
         return !StringUtils.isEmpty(number) ? new MobilePhone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
                 isDefault, number) : null;
     }
 
+    @Deprecated(forRemoval = true)
     public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, boolean isDefault) {
         return party.getMobilePhones().stream().filter(phone -> phone.getNumber().equals(number)).findFirst()
                 .orElseGet(() -> !StringUtils.isEmpty(number) ? new MobilePhone(party, type, isDefault, number) : null);
@@ -48,6 +77,7 @@ public class MobilePhone extends MobilePhone_Base {
         new PhoneValidation(this);
     }
 
+    @Deprecated(forRemoval = true)
     protected MobilePhone(final Party party, final PartyContactType type, final boolean defaultContact, final String number) {
         this();
         super.init(party, type, defaultContact);
@@ -55,6 +85,7 @@ public class MobilePhone extends MobilePhone_Base {
         super.setNumber(number);
     }
 
+    @Deprecated(forRemoval = true)
     protected MobilePhone(final Party party, final PartyContactType type, final boolean visibleToPublic,
             final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String number) {
         this();

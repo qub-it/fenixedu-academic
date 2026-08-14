@@ -1,3 +1,4 @@
+- Refactor: Add create methods to MobilePhone and Phone [#qubIT-Fenix-9195]
 - Refactor: MobilePhone and Phone domain methods [#qubIT-Fenix-9195]
 - Refactor: EmailAddress domain methods [#qubIT-Fenix-9195]
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
