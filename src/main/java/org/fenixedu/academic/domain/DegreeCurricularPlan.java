@@ -67,25 +67,11 @@ import org.joda.time.YearMonthDay;
 
 public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
-    public static final Comparator<DegreeCurricularPlan> COMPARATOR_BY_NAME = new Comparator<DegreeCurricularPlan>() {
-
-        @Override
-        public int compare(final DegreeCurricularPlan o1, final DegreeCurricularPlan o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-
-    };
+    public static final Comparator<DegreeCurricularPlan> COMPARATOR_BY_NAME = Comparator.comparing(DegreeCurricularPlan::getName);
 
     public static final Comparator<DegreeCurricularPlan> COMPARATOR_BY_PRESENTATION_NAME =
-            new Comparator<DegreeCurricularPlan>() {
-
-                @Override
-                public int compare(final DegreeCurricularPlan o1, final DegreeCurricularPlan o2) {
-                    final int c = o1.getPresentationName().compareTo(o2.getPresentationName());
-                    return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c;
-                }
-
-            };
+            Comparator.comparing((DegreeCurricularPlan dcp) -> dcp.getPresentationName())
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     /**
      * This might look a strange comparator, but the idea is to show a list of
@@ -98,26 +84,10 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
      */
     public static final Comparator<DegreeCurricularPlan>
             DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE =
-            new Comparator<DegreeCurricularPlan>() {
-
-                @Override
-                public int compare(final DegreeCurricularPlan o1, final DegreeCurricularPlan o2) {
-                    final int degreeTypeCompare = o1.getDegreeType().getName().compareTo(o2.getDegreeType().getName());
-                    if (degreeTypeCompare != 0) {
-                        return degreeTypeCompare;
-                    }
-
-                    int finalCompare = o1.getDegree().getSigla().compareTo(o2.getDegree().getSigla());
-                    if (finalCompare == 0) {
-                        finalCompare = o2.getName().compareTo(o1.getName());
-                    }
-                    if (finalCompare == 0) {
-                        finalCompare = o1.getExternalId().compareTo(o2.getExternalId());
-                    }
-                    return finalCompare;
-                }
-
-            };
+            Comparator.comparing((DegreeCurricularPlan dcp) -> dcp.getDegreeType().getName())
+                    .thenComparing(dcp -> dcp.getDegree().getSigla())
+                    .thenComparing(dcp -> dcp.getName(), Comparator.reverseOrder())
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected DegreeCurricularPlan() {
         super();
@@ -328,23 +298,19 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Set<ExecutionCourse> getExecutionCourses(final ExecutionInterval executionInterval) {
-        final Set<ExecutionCourse> result = new HashSet<>();
-        addExecutionCoursesForExecutionPeriod(result, executionInterval, getRoot().getChildContextsSet());
-        return result;
+        return getExecutionCourses(executionInterval, getRoot().getChildContextsSet()).collect(Collectors.toSet());
     }
 
-    private void addExecutionCoursesForExecutionPeriod(final Set<ExecutionCourse> executionCourses,
-            final ExecutionInterval executionInterval, final Set<Context> contexts) {
-        for (final Context context : contexts) {
-            final DegreeModule degreeModule = context.getChildDegreeModule();
+    private Stream<ExecutionCourse> getExecutionCourses(final ExecutionInterval executionInterval, final Set<Context> contexts) {
+        return contexts.stream().flatMap(context -> {
+            DegreeModule degreeModule = context.getChildDegreeModule();
             if (degreeModule instanceof CurricularCourse) {
-                final CurricularCourse curricularCourse = (CurricularCourse) degreeModule;
-                executionCourses.addAll(curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval));
+                return ((CurricularCourse) degreeModule).findExecutionCourses(executionInterval);
             } else if (degreeModule instanceof CourseGroup) {
-                final CourseGroup courseGroup = (CourseGroup) degreeModule;
-                addExecutionCoursesForExecutionPeriod(executionCourses, executionInterval, courseGroup.getChildContextsSet());
+                return getExecutionCourses(executionInterval, ((CourseGroup) degreeModule).getChildContextsSet());
             }
-        }
+            return Stream.empty();
+        });
     }
 
     /**
