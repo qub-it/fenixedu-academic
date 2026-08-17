@@ -124,8 +124,9 @@ public class ProfessorshipsGroup extends FenixGroup {
         }
         //TODO: select active 'when'
         AcademicInterval interval = AcademicInterval.readDefaultAcademicInterval(period);
+        ExecutionInterval executionInterval = ExecutionInterval.getExecutionInterval(interval);
         if (externalAuthorizations) {
-            if (user.getPerson().getTeacher().getTeacherAuthorization(interval).isPresent()) {
+            if (user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
                 return true;
             }
         } else {
