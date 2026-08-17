@@ -52,7 +52,7 @@ public class DegreeInfoTest {
     }
 
     @Test
-    public void testDegreeInfoConstructor() {
+    public void testDegreeInfo_testDegreeInfoConstructor() {
         Degree degree = infoB2020.getDegree();
         ExecutionYear year = infoA2019.getExecutionYear();
 
@@ -65,7 +65,7 @@ public class DegreeInfoTest {
     }
 
     @Test
-    public void compareDifferentYears() {
+    public void testDegreeInfo_COMPARATOR_BY_EXECUTION_YEAR_compareDifferentYears() {
         assertTrue(DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR.compare(infoA2019, infoA2020) < 0);
         assertTrue(DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR.compare(infoA2020, infoA2019) > 0);
         assertTrue(DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR.compare(infoA2019, infoA2021) < 0);
@@ -75,14 +75,14 @@ public class DegreeInfoTest {
     }
 
     @Test
-    public void compareAntisymmetric() {
+    public void testDegreeInfo_COMPARATOR_BY_EXECUTION_YEAR_compareAntisymmetric() {
         final int ab = DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR.compare(infoA2020, infoB2020);
         final int ba = DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR.reversed().compare(infoA2020, infoB2020);
         assertEquals(ab, -ba);
     }
 
     @Test
-    public void sortByExecutionYear() {
+    public void testDegreeInfo_COMPARATOR_BY_EXECUTION_YEAR_sortByExecutionYear() {
         final List<DegreeInfo> list = new ArrayList<>(Arrays.asList(infoA2021, infoA2019, infoA2020));
         list.sort(DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR);
         assertEquals(infoA2019, list.get(0));
@@ -91,7 +91,7 @@ public class DegreeInfoTest {
     }
 
     @Test
-    public void sortSameYearTieBreakByExternalId() {
+    public void testDegreeInfo_COMPARATOR_BY_EXECUTION_YEAR_sortSameYearTieBreakByExternalId() {
         final List<DegreeInfo> list = new ArrayList<>(Arrays.asList(infoB2020, infoA2020));
         list.sort(DegreeInfo.COMPARATOR_BY_EXECUTION_YEAR);
         final List<DegreeInfo> expected = new ArrayList<>(Arrays.asList(infoA2020, infoB2020));
