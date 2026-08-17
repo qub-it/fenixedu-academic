@@ -236,7 +236,7 @@ public class Person extends Person_Base {
         setProperties(personBean);
 
         if (personBean.isPhysicalAddressDataNotEmpty()) {
-            PhysicalAddress.createPhysicalAddress(this, personBean.getPhysicalAddressData(), PartyContactType.PERSONAL, true);
+            PhysicalAddress.create(this, personBean.getPhysicalAddressData(), PartyContactType.PERSONAL, true);
         }
 
         Phone.createPhone(this, personBean.getPhone(), PartyContactType.PERSONAL, true);
@@ -246,7 +246,7 @@ public class Person extends Person_Base {
         if (validateEmail) {
             emailAddress.setValid();
         }
-        WebAddress.createWebAddress(this, personBean.getWebAddress(), PartyContactType.PERSONAL, true);
+        WebAddress.create(this, personBean.getWebAddress(), PartyContactType.PERSONAL, true);
         if (emitSignal) {
             Signal.emit(Person.PERSON_CREATE_SIGNAL, new DomainObjectEvent<Person>(this));
         }

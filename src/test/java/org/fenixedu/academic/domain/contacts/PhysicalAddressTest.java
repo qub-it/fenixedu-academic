@@ -47,7 +47,7 @@ public class PhysicalAddressTest {
     }
 
     private static PhysicalAddress createPhysicalAddress(final Person person, final PartyContactType type, final String address) {
-        return PhysicalAddress.createPhysicalAddress(person,
+        return PhysicalAddress.create(person,
                 new PhysicalAddressData(address, "1000", "123", null, null, "Lisboa", null, portugal), type, true);
     }
 
