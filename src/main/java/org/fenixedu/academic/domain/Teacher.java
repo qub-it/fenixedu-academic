@@ -97,17 +97,17 @@ public class Teacher extends Teacher_Base {
      * @param interval the time frame to consider
      * @return an {@code Optional} of the category.
      */
-    public Optional<TeacherCategory> getCategory(AcademicInterval interval) {
-        return getTeacherAuthorization(interval).map(a -> a.getTeacherCategory());
+    public Optional<TeacherCategory> getCategory(ExecutionInterval interval) {
+        return getTeacherAuthorization(interval).map(TeacherAuthorization::getTeacherCategory);
     }
 
     /**
-     * Same as {@link #getCategory(AcademicInterval)} for the current semester
+     * Same as {@link #getCategory(ExecutionInterval)} for the current semester
      * 
      * @return the category or null
      */
     public TeacherCategory getCategory() {
-        return getCategory(AcademicInterval.readDefaultAcademicInterval(AcademicPeriod.SEMESTER)).orElse(null);
+        return getCategory(ExecutionInterval.findCurrentChild(AcademicPeriod.SEMESTER, null)).orElse(null);
     }
 
     /**
@@ -117,17 +117,17 @@ public class Teacher extends Teacher_Base {
      * @param interval the time frame to consider
      * @return an {@code Optional} of the category.
      */
-    public Optional<TeacherCategory> getLastCategory(AcademicInterval interval) {
-        return getLastTeacherAuthorization(interval).map(a -> a.getTeacherCategory());
+    public Optional<TeacherCategory> getLastCategory(ExecutionInterval interval) {
+        return getLastTeacherAuthorization(interval).map(TeacherAuthorization::getTeacherCategory);
     }
 
     /**
-     * Same as {@link #getLastCategory(AcademicInterval)} for the current semester
+     * Same as {@link #getLastCategory(ExecutionInterval)} for the current semester
      * 
      * @return the category or null
      */
     public TeacherCategory getLastCategory() {
-        return getLastCategory(AcademicInterval.readDefaultAcademicInterval(AcademicPeriod.SEMESTER)).orElse(null);
+        return getLastCategory(ExecutionInterval.findCurrentChild(AcademicPeriod.SEMESTER, null)).orElse(null);
     }
 
     public List<ExecutionCourse> getAllLecturedExecutionCourses() {
@@ -215,34 +215,36 @@ public class Teacher extends Teacher_Base {
         return getAuthorizationSet().stream().sorted(Collections.reverseOrder());
     }
 
+    @Deprecated(forRemoval = true)
     public Optional<TeacherAuthorization> getTeacherAuthorization(AcademicInterval interval) {
         return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval().getAcademicInterval().equals(interval))
                 .findFirst();
     }
 
     public Optional<TeacherAuthorization> getTeacherAuthorization(ExecutionInterval interval) {
-        return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval() == interval).findFirst();
+        return getTeacherAuthorizationStream().filter(ta -> ta.getExecutionInterval() == interval).findFirst();
     }
 
     public Optional<TeacherAuthorization> getTeacherAuthorization() {
-        return getTeacherAuthorization(AcademicInterval.readDefaultAcademicInterval(AcademicPeriod.SEMESTER));
+        return getTeacherAuthorization(ExecutionInterval.findCurrentChild(AcademicPeriod.SEMESTER, null));
     }
 
+    @Deprecated(forRemoval = true)
     public boolean hasTeacherAuthorization(AcademicInterval interval) {
         return getTeacherAuthorization(interval).isPresent();
     }
 
+    @Deprecated(forRemoval = true)
     public boolean hasTeacherAuthorization() {
         return getTeacherAuthorization().isPresent();
     }
 
-    protected Optional<TeacherAuthorization> getLastTeacherAuthorization(AcademicInterval interval) {
-        return getTeacherAuthorizationStream().filter(a -> !a.getExecutionInterval().getAcademicInterval().isAfter(interval))
-                .findFirst();
+    protected Optional<TeacherAuthorization> getLastTeacherAuthorization(ExecutionInterval interval) {
+        return getTeacherAuthorizationStream().filter(ta -> !ta.getExecutionInterval().isAfter(interval)).findFirst();
     }
 
     public Optional<TeacherAuthorization> getLatestTeacherAuthorizationInInterval(Interval interval) {
-        return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval().getAcademicInterval().overlaps(interval))
+        return getTeacherAuthorizationStream().filter(ta -> ta.getExecutionInterval().getAcademicInterval().overlaps(interval))
                 .findFirst();
     }
 
