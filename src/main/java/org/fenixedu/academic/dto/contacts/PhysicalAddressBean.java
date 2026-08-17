@@ -147,10 +147,10 @@ public class PhysicalAddressBean extends PartyContactBean {
 
     @Override
     public PartyContact createNewContact() {
-        final PhysicalAddress newPhysicalAddress = PhysicalAddress.createPhysicalAddress(getParty(),
+        final PhysicalAddress newPhysicalAddress = PhysicalAddress.create(getParty(),
                 new PhysicalAddressData(getAddress(), getAreaCode(), getAreaOfAreaCode(), getArea(), getParishOfResidence(),
-                        getDistrictSubdivisionOfResidence(), getDistrictOfResidence(), getCountryOfResidence()),
-                getType(), getDefaultContact());
+                        getDistrictSubdivisionOfResidence(), getDistrictOfResidence(), getCountryOfResidence()), getType(),
+                getDefaultContact(), true);
 
         newPhysicalAddress.setFiscalAddress(isFiscalAddress());
 
