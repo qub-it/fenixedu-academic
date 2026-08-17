@@ -51,13 +51,13 @@ public class WebAddressTest {
             partyContact.setActive(Boolean.FALSE);
             partyContact.delete();
         });
-        webAddress = WebAddress.createWebAddress(person, URL, PartyContactType.PERSONAL, true);
+        webAddress = WebAddress.create(person, URL, PartyContactType.PERSONAL, true);
     }
 
     @Test
     public void testComparatorByUrl() {
-        final WebAddress work = WebAddress.createWebAddress(person, URL, PartyContactType.WORK, true, true, true, true);
-        final WebAddress blog = WebAddress.createWebAddress(person, "http://blog.fenixedu.org", PartyContactType.PERSONAL, true);
+        final WebAddress work = WebAddress.create(person, URL, PartyContactType.WORK, true, true);
+        final WebAddress blog = WebAddress.create(person, "http://blog.fenixedu.org", PartyContactType.PERSONAL, true);
 
         // web addresses ordered by the url value
         assertTrue(COMPARATOR_BY_URL.compare(blog, webAddress) < 0);
@@ -70,17 +70,17 @@ public class WebAddressTest {
     }
 
     @Test
-    public void testCreateWebAddress() {
+    public void testFindOrCreateWebAddress() {
         // null for empty url
-        assertNull(WebAddress.createWebAddress(person, null, PartyContactType.PERSONAL, true));
-        assertNull(WebAddress.createWebAddress(person, "", PartyContactType.PERSONAL, true));
+        assertNull(WebAddress.findOrCreate(person, null, PartyContactType.PERSONAL, true));
+        assertNull(WebAddress.findOrCreate(person, "", PartyContactType.PERSONAL, true));
 
-        final WebAddress first = WebAddress.createWebAddress(person, URL, PartyContactType.PERSONAL, true);
+        final WebAddress first = WebAddress.findOrCreate(person, URL, PartyContactType.PERSONAL, true);
         assertNotNull(first);
         assertTrue(first.hasValue(URL));
 
         // an existing url is reused instead of creating a new one
-        final WebAddress found = WebAddress.createWebAddress(person, URL, PartyContactType.PERSONAL, true);
+        final WebAddress found = WebAddress.findOrCreate(person, URL, PartyContactType.PERSONAL, true);
         assertEquals(first, found);
     }
 
