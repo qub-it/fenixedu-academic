@@ -74,7 +74,7 @@ public class DegreeInfo extends DegreeInfo_Base {
         super();
         setRootDomainObject(Bennu.getInstance());
 
-        DegreeInfo degreeInfo = degree.getMostRecentDegreeInfo(executionYear.getAcademicInterval());
+        DegreeInfo degreeInfo = degree.getMostRecentDegreeInfo(executionYear);
 
         if (degreeInfo != null && degreeInfo.getExecutionYear() == executionYear) {
             throw new DomainException(
