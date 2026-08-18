@@ -11,6 +11,7 @@
 - Refactor: Improve Holiday domain methods [#qubIT-Fenix-9169]
 - Refactor: Improve DegreeInfo domain methods [#qubIT-Fenix-9164]
 - Refactor: Remove deprecated party methods [#qubIT-Fenix-8960]
+- Refactor: Improve RootCourseGroup domain methods [#qubIT-Fenix-9232]
 
 59.0.0 (07-08-2026)
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
