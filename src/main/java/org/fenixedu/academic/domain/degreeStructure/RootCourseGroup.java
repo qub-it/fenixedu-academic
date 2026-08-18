@@ -20,10 +20,9 @@ package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Locale;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -55,11 +54,7 @@ public class RootCourseGroup extends RootCourseGroup_Base {
     }
 
     public ExecutionInterval getBeginExecutionInterval() {
-        final SortedSet<ExecutionInterval> executionIntervals = new TreeSet<ExecutionInterval>();
-        for (final Context context : getChildContextsSet()) {
-            executionIntervals.add(context.getBeginExecutionInterval());
-        }
-        return executionIntervals.isEmpty() ? null : executionIntervals.first();
+        return getChildContextsSet().stream().map(Context::getBeginExecutionInterval).min(Comparator.naturalOrder()).orElse(null);
     }
 
     @Override
@@ -89,13 +84,7 @@ public class RootCourseGroup extends RootCourseGroup_Base {
     }
 
     private boolean childsCanBeDeleted() {
-        for (final Context context : getChildContextsSet()) {
-            final DegreeModule degreeModule = context.getChildDegreeModule();
-            if (!degreeModule.getCanBeDeleted()) {
-                return false;
-            }
-        }
-        return true;
+        return getChildContextsSet().stream().map(Context::getChildDegreeModule).allMatch(DegreeModule::getCanBeDeleted);
     }
 
     static public RootCourseGroup createRoot(final DegreeCurricularPlan degreeCurricularPlan, final String name,
@@ -121,25 +110,14 @@ public class RootCourseGroup extends RootCourseGroup_Base {
     }
 
     public CycleCourseGroup getCycleCourseGroup(CycleType cycle) {
-        for (Context context : getChildContextsSet()) {
-            if (context.getChildDegreeModule().isCycleCourseGroup()) {
-                CycleCourseGroup cycleCourseGroup = (CycleCourseGroup) context.getChildDegreeModule();
-                if (cycle == cycleCourseGroup.getCycleType()) {
-                    return (CycleCourseGroup) context.getChildDegreeModule();
-                }
-            }
-        }
-        return null;
+        return getChildContextsSet().stream().map(Context::getChildDegreeModule).filter(DegreeModule::isCycleCourseGroup)
+                .map(CycleCourseGroup.class::cast).filter(cycleCourseGroup -> cycle == cycleCourseGroup.getCycleType())
+                .findFirst().orElse(null);
     }
 
     public Collection<CycleCourseGroup> getCycleCourseGroups() {
-        Collection<CycleCourseGroup> result = new HashSet<CycleCourseGroup>();
-        for (Context context : getChildContextsSet()) {
-            if (context.getChildDegreeModule().isCycleCourseGroup()) {
-                result.add((CycleCourseGroup) context.getChildDegreeModule());
-            }
-        }
-        return result;
+        return getChildContextsSet().stream().map(Context::getChildDegreeModule).filter(DegreeModule::isCycleCourseGroup)
+                .map(CycleCourseGroup.class::cast).collect(Collectors.toSet());
     }
 
     public boolean hasCycleGroups() {
