@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -336,8 +335,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     public List<ExecutionDegree> getExecutionDegreesForExecutionYear(final ExecutionYear executionYear) {
-        return getDegreeCurricularPlansSet().stream().map(dcp -> dcp.findExecutionDegree(executionYear).orElse(null))
-                .filter(Objects::nonNull).toList();
+        return getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.findExecutionDegree(executionYear).stream()).toList();
     }
 
     public List<ExecutionYear> getDegreeCurricularPlansExecutionYears() {
