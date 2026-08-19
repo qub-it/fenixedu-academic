@@ -26,8 +26,6 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Tania Pousao Created on 30/Out/2003
@@ -66,20 +64,11 @@ public class DegreeInfo extends DegreeInfo_Base {
     public static final String SUPPLEMENT_EXTRA_INFORMATION = "supplementExtraInformation";
     public static final String SUPPLEMENT_OTHER_SOURCES = "supplementOtherSources";
 
-    private static final Logger logger = LoggerFactory.getLogger(DegreeInfo.class);
-
     public static final String DEGREE_INFO_CREATION_EVENT = "DEGREE_INFO_CREATION_EVENT";
 
-    public static Comparator<DegreeInfo> COMPARATOR_BY_EXECUTION_YEAR = new Comparator<DegreeInfo>() {
-        @Override
-        public int compare(final DegreeInfo info1, final DegreeInfo info2) {
-            int result = ExecutionYear.COMPARATOR_BY_YEAR.compare(info1.getExecutionYear(), info2.getExecutionYear());
-            if (result != 0) {
-                return result;
-            }
-            return DomainObjectUtil.COMPARATOR_BY_ID.compare(info1, info2);
-        }
-    };
+    public static final Comparator<DegreeInfo> COMPARATOR_BY_EXECUTION_YEAR =
+            Comparator.comparing(DegreeInfo::getExecutionYear, ExecutionYear.COMPARATOR_BY_YEAR)
+                    .thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     public DegreeInfo(final Degree degree, final ExecutionYear executionYear) {
         super();
@@ -165,28 +154,5 @@ public class DegreeInfo extends DegreeInfo_Base {
      */
     public static boolean isEditable(final DegreeInfo dinfo) {
         return true;
-        //        final DegreeCurricularPlan firstDegreeCurricularPlan = dinfo.getDegree().getFirstDegreeCurricularPlan();
-        //        final DegreeCurricularPlan lastActiveDegreeCurricularPlan = dinfo.getDegree().getLastActiveDegreeCurricularPlan();
-        //        if (firstDegreeCurricularPlan == null) {
-        //            return true;
-        //        }
-        //        ExecutionYear firstExecutionYear =
-        //                ExecutionYear.readByDateTime(firstDegreeCurricularPlan.getInitialDateYearMonthDay().toDateTimeAtMidnight());
-        //        if (dinfo.getExecutionYear().isBefore(firstExecutionYear)) {
-        //            return true;
-        //        }
-        //        if (lastActiveDegreeCurricularPlan == null) {
-        //            return true;
-        //        }
-        //        if (lastActiveDegreeCurricularPlan.getExecutionDegreesSet().isEmpty()) {
-        //            return true;
-        //        }
-        //        if (dinfo.getExecutionYear().isAfter(ExecutionYear.readCurrentExecutionYear())) {
-        //            return true;
-        //        }
-        //        if (dinfo.getExecutionYear().isCurrent()) {
-        //            return true;
-        //        }
-        //        return false;
     }
 }
