@@ -5,6 +5,7 @@
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
 - Refactor: Improves Context domain methods and adds unit tests [#qubIT-Fenix-9112]
 - Refactor: Improves CompetenceCourse domain methods and adds unit tests [#qubIT-Fenix-8962]
+- Refactor: Removes deprecated CompetenceCourse domain methods and CompetenceCourseInformation isBasic attribute [#qubIT-Fenix-8962]
 - Refactor: Improve Holiday domain methods [#qubIT-Fenix-9169]
 
 59.0.0 (07-08-2026)
