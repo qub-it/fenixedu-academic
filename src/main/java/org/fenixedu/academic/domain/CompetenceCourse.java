@@ -93,7 +93,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final String nameEn = Optional.ofNullable(name.getContent(Locale.ENGLISH)).orElse(nameDefault);
 
         CompetenceCourseInformation competenceCourseInformation =
-                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), false, academicPeriod, competenceCourseLevel,
+                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), academicPeriod, competenceCourseLevel,
                         startInterval, unit);
         super.addCompetenceCourseInformations(competenceCourseInformation);
         competenceCourseInformation.setCredits(credits);
@@ -166,7 +166,11 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         }
 
         // if no result found and no explicit interval specified, return first information to attempt more null safety
-        return result == null && !orderedInformations.isEmpty() ? orderedInformations.get(0) : result;
+        if (result == null && !orderedInformations.isEmpty()) {
+            return orderedInformations.get(0);
+        }
+
+        return result;
     }
 
     public String getName(final ExecutionInterval interval) {
@@ -199,15 +203,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     public void setAcronym(String acronym) {
         findInformationMostRecentUntil(null).setAcronym(acronym);
-    }
-
-    public boolean isBasic(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null && information.getBasic();
-    }
-
-    public boolean isBasic() {
-        return isBasic(null);
     }
 
     public RegimeType getRegime(final ExecutionInterval interval) {

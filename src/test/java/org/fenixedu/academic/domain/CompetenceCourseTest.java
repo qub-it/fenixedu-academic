@@ -3,7 +3,6 @@ package org.fenixedu.academic.domain;
 import static org.fenixedu.academic.domain.degreeStructure.CompetenceCourseTypeTest.initCompetenceCourseType;
 import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod.SEMESTER;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -362,28 +361,6 @@ public class CompetenceCourseTest {
         newInformation.delete();
 
         assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(nextExecutionYear));
-    }
-
-    @Test
-    public void testCompetenceCourse_isBasic() {
-        // Initial state:
-        //  - courseInformation in executionInterval (basic=false)
-        //  - nextCourseInformation in nextExecutionYear.getFirstExecutionPeriod() (basic=false)
-        assertFalse(competenceCourseA.isBasic(executionInterval)); // courseInformation
-        assertFalse(competenceCourseA.isBasic()); // when no argument is passed, we get max by interval -> nextCourseInformation
-
-        // Create newInformation in executionInterval, override basic to true
-        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
-        newInformation.setBasic(true);
-
-        assertTrue(competenceCourseA.isBasic(executionInterval));  // newInformation is the latest in executionInterval
-        assertFalse(competenceCourseA.isBasic());                  // nextCourseInformation in nextYear is still the max
-
-        // Set newInformation's execution interval to become the latest version
-        newInformation.setExecutionInterval(nextExecutionYear.getLastExecutionPeriod());
-
-        assertTrue(competenceCourseA.isBasic(nextExecutionYear));  // newInformation is the latest in nextExecutionYear
-        assertTrue(competenceCourseA.isBasic());                   // newInformation is now the max by interval
     }
 
     @Test
