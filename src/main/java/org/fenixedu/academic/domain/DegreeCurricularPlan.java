@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -59,6 +58,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYears;
 import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -320,14 +320,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Set<CurricularCourse> getAllCurricularCourses() {
-        final Set<DegreeModule> curricularCourses = new TreeSet<DegreeModule>(DegreeModule.COMPARATOR_BY_NAME) {
-            @Override
-            public boolean add(final DegreeModule degreeModule) {
-                return degreeModule instanceof CurricularCourse && super.add(degreeModule);
-            }
-        };
-        getRoot().getAllDegreeModules(curricularCourses);
-        return (Set) curricularCourses;
+        return getRoot().getAllCurricularCourses().stream()
+                .collect(Collectors.toCollection(() -> new TreeSet<>(DegreeModule.COMPARATOR_BY_NAME)));
     }
 
     public List<CurricularCourse> getCurricularCoursesWithExecutionIn(final ExecutionYear executionYear) {
@@ -358,6 +352,11 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return this.getCurricularCourses((ExecutionYear) null);
     }
 
+    @Deprecated
+    public Set<CurricularCourse> getCurricularCoursesSetSuperDoNotUseTempFix() {
+        return super.getCurricularCoursesSet();
+    }
+
     public Set<CurricularCourse> getCurricularCourses(final ExecutionInterval executionInterval) {
         final Set<CurricularCourse> curricularCourses = new HashSet<>();
         for (final CurricularCourse curricularCourse : super.getCurricularCoursesSet()) {
@@ -379,11 +378,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
      * @return All curricular courses that are present in the dcp
      */
     private Set<CurricularCourse> getCurricularCourses(final ExecutionYear executionYear) {
-        final Set<CurricularCourse> result = new HashSet<>();
-        for (final DegreeModule degreeModule : getDcpDegreeModules(CurricularCourse.class, executionYear)) {
-            result.add((CurricularCourse) degreeModule);
-        }
-        return result;
+        return getDcpDegreeModules(CurricularCourse.class, executionYear).stream().map(CurricularCourse.class::cast)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -404,24 +400,14 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
      * @return All competence courses that are present in the dcp
      */
     public List<CompetenceCourse> getCompetenceCourses(final ExecutionYear executionYear) {
-        SortedSet<CompetenceCourse> result = new TreeSet<>(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME);
-
-        for (final CurricularCourse curricularCourse : getCurricularCourses(executionYear)) {
-            if (!curricularCourse.isOptionalCurricularCourse()) {
-                result.add(curricularCourse.getCompetenceCourse());
-            }
-        }
-        return new ArrayList<>(result);
+        return getCurricularCourses(executionYear).stream().filter(cc -> !cc.isOptionalCurricularCourse())
+                .map(CurricularCourse::getCompetenceCourse).distinct()
+                .sorted(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME).toList();
     }
 
     public Set<CurricularCourse> getActiveCurricularCourses(final ExecutionInterval executionInterval) {
-        final Set<CurricularCourse> result = new HashSet<>();
-        for (final CurricularCourse curricularCourse : getCurricularCoursesSet()) {
-            if (curricularCourse.hasAnyActiveContext(executionInterval)) {
-                result.add(curricularCourse);
-            }
-        }
-        return result;
+        return getCurricularCoursesSet().stream().filter(cc -> cc.hasAnyActiveContext(executionInterval))
+                .collect(Collectors.toSet());
     }
 
     public CourseGroup createCourseGroup(final CourseGroup parentCourseGroup, final String name, final String nameEn,
@@ -723,15 +709,9 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public Set<CurricularCourse> getCurricularCoursesByExecutionYearAndCurricularYear(final ExecutionYear executionYear,
             final Integer curricularYear) {
-        Set<CurricularCourse> result = new HashSet<>();
-
-        for (final CurricularCourse curricularCourse : getCurricularCoursesWithExecutionIn(executionYear)) {
-            if (curricularCourse.getParentContextsSet().stream()
-                    .anyMatch(ctx -> ctx.getCurricularYear().equals(curricularYear))) {
-                result.add(curricularCourse);
-            }
-        }
-        return result;
+        return getCurricularCoursesWithExecutionIn(executionYear).stream()
+                .filter(cc -> cc.getParentContextsSet().stream().anyMatch(ctx -> ctx.getCurricularYear().equals(curricularYear)))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -767,10 +747,10 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         LocalizedString result = new LocalizedString();
 
         if (!StringUtils.isEmpty(getDescription())) {
-            result = result.with(org.fenixedu.academic.util.LocaleUtils.PT, getDescription());
+            result = result.with(LocaleUtils.PT, getDescription());
         }
         if (!StringUtils.isEmpty(getDescriptionEn())) {
-            result = result.with(org.fenixedu.academic.util.LocaleUtils.EN, getDescriptionEn());
+            result = result.with(LocaleUtils.EN, getDescriptionEn());
         }
 
         return result;
@@ -778,8 +758,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public void setDescriptionI18N(final LocalizedString input) {
         if (input != null && !input.isEmpty()) {
-            setDescription(input.getContent(org.fenixedu.academic.util.LocaleUtils.PT));
-            setDescriptionEn(input.getContent(org.fenixedu.academic.util.LocaleUtils.EN));
+            setDescription(input.getContent(LocaleUtils.PT));
+            setDescriptionEn(input.getContent(LocaleUtils.EN));
         } else {
             setDescription(null);
             setDescriptionEn(null);

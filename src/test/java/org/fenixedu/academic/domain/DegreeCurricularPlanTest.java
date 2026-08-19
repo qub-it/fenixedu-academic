@@ -1,5 +1,19 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
+import static org.fenixedu.academic.domain.DegreeTest.MASTER_DEGREE_TYPE_CODE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -13,33 +27,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
+
 import pt.ist.fenixframework.FenixFramework;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
-import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
-import static org.fenixedu.academic.domain.DegreeTest.MASTER_DEGREE_TYPE_CODE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(FenixFrameworkRunner.class)
 public class DegreeCurricularPlanTest {
 
-    private static DegreeCurricularPlan degreeCurricularPlan;
-    private static CurricularCourse curricularCourse;
-
     public static final String DCP_NAME_V1 = "DCP_NAME_V1";
     public static final String DCP_NAME_V2 = "DCP_NAME_V2";
     public static final String DCP_NAME_V3 = "DCP_NAME_V3";
-
+    private static DegreeCurricularPlan degreeCurricularPlan;
+    private static CurricularCourse curricularCourse;
     private static ExecutionYear currentYear, previousYear, nextYear;
+    private static ExecutionInterval currentInterval;
+    private static CurricularPeriod yearPeriod, semesterPeriod;
+    private static CompetenceCourse competenceCourseA, competenceCourseB;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -53,6 +55,8 @@ public class DegreeCurricularPlanTest {
             currentYear = ExecutionYear.findCurrent(null);
             nextYear = (ExecutionYear) currentYear.getNext();
             previousYear = (ExecutionYear) currentYear.getPrevious();
+            currentInterval = currentYear.getFirstExecutionPeriod();
+            competenceCourseB = CompetenceCourse.find(CompetenceCourseTest.COURSE_B_CODE);
 
             return null;
         });
@@ -70,14 +74,13 @@ public class DegreeCurricularPlanTest {
         new DegreeCurricularPlan(degree, DCP_NAME_V3, AcademicPeriod.THREE_YEAR);
 
         CompetenceCourseTest.initCompetenceCourse();
-        final CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
+        competenceCourseA = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
 
         curricularCourse = new CurricularCourse();
-        curricularCourse.setCompetenceCourse(competenceCourse);
+        curricularCourse.setCompetenceCourse(competenceCourseA);
 
-        final CurricularPeriod yearPeriod =
-                new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
-        final CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
+        yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
+        semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
 
         final ExecutionInterval executionInterval = ExecutionYear.findCurrent(null).getFirstExecutionPeriod();
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
@@ -203,7 +206,7 @@ public class DegreeCurricularPlanTest {
         DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_BEGIN");
         assertNull(dcp.getBegin());
 
-        new CourseGroup(dcp.getRoot(), "Group Later", "Group Later", currentYear.getFirstExecutionPeriod(), null);
+        new CourseGroup(dcp.getRoot(), "Group Later", "Group Later", currentInterval, null);
         new CourseGroup(dcp.getRoot(), "Group Earlier", "Group Earlier", previousYear.getFirstExecutionPeriod(), null);
 
         assertEquals(previousYear, dcp.getBegin());
@@ -292,22 +295,152 @@ public class DegreeCurricularPlanTest {
     @Test
     public void testDegreeCurricularPlan_getExecutionCourses() {
         DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_EXECUTION_COURSES");
-        ExecutionInterval interval = currentYear.getFirstExecutionPeriod();
-        CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
-        CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
-        CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
         CurricularCourse curricularCourse = new CurricularCourse();
-        curricularCourse.setCompetenceCourse(competenceCourse);
-        CourseGroup courseGroup = new CourseGroup(dcp.getRoot(), "Test Group", "Test Group", interval, null);
-        ExecutionCourse executionCourse = new ExecutionCourse("Test EC", "TEC", interval);
+        curricularCourse.setCompetenceCourse(competenceCourseA);
+        CourseGroup courseGroup = new CourseGroup(dcp.getRoot(), "Test Group", "Test Group", currentInterval, null);
+        ExecutionCourse executionCourse = new ExecutionCourse("Test EC", "TEC", currentInterval);
         curricularCourse.addAssociatedExecutionCourses(executionCourse);
 
-        assertTrue(dcp.getExecutionCourses(interval).isEmpty());
+        assertTrue(dcp.getExecutionCourses(currentInterval).isEmpty());
 
-        new Context(courseGroup, curricularCourse, semesterPeriod, interval, null);
-        assertTrue(dcp.getExecutionCourses(interval).contains(executionCourse));
+        new Context(courseGroup, curricularCourse, semesterPeriod, currentInterval, null);
+        assertTrue(dcp.getExecutionCourses(currentInterval).contains(executionCourse));
 
         // different interval returns empty set
         assertTrue(dcp.getExecutionCourses(nextYear.getFirstExecutionPeriod()).isEmpty());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getAllCurricularCourses() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_ALL_CURR_COURSES");
+
+        // empty DCP returns empty set
+        assertTrue(dcp.getAllCurricularCourses().isEmpty());
+
+        // courses are returned from child groups and sorted by name
+        CurricularCourse courseA = new CurricularCourse();
+        courseA.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA, semesterPeriod, currentInterval, null);
+
+        CourseGroup childGroup = new CourseGroup(dcp.getRoot(), "Nested Group", "Nested Group", currentInterval, null);
+        CurricularCourse courseB = new CurricularCourse();
+        courseB.setCompetenceCourse(competenceCourseB);
+        new Context(childGroup, courseB, semesterPeriod, currentInterval, null);
+
+        assertEquals(List.of(courseA, courseB), new ArrayList<>(dcp.getAllCurricularCourses()));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getCurricularCourses() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_CURR_COURSES");
+
+        // empty DCP returns empty set
+        assertTrue(dcp.getCurricularCourses(currentInterval).isEmpty());
+
+        // course with context in the queried interval is returned
+        CurricularCourse courseA = new CurricularCourse();
+        courseA.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA, semesterPeriod, currentInterval, currentInterval);
+
+        assertTrue(dcp.getCurricularCourses(currentInterval).contains(courseA));
+
+        // multiple courses across intervals - only matching ones returned
+        ExecutionInterval nextInterval = nextYear.getFirstExecutionPeriod();
+        CurricularCourse courseB = new CurricularCourse();
+        courseB.setCompetenceCourse(competenceCourseB);
+        new Context(dcp.getRoot(), courseB, semesterPeriod, nextInterval, nextInterval);
+
+        Set<CurricularCourse> resultCurrent = dcp.getCurricularCourses(currentInterval);
+        assertEquals(1, resultCurrent.size());
+        assertTrue(resultCurrent.contains(courseA));
+
+        Set<CurricularCourse> resultNext = dcp.getCurricularCourses(nextInterval);
+        assertEquals(1, resultNext.size());
+        assertTrue(resultNext.contains(courseB));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getCompetenceCourses() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_COMP_COURSES");
+
+        // empty DCP returns empty list
+        assertTrue(dcp.getCompetenceCourses(currentYear).isEmpty());
+
+        // excludes optionalCurricularCourses
+        CurricularCourse optional =
+                dcp.createOptionalCurricularCourse(dcp.getRoot(), "Op", "Op", semesterPeriod, currentInterval, null);
+        optional.setCompetenceCourse(competenceCourseA);
+
+        assertTrue(dcp.getCompetenceCourses(currentYear).isEmpty());
+
+        // returns non-optional courses sorted by CompetenceCourse name
+        CurricularCourse courseA = new CurricularCourse();
+        courseA.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA, semesterPeriod, currentInterval, null);
+
+        CurricularCourse courseB = new CurricularCourse();
+        courseB.setCompetenceCourse(competenceCourseB);
+        new Context(dcp.getRoot(), courseB, semesterPeriod, currentInterval, null);
+
+        assertEquals(List.of(competenceCourseA, competenceCourseB), dcp.getCompetenceCourses(currentYear));
+
+        // distinct() - two CurricularCourses share the same CompetenceCourse
+        CurricularCourse courseA2 = new CurricularCourse();
+        courseA2.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA2, semesterPeriod, currentInterval, null);
+
+        assertEquals(List.of(competenceCourseA, competenceCourseB), dcp.getCompetenceCourses(currentYear));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getActiveCurricularCourses() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_ACTIVE_COURSES");
+
+        // empty DCP returns empty set
+        assertTrue(dcp.getActiveCurricularCourses(currentInterval).isEmpty());
+
+        // returns only courses with an active context for the requested interval
+        CurricularCourse course = new CurricularCourse();
+        course.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), course, semesterPeriod, currentInterval, currentInterval);
+
+        assertTrue(dcp.getActiveCurricularCourses(currentInterval).contains(course));
+        assertTrue(dcp.getActiveCurricularCourses(nextYear.getFirstExecutionPeriod()).isEmpty());
+        assertTrue(dcp.getActiveCurricularCourses(previousYear.getFirstExecutionPeriod()).isEmpty());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getCurricularCoursesByExecutionYearAndCurricularYear() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_FILTER_CURR_YEAR");
+        CurricularPeriod year1 = new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
+        CurricularPeriod year2 = new CurricularPeriod(AcademicPeriod.YEAR, 2, degreeCurricularPlan.getDegreeStructure());
+        CurricularPeriod semester1Y1 = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, year1);
+        CurricularPeriod semester1Y2 = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, year2);
+
+        // filters correctly by curricular year
+        CurricularCourse courseA = new CurricularCourse();
+        courseA.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA, semester1Y1, currentInterval, null);
+        ExecutionCourse executionCourseA = new ExecutionCourse("ECA", "ECA", currentInterval);
+        courseA.addAssociatedExecutionCourses(executionCourseA);
+
+        assertEquals(Set.of(courseA), dcp.getCurricularCoursesByExecutionYearAndCurricularYear(currentYear, 1));
+        assertTrue(dcp.getCurricularCoursesByExecutionYearAndCurricularYear(currentYear, 2).isEmpty());
+
+        // adding a second course in year 2 - each returned only for its matching curricular year
+        CurricularCourse courseB = new CurricularCourse();
+        courseB.setCompetenceCourse(competenceCourseB);
+        new Context(dcp.getRoot(), courseB, semester1Y2, currentInterval, null);
+        ExecutionCourse executionCourseB = new ExecutionCourse("ECB", "ECB", currentInterval);
+        courseB.addAssociatedExecutionCourses(executionCourseB);
+
+        assertEquals(Set.of(courseA), dcp.getCurricularCoursesByExecutionYearAndCurricularYear(currentYear, 1));
+        assertEquals(Set.of(courseB), dcp.getCurricularCoursesByExecutionYearAndCurricularYear(currentYear, 2));
+
+        // querying for a curricular year that doesn't exist returns empty
+        assertTrue(dcp.getCurricularCoursesByExecutionYearAndCurricularYear(currentYear, 99).isEmpty());
+
+        // querying for a different execution year returns empty
+        assertTrue(dcp.getCurricularCoursesByExecutionYearAndCurricularYear(nextYear, 1).isEmpty());
     }
 }
