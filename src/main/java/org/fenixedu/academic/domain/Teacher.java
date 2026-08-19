@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -39,25 +40,9 @@ import org.joda.time.Interval;
 
 public class Teacher extends Teacher_Base {
 
-    public static final Comparator<Teacher> TEACHER_COMPARATOR_BY_CATEGORY_AND_NUMBER = new Comparator<Teacher>() {
-
-        @Override
-        public int compare(Teacher teacher1, Teacher teacher2) {
-            final int teacherIdCompare = teacher1.getPerson().getUsername().compareTo(teacher2.getPerson().getUsername());
-
-            if (teacher1.getLastCategory() == null && teacher2.getLastCategory() == null) {
-                return teacherIdCompare;
-            } else if (teacher1.getLastCategory() == null) {
-                return 1;
-            } else if (teacher2.getLastCategory() == null) {
-                return -1;
-            } else {
-                final int categoryCompare = teacher1.getLastCategory().compareTo(teacher2.getLastCategory());
-                return categoryCompare == 0 ? teacherIdCompare : categoryCompare;
-            }
-        }
-
-    };
+    public static final Comparator<Teacher> TEACHER_COMPARATOR_BY_CATEGORY_AND_NUMBER =
+            Comparator.comparing((Teacher teacher) -> teacher.getLastCategory(), Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(teacher -> teacher.getPerson().getUsername());
 
     public Teacher(Person person) {
         super();
@@ -97,25 +82,6 @@ public class Teacher extends Teacher_Base {
     /*
      * BUSINESS SERVICES *
      */
-
-    public List<Professorship> responsibleFors() {
-        final List<Professorship> result = new ArrayList<Professorship>();
-        for (final Professorship professorship : this.getProfessorships()) {
-            if (professorship.isResponsibleFor()) {
-                result.add(professorship);
-            }
-        }
-        return result;
-    }
-
-    public Professorship isResponsibleFor(ExecutionCourse executionCourse) {
-        for (final Professorship professorship : this.getProfessorships()) {
-            if (professorship.getResponsibleFor() && professorship.getExecutionCourse() == executionCourse) {
-                return professorship;
-            }
-        }
-        return null;
-    }
 
     /**
      * Gets the latest unit of the teacher (usually the unit represents a department)
@@ -164,26 +130,6 @@ public class Teacher extends Teacher_Base {
      */
     public TeacherCategory getLastCategory() {
         return getLastCategory(AcademicInterval.readDefaultAcademicInterval(AcademicPeriod.SEMESTER)).orElse(null);
-    }
-
-    public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionYear(ExecutionYear executionYear) {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            executionCourses.addAll(getLecturedExecutionCoursesByExecutionPeriod(executionInterval));
-        }
-        return executionCourses;
-    }
-
-    public List<ExecutionCourse> getLecturedExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (Professorship professorship : getProfessorships()) {
-            ExecutionCourse executionCourse = professorship.getExecutionCourse();
-
-            if (executionCourse.getExecutionInterval().equals(executionInterval)) {
-                executionCourses.add(executionCourse);
-            }
-        }
-        return executionCourses;
     }
 
     public List<ExecutionCourse> getAllLecturedExecutionCourses() {
@@ -237,17 +183,6 @@ public class Teacher extends Teacher_Base {
 
     public List<Professorship> getProfessorships(ExecutionYear executionYear) {
         return getPerson().getProfessorships(executionYear);
-    }
-
-    public boolean isResponsibleFor(CurricularCourse curricularCourse, ExecutionInterval executionInterval) {
-        for (final ExecutionCourse executionCourse : curricularCourse.getAssociatedExecutionCoursesSet()) {
-            if (executionCourse.getExecutionInterval() == executionInterval) {
-                if (isResponsibleFor(executionCourse) != null) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public void delete() {

@@ -1,4 +1,5 @@
 *.class
+.factorypath
 
 # Package Files #
 *.jar
