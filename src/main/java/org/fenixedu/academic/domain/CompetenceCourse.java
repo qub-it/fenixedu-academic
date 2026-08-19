@@ -37,8 +37,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -95,7 +93,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final String nameEn = Optional.ofNullable(name.getContent(Locale.ENGLISH)).orElse(nameDefault);
 
         CompetenceCourseInformation competenceCourseInformation =
-                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), false, academicPeriod, competenceCourseLevel,
+                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), academicPeriod, competenceCourseLevel,
                         startInterval, unit);
         super.addCompetenceCourseInformations(competenceCourseInformation);
         competenceCourseInformation.setCredits(credits);
@@ -424,11 +422,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return isAnual(null);
     }
 
-    @Deprecated(forRemoval = true)
-    public boolean isApproved() {
-        return true;
-    }
-
     public LocalizedString getNameI18N() {
         return getNameI18N(null);
     }
@@ -482,16 +475,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * @deprecated
-     * 
-     * @use {@link #isFinalWork()}
-     */
-    @Deprecated
-    public boolean isDissertation() {
-        return isFinalWork();
-    }
-
     public boolean isFinalWork() {
         return getCompetenceCourseType().getFinalWork();
     }
@@ -500,32 +483,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         return getOldestCompetenceCourseInformation().getExecutionInterval();
     }
 
-    @Deprecated
-    static public Collection<CompetenceCourse> readBolonhaCompetenceCourses() {
-        final Set<CompetenceCourse> result = new TreeSet<CompetenceCourse>(COMPETENCE_COURSE_COMPARATOR_BY_NAME);
-        for (final CompetenceCourse competenceCourse : Bennu.getInstance().getCompetenceCoursesSet()) {
-            result.add(competenceCourse);
-        }
-        return result;
-    }
-
     static public Collection<CompetenceCourse> findAll() {
         return Bennu.getInstance().getCompetenceCoursesSet().stream().collect(Collectors.toSet());
-    }
-
-    @Deprecated
-    public java.util.Date getCreationDate() {
-        org.joda.time.YearMonthDay ymd = getCreationDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
-    @Deprecated
-    public void setCreationDate(java.util.Date date) {
-        if (date == null) {
-            setCreationDateYearMonthDay(null);
-        } else {
-            setCreationDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
     }
 
     public static CompetenceCourse find(final String code) {
