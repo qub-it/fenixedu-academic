@@ -93,7 +93,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         final String nameEn = Optional.ofNullable(name.getContent(Locale.ENGLISH)).orElse(nameDefault);
 
         CompetenceCourseInformation competenceCourseInformation =
-                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), academicPeriod, competenceCourseLevel,
+                new CompetenceCourseInformation(nameDefault.trim(), nameEn.trim(), false, academicPeriod, competenceCourseLevel,
                         startInterval, unit);
         super.addCompetenceCourseInformations(competenceCourseInformation);
         competenceCourseInformation.setCredits(credits);
