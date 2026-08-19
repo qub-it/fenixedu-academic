@@ -28,8 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -133,36 +131,34 @@ public class Teacher extends Teacher_Base {
     }
 
     public List<ExecutionCourse> getAllLecturedExecutionCourses() {
-        List<ExecutionCourse> executionCourses = new ArrayList<ExecutionCourse>();
-        for (Professorship professorship : this.getProfessorships()) {
-            executionCourses.add(professorship.getExecutionCourse());
-        }
-        return executionCourses;
+        return getProfessorships().stream().map(Professorship::getExecutionCourse).collect(Collectors.toList());
     }
 
     public Professorship getProfessorshipByExecutionCourse(final ExecutionCourse executionCourse) {
-        return (Professorship) CollectionUtils.find(getProfessorships(), new Predicate() {
-            @Override
-            public boolean evaluate(Object arg0) {
-                Professorship professorship = (Professorship) arg0;
-                return professorship.getExecutionCourse() == executionCourse;
-            }
-        });
-    }
-
-    public boolean hasProfessorshipForExecutionCourse(final ExecutionCourse executionCourse) {
-        return (getProfessorshipByExecutionCourse(executionCourse) != null);
+        return getProfessorships().stream().filter(p -> p.getExecutionCourse() == executionCourse).findFirst().orElse(null);
     }
 
     /*
      * PRIVATE METHODS *
      * */
 
+    /**
+     * @deprecated use {@code #findByUsername(String)}
+     */
+    @Deprecated
     public static Teacher readTeacherByUsername(final String userName) {
         final Person person = Person.readPersonByUsername(userName);
         return (person.getTeacher() != null) ? person.getTeacher() : null;
     }
 
+    public static Optional<Teacher> findByUsername(String username) {
+        Person person = Person.readPersonByUsername(username);
+        return Optional.ofNullable(person).map(Person::getTeacher);
+    }
+
+    // TODO: The only two callers pass a single element.
+    // Refactor them to use findByUsername(String) instead, then remove this method.
+    @Deprecated
     public static List<Teacher> readByNumbers(Collection<String> teacherId) {
         List<Teacher> selectedTeachers = new ArrayList<Teacher>();
         for (final Teacher teacher : Bennu.getInstance().getTeachersSet()) {

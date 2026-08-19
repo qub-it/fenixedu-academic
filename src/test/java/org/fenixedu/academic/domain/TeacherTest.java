@@ -2,19 +2,21 @@ package org.fenixedu.academic.domain;
 
 import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V1;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.util.UserUtil;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -126,5 +128,34 @@ public class TeacherTest {
         assertEquals(teacherSameCategory, teachers.get(2));
         assertEquals(teacherNoCategory, teachers.get(3));
         assertEquals(teacherNoCategory2, teachers.get(4));
+    }
+
+    @Test
+    public void testTeacher_getAllLecturedExecutionCourses() {
+        List<ExecutionCourse> allCourses = teacher.getAllLecturedExecutionCourses();
+        assertEquals(3, allCourses.size());
+        assertTrue(allCourses.contains(executionCourseResponsibleS1));
+        assertTrue(allCourses.contains(executionCourseNotResponsibleS2));
+        assertTrue(allCourses.contains(executionCourseResponsibleNextYearS1));
+    }
+
+    @Test
+    public void testTeacher_getProfessorshipByExecutionCourse() {
+        assertEquals(professorship1, teacher.getProfessorshipByExecutionCourse(executionCourseResponsibleS1));
+        assertEquals(professorship2, teacher.getProfessorshipByExecutionCourse(executionCourseNotResponsibleS2));
+        assertEquals(professorship3, teacher.getProfessorshipByExecutionCourse(executionCourseResponsibleNextYearS1));
+
+        assertNull(teacher.getProfessorshipByExecutionCourse(unknownCourse));
+        assertNull(teacher.getProfessorshipByExecutionCourse(null));
+    }
+
+    @Test
+    public void testTeacher_findByUsername() {
+        Optional<Teacher> result = Teacher.findByUsername(TEACHER_USERNAME);
+        assertTrue(result.isPresent());
+        assertEquals(teacher, result.get());
+
+        result = Teacher.findByUsername("nonexistent");
+        assertFalse(result.isPresent());
     }
 }
