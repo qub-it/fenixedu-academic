@@ -91,7 +91,7 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
     public CompetenceCourseInformation(final CompetenceCourseInformation existingInformation,
             final ExecutionInterval executionInterval) {
 
-        this(existingInformation.getName(), existingInformation.getNameEn(),
+        this(existingInformation.getName(), existingInformation.getNameEn(), existingInformation.getBasic(),
                 existingInformation.getAcademicPeriod(), existingInformation.getLevelType(), executionInterval,
                 existingInformation.getCompetenceCourseGroupUnit());
 
@@ -120,42 +120,44 @@ public class CompetenceCourseInformation extends CompetenceCourseInformation_Bas
                 .forEach(ccsa -> CompetenceCourseScientificArea.create(this, ccsa.getScientificAreaUnit()));
     }
 
-    public CompetenceCourseInformation(final String name, final String nameEn,
+    public CompetenceCourseInformation(final String name, final String nameEn, final Boolean basic,
             final AcademicPeriod academicPeriod, final CompetenceCourseLevelType competenceCourseLevel,
             final ExecutionInterval interval, final Unit unit) {
 
         this();
-        checkParameters(name, nameEn, academicPeriod, competenceCourseLevel, unit);
+        checkParameters(name, nameEn, basic, academicPeriod, competenceCourseLevel, unit);
         setName(name);
         setNameEn(nameEn);
+        setBasic(basic);
         setAcademicPeriod(academicPeriod);
         setLevelType(competenceCourseLevel);
         setExecutionInterval(interval);
         setCompetenceCourseGroupUnit(unit);
     }
 
-    private void checkParameters(final String name, final String nameEn, final AcademicPeriod academicPeriod,
+    private void checkParameters(final String name, final String nameEn, final Boolean basic, final AcademicPeriod academicPeriod,
             CompetenceCourseLevelType competenceCourseLevel) {
 
-        if (name == null || nameEn == null || academicPeriod == null) {
+        if (name == null || nameEn == null || basic == null || academicPeriod == null) {
             throw new DomainException("competence.course.information.invalid.parameters");
         }
     }
 
-    private void checkParameters(final String name, final String nameEn, final AcademicPeriod academicPeriod,
+    private void checkParameters(final String name, final String nameEn, final Boolean basic, final AcademicPeriod academicPeriod,
             final CompetenceCourseLevelType competenceCourseLevel, final Unit unit) {
 
-        checkParameters(name, nameEn, academicPeriod, competenceCourseLevel);
+        checkParameters(name, nameEn, basic, academicPeriod, competenceCourseLevel);
         if (unit == null || !unit.isCompetenceCourseGroupUnit()) {
             throw new DomainException("competence.course.information.invalid.group.unit");
         }
     }
 
-    public void edit(final String name, final String nameEn,
+    public void edit(final String name, final String nameEn, final Boolean basic,
             final CompetenceCourseLevelType competenceCourseLevel, final Unit unit) {
-        checkParameters(name, nameEn, getAcademicPeriod(), competenceCourseLevel, unit);
+        checkParameters(name, nameEn, basic, getAcademicPeriod(), competenceCourseLevel, unit);
         setName(name);
         setNameEn(nameEn);
+        setBasic(basic);
         setLevelType(competenceCourseLevel);
         setCompetenceCourseGroupUnit(unit);
     }
