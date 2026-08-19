@@ -125,8 +125,8 @@ public class DegreeCurricularPlanTest {
         Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", executionYear);
         DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, executionInterval);
 
-        assertNull(dcp.findExecutionDegree(executionYear).orElse(null));
-        assertNull(dcp.findExecutionDegree(executionInterval).orElse(null));
+        assertTrue(dcp.findExecutionDegree(executionYear).isEmpty());
+        assertTrue(dcp.findExecutionDegree(executionInterval).isEmpty());
         assertTrue(dcp.findExecutionDegree(next).isEmpty());
 
         ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
