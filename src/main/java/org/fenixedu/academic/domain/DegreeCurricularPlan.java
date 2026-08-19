@@ -565,10 +565,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return Bennu.getInstance().getDegreeCurricularPlansSet().stream();
     }
 
-    public static Set<DegreeCurricularPlan> readBolonhaDegreeCurricularPlans() {
-        return Degree.findAll().flatMap(degree -> degree.getDegreeCurricularPlansSet().stream()).collect(Collectors.toSet());
-    }
-
     public static DegreeCurricularPlan readByNameAndDegreeSigla(final String name, final String degreeSigla) {
         return findAll().filter(dcp -> StringUtils.equalsIgnoreCase(dcp.getName(), name) && StringUtils.equalsIgnoreCase(
                 dcp.getDegree().getSigla(), degreeSigla)).findFirst().orElse(null);

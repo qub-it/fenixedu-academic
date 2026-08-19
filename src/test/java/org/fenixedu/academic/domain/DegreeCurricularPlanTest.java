@@ -180,16 +180,6 @@ public class DegreeCurricularPlanTest {
     }
 
     @Test
-    public void testDegreeCurricularPlan_readBolonhaDegreeCurricularPlans() {
-        DegreeCurricularPlan dcp1 = createDegreeCurricularPlan("DCP_READ_BOLONHA_1");
-        DegreeCurricularPlan dcp2 = createDegreeCurricularPlan("DCP_READ_BOLONHA_2");
-
-        Set<DegreeCurricularPlan> result = DegreeCurricularPlan.readBolonhaDegreeCurricularPlans();
-        assertTrue(result.contains(dcp1));
-        assertTrue(result.contains(dcp2));
-    }
-
-    @Test
     public void testDegreeCurricularPlan_readByNameAndDegreeSigla() {
         String dcpName = "DCP_READ_BY_NAME_AND_SIGLA";
         DegreeCurricularPlan dcp = createDegreeCurricularPlan(dcpName);
