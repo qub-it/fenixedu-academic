@@ -26,6 +26,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
@@ -275,12 +276,19 @@ public class DegreeCurricularPlanTest {
         DegreeCurricularPlan dcpC = createDegreeCurricularPlan("CCC");
 
         List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
-        list.sort(DegreeCurricularPlan.COMPARATOR_BY_NAME);
+        Comparator<DegreeCurricularPlan> comparator = DegreeCurricularPlan.COMPARATOR_BY_NAME;
+        list.sort(comparator);
 
         assertEquals(dcpA, list.get(0));
         assertEquals(dcpB, list.get(1));
         assertEquals(dcpC, list.get(2));
-        assertEquals(0, DegreeCurricularPlan.COMPARATOR_BY_NAME.compare(dcpA, dcpA));
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
     }
 
     @Test
@@ -289,13 +297,20 @@ public class DegreeCurricularPlanTest {
         DegreeCurricularPlan dcpB = createDegreeCurricularPlan("PPP_BBB");
         DegreeCurricularPlan dcpC = createDegreeCurricularPlan("PPP_CCC");
 
-        List<DegreeCurricularPlan> list = new ArrayList<>(Arrays.asList(dcpB, dcpC, dcpA));
-        list.sort(DegreeCurricularPlan.COMPARATOR_BY_PRESENTATION_NAME);
+        List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        Comparator<DegreeCurricularPlan> comparator = DegreeCurricularPlan.COMPARATOR_BY_PRESENTATION_NAME;
+        list.sort(comparator);
 
         assertEquals(dcpA, list.get(0));
         assertEquals(dcpB, list.get(1));
         assertEquals(dcpC, list.get(2));
-        assertEquals(0, DegreeCurricularPlan.COMPARATOR_BY_PRESENTATION_NAME.compare(dcpA, dcpA));
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
     }
 
     @Test
@@ -309,8 +324,10 @@ public class DegreeCurricularPlanTest {
         dcpB.getDegree().setSigla("A");
         dcpC.getDegree().setSigla("A");
 
-        List<DegreeCurricularPlan> list = new ArrayList<>(Arrays.asList(dcpB, dcpC, dcpA));
-        list.sort(DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE);
+        List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        Comparator<DegreeCurricularPlan> comparator =
+                DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE;
+        list.sort(comparator);
 
         assertEquals(dcpA, list.get(0));
         assertEquals(dcpB, list.get(1));
@@ -324,8 +341,8 @@ public class DegreeCurricularPlanTest {
         dcpB.setName("1_TO_MAKE_SURE");
         dcpC.setName("2_IT_IS_USING_SIGLA");
 
-        list = new ArrayList<>(Arrays.asList(dcpB, dcpC, dcpA));
-        list.sort(DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE);
+        list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        list.sort(comparator);
 
         assertEquals(dcpA, list.get(0));
         assertEquals(dcpB, list.get(1));
@@ -337,15 +354,19 @@ public class DegreeCurricularPlanTest {
         dcpB.getDegree().setSigla("2_TO_MAKE_SURE");
         dcpC.getDegree().setSigla("0_IT_IS_USING_DEGREE_TYPE");
 
-        list = new ArrayList<>(Arrays.asList(dcpB, dcpC, dcpA));
-        list.sort(DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE);
+        list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        list.sort(comparator);
         assertEquals(dcpA, list.get(0));
         assertEquals(dcpB, list.get(1));
         assertEquals(dcpC, list.get(2));
 
-        assertEquals(0,
-                DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE.compare(
-                        dcpA, dcpA));
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
     }
 
     @Test
