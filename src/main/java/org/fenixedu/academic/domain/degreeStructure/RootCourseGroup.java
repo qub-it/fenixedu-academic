@@ -20,7 +20,6 @@ package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -51,10 +50,6 @@ public class RootCourseGroup extends RootCourseGroup_Base {
             new CycleCourseGroup(this, cycleType.getDescription(Locale.getDefault()), cycleType.getDescription(Locale.ENGLISH),
                     cycleType, executionInterval, null);
         }
-    }
-
-    public ExecutionInterval getBeginExecutionInterval() {
-        return getChildContextsSet().stream().map(Context::getBeginExecutionInterval).min(Comparator.naturalOrder()).orElse(null);
     }
 
     @Override
