@@ -153,7 +153,7 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         CompetenceCourseInformation result = null;
 
         final List<CompetenceCourseInformation> orderedInformations = getCompetenceCourseInformationsSet().stream()
-                .sorted(CompetenceCourseInformation.COMPARATORY_BY_EXECUTION_INTERVAL).collect(Collectors.toList());
+                .sorted(CompetenceCourseInformation.COMPARATORY_BY_EXECUTION_INTERVAL).toList();
 
         for (CompetenceCourseInformation information : orderedInformations) {
             if (information.getExecutionInterval().isAfter(childInterval)) {
@@ -171,15 +171,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         }
 
         return result;
-    }
-
-    /**
-     * @deprecated use {@link #findInformationMostRecentUntil(ExecutionInterval)}
-     */
-    @Deprecated
-    public CompetenceCourseInformation findCompetenceCourseInformationForExecutionPeriod(
-            final ExecutionInterval executionInterval) {
-        return findInformationMostRecentUntil(executionInterval);
     }
 
     public String getName(final ExecutionInterval interval) {
@@ -214,15 +205,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
         findInformationMostRecentUntil(null).setAcronym(acronym);
     }
 
-    public boolean isBasic(final ExecutionInterval interval) {
-        final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
-        return information != null ? information.getBasic() : false;
-    }
-
-    public boolean isBasic() {
-        return isBasic(null);
-    }
-
     public RegimeType getRegime(final ExecutionInterval interval) {
         final CompetenceCourseInformation information = findInformationMostRecentUntil(interval);
         return information != null ? information.getRegime() : null;
@@ -230,11 +212,6 @@ public class CompetenceCourse extends CompetenceCourse_Base {
 
     public RegimeType getRegime() {
         return getRegime(null);
-    }
-
-    @Deprecated
-    public void setRegime(RegimeType regimeType) {
-        findInformationMostRecentUntil(null).setAcademicPeriod(regimeType.convertToAcademicPeriod());
     }
 
     public double getTheoreticalHours() {
@@ -351,23 +328,13 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public Collection<Context> getCurricularCourseContexts() {
-        final Set<Context> result = new HashSet<Context>();
-        for (CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            for (Context context : curricularCourse.getParentContextsSet()) {
-                result.add(context);
-            }
-        }
-        return result;
+        return getAssociatedCurricularCoursesSet().stream().flatMap(cc -> cc.getParentContextsSet().stream())
+                .collect(Collectors.toSet());
     }
 
     public CurricularCourse getCurricularCourse(final DegreeCurricularPlan degreeCurricularPlan) {
-        for (final CurricularCourse curricularCourse : getAssociatedCurricularCoursesSet()) {
-            if (curricularCourse.getDegreeCurricularPlan() == degreeCurricularPlan) {
-                return curricularCourse;
-            }
-        }
-
-        return null;
+        return getAssociatedCurricularCoursesSet().stream().filter(cc -> cc.getDegreeCurricularPlan() == degreeCurricularPlan)
+                .findFirst().orElse(null);
     }
 
     public List<Enrolment> getActiveEnrollments(ExecutionInterval interval) {

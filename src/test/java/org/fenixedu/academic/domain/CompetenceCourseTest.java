@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseInformation;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseLevelType;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -40,7 +41,7 @@ public class CompetenceCourseTest {
     public static final String COURSE_A_CODE = "CA";
     public static final String COURSE_B_CODE = "CB"; // annual
 
-    private static ExecutionYear executionYear, nextExecutionYear;
+    private static ExecutionYear previousExecutionYear, executionYear, nextExecutionYear;
     private static ExecutionInterval executionInterval;
     private static CurricularPeriod firstSemester;
     private static CompetenceCourse competenceCourseA, competenceCourseB;
@@ -68,6 +69,7 @@ public class CompetenceCourseTest {
 
         executionYear = ExecutionYear.findCurrent(null);
         executionInterval = executionYear.getFirstExecutionPeriod();
+        previousExecutionYear = (ExecutionYear) executionYear.getPrevious();
         nextExecutionYear = (ExecutionYear) executionYear.getNext();
         coursesUnit = Unit.findInternalUnitByAcronymPath(COURSES_UNIT_PATH).orElseThrow();
 
@@ -307,5 +309,88 @@ public class CompetenceCourseTest {
         assertTrue(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseA, competenceCourseB) < 0);
         assertTrue(CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseB, competenceCourseA) > 0);
         assertEquals(0, CompetenceCourse.COMPETENCE_COURSE_COMPARATOR_BY_NAME.compare(competenceCourseA, competenceCourseA));
+    }
+
+    @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withNull() {
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(null));
+
+        // Creating a new CompetenceCourseInformation in execution interval
+        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
+
+        // Most recent information will still be the one associated with nextExecutionYear.getFirstExecutionPeriod()
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(null));
+
+        // Set newInformation's executionInterval to nextExecutionYear.getLastExecutionPeriod() making it the most recent information
+        newInformation.setExecutionInterval(nextExecutionYear.getLastExecutionPeriod());
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(null));
+    }
+
+    @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionInterval() {
+        // Querying with an interval before the first information returns the oldest information
+        assertEquals(courseInformation,
+                competenceCourseA.findInformationMostRecentUntil(previousExecutionYear.getFirstExecutionPeriod()));
+
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionInterval));
+
+        // Creating a new CompetenceCourseInformation in the same execution interval
+        CompetenceCourseInformation newInformation = new CompetenceCourseInformation(courseInformation, executionInterval);
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(executionInterval));
+
+        // Testing findInformationMostRecentUntil for a later interval
+        assertEquals(nextCourseInformation,
+                competenceCourseA.findInformationMostRecentUntil(nextExecutionYear.getFirstExecutionPeriod()));
+    }
+
+    @Test
+    public void testCompetenceCourse_findInformationMostRecentUntil_withExecutionYear() {
+        // Querying with an interval before the first information returns the oldest information
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(previousExecutionYear));
+
+        assertEquals(courseInformation, competenceCourseA.findInformationMostRecentUntil(executionYear));
+
+        // Creating a new CompetenceCourseInformation in the next execution year
+        CompetenceCourseInformation newInformation =
+                new CompetenceCourseInformation(courseInformation, nextExecutionYear.getFirstExecutionPeriod());
+
+        assertEquals(newInformation, competenceCourseA.findInformationMostRecentUntil(nextExecutionYear));
+
+        newInformation.delete();
+
+        assertEquals(nextCourseInformation, competenceCourseA.findInformationMostRecentUntil(nextExecutionYear));
+    }
+
+    @Test
+    public void testCompetenceCourse_getCurricularCourseContexts() {
+        assertTrue(competenceCourseA.getCurricularCourseContexts().isEmpty());
+
+        Context context =
+                new Context(testDegreeCurricularPlan.getRoot(), testCurricularCourse, firstSemester, executionInterval, null);
+
+        assertEquals(1, competenceCourseA.getCurricularCourseContexts().size());
+        assertEquals(context, competenceCourseA.getCurricularCourseContexts().stream().findFirst().orElseThrow());
+
+        context.delete();
+
+        assertTrue(competenceCourseA.getCurricularCourseContexts().isEmpty());
+    }
+
+    @Test
+    public void testCompetenceCourse_getCurricularCourse() {
+        // competenceCourseA doesn't have associated curricular courses with a context in testDegreeCurricularPlan yet
+        assertNull(competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
+
+        // Create a context for testCurricularCourse in testDegreeCurricularPlan
+        Context context =
+                new Context(testDegreeCurricularPlan.getRoot(), testCurricularCourse, firstSemester, executionInterval, null);
+
+        assertEquals(testCurricularCourse, competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
+
+        context.delete();
+
+        assertNull(competenceCourseA.getCurricularCourse(testDegreeCurricularPlan));
     }
 }
