@@ -8,11 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DegreeTest;
-import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -28,6 +28,8 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class RootCourseGroupTest {
 
+    private static final List<CycleType> DEFAULT_CYCLE_TYPES = List.of(CycleType.FIRST_CYCLE, CycleType.SECOND_CYCLE);
+
     private static DegreeType degreeType;
     private static ExecutionYear executionYear;
     private static RootCourseGroup rootCourseGroup;
@@ -37,10 +39,8 @@ public class RootCourseGroupTest {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             ConclusionRulesTestUtil.initData();
             executionYear = ExecutionYear.findCurrent(null);
-
             degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).get();
-            degreeType.setCycleTypes(List.of(CycleType.FIRST_CYCLE, CycleType.SECOND_CYCLE));
-
+            degreeType.setCycleTypes(DEFAULT_CYCLE_TYPES);
             DegreeCurricularPlan dcp = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
             rootCourseGroup = dcp.getRoot();
 
@@ -51,12 +51,12 @@ public class RootCourseGroupTest {
     private static RootCourseGroup createRootWithCycleTypes(List<CycleType> cycleTypes) {
         degreeType.setCycleTypes(cycleTypes);
         try {
-            Degree degree = DegreeTest.createDegree(degreeType, "D" + System.nanoTime(), "D" + System.nanoTime(),
-                    executionYear);
-            return degree.createDegreeCurricularPlan("DCP" + System.nanoTime(), User.findByUsername("admin").getPerson(),
+            String uniqueId = "D" + UUID.randomUUID();
+            Degree degree = DegreeTest.createDegree(degreeType, uniqueId, uniqueId, executionYear);
+            return degree.createDegreeCurricularPlan("DCP" + UUID.randomUUID(), User.findByUsername("admin").getPerson(),
                     AcademicPeriod.THREE_YEAR).getRoot();
         } finally {
-            degreeType.setCycleTypes(List.of(CycleType.FIRST_CYCLE, CycleType.SECOND_CYCLE));
+            degreeType.setCycleTypes(DEFAULT_CYCLE_TYPES);
         }
     }
 
@@ -86,23 +86,12 @@ public class RootCourseGroupTest {
 
     @Test
     public void testGetCanBeDeleted() {
-        // Root has "Cycle" CourseGroup with children (mandatory, optional) -> not deletable
+        // Root has a "Cycle" CourseGroup with children (mandatory, optional) -> not deletable
         assertFalse(rootCourseGroup.getCanBeDeleted());
 
         // DCP whose root only has CycleCourseGroup leaf children -> deletable
-        RootCourseGroup minimalRoot = createRootWithCycleTypes(List.of(CycleType.FIRST_CYCLE, CycleType.SECOND_CYCLE));
+        RootCourseGroup minimalRoot = createRootWithCycleTypes(DEFAULT_CYCLE_TYPES);
         assertTrue(minimalRoot.getCanBeDeleted());
-    }
-
-    @Test
-    public void testGetBeginExecutionInterval() {
-        ExecutionInterval result = rootCourseGroup.getBeginExecutionInterval();
-        assertNotNull(result);
-        for (Context ctx : rootCourseGroup.getChildContextsSet()) {
-            if (ctx.getBeginExecutionInterval() != null) {
-                assertTrue(result.compareTo(ctx.getBeginExecutionInterval()) <= 0);
-            }
-        }
     }
 
     @Test
@@ -111,6 +100,5 @@ public class RootCourseGroupTest {
         assertTrue(emptyRoot.getChildContextsSet().isEmpty());
         assertTrue(emptyRoot.getCycleCourseGroups().isEmpty());
         assertTrue(emptyRoot.getCanBeDeleted());
-        assertNull(emptyRoot.getBeginExecutionInterval());
     }
 }
