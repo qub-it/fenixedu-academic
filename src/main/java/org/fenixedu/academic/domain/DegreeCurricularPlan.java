@@ -311,31 +311,15 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         });
     }
 
-    /**
-     * @deprecated use {@link #getExecutionCoursesByExecutionInterval(ExecutionInterval)}
-     */
-    @Deprecated
-    public Set<ExecutionCourse> getExecutionCoursesByExecutionPeriod(final ExecutionInterval executionInterval) {
-        return getExecutionCourses(executionInterval);
-    }
-
     public Set<CurricularCourse> getAllCurricularCourses() {
         return getRoot().getAllCurricularCourses().stream()
                 .collect(Collectors.toCollection(() -> new TreeSet<>(DegreeModule.COMPARATOR_BY_NAME)));
     }
 
     public List<CurricularCourse> getCurricularCoursesWithExecutionIn(final ExecutionYear executionYear) {
-        List<CurricularCourse> curricularCourses = new ArrayList<>();
-        for (CurricularCourse curricularCourse : getCurricularCoursesSet()) {
-            for (ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-                List<ExecutionCourse> executionCourses = curricularCourse.getExecutionCoursesByExecutionPeriod(executionInterval);
-                if (!executionCourses.isEmpty()) {
-                    curricularCourses.add(curricularCourse);
-                    break;
-                }
-            }
-        }
-        return curricularCourses;
+        return getCurricularCoursesSet().stream().filter(curricularCourse -> executionYear.getChildIntervals().stream()
+                        .anyMatch(executionInterval -> curricularCourse.findExecutionCourses(executionInterval).findAny().isPresent()))
+                .toList();
     }
 
     public CurricularCourse getCurricularCourseByCode(final String code) {
@@ -432,10 +416,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             final ExecutionInterval end) {
 
         return new OptionalCurricularCourse(parentCourseGroup, name, nameEn, curricularPeriod, begin, end);
-    }
-
-    public List<DegreeModule> getDcpDegreeModules(final Class<? extends DegreeModule> clazz) {
-        return getDcpDegreeModules(clazz, (ExecutionYear) null);
     }
 
     public List<DegreeModule> getDcpDegreeModules(final Class<? extends DegreeModule> clazz, final ExecutionYear executionYear) {
@@ -591,15 +571,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Collection<StudentCurricularPlan> getActiveStudentCurricularPlans() {
-        final Collection<StudentCurricularPlan> result = new HashSet<>();
-
-        for (StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.isActive()) {
-                result.add(studentCurricularPlan);
-            }
-        }
-
-        return result;
+        return getStudentCurricularPlansSet().stream().filter(StudentCurricularPlan::isActive).collect(Collectors.toSet());
     }
 
     @Deprecated
@@ -614,17 +586,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
     }
 
     public Collection<Registration> getActiveRegistrations() {
-        final Collection<Registration> result = new HashSet<>();
-
-        for (StudentCurricularPlan studentCurricularPlan : getActiveStudentCurricularPlans()) {
-            final Registration registration = studentCurricularPlan.getRegistration();
-
-            if (registration.isActive()) {
-                result.add(registration);
-            }
-        }
-
-        return result;
+        return getActiveStudentCurricularPlans().stream().map(StudentCurricularPlan::getRegistration)
+                .filter(Registration::isActive).collect(Collectors.toSet());
     }
 
     @Override
