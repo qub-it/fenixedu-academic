@@ -46,6 +46,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -66,12 +67,12 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         public int compare(final Degree o1, final Degree o2) {
             String name1;
             String name2;
-            name1 = o1.getNameFor((AcademicInterval) null).getContent(I18N.getLocale());
-            name2 = o2.getNameFor((AcademicInterval) null).getContent(I18N.getLocale());
+            name1 = o1.getNameFor((ExecutionInterval) null).getContent(I18N.getLocale());
+            name2 = o2.getNameFor((ExecutionInterval) null).getContent(I18N.getLocale());
 
             if (Strings.isNullOrEmpty(name1) || Strings.isNullOrEmpty(name2)) {
-                name1 = o1.getNameFor((AcademicInterval) null).getContent();
-                name2 = o2.getNameFor((AcademicInterval) null).getContent();
+                name1 = o1.getNameFor((ExecutionInterval) null).getContent();
+                name2 = o2.getNameFor((ExecutionInterval) null).getContent();
             }
 
             return collator.compare(name1, name2);
@@ -344,18 +345,21 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
                 .map(ExecutionDegree::getExecutionYear).distinct().sorted().collect(Collectors.toUnmodifiableList());
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public LocalizedString getNameFor(final ExecutionYear executionYear) {
         DegreeInfo degreeInfo = executionYear == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(executionYear);
         return degreeInfo == null ? new LocalizedString().with(org.fenixedu.academic.util.LocaleUtils.PT, super.getNome())
                 .with(org.fenixedu.academic.util.LocaleUtils.EN, super.getNameEn()) : degreeInfo.getName();
     }
 
-    @Deprecated
     public LocalizedString getNameFor(final ExecutionInterval executionInterval) {
-        return getNameFor(executionInterval != null ? executionInterval.getExecutionYear() : null);
+        DegreeInfo degreeInfo = executionInterval == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(
+                executionInterval.getExecutionYear());
+        return degreeInfo == null ? new LocalizedString().with(LocaleUtils.PT, super.getNome())
+                .with(LocaleUtils.EN, super.getNameEn()) : degreeInfo.getName();
     }
 
+    @Deprecated(forRemoval = true)
     public LocalizedString getNameFor(final AcademicInterval academicInterval) {
         DegreeInfo degreeInfo = academicInterval == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(academicInterval);
         return degreeInfo == null ? new LocalizedString().with(org.fenixedu.academic.util.LocaleUtils.PT, super.getNome())
@@ -369,7 +373,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     /**
-     * @deprecated Use {@link #getNameFor(ExecutionYear)}
+     * @deprecated Use {@link #getNameFor(ExecutionInterval)}
      */
     @Deprecated
     public String getName() {
@@ -379,7 +383,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     /**
-     * @deprecated Use {@link #getNameFor(ExecutionYear)}
+     * @deprecated Use {@link #getNameFor(ExecutionInterval)}
      */
     @Override
     @Deprecated
@@ -591,7 +595,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return getDegreeInfosSet().stream().filter(di -> di.getExecutionYear() == executionYear).findFirst().orElse(null);
     }
 
-    @Deprecated
     public DegreeInfo getMostRecentDegreeInfo(final ExecutionYear executionYear) {
         DegreeInfo result = null;
         for (final DegreeInfo degreeInfo : getDegreeInfosSet()) {
@@ -613,6 +616,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return result;
     }
 
+    @Deprecated(forRemoval = true)
     public DegreeInfo getMostRecentDegreeInfo(final AcademicInterval academicInterval) {
         DegreeInfo result = null;
         for (final DegreeInfo degreeInfo : getDegreeInfosSet()) {
