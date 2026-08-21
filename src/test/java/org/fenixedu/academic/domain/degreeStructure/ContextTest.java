@@ -305,6 +305,38 @@ public class ContextTest {
         assertFalse(context.containsInterval(executionYear, afternextYearExecutionInterval));
     }
 
+    @Test
+    public void testContext_isValid_AcademicInterval_matches_ExecutionInterval() {
+        // Semestral course
+        assertEquals(contextA_1Y1S.isValid(previousYearExecutionInterval),
+                contextA_1Y1S.isValid(previousYearExecutionInterval.getAcademicInterval()));
+        assertEquals(contextA_1Y1S.isValid(executionInterval), contextA_1Y1S.isValid(executionInterval.getAcademicInterval()));
+        assertEquals(contextA_1Y1S.isValid(executionInterval.getNext()),
+                contextA_1Y1S.isValid(executionInterval.getNext().getAcademicInterval()));
+        assertEquals(contextA_1Y1S.isValid(nextYearExecutionInterval),
+                contextA_1Y1S.isValid(nextYearExecutionInterval.getAcademicInterval()));
+        assertEquals(contextA_1Y1S.isValid(nextYearExecutionInterval.getNext()),
+                contextA_1Y1S.isValid(nextYearExecutionInterval.getNext().getAcademicInterval()));
+
+        // Annual course
+        assertEquals(contextB_1Y1S.isValid(previousYearExecutionInterval),
+                contextB_1Y1S.isValid(previousYearExecutionInterval.getAcademicInterval()));
+        assertEquals(contextB_1Y1S.isValid(executionInterval), contextB_1Y1S.isValid(executionInterval.getAcademicInterval()));
+        assertEquals(contextB_1Y1S.isValid(executionInterval.getNext()),
+                contextB_1Y1S.isValid(executionInterval.getNext().getAcademicInterval()));
+        assertEquals(contextB_1Y1S.isValid(nextYearExecutionInterval),
+                contextB_1Y1S.isValid(nextYearExecutionInterval.getAcademicInterval()));
+        assertEquals(contextB_1Y1S.isValid(nextYearExecutionInterval.getNext()),
+                contextB_1Y1S.isValid(nextYearExecutionInterval.getNext().getAcademicInterval()));
+
+        // CourseGroup context
+        assertEquals(contextCG_root.isValid(previousYearExecutionInterval),
+                contextCG_root.isValid(previousYearExecutionInterval.getAcademicInterval()));
+        assertEquals(contextCG_root.isValid(executionInterval), contextCG_root.isValid(executionInterval.getAcademicInterval()));
+        assertEquals(contextCG_root.isValid(nextYearExecutionInterval),
+                contextCG_root.isValid(nextYearExecutionInterval.getAcademicInterval()));
+    }
+
     // Helpers
     private static Context createContext(CourseGroup courseGroup, DegreeModule degreeModule, CurricularPeriod curricularPeriod,
             ExecutionInterval begin, ExecutionInterval end) {

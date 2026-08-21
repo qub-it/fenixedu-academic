@@ -341,7 +341,7 @@ public class CurricularCourse extends CurricularCourse_Base {
             DegreeCurricularPlan degreeCurricularPlan, final ExecutionInterval executionInterval) {
 
         if (degreeCurricularPlan == null || getDegreeCurricularPlan().equals(degreeCurricularPlan)) {
-            return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval.getAcademicInterval())
+            return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval)
                     && (curricularYear == null || ctx.getCurricularYear().equals(curricularYear.getYear())));
         }
         return false;
@@ -352,7 +352,7 @@ public class CurricularCourse extends CurricularCourse_Base {
     }
 
     public boolean isActive(final ExecutionInterval interval) {
-        return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(interval.getAcademicInterval()));
+        return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(interval));
     }
 
     public boolean isActive(final ExecutionInterval interval, final Integer curricularYear) {
