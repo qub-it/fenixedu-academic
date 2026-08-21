@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -104,15 +105,17 @@ public class RootCourseGroup extends RootCourseGroup_Base {
         return getCycleCourseGroup(CycleType.THIRD_CYCLE);
     }
 
-    public CycleCourseGroup getCycleCourseGroup(CycleType cycle) {
+    private Stream<CycleCourseGroup> getCycleCourseGroupsStream() {
         return getChildContextsSet().stream().map(Context::getChildDegreeModule).filter(DegreeModule::isCycleCourseGroup)
-                .map(CycleCourseGroup.class::cast).filter(cycleCourseGroup -> cycle == cycleCourseGroup.getCycleType())
-                .findFirst().orElse(null);
+                .map(CycleCourseGroup.class::cast);
+    }
+
+    public CycleCourseGroup getCycleCourseGroup(CycleType cycle) {
+        return getCycleCourseGroupsStream().filter(group -> cycle == group.getCycleType()).findFirst().orElse(null);
     }
 
     public Collection<CycleCourseGroup> getCycleCourseGroups() {
-        return getChildContextsSet().stream().map(Context::getChildDegreeModule).filter(DegreeModule::isCycleCourseGroup)
-                .map(CycleCourseGroup.class::cast).collect(Collectors.toSet());
+        return getCycleCourseGroupsStream().collect(Collectors.toSet());
     }
 
     public boolean hasCycleGroups() {
