@@ -8,7 +8,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -61,17 +63,17 @@ public class RootCourseGroupTest {
     }
 
     @Test
-    public void testGetCycleCourseGroups() {
+    public void testRootCourseGroup_getCycleCourseGroups() {
         Collection<CycleCourseGroup> cycleGroups = rootCourseGroup.getCycleCourseGroups();
         assertNotNull(cycleGroups);
         assertEquals(2, cycleGroups.size());
         assertTrue(cycleGroups.stream().allMatch(CycleCourseGroup::isCycleCourseGroup));
-        assertTrue(cycleGroups.stream().anyMatch(c -> c.getCycleType() == CycleType.FIRST_CYCLE));
-        assertTrue(cycleGroups.stream().anyMatch(c -> c.getCycleType() == CycleType.SECOND_CYCLE));
+        assertEquals(Set.of(CycleType.FIRST_CYCLE, CycleType.SECOND_CYCLE),
+                cycleGroups.stream().map(CycleCourseGroup::getCycleType).collect(Collectors.toSet()));
     }
 
     @Test
-    public void testGetCycleCourseGroup() {
+    public void testRootCourseGroup_getCycleCourseGroup() {
         CycleCourseGroup first = rootCourseGroup.getCycleCourseGroup(CycleType.FIRST_CYCLE);
         assertNotNull(first);
         assertEquals(CycleType.FIRST_CYCLE, first.getCycleType());
@@ -85,7 +87,7 @@ public class RootCourseGroupTest {
     }
 
     @Test
-    public void testGetCanBeDeleted() {
+    public void testRootCourseGroup_getCanBeDeleted() {
         // Root has a "Cycle" CourseGroup with children (mandatory, optional) -> not deletable
         assertFalse(rootCourseGroup.getCanBeDeleted());
 
@@ -95,7 +97,7 @@ public class RootCourseGroupTest {
     }
 
     @Test
-    public void testEmptyRoot_noCycleTypesConfigured() {
+    public void testRootCourseGroup_emptyRoot_noCycleTypesConfigured() {
         RootCourseGroup emptyRoot = createRootWithCycleTypes(List.of());
         assertTrue(emptyRoot.getChildContextsSet().isEmpty());
         assertTrue(emptyRoot.getCycleCourseGroups().isEmpty());
