@@ -21,7 +21,6 @@ package org.fenixedu.academic.domain;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,8 +87,7 @@ public class Coordinator extends Coordinator_Base {
 
     public static Stream<Coordinator> findCoordinators(final Degree degree, final ExecutionYear executionYear,
             final boolean responsiblesOnly) {
-        return degree.getDegreeCurricularPlansSet().stream().map(dcp -> dcp.getExecutionDegreeByYear(executionYear))
-                .filter(Objects::nonNull)
+        return degree.getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.findExecutionDegree(executionYear).stream())
                 .flatMap(ed -> responsiblesOnly ? ed.getResponsibleCoordinators().stream() : ed.getCoordinatorsListSet().stream())
                 .distinct();
     }
