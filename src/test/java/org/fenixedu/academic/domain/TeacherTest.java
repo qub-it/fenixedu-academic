@@ -12,11 +12,13 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.util.UserUtil;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.Interval;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -93,6 +95,16 @@ public class TeacherTest {
         return teacher;
     }
 
+    private TeacherAuthorization createAuthorization(Teacher teacher, ExecutionInterval interval, TeacherCategory category) {
+        Unit unit = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        Authenticate.mock(User.findByUsername(UserUtil.ADMIN_USERNAME), "none");
+        try {
+            return TeacherAuthorization.createOrUpdate(teacher, unit, interval, category, true, 0d, 100d);
+        } finally {
+            Authenticate.unmock();
+        }
+    }
+
     @Test
     public void testTeacher_TEACHER_COMPARATOR_BY_CATEGORY_AND_NUMBER() {
         TeacherCategory highWeightCategory =
@@ -157,5 +169,114 @@ public class TeacherTest {
 
         result = Teacher.findByUsername("nonexistent");
         assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void testTeacher_getCategory() {
+        Teacher testTeacher = createTeacher("0teacher.getcat", "TGC");
+
+        TeacherCategory highCategory =
+                new TeacherCategory("GET_CATEGORY_HIGH", new LocalizedString(Locale.ENGLISH, "High Category"), 100);
+        TeacherCategory lowCategory =
+                new TeacherCategory("GET_CATEGORY_LOW", new LocalizedString(Locale.ENGLISH, "Low Category"), 10);
+
+        createAuthorization(testTeacher, firstSemester, highCategory);
+        createAuthorization(testTeacher, nextYear.getFirstExecutionPeriod(), lowCategory);
+
+        assertEquals(highCategory, testTeacher.getCategory(firstSemester).orElse(null));
+        assertTrue(testTeacher.getCategory(secondSemester).isEmpty());
+        assertEquals(lowCategory, testTeacher.getCategory(nextYear.getFirstExecutionPeriod()).orElse(null));
+        assertEquals(highCategory, testTeacher.getCategory());
+    }
+
+    @Test
+    public void testTeacher_getLastCategory() {
+        Teacher testTeacher = createTeacher("0teacher.getlastcat", "TGL");
+
+        TeacherCategory highCategory =
+                new TeacherCategory("GET_LAST_CATEGORY_HIGH", new LocalizedString(Locale.ENGLISH, "High Category"), 100);
+        TeacherCategory lowCategory =
+                new TeacherCategory("GET_LAST_CATEGORY_LOW", new LocalizedString(Locale.ENGLISH, "Low Category"), 10);
+
+        createAuthorization(testTeacher, firstSemester, highCategory);
+        createAuthorization(testTeacher, nextYear.getFirstExecutionPeriod(), lowCategory);
+
+        assertEquals(highCategory, testTeacher.getLastCategory(firstSemester).orElse(null));
+        assertEquals(highCategory, testTeacher.getLastCategory(secondSemester).orElse(null));
+        assertEquals(lowCategory, testTeacher.getLastCategory(nextYear.getFirstExecutionPeriod()).orElse(null));
+        assertEquals(highCategory, testTeacher.getLastCategory());
+    }
+
+    @Test
+    public void testTeacher_getTeacherAuthorization() {
+        Teacher testTeacher = createTeacher("0teacher.getauth", "TGA");
+
+        TeacherCategory category =
+                new TeacherCategory("GET_TEACHER_AUTH", new LocalizedString(Locale.ENGLISH, "Test Category"), 50);
+
+        TeacherAuthorization auth = createAuthorization(testTeacher, firstSemester, category);
+
+        assertEquals(auth, testTeacher.getTeacherAuthorization(firstSemester).orElse(null));
+        assertTrue(testTeacher.getTeacherAuthorization(secondSemester).isEmpty());
+        assertTrue(testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()).isEmpty());
+        assertEquals(auth, testTeacher.getTeacherAuthorization().orElse(null));
+
+        auth.setExecutionSemester(secondSemester);
+
+        assertTrue(testTeacher.getTeacherAuthorization(firstSemester).isEmpty());
+        assertEquals(auth, testTeacher.getTeacherAuthorization(secondSemester).orElse(null));
+        assertTrue(testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()).isEmpty());
+        assertTrue(testTeacher.getTeacherAuthorization()
+                .isEmpty()); // Because this looks for current ExecutionInterval which is firstSemester
+    }
+
+    @Test
+    public void testTeacher_getTeacherAuthorization_AcademicInterval_matches_ExecutionInterval() {
+        Teacher testTeacher = createTeacher("0teacher.getauthmatch", "TAM");
+
+        TeacherCategory category1 =
+                new TeacherCategory("GET_TEACHER_AUTH_1", new LocalizedString(Locale.ENGLISH, "Test Category"), 50);
+        TeacherCategory category2 =
+                new TeacherCategory("GET_TEACHER_AUTH_2", new LocalizedString(Locale.ENGLISH, "Test Category"), 100);
+
+        TeacherAuthorization teacherAuthorization1 = createAuthorization(testTeacher, firstSemester, category1);
+        TeacherAuthorization teacherAuthorization2 =
+                createAuthorization(testTeacher, nextYear.getFirstExecutionPeriod(), category2);
+
+        assertEquals(teacherAuthorization1, testTeacher.getTeacherAuthorization(firstSemester).orElse(null));
+        assertEquals(testTeacher.getTeacherAuthorization(firstSemester),
+                testTeacher.getTeacherAuthorization(firstSemester.getAcademicInterval()));
+
+        assertTrue(testTeacher.getTeacherAuthorization(secondSemester).isEmpty());
+        assertEquals(testTeacher.getTeacherAuthorization(secondSemester),
+                testTeacher.getTeacherAuthorization(secondSemester.getAcademicInterval()));
+
+        assertEquals(teacherAuthorization2, testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()).orElse(null));
+        assertEquals(testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()),
+                testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod().getAcademicInterval()));
+    }
+
+    @Test
+    public void testTeacher_getLatestTeacherAuthorizationInInterval() {
+        Teacher testTeacher = createTeacher("0teacher.latestauth", "TLT");
+
+        TeacherCategory category =
+                new TeacherCategory("GET_LATEST_AUTH", new LocalizedString(Locale.ENGLISH, "Test Category"), 50);
+
+        TeacherAuthorization auth = createAuthorization(testTeacher, firstSemester, category);
+
+        AcademicInterval firstSemesterInterval = firstSemester.getAcademicInterval();
+        assertEquals(auth, testTeacher.getLatestTeacherAuthorizationInInterval(firstSemesterInterval.toInterval()).orElse(null));
+
+        AcademicInterval nextYearInterval = nextYear.getFirstExecutionPeriod().getAcademicInterval();
+        assertTrue(testTeacher.getLatestTeacherAuthorizationInInterval(nextYearInterval.toInterval()).isEmpty());
+
+        Interval dateInsideFirstSemester = new Interval(firstSemesterInterval.getStart().getMillis(),
+                firstSemesterInterval.getStart().plusDays(1).getMillis());
+        assertEquals(auth, testTeacher.getLatestTeacherAuthorizationInInterval(dateInsideFirstSemester).orElse(null));
+
+        Interval dateOutsideSemesters = new Interval(firstSemesterInterval.getEnd().plusYears(2).getMillis(),
+                firstSemesterInterval.getEnd().plusYears(2).plusDays(1).getMillis());
+        assertTrue(testTeacher.getLatestTeacherAuthorizationInInterval(dateOutsideSemesters).isEmpty());
     }
 }
