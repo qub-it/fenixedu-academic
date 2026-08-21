@@ -433,6 +433,18 @@ public class DegreeCurricularPlanTest {
         Set<CurricularCourse> resultNext = dcp.getCurricularCourses(nextInterval);
         assertEquals(1, resultNext.size());
         assertTrue(resultNext.contains(courseB));
+
+        // TODO FIX: returns courses for the whole execution year instead of the exact interval
+        // a context that only exists in the 2nd semester is returned when querying the 1st semester.
+        ExecutionInterval secondSemesterInterval = currentYear.getLastExecutionPeriod();
+        CurricularCourse courseC = new CurricularCourse();
+        courseC.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseC, semesterPeriod, secondSemesterInterval, secondSemesterInterval);
+
+        Set<CurricularCourse> firstSemesterCourses = dcp.getCurricularCourses(currentYear.getFirstExecutionPeriod());
+        assertEquals(2, firstSemesterCourses.size());
+        assertTrue(firstSemesterCourses.contains(courseA));
+        assertTrue(firstSemesterCourses.contains(courseC));
     }
 
     @Test
