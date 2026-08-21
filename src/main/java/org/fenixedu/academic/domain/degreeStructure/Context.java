@@ -264,6 +264,7 @@ public class Context extends Context_Base implements Comparable<Context> {
         return executionYear.getExecutionPeriodsSet().stream().anyMatch(this::isValid);
     }
 
+    @Deprecated(forRemoval = true)
     public boolean isValid(AcademicInterval academicInterval) {
         return isValid(ExecutionInterval.getExecutionInterval(academicInterval));
     }
