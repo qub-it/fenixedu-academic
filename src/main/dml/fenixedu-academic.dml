@@ -481,14 +481,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         Grade normalizedEctsGrade;
     }
     
-	/* The field 'tempInstructions' is to be removed on next major version
-	 * 		TODO: Replace String with LocalizedString
-	 */
-    class EnrolmentInstructions  {
-    	String instructions;
-        LocalizedString tempInstructions;
-    }
-
     class Evaluation  {
         String publishmentMessage;
     }
@@ -4028,18 +4020,6 @@ relation EnrolmentEvaluationLogRootDomainObject {
 	log.EnrolmentEvaluationLog playsRole enrolmentEvaluationLog {
 		multiplicity *;
 	}
-}
-
-relation RootDomainObjectEnrolmentInstructions {
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-	EnrolmentInstructions playsRole enrolmentInstructions {
-		multiplicity *;
-	}
-}
-
-relation ExecutionSemesterEnrolmentInstructions {
-	ExecutionInterval playsRole executionSemester;
-	EnrolmentInstructions playsRole enrolmentInstructions;
 }
 
 relation RootDomainObjectCoordinatorLog {
