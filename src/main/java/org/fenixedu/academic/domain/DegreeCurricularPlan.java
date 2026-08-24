@@ -57,7 +57,6 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYears;
-import org.fenixedu.academic.dto.CurricularPeriodInfoDTO;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.I18N;
@@ -518,30 +517,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
             final Boolean publishedExamMap) {
 
         return createExecutionDegree(executionYear);
-    }
-
-    /**
-     * @deprecated use {@link #getCurricularPeriodFor(int, int, AcademicPeriod)}
-     */
-    @Deprecated
-    public CurricularPeriod getCurricularPeriodFor(final int year, final int semester) {
-        final CurricularPeriodInfoDTO[] curricularPeriodInfos = buildCurricularPeriodInfoDTOsFor(year, semester);
-        return getDegreeStructure().getCurricularPeriod(curricularPeriodInfos);
-    }
-
-    @Deprecated
-    private CurricularPeriodInfoDTO[] buildCurricularPeriodInfoDTOsFor(final int year, final int semester) {
-        final CurricularPeriodInfoDTO[] curricularPeriodInfos;
-        if (getDurationInYears() > 1) {
-
-            curricularPeriodInfos = new CurricularPeriodInfoDTO[] { new CurricularPeriodInfoDTO(year, AcademicPeriod.YEAR),
-                    new CurricularPeriodInfoDTO(semester, AcademicPeriod.SEMESTER) };
-
-        } else {
-            curricularPeriodInfos =
-                    new CurricularPeriodInfoDTO[] { new CurricularPeriodInfoDTO(semester, AcademicPeriod.SEMESTER) };
-        }
-        return curricularPeriodInfos;
     }
 
     public CurricularPeriod getCurricularPeriodFor(final int year, final int childOrder,
