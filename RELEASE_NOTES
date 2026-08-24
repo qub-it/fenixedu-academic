@@ -1,3 +1,4 @@
+- Refactor: Removes unused IllegalDataAccessException [#qubIT-Fenix-8839]
 - Refactor: Improves Teacher domain methods [#qubIT-Fenix-8958]
 - Refactor: PhysicalAddress and WebAddress domain methods [#qubIT-Fenix-9195]
 - Refactor: MobilePhone and Phone domain methods [#qubIT-Fenix-9195]
