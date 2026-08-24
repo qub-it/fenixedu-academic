@@ -1,6 +1,7 @@
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]
 - Refactor: Deletes deprecated domain entity EnrolmentInstructions [#qubIT-Fenix-9252]
 - Refactor: Deletes deprecated domain entity TemporarySubstitution [#qubIT-Fenix-9254]
+- Refactor: Deletes deprecated domain entities QueueJob, QueueJobWithFile and QueueJobResultFile and the QueueJobResult class [#qubIT-Fenix-9256]
 
 60.0.1 (31-08-2026)
 - Improvement: Deletes PersistentTeachersWithGradesToSubmitGroup [#qubIT-Omnis-11441]
