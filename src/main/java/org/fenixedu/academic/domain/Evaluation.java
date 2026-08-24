@@ -34,41 +34,21 @@ public abstract class Evaluation extends Evaluation_Base {
     }
 
     public List<ExecutionCourse> getAttendingExecutionCoursesFor(final Registration registration) {
-        final List<ExecutionCourse> result = new ArrayList<ExecutionCourse>();
-        for (final ExecutionCourse executionCourse : this.getAssociatedExecutionCoursesSet()) {
-            if (registration.attends(executionCourse)) {
-                result.add(executionCourse);
-            }
-        }
-        if (result.isEmpty()) { // Then user does not attend any executioncourse
-            result.addAll(this.getAssociatedExecutionCoursesSet());
-        }
-        return result;
+        final List<ExecutionCourse> result = getAssociatedExecutionCoursesSet().stream().filter(registration::attends).toList();
+        return result.isEmpty() ? new ArrayList<>(getAssociatedExecutionCoursesSet()) : result;
     }
 
     public void delete() {
-        this.getAssociatedExecutionCoursesSet().clear();
-        for (; !getMarksSet().isEmpty(); getMarksSet().iterator().next().delete()) {
-            ;
+        getAssociatedExecutionCoursesSet().clear();
+        while (!getMarksSet().isEmpty()) {
+            getMarksSet().iterator().next().delete();
         }
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
 
-//    public Mark addNewMark(Attends attends, String markValue) {
-//        if (attends.getMarkByEvaluation(this) != null) {
-//            throw new DomainException("error.Evaluation.attend.already.has.mark.for.evaluation");
-//        }
-//        return new Mark(attends, this, markValue);
-//    }
-
     public Mark getMarkByAttend(Attends attends) {
-        for (Mark mark : getMarksSet()) {
-            if (mark.getAttend().equals(attends)) {
-                return mark;
-            }
-        }
-        return null;
+        return getMarksSet().stream().filter(mark -> mark.getAttend().equals(attends)).findFirst().orElse(null);
     }
 
     public boolean isFinal() {
@@ -92,19 +72,13 @@ public abstract class Evaluation extends Evaluation_Base {
     }
 
     private void logAuxBasic(String key) {
-        for (ExecutionCourse ec : getAssociatedExecutionCoursesSet()) {
-            EvaluationManagementLog.createLog(ec, Bundle.MESSAGING, key, getPresentationName(), ec.getName(),
-                    ec.getDegreePresentationString());
-        }
+        getAssociatedExecutionCoursesSet().forEach(
+                ec -> EvaluationManagementLog.createLog(ec, Bundle.MESSAGING, key, getPresentationName(), ec.getName(),
+                        ec.getDegreePresentationString()));
     }
 
     public Date getEvaluationDate() {
         return null;
     }
 
-//    public InfoEvaluation newInfoFromDomain() {
-//        InfoEvaluation infoEvaluation = new InfoEvaluation();
-//        infoEvaluation.copyFromDomain(this);
-//        return infoEvaluation;
-//    }
 }

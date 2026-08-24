@@ -13,6 +13,7 @@
 - Refactor: Removes deprecated CompetenceCourse domain methods and CompetenceCourseInformation isBasic attribute [#qubIT-Fenix-8962]
 - Refactor: Improve Holiday domain methods [#qubIT-Fenix-9169]
 - Refactor: Improve DegreeInfo domain methods [#qubIT-Fenix-9164]
+- Refactor: Improve Evaluation domain methods [#qubIT-Fenix-9251]
 - Refactor: Remove deprecated party methods [#qubIT-Fenix-8960]
 - Refactor: Improve RootCourseGroup domain methods [#qubIT-Fenix-9232]
 - Refactor: Deprecates domain methods that accept AcademicInterval as an argument [#qubIT-Fenix-9217]
