@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,12 +26,17 @@ public class DegreeTest {
 
     public static final String MASTER_DEGREE_TYPE_CODE = "MASTER";
 
+    public static final String DEGREE_INFO_TEST_CODE = "DEGREE_INFO_TEST";
+
     private static Degree degree;
+
+    private static ExecutionYear executionYear;
 
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             degree = initDegree();
+            executionYear = ExecutionYear.findCurrent(null);
             return null;
         });
     }
@@ -66,4 +72,76 @@ public class DegreeTest {
         assertNull(Degree.find("XX"));
     }
 
+    @Test
+    public void testDegree_getNameFor() {
+        DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).orElseThrow();
+        Degree testDegree = createDegree(degreeType, DEGREE_INFO_TEST_CODE, "Degree Info Test", executionYear);
+
+        assertEquals("Degree Info Test", testDegree.getNameFor(executionYear.getFirstExecutionPeriod()).getContent());
+        assertEquals("Degree Info Test", testDegree.getNameFor((ExecutionInterval) null).getContent());
+
+        // Test that it also works with ExecutionYear
+        assertEquals("Degree Info Test", testDegree.getNameFor(executionYear).getContent());
+        assertEquals("Degree Info Test", testDegree.getNameFor((ExecutionYear) null).getContent());
+        assertEquals(testDegree.getNameFor(executionYear), testDegree.getNameFor(executionYear.getFirstExecutionPeriod()));
+
+        testDegree.delete();
+    }
+
+    @Test
+    public void testDegree_getMostRecentDegreeInfo() {
+        DegreeInfo currentInfo = degree.getDegreeInfoFor(executionYear);
+        assertNotNull(currentInfo);
+
+        ExecutionYear previousYear = executionYear.getPrevious().getExecutionYear();
+        ExecutionYear nextYear = executionYear.getNext().getExecutionYear();
+
+        assertEquals(currentInfo, degree.getMostRecentDegreeInfo(executionYear));
+        assertEquals(currentInfo, degree.getMostRecentDegreeInfo(previousYear));
+        assertEquals(currentInfo, degree.getMostRecentDegreeInfo(nextYear));
+
+        // Create a new degree info for nextYear
+        DegreeInfo newDegreeInfo = new DegreeInfo(currentInfo, nextYear);
+
+        assertEquals(currentInfo, degree.getMostRecentDegreeInfo(executionYear));
+        assertEquals(currentInfo, degree.getMostRecentDegreeInfo(previousYear));
+        assertEquals(newDegreeInfo, degree.getMostRecentDegreeInfo(nextYear));
+    }
+
+    @Test
+    public void testDegree_getNameFor_AcademicInterval_matches_ExecutionInterval() {
+        assertEquals(degree.getNameFor(executionYear), degree.getNameFor(executionYear.getAcademicInterval()));
+
+        ExecutionInterval semester = executionYear.getFirstExecutionPeriod();
+        assertEquals(degree.getNameFor(semester), degree.getNameFor(semester.getAcademicInterval()));
+
+        assertEquals(degree.getNameFor((ExecutionYear) null), degree.getNameFor((AcademicInterval) null));
+    }
+
+    @Test
+    public void testDegree_getMostRecentDegreeInfo_AcademicInterval_matches_ExecutionYear() {
+        ExecutionYear previousYear = executionYear.getPrevious().getExecutionYear();
+        ExecutionYear nextYear = executionYear.getNext().getExecutionYear();
+
+        assertEquals(degree.getMostRecentDegreeInfo(previousYear),
+                degree.getMostRecentDegreeInfo(previousYear.getAcademicInterval()));
+        assertEquals(degree.getMostRecentDegreeInfo(executionYear),
+                degree.getMostRecentDegreeInfo(executionYear.getAcademicInterval()));
+        assertEquals(degree.getMostRecentDegreeInfo(nextYear), degree.getMostRecentDegreeInfo(nextYear.getAcademicInterval()));
+
+        DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).orElseThrow();
+        Degree testDegree = createDegree(degreeType, DEGREE_INFO_TEST_CODE, "Degree Info Test", nextYear);
+
+        // DegreeInfo created only for previous and next years, leaving the current year without one
+        new DegreeInfo(testDegree, previousYear);
+
+        assertEquals(testDegree.getMostRecentDegreeInfo(executionYear),
+                testDegree.getMostRecentDegreeInfo(executionYear.getAcademicInterval()));
+        assertEquals(testDegree.getMostRecentDegreeInfo(previousYear),
+                testDegree.getMostRecentDegreeInfo(previousYear.getAcademicInterval()));
+        assertEquals(testDegree.getMostRecentDegreeInfo(nextYear),
+                testDegree.getMostRecentDegreeInfo(nextYear.getAcademicInterval()));
+
+        testDegree.delete();
+    }
 }
