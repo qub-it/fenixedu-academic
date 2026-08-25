@@ -19,12 +19,12 @@
 package org.fenixedu.academic.domain.student;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -39,9 +39,7 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.dto.DomainObjectDeletionBean;
 import org.fenixedu.academic.dto.student.StudentStatuteBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -90,18 +88,6 @@ public class Student extends Student_Base {
 
     public String getName() {
         return getPerson().getName();
-    }
-
-    @Deprecated(forRemoval = true)
-    public Collection<Registration> getRegistrationsByDegreeTypes(final DegreeType... degreeTypes) {
-        List<DegreeType> degreeTypesList = Arrays.asList(degreeTypes);
-        List<Registration> result = new ArrayList<>();
-        for (Registration registration : getRegistrationsSet()) {
-            if (degreeTypesList.contains(registration.getDegreeType())) {
-                result.add(registration);
-            }
-        }
-        return result;
     }
 
     public Stream<Registration> getActiveRegistrationStream() {
@@ -164,11 +150,6 @@ public class Student extends Student_Base {
                 .map(statute -> new StudentStatuteBean(statute, executionInterval)).collect(Collectors.toList());
     }
 
-    public Collection<StatuteType> getStatutesTypesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
-        return getStatutesValidOnAnyExecutionSemesterFor(executionYear).stream().map(bean -> bean.getStatuteType())
-                .collect(Collectors.toList());
-    }
-
     public Collection<StudentStatuteBean> getStatutesValidOnAnyExecutionSemesterFor(final ExecutionYear executionYear) {
         return getStudentStatutesSet().stream().filter(statute -> statute.isValidOnAnyExecutionPeriodFor(executionYear))
                 .map(StudentStatuteBean::new).collect(Collectors.toList());
@@ -176,10 +157,6 @@ public class Student extends Student_Base {
 
     public Set<Enrolment> getApprovedEnrolments() {
         return getRegistrationsSet().stream().flatMap(r -> r.getApprovedEnrolments().stream()).collect(Collectors.toSet());
-    }
-
-    public Attends readAttendByExecutionCourse(final ExecutionCourse executionCourse) {
-        return getRegistrationsSet().stream().flatMap(r -> r.findAttends(executionCourse).stream()).findFirst().orElse(null);
     }
 
     public SortedSet<Attends> getAttendsForExecutionPeriod(final ExecutionInterval executionInterval) {
@@ -219,13 +196,8 @@ public class Student extends Student_Base {
                 .anyMatch(ss -> ss.getType().isWorkingStudentStatute() && ss.isValidInExecutionInterval(executionInterval));
     }
 
-    public Attends getAttends(final ExecutionCourse executionCourse) {
-        return getRegistrationStream().flatMap(r -> r.getAssociatedAttendsSet().stream()).filter(a -> a.isFor(executionCourse))
-                .findAny().orElse(null);
-    }
-
-    public boolean hasAttends(final ExecutionCourse executionCourse) {
-        return getRegistrationStream().flatMap(r -> r.getAssociatedAttendsSet().stream()).anyMatch(a -> a.isFor(executionCourse));
+    public Optional<Attends> findAttends(ExecutionCourse executionCourse) {
+        return getRegistrationStream().flatMap(r -> r.findAttends(executionCourse).stream()).findAny();
     }
 
     @Override
@@ -241,10 +213,6 @@ public class Student extends Student_Base {
         } else if (number != null) {
             new StudentNumber(this);
         }
-    }
-
-    public void updateStudentRole() {
-        getPerson().ensureOpenUserAccount();
     }
 
     public PersonalIngressionData getLatestPersonalIngressionData() {

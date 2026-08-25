@@ -1547,7 +1547,7 @@ public class Registration extends Registration_Base {
     }
 
     final public Attends readAttendByExecutionCourse(final ExecutionCourse executionCourse) {
-        return getStudent().readAttendByExecutionCourse(executionCourse);
+        return getStudent().findAttends(executionCourse).orElse(null);
     }
 
     @Deprecated
