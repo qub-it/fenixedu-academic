@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.fenixedu.academic.domain.student.Registration;
 import org.junit.Before;
@@ -40,7 +41,8 @@ public class EvaluationTest {
         firstMark = markFor(firstAttend);
         secondMark = markFor(secondAttend);
 
-        evaluation = evaluationWithMarks(firstMark, secondMark, unrequestedMark);
+        evaluation = newEvaluationMock();
+        when(evaluation.getMarksSet()).thenReturn(new HashSet<>(Arrays.asList(firstMark, secondMark, unrequestedMark)));
 
         attendedExecutionCourse = mock(ExecutionCourse.class);
         otherExecutionCourse = mock(ExecutionCourse.class);
@@ -60,7 +62,10 @@ public class EvaluationTest {
 
     @Test
     public void testEvaluation_getAttendingExecutionCoursesFor() {
-        Evaluation courseEvaluation = evaluationWithExecutionCourses(attendedExecutionCourse, otherExecutionCourse);
+        final Evaluation courseEvaluation = newEvaluationMock();
+        when(courseEvaluation.getAssociatedExecutionCoursesSet()).thenReturn(
+                new HashSet<>(Arrays.asList(attendedExecutionCourse, otherExecutionCourse)));
+
         Registration registration = registrationAttendingTo(attendedExecutionCourse);
         List<ExecutionCourse> result = courseEvaluation.getAttendingExecutionCoursesFor(registration);
         assertEquals(1, result.size());
@@ -78,25 +83,39 @@ public class EvaluationTest {
         assertTrue(result.containsAll(Arrays.asList(attendedExecutionCourse, otherExecutionCourse)));
 
         // return an empty list when there are no associated courses at all
-        courseEvaluation = evaluationWithExecutionCourses();
+        when(courseEvaluation.getAssociatedExecutionCoursesSet()).thenReturn(new HashSet<>());
         registration = registrationAttendingTo(attendedExecutionCourse);
         assertTrue(courseEvaluation.getAttendingExecutionCoursesFor(registration).isEmpty());
     }
 
+    @Test
+    public void testEvaluation_delete() {
+        final Set<Mark> marksSet = new HashSet<>(Arrays.asList(firstMark, secondMark));
+        final Set<ExecutionCourse> executionCoursesSet =
+                new HashSet<>(Arrays.asList(attendedExecutionCourse, otherExecutionCourse));
+
+        final Evaluation evaluationToDelete = newEvaluationMock();
+        when(evaluationToDelete.getAssociatedExecutionCoursesSet()).thenReturn(executionCoursesSet);
+        when(evaluationToDelete.getMarksSet()).thenReturn(marksSet);
+
+        // each mark removes itself from the set when deleted, so the while loop in delete() can terminate
+        Mockito.doAnswer(invocation -> marksSet.remove(firstMark)).when(firstMark).delete();
+        Mockito.doAnswer(invocation -> marksSet.remove(secondMark)).when(secondMark).delete();
+
+        Mockito.doNothing().when(evaluationToDelete).setRootDomainObject(any());
+
+        evaluationToDelete.delete();
+
+        assertTrue(executionCoursesSet.isEmpty());
+        Mockito.verify(firstMark).delete();
+        Mockito.verify(secondMark).delete();
+        assertTrue(marksSet.isEmpty());
+
+        Mockito.verify(evaluationToDelete).setRootDomainObject(null);
+    }
+
     private Evaluation newEvaluationMock() {
         return mock(Evaluation.class, Mockito.withSettings().defaultAnswer(CALLS_REAL_METHODS));
-    }
-
-    private Evaluation evaluationWithMarks(final Mark... marks) {
-        final Evaluation result = newEvaluationMock();
-        when(result.getMarksSet()).thenReturn(new HashSet<>(Arrays.asList(marks)));
-        return result;
-    }
-
-    private Evaluation evaluationWithExecutionCourses(final ExecutionCourse... executionCourses) {
-        final Evaluation result = newEvaluationMock();
-        when(result.getAssociatedExecutionCoursesSet()).thenReturn(new HashSet<>(Arrays.asList(executionCourses)));
-        return result;
     }
 
     private Registration registrationAttendingTo(final ExecutionCourse... attendedExecutionCourses) {

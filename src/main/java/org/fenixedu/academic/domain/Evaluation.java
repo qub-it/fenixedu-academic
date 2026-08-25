@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public abstract class Evaluation extends Evaluation_Base {
@@ -57,24 +56,6 @@ public abstract class Evaluation extends Evaluation_Base {
 
     public String getPresentationName() {
         return null;
-    }
-
-    protected void logCreate() {
-        logAuxBasic("log.executionCourse.evaluation.generic.created");
-    }
-
-    protected void logEdit() {
-        logAuxBasic("log.executionCourse.evaluation.generic.edited");
-    }
-
-    protected void logRemove() {
-        logAuxBasic("log.executionCourse.evaluation.generic.removed");
-    }
-
-    private void logAuxBasic(String key) {
-        getAssociatedExecutionCoursesSet().forEach(
-                ec -> EvaluationManagementLog.createLog(ec, Bundle.MESSAGING, key, getPresentationName(), ec.getName(),
-                        ec.getDegreePresentationString()));
     }
 
     public Date getEvaluationDate() {
