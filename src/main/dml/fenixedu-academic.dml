@@ -1570,11 +1570,6 @@ public class accessControl.rules.AccessRule {
 public class accessControl.academicAdministration.AcademicAccessRule extends accessControl.rules.AccessRule {
 }
 
-class CoordinatorLog  {
-	DateTime date;
-	OperationType operation;
-}
-
 class UserPrivateKey {
     bytearray privateKey;
     DateTime privateKeyCreation;
@@ -3975,31 +3970,6 @@ relation DegreeOfficialPublicationSpecializationAreas {
 relation EnrolmentEvaluationLogRootDomainObject {
 	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
 	log.EnrolmentEvaluationLog playsRole enrolmentEvaluationLog {
-		multiplicity *;
-	}
-}
-
-relation RootDomainObjectCoordinatorLog {
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-	CoordinatorLog playsRole coordinatorLog {
-		multiplicity *;
-	}
-}
-relation CoordinatorLogExecutionDegree {
-	ExecutionDegree playsRole executionDegree;
-	CoordinatorLog playsRole coordinatorLog {
-		multiplicity *;
-	}		
-}
-relation CoordinatorLogWhoPerson {
-	Person playsRole personWho;
-	CoordinatorLog playsRole coordinatorLogWho {
-		multiplicity *;
-	}
-}
-relation CoordinatorLogPerson {
-	Person playsRole person;
-	CoordinatorLog playsRole coordinatorLog {
 		multiplicity *;
 	}
 }
