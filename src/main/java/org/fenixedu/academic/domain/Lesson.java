@@ -133,9 +133,8 @@ public class Lesson extends Lesson_Base {
                 if (newRoom == null) {
                     lessonInstance.setLessonInstanceSpaceOccupation(null);
                 } else {
-                    LessonInstanceSpaceOccupation.findOccupationForLessonAndSpace(this, newRoom)
-                            .ifPresentOrElse(o -> o.add(lessonInstance),
-                                    () -> new LessonInstanceSpaceOccupation(newRoom, lessonInstance));
+                    LessonInstanceSpaceOccupation.findOccupationForLessonAndSpace(this, newRoom).ifPresentOrElse(
+                            o -> o.add(lessonInstance), () -> new LessonInstanceSpaceOccupation(newRoom, lessonInstance));
                 }
             }
         }
@@ -175,17 +174,6 @@ public class Lesson extends Lesson_Base {
 
     public ExecutionInterval getExecutionPeriod() {
         return getShift().getExecutionPeriod();
-    }
-
-    @Deprecated
-    public Space getSala() {
-        if (getLessonSpaceOccupation() != null) {
-            return getLessonSpaceOccupation().getSpace();
-        } else if (hasAnyLessonInstances() && wasFinished()) {
-            return getLessonInstancesSet().stream().max(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME).map(LessonInstance::getRoom)
-                    .orElse(null);
-        }
-        return null;
     }
 
     public Stream<Space> getSpaces() {
@@ -314,8 +302,7 @@ public class Lesson extends Lesson_Base {
                 if (dateValid && !Holiday.isHoliday(dateToCheck.toLocalDate())) {
                     result.add(dateToCheck.toLocalDate());
                 }
-                dateToCheck = dateToCheck.plusDays(!dateValid && dayIncrement
-                        > weekDays ? weekDays : dayIncrement); // if the frequency is greater than weekly, we want to check the next week again
+                dateToCheck = dateToCheck.plusDays(!dateValid && dayIncrement > weekDays ? weekDays : dayIncrement); // if the frequency is greater than weekly, we want to check the next week again
             }
         }
 
@@ -344,6 +331,7 @@ public class Lesson extends Lesson_Base {
         return getLessonInstancesSet().stream().filter(li -> li.getDate().equals(date)).findAny();
     }
 
+    @Deprecated
     public LessonInstance getLessonInstanceFor(YearMonthDay date) {
         return getLessonInstancesSet().stream().filter(lI -> lI.getDay().isEqual(date)).findFirst().orElse(null);
     }
@@ -387,7 +375,8 @@ public class Lesson extends Lesson_Base {
     public Set<Interval> getAllLessonIntervals() {
         return getAllLessonDates().stream()
                 .map(day -> new Interval(day.toLocalDate().toDateTime(getBeginHourMinuteSecond().toLocalTime()),
-                        day.toLocalDate().toDateTime(getEndHourMinuteSecond().toLocalTime()))).collect(Collectors.toSet());
+                        day.toLocalDate().toDateTime(getEndHourMinuteSecond().toLocalTime())))
+                .collect(Collectors.toSet());
     }
 
     private boolean hasAnyLessonInstances() {
