@@ -59,7 +59,7 @@ public class DegreeInfoTest {
         DegreeInfo info = new DegreeInfo(degree, year);
         assertEquals(degree, info.getDegree());
         assertEquals(year, info.getExecutionYear());
-        assertEquals(degree.getNameFor(year.getAcademicInterval()), info.getName());
+        assertEquals(degree.getNameFor(year), info.getName());
 
         assertThrows(DomainException.class, () -> new DegreeInfo(degree, year));
     }
