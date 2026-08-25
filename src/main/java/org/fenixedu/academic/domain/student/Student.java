@@ -196,6 +196,12 @@ public class Student extends Student_Base {
                 .anyMatch(ss -> ss.getType().isWorkingStudentStatute() && ss.isValidInExecutionInterval(executionInterval));
     }
 
+    @Deprecated(forRemoval = true)
+    public Attends getAttends(final ExecutionCourse executionCourse) {
+        return getRegistrationStream().flatMap(r -> r.getAssociatedAttendsSet().stream()).filter(a -> a.isFor(executionCourse))
+                .findAny().orElse(null);
+    }
+
     public Optional<Attends> findAttends(ExecutionCourse executionCourse) {
         return getRegistrationStream().flatMap(r -> r.findAttends(executionCourse).stream()).findAny();
     }
