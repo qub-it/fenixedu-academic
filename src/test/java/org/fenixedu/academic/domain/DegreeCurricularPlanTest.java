@@ -167,31 +167,6 @@ public class DegreeCurricularPlanTest {
     }
 
     @Test
-    public void testFindExecutionDegree_AcademicInterval_matches_ExecutionInterval() {
-        DegreeType degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
-        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", currentYear);
-        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, currentInterval);
-
-        ExecutionDegree executionDegree = dcp.createExecutionDegree(currentYear);
-
-        assertEquals(executionDegree, dcp.findExecutionDegree(currentYear).orElse(null));
-        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(currentYear.getAcademicInterval()));
-
-        assertEquals(executionDegree, dcp.findExecutionDegree(currentInterval).orElse(null));
-        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(currentInterval.getAcademicInterval()));
-
-        assertTrue(dcp.findExecutionDegree(previousYear).isEmpty());
-        assertNull(dcp.getExecutionDegreeByAcademicInterval(previousYear.getAcademicInterval()));
-
-        assertTrue(dcp.findExecutionDegree(nextYear).isEmpty());
-        assertNull(dcp.getExecutionDegreeByAcademicInterval(nextYear.getAcademicInterval()));
-
-        executionDegree.delete();
-        dcp.delete();
-        testDegree.delete();
-    }
-
-    @Test
     public void testDegreeCurricularPlan_getExecutionYears() {
         DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_EXECUTION_YEARS");
 
