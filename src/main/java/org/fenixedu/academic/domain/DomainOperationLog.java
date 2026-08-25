@@ -18,8 +18,6 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.Comparator;
-
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
@@ -27,20 +25,6 @@ import org.joda.time.DateTime;
 import pt.ist.fenixframework.Atomic;
 
 public class DomainOperationLog extends DomainOperationLog_Base {
-
-    protected static final String SEPARATOR = " - ";
-    protected static final String DATE_FORMAT = "dd/MM/yyyy HH:mm:ss.SSS";
-
-    public static final Comparator<DomainOperationLog> COMPARATOR_BY_WHEN_DATETIME = new Comparator<DomainOperationLog>() {
-
-        @Override
-        public int compare(final DomainOperationLog domainOperationLog1, final DomainOperationLog domainOperationLog2) {
-            final DateTime dateTime1 = domainOperationLog1.getWhenDateTime();
-            final DateTime dateTime2 = domainOperationLog2.getWhenDateTime();
-            int res = dateTime2.compareTo(dateTime1);
-            return res;
-        }
-    };
 
     public DomainOperationLog() {
         super();
