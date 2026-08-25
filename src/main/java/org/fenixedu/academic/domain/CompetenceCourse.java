@@ -56,7 +56,6 @@ import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -340,9 +339,8 @@ public class CompetenceCourse extends CompetenceCourse_Base {
     }
 
     public List<Enrolment> getActiveEnrollments(ExecutionInterval interval) {
-        final AcademicInterval academicInterval = interval.getAcademicInterval();
-        return getAssociatedCurricularCoursesSet().stream()
-                .flatMap(cc -> cc.getEnrolmentsByAcademicInterval(academicInterval).stream()).collect(Collectors.toList());
+        return getAssociatedCurricularCoursesSet().stream().flatMap(cc -> cc.getEnrolmentsByExecutionPeriod(interval).stream())
+                .collect(Collectors.toList());
     }
 
     public ExecutionInterval getBeginExecutionInterval() {
