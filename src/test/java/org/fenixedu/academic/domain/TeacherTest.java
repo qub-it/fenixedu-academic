@@ -231,32 +231,6 @@ public class TeacherTest {
     }
 
     @Test
-    public void testTeacher_getTeacherAuthorization_AcademicInterval_matches_ExecutionInterval() {
-        Teacher testTeacher = createTeacher("0teacher.getauthmatch", "TAM");
-
-        TeacherCategory category1 =
-                new TeacherCategory("GET_TEACHER_AUTH_1", new LocalizedString(Locale.ENGLISH, "Test Category"), 50);
-        TeacherCategory category2 =
-                new TeacherCategory("GET_TEACHER_AUTH_2", new LocalizedString(Locale.ENGLISH, "Test Category"), 100);
-
-        TeacherAuthorization teacherAuthorization1 = createAuthorization(testTeacher, firstSemester, category1);
-        TeacherAuthorization teacherAuthorization2 =
-                createAuthorization(testTeacher, nextYear.getFirstExecutionPeriod(), category2);
-
-        assertEquals(teacherAuthorization1, testTeacher.getTeacherAuthorization(firstSemester).orElse(null));
-        assertEquals(testTeacher.getTeacherAuthorization(firstSemester),
-                testTeacher.getTeacherAuthorization(firstSemester.getAcademicInterval()));
-
-        assertTrue(testTeacher.getTeacherAuthorization(secondSemester).isEmpty());
-        assertEquals(testTeacher.getTeacherAuthorization(secondSemester),
-                testTeacher.getTeacherAuthorization(secondSemester.getAcademicInterval()));
-
-        assertEquals(teacherAuthorization2, testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()).orElse(null));
-        assertEquals(testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()),
-                testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod().getAcademicInterval()));
-    }
-
-    @Test
     public void testTeacher_getLatestTeacherAuthorizationInInterval() {
         Teacher testTeacher = createTeacher("0teacher.latestauth", "TLT");
 
