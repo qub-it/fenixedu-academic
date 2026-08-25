@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,7 +39,6 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CurriculumLineLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -208,26 +206,6 @@ public class CurricularCourse extends CurricularCourse_Base {
     public List<Enrolment> getEnrolmentsByExecutionPeriod(final ExecutionInterval executionInterval) {
         return getCurriculumModulesSet().stream().filter(CurriculumModule::isEnrolment).map(Enrolment.class::cast)
                 .filter(e -> !e.isAnnulled() && e.getExecutionInterval() == executionInterval).collect(Collectors.toList());
-    }
-
-    @Deprecated(forRemoval = true)
-    public List<Enrolment> getEnrolmentsByAcademicInterval(AcademicInterval academicInterval) {
-        List<Enrolment> result = new ArrayList<Enrolment>();
-        addActiveEnrollments(result, academicInterval);
-        return result;
-    }
-
-    @Deprecated(forRemoval = true)
-    private void addActiveEnrollments(List<Enrolment> enrolments, AcademicInterval academicInterval) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isEnrolment()) {
-                final Enrolment enrolment = (Enrolment) curriculumModule;
-                if (!enrolment.isAnnulled() && (enrolment.getExecutionInterval().getAcademicInterval().equals(academicInterval)
-                        || enrolment.getExecutionInterval().getExecutionYear().getAcademicInterval().equals(academicInterval))) {
-                    enrolments.add(enrolment);
-                }
-            }
-        }
     }
 
     public List<Enrolment> getEnrolments() {
