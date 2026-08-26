@@ -147,7 +147,8 @@ public class AcademicCalendarEntryTest {
 
     @Test
     public void testAcademicCalendarRootEntry_getBegin() {
-        assertEquals(year2025.getBegin(), rootEntry.getBegin());
+        assertEquals(year2024.getBegin(), rootEntry.getBegin());
+        assertNotEquals(year2025.getBegin(), rootEntry.getBegin());
         assertNotEquals(year2026.getBegin(), rootEntry.getBegin());
     }
 
@@ -179,13 +180,15 @@ public class AcademicCalendarEntryTest {
     public void testAcademicCalendarRootEntry_getEntryIndexByInstant() {
         long instant = new DateTime(2026, 2, 15, 12, 0).getMillis();
 
-        assertEquals(Integer.valueOf(1), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
-        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR)); // year2025
+        assertEquals(Integer.valueOf(3),
+                rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER)); // semester2_year2025
 
         instant = new DateTime(2026, 10, 15, 12, 0).getMillis();
 
-        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
-        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR)); // year2026
+        assertEquals(Integer.valueOf(4),
+                rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER)); // semester1_year2026
 
         // Test for invalid instant
         instant = new DateTime(2020, 1, 1, 0, 0).getMillis();
@@ -196,21 +199,24 @@ public class AcademicCalendarEntryTest {
         // Scenario in the future: check branch entry.getEnd().isBefore(instant) of getEntryIndexByInstant
         instant = new DateTime(2028, 1, 1, 0, 0).getMillis();
 
-        assertEquals(Integer.valueOf(2), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR));
-        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER));
+        assertEquals(Integer.valueOf(3), rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.YEAR)); // year2026
+        assertEquals(Integer.valueOf(4),
+                rootEntry.getEntryIndexByInstant(instant, AcademicPeriod.SEMESTER)); // semester1_year2026
     }
 
     @Test
     public void testAcademicCalendarRootEntry_getEntryByIndex() {
-        assertEquals(year2025, rootEntry.getEntryByIndex(1, AcademicPeriod.YEAR));
-        assertEquals(year2026, rootEntry.getEntryByIndex(2, AcademicPeriod.YEAR));
+        assertEquals(year2024, rootEntry.getEntryByIndex(1, AcademicPeriod.YEAR));
+        assertEquals(year2025, rootEntry.getEntryByIndex(2, AcademicPeriod.YEAR));
+        assertEquals(year2026, rootEntry.getEntryByIndex(3, AcademicPeriod.YEAR));
 
-        assertEquals(semester1_2025, rootEntry.getEntryByIndex(1, AcademicPeriod.SEMESTER));
-        assertEquals(semester2_2025, rootEntry.getEntryByIndex(2, AcademicPeriod.SEMESTER));
-        assertEquals(semester1_2026, rootEntry.getEntryByIndex(3, AcademicPeriod.SEMESTER));
+        assertEquals(semester2_2024, rootEntry.getEntryByIndex(1, AcademicPeriod.SEMESTER));
+        assertEquals(semester1_2025, rootEntry.getEntryByIndex(2, AcademicPeriod.SEMESTER));
+        assertEquals(semester2_2025, rootEntry.getEntryByIndex(3, AcademicPeriod.SEMESTER));
+        assertEquals(semester1_2026, rootEntry.getEntryByIndex(4, AcademicPeriod.SEMESTER));
 
         assertNull(rootEntry.getEntryByIndex(0, AcademicPeriod.YEAR));
-        assertNull(rootEntry.getEntryByIndex(4, AcademicPeriod.SEMESTER));
+        assertNull(rootEntry.getEntryByIndex(5, AcademicPeriod.SEMESTER));
     }
 
     @Test
