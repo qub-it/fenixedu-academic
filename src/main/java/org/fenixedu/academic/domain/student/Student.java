@@ -94,20 +94,6 @@ public class Student extends Student_Base {
         return getRegistrationStream().filter(r -> r.isActive());
     }
 
-    /**
-     * @deprecated use getActiveRegistrationStream instead;
-     */
-    @Deprecated
-    public List<Registration> getActiveRegistrations() {
-        final List<Registration> result = new ArrayList<>();
-        for (final Registration registration : getRegistrationsSet()) {
-            if (registration.isActive()) {
-                result.add(registration);
-            }
-        }
-        return result;
-    }
-
     public List<Registration> getActiveRegistrationsIn(final ExecutionInterval executionInterval) {
         return getRegistrationStream().filter(r -> r.hasActiveLastState(executionInterval)).collect(Collectors.toList());
     }
@@ -194,12 +180,6 @@ public class Student extends Student_Base {
     public boolean hasWorkingStudentStatuteInPeriod(final ExecutionInterval executionInterval) {
         return getStudentStatutesSet().stream()
                 .anyMatch(ss -> ss.getType().isWorkingStudentStatute() && ss.isValidInExecutionInterval(executionInterval));
-    }
-
-    @Deprecated(forRemoval = true)
-    public Attends getAttends(final ExecutionCourse executionCourse) {
-        return getRegistrationStream().flatMap(r -> r.getAssociatedAttendsSet().stream()).filter(a -> a.isFor(executionCourse))
-                .findAny().orElse(null);
     }
 
     public Optional<Attends> findAttends(ExecutionCourse executionCourse) {
