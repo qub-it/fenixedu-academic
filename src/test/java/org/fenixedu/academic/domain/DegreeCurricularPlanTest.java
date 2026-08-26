@@ -24,7 +24,13 @@ import org.junit.runners.FenixFrameworkRunner;
 
 import pt.ist.fenixframework.FenixFramework;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
+import static org.fenixedu.academic.domain.DegreeTest.MASTER_DEGREE_TYPE_CODE;
 import static org.junit.Assert.assertFalse;
 
 @RunWith(FenixFrameworkRunner.class)
@@ -261,5 +267,127 @@ public class DegreeCurricularPlanTest {
         new CourseGroup(dcp.getRoot(), "Group Earlier", "Group Earlier", previousYear.getFirstExecutionPeriod(), null);
 
         assertEquals(previousYear, dcp.getBegin());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_comparatorByName() {
+        DegreeCurricularPlan dcpA = createDegreeCurricularPlan("AAA");
+        DegreeCurricularPlan dcpB = createDegreeCurricularPlan("BBB");
+        DegreeCurricularPlan dcpC = createDegreeCurricularPlan("CCC");
+
+        List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        Comparator<DegreeCurricularPlan> comparator = DegreeCurricularPlan.COMPARATOR_BY_NAME;
+        list.sort(comparator);
+
+        assertEquals(dcpA, list.get(0));
+        assertEquals(dcpB, list.get(1));
+        assertEquals(dcpC, list.get(2));
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_comparatorByPresentationName() {
+        DegreeCurricularPlan dcpA = createDegreeCurricularPlan("PPP_AAA");
+        DegreeCurricularPlan dcpB = createDegreeCurricularPlan("PPP_BBB");
+        DegreeCurricularPlan dcpC = createDegreeCurricularPlan("PPP_CCC");
+
+        List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        Comparator<DegreeCurricularPlan> comparator = DegreeCurricularPlan.COMPARATOR_BY_PRESENTATION_NAME;
+        list.sort(comparator);
+
+        assertEquals(dcpA, list.get(0));
+        assertEquals(dcpB, list.get(1));
+        assertEquals(dcpC, list.get(2));
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_comparatorByDegreeTypeAndSiglaAndName_comparesBySigla() {
+        DegreeCurricularPlan dcpA = createDegreeCurricularPlan("REVERSE_NAME_C");
+        DegreeCurricularPlan dcpB = createDegreeCurricularPlan("REVERSE_NAME_B");
+        DegreeCurricularPlan dcpC = createDegreeCurricularPlan("REVERSE_NAME_A");
+
+        // Test compare by reverseName
+        dcpA.getDegree().setSigla("A");
+        dcpB.getDegree().setSigla("A");
+        dcpC.getDegree().setSigla("A");
+
+        List<DegreeCurricularPlan> list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        Comparator<DegreeCurricularPlan> comparator =
+                DegreeCurricularPlan.DEGREE_CURRICULAR_PLAN_COMPARATOR_BY_DEGREE_TYPE_AND_EXECUTION_DEGREE_AND_DEGREE_CODE;
+        list.sort(comparator);
+
+        assertEquals(dcpA, list.get(0));
+        assertEquals(dcpB, list.get(1));
+        assertEquals(dcpC, list.get(2));
+
+        // Test compare by Sigla
+        dcpA.getDegree().setSigla("A");
+        dcpB.getDegree().setSigla("B");
+        dcpC.getDegree().setSigla("C");
+        dcpA.setName("0_SCRAMBLE_NAMES");
+        dcpB.setName("1_TO_MAKE_SURE");
+        dcpC.setName("2_IT_IS_USING_SIGLA");
+
+        list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        list.sort(comparator);
+
+        assertEquals(dcpA, list.get(0));
+        assertEquals(dcpB, list.get(1));
+        assertEquals(dcpC, list.get(2));
+
+        // Test compare by DegreeType
+        dcpC.getDegree().setDegreeType(DegreeType.findByCode(MASTER_DEGREE_TYPE_CODE).get());
+        dcpA.getDegree().setSigla("1_SCRAMBLE_SIGLA");
+        dcpB.getDegree().setSigla("2_TO_MAKE_SURE");
+        dcpC.getDegree().setSigla("0_IT_IS_USING_DEGREE_TYPE");
+
+        list = new ArrayList<>(List.of(dcpB, dcpC, dcpA));
+        list.sort(comparator);
+        assertEquals(dcpA, list.get(0));
+        assertEquals(dcpB, list.get(1));
+        assertEquals(dcpC, list.get(2));
+
+        assertEquals(0, comparator.compare(dcpA, dcpA));
+        assertTrue(comparator.compare(dcpA, dcpB) < 0);
+        assertTrue(comparator.compare(dcpB, dcpA) > 0);
+        assertTrue(comparator.compare(dcpA, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpA) > 0);
+        assertTrue(comparator.compare(dcpB, dcpC) < 0);
+        assertTrue(comparator.compare(dcpC, dcpB) > 0);
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getExecutionCourses() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_EXECUTION_COURSES");
+        ExecutionInterval interval = currentYear.getFirstExecutionPeriod();
+        CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
+        CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
+        CompetenceCourse competenceCourse = CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE);
+        CurricularCourse curricularCourse = new CurricularCourse();
+        curricularCourse.setCompetenceCourse(competenceCourse);
+        CourseGroup courseGroup = new CourseGroup(dcp.getRoot(), "Test Group", "Test Group", interval, null);
+        ExecutionCourse executionCourse = new ExecutionCourse("Test EC", "TEC", interval);
+        curricularCourse.addAssociatedExecutionCourses(executionCourse);
+
+        assertTrue(dcp.getExecutionCourses(interval).isEmpty());
+
+        new Context(courseGroup, curricularCourse, semesterPeriod, interval, null);
+        assertTrue(dcp.getExecutionCourses(interval).contains(executionCourse));
+
+        // different interval returns empty set
+        assertTrue(dcp.getExecutionCourses(nextYear.getFirstExecutionPeriod()).isEmpty());
     }
 }
