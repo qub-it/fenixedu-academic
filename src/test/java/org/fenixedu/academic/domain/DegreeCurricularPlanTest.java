@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -19,6 +20,11 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationProtocol;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.util.UserUtil;
 import org.junit.BeforeClass;
@@ -59,6 +65,10 @@ public class DegreeCurricularPlanTest {
             previousYear = (ExecutionYear) currentYear.getPrevious();
             currentInterval = currentYear.getFirstExecutionPeriod();
             competenceCourseB = CompetenceCourse.find(CompetenceCourseTest.COURSE_B_CODE);
+
+            if (RegistrationProtocol.findByCode(StudentTest.PROTOCOL_CODE) == null) {
+                StudentTest.initRegistrationConfigEntities();
+            }
 
             return null;
         });
@@ -530,5 +540,130 @@ public class DegreeCurricularPlanTest {
 
         // querying for a different execution year returns empty
         assertTrue(dcp.getCurricularCoursesByExecutionYearAndCurricularYear(nextYear, 1).isEmpty());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getCurricularCoursesWithExecutionIn() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_CURR_COURSES_WITH_EXEC");
+
+        // empty DCP returns empty list
+        assertTrue(dcp.getCurricularCoursesWithExecutionIn(currentYear).isEmpty());
+
+        // course without execution course is not returned
+        CurricularCourse courseB = new CurricularCourse();
+        courseB.setCompetenceCourse(competenceCourseB);
+        new Context(dcp.getRoot(), courseB, semesterPeriod, currentInterval, null);
+        assertTrue(dcp.getCurricularCoursesWithExecutionIn(currentYear).isEmpty());
+
+        // course with execution course in current year is returned
+        CurricularCourse courseA = new CurricularCourse();
+        courseA.setCompetenceCourse(competenceCourseA);
+        new Context(dcp.getRoot(), courseA, semesterPeriod, currentInterval, null);
+        ExecutionCourse executionCourseA = new ExecutionCourse("ECA", "ECA", currentInterval);
+        courseA.addAssociatedExecutionCourses(executionCourseA);
+
+        List<CurricularCourse> resultCurrentYear = dcp.getCurricularCoursesWithExecutionIn(currentYear);
+        assertEquals(1, resultCurrentYear.size());
+        assertTrue(resultCurrentYear.contains(courseA));
+
+        // querying for a different year returns empty
+        assertTrue(dcp.getCurricularCoursesWithExecutionIn(nextYear).isEmpty());
+
+        // course with execution in next year is returned for next year
+        ExecutionInterval nextInterval = nextYear.getFirstExecutionPeriod();
+        ExecutionCourse executionCourseB = new ExecutionCourse("ECB", "ECB", nextInterval);
+        courseB.addAssociatedExecutionCourses(executionCourseB);
+
+        List<CurricularCourse> resultNextYear = dcp.getCurricularCoursesWithExecutionIn(nextYear);
+        assertEquals(1, resultNextYear.size());
+        assertTrue(resultNextYear.contains(courseB));
+
+        // course with execution in both years appears in both results
+        ExecutionCourse executionCourseAForNextYear = new ExecutionCourse("ECA2", "ECA2", nextInterval);
+        courseA.addAssociatedExecutionCourses(executionCourseAForNextYear);
+
+        List<CurricularCourse> resultNextYearWithA = dcp.getCurricularCoursesWithExecutionIn(nextYear);
+        assertEquals(2, resultNextYearWithA.size());
+        assertTrue(resultNextYearWithA.contains(courseA));
+        assertTrue(resultNextYearWithA.contains(courseB));
+
+        List<CurricularCourse> resultCurrentYearWithA = dcp.getCurricularCoursesWithExecutionIn(currentYear);
+        assertEquals(1, resultCurrentYearWithA.size());
+        assertTrue(resultCurrentYearWithA.contains(courseA));
+
+        // course with execution in multiple intervals of same year appears only once
+        ExecutionInterval secondSemester = currentYear.getLastExecutionPeriod();
+        ExecutionCourse executionCourseASecondSemester = new ExecutionCourse("ECA3", "ECA3", secondSemester);
+        courseA.addAssociatedExecutionCourses(executionCourseASecondSemester);
+
+        List<CurricularCourse> resultCurrentYearDeduped = dcp.getCurricularCoursesWithExecutionIn(currentYear);
+        assertEquals(1, resultCurrentYearDeduped.size());
+        assertTrue(resultCurrentYearDeduped.contains(courseA));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getActiveStudentCurricularPlans() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_ACTIVE_SCP");
+
+        // empty DCP returns empty set
+        assertTrue(dcp.getActiveStudentCurricularPlans().isEmpty());
+
+        // active registration creates an active student curricular plan
+        dcp.createExecutionDegree(currentYear);
+        Student student = StudentTest.createStudent("SCP Active Test", "scp.active.test");
+        Registration registration = StudentTest.createRegistration(student, dcp, currentYear);
+
+        Collection<StudentCurricularPlan> activePlans = dcp.getActiveStudentCurricularPlans();
+        assertEquals(1, activePlans.size());
+
+        StudentCurricularPlan activePlan = activePlans.iterator().next();
+        assertEquals(registration, activePlan.getRegistration());
+        assertEquals(dcp, activePlan.getDegreeCurricularPlan());
+
+        // concluded registration makes the plan inactive
+        RegistrationStateType interruptedType = RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).get();
+        RegistrationState.createRegistrationState(registration, null, null, interruptedType,
+                currentYear.getFirstExecutionPeriod());
+
+        assertTrue(dcp.getActiveStudentCurricularPlans().isEmpty());
+
+        // re-activating makes the plan active again
+        RegistrationStateType registeredType = RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get();
+        RegistrationState.createRegistrationState(registration, null, null, registeredType,
+                currentYear.getFirstExecutionPeriod());
+
+        assertEquals(1, dcp.getActiveStudentCurricularPlans().size());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getActiveRegistrations() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_ACTIVE_REG");
+
+        // empty DCP returns empty set
+        assertTrue(dcp.getActiveRegistrations().isEmpty());
+
+        // active registration is returned
+        dcp.createExecutionDegree(currentYear);
+        Student student = StudentTest.createStudent("Reg Active Test", "reg.active.test");
+        Registration registration = StudentTest.createRegistration(student, dcp, currentYear);
+
+        Collection<Registration> activeRegistrations = dcp.getActiveRegistrations();
+        assertEquals(1, activeRegistrations.size());
+        assertTrue(activeRegistrations.contains(registration));
+
+        // concluded registration is not returned
+        RegistrationStateType interruptedType = RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).get();
+        RegistrationState.createRegistrationState(registration, null, null, interruptedType,
+                currentYear.getFirstExecutionPeriod());
+
+        assertTrue(dcp.getActiveRegistrations().isEmpty());
+
+        // re-activating registration makes it returned again
+        RegistrationStateType registeredType = RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get();
+        RegistrationState.createRegistrationState(registration, null, null, registeredType,
+                currentYear.getFirstExecutionPeriod());
+
+        assertEquals(1, dcp.getActiveRegistrations().size());
+        assertTrue(dcp.getActiveRegistrations().contains(registration));
     }
 }
