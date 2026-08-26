@@ -65,7 +65,7 @@ public class RegistrationState extends RegistrationState_Base {
         createdState.setType(stateType);
         createdState.setExecutionInterval(executionInterval);
 
-        registration.getStudent().updateStudentRole();
+        registration.getPerson().ensureOpenUserAccount();
 
         return createdState;
     }

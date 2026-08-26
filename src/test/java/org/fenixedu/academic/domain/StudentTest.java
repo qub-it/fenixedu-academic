@@ -371,18 +371,18 @@ public class StudentTest {
     }
 
     @Test
-    public void testStudent_readAttendByExecutionCourse() {
-        Attends attend1 = student.readAttendByExecutionCourse(executionCourse1);
+    public void testStudent_findAttends() {
+        Attends attend1 = student.findAttends(executionCourse1).orElse(null);
         assertNotNull(attend1);
         assertEquals(executionCourse1, attend1.getExecutionCourse());
 
-        Attends attend2 = student.readAttendByExecutionCourse(executionCourse2);
+        Attends attend2 = student.findAttends(executionCourse2).orElse(null);
         assertNotNull(attend2);
         assertEquals(executionCourse2, attend2.getExecutionCourse());
 
         ExecutionCourse unknownCourse = new ExecutionCourse("Unknown", "XX", firstSemester);
-        assertNull(student.readAttendByExecutionCourse(unknownCourse));
-        assertNull(student.readAttendByExecutionCourse(null));
+        assertNull(student.findAttends(unknownCourse).orElse(null));
+        assertNull(student.findAttends(null).orElse(null));
     }
 
     @Test
