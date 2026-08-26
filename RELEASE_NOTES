@@ -17,6 +17,7 @@
 - Refactor: Deprecates domain methods that accept AcademicInterval as an argument [#qubIT-Fenix-9217]
 - Refactor: Remove unused DomainOperationLog methods [#qubIT-Fenix-9246]
 - Refactor: Improves AcademicCalendarEntry and AcademicCalendarRootEntry domain methods [#qubIT-Fenix-9138]
+- Refactor: Deletes unused UnitName domain methods [#qubIT-Fenix-9267]
 
 59.0.0 (07-08-2026)
 - Refactor: PartyContact domain methods [#qubIT-Fenix-9195]
