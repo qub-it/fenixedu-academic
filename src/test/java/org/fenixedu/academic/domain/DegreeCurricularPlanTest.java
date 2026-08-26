@@ -44,8 +44,6 @@ public class DegreeCurricularPlanTest {
     public static final String DCP_NAME_V3 = "DCP_NAME_V3";
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static CurricularCourse curricularCourse;
-    private static ExecutionYear executionYear;
-    private static ExecutionInterval executionInterval;
     private static ExecutionYear currentYear, previousYear, nextYear;
     private static ExecutionInterval currentInterval;
     private static CurricularPeriod yearPeriod, semesterPeriod;
@@ -60,10 +58,8 @@ public class DegreeCurricularPlanTest {
             ExecutionIntervalTest.initRootCalendarAndExecutionYears();
             initDegreeCurricularPlan();
 
-            currentYear = ExecutionYear.findCurrent(null);
-            nextYear = (ExecutionYear) currentYear.getNext();
-            previousYear = (ExecutionYear) currentYear.getPrevious();
-            currentInterval = currentYear.getFirstExecutionPeriod();
+            nextYear = currentYear.getNext().getExecutionYear();
+            previousYear = currentYear.getPrevious().getExecutionYear();
             competenceCourseB = CompetenceCourse.find(CompetenceCourseTest.COURSE_B_CODE);
 
             if (RegistrationProtocol.findByCode(StudentTest.PROTOCOL_CODE) == null) {
@@ -94,9 +90,9 @@ public class DegreeCurricularPlanTest {
         yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
         semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
 
-        executionYear = ExecutionYear.findCurrent(null);
-        executionInterval = executionYear.getFirstExecutionPeriod();
-        new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
+        currentYear = ExecutionYear.findCurrent(null);
+        currentInterval = currentYear.getFirstExecutionPeriod();
+        new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, currentInterval, null);
     }
 
     private static DegreeCurricularPlan createDegreeCurricularPlan(final String dcpName) {
@@ -149,21 +145,19 @@ public class DegreeCurricularPlanTest {
 
     @Test
     public void testFindExecutionDegree() {
-        ExecutionYear next = executionYear.getNext().getExecutionYear();
-
         DegreeType degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
-        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", executionYear);
-        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, executionInterval);
+        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", currentYear);
+        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, currentInterval);
 
-        assertTrue(dcp.findExecutionDegree(executionYear).isEmpty());
-        assertTrue(dcp.findExecutionDegree(executionInterval).isEmpty());
-        assertTrue(dcp.findExecutionDegree(next).isEmpty());
+        assertTrue(dcp.findExecutionDegree(currentYear).isEmpty());
+        assertTrue(dcp.findExecutionDegree(currentInterval).isEmpty());
+        assertTrue(dcp.findExecutionDegree(nextYear).isEmpty());
 
-        ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
+        ExecutionDegree executionDegree = dcp.createExecutionDegree(currentYear);
 
-        assertEquals(executionDegree, dcp.findExecutionDegree(executionYear).orElse(null));
-        assertEquals(executionDegree, dcp.findExecutionDegree(executionInterval).orElse(null));
-        assertTrue(dcp.findExecutionDegree(next).isEmpty());
+        assertEquals(executionDegree, dcp.findExecutionDegree(currentYear).orElse(null));
+        assertEquals(executionDegree, dcp.findExecutionDegree(currentInterval).orElse(null));
+        assertTrue(dcp.findExecutionDegree(nextYear).isEmpty());
 
         assertTrue(dcp.findExecutionDegree(null).isEmpty());
 
@@ -174,26 +168,23 @@ public class DegreeCurricularPlanTest {
 
     @Test
     public void testFindExecutionDegree_AcademicInterval_matches_ExecutionInterval() {
-        ExecutionYear previous = executionYear.getPrevious().getExecutionYear();
-        ExecutionYear next = executionYear.getNext().getExecutionYear();
-
         DegreeType degreeType = DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow();
-        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", executionYear);
-        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, executionInterval);
+        Degree testDegree = DegreeTest.createDegree(degreeType, "EXEC_DEGREE_TEST", "Exec Degree Test", currentYear);
+        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Test", AcademicPeriod.THREE_YEAR, currentInterval);
 
-        ExecutionDegree executionDegree = dcp.createExecutionDegree(executionYear);
+        ExecutionDegree executionDegree = dcp.createExecutionDegree(currentYear);
 
-        assertEquals(executionDegree, dcp.findExecutionDegree(executionYear).orElse(null));
-        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(executionYear.getAcademicInterval()));
+        assertEquals(executionDegree, dcp.findExecutionDegree(currentYear).orElse(null));
+        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(currentYear.getAcademicInterval()));
 
-        assertEquals(executionDegree, dcp.findExecutionDegree(executionInterval).orElse(null));
-        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(executionInterval.getAcademicInterval()));
+        assertEquals(executionDegree, dcp.findExecutionDegree(currentInterval).orElse(null));
+        assertEquals(executionDegree, dcp.getExecutionDegreeByAcademicInterval(currentInterval.getAcademicInterval()));
 
-        assertTrue(dcp.findExecutionDegree(previous).isEmpty());
-        assertNull(dcp.getExecutionDegreeByAcademicInterval(previous.getAcademicInterval()));
+        assertTrue(dcp.findExecutionDegree(previousYear).isEmpty());
+        assertNull(dcp.getExecutionDegreeByAcademicInterval(previousYear.getAcademicInterval()));
 
-        assertTrue(dcp.findExecutionDegree(next).isEmpty());
-        assertNull(dcp.getExecutionDegreeByAcademicInterval(next.getAcademicInterval()));
+        assertTrue(dcp.findExecutionDegree(nextYear).isEmpty());
+        assertNull(dcp.getExecutionDegreeByAcademicInterval(nextYear.getAcademicInterval()));
 
         executionDegree.delete();
         dcp.delete();
