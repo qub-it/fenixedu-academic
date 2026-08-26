@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.util.UserUtil;
@@ -22,6 +23,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
 
 import pt.ist.fenixframework.FenixFramework;
+
+import static org.fenixedu.academic.domain.DegreeTest.DEGREE_TYPE_CODE;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(FenixFrameworkRunner.class)
 public class DegreeCurricularPlanTest {
@@ -35,6 +39,8 @@ public class DegreeCurricularPlanTest {
     public static final String DCP_NAME_V2 = "DCP_NAME_V2";
     public static final String DCP_NAME_V3 = "DCP_NAME_V3";
 
+    private static ExecutionYear currentYear, previousYear, nextYear;
+
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
@@ -43,6 +49,11 @@ public class DegreeCurricularPlanTest {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             ExecutionIntervalTest.initRootCalendarAndExecutionYears();
             initDegreeCurricularPlan();
+
+            currentYear = ExecutionYear.findCurrent(null);
+            nextYear = (ExecutionYear) currentYear.getNext();
+            previousYear = (ExecutionYear) currentYear.getPrevious();
+
             return null;
         });
     }
@@ -73,7 +84,11 @@ public class DegreeCurricularPlanTest {
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, executionInterval, null);
     }
 
-
+    private static DegreeCurricularPlan createDegreeCurricularPlan(final String dcpName) {
+        DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
+        Degree degree = DegreeTest.createDegree(degreeType, "DCP_TEST_" + UUID.randomUUID(), "Degree " + dcpName, currentYear);
+        return new DegreeCurricularPlan(degree, dcpName, AcademicPeriod.THREE_YEAR, currentYear);
+    }
 
     @Test
     public void createDCP_withExistingName() {
@@ -170,4 +185,81 @@ public class DegreeCurricularPlanTest {
         testDegree.delete();
     }
 
+    @Test
+    public void testDegreeCurricularPlan_getExecutionYears() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_EXECUTION_YEARS");
+
+        assertTrue(dcp.getExecutionYears().isEmpty());
+
+        dcp.createExecutionDegree(currentYear);
+        dcp.createExecutionDegree(previousYear);
+        dcp.createExecutionDegree(nextYear);
+
+        Set<ExecutionYear> executionYears = dcp.getExecutionYears();
+        assertEquals(3, executionYears.size());
+        assertTrue(executionYears.contains(currentYear));
+        assertTrue(executionYears.contains(previousYear));
+        assertTrue(executionYears.contains(nextYear));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_hasAnyExecutionDegreeFor() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_HAS_ANY_EXECUTION_DEGREE");
+
+        assertFalse(dcp.hasAnyExecutionDegreeFor(null));
+        assertFalse(dcp.hasAnyExecutionDegreeFor(currentYear));
+
+        dcp.createExecutionDegree(currentYear);
+        assertTrue(dcp.hasAnyExecutionDegreeFor(currentYear));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getMostRecentExecutionDegree() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_MOST_RECENT_EXECUTION_DEGREE");
+        ExecutionYear afterNextExecutionYear = (ExecutionYear) nextYear.getNext();
+
+        assertNull(dcp.getMostRecentExecutionDegree());
+
+        ExecutionDegree currentYearExecutionDegree = dcp.createExecutionDegree(currentYear);
+        ExecutionDegree previousYearExecutionDegree = dcp.createExecutionDegree(previousYear);
+        ExecutionDegree nextYearExecutionDegree = dcp.createExecutionDegree(nextYear);
+        dcp.createExecutionDegree(afterNextExecutionYear);
+
+        // current year wins over past and future
+        assertEquals(currentYearExecutionDegree, dcp.getMostRecentExecutionDegree());
+
+        // no current year -> latest past year wins over future years
+        dcp.removeExecutionDegrees(currentYearExecutionDegree);
+        assertEquals(previousYearExecutionDegree, dcp.getMostRecentExecutionDegree());
+
+        // no past/current years -> earliest future year
+        dcp.removeExecutionDegrees(previousYearExecutionDegree);
+        assertEquals(nextYearExecutionDegree, dcp.getMostRecentExecutionDegree());
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_readByNameAndDegreeSigla() {
+        String dcpName = "DCP_READ_BY_NAME_AND_SIGLA";
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan(dcpName);
+        String sigla = dcp.getDegree().getSigla();
+
+        assertEquals(dcp, DegreeCurricularPlan.readByNameAndDegreeSigla(dcpName, sigla));
+        assertEquals(dcp, DegreeCurricularPlan.readByNameAndDegreeSigla(dcpName.toLowerCase(), sigla.toLowerCase()));
+
+        assertNull(DegreeCurricularPlan.readByNameAndDegreeSigla("no match", sigla));
+        assertNull(DegreeCurricularPlan.readByNameAndDegreeSigla(dcpName, "no match"));
+        assertNull(DegreeCurricularPlan.readByNameAndDegreeSigla(null, sigla));
+        assertNull(DegreeCurricularPlan.readByNameAndDegreeSigla(dcpName, null));
+    }
+
+    @Test
+    public void testDegreeCurricularPlan_getBegin() {
+        DegreeCurricularPlan dcp = createDegreeCurricularPlan("DCP_GET_BEGIN");
+        assertNull(dcp.getBegin());
+
+        new CourseGroup(dcp.getRoot(), "Group Later", "Group Later", currentYear.getFirstExecutionPeriod(), null);
+        new CourseGroup(dcp.getRoot(), "Group Earlier", "Group Earlier", previousYear.getFirstExecutionPeriod(), null);
+
+        assertEquals(previousYear, dcp.getBegin());
+    }
 }
