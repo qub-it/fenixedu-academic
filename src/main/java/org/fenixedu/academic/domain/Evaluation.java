@@ -18,11 +18,8 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 public abstract class Evaluation extends Evaluation_Base {
@@ -32,22 +29,13 @@ public abstract class Evaluation extends Evaluation_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public List<ExecutionCourse> getAttendingExecutionCoursesFor(final Registration registration) {
-        final List<ExecutionCourse> result = getAssociatedExecutionCoursesSet().stream().filter(registration::attends).toList();
-        return result.isEmpty() ? new ArrayList<>(getAssociatedExecutionCoursesSet()) : result;
-    }
-
     public void delete() {
-        getAssociatedExecutionCoursesSet().clear();
+        this.getAssociatedExecutionCoursesSet().clear();
         while (!getMarksSet().isEmpty()) {
             getMarksSet().iterator().next().delete();
         }
         setRootDomainObject(null);
         super.deleteDomainObject();
-    }
-
-    public Mark getMarkByAttend(Attends attends) {
-        return getMarksSet().stream().filter(mark -> mark.getAttend().equals(attends)).findFirst().orElse(null);
     }
 
     public boolean isFinal() {
