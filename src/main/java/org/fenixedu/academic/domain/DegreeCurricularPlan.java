@@ -413,15 +413,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return null;
     }
 
-    public CurricularCourse getCurricularCourseByAcronym(final String acronym) {
-        for (CurricularCourse curricularCourse : getCurricularCoursesSet()) {
-            if (curricularCourse.getAcronym().equals(acronym)) {
-                return curricularCourse;
-            }
-        }
-        return null;
-    }
-
     @Override
     public Set<CurricularCourse> getCurricularCoursesSet() {
         return this.getCurricularCourses((ExecutionYear) null);
@@ -523,24 +514,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public List<DegreeModule> getDcpDegreeModules(final Class<? extends DegreeModule> clazz, final ExecutionYear executionYear) {
         return new ArrayList<>(getRoot().collectAllChildDegreeModules(clazz, executionYear));
-    }
-
-    @Deprecated(forRemoval = true) // potential to remove
-    public List<List<DegreeModule>> getDcpDegreeModulesIncludingFullPath(final Class<? extends DegreeModule> clazz,
-            final ExecutionYear executionYear) {
-
-        final List<List<DegreeModule>> result = new ArrayList<>();
-        final List<DegreeModule> path = new ArrayList<>();
-
-        if (clazz.isAssignableFrom(CourseGroup.class)) {
-            path.add(this.getRoot());
-
-            result.add(path);
-        }
-
-        this.getRoot().collectChildDegreeModulesIncludingFullPath(clazz, result, path, executionYear);
-
-        return result;
     }
 
     public void editDuration(final AcademicPeriod newDuration) {
@@ -769,16 +742,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return isSecondCycle() ? getRoot().getSecondCycleCourseGroup() : null;
     }
 
-    public CycleCourseGroup getThirdCycleCourseGroup() {
-        return getRoot().getThirdCycleCourseGroup();
-    }
-
     public CycleCourseGroup getCycleCourseGroup(final CycleType cycleType) {
         return getRoot().getCycleCourseGroup(cycleType);
-    }
-
-    public CycleCourseGroup getLastOrderedCycleCourseGroup() {
-        return getCycleCourseGroup(getDegreeType().getLastOrderedCycleType());
     }
 
     public String getGraduateTitle(final ExecutionYear executionYear, final ProgramConclusion programConclusion,
@@ -861,27 +826,8 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return registrations;
     }
 
-    public List<StudentCurricularPlan> getStudentsCurricularPlans(final ExecutionYear executionYear,
-            final List<StudentCurricularPlan> result) {
-        for (final StudentCurricularPlan studentCurricularPlan : this.getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.isActive(executionYear)) {
-                result.add(studentCurricularPlan);
-            }
-        }
-        return result;
-    }
-
     public boolean isToApplyPreviousYearsEnrolmentRule() {
         return getApplyPreviousYearsEnrolmentRule();
-    }
-
-    public boolean canSubmitImprovementMarkSheets(final ExecutionYear executionYear) {
-        if (getExecutionDegreesSet().isEmpty()) {
-            return false;
-        }
-        SortedSet<ExecutionDegree> sortedExecutionDegrees = new TreeSet<>(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR);
-        sortedExecutionDegrees.addAll(getExecutionDegreesSet());
-        return sortedExecutionDegrees.last().getExecutionYear().equals(executionYear.getPreviousExecutionYear());
     }
 
     public ExecutionInterval getBegin() {
@@ -893,14 +839,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public Set<ExecutionYear> getBeginContextExecutionYears() {
         return getRoot().getBeginContextExecutionYears();
-    }
-
-    public ExecutionYear getOldestContextExecutionYear() {
-        List<ExecutionYear> beginContextExecutionYears = new ArrayList<>(getBeginContextExecutionYears());
-
-        Collections.sort(beginContextExecutionYears, ExecutionYear.COMPARATOR_BY_YEAR);
-
-        return beginContextExecutionYears.isEmpty() ? null : beginContextExecutionYears.iterator().next();
     }
 
     public LocalizedString getDescriptionI18N() {
@@ -936,11 +874,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
 
     public Double getEctsCredits() {
         return getDegree().getEctsCredits();
-    }
-
-    public ExecutionYear getInauguralExecutionYear() {
-        return getExecutionDegreesSet().stream().min(ExecutionDegree.EXECUTION_DEGREE_COMPARATOR_BY_YEAR)
-                .map(ExecutionDegree::getExecutionYear).orElse(null);
     }
 
     public ExecutionYear getLastExecutionYear() {
@@ -987,10 +920,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return calculateCycleDuration(cycleType, ctx -> ctx.getCurricularPeriod().getParent(),
                 cp -> cp.getAcademicPeriod().equals(AcademicPeriod.YEAR));
 
-    }
-
-    public int getDurationInSemesters(final CycleType cycleType) {
-        return Float.valueOf(getDurationInYears(cycleType) / AcademicPeriod.SEMESTER.getWeight()).intValue();
     }
 
     private int calculateCycleDuration(final CycleType cycleType,
