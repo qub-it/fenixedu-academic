@@ -22,12 +22,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.comparators.ReverseComparator;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -181,36 +179,17 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public CycleCurriculumGroup getFirstOrderedCycleCurriculumGroup() {
-        for (final CycleType cycleType : getDegreeType().getOrderedCycleTypes()) {
-            CycleCurriculumGroup cycleCurriculumGroup = getCycleCurriculumGroup(cycleType);
-            if (cycleCurriculumGroup != null) {
-                return cycleCurriculumGroup;
-            }
-        }
-
-        return null;
+        return getDegreeType().getOrderedCycleTypes().stream().map(this::getCycleCurriculumGroup).filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public CycleCurriculumGroup getLastOrderedCycleCurriculumGroup() {
-        final SortedSet<CycleCurriculumGroup> cycleCurriculumGroups =
-                new TreeSet<CycleCurriculumGroup>(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID);
-        cycleCurriculumGroups.addAll(getInternalCycleCurriculumGroups());
-
-        return cycleCurriculumGroups.isEmpty() ? null : cycleCurriculumGroups.last();
+        return getInternalCycleCurriculumGroups().stream().max(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID).orElse(null);
     }
 
     public CycleCurriculumGroup getLastConcludedCycleCurriculumGroup() {
-        final SortedSet<CycleCurriculumGroup> cycleCurriculumGroups =
-                new TreeSet<CycleCurriculumGroup>(new ReverseComparator(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID));
-        cycleCurriculumGroups.addAll(getInternalCycleCurriculumGroups());
-
-        for (final CycleCurriculumGroup curriculumGroup : cycleCurriculumGroups) {
-            if (curriculumGroup.isConcluded()) {
-                return curriculumGroup;
-            }
-        }
-
-        return null;
+        return getInternalCycleCurriculumGroups().stream().filter(CycleCurriculumGroup::isConcluded)
+                .max(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID).orElse(null);
     }
 
     public Collection<CycleCurriculumGroup> getCycleCurriculumGroups() {
@@ -229,16 +208,12 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
      * getApprovedCurriculumLinesLastExecutionYear() method.
      * 
      */
-    public boolean hasConcludedCycle(CycleType cycleType) {
-        for (CycleType degreeCycleType : getDegreeType().getCycleTypes()) {
-            if (cycleType == null || degreeCycleType == cycleType) {
-                if (!checkIfCycleIsConcluded(degreeCycleType)) {
-                    return false;
-                }
-            }
-        }
+    public boolean hasConcludedCycle(final CycleType cycleType) {
+        final Collection<CycleType> degreeCycleTypes = getDegreeType().getCycleTypes();
 
-        return cycleType == null || getDegreeType().getCycleTypes().contains(cycleType);
+        return (cycleType == null || degreeCycleTypes.contains(cycleType)) && degreeCycleTypes.stream()
+                .filter(degreeCycleType -> cycleType == null || degreeCycleType == cycleType)
+                .allMatch(this::checkIfCycleIsConcluded);
     }
 
     private boolean checkIfCycleIsConcluded(CycleType cycleType) {
@@ -246,16 +221,12 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         return cycleCurriculumGroup != null && cycleCurriculumGroup.isConcluded();
     }
 
-    public boolean hasConcludedCycle(CycleType cycleType, final ExecutionYear executionYear) {
-        for (CycleType degreeCycleType : getDegreeType().getCycleTypes()) {
-            if (cycleType == null || degreeCycleType == cycleType) {
-                if (!checkIfCycleIsConcluded(degreeCycleType, executionYear)) {
-                    return false;
-                }
-            }
-        }
+    public boolean hasConcludedCycle(final CycleType cycleType, final ExecutionYear executionYear) {
+        final Collection<CycleType> degreeCycleTypes = getDegreeType().getCycleTypes();
 
-        return cycleType == null || getDegreeType().getCycleTypes().contains(cycleType);
+        return (cycleType == null || degreeCycleTypes.contains(cycleType)) && degreeCycleTypes.stream()
+                .filter(degreeCycleType -> cycleType == null || degreeCycleType == cycleType)
+                .allMatch(degreeCycleType -> checkIfCycleIsConcluded(degreeCycleType, executionYear));
     }
 
     private boolean checkIfCycleIsConcluded(CycleType cycleType, final ExecutionYear executionYear) {
