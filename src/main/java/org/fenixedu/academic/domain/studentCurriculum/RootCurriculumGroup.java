@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.comparators.ReverseComparator;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -175,16 +175,9 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.PROPAEDEUTICS, this);
     }
 
-    public CycleCurriculumGroup getCycleCurriculumGroup(CycleType cycleType) {
-        for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCycleCurriculumGroup()) {
-                CycleCurriculumGroup cycleCurriculumGroup = (CycleCurriculumGroup) curriculumModule;
-                if (cycleCurriculumGroup.isCycle(cycleType)) {
-                    return cycleCurriculumGroup;
-                }
-            }
-        }
-        return null;
+    public CycleCurriculumGroup getCycleCurriculumGroup(final CycleType cycleType) {
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isCycleCurriculumGroup)
+                .map(CycleCurriculumGroup.class::cast).filter(group -> group.isCycle(cycleType)).findFirst().orElse(null);
     }
 
     public CycleCurriculumGroup getFirstOrderedCycleCurriculumGroup() {
@@ -221,13 +214,8 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public Collection<CycleCurriculumGroup> getCycleCurriculumGroups() {
-        Collection<CycleCurriculumGroup> cycleCurriculumGroups = new HashSet<CycleCurriculumGroup>();
-        for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCycleCurriculumGroup()) {
-                cycleCurriculumGroups.add((CycleCurriculumGroup) curriculumModule);
-            }
-        }
-        return cycleCurriculumGroups;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isCycleCurriculumGroup)
+                .map(CycleCurriculumGroup.class::cast).collect(Collectors.toSet());
     }
 
     public DegreeType getDegreeType() {
@@ -293,13 +281,7 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public boolean hasExternalCycles() {
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.isExternal()) {
-                return true;
-            }
-        }
-
-        return false;
+        return getCycleCurriculumGroups().stream().anyMatch(CycleCurriculumGroup::isExternal);
     }
 
     @Override
@@ -328,27 +310,13 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public List<CycleCurriculumGroup> getInternalCycleCurriculumGroups() {
-        final List<CycleCurriculumGroup> result = new ArrayList<CycleCurriculumGroup>();
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (!cycleCurriculumGroup.isExternal()) {
-                result.add(cycleCurriculumGroup);
-            }
-        }
-
-        return result;
+        return getCycleCurriculumGroups().stream().filter(cycleCurriculumGroup -> !cycleCurriculumGroup.isExternal())
+                .collect(Collectors.toList());
     }
 
     public List<ExternalCurriculumGroup> getExternalCycleCurriculumGroups() {
-        final List<ExternalCurriculumGroup> result = new ArrayList<>();
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.isExternal()) {
-                result.add((ExternalCurriculumGroup) cycleCurriculumGroup);
-            }
-        }
-
-        return result;
+        return getCycleCurriculumGroups().stream().filter(CycleCurriculumGroup::isExternal)
+                .map(ExternalCurriculumGroup.class::cast).collect(Collectors.toList());
     }
 
     public double getDefaultEcts(final ExecutionYear executionYear) {
