@@ -18,16 +18,14 @@
  */
 package org.fenixedu.academic.domain.studentCurriculum;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections.comparators.ReverseComparator;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -119,13 +117,11 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         }
     }
 
-    private void createCycle(final RootCourseGroup rootCourseGroup, final ExecutionInterval executionInterval, CycleType cycle) {
-        if (cycle == null) {
-            cycle = rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType();
-        }
-        if (cycle != null) {
-            CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(cycle), executionInterval);
-        }
+    private void createCycle(final RootCourseGroup rootCourseGroup, final ExecutionInterval executionInterval,
+            final CycleType cycle) {
+        Optional.ofNullable(cycle)
+                .or(() -> Optional.ofNullable(rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType())).ifPresent(
+                        c -> CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(c), executionInterval));
     }
 
     private void checkInitConstraints(final StudentCurricularPlan studentCurricularPlan, final RootCourseGroup rootCourseGroup) {
@@ -175,59 +171,28 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.PROPAEDEUTICS, this);
     }
 
-    public CycleCurriculumGroup getCycleCurriculumGroup(CycleType cycleType) {
-        for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCycleCurriculumGroup()) {
-                CycleCurriculumGroup cycleCurriculumGroup = (CycleCurriculumGroup) curriculumModule;
-                if (cycleCurriculumGroup.isCycle(cycleType)) {
-                    return cycleCurriculumGroup;
-                }
-            }
-        }
-        return null;
+    public CycleCurriculumGroup getCycleCurriculumGroup(final CycleType cycleType) {
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isCycleCurriculumGroup)
+                .map(CycleCurriculumGroup.class::cast).filter(group -> group.isCycle(cycleType)).findFirst().orElse(null);
     }
 
     public CycleCurriculumGroup getFirstOrderedCycleCurriculumGroup() {
-        for (final CycleType cycleType : getDegreeType().getOrderedCycleTypes()) {
-            CycleCurriculumGroup cycleCurriculumGroup = getCycleCurriculumGroup(cycleType);
-            if (cycleCurriculumGroup != null) {
-                return cycleCurriculumGroup;
-            }
-        }
-
-        return null;
+        return getDegreeType().getOrderedCycleTypes().stream().map(this::getCycleCurriculumGroup).filter(Objects::nonNull)
+                .findFirst().orElse(null);
     }
 
     public CycleCurriculumGroup getLastOrderedCycleCurriculumGroup() {
-        final SortedSet<CycleCurriculumGroup> cycleCurriculumGroups =
-                new TreeSet<CycleCurriculumGroup>(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID);
-        cycleCurriculumGroups.addAll(getInternalCycleCurriculumGroups());
-
-        return cycleCurriculumGroups.isEmpty() ? null : cycleCurriculumGroups.last();
+        return getInternalCycleCurriculumGroups().stream().max(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID).orElse(null);
     }
 
     public CycleCurriculumGroup getLastConcludedCycleCurriculumGroup() {
-        final SortedSet<CycleCurriculumGroup> cycleCurriculumGroups =
-                new TreeSet<CycleCurriculumGroup>(new ReverseComparator(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID));
-        cycleCurriculumGroups.addAll(getInternalCycleCurriculumGroups());
-
-        for (final CycleCurriculumGroup curriculumGroup : cycleCurriculumGroups) {
-            if (curriculumGroup.isConcluded()) {
-                return curriculumGroup;
-            }
-        }
-
-        return null;
+        return getInternalCycleCurriculumGroups().stream().filter(CycleCurriculumGroup::isConcluded)
+                .max(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID).orElse(null);
     }
 
     public Collection<CycleCurriculumGroup> getCycleCurriculumGroups() {
-        Collection<CycleCurriculumGroup> cycleCurriculumGroups = new HashSet<CycleCurriculumGroup>();
-        for (CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (curriculumModule.isCycleCurriculumGroup()) {
-                cycleCurriculumGroups.add((CycleCurriculumGroup) curriculumModule);
-            }
-        }
-        return cycleCurriculumGroups;
+        return getCurriculumModulesSet().stream().filter(CurriculumModule::isCycleCurriculumGroup)
+                .map(CycleCurriculumGroup.class::cast).collect(Collectors.toSet());
     }
 
     public DegreeType getDegreeType() {
@@ -241,16 +206,12 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
      * getApprovedCurriculumLinesLastExecutionYear() method.
      * 
      */
-    public boolean hasConcludedCycle(CycleType cycleType) {
-        for (CycleType degreeCycleType : getDegreeType().getCycleTypes()) {
-            if (cycleType == null || degreeCycleType == cycleType) {
-                if (!checkIfCycleIsConcluded(degreeCycleType)) {
-                    return false;
-                }
-            }
-        }
+    public boolean hasConcludedCycle(final CycleType cycleType) {
+        final Collection<CycleType> degreeCycleTypes = getDegreeType().getCycleTypes();
 
-        return cycleType == null || getDegreeType().getCycleTypes().contains(cycleType);
+        return (cycleType == null || degreeCycleTypes.contains(cycleType)) && degreeCycleTypes.stream()
+                .filter(degreeCycleType -> cycleType == null || degreeCycleType == cycleType)
+                .allMatch(this::checkIfCycleIsConcluded);
     }
 
     private boolean checkIfCycleIsConcluded(CycleType cycleType) {
@@ -258,16 +219,12 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         return cycleCurriculumGroup != null && cycleCurriculumGroup.isConcluded();
     }
 
-    public boolean hasConcludedCycle(CycleType cycleType, final ExecutionYear executionYear) {
-        for (CycleType degreeCycleType : getDegreeType().getCycleTypes()) {
-            if (cycleType == null || degreeCycleType == cycleType) {
-                if (!checkIfCycleIsConcluded(degreeCycleType, executionYear)) {
-                    return false;
-                }
-            }
-        }
+    public boolean hasConcludedCycle(final CycleType cycleType, final ExecutionYear executionYear) {
+        final Collection<CycleType> degreeCycleTypes = getDegreeType().getCycleTypes();
 
-        return cycleType == null || getDegreeType().getCycleTypes().contains(cycleType);
+        return (cycleType == null || degreeCycleTypes.contains(cycleType)) && degreeCycleTypes.stream()
+                .filter(degreeCycleType -> cycleType == null || degreeCycleType == cycleType)
+                .allMatch(degreeCycleType -> checkIfCycleIsConcluded(degreeCycleType, executionYear));
     }
 
     private boolean checkIfCycleIsConcluded(CycleType cycleType, final ExecutionYear executionYear) {
@@ -293,13 +250,7 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public boolean hasExternalCycles() {
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.isExternal()) {
-                return true;
-            }
-        }
-
-        return false;
+        return getCycleCurriculumGroups().stream().anyMatch(CycleCurriculumGroup::isExternal);
     }
 
     @Override
@@ -309,13 +260,9 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public CycleCurriculumGroup getCycleCurriculumGroupFor(final CurriculumModule curriculumModule) {
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.hasCurriculumModule(curriculumModule)) {
-                return cycleCurriculumGroup;
-            }
-        }
-
-        return null;
+        return getCycleCurriculumGroups().stream()
+                .filter(cycleCurriculumGroup -> cycleCurriculumGroup.hasCurriculumModule(curriculumModule)).findFirst()
+                .orElse(null);
     }
 
     public CycleCourseGroup getCycleCourseGroup(final CurriculumModule curriculumModule) {
@@ -328,57 +275,26 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public List<CycleCurriculumGroup> getInternalCycleCurriculumGroups() {
-        final List<CycleCurriculumGroup> result = new ArrayList<CycleCurriculumGroup>();
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (!cycleCurriculumGroup.isExternal()) {
-                result.add(cycleCurriculumGroup);
-            }
-        }
-
-        return result;
+        return getCycleCurriculumGroups().stream().filter(cycleCurriculumGroup -> !cycleCurriculumGroup.isExternal())
+                .collect(Collectors.toList());
     }
 
     public List<ExternalCurriculumGroup> getExternalCycleCurriculumGroups() {
-        final List<ExternalCurriculumGroup> result = new ArrayList<>();
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.isExternal()) {
-                result.add((ExternalCurriculumGroup) cycleCurriculumGroup);
-            }
-        }
-
-        return result;
-    }
-
-    public double getDefaultEcts(final ExecutionYear executionYear) {
-        double result = 0d;
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getInternalCycleCurriculumGroups()) {
-            result += cycleCurriculumGroup.getDefaultEcts(executionYear);
-        }
-
-        return result;
+        return getCycleCurriculumGroups().stream().filter(CycleCurriculumGroup::isExternal)
+                .map(ExternalCurriculumGroup.class::cast).collect(Collectors.toList());
     }
 
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroups());
-        }
-        return result;
+        return getCurriculumModulesSet().stream().flatMap(curriculumModule -> curriculumModule.getAllCurriculumGroups().stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups());
-        }
-        return result;
+        return getCurriculumModulesSet().stream().flatMap(
+                        curriculumModule -> curriculumModule.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().stream())
+                .collect(Collectors.toSet());
     }
 
 }
