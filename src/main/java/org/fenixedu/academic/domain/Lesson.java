@@ -20,8 +20,6 @@ package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +36,6 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
-import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
 import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -55,7 +52,6 @@ import org.joda.time.YearMonthDay;
 public class Lesson extends Lesson_Base {
 
     public static int NUMBER_OF_MINUTES_IN_HOUR = 60;
-    public static int NUMBER_OF_DAYS_IN_WEEK = 7;
 
     public static final Comparator<Lesson> LESSON_COMPARATOR_BY_WEEKDAY_AND_STARTTIME =
             Comparator.comparing(Lesson::getWeekDay).thenComparing(Lesson::getBeginHourMinuteSecond);
@@ -65,31 +61,8 @@ public class Lesson extends Lesson_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    @Deprecated
-    public Lesson(DiaSemana diaSemana, Calendar inicio, Calendar fim, Shift shift, FrequencyType frequency,
-            ExecutionInterval executionInterval, OccupationPeriod period, Space room) {
-        super();
-
-        setRootDomainObject(Bennu.getInstance());
-        setWeekDay(diaSemana == null ? null : WeekDay.getWeekDay(diaSemana)); //setDiaSemana(diaSemana);
-        setInicio(inicio);
-        setFim(fim);
-        setShift(shift);
-        setFrequency(frequency);
-        setPeriod(period);
-        setInitialFullPeriod(period);
-
-        if (getLessonDates().isEmpty()) {
-            throw new DomainException("error.Lesson.create.noValidDates");
-        }
-
-        if (room != null) {
-            new LessonSpaceOccupation(room, this);
-        }
-    }
-
-    public static Lesson create(final Shift shift, final WeekDay weekDay, final LocalTime startTime,
-            final LocalTime endTime, final FrequencyType frequency, final OccupationPeriod period, final Space space) {
+    public static Lesson create(final Shift shift, final WeekDay weekDay, final LocalTime startTime, final LocalTime endTime,
+            final FrequencyType frequency, final OccupationPeriod period, final Space space) {
 
         final Lesson lesson = new Lesson();
         lesson.setWeekDay(weekDay);
@@ -117,7 +90,7 @@ public class Lesson extends Lesson_Base {
 
     public void delete() {
         if (!getAssociatedSummaries().isEmpty()) {
-            throw new DomainException("error.deleteLesson.with.summaries", prettyPrint());
+            throw new DomainException("error.deleteLesson.with.summaries", getPresentationName());
         }
 
         final OccupationPeriod period = getPeriod();
@@ -138,18 +111,6 @@ public class Lesson extends Lesson_Base {
         super.setShift(null);
         setRootDomainObject(null);
         deleteDomainObject();
-    }
-
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkRequiredParameters() {
-        return getFrequency() != null && getDiaSemana() != null;
-    }
-
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkTimeInterval() {
-        final HourMinuteSecond start = getBeginHourMinuteSecond();
-        final HourMinuteSecond end = getEndHourMinuteSecond();
-        return start != null && end != null && start.isBefore(end);
     }
 
     private void lessonSpaceOccupationManagement(Space newRoom) {
@@ -215,22 +176,6 @@ public class Lesson extends Lesson_Base {
         return getShift().getExecutionPeriod();
     }
 
-    @Deprecated
-    public Space getSala() {
-        if (getLessonSpaceOccupation() != null) {
-            return getLessonSpaceOccupation().getSpace();
-        } else if (hasAnyLessonInstances() && wasFinished()) {
-            return getLessonInstancesSet().stream().max(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME).map(LessonInstance::getRoom)
-                    .orElse(null);
-        }
-        return null;
-    }
-
-    @Deprecated
-    public boolean hasSala() {
-        return getSala() != null;
-    }
-
     public Stream<Space> getSpaces() {
         final LessonSpaceOccupation spaceOccupation = getLessonSpaceOccupation();
         if (spaceOccupation != null) {
@@ -281,8 +226,8 @@ public class Lesson extends Lesson_Base {
     }
 
     public BigDecimal getUnitHours() {
-        return BigDecimal.valueOf(getUnitMinutes()).divide(BigDecimal.valueOf(NUMBER_OF_MINUTES_IN_HOUR), 2,
-                RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(getUnitMinutes())
+                .divide(BigDecimal.valueOf(NUMBER_OF_MINUTES_IN_HOUR), 2, RoundingMode.HALF_UP);
     }
 
     public List<Summary> getAssociatedSummaries() {
@@ -321,13 +266,13 @@ public class Lesson extends Lesson_Base {
         return lessonInstancesMap.entrySet().stream()
                 .filter(entry -> entry.getValue() == null && !deletedLessonDates.contains(entry.getKey())).map(e -> e.getKey())
                 .map(ld -> new YearMonthDay(ld.getYear(), ld.getMonthOfYear(), ld.getDayOfMonth()))
-                .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Deprecated
     public SortedSet<YearMonthDay> getAllLessonDates() {
         return getLessonDates().stream().map(ld -> new YearMonthDay(ld.getYear(), ld.getMonthOfYear(), ld.getDayOfMonth()))
-                .collect(Collectors.toCollection(() -> new TreeSet<YearMonthDay>()));
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     // TODO set visibility to private after references in ScheduleServices are merged
@@ -388,13 +333,7 @@ public class Lesson extends Lesson_Base {
 
     @Deprecated
     public LessonInstance getLessonInstanceFor(YearMonthDay date) {
-        Collection<LessonInstance> lessonInstances = getLessonInstancesSet();
-        for (LessonInstance lessonInstance : lessonInstances) {
-            if (lessonInstance.getDay().isEqual(date)) {
-                return lessonInstance;
-            }
-        }
-        return null;
+        return getLessonInstancesSet().stream().filter(lI -> lI.getDay().isEqual(date)).findFirst().orElse(null);
     }
 
     public boolean contains(Interval interval) {
@@ -423,88 +362,14 @@ public class Lesson extends Lesson_Base {
         return result.toString();
     }
 
-    @Deprecated
-    public String prettyPrint() {
-        return getPresentationName();
-    }
-
-    public Calendar getInicio() {
-        if (this.getBegin() != null) {
-            Calendar result = Calendar.getInstance();
-            result.setTime(this.getBegin());
-            return result;
-        }
-        return null;
-    }
-
-    public void setInicio(Calendar inicio) {
-        if (inicio != null) {
-            this.setBegin(inicio.getTime());
-        } else {
-            this.setBegin(null);
-        }
-    }
-
-    public Calendar getFim() {
-        if (this.getEnd() != null) {
-            Calendar result = Calendar.getInstance();
-            result.setTime(this.getEnd());
-            return result;
-        }
-        return null;
-    }
-
-    public void setFim(Calendar fim) {
-        if (fim != null) {
-            this.setEnd(fim.getTime());
-        } else {
-            this.setEnd(null);
-        }
-    }
-
-    @Deprecated
-    public java.util.Date getBegin() {
-        org.fenixedu.academic.util.HourMinuteSecond hms = getBeginHourMinuteSecond();
-        return (hms == null) ? null : new java.util.Date(0, 0, 1, hms.getHour(), hms.getMinuteOfHour(), hms.getSecondOfMinute());
-    }
-
-    @Deprecated
-    public void setBegin(java.util.Date date) {
-        if (date == null) {
-            setBeginHourMinuteSecond(null);
-        } else {
-            setBeginHourMinuteSecond(org.fenixedu.academic.util.HourMinuteSecond.fromDateFields(date));
-        }
-    }
-
     @Override
     public void setBeginHourMinuteSecond(HourMinuteSecond begin) {
         super.setBeginHourMinuteSecond(begin != null ? begin.withField(DateTimeFieldType.secondOfMinute(), 0) : null);
     }
 
-    @Deprecated
-    public java.util.Date getEnd() {
-        org.fenixedu.academic.util.HourMinuteSecond hms = getEndHourMinuteSecond();
-        return (hms == null) ? null : new java.util.Date(0, 0, 1, hms.getHour(), hms.getMinuteOfHour(), hms.getSecondOfMinute());
-    }
-
-    @Deprecated
-    public void setEnd(java.util.Date date) {
-        if (date == null) {
-            setEndHourMinuteSecond(null);
-        } else {
-            setEndHourMinuteSecond(org.fenixedu.academic.util.HourMinuteSecond.fromDateFields(date));
-        }
-    }
-
     @Override
     public void setEndHourMinuteSecond(HourMinuteSecond end) {
         super.setEndHourMinuteSecond(end != null ? end.withField(DateTimeFieldType.secondOfMinute(), 0) : null);
-    }
-
-    @Deprecated
-    public DiaSemana getDiaSemana() {
-        return DiaSemana.fromWeekDay(getWeekDay());
     }
 
     public Set<Interval> getAllLessonIntervals() {
