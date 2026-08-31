@@ -127,22 +127,15 @@ public class CurricularPeriodTest {
         // assertFalse(FenixFramework.isDomainObjectValid(grandchild));
     }
 
-//    @Test
-//    public void testCompareTo() {
-//            CurricularPeriod p1 = new CurricularPeriod(YEAR);
-//            p1.setChildOrder(1);
-//            CurricularPeriod p2 = new CurricularPeriod(YEAR);
-//            p2.setChildOrder(2);
-//            CurricularPeriod p3 = new CurricularPeriod(SEMESTER, 1, p1);
-//            CurricularPeriod p4 = new CurricularPeriod(SEMESTER, 2, p1);
-//            CurricularPeriod p5 = new CurricularPeriod(SEMESTER, 1, p3);
-//
-//            assertTrue(p1.compareTo(p2) < 0);
-//            assertTrue(p2.compareTo(p1) > 0);
-//            assertTrue(p1.compareTo(p3) > 0);
-//            assertTrue(p3.compareTo(p4) < 0);
-//            assertTrue(p3.compareTo(p5) > 0);
-//    }
+    @Test
+    public void testCurricularPeriod_getParentOrder() {
+        CurricularPeriod root = new CurricularPeriod(YEAR);
+        assertNull(root.getParentOrder());
+
+        CurricularPeriod child = new CurricularPeriod(SEMESTER, 2, root);
+        CurricularPeriod grandchild = new CurricularPeriod(TRIMESTER, 1, child);
+        assertEquals(2, grandchild.getParentOrder().intValue());
+    }
 
     @Test
     public void testGetNext() {
@@ -240,142 +233,6 @@ public class CurricularPeriodTest {
     }
 
     @Test
-    public void testGetWeight() {
-        CurricularPeriod root = new CurricularPeriod(THREE_YEAR);
-        CurricularPeriod year1 = new CurricularPeriod(YEAR, 1, root);
-        CurricularPeriod year2 = new CurricularPeriod(YEAR, 2, root);
-        CurricularPeriod year3 = new CurricularPeriod(YEAR, 3, root);
-
-        CurricularPeriod year1sem1 = new CurricularPeriod(SEMESTER, 1, year1);
-        CurricularPeriod year1sem2 = new CurricularPeriod(SEMESTER, 2, year1);
-        CurricularPeriod year1trim1 = new CurricularPeriod(TRIMESTER, 1, year1);
-        CurricularPeriod year1trim2 = new CurricularPeriod(TRIMESTER, 2, year1);
-        CurricularPeriod year1trim3 = new CurricularPeriod(TRIMESTER, 3, year1);
-        CurricularPeriod year1trim4 = new CurricularPeriod(TRIMESTER, 4, year1);
-
-        CurricularPeriod year2sem1 = new CurricularPeriod(SEMESTER, 1, year2);
-        CurricularPeriod year2sem2 = new CurricularPeriod(SEMESTER, 2, year2);
-        CurricularPeriod year2trim1 = new CurricularPeriod(TRIMESTER, 1, year2);
-        CurricularPeriod year2trim2 = new CurricularPeriod(TRIMESTER, 2, year2);
-        CurricularPeriod year2trim3 = new CurricularPeriod(TRIMESTER, 3, year2);
-        CurricularPeriod year2trim4 = new CurricularPeriod(TRIMESTER, 4, year2);
-
-        CurricularPeriod year3sem1 = new CurricularPeriod(SEMESTER, 1, year3);
-        CurricularPeriod year3sem2 = new CurricularPeriod(SEMESTER, 2, year3);
-        CurricularPeriod year3trim1 = new CurricularPeriod(TRIMESTER, 1, year3);
-        CurricularPeriod year3trim2 = new CurricularPeriod(TRIMESTER, 2, year3);
-        CurricularPeriod year3trim3 = new CurricularPeriod(TRIMESTER, 3, year3);
-        CurricularPeriod year3trim4 = new CurricularPeriod(TRIMESTER, 4, year3);
-
-        // root
-        assertEquals(0f, root.getWeight(), 0.001);
-
-        // years
-        assertEquals(1f, year1.getWeight(), 0.001);
-        assertEquals(2f, year2.getWeight(), 0.001);
-        assertEquals(3f, year3.getWeight(), 0.001);
-
-        // year 1, semesters
-        assertEquals(0.5f, year1sem1.getWeight(), 0.001);
-        assertEquals(1f, year1sem2.getWeight(), 0.001);
-
-        // year 1, trimesters
-        assertEquals(0.25f, year1trim1.getWeight(), 0.001);
-        assertEquals(0.5, year1trim2.getWeight(), 0.001);
-        assertEquals(0.75, year1trim3.getWeight(), 0.001);
-        assertEquals(1f, year1trim4.getWeight(), 0.001);
-
-        // year 2, semesters
-        assertEquals(0.5f, year2sem1.getWeight(), 0.001);
-        assertEquals(1f, year2sem2.getWeight(), 0.001);
-
-        // year 2, trimesters
-        assertEquals(0.25f, year2trim1.getWeight(), 0.001);
-        assertEquals(0.5, year2trim2.getWeight(), 0.001);
-        assertEquals(0.75, year2trim3.getWeight(), 0.001);
-        assertEquals(1f, year2trim4.getWeight(), 0.001);
-
-        // year 3, semesters
-        assertEquals(0.5f, year3sem1.getWeight(), 0.001);
-        assertEquals(1f, year3sem2.getWeight(), 0.001);
-
-        // year 3, trimesters
-        assertEquals(0.25f, year3trim1.getWeight(), 0.001);
-        assertEquals(0.5, year3trim2.getWeight(), 0.001);
-        assertEquals(0.75, year3trim3.getWeight(), 0.001);
-        assertEquals(1f, year3trim4.getWeight(), 0.001);
-
-    }
-
-    @Test
-    public void testGetFullWeight() {
-        CurricularPeriod root = new CurricularPeriod(THREE_YEAR);
-        CurricularPeriod year1 = new CurricularPeriod(YEAR, 1, root);
-        CurricularPeriod year2 = new CurricularPeriod(YEAR, 2, root);
-        CurricularPeriod year3 = new CurricularPeriod(YEAR, 3, root);
-
-        CurricularPeriod year1sem1 = new CurricularPeriod(SEMESTER, 1, year1);
-        CurricularPeriod year1sem2 = new CurricularPeriod(SEMESTER, 2, year1);
-        CurricularPeriod year1trim1 = new CurricularPeriod(TRIMESTER, 1, year1);
-        CurricularPeriod year1trim2 = new CurricularPeriod(TRIMESTER, 2, year1);
-        CurricularPeriod year1trim3 = new CurricularPeriod(TRIMESTER, 3, year1);
-        CurricularPeriod year1trim4 = new CurricularPeriod(TRIMESTER, 4, year1);
-
-        CurricularPeriod year2sem1 = new CurricularPeriod(SEMESTER, 1, year2);
-        CurricularPeriod year2sem2 = new CurricularPeriod(SEMESTER, 2, year2);
-        CurricularPeriod year2trim1 = new CurricularPeriod(TRIMESTER, 1, year2);
-        CurricularPeriod year2trim2 = new CurricularPeriod(TRIMESTER, 2, year2);
-        CurricularPeriod year2trim3 = new CurricularPeriod(TRIMESTER, 3, year2);
-        CurricularPeriod year2trim4 = new CurricularPeriod(TRIMESTER, 4, year2);
-
-        CurricularPeriod year3sem1 = new CurricularPeriod(SEMESTER, 1, year3);
-        CurricularPeriod year3sem2 = new CurricularPeriod(SEMESTER, 2, year3);
-        CurricularPeriod year3trim1 = new CurricularPeriod(TRIMESTER, 1, year3);
-        CurricularPeriod year3trim2 = new CurricularPeriod(TRIMESTER, 2, year3);
-        CurricularPeriod year3trim3 = new CurricularPeriod(TRIMESTER, 3, year3);
-        CurricularPeriod year3trim4 = new CurricularPeriod(TRIMESTER, 4, year3);
-
-        // root
-        assertEquals(0f, root.getFullWeight(), 0.001);
-
-        // years
-        assertEquals(1f, year1.getFullWeight(), 0.001);
-        assertEquals(2f, year2.getFullWeight(), 0.001);
-        assertEquals(3f, year3.getFullWeight(), 0.001);
-
-        // year 1, semesters
-        assertEquals(1.5f, year1sem1.getFullWeight(), 0.001);
-        assertEquals(2f, year1sem2.getFullWeight(), 0.001);
-
-        // year 1, trimesters
-        assertEquals(1.25f, year1trim1.getFullWeight(), 0.001);
-        assertEquals(1.5, year1trim2.getFullWeight(), 0.001);
-        assertEquals(1.75, year1trim3.getFullWeight(), 0.001);
-        assertEquals(2f, year1trim4.getFullWeight(), 0.001);
-
-        // year 2, semesters
-        assertEquals(2.5f, year2sem1.getFullWeight(), 0.001);
-        assertEquals(3f, year2sem2.getFullWeight(), 0.001);
-
-        // year 2, trimesters
-        assertEquals(2.25f, year2trim1.getFullWeight(), 0.001);
-        assertEquals(2.5, year2trim2.getFullWeight(), 0.001);
-        assertEquals(2.75, year2trim3.getFullWeight(), 0.001);
-        assertEquals(3f, year2trim4.getFullWeight(), 0.001);
-
-        // year 3, semesters
-        assertEquals(3.5f, year3sem1.getFullWeight(), 0.001);
-        assertEquals(4f, year3sem2.getFullWeight(), 0.001);
-
-        // year 3, trimesters
-        assertEquals(3.25f, year3trim1.getFullWeight(), 0.001);
-        assertEquals(3.5, year3trim2.getFullWeight(), 0.001);
-        assertEquals(3.75, year3trim3.getFullWeight(), 0.001);
-        assertEquals(4f, year3trim4.getFullWeight(), 0.001);
-
-    }
-
-    @Test
     public void testCompareTo() {
         CurricularPeriod root = new CurricularPeriod(THREE_YEAR);
         CurricularPeriod year1 = new CurricularPeriod(YEAR, 1, root);
@@ -461,5 +318,4 @@ public class CurricularPeriodTest {
         assertEquals(allPeriods.get(21), year3sem2);
 
     }
-
 }

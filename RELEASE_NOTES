@@ -1,3 +1,5 @@
+- Refactor: Improves CurricularPeriod domain methods [#qubIT-Fenix-9269]
+
 60.0.0 (28-08-2026)
 - Refactor: Improves DegreeCurricularPlan domain methods [#qubIT-Fenix-9223]
 - Refactor: Improves Student domain methods [#qubIT-Fenix-8839]
