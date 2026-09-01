@@ -243,8 +243,8 @@ public class PersonTest {
 
     @Test
     public void testHasEmailAddress() {
-        EmailAddress.createEmailAddress(personA, "contact@test.com", PartyContactType.PERSONAL, true);
-        EmailAddress.createEmailAddress(personA, "institutional@test.com", PartyContactType.INSTITUTIONAL, false);
+        EmailAddress.create(personA, "contact@test.com", PartyContactType.PERSONAL, true);
+        EmailAddress.create(personA, "institutional@test.com", PartyContactType.INSTITUTIONAL, false);
 
         assertTrue(personA.hasEmailAddress("contact@test.com"));
         assertTrue(personA.hasEmailAddress("institutional@test.com"));
@@ -265,8 +265,7 @@ public class PersonTest {
         assertFalse(personB.isDefaultEmailVisible());
 
         // personal email is not default, not valid and not visible to public
-        EmailAddress personalEmail =
-                EmailAddress.createEmailAddress(personB, "personal@test.com", PartyContactType.PERSONAL, false);
+        EmailAddress personalEmail = EmailAddress.create(personB, "personal@test.com", PartyContactType.PERSONAL, false);
         assertNull(personB.getDefaultEmailAddress());
         assertFalse(personB.isDefaultEmailVisible());
 
@@ -342,7 +341,7 @@ public class PersonTest {
 
         // create associated objects
         Phone phone = Phone.create(personToDelete, "912345678", PartyContactType.PERSONAL, true);
-        EmailAddress email = EmailAddress.createEmailAddress(personToDelete, "delete@test.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(personToDelete, "delete@test.com", PartyContactType.PERSONAL, true);
         VaccineType vaccineType = new VaccineType(new LocalizedString(Locale.ENGLISH, "COVID"), "C19");
         VaccineAdministration vaccine = VaccineAdministration.createOrUpdate(vaccineType, personToDelete, null, LocalDate.now());
         PersonInformationLog log = new PersonInformationLog(personToDelete, "test log");

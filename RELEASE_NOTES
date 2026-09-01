@@ -1,5 +1,4 @@
-- Refactor: Add create methods to PhysicalAddress and WebAddress [#qubIT-Fenix-9195]
-- Refactor: Add create methods to MobilePhone and Phone [#qubIT-Fenix-9195]
+- Refactor: Add create methods to MobilePhone, Phone, PhysicalAddress, WebAddress and EmailAddress [#qubIT-Fenix-9195]
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]
 - Refactor: Deletes deprecated domain methods that accept AcademicInterval as an argument [#qubIT-Fenix-9217]
 - Refactor: Deletes deprecated domain entity EnrolmentInstructions [#qubIT-Fenix-9252]

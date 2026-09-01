@@ -40,15 +40,15 @@ public class EmailAddressTest {
     @Test
     public void testComparatorByEmail() {
         final Person personA = createPerson("Person A", "person.A");
-        final EmailAddress emailA = EmailAddress.createEmailAddress(personA, "a@example.com", PartyContactType.PERSONAL, true);
-        final EmailAddress emailB = EmailAddress.createEmailAddress(personA, "b@example.com", PartyContactType.PERSONAL, true);
+        final EmailAddress emailA = EmailAddress.create(personA, "a@example.com", PartyContactType.PERSONAL, true);
+        final EmailAddress emailB = EmailAddress.create(personA, "b@example.com", PartyContactType.PERSONAL, true);
 
         assertTrue(COMPARATOR.compare(emailA, emailB) < 0);
         assertTrue(COMPARATOR.compare(emailB, emailA) > 0);
         assertEquals(0, COMPARATOR.compare(emailA, emailA));
 
         // addresses with equal values are ordered by the contact type (PERSONAL before WORK)
-        final EmailAddress emailAwork = EmailAddress.createEmailAddress(personA, "a@example.com", PartyContactType.WORK, true);
+        final EmailAddress emailAwork = EmailAddress.create(personA, "a@example.com", PartyContactType.WORK, true);
         assertTrue(COMPARATOR.compare(emailA, emailAwork) < 0);
         assertTrue(COMPARATOR.compare(emailAwork, emailA) > 0);
     }
@@ -57,7 +57,7 @@ public class EmailAddressTest {
     public void testFind() {
         final String uniqueEmail = "find@example.com";
         final Person person = createPerson("Find Person", "find.person");
-        final EmailAddress email = EmailAddress.createEmailAddress(person, uniqueEmail, PartyContactType.PERSONAL, true);
+        final EmailAddress email = EmailAddress.create(person, uniqueEmail, PartyContactType.PERSONAL, true);
 
         assertEquals(email, EmailAddress.find(uniqueEmail));
         assertEquals(email, EmailAddress.find(uniqueEmail.toUpperCase()));
@@ -75,12 +75,12 @@ public class EmailAddressTest {
 
         // validated email address, must be included
         final Person person = createPerson("Person", "person");
-        final EmailAddress validEmail = EmailAddress.createEmailAddress(person, sharedValue, PartyContactType.PERSONAL, true);
+        final EmailAddress validEmail = EmailAddress.create(person, sharedValue, PartyContactType.PERSONAL, true);
         validEmail.setValid();
 
         // same value but never validated, must be excluded
         final Person person2 = createPerson("Person2", "person2");
-        final EmailAddress invalidEmail = EmailAddress.createEmailAddress(person2, sharedValue, PartyContactType.PERSONAL, true);
+        final EmailAddress invalidEmail = EmailAddress.create(person2, sharedValue, PartyContactType.PERSONAL, true);
         assertEquals(invalidEmail.getValue(), validEmail.getValue());
 
         final List<EmailAddress> matches = EmailAddress.findAllActiveAndValid(sharedValue).toList();
@@ -93,7 +93,7 @@ public class EmailAddressTest {
     public void testUpdateProfileEmail() {
         final String emailValue = "profile@example.com";
         final Person person = createPerson("Profile Person", "profile.person");
-        final EmailAddress email = EmailAddress.createEmailAddress(person, emailValue, PartyContactType.PERSONAL, true);
+        final EmailAddress email = EmailAddress.create(person, emailValue, PartyContactType.PERSONAL, true);
 
         // not valid yet so no address is used for sending, profile without email
         assertNull(person.getProfile().getEmail());

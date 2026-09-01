@@ -35,6 +35,24 @@ public class EmailAddress extends EmailAddress_Base {
             Comparator.comparing(EmailAddress::getValue, Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(COMPARATOR_BY_TYPE);
 
+    public static EmailAddress create(Party party, String email, PartyContactType type, boolean isDefault) {
+        if (StringUtils.isEmpty(email)) {
+            return null;
+        }
+
+        EmailAddress emailAddress = new EmailAddress();
+        emailAddress.init(party, type, isDefault);
+        checkParameters(email);
+        emailAddress.setValue(email);
+        return emailAddress;
+    }
+
+    public static EmailAddress findOrCreate(Party party, String email, PartyContactType type, boolean isDefault) {
+        return party.getEmailAddressStream().filter(emailAddress -> emailAddress.getValue().equalsIgnoreCase(email)).findFirst()
+                .orElseGet(() -> EmailAddress.create(party, email, type, isDefault));
+    }
+
+    @Deprecated(forRemoval = true)
     public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
             final Boolean isDefault, final Boolean visibleToPublic, final Boolean visibleToStudents,
             final Boolean visibleToStaff) {
@@ -43,12 +61,14 @@ public class EmailAddress extends EmailAddress_Base {
         return createEmailAddress(supplier, party, email);
     }
 
+    @Deprecated(forRemoval = true)
     public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
             final boolean isDefault) {
         final Supplier<EmailAddress> supplier = () -> new EmailAddress(party, type, isDefault, email);
         return createEmailAddress(supplier, party, email);
     }
 
+    @Deprecated(forRemoval = true)
     private static EmailAddress createEmailAddress(final Supplier<EmailAddress> supplier, final Party party, final String email) {
         return StringUtils.isEmpty(email) ? null : party.getEmailAddressStream()
                 .filter(ea -> email.equalsIgnoreCase(ea.getValue())).findAny().orElseGet(supplier);
@@ -59,6 +79,7 @@ public class EmailAddress extends EmailAddress_Base {
         new EmailValidation(this);
     }
 
+    @Deprecated(forRemoval = true)
     protected EmailAddress(final Party party, final PartyContactType type, final boolean defaultContact, final String value) {
         this();
         super.init(party, type, defaultContact);
@@ -66,6 +87,7 @@ public class EmailAddress extends EmailAddress_Base {
         setValue(value);
     }
 
+    @Deprecated(forRemoval = true)
     protected EmailAddress(final Party party, final PartyContactType type, final boolean visibleToPublic,
             final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String value) {
         this();
@@ -74,7 +96,7 @@ public class EmailAddress extends EmailAddress_Base {
         setValue(value);
     }
 
-    private void checkParameters(final String value) {
+    private static void checkParameters(final String value) {
         if (!EmailValidator.getInstance().isValid(value)) {
             throw new DomainException("error.domain.contacts.EmailAddress.invalid.format", value);
         }

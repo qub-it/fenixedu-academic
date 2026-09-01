@@ -33,7 +33,7 @@ public class PersonEmailTest {
     public void testGetEmailAddressForSendingEmailsWithNotValidAddress() {
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress email = EmailAddress.createEmailAddress(person, "default@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(person, "default@example.com", PartyContactType.PERSONAL, true);
 
         assertNull(person.getEmailAddressForSendingEmails());
 
@@ -45,13 +45,12 @@ public class PersonEmailTest {
     public void testGetEmailAddressForSendingEmailsWithCustomLogic() {
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "john.doe@example.com", PartyContactType.PERSONAL, true).setValid();
+        EmailAddress.create(person, "john.doe@example.com", PartyContactType.PERSONAL, true).setValid();
 
         EmailAddress defaultEmailAddress = person.getEmailAddressForSendingEmails();
         assertEquals("john.doe@example.com", defaultEmailAddress.getValue());
 
-        EmailAddress otherEmailAddress =
-                EmailAddress.createEmailAddress(person, "custom@example.com", PartyContactType.PERSONAL, false);
+        EmailAddress otherEmailAddress = EmailAddress.create(person, "custom@example.com", PartyContactType.PERSONAL, false);
 
         Person.registerCustomEmailAddressForSendingEmailsProvider(p -> otherEmailAddress);
         EmailAddress emailAddress = person.getEmailAddressForSendingEmails();
@@ -65,7 +64,7 @@ public class PersonEmailTest {
     public void testGetEmailAddressForSendingEmailsWhenDisabled() {
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "john.doe@example.com", PartyContactType.PERSONAL, true).setValid();
+        EmailAddress.create(person, "john.doe@example.com", PartyContactType.PERSONAL, true).setValid();
 
         assertNotNull(person.getEmailAddressForSendingEmails());
 
@@ -73,8 +72,7 @@ public class PersonEmailTest {
 
         assertNull(person.getEmailAddressForSendingEmails());
 
-        EmailAddress otherEmailAddress =
-                EmailAddress.createEmailAddress(person, "custom@example.com", PartyContactType.PERSONAL, false);
+        EmailAddress otherEmailAddress = EmailAddress.create(person, "custom@example.com", PartyContactType.PERSONAL, false);
         Person.registerCustomEmailAddressForSendingEmailsProvider(p -> otherEmailAddress);
         assertNull(person.getEmailAddressForSendingEmails());
 
@@ -87,8 +85,8 @@ public class PersonEmailTest {
 
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "personal@example.com", PartyContactType.PERSONAL, true).setValid();
-        EmailAddress.createEmailAddress(person, "institutional@example.com", PartyContactType.INSTITUTIONAL, false).setValid();
+        EmailAddress.create(person, "personal@example.com", PartyContactType.PERSONAL, true).setValid();
+        EmailAddress.create(person, "institutional@example.com", PartyContactType.INSTITUTIONAL, false).setValid();
 
         assertEquals("institutional@example.com", person.getEmailAddressForSendingEmails().getValue());
 
@@ -99,8 +97,8 @@ public class PersonEmailTest {
     public void testGetEmailAddressForSendingEmailsWithMultipleAddresses() {
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "personal1@example.com", PartyContactType.PERSONAL, false).setValid();
-        EmailAddress.createEmailAddress(person, "personal2@example.com", PartyContactType.PERSONAL, true).setValid();
+        EmailAddress.create(person, "personal1@example.com", PartyContactType.PERSONAL, false).setValid();
+        EmailAddress.create(person, "personal2@example.com", PartyContactType.PERSONAL, true).setValid();
 
         assertEquals("personal2@example.com", person.getEmailAddressForSendingEmails().getValue());
     }
@@ -111,7 +109,7 @@ public class PersonEmailTest {
 
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "default@example.com", PartyContactType.PERSONAL, true).setValid();
+        EmailAddress.create(person, "default@example.com", PartyContactType.PERSONAL, true).setValid();
 
         assertEquals("default@example.com", person.getEmailAddressForSendingEmails().getValue());
 
@@ -122,7 +120,7 @@ public class PersonEmailTest {
     public void testGetEmailAddressForSendingEmailsWithValidNonDefaultContact() {
         UserProfile userProfile = new UserProfile("John", "Doe", "John Doe", "john.doe@example.com", Locale.getDefault());
         Person person = new Person(userProfile);
-        EmailAddress.createEmailAddress(person, "personal@example.com", PartyContactType.PERSONAL, false).setValid();
+        EmailAddress.create(person, "personal@example.com", PartyContactType.PERSONAL, false).setValid();
 
         assertEquals("personal@example.com", person.getEmailAddressForSendingEmails().getValue());
     }

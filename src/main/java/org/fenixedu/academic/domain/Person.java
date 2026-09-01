@@ -238,11 +238,10 @@ public class Person extends Person_Base {
         if (personBean.isPhysicalAddressDataNotEmpty()) {
             PhysicalAddress.create(this, personBean.getPhysicalAddressData(), PartyContactType.PERSONAL, true, true);
         }
-
+        
         Phone.create(this, personBean.getPhone(), PartyContactType.PERSONAL, true);
         MobilePhone.create(this, personBean.getMobile(), PartyContactType.PERSONAL, true);
-        final EmailAddress emailAddress =
-                EmailAddress.createEmailAddress(this, personBean.getEmail(), PartyContactType.PERSONAL, true);
+        final EmailAddress emailAddress = EmailAddress.create(this, personBean.getEmail(), PartyContactType.PERSONAL, true);
         if (validateEmail) {
             emailAddress.setValid();
         }
