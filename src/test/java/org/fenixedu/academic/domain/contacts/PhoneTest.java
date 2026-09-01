@@ -72,8 +72,9 @@ public class PhoneTest {
     public void testCreatePhonesContacts() {
         final Person person = createPerson("Person", "phones.person");
 
-        final MobilePhone mobilePhone = MobilePhone.create(person, "910000001", PartyContactType.PERSONAL, true, true);
+        final MobilePhone mobilePhone = MobilePhone.create(person, "910000001", PartyContactType.PERSONAL, true);
         assertNotNull(mobilePhone);
+        mobilePhone.setVisibleToPublic(true);
         assertTrue(mobilePhone.hasValue("910000001"));
         assertTrue(mobilePhone.getVisibleToPublic());
         assertTrue(mobilePhone.getVisibleToStudents());
@@ -83,16 +84,17 @@ public class PhoneTest {
         assertNull(MobilePhone.create(person, null, PartyContactType.PERSONAL, true));
         assertNull(MobilePhone.create(person, "", PartyContactType.PERSONAL, true));
 
-        final Phone phone = Phone.create(person, "210000001", PartyContactType.PERSONAL, true, true);
+        final Phone phone = Phone.create(person, "210000001", PartyContactType.PERSONAL, true);
         assertNotNull(phone);
+        phone.setVisibleToPublic(true);
         assertTrue(phone.hasValue("210000001"));
         assertTrue(phone.getVisibleToPublic());
         assertTrue(phone.getVisibleToStudents());
         assertTrue(phone.getVisibleToStaff());
 
         // null for empty number
-        assertNull(Phone.create(person, null, PartyContactType.PERSONAL, true, true));
-        assertNull(Phone.create(person, "", PartyContactType.PERSONAL, true, true));
+        assertNull(Phone.create(person, null, PartyContactType.PERSONAL, true));
+        assertNull(Phone.create(person, "", PartyContactType.PERSONAL, true));
     }
 
     @Test

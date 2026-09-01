@@ -44,7 +44,11 @@ public class MobilePhoneBean extends PartyContactBean {
 
     @Override
     public PartyContact createNewContact() {
-        return MobilePhone.create(getParty(), getValue(), getType(), getDefaultContact(), getVisibleToPublic());
+        MobilePhone mobilePhone = MobilePhone.create(getParty(), getValue(), getType(), getDefaultContact());
+        if (mobilePhone != null) {
+            mobilePhone.setVisibleToPublic(getVisibleToPublic());
+        }
+        return mobilePhone;
     }
 
     @Override

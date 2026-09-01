@@ -43,16 +43,6 @@ public class Phone extends Phone_Base {
         return phone;
     }
 
-    public static Phone create(Party party, String number, PartyContactType type, boolean isDefault, boolean visibleToPublic) {
-        Phone phone = Phone.create(party, number, type, isDefault);
-        if (phone == null) {
-            return null;
-        }
-
-        phone.setVisibleToPublic(visibleToPublic);
-        return phone;
-    }
-
     @Deprecated(forRemoval = true)
     public static Phone createPhone(Party party, String number, PartyContactType type, Boolean isDefault, Boolean visibleToPublic,
             Boolean visibleToStudents, Boolean visibleToStaff) {

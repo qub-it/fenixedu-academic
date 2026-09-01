@@ -43,17 +43,6 @@ public class MobilePhone extends MobilePhone_Base {
         return mobilePhone;
     }
 
-    public static MobilePhone create(Party party, String number, PartyContactType type, boolean isDefault,
-            boolean visibleToPublic) {
-        MobilePhone mobilePhone = MobilePhone.create(party, number, type, isDefault);
-        if (mobilePhone == null) {
-            return null;
-        }
-
-        mobilePhone.setVisibleToPublic(visibleToPublic);
-        return mobilePhone;
-    }
-
     public static MobilePhone findOrCreate(Party party, String number, PartyContactType type, boolean isDefault) {
         return party.getMobilePhones().stream().filter(phone -> phone.getNumber().equals(number)).findFirst()
                 .orElseGet(() -> MobilePhone.create(party, number, type, isDefault));
