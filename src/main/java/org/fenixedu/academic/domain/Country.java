@@ -106,11 +106,6 @@ public class Country extends Country_Base {
                 .findAny().orElse(null);
     }
 
-    @Deprecated
-    public String getNationality() {
-        return LocaleUtils.getPreferedContent(getCountryNationality());
-    }
-
     public synchronized static Set<Country> getCPLPCountries() {
         if (CPLP_COUNTRIES == null) {
             CPLP_COUNTRIES = Stream.of("PT", "BR", "AO", "CV", "GW", "MZ", "ST", "TL", "MO").map(Country::readByTwoLetterCode)
