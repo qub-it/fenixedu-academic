@@ -377,8 +377,6 @@ abstract public class DegreeModule extends DegreeModule_Base {
 
     abstract public DegreeCurricularPlan getParentDegreeCurricularPlan();
 
-    abstract public void print(StringBuilder stringBuffer, String tabs, Context previousContext);
-
     abstract public boolean isLeaf();
 
     abstract public boolean isRoot();

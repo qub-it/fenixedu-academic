@@ -210,15 +210,6 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         }
     }
 
-    public String print() {
-        StringBuilder dcp = new StringBuilder();
-
-        dcp.append("[DCP ").append(this.getExternalId()).append("] ").append(this.getName()).append("\n");
-        this.getRoot().print(dcp, "", null);
-
-        return dcp.toString();
-    }
-
     @Deprecated(forRemoval = true)
     public ExecutionDegree getExecutionDegreeByYear(final ExecutionYear executionYear) {
         for (final ExecutionDegree executionDegree : getExecutionDegreesSet()) {

@@ -1,3 +1,4 @@
+- Refactor: Deletes CurricularCourse unused methods [#qubIT-Fenix-8875]
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]
 
 60.0.1 (31-08-2026)
