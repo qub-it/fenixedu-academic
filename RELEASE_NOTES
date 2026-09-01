@@ -1,3 +1,4 @@
+- Refactor: Deletes CurricularCourse unused methods [#qubIT-Fenix-8875]
 - Refactor: Deletes deprecated methods Student#getActiveRegistrations and getAttends [#qubIT-Fenix-8839]
 - Refactor: Deletes deprecated Country#getNationality method [#qubIT-Fenix-9025]
 - Refactor: Job and BusinessArea classes and SalaryType deletion [#qubIT-Fenix-9224]
