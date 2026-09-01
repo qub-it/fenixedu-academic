@@ -149,6 +149,13 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getEctsCredits(executionInterval);
     }
 
+    @Override
+    @Deprecated()
+    // typo: use getWeight() instead
+    final public Double getWeigth() {
+        return getWeight();
+    }
+
     final public Double getWeight() {
         return getEctsCredits();
     }
@@ -375,7 +382,7 @@ public class CurricularCourse extends CurricularCourse_Base {
      * 
      */
     public Double getBaseWeight() {
-        return getWeight();
+        return super.getWeigth();
     }
 
 }
