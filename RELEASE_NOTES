@@ -4,6 +4,7 @@
 - Refactor: Deletes deprecated domain entities QueueJob, QueueJobWithFile and QueueJobResultFile and the QueueJobResult class [#qubIT-Fenix-9256]
 - Refactor: Deletes deprecated domain entity CoordinatorLog [#qubIT-Fenix-9257]
 - Refactor: Deletes deprecated domain entity UserPrivateKey [#qubIT-Fenix-9258]
+- Refactor: Deletes deprecated domain entity PersistentRoleGroup [#qubIT-Fenix-9259]
 
 60.0.1 (31-08-2026)
 - Improvement: Deletes PersistentTeachersWithGradesToSubmitGroup [#qubIT-Omnis-11441]
