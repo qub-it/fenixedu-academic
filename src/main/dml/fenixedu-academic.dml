@@ -1570,12 +1570,6 @@ public class accessControl.rules.AccessRule {
 public class accessControl.academicAdministration.AcademicAccessRule extends accessControl.rules.AccessRule {
 }
 
-class UserPrivateKey {
-    bytearray privateKey;
-    DateTime privateKeyCreation;
-    DateTime privateKeyValidity;
-}
-
 class raides.DegreeDesignation  {
 	String code;
 	String description;
@@ -3791,11 +3785,6 @@ relation UnitUnitName {
 relation UserPerson {
     Person playsRole person;
     .org.fenixedu.bennu.core.domain.User playsRole user;
-}
-
-relation UserPrivateKeyUser {
-    UserPrivateKey playsRole privateKey;
-    .org.fenixedu.bennu.core.domain.User playsRole;
 }
 
 relation OccupationPeriodLesson {
