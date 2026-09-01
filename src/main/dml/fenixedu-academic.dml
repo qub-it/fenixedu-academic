@@ -1452,9 +1452,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             class studentCurriculum.Substitution extends studentCurriculum.Equivalence {
             }
 
-                class studentCurriculum.TemporarySubstitution extends studentCurriculum.Substitution {
-                }
-                
                 class studentCurriculum.InternalSubstitution extends studentCurriculum.Substitution {
                 }
 
