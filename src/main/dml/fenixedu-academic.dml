@@ -1559,20 +1559,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		    .org.fenixedu.bennu.core.domain.Bennu playsRole root;
 		}
 
-class QueueJob  {
-               Boolean done;
-               Integer failedCounter;
-               DateTime requestDate;
-               DateTime jobStartTime;
-               DateTime jobEndTime;
-}
-
-class QueueJobWithFile extends QueueJob {
-       String contentType;
-}
-
-class QueueJobResultFile extends .org.fenixedu.bennu.io.domain.GenericFile {}
-
 public class accessControl.rules.AccessRuleSystem;
 
 public class accessControl.rules.AccessRule {
@@ -3932,32 +3918,6 @@ relation RootDomainObjectBusinessArea {
     BusinessArea playsRole businessAreas {
         multiplicity *;
     }
-}
-
-relation QueueJobPerson {
-       Person playsRole person;
-       QueueJob playsRole job {
-               multiplicity *;
-       }
-}
-
-relation QueueJobUndoneRootDomainObject {
-       QueueJob playsRole queueJobUndone {
-               multiplicity *;
-       }
-       .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObjectQueueUndone;
-}
-
-relation QueueJobRootDomainObject {
-       QueueJob playsRole queueJob {
-               multiplicity *;
-       }
-       .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-}
-
-relation QueueJobWithFileResult{
-    QueueJobWithFile playsRole job;
-    QueueJobResultFile playsRole file;
 }
 
 relation CurricularActivitiesRootDomainObject {
