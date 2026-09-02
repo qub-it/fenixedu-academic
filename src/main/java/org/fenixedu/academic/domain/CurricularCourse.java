@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
-import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -41,7 +40,6 @@ import org.fenixedu.academic.domain.log.CurriculumLineLog;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class CurricularCourse extends CurricularCourse_Base {
@@ -62,20 +60,6 @@ public class CurricularCourse extends CurricularCourse_Base {
         setWeigth(weight);
         setCompetenceCourse(competenceCourse);
         new Context(parentCourseGroup, this, curricularPeriod, begin, end);
-    }
-
-    @Override
-    public void print(StringBuilder dcp, String tabs, Context previousContext) {
-        String tab = tabs + "\t";
-        dcp.append(tab);
-        dcp.append("[CC ").append(getExternalId()).append("][");
-        dcp.append(previousContext.getCurricularPeriod().getOrderByType(AcademicPeriod.YEAR)).append("Y,");
-        dcp.append(previousContext.getCurricularPeriod().getOrderByType(AcademicPeriod.SEMESTER)).append("S]\t");
-        dcp.append("[B:").append(previousContext.getBeginExecutionInterval().getBeginDateYearMonthDay());
-        dcp.append(" E:").append(previousContext.getEndExecutionInterval() != null ? previousContext.getEndExecutionInterval()
-                .getEndDateYearMonthDay() : "          ");
-        dcp.append("]\t");
-        dcp.append(getName()).append("\n");
     }
 
     @Override
@@ -113,31 +97,6 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval));
     }
 
-    // -------------------------------------------------------------
-    // BEGIN: Only for enrollment purposes
-    // -------------------------------------------------------------
-
-    public String getCurricularCourseUniqueKeyForEnrollment() {
-        final DegreeType degreeType =
-                (getDegreeCurricularPlan() != null && getDegreeCurricularPlan().getDegree() != null) ? getDegreeCurricularPlan()
-                        .getDegree().getDegreeType() : null;
-        return constructUniqueEnrollmentKey(getCode(), getName(), degreeType);
-    }
-
-    // -------------------------------------------------------------
-    // END: Only for enrollment purposes
-    // -------------------------------------------------------------
-
-    private String constructUniqueEnrollmentKey(String code, String name, DegreeType degreeType) {
-        StringBuilder stringBuffer = new StringBuilder(50);
-        stringBuffer.append(code);
-        stringBuffer.append(name);
-        if (degreeType != null) {
-            stringBuffer.append(degreeType.toString());
-        }
-        return StringUtils.lowerCase(stringBuffer.toString());
-    }
-
     public Stream<ExecutionCourse> findExecutionCourses(final ExecutionInterval executionInterval) {
         return getAssociatedExecutionCoursesSet().stream()
                 .filter(ec -> ec.getExecutionInterval() == executionInterval || ec.getExecutionInterval()
@@ -162,7 +121,7 @@ public class CurricularCourse extends CurricularCourse_Base {
                 .collect(Collectors.toList());
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     final public Double getCredits() {
         return getEctsCredits();
     }

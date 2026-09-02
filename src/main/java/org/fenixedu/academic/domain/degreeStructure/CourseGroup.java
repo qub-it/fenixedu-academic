@@ -28,12 +28,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.comparators.ReverseComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -47,7 +45,6 @@ import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.util.StringFormatter;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.I18N;
 
 import com.google.common.base.Strings;
@@ -144,20 +141,6 @@ public class CourseGroup extends CourseGroup_Base {
             super.deleteDomainObject();
         } else {
             throw new DomainException("courseGroup.notEmptyCourseGroupContexts");
-        }
-    }
-
-    @Override
-    public void print(StringBuilder dcp, String tabs, Context previousContext) {
-        String tab = tabs + "\t";
-        dcp.append(tab);
-        dcp.append("[CG ").append(this.getExternalId()).append("] ").append(this.getName()).append("\n");
-
-        for (Context context : this.getChildContexts(CurricularCourse.class).stream().sorted().collect(Collectors.toList())) {
-            context.getChildDegreeModule().print(dcp, tab, context);
-        }
-        for (Context context : this.getChildContexts(CourseGroup.class).stream().sorted().collect(Collectors.toList())) {
-            context.getChildDegreeModule().print(dcp, tab, context);
         }
     }
 
