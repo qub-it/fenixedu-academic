@@ -51,11 +51,7 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.degreeStructure.RootCourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYears;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -219,41 +215,11 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return dcp.toString();
     }
 
-    @Deprecated(forRemoval = true)
-    public ExecutionDegree getExecutionDegreeByYear(final ExecutionYear executionYear) {
-        for (final ExecutionDegree executionDegree : getExecutionDegreesSet()) {
-            if (executionDegree.getExecutionYear() == executionYear) {
-                return executionDegree;
-            }
-        }
-        return null;
-    }
-
     public Optional<ExecutionDegree> findExecutionDegree(final ExecutionInterval interval) {
         if (interval == null) {
             return Optional.empty();
         }
         return getExecutionDegreesSet().stream().filter(ed -> ed.getExecutionYear() == interval.getExecutionYear()).findAny();
-    }
-
-    // FIXME: Optimization Required
-    @Deprecated(forRemoval = true)
-    public ExecutionDegree getExecutionDegreeByAcademicInterval(final AcademicInterval academicInterval) {
-        AcademicCalendarEntry academicCalendarEntry = academicInterval.getAcademicCalendarEntry();
-        while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {
-            if (academicCalendarEntry instanceof AcademicYearCE) {
-                ExecutionYear year = ExecutionYear.getExecutionYear((AcademicYearCE) academicCalendarEntry);
-                for (ExecutionDegree executionDegree : getExecutionDegreesSet()) {
-                    if (executionDegree.getExecutionYear().getAcademicInterval().equals(year.getAcademicInterval())) {
-                        return executionDegree;
-                    }
-                }
-            }
-
-            academicCalendarEntry = academicCalendarEntry.getParentEntry();
-        }
-
-        return null;
     }
 
     public Set<ExecutionYear> getExecutionYears() {
