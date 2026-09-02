@@ -32,7 +32,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.bennu.core.domain.Bennu;
 
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
@@ -262,11 +261,6 @@ public class Context extends Context_Base implements Comparable<Context> {
 
     public boolean isValidForExecutionAggregation(final ExecutionYear executionYear) {
         return executionYear.getExecutionPeriodsSet().stream().anyMatch(this::isValid);
-    }
-
-    @Deprecated(forRemoval = true)
-    public boolean isValid(AcademicInterval academicInterval) {
-        return isValid(ExecutionInterval.getExecutionInterval(academicInterval));
     }
 
     protected void checkExecutionPeriods(ExecutionInterval beginExecutionPeriod, ExecutionInterval endExecutionPeriod) {
