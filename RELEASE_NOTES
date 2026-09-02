@@ -1,4 +1,5 @@
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]
+- Refactor: Deletes deprecated domain methods that accept AcademicInterval as an argument [#qubIT-Fenix-9217]
 - Refactor: Deletes deprecated domain entity EnrolmentInstructions [#qubIT-Fenix-9252]
 - Refactor: Deletes deprecated domain entity TemporarySubstitution [#qubIT-Fenix-9254]
 - Refactor: Deletes deprecated domain entities QueueJob, QueueJobWithFile and QueueJobResultFile and the QueueJobResult class [#qubIT-Fenix-9256]
