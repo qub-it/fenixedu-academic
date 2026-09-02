@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.Interval;
@@ -215,28 +214,12 @@ public class Teacher extends Teacher_Base {
         return getAuthorizationSet().stream().sorted(Collections.reverseOrder());
     }
 
-    @Deprecated(forRemoval = true)
-    public Optional<TeacherAuthorization> getTeacherAuthorization(AcademicInterval interval) {
-        return getTeacherAuthorizationStream().filter(a -> a.getExecutionInterval().getAcademicInterval().equals(interval))
-                .findFirst();
-    }
-
     public Optional<TeacherAuthorization> getTeacherAuthorization(ExecutionInterval interval) {
         return getTeacherAuthorizationStream().filter(ta -> ta.getExecutionInterval() == interval).findFirst();
     }
 
     public Optional<TeacherAuthorization> getTeacherAuthorization() {
         return getTeacherAuthorization(ExecutionInterval.findCurrentChild(AcademicPeriod.SEMESTER, null));
-    }
-
-    @Deprecated(forRemoval = true)
-    public boolean hasTeacherAuthorization(AcademicInterval interval) {
-        return getTeacherAuthorization(interval).isPresent();
-    }
-
-    @Deprecated(forRemoval = true)
-    public boolean hasTeacherAuthorization() {
-        return getTeacherAuthorization().isPresent();
     }
 
     protected Optional<TeacherAuthorization> getLastTeacherAuthorization(ExecutionInterval interval) {

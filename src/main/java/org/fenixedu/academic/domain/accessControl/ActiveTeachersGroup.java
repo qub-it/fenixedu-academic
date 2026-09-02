@@ -40,7 +40,7 @@ public class ActiveTeachersGroup extends GroupStrategy {
 
     @Override
     public Stream<User> getMembers() {
-        return Bennu.getInstance().getTeachersSet().stream().filter(teacher -> teacher.hasTeacherAuthorization())
+        return Bennu.getInstance().getTeachersSet().stream().filter(teacher -> teacher.getTeacherAuthorization().isPresent())
                 .map(teacher -> teacher.getPerson().getUser());
     }
 
@@ -51,8 +51,8 @@ public class ActiveTeachersGroup extends GroupStrategy {
 
     @Override
     public boolean isMember(User user) {
-        return user != null && user.getPerson() != null && user.getPerson().getTeacher() != null
-                && user.getPerson().getTeacher().hasTeacherAuthorization();
+        return user != null && user.getPerson() != null && user.getPerson().getTeacher() != null && user.getPerson().getTeacher()
+                .getTeacherAuthorization().isPresent();
     }
 
     @Override
