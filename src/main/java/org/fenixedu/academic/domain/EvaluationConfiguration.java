@@ -19,13 +19,13 @@
 package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -117,7 +117,7 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
             } else if (!isInCurriculumValidationContextAndIsFinal(o1) && isInCurriculumValidationContextAndIsFinal(o2)) {
                 return -1;
             } else if (isInCurriculumValidationContextAndIsFinal(o1) && isInCurriculumValidationContextAndIsFinal(o2)) {
-                return compareMyWhenAlteredDateToAnotherWhenAlteredDate(o1.getWhen(), o2.getWhen());
+                return compareMyWhenAlteredDateToAnotherWhenAlteredDate(o1.getWhenDateTime(), o2.getWhenDateTime());
             } else if (o1.getEvaluationSeason().equals(o2.getEvaluationSeason())) {
                 return compareByGrade(o1, o1.getGrade(), o2.getGrade());
 
@@ -142,7 +142,7 @@ public class EvaluationConfiguration extends EvaluationConfiguration_Base {
             return grade.compareTo(otherGrade);
         }
 
-        private int compareMyWhenAlteredDateToAnotherWhenAlteredDate(Date when1, Date whenAltered) {
+        private int compareMyWhenAlteredDateToAnotherWhenAlteredDate(DateTime when1, DateTime whenAltered) {
             if (when1 == null) {
                 return -1;
             }

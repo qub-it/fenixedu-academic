@@ -1,3 +1,4 @@
+- Refactor: Improves EnrolmentEvaluation domain methods [#qubIT-Fenix-9300]
 - Refactor: Deletes unused classes and methods [#qubIT-Fenix-9332]
 - Refactor: Clean up BusinessArea entity [#qubIT-Fenix-9224]
 - Refactor: Delete deprecated DataTranferObject class [#qubIT-Fenix-9310]
