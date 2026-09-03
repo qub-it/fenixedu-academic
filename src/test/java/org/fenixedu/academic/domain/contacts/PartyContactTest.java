@@ -38,11 +38,9 @@ public class PartyContactTest {
     @Test
     public void testComparatorByType() {
         Person person = createPerson("Person", "person");
-        EmailAddress personalEmail =
-                EmailAddress.createEmailAddress(person, "personal@example.com", PartyContactType.PERSONAL, true);
-        EmailAddress personalEmail2 =
-                EmailAddress.createEmailAddress(person, "personal2@example.com", PartyContactType.PERSONAL, true);
-        EmailAddress workEmail = EmailAddress.createEmailAddress(person, "work@example.com", PartyContactType.WORK, true);
+        EmailAddress personalEmail = EmailAddress.create(person, "personal@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress personalEmail2 = EmailAddress.create(person, "personal2@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress workEmail = EmailAddress.create(person, "work@example.com", PartyContactType.WORK, true);
 
         assertTrue(PartyContact.COMPARATOR_BY_TYPE.compare(workEmail, personalEmail) > 0);
         assertTrue(PartyContact.COMPARATOR_BY_TYPE.compare(personalEmail, workEmail) < 0);
@@ -55,11 +53,10 @@ public class PartyContactTest {
     @Test
     public void testSetsVisibilityFlags() {
         Person person = createPerson("Person", "person");
-        EmailAddress email =
-                EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true,   // defaultContact
-                        false,  // visibleToPublic
-                        true,   // visibleToStudents
-                        false);  // visibleToStaff
+        EmailAddress email = EmailAddress.create(person, "test@example.com", PartyContactType.PERSONAL, true);
+        email.setVisibleToPublic(false);
+        email.setVisibleToStudents(true);
+        email.setVisibleToStaff(false);
 
         assertEquals(Boolean.FALSE, email.getVisibleToPublic());
         assertEquals(Boolean.TRUE, email.getVisibleToStudents());
@@ -69,7 +66,7 @@ public class PartyContactTest {
     @Test
     public void testIsDefault() {
         Person person = createPerson("Person", "person");
-        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(person, "test@example.com", PartyContactType.PERSONAL, true);
 
         email.setValid();
         assertTrue(email.isDefault());
@@ -85,14 +82,14 @@ public class PartyContactTest {
         Person person = createPerson("Person", "person");
 
         // only one contact, stays default
-        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(person, "test@example.com", PartyContactType.PERSONAL, true);
         email.setValid();
         assertTrue(email.isDefault());
         email.setAnotherContactAsDefault();
         assertTrue(email.isDefault());
 
         // caller is not the default, nothing happens
-        EmailAddress email2 = EmailAddress.createEmailAddress(person, "test2@example.com", PartyContactType.PERSONAL, false);
+        EmailAddress email2 = EmailAddress.create(person, "test2@example.com", PartyContactType.PERSONAL, false);
         email2.setValid();
         email2.setAnotherContactAsDefault();
         assertTrue(email.isDefault());
@@ -107,7 +104,7 @@ public class PartyContactTest {
     public void testGetPresentationValue() {
         Person person = createPerson("Person", "person");
 
-        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(person, "test@example.com", PartyContactType.PERSONAL, true);
         assertEquals("test@example.com", email.getPresentationValue());
 
         Phone phone = Phone.create(person, "911111111", PartyContactType.PERSONAL, true);
@@ -132,9 +129,8 @@ public class PartyContactTest {
         Person person = createPerson("Person", "person");
         Person otherPerson = createPerson("Other Person", "other.person");
 
-        EmailAddress email = EmailAddress.createEmailAddress(person, "test@example.com", PartyContactType.PERSONAL, true);
-        EmailAddress otherEmail =
-                EmailAddress.createEmailAddress(otherPerson, "other@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress email = EmailAddress.create(person, "test@example.com", PartyContactType.PERSONAL, true);
+        EmailAddress otherEmail = EmailAddress.create(otherPerson, "other@example.com", PartyContactType.PERSONAL, true);
         Phone phone = Phone.create(person, "911111111", PartyContactType.PERSONAL, true);
         MobilePhone mobile = MobilePhone.create(person, "922222222", PartyContactType.PERSONAL, true);
 

@@ -49,8 +49,11 @@ public class EmailAddressBean extends PartyContactBean {
 
     @Override
     public PartyContact createNewContact() {
-        return EmailAddress.createEmailAddress(getParty(), getValue(), getType(), getDefaultContact(), getVisibleToPublic(),
-                getVisibleToStudents(), getVisibleToStaff());
+        EmailAddress emailAddress = EmailAddress.create(getParty(), getValue(), getType(), getDefaultContact());
+        if (emailAddress != null) {
+            emailAddress.setVisibleToPublic(getVisibleToPublic());
+        }
+        return emailAddress;
     }
 
 }

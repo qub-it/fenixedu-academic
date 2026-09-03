@@ -650,7 +650,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
                 emailAddress = getDefaultEmailAddress();
                 emailAddress.edit(email);
             } else {
-                emailAddress = EmailAddress.createEmailAddress(this, email, PartyContactType.PERSONAL, true);
+                emailAddress = EmailAddress.findOrCreate(this, email, PartyContactType.PERSONAL, true);
             }
             emailAddress.setVisibleToPublic(visibleToPublic);
             if (valid) {
@@ -667,7 +667,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         if (hasInstitutionalEmailAddress()) {
             getInstitutionalEmailAddress().setValue(email);
         } else {
-            EmailAddress emailAddress = EmailAddress.createEmailAddress(this, email, PartyContactType.INSTITUTIONAL, false);
+            EmailAddress emailAddress = EmailAddress.findOrCreate(this, email, PartyContactType.INSTITUTIONAL, false);
             emailAddress.setValid();
         }
     }
