@@ -28,10 +28,10 @@ import pt.ist.fenixframework.Atomic;
 public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
     public DegreeOfficialPublication(Degree degree, LocalDate date) {
         if (degree == null) {
-            throw new DomainException("error.degree.officialpublication.unlinked");
+            throw new DomainException(DegreeOfficialPublication.class.getName() + ".degree.not.null");
         }
         if (date == null) {
-            throw new DomainException("error.degree.officialpublication.undated");
+            throw new DomainException(DegreeOfficialPublication.class.getName() + "date.not.null");
         }
         setDegree(degree);
         setPublication(date);
