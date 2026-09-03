@@ -33,7 +33,6 @@ enum org.fenixedu.academic.domain.photograph.AspectRatio																  as Asp
 enum org.fenixedu.academic.domain.photograph.PictureMode																  as PictureMode;
 enum org.fenixedu.academic.domain.photograph.PictureSize																  as PictureSize;
 enum org.fenixedu.academic.domain.RequestState                                                                         as RequestState;
-enum org.fenixedu.academic.domain.SalaryType                                                                           as SalaryType;
 enum org.fenixedu.academic.domain.UnitBoardPermittedGroupType                                                          as UnitBoardPermittedGroupType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType				  			  as AcademicOperationType;
 enum org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType.Scope                     as AcademicOperationTypeScope;
@@ -1032,7 +1031,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String position;
         JobApplicationType jobApplicationType;
         ContractType contractType;
-        SalaryType salaryType;
         DateTime lastModifiedDate;
         Double salary;
     }
