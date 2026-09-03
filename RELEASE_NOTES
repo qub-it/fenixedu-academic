@@ -9,6 +9,7 @@
 - Refactor: Deletes deprecated domain entity UserPrivateKey [#qubIT-Fenix-9258]
 - Refactor: Deletes deprecated domain entity PersistentRoleGroup [#qubIT-Fenix-9259]
 - Refactor: Removes HumanName util [#qubIT-Fenix-9272]
+- Refactor: Removes deprecated methods from Lesson Instance [#qubIT-Fenix-9230]
 
 60.0.1 (31-08-2026)
 - Improvement: Deletes PersistentTeachersWithGradesToSubmitGroup [#qubIT-Omnis-11441]
