@@ -32,12 +32,25 @@ public class Phone extends Phone_Base {
             Comparator.comparing(Phone::getNumber, Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(COMPARATOR_BY_TYPE);
 
+    public static Phone create(Party party, String number, PartyContactType type, boolean isDefault) {
+        if (StringUtils.isEmpty(number)) {
+            return null;
+        }
+
+        Phone phone = new Phone();
+        phone.init(party, type, isDefault);
+        phone.setNumber(number);
+        return phone;
+    }
+
+    @Deprecated(forRemoval = true)
     public static Phone createPhone(Party party, String number, PartyContactType type, Boolean isDefault, Boolean visibleToPublic,
             Boolean visibleToStudents, Boolean visibleToStaff) {
         return !StringUtils.isEmpty(number) ? new Phone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
                 isDefault, number) : null;
     }
 
+    @Deprecated(forRemoval = true)
     public static Phone createPhone(Party party, String number, PartyContactType type, boolean isDefault) {
         return (!StringUtils.isEmpty(number)) ? new Phone(party, type, isDefault, number) : null;
     }
@@ -47,6 +60,7 @@ public class Phone extends Phone_Base {
         new PhoneValidation(this);
     }
 
+    @Deprecated(forRemoval = true)
     protected Phone(final Party party, final PartyContactType type, final boolean defaultContact, final String number) {
         this();
         super.init(party, type, defaultContact);
@@ -54,6 +68,7 @@ public class Phone extends Phone_Base {
         super.setNumber(number);
     }
 
+    @Deprecated(forRemoval = true)
     protected Phone(final Party party, final PartyContactType type, final boolean visibleToPublic,
             final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String number) {
         this();

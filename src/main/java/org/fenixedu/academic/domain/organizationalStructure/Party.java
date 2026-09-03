@@ -503,7 +503,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
             defaultPhone = getDefaultPhone();
             defaultPhone.edit(number);
         } else {
-            defaultPhone = Phone.createPhone(this, number, PartyContactType.PERSONAL, true);
+            defaultPhone = Phone.create(this, number, PartyContactType.PERSONAL, true);
         }
 
         if (valid) {
@@ -519,7 +519,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         if (hasAnyPartyContact(Phone.class, PartyContactType.WORK)) {
             ((Phone) getPartyContacts(Phone.class, PartyContactType.WORK).iterator().next()).edit(number);
         } else {
-            Phone.createPhone(this, number, PartyContactType.WORK, false);
+            Phone.create(this, number, PartyContactType.WORK, false);
         }
     }
 
@@ -580,7 +580,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
             mobilePhone = getDefaultMobilePhone();
             mobilePhone.edit(number);
         } else {
-            mobilePhone = MobilePhone.createMobilePhone(this, number, PartyContactType.PERSONAL, true);
+            mobilePhone = MobilePhone.findOrCreate(this, number, PartyContactType.PERSONAL, true);
         }
 
         if (valid) {

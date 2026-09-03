@@ -254,7 +254,7 @@ public class PersonTest {
         assertFalse(personA.hasEmailAddress(null));
 
         // partyContact is not email address
-        PartyContact phone = Phone.createPhone(personA, "912345678", PartyContactType.PERSONAL, false);
+        PartyContact phone = Phone.create(personA, "912345678", PartyContactType.PERSONAL, false);
         assertFalse(phone.isEmailAddress());
         assertFalse(personA.hasEmailAddress("912345678"));
     }
@@ -341,7 +341,7 @@ public class PersonTest {
         Person personToDelete = createPerson("Delete Me", "person.delete.test");
 
         // create associated objects
-        Phone phone = Phone.createPhone(personToDelete, "912345678", PartyContactType.PERSONAL, true);
+        Phone phone = Phone.create(personToDelete, "912345678", PartyContactType.PERSONAL, true);
         EmailAddress email = EmailAddress.createEmailAddress(personToDelete, "delete@test.com", PartyContactType.PERSONAL, true);
         VaccineType vaccineType = new VaccineType(new LocalizedString(Locale.ENGLISH, "COVID"), "C19");
         VaccineAdministration vaccine = VaccineAdministration.createOrUpdate(vaccineType, personToDelete, null, LocalDate.now());

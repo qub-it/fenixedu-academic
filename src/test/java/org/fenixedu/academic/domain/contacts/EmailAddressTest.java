@@ -64,7 +64,7 @@ public class EmailAddressTest {
         assertNull(EmailAddress.find("unknown@example.com"));
 
         // party contact is not email address
-        final Phone phone = Phone.createPhone(person, "919191919", PartyContactType.PERSONAL, true);
+        final Phone phone = Phone.create(person, "919191919", PartyContactType.PERSONAL, true);
         assertNull(EmailAddress.find("919191919"));
         assertFalse(phone.isEmailAddress());
     }

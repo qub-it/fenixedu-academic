@@ -43,27 +43,27 @@ public class PhoneTest {
     @Test
     public void testComparatorByNumber() {
         final Person person = createPerson("Person", "person");
-        final Phone phoneA = Phone.createPhone(person, "910000001", PartyContactType.PERSONAL, true);
-        final Phone phoneB = Phone.createPhone(person, "910000002", PartyContactType.PERSONAL, true);
+        final Phone phoneA = Phone.create(person, "910000001", PartyContactType.PERSONAL, true);
+        final Phone phoneB = Phone.create(person, "910000002", PartyContactType.PERSONAL, true);
 
         assertTrue(PHONE_COMPARATOR.compare(phoneA, phoneB) < 0);
         assertTrue(PHONE_COMPARATOR.compare(phoneB, phoneA) > 0);
         assertEquals(0, PHONE_COMPARATOR.compare(phoneA, phoneA));
 
         // numbers with equal values are ordered by the contact type (PERSONAL before WORK)
-        final Phone phoneAwork = Phone.createPhone(person, "910000001", PartyContactType.WORK, true);
+        final Phone phoneAwork = Phone.create(person, "910000001", PartyContactType.WORK, true);
         assertTrue(PHONE_COMPARATOR.compare(phoneA, phoneAwork) < 0);
         assertTrue(PHONE_COMPARATOR.compare(phoneAwork, phoneA) > 0);
 
-        final MobilePhone mobilePhoneA = MobilePhone.createMobilePhone(person, "910000001", PartyContactType.PERSONAL, true);
-        final MobilePhone mobilePhoneB = MobilePhone.createMobilePhone(person, "910000002", PartyContactType.PERSONAL, true);
+        final MobilePhone mobilePhoneA = MobilePhone.create(person, "910000001", PartyContactType.PERSONAL, true);
+        final MobilePhone mobilePhoneB = MobilePhone.create(person, "910000002", PartyContactType.PERSONAL, true);
 
         assertTrue(MOBILE_PHONE_COMPARATOR.compare(mobilePhoneA, mobilePhoneB) < 0);
         assertTrue(MOBILE_PHONE_COMPARATOR.compare(mobilePhoneB, mobilePhoneA) > 0);
         assertEquals(0, MOBILE_PHONE_COMPARATOR.compare(mobilePhoneA, mobilePhoneA));
 
         // numbers with equal values are ordered by the contact type (PERSONAL before WORK)
-        final MobilePhone mobilePhoneAwork = MobilePhone.createMobilePhone(person, "910000001", PartyContactType.WORK, true);
+        final MobilePhone mobilePhoneAwork = MobilePhone.create(person, "910000001", PartyContactType.WORK, true);
         assertTrue(MOBILE_PHONE_COMPARATOR.compare(mobilePhoneA, mobilePhoneAwork) < 0);
         assertTrue(MOBILE_PHONE_COMPARATOR.compare(mobilePhoneAwork, mobilePhoneA) > 0);
     }
@@ -72,45 +72,52 @@ public class PhoneTest {
     public void testCreatePhonesContacts() {
         final Person person = createPerson("Person", "phones.person");
 
-        final MobilePhone mobilePhone =
-                MobilePhone.createMobilePhone(person, "910000001", PartyContactType.PERSONAL, true, true, true, true);
+        final MobilePhone mobilePhone = MobilePhone.create(person, "910000001", PartyContactType.PERSONAL, true);
         assertNotNull(mobilePhone);
+        mobilePhone.setVisibleToPublic(true);
         assertTrue(mobilePhone.hasValue("910000001"));
+        assertTrue(mobilePhone.getVisibleToPublic());
+        assertTrue(mobilePhone.getVisibleToStudents());
+        assertTrue(mobilePhone.getVisibleToStaff());
 
         // null for empty number
-        assertNull(MobilePhone.createMobilePhone(person, null, PartyContactType.PERSONAL, true, true, true, true));
-        assertNull(MobilePhone.createMobilePhone(person, "", PartyContactType.PERSONAL, true, true, true, true));
+        assertNull(MobilePhone.create(person, null, PartyContactType.PERSONAL, true));
+        assertNull(MobilePhone.create(person, "", PartyContactType.PERSONAL, true));
 
-        final Phone phone = Phone.createPhone(person, "210000001", PartyContactType.PERSONAL, true, true, true, true);
+        final Phone phone = Phone.create(person, "210000001", PartyContactType.PERSONAL, true);
         assertNotNull(phone);
+        phone.setVisibleToPublic(true);
         assertTrue(phone.hasValue("210000001"));
+        assertTrue(phone.getVisibleToPublic());
+        assertTrue(phone.getVisibleToStudents());
+        assertTrue(phone.getVisibleToStaff());
 
         // null for empty number
-        assertNull(Phone.createPhone(person, null, PartyContactType.PERSONAL, true, true, true, true));
-        assertNull(Phone.createPhone(person, "", PartyContactType.PERSONAL, true, true, true, true));
+        assertNull(Phone.create(person, null, PartyContactType.PERSONAL, true));
+        assertNull(Phone.create(person, "", PartyContactType.PERSONAL, true));
     }
 
     @Test
-    public void testCreateMobilePhone() {
+    public void testFindOrCreateMobilePhone() {
         final Person person = createPerson("Person", "mobile.person");
         final String number = "910000001";
 
         // null for empty number
-        assertNull(MobilePhone.createMobilePhone(person, null, PartyContactType.PERSONAL, true));
-        assertNull(MobilePhone.createMobilePhone(person, "", PartyContactType.PERSONAL, true));
+        assertNull(MobilePhone.findOrCreate(person, null, PartyContactType.PERSONAL, true));
+        assertNull(MobilePhone.findOrCreate(person, "", PartyContactType.PERSONAL, true));
 
-        final MobilePhone first = MobilePhone.createMobilePhone(person, number, PartyContactType.PERSONAL, true);
+        final MobilePhone first = MobilePhone.findOrCreate(person, number, PartyContactType.PERSONAL, true);
         assertNotNull(first);
         assertTrue(first.hasValue(number));
 
         // while pending validation the existing contact is not reused
-        final MobilePhone second = MobilePhone.createMobilePhone(person, number, PartyContactType.PERSONAL, true);
+        final MobilePhone second = MobilePhone.findOrCreate(person, number, PartyContactType.PERSONAL, true);
         assertNotEquals(first, second);
         assertTrue(second.hasValue(number));
 
         // once active and valid, the existing contact is returned instead of creating a new one
         second.setValid();
-        final MobilePhone found = MobilePhone.createMobilePhone(person, number, PartyContactType.PERSONAL, true);
+        final MobilePhone found = MobilePhone.findOrCreate(person, number, PartyContactType.PERSONAL, true);
         assertEquals(second, found);
     }
 
@@ -118,13 +125,13 @@ public class PhoneTest {
     public void testSetNumber() {
         final Person person = createPerson("Person", "set.number.person");
 
-        final Phone phone = Phone.createPhone(person, "910000001", PartyContactType.PERSONAL, true);
+        final Phone phone = Phone.create(person, "910000001", PartyContactType.PERSONAL, true);
         assertThrows(DomainException.class, () -> phone.setNumber(null));
         assertThrows(DomainException.class, () -> phone.setNumber(""));
         phone.setNumber("910000002");
         assertEquals("910000002", phone.getNumber());
 
-        final MobilePhone mobilePhone = MobilePhone.createMobilePhone(person, "910000003", PartyContactType.PERSONAL, true);
+        final MobilePhone mobilePhone = MobilePhone.create(person, "910000003", PartyContactType.PERSONAL, true);
         assertThrows(DomainException.class, () -> mobilePhone.setNumber(null));
         assertThrows(DomainException.class, () -> mobilePhone.setNumber(""));
         mobilePhone.setNumber("910000004");
