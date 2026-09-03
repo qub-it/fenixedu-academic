@@ -1026,12 +1026,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         degreeStructure.DegreeModule playsRole excludedModules { multiplicity *; }
     }
 
-    class BusinessArea  {
-        Integer level;
-        String code;
-        String description;
-    }
-
     class Job  {
         String employerName;
         String city;
@@ -3914,34 +3908,6 @@ relation JobCreatorPerson {
 relation JobCountry {
     Country playsRole country;
     Job playsRole jobs {
-        multiplicity *;
-    }
-}
-
-relation JobBusinessArea {
-    BusinessArea playsRole businessArea;
-    Job playsRole jobs {
-        multiplicity *;
-    }
-}
-
-relation JobParentBusinessArea {
-    BusinessArea playsRole parentBusinessArea;
-    Job playsRole parentJobs {
-        multiplicity *;
-    }
-}
-
-relation BusinessAreaBusinessArea {
-    BusinessArea playsRole parentArea;
-    BusinessArea playsRole childAreas {
-        multiplicity *;
-    }
-}
-
-relation RootDomainObjectBusinessArea {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
-    BusinessArea playsRole businessAreas {
         multiplicity *;
     }
 }

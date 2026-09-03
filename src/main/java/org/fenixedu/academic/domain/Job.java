@@ -31,18 +31,6 @@ public class Job extends Job_Base {
     static final public Comparator<Job> COMPARATOR_BY_BEGIN_DATE =
             Comparator.comparing(Job::getBeginDate, Comparator.nullsFirst(Comparator.naturalOrder()));
 
-    @Deprecated
-    static final public Comparator<Job> REVERSE_COMPARATOR_BY_BEGIN_DATE = new Comparator<Job>() {
-        @Override
-        public int compare(final Job o1, final Job o2) {
-            if (o2.getBeginDate() != null && o1.getBeginDate() != null) {
-                return o2.getBeginDate().compareTo(o1.getBeginDate());
-            } else {
-                return o2.getBeginDate() != null ? 1 : -1;
-            }
-        }
-    };
-
     private Job() {
         super();
         setRootDomainObject(Bennu.getInstance());
@@ -70,32 +58,6 @@ public class Job extends Job_Base {
         return job;
     }
 
-    @Deprecated
-    public Job(Person person, String employerName, String city, Country country, BusinessArea businessArea,
-            BusinessArea parentBusinessArea, String position, LocalDate beginDate, LocalDate endDate,
-            JobApplicationType applicationType, ContractType contractType, Double salary) {
-
-        this();
-
-        checkParameters(person, employerName, city, country, businessArea, parentBusinessArea, position, beginDate, endDate,
-                applicationType, contractType, salary);
-        checkValidDates(beginDate, endDate);
-
-        setPerson(person);
-        setEmployerName(employerName);
-        setCity(city);
-        setCountry(country);
-        setBusinessArea(businessArea);
-        setParentBusinessArea(parentBusinessArea);
-        setPosition(position);
-        setBeginDate(beginDate);
-        setEndDate(endDate);
-        setJobApplicationType(applicationType);
-        setContractType(contractType);
-        //TODO remove setSalaryType(salaryType);
-        setSalary(salary);
-    }
-
     private static void checkParameters(Person person, String employerName, String city, Country country, String position,
             LocalDate beginDate, LocalDate endDate, JobApplicationType applicationType, ContractType contractType,
             Double salary) {
@@ -105,29 +67,6 @@ public class Job extends Job_Base {
 
         if (StringUtils.isEmpty(employerName) && StringUtils.isEmpty(city) && country == null && StringUtils.isEmpty(position)
                 && beginDate == null && endDate == null && applicationType == null && contractType == null && salary == null) {
-            throw new DomainException("job.creation.allFields.null");
-        }
-    }
-
-    @Deprecated
-    private void checkParameters(Person person, String employerName, String city, Country country, BusinessArea businessArea,
-            BusinessArea parentBusinessArea, String position, LocalDate beginDate, LocalDate endDate,
-            JobApplicationType applicationType, ContractType contractType, Double salary) {
-        String[] args = {};
-        if (person == null) {
-            throw new DomainException("job.creation.person.null", args);
-        }
-        checkParameters(employerName, city, country, businessArea, parentBusinessArea, position, beginDate, endDate,
-                applicationType, contractType, salary);
-    }
-
-    @Deprecated
-    private void checkParameters(String employerName, String city, Country country, BusinessArea businessArea,
-            BusinessArea parentBusinessArea, String position, LocalDate beginDate, LocalDate endDate,
-            JobApplicationType applicationType, ContractType contractType, Double salary) {
-        if (StringUtils.isEmpty(employerName) && StringUtils.isEmpty(city) && country == null && businessArea == null
-                && parentBusinessArea == null && StringUtils.isEmpty(position) && beginDate == null && endDate == null
-                && applicationType == null && contractType == null && salary == null) {
             throw new DomainException("job.creation.allFields.null");
         }
     }
