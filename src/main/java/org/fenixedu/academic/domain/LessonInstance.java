@@ -23,6 +23,7 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -37,7 +38,6 @@ import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.joda.time.Minutes;
 import org.joda.time.YearMonthDay;
 
@@ -84,39 +84,6 @@ public class LessonInstance extends LessonInstance_Base {
         return result;
     }
 
-    @Deprecated
-    public LessonInstance(Lesson lesson, YearMonthDay day) {
-        super();
-
-        if (day == null) {
-            throw new DomainException("error.LessonInstance.empty.day");
-        }
-
-        if (lesson == null) {
-            throw new DomainException("error.LessonInstance.empty.Lesson");
-        }
-
-        LessonInstance lessonInstance = lesson.getLessonInstanceFor(day);
-        if (lessonInstance != null) {
-            throw new DomainException("error.lessonInstance.already.exist");
-        }
-
-        HourMinuteSecond beginTime = lesson.getBeginHourMinuteSecond();
-        HourMinuteSecond endTime = lesson.getEndHourMinuteSecond();
-        DateTime beginDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), beginTime.getHour(),
-                beginTime.getMinuteOfHour(), 0, 0);
-        DateTime endDateTime = new DateTime(day.getYear(), day.getMonthOfYear(), day.getDayOfMonth(), endTime.getHour(),
-                endTime.getMinuteOfHour(), 0, 0);
-
-        setRootDomainObject(Bennu.getInstance());
-        setBeginDateTime(beginDateTime);
-        setEndDateTime(endDateTime);
-        setLesson(lesson);
-
-        Optional.ofNullable(lesson.getLessonSpaceOccupation()).map(LessonSpaceOccupation::getSpace)
-                .ifPresent(this::lessonInstanceSpaceOccupationManagement);
-    }
-
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
 
@@ -126,7 +93,6 @@ public class LessonInstance extends LessonInstance_Base {
             occupation.delete();
         }
 
-//        super.setCourseLoad(null);
         super.setLesson(null);
         setRootDomainObject(null);
         deleteDomainObject();
@@ -137,8 +103,8 @@ public class LessonInstance extends LessonInstance_Base {
     }
 
     public BigDecimal getInstanceDurationInHours() {
-        return BigDecimal.valueOf(getUnitMinutes()).divide(BigDecimal.valueOf(Lesson.NUMBER_OF_MINUTES_IN_HOUR), 2,
-                RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(getUnitMinutes())
+                .divide(BigDecimal.valueOf(Lesson.NUMBER_OF_MINUTES_IN_HOUR), 2, RoundingMode.HALF_UP);
     }
 
     @Override
@@ -149,17 +115,10 @@ public class LessonInstance extends LessonInstance_Base {
         }
     }
 
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkDateTimeInterval() {
-        final DateTime start = getBeginDateTime();
-        final DateTime end = getEndDateTime();
-        return start != null && end != null && start.isBefore(end);
-    }
-
     private void lessonInstanceSpaceOccupationManagement(Space space) {
         if (space != null) {
-            LessonInstanceSpaceOccupation.findOccupationForLessonAndSpace(getLesson(), space).ifPresentOrElse(o -> o.add(this),
-                    () -> new LessonInstanceSpaceOccupation(space, this));
+            LessonInstanceSpaceOccupation.findOccupationForLessonAndSpace(getLesson(), space)
+                    .ifPresentOrElse(o -> o.add(this), () -> new LessonInstanceSpaceOccupation(space, this));
         }
     }
 
@@ -197,11 +156,6 @@ public class LessonInstance extends LessonInstance_Base {
                 getEndDateTime().getSecondOfMinute());
     }
 
-    @Deprecated
-    public Space getRoom() {
-        return getLessonInstanceSpaceOccupation() != null ? getLessonInstanceSpaceOccupation().getSpace() : null;
-    }
-
     public Stream<Space> getSpaces() {
         final LessonInstanceSpaceOccupation spaceOccupation = getLessonInstanceSpaceOccupation();
         return spaceOccupation != null ? spaceOccupation.getSpaces().stream() : Stream.empty();
@@ -212,46 +166,11 @@ public class LessonInstance extends LessonInstance_Base {
     }
 
     public String prettyPrint() {
-        final StringBuilder result = new StringBuilder();
-        result.append(getDayOfweek().getDiaSemanaString()).append(" (");
-        result.append(getStartTime().toString("HH:mm")).append(" - ");
-        result.append(getEndDateTime().toString("HH:mm")).append(") ");
-        result.append(getRoom() != null ? getRoom().getName() : "");
-        return result.toString();
-    }
-
-    @Deprecated
-    public java.util.Date getBegin() {
-        org.joda.time.DateTime dt = getBeginDateTime();
-        return (dt == null) ? null : new java.util.Date(dt.getMillis());
-    }
-
-    @Deprecated
-    public void setBegin(java.util.Date date) {
-        if (date == null) {
-            setBeginDateTime(null);
-        } else {
-            setBeginDateTime(new org.joda.time.DateTime(date.getTime()));
-        }
-    }
-
-    @Deprecated
-    public java.util.Date getEnd() {
-        org.joda.time.DateTime dt = getEndDateTime();
-        return (dt == null) ? null : new java.util.Date(dt.getMillis());
-    }
-
-    @Deprecated
-    public void setEnd(java.util.Date date) {
-        if (date == null) {
-            setEndDateTime(null);
-        } else {
-            setEndDateTime(new org.joda.time.DateTime(date.getTime()));
-        }
+        return getDayOfweek().getDiaSemanaString() + " (" + getStartTime().toString("HH:mm") + " - " + getEndDateTime().toString(
+                "HH:mm") + ") " + getSpaces().map(Space::getName).collect(Collectors.joining(", "));
     }
 
     public Interval getInterval() {
         return new Interval(getBeginDateTime(), getEndDateTime());
     }
-
 }
