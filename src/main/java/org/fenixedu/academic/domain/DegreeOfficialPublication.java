@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.LocalDate;
@@ -37,20 +38,6 @@ public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
     }
 
     @Atomic
-    public DegreeSpecializationArea createSpecializationArea(String nameEn, String namePt) {
-
-        LocalizedString area = new LocalizedString(org.fenixedu.academic.util.LocaleUtils.EN, nameEn).with(org.fenixedu.academic.util.LocaleUtils.PT, namePt);
-
-        return new DegreeSpecializationArea(this, area);
-    }
-
-    @Atomic
-    public void changeOfficialreference(String officialReference, final LocalDate publication) {
-        this.setOfficialReference(officialReference);
-        this.setPublication(publication);
-    }
-
-    @Atomic
     public void delete() {
 
         setDegree(null);
@@ -58,4 +45,39 @@ public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
         super.deleteDomainObject();
     }
 
+    public static DegreeOfficialPublication create(Degree degree, LocalDate publicationDate, String officialReference) {
+        checkRules(publicationDate, officialReference, null, null);
+
+        DegreeOfficialPublication result = new DegreeOfficialPublication(degree, publicationDate);
+        result.setOfficialReference(officialReference);
+
+        return result;
+    }
+
+    public void edit(LocalDate publication, String officialReference, LocalDate beginDate, LocalDate endDate) {
+        checkRules(publication, officialReference, beginDate, endDate);
+
+        setPublication(publication);
+        setOfficialReference(officialReference);
+        setBeginDate(beginDate);
+        setEndDate(endDate);
+    }
+
+    public DegreeSpecializationArea createSpecializationArea(final LocalizedString name) {
+        return new DegreeSpecializationArea(this, name);
+    }
+
+    private static void checkRules(LocalDate publication, String officialReference, LocalDate beginDate, LocalDate endDate) {
+        if (publication == null) {
+            throw new DomainException(DegreeOfficialPublication.class.getName() + ".publication.not.null");
+        }
+
+        if (StringUtils.isEmpty(officialReference)) {
+            throw new DomainException(DegreeOfficialPublication.class.getName() + ".officialReference.not.null");
+        }
+
+        if (beginDate != null && endDate != null && beginDate.isAfter(endDate)) {
+            throw new DomainException(DegreeOfficialPublication.class.getName() + ".endDate.before.beginDate");
+        }
+    }
 }
