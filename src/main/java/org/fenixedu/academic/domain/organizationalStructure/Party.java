@@ -462,7 +462,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         if (hasDefaultWebAddress()) {
             getDefaultWebAddress().edit(url);
         } else {
-            WebAddress.createWebAddress(this, url, PartyContactType.PERSONAL, true);
+            WebAddress.create(this, url, PartyContactType.PERSONAL, true);
         }
     }
 
@@ -716,7 +716,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
             defaultPhysicalAddress = getDefaultPhysicalAddress();
             defaultPhysicalAddress.edit(data);
         } else {
-            defaultPhysicalAddress = PhysicalAddress.createPhysicalAddress(this, data, PartyContactType.PERSONAL, true);
+            defaultPhysicalAddress = PhysicalAddress.create(this, data, PartyContactType.PERSONAL, true, true);
         }
         if (valid) {
             defaultPhysicalAddress.setValid();
@@ -725,8 +725,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     private PhysicalAddress getOrCreateDefaultPhysicalAddress() {
         final PhysicalAddress physicalAdress = getDefaultPhysicalAddress();
-        return physicalAdress != null ? physicalAdress : PhysicalAddress.createPhysicalAddress(this, null,
-                PartyContactType.PERSONAL, true);
+        return physicalAdress != null ? physicalAdress : PhysicalAddress.create(this, null, PartyContactType.PERSONAL, true,
+                true);
     }
 
     public String getAddress() {

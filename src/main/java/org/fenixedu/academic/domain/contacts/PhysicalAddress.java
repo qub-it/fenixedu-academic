@@ -35,6 +35,22 @@ public class PhysicalAddress extends PhysicalAddress_Base {
             Comparator.comparing(PhysicalAddress::getAddress, Comparator.nullsFirst(Comparator.naturalOrder()))
                     .thenComparing(COMPARATOR_BY_TYPE);
 
+    public static PhysicalAddress create(Party party, PhysicalAddressData data, PartyContactType type, boolean isDefault,
+            boolean hasCheckRules) {
+        PhysicalAddress address = new PhysicalAddress();
+        address.init(party, type, isDefault);
+        address.setVisibleToPublic(Boolean.FALSE);
+        address.setVisibleToStudents(Boolean.FALSE);
+        address.setVisibleToStaff(Boolean.FALSE);
+        address.edit(data, hasCheckRules);
+
+        if (hasCheckRules) {
+            address.checkRules();
+        }
+        return address;
+    }
+
+    @Deprecated(forRemoval = true)
     static public PhysicalAddress createPhysicalAddress(final Party party, final PhysicalAddressData data,
             final PartyContactType type, final Boolean isDefault) {
         return new PhysicalAddress(party, type, isDefault, data);
@@ -45,11 +61,13 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         new PhysicalAddressValidation(this);
     }
 
+    @Deprecated(forRemoval = true)
     protected PhysicalAddress(final Party party, final PartyContactType type, final boolean defaultContact,
             final PhysicalAddressData data) {
         this(party, type, defaultContact, data, true);
     }
 
+    @Deprecated(forRemoval = true)
     protected PhysicalAddress(final Party party, final PartyContactType type, final boolean defaultContact,
             final PhysicalAddressData data, final boolean hasCheckRules) {
         this();
@@ -65,6 +83,7 @@ public class PhysicalAddress extends PhysicalAddress_Base {
     }
 
     // Called from renders with constructor clause.
+    @Deprecated(forRemoval = true)
     public PhysicalAddress(final Party party, final PartyContactType type, final Boolean defaultContact, final String address,
             final String areaCode, final String areaOfAreaCode, final String area, final String parishOfResidence,
             final String districtSubdivisionOfResidence, final String districtOfResidence, final Country countryOfResidence) {

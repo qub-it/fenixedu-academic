@@ -44,8 +44,11 @@ public class WebAddressBean extends PartyContactBean {
 
     @Override
     public PartyContact createNewContact() {
-        return WebAddress.createWebAddress(getParty(), getValue(), getType(), getDefaultContact(), getVisibleToPublic(),
-                getVisibleToStudents(), getVisibleToStaff());
+        WebAddress webAddress = WebAddress.create(getParty(), getValue(), getType(), getDefaultContact());
+        if (webAddress != null) {
+            webAddress.setVisibleToPublic(getVisibleToPublic());
+        }
+        return webAddress;
     }
 
     @Override

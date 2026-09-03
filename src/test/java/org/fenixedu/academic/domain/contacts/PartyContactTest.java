@@ -116,14 +116,14 @@ public class PartyContactTest {
         MobilePhone mobile = MobilePhone.create(person, "922222222", PartyContactType.PERSONAL, true);
         assertEquals("922222222", mobile.getPresentationValue());
 
-        WebAddress web = WebAddress.createWebAddress(person, "http://example.com", PartyContactType.PERSONAL, true);
+        WebAddress web = WebAddress.create(person, "http://example.com", PartyContactType.PERSONAL, true);
         assertEquals("http://example.com", web.getPresentationValue());
 
         Country portugal =
                 new Country(new LocalizedString(Locale.ENGLISH, "Portugal"), new LocalizedString(Locale.ENGLISH, "Portuguese"),
                         "PT", "PRT");
         PhysicalAddressData data = new PhysicalAddressData("Rua X", "1000", "Lisboa", null, null, "Lisboa", null, portugal);
-        PhysicalAddress physical = PhysicalAddress.createPhysicalAddress(person, data, PartyContactType.PERSONAL, true);
+        PhysicalAddress physical = PhysicalAddress.create(person, data, PartyContactType.PERSONAL, true, true);
         assertEquals("Rua X, 1000 Lisboa, Lisboa, Portugal", physical.getPresentationValue());
     }
 

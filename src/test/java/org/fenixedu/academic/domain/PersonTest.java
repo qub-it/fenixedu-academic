@@ -287,7 +287,7 @@ public class PersonTest {
         assertFalse(personB.isDefaultWebAddressVisible());
 
         // personal web address is not visible to public
-        WebAddress personalWeb = WebAddress.createWebAddress(personB, "http://personal.test", PartyContactType.PERSONAL, true);
+        WebAddress personalWeb = WebAddress.create(personB, "http://personal.test", PartyContactType.PERSONAL, true);
         assertTrue(personB.getDefaultWebAddress().isDefault());
         assertFalse(personB.getDefaultWebAddress().getVisibleToPublic());
         assertFalse(personB.isDefaultWebAddressVisible());
