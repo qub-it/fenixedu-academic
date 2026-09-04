@@ -19,10 +19,10 @@
 package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -117,13 +117,11 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
         }
     }
 
-    private void createCycle(final RootCourseGroup rootCourseGroup, final ExecutionInterval executionInterval, CycleType cycle) {
-        if (cycle == null) {
-            cycle = rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType();
-        }
-        if (cycle != null) {
-            CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(cycle), executionInterval);
-        }
+    private void createCycle(final RootCourseGroup rootCourseGroup, final ExecutionInterval executionInterval,
+            final CycleType cycle) {
+        Optional.ofNullable(cycle)
+                .or(() -> Optional.ofNullable(rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType())).ifPresent(
+                        c -> CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(c), executionInterval));
     }
 
     private void checkInitConstraints(final StudentCurricularPlan studentCurricularPlan, final RootCourseGroup rootCourseGroup) {
@@ -262,13 +260,9 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
     }
 
     public CycleCurriculumGroup getCycleCurriculumGroupFor(final CurriculumModule curriculumModule) {
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getCycleCurriculumGroups()) {
-            if (cycleCurriculumGroup.hasCurriculumModule(curriculumModule)) {
-                return cycleCurriculumGroup;
-            }
-        }
-
-        return null;
+        return getCycleCurriculumGroups().stream()
+                .filter(cycleCurriculumGroup -> cycleCurriculumGroup.hasCurriculumModule(curriculumModule)).findFirst()
+                .orElse(null);
     }
 
     public CycleCourseGroup getCycleCourseGroup(final CurriculumModule curriculumModule) {
@@ -290,34 +284,17 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
                 .map(ExternalCurriculumGroup.class::cast).collect(Collectors.toList());
     }
 
-    public double getDefaultEcts(final ExecutionYear executionYear) {
-        double result = 0d;
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getInternalCycleCurriculumGroups()) {
-            result += cycleCurriculumGroup.getDefaultEcts(executionYear);
-        }
-
-        return result;
-    }
-
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroups());
-        }
-        return result;
+        return getCurriculumModulesSet().stream().flatMap(curriculumModule -> curriculumModule.getAllCurriculumGroups().stream())
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
-        Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
-
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result.addAll(curriculumModule.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups());
-        }
-        return result;
+        return getCurriculumModulesSet().stream().flatMap(
+                        curriculumModule -> curriculumModule.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups().stream())
+                .collect(Collectors.toSet());
     }
 
 }
