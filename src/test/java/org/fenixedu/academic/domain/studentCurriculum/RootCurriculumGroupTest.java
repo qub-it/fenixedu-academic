@@ -2,7 +2,6 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -17,10 +16,12 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DegreeTest;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentTest;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -60,6 +61,20 @@ public class RootCurriculumGroupTest {
             root = createRoot(StudentTest.createStudent("Student", "student.test.two.cycle"), twoCycleBachelorDcp);
             CurriculumGroupFactory.createGroup(root, twoCycleBachelorDcp.getRoot().getCycleCourseGroup(CycleType.SECOND_CYCLE),
                     executionYear.getFirstExecutionPeriod());
+
+            // Configuring conclusion rules on both cycles (isSkipValidation + credits limit) so isConcluded returns true
+            final ProgramConclusion skipFirst =
+                    new ProgramConclusion("SKIP1", new LocalizedString(), new LocalizedString(), new LocalizedString(),
+                            new LocalizedString(), true, false, true, null);
+            final ProgramConclusion skipSecond =
+                    new ProgramConclusion("SKIP2", new LocalizedString(), new LocalizedString(), new LocalizedString(),
+                            new LocalizedString(), true, false, true, null);
+            twoCycleBachelorDcp.getRoot().getCycleCourseGroup(CycleType.FIRST_CYCLE).setProgramConclusion(skipFirst);
+            twoCycleBachelorDcp.getRoot().getCycleCourseGroup(CycleType.SECOND_CYCLE).setProgramConclusion(skipSecond);
+            new CreditsLimit(twoCycleBachelorDcp.getRoot().getCycleCourseGroup(CycleType.FIRST_CYCLE), null, executionYear, null,
+                    0d, 0d);
+            new CreditsLimit(twoCycleBachelorDcp.getRoot().getCycleCourseGroup(CycleType.SECOND_CYCLE), null, executionYear, null,
+                    0d, 0d);
 
             // A single-cycle bachelor whose root holds an external second cycle from a master
             final DegreeType bachelorType =
@@ -137,6 +152,58 @@ public class RootCurriculumGroupTest {
 
         // single-cycle bachelor with a master's second cycle as external has external cycles
         assertTrue(externalRoot.hasExternalCycles());
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetFirstOrderedCycleCurriculumGroup() {
+        // two-cycle root: first ordered cycle is FIRST_CYCLE (lower weight)
+        assertSame(root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE), root.getFirstOrderedCycleCurriculumGroup());
+
+        // external root with one internal cycle: returns that cycle
+        assertSame(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE),
+                externalRoot.getFirstOrderedCycleCurriculumGroup());
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetLastOrderedCycleCurriculumGroup() {
+        // two-cycle root: last ordered cycle is SECOND_CYCLE (higher weight)
+        assertSame(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE), root.getLastOrderedCycleCurriculumGroup());
+
+        // external root with one internal cycle: returns that cycle
+        assertSame(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE),
+                externalRoot.getLastOrderedCycleCurriculumGroup());
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetLastConcludedCycleCurriculumGroup() {
+        // root has both cycles concluded, last ordered cycle is SECOND_CYCLE
+        assertSame(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE), root.getLastConcludedCycleCurriculumGroup());
+
+        // externalRoot cycles have no conclusion rules, so nothing is concluded
+        assertNull(externalRoot.getLastConcludedCycleCurriculumGroup());
+    }
+
+    @Test
+    public void testRootCurriculumGroup_HasConcludedCycle() {
+        // with isSkipValidation + credits limit on CycleCourseGroup: concluded
+        assertTrue(root.hasConcludedCycle(CycleType.FIRST_CYCLE));
+        assertTrue(root.hasConcludedCycle(CycleType.FIRST_CYCLE, executionYear));
+        assertTrue(root.hasConcludedCycle(CycleType.SECOND_CYCLE));
+        assertTrue(root.hasConcludedCycle(CycleType.SECOND_CYCLE, executionYear));
+        assertTrue(root.hasConcludedCycle(null));
+        assertTrue(root.hasConcludedCycle(null, executionYear));
+
+        // externalRoot cycles have no conclusion rules: not concluded
+        assertFalse(externalRoot.hasConcludedCycle(CycleType.FIRST_CYCLE));
+        assertFalse(externalRoot.hasConcludedCycle(CycleType.FIRST_CYCLE, executionYear));
+
+        // with null cycle type: not concluded as well
+        assertFalse(externalRoot.hasConcludedCycle(null));
+        assertFalse(externalRoot.hasConcludedCycle(null, executionYear));
+
+        // with cycle type not present in degree type: returns false
+        assertFalse(root.hasConcludedCycle(CycleType.THIRD_CYCLE));
+        assertFalse(root.hasConcludedCycle(CycleType.THIRD_CYCLE, executionYear));
     }
 
     private static RootCurriculumGroup createRoot(final Student student, final DegreeCurricularPlan dcp) {
