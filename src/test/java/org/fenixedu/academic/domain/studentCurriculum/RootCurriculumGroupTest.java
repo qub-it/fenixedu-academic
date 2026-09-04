@@ -2,6 +2,7 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +10,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import org.fenixedu.academic.domain.Degree;
@@ -204,6 +206,72 @@ public class RootCurriculumGroupTest {
         // with cycle type not present in degree type: returns false
         assertFalse(root.hasConcludedCycle(CycleType.THIRD_CYCLE));
         assertFalse(root.hasConcludedCycle(CycleType.THIRD_CYCLE, executionYear));
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetAllCurriculumGroups() {
+        final Set<CurriculumGroup> allGroups = root.getAllCurriculumGroups();
+        assertFalse(allGroups.isEmpty());
+        assertTrue(allGroups.contains(root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
+        assertTrue(allGroups.contains(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE)));
+        assertFalse(allGroups.contains(root));
+
+        final Set<CurriculumGroup> externalAllGroups = externalRoot.getAllCurriculumGroups();
+        assertFalse(externalAllGroups.isEmpty());
+        assertTrue(externalAllGroups.contains(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
+        assertTrue(externalAllGroups.contains(externalCycle));
+        assertFalse(externalAllGroups.contains(externalRoot));
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
+        final Set<CurriculumGroup> groups = root.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
+        assertNotNull(groups);
+        assertTrue(groups.contains(root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
+        assertTrue(groups.contains(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE)));
+        assertTrue(groups.stream().noneMatch(NoCourseGroupCurriculumGroup.class::isInstance));
+        assertFalse(groups.contains(root));
+
+        final Set<CurriculumGroup> externalGroups = externalRoot.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
+        assertNotNull(externalGroups);
+        assertTrue(externalGroups.contains(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
+        assertTrue(externalGroups.contains(externalCycle));
+        assertTrue(externalGroups.stream().noneMatch(NoCourseGroupCurriculumGroup.class::isInstance));
+    }
+
+    @Test
+    public void testRootCurriculumGroup_GetCycleCurriculumGroupFor() {
+        final CycleCurriculumGroup firstCycle = root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE);
+        final CycleCurriculumGroup secondCycle = root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE);
+        assertNotNull(firstCycle);
+        assertNotNull(secondCycle);
+
+        assertSame(firstCycle, root.getCycleCurriculumGroupFor(firstCycle));
+        assertSame(secondCycle, root.getCycleCurriculumGroupFor(secondCycle));
+
+        firstCycle.getCurriculumModulesSet().stream().findFirst()
+                .ifPresent(firstCycleModule -> assertSame(firstCycle, root.getCycleCurriculumGroupFor(firstCycleModule)));
+
+        secondCycle.getCurriculumModulesSet().stream().findFirst()
+                .ifPresent(secondCycleModule -> assertSame(secondCycle, root.getCycleCurriculumGroupFor(secondCycleModule)));
+
+        assertNull(root.getCycleCurriculumGroupFor(null));
+    }
+
+    @Test
+    public void testRootCurriculumGroup_CreateCycle() {
+        assertNotNull(root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE));
+        assertNotNull(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE));
+        assertEquals(2, root.getCycleCurriculumGroups().size());
+
+        assertNotNull(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE));
+        assertNotNull(externalCycle);
+        assertSame(externalCycle, externalRoot.getCycleCurriculumGroup(externalCycle.getCycleType()));
+
+        final List<CycleCurriculumGroup> internalCycles = root.getInternalCycleCurriculumGroups();
+        assertEquals(2, internalCycles.size());
+        assertTrue(internalCycles.stream().anyMatch(c -> c.isCycle(CycleType.FIRST_CYCLE)));
+        assertTrue(internalCycles.stream().anyMatch(c -> c.isCycle(CycleType.SECOND_CYCLE)));
     }
 
     private static RootCurriculumGroup createRoot(final Student student, final DegreeCurricularPlan dcp) {
