@@ -1,3 +1,4 @@
+- Refactor: Delete deprecated Pair class [#qubIT-Fenix-9310]
 - Refactor: Job and BusinessArea classes and SalaryType deletion [#qubIT-Fenix-9224]
 - Refactor: Add create methods to MobilePhone, Phone, PhysicalAddress, WebAddress and EmailAddress [#qubIT-Fenix-9195]
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]
