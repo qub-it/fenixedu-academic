@@ -1,3 +1,4 @@
+- Refactor: Deletes EnrolmentEvaluation deprecated methods [#qubIT-Fenix-9300]
 - Refactor: Improves EnrolmentEvaluation domain methods [#qubIT-Fenix-9300]
 - Refactor: Add create methods to MobilePhone and Phone [#qubIT-Fenix-9195]
 - Refactor: Delete DateFormatUtil [#qubIT-Fenix-8839]

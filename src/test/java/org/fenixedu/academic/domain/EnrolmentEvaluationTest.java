@@ -1,15 +1,11 @@
 package org.fenixedu.academic.domain;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
-import java.util.Date;
 
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.junit.After;
 import org.junit.Before;
@@ -106,53 +102,5 @@ public class EnrolmentEvaluationTest {
         EnrolmentEvaluation anotherWithoutExamDate = createEvaluation();
         anotherWithoutExamDate.setExamDateYearMonthDay(null);
         assertEquals(0, EnrolmentEvaluation.COMPARATOR_BY_EXAM_DATE.compare(withoutExamDate, anotherWithoutExamDate));
-    }
-
-    @Test
-    public void testEnrolmentEvaluation_getExamLocalDate_matchesGetExamDate() {
-        // new and deprecated getters return the same date for the stored field
-        EnrolmentEvaluation evaluation = createEvaluation();
-        evaluation.setExamDateYearMonthDay(new YearMonthDay(2025, 7, 15));
-
-        // both getters reflect the same stored date
-        assertEquals(evaluation.getExamLocalDate().toDate(), evaluation.getExamDate());
-        assertEquals(new LocalDate(2025, 7, 15), evaluation.getExamLocalDate());
-
-
-        // null stored field -> both getters return null
-        evaluation.setExamDateYearMonthDay(null);
-        assertNull(evaluation.getExamLocalDate());
-        assertNull(evaluation.getExamDate());
-    }
-
-    @Test
-    public void testEnrolmentEvaluation_getGradeAvailableLocalDate_matchesGetGradeAvailableDate() {
-        // new and deprecated getters return the same date for the stored field
-        EnrolmentEvaluation evaluation = createEvaluation();
-        evaluation.setGradeAvailableDateYearMonthDay(new YearMonthDay(2025, 8, 25));
-
-        // both getters reflect the same stored date
-        assertEquals(evaluation.getGradeAvailableLocalDate().toDate(), evaluation.getGradeAvailableDate());
-        assertEquals(new LocalDate(2025, 8, 25), evaluation.getGradeAvailableLocalDate());
-
-
-        // null stored field -> both getters return null
-        evaluation.setGradeAvailableDateYearMonthDay(null);
-        assertNull(evaluation.getGradeAvailableLocalDate());
-        assertNull(evaluation.getGradeAvailableDate());
-    }
-
-    @Test
-    public void testEnrolmentEvaluation_getWhen_matchesGetWhenDateTime() {
-        // new and deprecated getters return the same value for the stored field
-        EnrolmentEvaluation evaluation = createEvaluation();
-        evaluation.setWhenDateTime(new DateTime(2025, 9, 1, 14, 45, 30));
-
-        // both getters reflect the same stored instant
-        assertEquals(new Date(evaluation.getWhenDateTime().getMillis()), evaluation.getWhen());
-
-        // null stored field -> deprecated getter returns null
-        evaluation.setWhenDateTime(null);
-        assertNull(evaluation.getWhen());
     }
 }
