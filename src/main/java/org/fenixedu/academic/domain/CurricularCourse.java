@@ -30,7 +30,6 @@ import java.util.stream.Stream;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
-import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
@@ -111,31 +110,6 @@ public class CurricularCourse extends CurricularCourse_Base {
         return getParentContextsSet().stream().anyMatch(ctx -> ctx.isValid(executionInterval));
     }
 
-    // -------------------------------------------------------------
-    // BEGIN: Only for enrollment purposes
-    // -------------------------------------------------------------
-
-    public String getCurricularCourseUniqueKeyForEnrollment() {
-        final DegreeType degreeType =
-                (getDegreeCurricularPlan() != null && getDegreeCurricularPlan().getDegree() != null) ? getDegreeCurricularPlan()
-                        .getDegree().getDegreeType() : null;
-        return constructUniqueEnrollmentKey(getCode(), getName(), degreeType);
-    }
-
-    // -------------------------------------------------------------
-    // END: Only for enrollment purposes
-    // -------------------------------------------------------------
-
-    private String constructUniqueEnrollmentKey(String code, String name, DegreeType degreeType) {
-        StringBuilder stringBuffer = new StringBuilder(50);
-        stringBuffer.append(code);
-        stringBuffer.append(name);
-        if (degreeType != null) {
-            stringBuffer.append(degreeType.toString());
-        }
-        return StringUtils.lowerCase(stringBuffer.toString());
-    }
-
     public Stream<ExecutionCourse> findExecutionCourses(final ExecutionInterval executionInterval) {
         return getAssociatedExecutionCoursesSet().stream()
                 .filter(ec -> ec.getExecutionInterval() == executionInterval || ec.getExecutionInterval()
@@ -160,11 +134,11 @@ public class CurricularCourse extends CurricularCourse_Base {
                 .collect(Collectors.toList());
     }
 
-    @Deprecated
     final public Double getCredits() {
         return getEctsCredits();
     }
 
+    @Deprecated
     public Double getEctsCredits() {
         return getEctsCredits(null);
     }
