@@ -66,82 +66,73 @@ public class AttendsTest {
     }
 
     @Test
-    public void comparatorByStudentNumber() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            final Attends attendsA = registration.getAssociatedAttendsSet().iterator().next();
+    public void testAttends_ComparatorByStudentNumber() {
+        final Attends attendsA = registration.getAssociatedAttendsSet().iterator().next();
 
-            final Student studentB = StudentTest.createStudent("Student B", "student.b.comparator");
-            final Registration registrationB = StudentTest.createRegistration(studentB,
-                    registration.getLastStudentCurricularPlan().getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
+        final Student studentB = StudentTest.createStudent("Student B", "student.b.comparator");
+        final Registration registrationB = StudentTest.createRegistration(studentB,
+                registration.getLastStudentCurricularPlan().getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
 
-            final CurricularCourse cc = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan()
-                    .getCurricularCourseByCode(COURSE_A_CODE);
-            final Context context =
-                    cc.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny().orElseThrow();
-            EnrolmentTest.createEnrolment(registrationB.getLastStudentCurricularPlan(), executionInterval, context,
-                    ADMIN_USERNAME);
+        final CurricularCourse cc = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan()
+                .getCurricularCourseByCode(COURSE_A_CODE);
+        final Context context =
+                cc.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny().orElseThrow();
+        EnrolmentTest.createEnrolment(registrationB.getLastStudentCurricularPlan(), executionInterval, context,
+                ADMIN_USERNAME);
 
-            final Attends attendsB = registrationB.getEnrolments(executionInterval).iterator().next()
-                    .findOrCreateAttends(attendsA.getExecutionCourse());
+        final Attends attendsB = registrationB.getEnrolments(executionInterval).iterator().next()
+                .findOrCreateAttends(attendsA.getExecutionCourse());
 
-            final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
-            sorted.sort(Attends.COMPARATOR_BY_STUDENT_NUMBER);
+        final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
+        sorted.sort(Attends.COMPARATOR_BY_STUDENT_NUMBER);
 
-            assertTrue(sorted.get(0).getRegistration().getStudent().getNumber() <= sorted.get(1).getRegistration().getStudent()
-                    .getNumber());
-            return null;
-        });
+        assertTrue(sorted.get(0).getRegistration().getStudent().getNumber() <= sorted.get(1).getRegistration().getStudent()
+                .getNumber());
     }
 
     @Test
-    public void comparatorByExecutionCourseName() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
-            final ExecutionCourse ecA = new ExecutionCourse("irrelevant", "COMP_A", executionInterval);
-            ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
-            final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
+    public void testAttends_ComparatorByExecutionCourseName() {
+        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
+        final ExecutionCourse ecA = new ExecutionCourse("irrelevant", "COMP_A", executionInterval);
+        ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
+        final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
 
-            final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
-            final ExecutionCourse ecB = new ExecutionCourse("irrelevant", "COMP_Z", executionInterval);
-            ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
-            final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
+        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
+        final ExecutionCourse ecB = new ExecutionCourse("irrelevant", "COMP_Z", executionInterval);
+        ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
+        final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
 
-            final String nameA = attendsA.getExecutionCourse().getName();
-            final String nameB = attendsB.getExecutionCourse().getName();
-            assertNotEquals(nameA, nameB);
+        final String nameA = attendsA.getExecutionCourse().getName();
+        final String nameB = attendsB.getExecutionCourse().getName();
+        assertNotEquals(nameA, nameB);
 
-            final List<Attends> sorted = new ArrayList<>(
-                    List.of(nameA.compareTo(nameB) > 0 ? attendsB : attendsA, nameA.compareTo(nameB) > 0 ? attendsA : attendsB));
-            sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
+        final List<Attends> sorted = new ArrayList<>(
+                List.of(nameA.compareTo(nameB) > 0 ? attendsB : attendsA, nameA.compareTo(nameB) > 0 ? attendsA : attendsB));
+        sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
 
-            assertTrue(sorted.get(0).getExecutionCourse().getName().compareTo(sorted.get(1).getExecutionCourse().getName()) <= 0);
-            return null;
-        });
+        assertTrue(sorted.get(0).getExecutionCourse().getName().compareTo(sorted.get(1).getExecutionCourse().getName()) <= 0);
     }
 
     @Test
-    public void comparatorByExecutionCourseNameTieBreaker() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
-            final ExecutionCourse ecA = new ExecutionCourse("A", "COMP_1", executionInterval);
-            ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
-            final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
+    public void testAttends_ComparatorByExecutionCourseNameTieBreaker() {
+        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
+        final ExecutionCourse ecA = new ExecutionCourse("A", "COMP_1", executionInterval);
+        ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
+        final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
 
-            final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
-            final ExecutionCourse ecB = new ExecutionCourse("A", "COMP_2", executionInterval);
-            ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
-            final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
+        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
+        final ExecutionCourse ecB = new ExecutionCourse("A", "COMP_2", executionInterval);
+        ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
+        final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
 
-            final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
-            sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
+        final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
+        sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
 
-            assertTrue(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME.compare(sorted.get(0), sorted.get(1)) <= 0);
+        assertTrue(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME.compare(sorted.get(0), sorted.get(1)) <= 0);
 
-            final List<Attends> reversed = new ArrayList<>(List.of(sorted.get(1), sorted.get(0)));
-            reversed.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
-            assertEquals(sorted, reversed);
-            return null;
-        });
+        final List<Attends> reversed = new ArrayList<>(List.of(sorted.get(1), sorted.get(0)));
+        reversed.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
+        assertEquals(sorted, reversed);
     }
 
     @Test
@@ -229,7 +220,7 @@ public class AttendsTest {
     }
 
     @Test
-    public void hasAnyShiftEnrolments() {
+    public void testAttends_HasAnyShiftEnrolments() {
         final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
         final ExecutionCourse executionCourse = attends.getExecutionCourse();
         final Shift shift = executionCourse.getShiftsSet().iterator().next();
@@ -251,7 +242,7 @@ public class AttendsTest {
     }
 
     @Test
-    public void hasExecutionCourseTo() {
+    public void testAttends_HasExecutionCourseTo() {
         final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
         final DegreeCurricularPlan dcp = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan();
         assertTrue(attends.hasExecutionCourseTo(dcp));
@@ -374,51 +365,47 @@ public class AttendsTest {
     }
 
     @Test
-    public void getAttendsStateType() {
-        FenixFramework.getTransactionManager().withTransaction(() -> {
-            final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
-            final Enrolment enrolment = attends.getEnrolment();
+    public void testAttends_GetAttendsStateType() {
+        final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
+        final Enrolment enrolment = attends.getEnrolment();
 
-            // 1. NOT_ENROLED: no associated enrolment
-            attends.setEnrolment(null);
-            assertEquals(Attends.StudentAttendsStateType.NOT_ENROLED, attends.getAttendsStateType());
+        // 1. NOT_ENROLED: no associated enrolment
+        attends.setEnrolment(null);
+        assertEquals(Attends.StudentAttendsStateType.NOT_ENROLED, attends.getAttendsStateType());
 
-            // 2. ENROLED: valid enrolment for the attends execution interval
-            attends.setEnrolment(enrolment);
-            assertEquals(Attends.StudentAttendsStateType.ENROLED, attends.getAttendsStateType());
+        // 2. ENROLED: valid enrolment for the attends execution interval
+        attends.setEnrolment(enrolment);
+        assertEquals(Attends.StudentAttendsStateType.ENROLED, attends.getAttendsStateType());
 
-            // 3. IMPROVEMENT: attends in a different execution interval with an improvement evaluation
-            final ExecutionInterval nextInterval = executionInterval.getNext();
-            final ExecutionCourse ecNext = new ExecutionCourse("Test", "TEST_IMP", nextInterval);
-            ecNext.addAssociatedCurricularCourses(curricularCourse);
-            final Attends attendsNext = enrolment.findOrCreateAttends(ecNext);
-            final EvaluationSeason improvementSeason = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
-            new EnrolmentEvaluation(enrolment, improvementSeason).editImprovementExecutionInterval(nextInterval);
-            assertEquals(Attends.StudentAttendsStateType.IMPROVEMENT, attendsNext.getAttendsStateType());
+        // 3. IMPROVEMENT: attends in a different execution interval with an improvement evaluation
+        final ExecutionInterval nextInterval = executionInterval.getNext();
+        final ExecutionCourse ecNext = new ExecutionCourse("Test", "TEST_IMP", nextInterval);
+        ecNext.addAssociatedCurricularCourses(curricularCourse);
+        final Attends attendsNext = enrolment.findOrCreateAttends(ecNext);
+        final EvaluationSeason improvementSeason = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
+        new EnrolmentEvaluation(enrolment, improvementSeason).editImprovementExecutionInterval(nextInterval);
+        assertEquals(Attends.StudentAttendsStateType.IMPROVEMENT, attendsNext.getAttendsStateType());
 
-            // 4. SPECIAL_SEASON: valid enrolment with a special season evaluation
-            final EvaluationSeason specialSeason = EvaluationSeason.findByCode(SPECIAL_SEASON_CODE).orElseThrow();
-            new EnrolmentEvaluation(enrolment, specialSeason);
-            assertEquals(Attends.StudentAttendsStateType.SPECIAL_SEASON, attends.getAttendsStateType());
+        // 4. SPECIAL_SEASON: valid enrolment with a special season evaluation
+        final EvaluationSeason specialSeason = EvaluationSeason.findByCode(SPECIAL_SEASON_CODE).orElseThrow();
+        new EnrolmentEvaluation(enrolment, specialSeason);
+        assertEquals(Attends.StudentAttendsStateType.SPECIAL_SEASON, attends.getAttendsStateType());
 
-            // 5. null: enrolment exists but is not valid for the attends execution interval
-            final Enrolment adhocEnrolment = createAdhocEnrolmentWithoutAttends();
-            final ExecutionCourse ecOther = new ExecutionCourse("Test", "TEST_NULL", nextInterval);
-            ecOther.addAssociatedCurricularCourses(adhocEnrolment.getCurricularCourse());
-            final Attends attendsOther = adhocEnrolment.findOrCreateAttends(ecOther);
-            assertNull(attendsOther.getAttendsStateType());
+        // 5. null: enrolment exists but is not valid for the attends execution interval
+        final Enrolment adhocEnrolment = createAdhocEnrolmentWithoutAttends();
+        final ExecutionCourse ecOther = new ExecutionCourse("Test", "TEST_NULL", nextInterval);
+        ecOther.addAssociatedCurricularCourses(adhocEnrolment.getCurricularCourse());
+        final Attends attendsOther = adhocEnrolment.findOrCreateAttends(ecOther);
+        assertNull(attendsOther.getAttendsStateType());
 
-            attendsNext.delete();
-            attendsOther.delete();
-            enrolment.getEvaluationsSet().stream()
-                    .filter(e -> e.getEvaluationSeason() == improvementSeason || e.getEvaluationSeason() == specialSeason)
-                    .toList().forEach(e -> {
-                        e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
-                        e.delete();
-                    });
-
-            return null;
-        });
+        attendsNext.delete();
+        attendsOther.delete();
+        enrolment.getEvaluationsSet().stream()
+                .filter(e -> e.getEvaluationSeason() == improvementSeason || e.getEvaluationSeason() == specialSeason)
+                .toList().forEach(e -> {
+                    e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+                    e.delete();
+                });
     }
 
     private static Enrolment createAdhocEnrolmentWithoutAttends() {

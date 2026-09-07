@@ -205,7 +205,7 @@ public class Attends extends Attends_Base {
         }
 
         if (getEnrolment().isValid(getExecutionInterval())) {
-            if (getEnrolment().hasSpecialSeasonFor(getExecutionInterval())) {
+            if (getEnrolment().hasSpecialSeason()) {
                 return StudentAttendsStateType.SPECIAL_SEASON;
             }
             return StudentAttendsStateType.ENROLED;
