@@ -81,8 +81,16 @@ public class LessonTest {
 
         assertNotNull(lesson);
         assertNotNull(lesson.getPeriod());
+        assertNotNull(lesson.getInitialFullPeriod());
+        assertTrue(shift.getAssociatedLessonsSet().contains(lesson));
 
         lesson.delete();
+
+        assertNull(lesson.getPeriod());
+        assertNull(lesson.getInitialFullPeriod());
+        assertTrue(lesson.getLessonInstancesSet().isEmpty());
+        assertNull(lesson.getLessonSpaceOccupation());
+        assertFalse(shift.getAssociatedLessonsSet().contains(lesson));
 
         assertNull(lesson.getPeriod());
     }
