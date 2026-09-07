@@ -134,11 +134,11 @@ public class CurricularCourse extends CurricularCourse_Base {
                 .collect(Collectors.toList());
     }
 
-    @Deprecated(forRemoval = true)
     final public Double getCredits() {
         return getEctsCredits();
     }
 
+    @Deprecated
     public Double getEctsCredits() {
         return getEctsCredits(null);
     }
