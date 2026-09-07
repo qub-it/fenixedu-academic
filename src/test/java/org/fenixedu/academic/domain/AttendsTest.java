@@ -5,17 +5,17 @@ import static org.fenixedu.academic.domain.EvaluationSeasonTest.IMPROVEMENT_SEAS
 import static org.fenixedu.academic.domain.EvaluationSeasonTest.SPECIAL_SEASON_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -67,72 +67,63 @@ public class AttendsTest {
 
     @Test
     public void testAttends_ComparatorByStudentNumber() {
-        final Attends attendsA = registration.getAssociatedAttendsSet().iterator().next();
+        final StudentCurricularPlan studentCurricularPlan = registration.getLastStudentCurricularPlan();
+        final DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
 
+        final Attends attendsStudentA = registration.getAssociatedAttendsSet().iterator().next();
         final Student studentB = StudentTest.createStudent("Student B", "student.b.comparator");
-        final Registration registrationB = StudentTest.createRegistration(studentB,
-                registration.getLastStudentCurricularPlan().getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
+        final Registration registrationB =
+                StudentTest.createRegistration(studentB, degreeCurricularPlan, ExecutionYear.findCurrent(null));
 
-        final CurricularCourse cc = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan()
-                .getCurricularCourseByCode(COURSE_A_CODE);
-        final Context context =
-                cc.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny().orElseThrow();
-        EnrolmentTest.createEnrolment(registrationB.getLastStudentCurricularPlan(), executionInterval, context,
-                ADMIN_USERNAME);
+        final Context context = degreeCurricularPlan.getCurricularCourseByCode(COURSE_A_CODE).getParentContextsSet().stream()
+                .filter(ctx -> ctx.isValid(executionInterval)).findAny().orElseThrow();
+        EnrolmentTest.createEnrolment(registrationB.getLastStudentCurricularPlan(), executionInterval, context, ADMIN_USERNAME);
 
-        final Attends attendsB = registrationB.getEnrolments(executionInterval).iterator().next()
-                .findOrCreateAttends(attendsA.getExecutionCourse());
+        final Attends attendsStudentB = registrationB.getEnrolments(executionInterval).iterator().next()
+                .findOrCreateAttends(attendsStudentA.getExecutionCourse());
 
-        final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
-        sorted.sort(Attends.COMPARATOR_BY_STUDENT_NUMBER);
-
-        assertTrue(sorted.get(0).getRegistration().getStudent().getNumber() <= sorted.get(1).getRegistration().getStudent()
-                .getNumber());
+        final List<Attends> sorted =
+                Stream.of(attendsStudentA, attendsStudentB).sorted(Attends.COMPARATOR_BY_STUDENT_NUMBER).toList();
+        final int firstNumber = sorted.get(0).getRegistration().getStudent().getNumber();
+        final int secondNumber = sorted.get(1).getRegistration().getStudent().getNumber();
+        assertTrue(firstNumber < secondNumber);
     }
 
     @Test
     public void testAttends_ComparatorByExecutionCourseName() {
-        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
-        final ExecutionCourse ecA = new ExecutionCourse("irrelevant", "COMP_A", executionInterval);
-        ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
+        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends("COMP_A");
+        final ExecutionCourse ecA =
+                createExecutionCourse("COMP_A", "COMP_A", executionInterval, enrolmentA.getCurricularCourse());
         final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
 
-        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
-        final ExecutionCourse ecB = new ExecutionCourse("irrelevant", "COMP_Z", executionInterval);
-        ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
+        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends("COMP_Z");
+        final ExecutionCourse ecB =
+                createExecutionCourse("COMP_Z", "COMP_Z", executionInterval, enrolmentB.getCurricularCourse());
         final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
 
-        final String nameA = attendsA.getExecutionCourse().getName();
-        final String nameB = attendsB.getExecutionCourse().getName();
-        assertNotEquals(nameA, nameB);
+        final List<Attends> sorted =
+                Stream.of(attendsB, attendsA).sorted(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME).toList();
 
-        final List<Attends> sorted = new ArrayList<>(
-                List.of(nameA.compareTo(nameB) > 0 ? attendsB : attendsA, nameA.compareTo(nameB) > 0 ? attendsA : attendsB));
-        sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
-
-        assertTrue(sorted.get(0).getExecutionCourse().getName().compareTo(sorted.get(1).getExecutionCourse().getName()) <= 0);
+        assertEquals(List.of(attendsA, attendsB), sorted); // COMP_A < COMP_Z
     }
 
     @Test
     public void testAttends_ComparatorByExecutionCourseNameTieBreaker() {
-        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends();
-        final ExecutionCourse ecA = new ExecutionCourse("A", "COMP_1", executionInterval);
-        ecA.addAssociatedCurricularCourses(enrolmentA.getCurricularCourse());
+        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends("A");
+        final ExecutionCourse ecA = createExecutionCourse("A", "COMP_1", executionInterval, enrolmentA.getCurricularCourse());
         final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
 
-        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends();
-        final ExecutionCourse ecB = new ExecutionCourse("A", "COMP_2", executionInterval);
-        ecB.addAssociatedCurricularCourses(enrolmentB.getCurricularCourse());
+        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends("A");
+        final ExecutionCourse ecB = createExecutionCourse("A", "COMP_2", executionInterval, enrolmentB.getCurricularCourse());
         final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
 
-        final List<Attends> sorted = new ArrayList<>(List.of(attendsB, attendsA));
-        sorted.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
+        final List<Attends> expected =
+                Stream.of(attendsA, attendsB).sorted(Comparator.comparing(a -> a.getExecutionCourse().getExternalId())).toList();
 
-        assertTrue(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME.compare(sorted.get(0), sorted.get(1)) <= 0);
+        final List<Attends> sorted =
+                Stream.of(attendsB, attendsA).sorted(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME).toList();
 
-        final List<Attends> reversed = new ArrayList<>(List.of(sorted.get(1), sorted.get(0)));
-        reversed.sort(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
-        assertEquals(sorted, reversed);
+        assertEquals(expected, sorted);
     }
 
     @Test
@@ -229,16 +220,15 @@ public class AttendsTest {
         shift.enrol(registration);
         assertTrue(attends.hasAnyShiftEnrolments());
 
+        // enrolment in a shift of a different execution course must not affect this attends
         final ExecutionCourse otherEc = new ExecutionCourse("Other Course", "OTHER", executionInterval);
         final Shift otherShift = new Shift(otherEc, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T_other");
         otherShift.enrol(registration);
         assertTrue(attends.hasAnyShiftEnrolments());
+        otherShift.unenrol(registration);
 
         shift.unenrol(registration);
         assertFalse(attends.hasAnyShiftEnrolments());
-        assertFalse(attends.hasAnyShiftEnrolments());
-
-        otherShift.unenrol(registration);
     }
 
     @Test
@@ -262,8 +252,8 @@ public class AttendsTest {
 
         final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
         final ExecutionCourse executionCourse =
-                new ExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval);
-        executionCourse.addAssociatedCurricularCourses(curricularCourse);
+                createExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval,
+                        curricularCourse);
         assertEquals(enrolment.getAttendsSet().size(), 1);
 
         final Attends attends = enrolment.getAttendsSet().iterator().next();
@@ -275,8 +265,8 @@ public class AttendsTest {
         final Enrolment enrolment1 = createAdhocEnrolmentWithoutAttends();
         final CurricularCourse curricularCourse1 = enrolment1.getCurricularCourse();
         final ExecutionCourse executionCourse =
-                new ExecutionCourse(curricularCourse1.getName(), curricularCourse1.getCode(), executionInterval);
-        executionCourse.addAssociatedCurricularCourses(curricularCourse1);
+                createExecutionCourse(curricularCourse1.getName(), curricularCourse1.getCode(), executionInterval,
+                        curricularCourse1);
         final Attends attends1 = enrolment1.getAttendsSet().iterator().next();
 
         final Enrolment enrolment2 = createAdhocEnrolmentWithoutAttends();
@@ -306,8 +296,8 @@ public class AttendsTest {
 
         final CurricularCourse curricularCourse1 = enrolment1.getCurricularCourse();
         final ExecutionCourse executionCourse =
-                new ExecutionCourse(curricularCourse1.getName(), curricularCourse1.getCode(), executionInterval);
-        executionCourse.addAssociatedCurricularCourses(curricularCourse1);
+                createExecutionCourse(curricularCourse1.getName(), curricularCourse1.getCode(), executionInterval,
+                        curricularCourse1);
 
         assertEquals(enrolment1.getAttendsSet().size(), 1);
 
@@ -330,14 +320,15 @@ public class AttendsTest {
 
         final CurricularCourse curricularCourse = enrolment.getCurricularCourse();
         final ExecutionCourse executionCourse =
-                new ExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval);
-        executionCourse.addAssociatedCurricularCourses(curricularCourse);
+                createExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval,
+                        curricularCourse);
 
         assertEquals(enrolment.getAttendsSet().size(), 1);
 
         final ExecutionInterval executionIntervalNext = executionInterval.getNext();
         final ExecutionCourse executionCourseNext =
-                new ExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionIntervalNext);
+                createExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionIntervalNext,
+                        curricularCourse);
         enrolment.findOrCreateAttends(executionCourseNext);
 
         assertEquals(enrolment.getAttendsSet().size(), 2);
@@ -379,8 +370,7 @@ public class AttendsTest {
 
         // 3. IMPROVEMENT: attends in a different execution interval with an improvement evaluation
         final ExecutionInterval nextInterval = executionInterval.getNext();
-        final ExecutionCourse ecNext = new ExecutionCourse("Test", "TEST_IMP", nextInterval);
-        ecNext.addAssociatedCurricularCourses(curricularCourse);
+        final ExecutionCourse ecNext = createExecutionCourse("Test", "TEST_IMP", nextInterval, curricularCourse);
         final Attends attendsNext = enrolment.findOrCreateAttends(ecNext);
         final EvaluationSeason improvementSeason = EvaluationSeason.findByCode(IMPROVEMENT_SEASON_CODE).orElseThrow();
         new EnrolmentEvaluation(enrolment, improvementSeason).editImprovementExecutionInterval(nextInterval);
@@ -393,27 +383,36 @@ public class AttendsTest {
 
         // 5. null: enrolment exists but is not valid for the attends execution interval
         final Enrolment adhocEnrolment = createAdhocEnrolmentWithoutAttends();
-        final ExecutionCourse ecOther = new ExecutionCourse("Test", "TEST_NULL", nextInterval);
-        ecOther.addAssociatedCurricularCourses(adhocEnrolment.getCurricularCourse());
+        final ExecutionCourse ecOther =
+                createExecutionCourse("Test", "TEST_NULL", nextInterval, adhocEnrolment.getCurricularCourse());
         final Attends attendsOther = adhocEnrolment.findOrCreateAttends(ecOther);
         assertNull(attendsOther.getAttendsStateType());
 
         attendsNext.delete();
         attendsOther.delete();
         enrolment.getEvaluationsSet().stream()
-                .filter(e -> e.getEvaluationSeason() == improvementSeason || e.getEvaluationSeason() == specialSeason)
-                .toList().forEach(e -> {
-                    e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
+                .filter(e -> e.getEvaluationSeason() == improvementSeason || e.getEvaluationSeason() == specialSeason).toList()
+                .forEach(e -> {
+                    e.setEnrolmentEvaluationState(
+                            EnrolmentEvaluationState.TEMPORARY_OBJ); // EnrolmentEvaluation.delete() blocks non-temporary evaluations
                     e.delete();
                 });
     }
 
     private static Enrolment createAdhocEnrolmentWithoutAttends() {
+        return createAdhocEnrolmentWithoutAttends(null);
+    }
+
+    private static Enrolment createAdhocEnrolmentWithoutAttends(final String nameEn) {
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
         final String uuid = UUID.randomUUID().toString();
         final AcademicPeriod academicPeriod = executionInterval.getAcademicPeriod();
-        final CompetenceCourse competenceCourse = CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN,
-                academicPeriod, executionInterval, coursesUnit);
+        final CompetenceCourse competenceCourse =
+                CompetenceCourseTest.createCompetenceCourse(uuid, uuid, BigDecimal.TEN, academicPeriod, executionInterval,
+                        coursesUnit);
+        if (nameEn != null) {
+            competenceCourse.findInformationMostRecentUntil(null).setNameEn(nameEn);
+        }
 
         final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
         final DegreeCurricularPlan dcp = scp.getDegreeCurricularPlan();
@@ -425,6 +424,13 @@ public class AttendsTest {
 
         EnrolmentTest.createEnrolment(scp, executionInterval, context, ADMIN_USERNAME);
         return scp.getEnrolments(curricularCourse).iterator().next();
+    }
+
+    private static ExecutionCourse createExecutionCourse(final String name, final String code, final ExecutionInterval interval,
+            final CurricularCourse curricularCourse) {
+        final ExecutionCourse executionCourse = new ExecutionCourse(name, code, interval);
+        executionCourse.addAssociatedCurricularCourses(curricularCourse);
+        return executionCourse;
     }
 
 }
