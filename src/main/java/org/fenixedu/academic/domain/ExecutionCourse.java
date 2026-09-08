@@ -17,7 +17,6 @@ package org.fenixedu.academic.domain;
 import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -228,7 +227,7 @@ public class ExecutionCourse extends ExecutionCourse_Base {
     public SortedSet<Degree> getDegreesSortedByDegreeName() {
         return getAssociatedCurricularCoursesSet().stream().map(CurricularCourse::getDegreeCurricularPlan)
                 .map(DegreeCurricularPlan::getDegree)
-                .collect(Collectors.toCollection(() -> new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID)));
+                .collect(Collectors.toCollection(() -> new TreeSet<>(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID)));
     }
 
     public Set<CompetenceCourse> getCompetenceCourses() {

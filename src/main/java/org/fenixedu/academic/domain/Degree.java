@@ -48,7 +48,6 @@ import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
-import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import com.google.common.base.Strings;
@@ -60,31 +59,13 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
     private static final Collator collator = Collator.getInstance();
 
-    static final public Comparator<Degree> COMPARATOR_BY_NAME = new Comparator<Degree>() {
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            String name1;
-            String name2;
-            name1 = o1.getNameFor((ExecutionInterval) null).getContent(I18N.getLocale());
-            name2 = o2.getNameFor((ExecutionInterval) null).getContent(I18N.getLocale());
+    static final public Comparator<Degree> COMPARATOR_BY_NAME =
+            Comparator.comparing(d -> d.getNameFor(null).getContent(), collator);
 
-            if (Strings.isNullOrEmpty(name1) || Strings.isNullOrEmpty(name2)) {
-                name1 = o1.getNameFor((ExecutionInterval) null).getContent();
-                name2 = o2.getNameFor((ExecutionInterval) null).getContent();
-            }
+    static final public Comparator<Degree> COMPARATOR_BY_NAME_AND_ID =
+            COMPARATOR_BY_NAME.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-            return collator.compare(name1, name2);
-        }
-    };
-
-    static final public Comparator<Degree> COMPARATOR_BY_NAME_AND_ID = new Comparator<Degree>() {
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            final int nameResult = COMPARATOR_BY_NAME.compare(o1, o2);
-            return nameResult == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : nameResult;
-        }
-    };
-
+    @Deprecated(forRemoval = true)
     static final private Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_NAME = new Comparator<Degree>() {
         @Override
         public int compare(final Degree o1, final Degree o2) {
@@ -92,13 +73,9 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         }
     };
 
-    static final private Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE = new Comparator<Degree>() {
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            return o1.getDegreeType().compareTo(o2.getDegreeType());
-        }
-    };
+    static final private Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE = Comparator.comparing(Degree::getDegreeType);
 
+    @Deprecated(forRemoval = true)
     private static class ComparatorByDegreeTypeAndNameAndId implements Serializable, Comparator<Degree> {
         @Override
         public int compare(final Degree o1, final Degree o2) {
@@ -107,16 +84,10 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         }
     }
 
-    static final public Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID = new Comparator<Degree>() {
+    static final public Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID =
+            COMPARATOR_BY_DEGREE_TYPE.thenComparing(COMPARATOR_BY_NAME_AND_ID);
 
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            final int typeResult = COMPARATOR_BY_DEGREE_TYPE.compare(o1, o2);
-            return typeResult == 0 ? COMPARATOR_BY_NAME_AND_ID.compare(o1, o2) : typeResult;
-        }
-
-    };
-
+    @Deprecated(forRemoval = true)
     static final public Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID = new ComparatorByDegreeTypeAndNameAndId();
 
     @Override
