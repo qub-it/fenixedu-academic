@@ -135,11 +135,9 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         if (degreeInfo == null) {
             degreeInfo = tryCreateUsingMostRecentInfo(executionYear);
         }
-        degreeInfo.setName(new LocalizedString().with(org.fenixedu.academic.util.LocaleUtils.PT, name.trim())
-                .with(org.fenixedu.academic.util.LocaleUtils.EN, nameEn.trim()));
+        degreeInfo.setName(new LocalizedString().with(LocaleUtils.PT, name.trim()).with(LocaleUtils.EN, nameEn.trim()));
 
-        this.setNome(name);
-        this.setNameEn(nameEn);
+        this.setIdCardName(name);
         this.setSigla(code.trim());
         this.setNumericGradeScale(gradeScale);
         this.setQualitativeGradeScale(qualitativeGradeScale);
@@ -303,46 +301,33 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
                 .map(ExecutionDegree::getExecutionYear).distinct().sorted().toList();
     }
 
+    /**
+     * @deprecated Use {@link #getNameI18N(ExecutionYear)}
+     */
+    @Deprecated(forRemoval = true)
     public LocalizedString getNameFor(final ExecutionInterval executionInterval) {
         DegreeInfo degreeInfo = executionInterval == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(
                 executionInterval.getExecutionYear());
-        return degreeInfo == null ? new LocalizedString().with(LocaleUtils.PT, super.getNome())
-                .with(LocaleUtils.EN, super.getNameEn()) : degreeInfo.getName();
+        return degreeInfo == null ? new LocalizedString() : degreeInfo.getName();
     }
 
-    @Override
-    @Deprecated
-    public String getNome() {
-        return getName();
-    }
-
-    /**
-     * @deprecated Use {@link #getNameFor(ExecutionInterval)}
-     */
-    @Deprecated
     public String getName() {
-        DegreeInfo degreeInfo = getMostRecentDegreeInfo();
-        return degreeInfo == null ? StringUtils.EMPTY : degreeInfo.getName()
-                .getContent(org.fenixedu.academic.util.LocaleUtils.PT);
+        LocalizedString name = getNameI18N();
+        return name.isEmpty() ? StringUtils.EMPTY : name.getContent(LocaleUtils.PT);
     }
 
-    /**
-     * @deprecated Use {@link #getNameFor(ExecutionInterval)}
-     */
-    @Override
-    @Deprecated
     public String getNameEn() {
-        DegreeInfo degreeInfo = getMostRecentDegreeInfo();
-        return degreeInfo == null ? StringUtils.EMPTY : degreeInfo.getName()
-                .getContent(org.fenixedu.academic.util.LocaleUtils.EN);
+        LocalizedString name = getNameI18N();
+        return name.isEmpty() ? StringUtils.EMPTY : name.getContent(LocaleUtils.EN);
     }
 
     final public LocalizedString getNameI18N() {
-        return getNameFor(ExecutionYear.findCurrent(getCalendar()));
+        return getNameI18N(ExecutionYear.findCurrent(getCalendar()));
     }
 
     final public LocalizedString getNameI18N(final ExecutionYear executionYear) {
-        return getNameFor(executionYear);
+        DegreeInfo degreeInfo = executionYear == null ? getMostRecentDegreeInfo() : getMostRecentDegreeInfo(executionYear);
+        return degreeInfo == null ? new LocalizedString() : degreeInfo.getName();
     }
 
     public LocalizedString getPresentationNameI18N() {
@@ -591,11 +576,4 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     public void setIdCardName(final String idCardName) {
         super.setIdCardName(idCardName.toUpperCase());
     }
-
-    @Override
-    public void setNome(final String nome) {
-        super.setNome(nome);
-        setIdCardName(nome);
-    }
-
 }
