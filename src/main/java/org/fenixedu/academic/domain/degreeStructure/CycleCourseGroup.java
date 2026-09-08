@@ -86,7 +86,7 @@ public class CycleCourseGroup extends CycleCourseGroup_Base {
         }
 
         final Set<CycleCourseGroup> result = new HashSet<CycleCourseGroup>();
-        for (final Degree degree : Degree.readNotEmptyDegrees()) {
+        for (final Degree degree : Degree.findAll().toList()) {
             for (final DegreeCurricularPlan degreeCurricularPlan : degree.getDegreeCurricularPlansSet()) {
                 for (final CycleType affinityCycle : affinityCycles) {
                     final CycleCourseGroup cycleCourseGroup = degreeCurricularPlan.getCycleCourseGroup(affinityCycle);

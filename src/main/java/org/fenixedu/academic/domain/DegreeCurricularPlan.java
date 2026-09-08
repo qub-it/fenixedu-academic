@@ -601,7 +601,7 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         final Set<DegreeCurricularPlan> degreeCurricularPlans =
                 new TreeSet<>(DegreeCurricularPlan.COMPARATOR_BY_PRESENTATION_NAME);
 
-        for (final Degree degree : Degree.readNotEmptyDegrees()) {
+        for (final Degree degree : Degree.findAll().toList()) {
             if (predicate.test(degree.getDegreeType())) {
                 for (final DegreeCurricularPlan degreeCurricularPlan : degree.getDegreeCurricularPlansSet()) {
                     if (degreeCurricularPlan.isActive()) {
