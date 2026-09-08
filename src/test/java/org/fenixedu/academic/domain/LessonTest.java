@@ -172,9 +172,7 @@ public class LessonTest {
     @Test
     public void testLesson_getTotalHours() {
         Lesson lesson = createLesson(WeekDay.MONDAY, new LocalTime(10, 0), new LocalTime(11, 0));
-
-        int lessonDatesCount = lesson.getLessonDates().size();
-        assertEquals(new BigDecimal(String.valueOf(lessonDatesCount)).setScale(2, RoundingMode.HALF_UP), lesson.getTotalHours());
+        assertEquals(new BigDecimal("13.00"), lesson.getTotalHours());
     }
 
     @Test
