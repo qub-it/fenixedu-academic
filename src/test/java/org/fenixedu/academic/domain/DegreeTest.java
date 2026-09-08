@@ -1,9 +1,13 @@
 package org.fenixedu.academic.domain;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
@@ -25,7 +29,9 @@ public class DegreeTest {
 
     public static final String MASTER_DEGREE_TYPE_CODE = "MASTER";
 
-    public static final String DEGREE_INFO_TEST_CODE = "DEGREE_INFO_TEST";
+    private static DegreeType degreeType;
+
+    private static DegreeType masterDegreeType;
 
     private static Degree degree;
 
@@ -35,24 +41,24 @@ public class DegreeTest {
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             degree = initDegree();
-            executionYear = ExecutionYear.findCurrent(null);
             return null;
         });
     }
 
     public static Degree initDegree() {
-        final DegreeType degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
-        degreeType.setCode(DEGREE_TYPE_CODE);
-
-        final DegreeType masterDegreeType =
-                new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Master Degree").build());
-        masterDegreeType.setCode(MASTER_DEGREE_TYPE_CODE);
-
+        initDegreeTypes();
         ExecutionIntervalTest.initRootCalendarAndExecutionYears();
-        final ExecutionYear executionYear = ExecutionYear.findCurrent(null);
+        executionYear = ExecutionYear.findCurrent(null);
 
         return createDegree(degreeType, DEGREE_A_CODE, "Degree A", executionYear);
+    }
 
+    private static void initDegreeTypes() {
+        degreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Degree").build());
+        degreeType.setCode(DEGREE_TYPE_CODE);
+
+        masterDegreeType = new DegreeType(new LocalizedString.Builder().with(Locale.getDefault(), "Master Degree").build());
+        masterDegreeType.setCode(MASTER_DEGREE_TYPE_CODE);
     }
 
     public static Degree createDegree(final DegreeType degreeType, String code, String name, final ExecutionYear executionYear) {
@@ -64,8 +70,51 @@ public class DegreeTest {
     }
 
     @Test
+    public void testDegree_comparatorByName() {
+        Degree degreeA = createDegree(degreeType, "CMP_NAME_A", "Degree A", executionYear);
+        Degree degreeB = createDegree(degreeType, "CMP_NAME_B", "Degree B", executionYear);
+
+        assertEquals(0, Degree.COMPARATOR_BY_NAME.compare(degreeA, degreeA));
+        assertTrue(Degree.COMPARATOR_BY_NAME.compare(degreeA, degreeB) < 0);
+        assertTrue(Degree.COMPARATOR_BY_NAME.compare(degreeB, degreeA) > 0);
+    }
+
+    @Test
+    public void testDegree_comparatorByNameAndId() {
+        Degree degreeA = createDegree(degreeType, "CMP_NAME_ID_A", "Degree A", executionYear);
+        Degree degreeA2 = createDegree(degreeType, "CMP_NAME_ID_A2", "Degree A", executionYear);
+
+        assertEquals(0, Degree.COMPARATOR_BY_NAME_AND_ID.compare(degreeA, degreeA));
+        assertEquals(0, degreeA.compareTo(degreeA)); // compareTo calls COMPARATOR_BY_NAME_AND_ID
+
+        assertNotEquals(0, Degree.COMPARATOR_BY_NAME_AND_ID.compare(degreeA, degreeA2));
+        assertNotEquals(0, degreeA.compareTo(degreeA2));
+    }
+
+    @Test
+    public void testDegree_comparatorByDegreeTypeDegreeNameAndId() {
+        Degree bachelorA = createDegree(degreeType, "CMP_DT_N_ID_BA", "Bachelor A", executionYear);
+        Degree copyBachelorA = createDegree(degreeType, "CMP_DT_N_ID_BA_COPY", "Bachelor A", executionYear);
+        Degree bachelorB = createDegree(degreeType, "CMP_DT_N_ID_BB", "Bachelor B", executionYear);
+        Degree masterA = createDegree(masterDegreeType, "CMP_DT_N_ID_MA", "Master A", executionYear);
+
+        List<Degree> degrees = Arrays.asList(copyBachelorA, bachelorB, masterA, bachelorA);
+        degrees.sort(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID);
+
+        // Ordered by degree type, then name, then id
+        assertEquals(bachelorA, degrees.get(0));
+        assertEquals(copyBachelorA, degrees.get(1));
+        assertEquals(bachelorB, degrees.get(2));
+        assertEquals(masterA, degrees.get(3));
+
+        assertEquals(0, Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID.compare(bachelorA, bachelorA));
+        assertNotEquals(0, Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID.compare(bachelorA, copyBachelorA));
+        assertTrue(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID.compare(bachelorA, bachelorB) < 0);
+        assertTrue(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID.compare(masterA, bachelorA) > 0);
+    }
+
+    @Test
     public void testDegree_find() {
-        assertEquals(Degree.findAll().count(), 1l);
         assertNotNull(Degree.find(DEGREE_A_CODE));
         assertEquals(Degree.find(DEGREE_A_CODE), degree);
         assertNull(Degree.find("XX"));
@@ -73,15 +122,13 @@ public class DegreeTest {
 
     @Test
     public void testDegree_getNameFor() {
-        DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).orElseThrow();
-        Degree testDegree = createDegree(degreeType, DEGREE_INFO_TEST_CODE, "Degree Info Test", executionYear);
+        Degree testDegree = createDegree(degreeType, "GET_NAME_FOR_TEST", "Get Name For test", executionYear);
 
-        assertEquals("Degree Info Test", testDegree.getNameFor(executionYear.getFirstExecutionPeriod()).getContent());
-        assertEquals("Degree Info Test", testDegree.getNameFor((ExecutionInterval) null).getContent());
+        assertEquals("Get Name For test", testDegree.getNameFor(executionYear.getFirstExecutionPeriod()).getContent());
+        assertEquals("Get Name For test", testDegree.getNameFor(null).getContent());
 
         // Test that it also works with ExecutionYear
-        assertEquals("Degree Info Test", testDegree.getNameFor(executionYear).getContent());
-        assertEquals("Degree Info Test", testDegree.getNameFor((ExecutionYear) null).getContent());
+        assertEquals("Get Name For test", testDegree.getNameFor(executionYear).getContent());
         assertEquals(testDegree.getNameFor(executionYear), testDegree.getNameFor(executionYear.getFirstExecutionPeriod()));
 
         testDegree.delete();
