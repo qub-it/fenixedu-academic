@@ -28,10 +28,10 @@ import pt.ist.fenixframework.Atomic;
 public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
     public DegreeOfficialPublication(Degree degree, LocalDate date) {
         if (degree == null) {
-            throw new DomainException(DegreeOfficialPublication.class.getName() + ".degree.not.null");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.degree.not.null");
         }
         if (date == null) {
-            throw new DomainException(DegreeOfficialPublication.class.getName() + "date.not.null");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublicationdate.not.null");
         }
         setDegree(degree);
         setPublication(date);
@@ -69,15 +69,15 @@ public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
 
     private static void checkRules(LocalDate publication, String officialReference, LocalDate beginDate, LocalDate endDate) {
         if (publication == null) {
-            throw new DomainException(DegreeOfficialPublication.class.getName() + ".publication.not.null");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.publication.not.null");
         }
 
         if (StringUtils.isEmpty(officialReference)) {
-            throw new DomainException(DegreeOfficialPublication.class.getName() + ".officialReference.not.null");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.officialReference.not.null");
         }
 
         if (beginDate != null && endDate != null && beginDate.isAfter(endDate)) {
-            throw new DomainException(DegreeOfficialPublication.class.getName() + ".endDate.before.beginDate");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.endDate.before.beginDate");
         }
     }
 }
