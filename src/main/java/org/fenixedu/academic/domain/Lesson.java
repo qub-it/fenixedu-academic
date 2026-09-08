@@ -113,6 +113,18 @@ public class Lesson extends Lesson_Base {
         deleteDomainObject();
     }
 
+    @jvstm.cps.ConsistencyPredicate
+    protected boolean checkRequiredParameters() {
+        return getFrequency() != null && getWeekDay() != null;
+    }
+
+    @jvstm.cps.ConsistencyPredicate
+    protected boolean checkTimeInterval() {
+        final HourMinuteSecond start = getBeginHourMinuteSecond();
+        final HourMinuteSecond end = getEndHourMinuteSecond();
+        return start != null && end != null && start.isBefore(end);
+    }
+
     private void lessonSpaceOccupationManagement(Space newRoom) {
         LessonSpaceOccupation lessonSpaceOccupation = getLessonSpaceOccupation();
         if (newRoom != null) {
