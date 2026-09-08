@@ -1,6 +1,8 @@
 package org.fenixedu.academic.domain;
 
+import static org.fenixedu.academic.domain.StudentTest.REGISTRATION_STATE_INTERRUPTED;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -12,8 +14,15 @@ import java.util.Locale;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.DateTime;
+import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -207,6 +216,74 @@ public class DegreeTest {
         assertEquals(testDegree.getNameFor(executionYear), testDegree.getNameFor(executionYear.getFirstExecutionPeriod()));
 
         testDegree.delete();
+    }
+
+    @Test
+    public void testDegree_getMostRecentDegreeCurricularPlan() {
+        Degree testDegree = createDegree(degreeType, "MOST_RECENT_DCP_TEST", "Degree for Most Recent DCP test", executionYear);
+
+        assertNull(testDegree.getMostRecentDegreeCurricularPlan());
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "Most Recent DCP A", AcademicPeriod.THREE_YEAR);
+        dcpA.createExecutionDegree(executionYear);
+
+        assertEquals(dcpA, testDegree.getMostRecentDegreeCurricularPlan());
+
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "Most Recent DCP B", AcademicPeriod.THREE_YEAR);
+        dcpB.createExecutionDegree(executionYear.getNext().getExecutionYear());
+
+        assertEquals(dcpB, testDegree.getMostRecentDegreeCurricularPlan());
+
+        DegreeCurricularPlan dcpC = new DegreeCurricularPlan(testDegree, "Most Recent DCP C", AcademicPeriod.THREE_YEAR);
+        dcpC.createExecutionDegree(executionYear.getNext().getExecutionYear());
+
+        // Both dcpB and dcpC have the same execution year = tie
+        // Tiebreaker is InitialDate
+        dcpB.setInitialDateYearMonthDay(new YearMonthDay(2026, 1, 1));
+        dcpC.setInitialDateYearMonthDay(new YearMonthDay(2025, 1, 1));
+
+        assertEquals(dcpB, testDegree.getMostRecentDegreeCurricularPlan());
+    }
+
+    @Test
+    public void testDegree_getActiveRegistrations() {
+        StudentTest.initRegistrationConfigEntities();
+
+        Degree testDegree = createDegree(degreeType, "ACTIVE_REGS_TEST", "Degree for Active Registrations test", executionYear);
+
+        DegreeCurricularPlan dcp = new DegreeCurricularPlan(testDegree, "DCP Active Registrations", AcademicPeriod.THREE_YEAR);
+        dcp.createExecutionDegree(executionYear);
+        Student student = StudentTest.createStudent("John Doe", "johndoe@test.com");
+
+        assertTrue(testDegree.getActiveRegistrations().isEmpty());
+
+        Registration registration = StudentTest.createRegistration(student, dcp, executionYear);
+
+        assertFalse(testDegree.getActiveRegistrations().isEmpty());
+        assertTrue(testDegree.getActiveRegistrations().stream().anyMatch(r -> r.getStudent().equals(student)));
+
+        // Set registration state to INTERRUPTED to assert that it is no longer active
+        RegistrationStateType interruptedType = RegistrationStateType.findByCode(REGISTRATION_STATE_INTERRUPTED).orElseThrow();
+        RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(), interruptedType,
+                executionYear.getFirstExecutionPeriod());
+
+        assertTrue(testDegree.getActiveRegistrations().isEmpty());
+    }
+
+    @Test
+    public void testDegree_getFirstDegreeCurricularPlan() {
+        Degree testDegree = createDegree(degreeType, "FIRST_DCP_TEST", "Degree for First DCP test", executionYear);
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "First DCP A", AcademicPeriod.THREE_YEAR);
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "First DCP B", AcademicPeriod.THREE_YEAR);
+
+        // No initialDate set, should return null
+        assertNull(testDegree.getFirstDegreeCurricularPlan());
+
+        dcpA.setInitialDateYearMonthDay(new YearMonthDay(2025, 6, 1));
+        dcpB.setInitialDateYearMonthDay(new YearMonthDay(2024, 1, 1));
+
+        assertEquals(dcpB, testDegree.getFirstDegreeCurricularPlan());
     }
 
     @Test
