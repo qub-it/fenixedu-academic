@@ -220,8 +220,8 @@ public class Lesson extends Lesson_Base {
         if (getLessonSpaceOccupation() != null) {
             return getLessonSpaceOccupation().getSpace();
         } else if (hasAnyLessonInstances() && wasFinished()) {
-            return getLessonInstancesSet().stream().max(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME).map(LessonInstance::getRoom)
-                    .orElse(null);
+            return getLessonInstancesSet().stream().max(LessonInstance.COMPARATOR_BY_BEGIN_DATE_TIME)
+                    .flatMap(lI -> lI.getSpaces().findAny()).orElse(null);
         }
         return null;
     }
