@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.LocalDate;
@@ -27,27 +28,13 @@ import pt.ist.fenixframework.Atomic;
 public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
     public DegreeOfficialPublication(Degree degree, LocalDate date) {
         if (degree == null) {
-            throw new DomainException("error.degree.officialpublication.unlinked");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.degree.not.null");
         }
         if (date == null) {
-            throw new DomainException("error.degree.officialpublication.undated");
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublicationdate.not.null");
         }
         setDegree(degree);
         setPublication(date);
-    }
-
-    @Atomic
-    public DegreeSpecializationArea createSpecializationArea(String nameEn, String namePt) {
-
-        LocalizedString area = new LocalizedString(org.fenixedu.academic.util.LocaleUtils.EN, nameEn).with(org.fenixedu.academic.util.LocaleUtils.PT, namePt);
-
-        return new DegreeSpecializationArea(this, area);
-    }
-
-    @Atomic
-    public void changeOfficialreference(String officialReference, final LocalDate publication) {
-        this.setOfficialReference(officialReference);
-        this.setPublication(publication);
     }
 
     @Atomic
@@ -58,4 +45,39 @@ public class DegreeOfficialPublication extends DegreeOfficialPublication_Base {
         super.deleteDomainObject();
     }
 
+    public static DegreeOfficialPublication create(Degree degree, LocalDate publicationDate, String officialReference) {
+        checkRules(publicationDate, officialReference, null, null);
+
+        DegreeOfficialPublication result = new DegreeOfficialPublication(degree, publicationDate);
+        result.setOfficialReference(officialReference);
+
+        return result;
+    }
+
+    public void edit(LocalDate publication, String officialReference, LocalDate beginDate, LocalDate endDate) {
+        checkRules(publication, officialReference, beginDate, endDate);
+
+        setPublication(publication);
+        setOfficialReference(officialReference);
+        setBeginDate(beginDate);
+        setEndDate(endDate);
+    }
+
+    public DegreeSpecializationArea createSpecializationArea(final LocalizedString name) {
+        return new DegreeSpecializationArea(this, name);
+    }
+
+    private static void checkRules(LocalDate publication, String officialReference, LocalDate beginDate, LocalDate endDate) {
+        if (publication == null) {
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.publication.not.null");
+        }
+
+        if (StringUtils.isEmpty(officialReference)) {
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.officialReference.not.null");
+        }
+
+        if (beginDate != null && endDate != null && beginDate.isAfter(endDate)) {
+            throw new DomainException("org.fenixedu.academic.domain.DegreeOfficialPublication.endDate.before.beginDate");
+        }
+    }
 }
