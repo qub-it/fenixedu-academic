@@ -18,15 +18,11 @@
  */
 package org.fenixedu.academic.domain.degreeStructure;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
-import java.util.TreeSet;
 
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -44,23 +40,14 @@ public enum CycleType {
 
     SINGLE_CYCLE(5);
 
-    static final public Comparator<CycleType> COMPARATOR_BY_LESS_WEIGHT = new Comparator<CycleType>() {
-        @Override
-        public int compare(CycleType o1, CycleType o2) {
-            return o1.getWeight().compareTo(o2.getWeight());
-        }
-    };
+    public static final Comparator<CycleType> COMPARATOR_BY_LESS_WEIGHT = Comparator.comparing(CycleType::getWeight);
+    public static final Comparator<CycleType> COMPARATOR_BY_GREATER_WEIGHT = COMPARATOR_BY_LESS_WEIGHT.reversed();
 
-    static final public Comparator<CycleType> COMPARATOR_BY_GREATER_WEIGHT = new Comparator<CycleType>() {
-        @Override
-        public int compare(CycleType o1, CycleType o2) {
-            return -COMPARATOR_BY_LESS_WEIGHT.compare(o1, o2);
-        }
-    };
+    private static final List<CycleType> SORTED_VALUES = Arrays.stream(values()).sorted(COMPARATOR_BY_LESS_WEIGHT).toList();
 
-    private Integer weight;
-    private CycleType sourceCycleAffinity;
-    private Double credits;
+    private final Integer weight;
+    private final CycleType sourceCycleAffinity;
+    private final Double credits;
 
     private CycleType(Integer weight) {
         this(weight, (CycleType) null);
@@ -106,10 +93,8 @@ public enum CycleType {
         return credits;
     }
 
-    static final public Collection<CycleType> getSortedValues() {
-        final Collection<CycleType> result = new TreeSet<CycleType>(CycleType.COMPARATOR_BY_LESS_WEIGHT);
-        result.addAll(Arrays.asList(values()));
-        return result;
+    public static Collection<CycleType> getSortedValues() {
+        return SORTED_VALUES;
     }
 
     public boolean isBeforeOrEquals(final CycleType cycleType) {
@@ -125,17 +110,8 @@ public enum CycleType {
     }
 
     public CycleType getNext() {
-        final Iterator<CycleType> iterator = getSortedValues().iterator();
-
-        for (CycleType cycleType = iterator.next(); iterator.hasNext(); cycleType = iterator.next()) {
-            if (cycleType == this) {
-                return iterator.next();
-            }
-
-            continue;
-        }
-
-        return null;
+        final int index = SORTED_VALUES.indexOf(this);
+        return index < SORTED_VALUES.size() - 1 ? SORTED_VALUES.get(index + 1) : null;
     }
 
     public boolean hasNext() {
@@ -143,18 +119,8 @@ public enum CycleType {
     }
 
     public CycleType getPrevious() {
-        final List<CycleType> sortedValues = new ArrayList<CycleType>(getSortedValues());
-        final ListIterator<CycleType> listIterator = sortedValues.listIterator(sortedValues.size());
-
-        for (CycleType cycleType = listIterator.previous(); listIterator.hasPrevious(); cycleType = listIterator.previous()) {
-            if (cycleType == this) {
-                return listIterator.previous();
-            }
-
-            continue;
-        }
-
-        return null;
+        final int index = SORTED_VALUES.indexOf(this);
+        return index > 0 ? SORTED_VALUES.get(index - 1) : null;
     }
 
     public boolean hasPrevious() {
