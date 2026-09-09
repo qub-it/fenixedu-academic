@@ -101,29 +101,16 @@ public class AttendsTest {
                 createExecutionCourse("COMP_Z", "COMP_Z", executionInterval, enrolmentB.getCurricularCourse());
         final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
 
-        final List<Attends> sorted =
+        final List<Attends> sortedByName =
                 Stream.of(attendsB, attendsA).sorted(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME).toList();
+        assertEquals(List.of(attendsA, attendsB), sortedByName); // COMP_A < COMP_Z
 
-        assertEquals(List.of(attendsA, attendsB), sorted); // COMP_A < COMP_Z
-    }
-
-    @Test
-    public void testAttends_ComparatorByExecutionCourseNameTieBreaker() {
-        final Enrolment enrolmentA = createAdhocEnrolmentWithoutAttends("A");
-        final ExecutionCourse ecA = createExecutionCourse("A", "COMP_1", executionInterval, enrolmentA.getCurricularCourse());
-        final Attends attendsA = enrolmentA.findOrCreateAttends(ecA);
-
-        final Enrolment enrolmentB = createAdhocEnrolmentWithoutAttends("A");
-        final ExecutionCourse ecB = createExecutionCourse("A", "COMP_2", executionInterval, enrolmentB.getCurricularCourse());
-        final Attends attendsB = enrolmentB.findOrCreateAttends(ecB);
-
+        ecB.setNome("COMP_A");
         final List<Attends> expected =
                 Stream.of(attendsA, attendsB).sorted(Comparator.comparing(a -> a.getExecutionCourse().getExternalId())).toList();
-
-        final List<Attends> sorted =
+        final List<Attends> sortedByTieBreaker =
                 Stream.of(attendsB, attendsA).sorted(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME).toList();
-
-        assertEquals(expected, sorted);
+        assertEquals(expected, sortedByTieBreaker); // COMP_A == COMP_A, tie-breaker by externalId
     }
 
     @Test
@@ -220,15 +207,15 @@ public class AttendsTest {
         shift.enrol(registration);
         assertTrue(attends.hasAnyShiftEnrolments());
 
+        shift.unenrol(registration);
+        assertFalse(attends.hasAnyShiftEnrolments());
+
         // enrolment in a shift of a different execution course must not affect this attends
         final ExecutionCourse otherEc = new ExecutionCourse("Other Course", "OTHER", executionInterval);
         final Shift otherShift = new Shift(otherEc, CourseLoadType.of(CourseLoadType.THEORETICAL), 10, "T_other");
         otherShift.enrol(registration);
-        assertTrue(attends.hasAnyShiftEnrolments());
-        otherShift.unenrol(registration);
-
-        shift.unenrol(registration);
         assertFalse(attends.hasAnyShiftEnrolments());
+        otherShift.unenrol(registration);
     }
 
     @Test
