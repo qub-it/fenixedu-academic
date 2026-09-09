@@ -298,28 +298,12 @@ public class DegreeCurricularPlan extends DegreeCurricularPlan_Base {
         return null;
     }
 
-    @Override
     public Set<CurricularCourse> getCurricularCoursesSet() {
-        return this.getCurricularCourses((ExecutionYear) null);
-    }
-
-    @Deprecated
-    public Set<CurricularCourse> getCurricularCoursesSetSuperDoNotUseTempFix() {
-        return super.getCurricularCoursesSet();
+        return getCurricularCourses(null);
     }
 
     public Set<CurricularCourse> getCurricularCourses(final ExecutionInterval executionInterval) {
-        final Set<CurricularCourse> curricularCourses = new HashSet<>();
-        for (final CurricularCourse curricularCourse : super.getCurricularCoursesSet()) {
-            if (curricularCourse.hasScopeInGivenSemesterAndCurricularYearInDCP(null, null, executionInterval)) {
-                curricularCourses.add(curricularCourse);
-            }
-        }
-        final ExecutionYear executionYear = executionInterval.getExecutionYear();
-        for (final DegreeModule degreeModule : getDcpDegreeModules(CurricularCourse.class, executionYear)) {
-            curricularCourses.add((CurricularCourse) degreeModule);
-        }
-        return curricularCourses;
+        return getCurricularCourses(executionInterval.getExecutionYear());
     }
 
     /**
