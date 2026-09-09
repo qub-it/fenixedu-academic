@@ -91,7 +91,6 @@ public class CurricularCourse extends CurricularCourse_Base {
                 .getParentDegreeCurricularPlan() : null;
     }
 
-    @Override
     final public DegreeCurricularPlan getDegreeCurricularPlan() {
         return getParentDegreeCurricularPlan();
     }
@@ -100,7 +99,6 @@ public class CurricularCourse extends CurricularCourse_Base {
     public void delete() {
         super.delete();
         getCurriculumLineLogsSet().forEach(CurriculumLineLog::delete);
-        setDegreeCurricularPlan(null);
         setCompetenceCourse(null);
         setRootDomainObject(null);
         super.deleteDomainObject();
