@@ -119,6 +119,7 @@ public class DegreeTest {
         assertNotNull(Degree.find(DEGREE_A_CODE));
         assertEquals(Degree.find(DEGREE_A_CODE), degree);
         assertNull(Degree.find("XX"));
+        assertNull(Degree.find(null));
     }
 
     @Test
