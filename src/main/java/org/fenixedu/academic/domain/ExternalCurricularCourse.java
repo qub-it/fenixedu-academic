@@ -18,10 +18,8 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,15 +97,15 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
 
     public String getFullPathName() {
         final List<AccountabilityTypeEnum> validAccountabilityTypes =
-                Arrays.asList(new AccountabilityTypeEnum[] { AccountabilityTypeEnum.GEOGRAPHIC,
-                        AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE, AccountabilityTypeEnum.ACADEMIC_STRUCTURE });
-        return UnitUtils.getUnitFullPathName(getUnit(), validAccountabilityTypes).toString() + " > " + getName();
+                Arrays.asList(AccountabilityTypeEnum.GEOGRAPHIC, AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
+                        AccountabilityTypeEnum.ACADEMIC_STRUCTURE);
+        return UnitUtils.getUnitFullPathName(getUnit(), validAccountabilityTypes) + " > " + getName();
     }
 
     final public Unit getAcademicUnit() {
         final List<AccountabilityTypeEnum> validAccountabilityTypes =
-                Arrays.asList(new AccountabilityTypeEnum[] { AccountabilityTypeEnum.GEOGRAPHIC,
-                        AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE, AccountabilityTypeEnum.ACADEMIC_STRUCTURE });
+                Arrays.asList(AccountabilityTypeEnum.GEOGRAPHIC, AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
+                        AccountabilityTypeEnum.ACADEMIC_STRUCTURE);
 
         Unit universityUnit = null;
         Unit schoolUnit = null;
@@ -126,55 +124,4 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
         return Stream.concat(Stream.of(unit), unit.getAllSubUnits().stream())
                 .flatMap(u -> u.getExternalCurricularCoursesSet().stream()).collect(Collectors.toSet());
     }
-
-    static public ExternalCurricularCourse readExternalCurricularCourse(Unit unit, String name, String code) {
-        for (final ExternalCurricularCourse externalCurricularCourse : unit.getExternalCurricularCoursesSet()) {
-            if (externalCurricularCourse.getCode().equals(code) && externalCurricularCourse.getName().equals(name)) {
-                return externalCurricularCourse;
-            }
-        }
-        return null;
-    }
-
-    static public ExternalCurricularCourse readExternalCurricularCourse(Unit unit, String code) {
-        List<ExternalCurricularCourse> result = new ArrayList<ExternalCurricularCourse>();
-        for (final ExternalCurricularCourse externalCurricularCourse : unit.getExternalCurricularCoursesSet()) {
-            if (StringUtils.isEmpty(externalCurricularCourse.getCode()) && StringUtils.isEmpty(code)
-                    || externalCurricularCourse.getCode().equals(code)) {
-                result.add(externalCurricularCourse);
-            }
-        }
-        if (result.size() == 1) {
-            return result.iterator().next();
-        } else if (result.size() == 0) {
-            return null;
-        }
-        throw new DomainException("error.externalCurricularCourse.manyFoundWithSameCode");
-    }
-
-    static public List<ExternalCurricularCourse> readExternalCurricularCoursesByCode(String code) {
-        List<ExternalCurricularCourse> result = new ArrayList<ExternalCurricularCourse>();
-        for (final ExternalCurricularCourse externalCurricularCourse : Bennu.getInstance().getExternalCurricularCoursesSet()) {
-            if (StringUtils.isEmpty(externalCurricularCourse.getCode()) && StringUtils.isEmpty(code)
-                    || externalCurricularCourse.getCode().equals(code)) {
-                result.add(externalCurricularCourse);
-            }
-        }
-        return result;
-    }
-
-    static public List<ExternalCurricularCourse> readByName(final String name) {
-        if (name == null) {
-            return Collections.emptyList();
-        }
-        final String nameToMatch = name.replaceAll("%", ".*").toLowerCase();
-        final List<ExternalCurricularCourse> result = new ArrayList<ExternalCurricularCourse>();
-        for (final ExternalCurricularCourse externalCurricularCourse : Bennu.getInstance().getExternalCurricularCoursesSet()) {
-            if (externalCurricularCourse.getName().toLowerCase().matches(nameToMatch)) {
-                result.add(externalCurricularCourse);
-            }
-        }
-        return result;
-    }
-
 }
