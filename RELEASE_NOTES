@@ -1,3 +1,4 @@
+- Refactor: Improve CycleType enum and unit tests [#qubIT-Fenix-9343]
 - Refactor: Deletes unused GrantOwnerType class methods [#qubIT-Fenix-9332]
 - Refactor: Improves DegreeOfficialPublication domain methods [#qubIT-Fenix-9299]
 - Refactor: Deletes ExternalCurricularCourse unused methods [#qubIT-Fenix-9323]
