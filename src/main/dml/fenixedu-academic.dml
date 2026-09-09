@@ -374,8 +374,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class Degree extends AcademicProgram {
         Double ectsCredits;
-        String nameEn;
-        String nome;
         String prevailingScientificArea;
         String sigla;
         String ministryCode;
