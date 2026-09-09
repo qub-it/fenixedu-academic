@@ -270,7 +270,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
         return getDegreeType().getCycleTypes();
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public boolean isEmpty() {
         return false;
     }
@@ -280,28 +280,19 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
             return null;
         }
 
-        for (Degree degree : Degree.readNotEmptyDegrees()) {
-            if (StringUtils.equalsIgnoreCase(degree.getCode(), code)) {
-                return degree;
-            }
-        }
-
-        return null;
+        return Degree.findAll().filter(degree -> StringUtils.equalsIgnoreCase(degree.getCode(), code)).findFirst().orElse(null);
     }
 
     public List<DegreeCurricularPlan> getActiveDegreeCurricularPlans() {
-        return getDegreeCurricularPlansSet().stream().filter(DegreeCurricularPlan::isActive)
-                .collect(Collectors.toUnmodifiableList());
+        return getDegreeCurricularPlansSet().stream().filter(DegreeCurricularPlan::isActive).toList();
     }
 
     public List<DegreeCurricularPlan> getDegreeCurricularPlansForYear(final ExecutionYear year) {
-        return getDegreeCurricularPlansSet().stream().filter(dcp -> dcp.hasAnyExecutionDegreeFor(year))
-                .collect(Collectors.toUnmodifiableList());
+        return getDegreeCurricularPlansSet().stream().filter(dcp -> dcp.hasAnyExecutionDegreeFor(year)).toList();
     }
 
     public List<ExecutionDegree> getExecutionDegrees() {
-        return getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.getExecutionDegreesSet().stream())
-                .collect(Collectors.toUnmodifiableList());
+        return getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.getExecutionDegreesSet().stream()).toList();
     }
 
     public List<ExecutionDegree> getExecutionDegreesForExecutionYear(final ExecutionYear executionYear) {
@@ -310,7 +301,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
     public List<ExecutionYear> getDegreeCurricularPlansExecutionYears() {
         return getDegreeCurricularPlansSet().stream().flatMap(dcp -> dcp.getExecutionDegreesSet().stream())
-                .map(ExecutionDegree::getExecutionYear).distinct().sorted().collect(Collectors.toUnmodifiableList());
+                .map(ExecutionDegree::getExecutionYear).distinct().sorted().toList();
     }
 
     public LocalizedString getNameFor(final ExecutionInterval executionInterval) {
@@ -524,7 +515,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     /**
      * @deprecated Degrees cannot be empty anymore so usage of this method is unecessary
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static List<Degree> readNotEmptyDegrees() {
         return new ArrayList<>(Bennu.getInstance().getDegreesSet());
     }
@@ -532,7 +523,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     /**
      * @deprecated Degrees cannot be non bolonha anymore so usage of this method is unecessary
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static List<Degree> readBolonhaDegrees() {
         return new ArrayList<>(Bennu.getInstance().getDegreesSet());
     }

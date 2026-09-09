@@ -12,6 +12,7 @@ import java.util.Locale;
 
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -118,6 +119,80 @@ public class DegreeTest {
         assertNotNull(Degree.find(DEGREE_A_CODE));
         assertEquals(Degree.find(DEGREE_A_CODE), degree);
         assertNull(Degree.find("XX"));
+        assertNull(Degree.find(null));
+    }
+
+    @Test
+    public void testDegree_getActiveDegreeCurricularPlans() {
+        Degree testDegree = createDegree(degreeType, "ACTIVE_DCP_TEST", "Degree for Active DCPs test", executionYear);
+
+        assertTrue(testDegree.getActiveDegreeCurricularPlans().isEmpty());
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "Active DCP A", AcademicPeriod.THREE_YEAR);
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "Active DCP B", AcademicPeriod.THREE_YEAR);
+
+        assertEquals(2, testDegree.getActiveDegreeCurricularPlans().size());
+
+        dcpA.setActive(false);
+
+        List<DegreeCurricularPlan> activePlans = testDegree.getActiveDegreeCurricularPlans();
+        assertEquals(1, activePlans.size());
+        assertTrue(activePlans.contains(dcpB));
+    }
+
+    @Test
+    public void testDegree_getDegreeCurricularPlansForYear() {
+        Degree testDegree = createDegree(degreeType, "YEAR_DCP_TEST", "Degree for DCPs by year test", executionYear);
+
+        assertTrue(testDegree.getDegreeCurricularPlansForYear(executionYear).isEmpty());
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "Year DCP A", AcademicPeriod.THREE_YEAR);
+        dcpA.createExecutionDegree(executionYear);
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "Year DCP B", AcademicPeriod.THREE_YEAR);
+        dcpB.createExecutionDegree(executionYear.getNext().getExecutionYear());
+
+        List<DegreeCurricularPlan> currentYearDCPs = testDegree.getDegreeCurricularPlansForYear(executionYear);
+        assertEquals(1, currentYearDCPs.size());
+        assertEquals(dcpA, currentYearDCPs.get(0));
+
+        List<DegreeCurricularPlan> nextYearDCPs =
+                testDegree.getDegreeCurricularPlansForYear(executionYear.getNext().getExecutionYear());
+        assertEquals(1, nextYearDCPs.size());
+        assertEquals(dcpB, nextYearDCPs.get(0));
+    }
+
+    @Test
+    public void testDegree_getExecutionDegrees() {
+        Degree testDegree = createDegree(degreeType, "EXEC_DEGREE_TEST", "Degree for Execution Degrees test", executionYear);
+
+        assertTrue(testDegree.getExecutionDegrees().isEmpty());
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "Execution DCP A", AcademicPeriod.THREE_YEAR);
+        ExecutionDegree executionDegreeA = dcpA.createExecutionDegree(executionYear);
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "Execution DCP B", AcademicPeriod.THREE_YEAR);
+        ExecutionDegree executionDegreeB = dcpB.createExecutionDegree(executionYear.getNext().getExecutionYear());
+
+        List<ExecutionDegree> executionDegrees = testDegree.getExecutionDegrees();
+        assertEquals(2, executionDegrees.size());
+        assertTrue(executionDegrees.contains(executionDegreeA));
+        assertTrue(executionDegrees.contains(executionDegreeB));
+    }
+
+    @Test
+    public void testDegree_getDegreeCurricularPlansExecutionYears() {
+        Degree testDegree = createDegree(degreeType, "DCP_YEARS_TEST", "Degree for DCPs Execution Years test", executionYear);
+
+        assertTrue(testDegree.getDegreeCurricularPlansExecutionYears().isEmpty());
+
+        DegreeCurricularPlan dcpA = new DegreeCurricularPlan(testDegree, "Years DCP A", AcademicPeriod.THREE_YEAR);
+        dcpA.createExecutionDegree(executionYear);
+        DegreeCurricularPlan dcpB = new DegreeCurricularPlan(testDegree, "Years DCP B", AcademicPeriod.THREE_YEAR);
+        dcpB.createExecutionDegree(executionYear.getNext().getExecutionYear());
+
+        List<ExecutionYear> years = testDegree.getDegreeCurricularPlansExecutionYears();
+        assertEquals(2, years.size());
+        assertTrue(years.contains(executionYear));
+        assertTrue(years.contains(executionYear.getNext().getExecutionYear()));
     }
 
     @Test
