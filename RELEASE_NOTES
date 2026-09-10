@@ -1,3 +1,4 @@
+- Refactor: Clean up BusinessArea entity [#qubIT-Fenix-9224]
 - Refactor: Delete deprecated DataTranferObject class [#qubIT-Fenix-9310]
 - Refactor: Delete deprecated Pair class [#qubIT-Fenix-9310]
 - Refactor: Add tests and improve methods from Attends class [#qubIT-Fenix-8922]
