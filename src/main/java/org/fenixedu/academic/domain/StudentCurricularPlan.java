@@ -164,6 +164,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             setStartDate(startDate);
 
             checkIfExistsOtherPlanForSameInterval(getRegistration(), this, startInterval, startDate);
+            checkIfNoSCPOnStartInterval(getRegistration());
         }
     }
 
@@ -176,6 +177,13 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         }
     }
 
+    private static void checkIfNoSCPOnStartInterval(Registration registration) {
+        final ExecutionYear registrationYear = registration.getRegistrationYear();
+        if (registration.findStudentCurricularPlan(registrationYear).isEmpty()) {
+            throw new DomainException("error.registrationWithoutSCPOnStartInterval", registrationYear.getQualifiedName());
+        }
+    }
+
     public void delete() throws DomainException {
         getEnrolmentsSet().forEach(Enrolment::delete);
 
@@ -185,7 +193,13 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
         setStartExecutionInterval(null);
         setDegreeCurricularPlan(null);
+
+        Registration registration = getRegistration();
         setRegistration(null);
+        if (!registration.getStudentCurricularPlansSet().isEmpty()) {
+            checkIfNoSCPOnStartInterval(registration);
+        }
+
         setRootDomainObject(null);
 
         deleteDomainObject();
