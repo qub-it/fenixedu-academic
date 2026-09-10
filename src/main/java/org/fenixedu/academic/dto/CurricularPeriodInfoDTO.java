@@ -21,20 +21,21 @@
  */
 package org.fenixedu.academic.dto;
 
+import java.io.Serializable;
+
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 
 /**
  * @author - Shezad Anavarali (shezad@ist.utl.pt)
  * 
  */
-public class CurricularPeriodInfoDTO extends DataTranferObject {
+public class CurricularPeriodInfoDTO implements Serializable {
 
     private AcademicPeriod periodType;
 
     private Integer order;
 
     public CurricularPeriodInfoDTO(Integer order, AcademicPeriod type) {
-        super();
         this.order = order;
         this.periodType = type;
     }
