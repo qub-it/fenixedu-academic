@@ -32,6 +32,9 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class RegistrationTest {
 
+    private static ExecutionYear executionYear, nextExecutionYear, presentYear, futureYear;
+    private static ExecutionInterval firstSemester, secondSemester, nextYearFirstSemester, nextYearSecondSemester,
+            presentFirstSemester, futureFirstSemester;
     private static Registration registration;
 
     private static final String PRESENT_ACADEMIC_YEAR_NAME = "PRESENT_YEAR";
@@ -88,28 +91,28 @@ public class RegistrationTest {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             registration.getRegistrationStatesSet().forEach(RegistrationState::delete);
 
-            final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
-            final ExecutionYear executionYear2122 = ExecutionYear.readExecutionYearByName("2021/2022");
-            executionYear2021.setState(PeriodState.CURRENT);
-            executionYear2122.setState(PeriodState.OPEN);
+            executionYear = ExecutionYear.findCurrent(null);
+            nextExecutionYear = executionYear.getNext().getExecutionYear();
+            executionYear.setState(PeriodState.CURRENT);
+            nextExecutionYear.setState(PeriodState.OPEN);
 
-            final ExecutionInterval semester1_2021 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
-            final ExecutionInterval semester2_2021 = executionYear2021.getChildInterval(2, AcademicPeriod.SEMESTER);
-            semester1_2021.setState(PeriodState.CURRENT);
-            semester2_2021.setState(PeriodState.OPEN);
+            firstSemester = executionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
+            secondSemester = executionYear.getChildInterval(2, AcademicPeriod.SEMESTER);
+            firstSemester.setState(PeriodState.CURRENT);
+            secondSemester.setState(PeriodState.OPEN);
 
-            final ExecutionInterval semester1_2122 = executionYear2122.getChildInterval(1, AcademicPeriod.SEMESTER);
-            final ExecutionInterval semester2_2122 = executionYear2122.getChildInterval(2, AcademicPeriod.SEMESTER);
-            semester1_2122.setState(PeriodState.OPEN);
-            semester2_2122.setState(PeriodState.OPEN);
+            nextYearFirstSemester = nextExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
+            nextYearSecondSemester = nextExecutionYear.getChildInterval(2, AcademicPeriod.SEMESTER);
+            nextYearFirstSemester.setState(PeriodState.OPEN);
+            nextYearSecondSemester.setState(PeriodState.OPEN);
 
-            final ExecutionYear presentExecutionYear = ExecutionYear.readExecutionYearByName(PRESENT_ACADEMIC_YEAR_NAME);
-            final ExecutionYear futureExecutionYear = ExecutionYear.readExecutionYearByName(FUTURE_ACADEMIC_YEAR_NAME);
-            presentExecutionYear.setState(PeriodState.OPEN);
-            futureExecutionYear.setState(PeriodState.OPEN);
+            presentYear = ExecutionYear.readExecutionYearByName(PRESENT_ACADEMIC_YEAR_NAME);
+            futureYear = ExecutionYear.readExecutionYearByName(FUTURE_ACADEMIC_YEAR_NAME);
+            presentYear.setState(PeriodState.OPEN);
+            futureYear.setState(PeriodState.OPEN);
 
-            final ExecutionInterval presentFirstSemester = presentExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
-            final ExecutionInterval futureFirstSemester = futureExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
+            presentFirstSemester = presentYear.getChildInterval(1, AcademicPeriod.SEMESTER);
+            futureFirstSemester = futureYear.getChildInterval(1, AcademicPeriod.SEMESTER);
             presentFirstSemester.setState(PeriodState.OPEN);
             futureFirstSemester.setState(PeriodState.OPEN);
 
@@ -118,10 +121,9 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_shouldReturnStateFromRegistration() {
+    public void testRegistration_activeState_shouldReturnStateFromRegistration() {
         final RegistrationState firstState = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
-                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(),
-                ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod());
+                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), firstSemester);
 
         RegistrationState activeState = registration.getActiveState();
 
@@ -132,20 +134,17 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_sameExecutionInterval_shouldReturnLastState() {
+    public void testRegistration_activeState_sameExecutionInterval_shouldReturnLastState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
-        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
-        assertTrue(executionYear2021.isCurrent());
-
-        final ExecutionInterval semester1 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
+        assertTrue(executionYear.isCurrent());
 
         final RegistrationState firstState =
                 RegistrationState.createRegistrationState(registration, null, DateTime.now().minusDays(1),
-                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), semester1);
+                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), firstSemester);
 
         final RegistrationState lastState = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
-                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), semester1);
+                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), firstSemester);
 
         assertEquals(firstState.getExecutionYear(), lastState.getExecutionYear());
 
@@ -158,23 +157,19 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_sameYearDifferentExecutionIntervals_shouldReturnLastCreatedState() {
+    public void testRegistration_activeState_sameYearDifferentExecutionIntervals_shouldReturnLastCreatedState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
-        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
-        assertTrue(executionYear2021.isCurrent());
-
-        final ExecutionInterval semester1 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
-        final ExecutionInterval semester2 = executionYear2021.getChildInterval(2, AcademicPeriod.SEMESTER);
-        assertTrue(semester1.isCurrent());
-        assertFalse(semester2.isCurrent());
+        assertTrue(executionYear.isCurrent());
+        assertTrue(firstSemester.isCurrent());
+        assertFalse(secondSemester.isCurrent());
 
         final RegistrationState semester1State =
                 RegistrationState.createRegistrationState(registration, null, DateTime.now().minusDays(1),
-                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), semester1);
+                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), firstSemester);
 
         final RegistrationState semester2State = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
-                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), semester2);
+                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), secondSemester);
 
         assertEquals(semester1State.getExecutionYear(), semester2State.getExecutionYear());
 
@@ -188,17 +183,13 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_differentExecutionYear_shouldReturnFirstState() {
+    public void testRegistration_activeState_differentExecutionYear_shouldReturnFirstState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
-        final ExecutionYear presentExecutionYear = ExecutionYear.readExecutionYearByName(PRESENT_ACADEMIC_YEAR_NAME);
-        final ExecutionYear futureExecutionYear = ExecutionYear.readExecutionYearByName(FUTURE_ACADEMIC_YEAR_NAME);
-        presentExecutionYear.setState(PeriodState.CURRENT);
-        assertTrue(presentExecutionYear.isCurrent());
-        assertFalse(futureExecutionYear.isCurrent());
+        presentYear.setState(PeriodState.CURRENT);
+        assertTrue(presentYear.isCurrent());
+        assertFalse(futureYear.isCurrent());
 
-        final ExecutionInterval presentFirstSemester = presentExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
-        final ExecutionInterval futureFirstSemester = futureExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
         presentFirstSemester.setState(PeriodState.CURRENT);
         assertTrue(presentFirstSemester.isCurrent());
         assertFalse(futureFirstSemester.isCurrent());
@@ -210,8 +201,8 @@ public class RegistrationTest {
                 RegistrationState.createRegistrationState(registration, null, DateTime.now().plusDays(1),
                         RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), futureFirstSemester);
 
-        assertEquals(presentExecutionYear, firstState.getExecutionYear());
-        assertEquals(futureExecutionYear, lastState.getExecutionYear());
+        assertEquals(presentYear, firstState.getExecutionYear());
+        assertEquals(futureYear, lastState.getExecutionYear());
 
         RegistrationState activeState = registration.getActiveState();
 
@@ -222,17 +213,13 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_differentExecutionYear_shouldReturnLastState() {
+    public void testRegistration_activeState_differentExecutionYear_shouldReturnLastState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
-        final ExecutionYear presentExecutionYear = ExecutionYear.readExecutionYearByName(PRESENT_ACADEMIC_YEAR_NAME);
-        final ExecutionYear futureExecutionYear = ExecutionYear.readExecutionYearByName(FUTURE_ACADEMIC_YEAR_NAME);
-        futureExecutionYear.setState(PeriodState.CURRENT);
-        assertFalse(presentExecutionYear.isCurrent());
-        assertTrue(futureExecutionYear.isCurrent());
+        futureYear.setState(PeriodState.CURRENT);
+        assertFalse(presentYear.isCurrent());
+        assertTrue(futureYear.isCurrent());
 
-        final ExecutionInterval presentFirstSemester = presentExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
-        final ExecutionInterval futureFirstSemester = futureExecutionYear.getChildInterval(1, AcademicPeriod.SEMESTER);
         futureFirstSemester.setState(PeriodState.CURRENT);
         assertFalse(presentFirstSemester.isCurrent());
         assertTrue(futureFirstSemester.isCurrent());
@@ -244,8 +231,8 @@ public class RegistrationTest {
         final RegistrationState lastState = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
                 RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), futureFirstSemester);
 
-        assertEquals(presentExecutionYear, firstState.getExecutionYear());
-        assertEquals(futureExecutionYear, lastState.getExecutionYear());
+        assertEquals(presentYear, firstState.getExecutionYear());
+        assertEquals(futureYear, lastState.getExecutionYear());
 
         RegistrationState activeState = registration.getActiveState();
 
@@ -254,31 +241,27 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testActiveState_pastExecutionYears_shouldReturnLastState() {
+    public void testRegistration_activeState_pastExecutionYears_shouldReturnLastState() {
         assertEquals(0, registration.getRegistrationStatesSet().size());
 
-        final ExecutionYear executionYear2021 = ExecutionYear.readExecutionYearByName("2020/2021");
-        final ExecutionYear executionYear2122 = ExecutionYear.readExecutionYearByName("2021/2022");
-        executionYear2021.setState(PeriodState.CURRENT);
-        assertTrue(executionYear2021.isCurrent());
-        assertFalse(executionYear2122.isCurrent());
+        assertTrue(executionYear.isCurrent());
+        assertFalse(nextExecutionYear.isCurrent());
 
-        final ExecutionInterval semester1_2021 = executionYear2021.getChildInterval(1, AcademicPeriod.SEMESTER);
-        final ExecutionInterval semester1_2122 = executionYear2122.getChildInterval(1, AcademicPeriod.SEMESTER);
-        semester1_2021.setState(PeriodState.CURRENT);
-        assertTrue(semester1_2021.isCurrent());
-        assertFalse(semester1_2122.isCurrent());
+        firstSemester.setState(PeriodState.CURRENT);
+        assertTrue(firstSemester.isCurrent());
+        assertFalse(nextYearFirstSemester.isCurrent());
 
         final RegistrationState firstState =
                 RegistrationState.createRegistrationState(registration, null, DateTime.now().minusMonths(6),
-                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), semester1_2021);
+                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), firstSemester);
 
         final RegistrationState lastState =
                 RegistrationState.createRegistrationState(registration, null, DateTime.now().minusMonths(5),
-                        RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(), semester1_2122);
+                        RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).get(),
+                        nextYearFirstSemester);
 
-        assertEquals(executionYear2021, firstState.getExecutionYear());
-        assertEquals(executionYear2122, lastState.getExecutionYear());
+        assertEquals(executionYear, firstState.getExecutionYear());
+        assertEquals(nextExecutionYear, lastState.getExecutionYear());
 
         RegistrationState activeState = registration.getActiveState();
 
