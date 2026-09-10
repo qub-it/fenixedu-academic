@@ -5,6 +5,7 @@
 - Refactor: Improve Unit domain methods [#qubIT-Fenix-9003]
 - Refactor: Deletes CurricularCourseExecutionScope and Season unused classes [#qubIT-Fenix-9314]
 - Refactor: Deletes StudentCurricularPlanIDDomainType, UniqueAcronymCreator, PredicateContainer and DayType unused classes [#qubIT-Fenix-9314]
+- Improvement: Minor improvements to Registration unit tests [#qubIT-Fenix-9383]
 
 62.0.1 (17-09-2026)
 - Bug Fix: Remove party contact type redundant test [#UL-FC-6226]
