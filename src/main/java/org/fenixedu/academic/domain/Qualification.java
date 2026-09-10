@@ -18,10 +18,8 @@
  */
 package org.fenixedu.academic.domain;
 
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.joda.time.YearMonthDay;
 
 public class Qualification extends Qualification_Base {
 
@@ -33,19 +31,6 @@ public class Qualification extends Qualification_Base {
             setCreator(personLogin);
             setModifiedBy(personLogin);
         }
-    }
-
-    public Qualification(Person person, PrecedentDegreeInformation precedentDegreeInformation) {
-        this();
-        setPerson(person);
-        setMark(precedentDegreeInformation.getConclusionGrade() == null ? null : precedentDegreeInformation.getConclusionGrade());
-        setSchool(precedentDegreeInformation.getInstitution() == null ? null : precedentDegreeInformation.getInstitution()
-                .getName());
-        setDegree(precedentDegreeInformation.getDegreeDesignation() == null ? null : precedentDegreeInformation
-                .getDegreeDesignation());
-        setDateYearMonthDay(precedentDegreeInformation.getConclusionYear() == null ? null : new YearMonthDay(
-                precedentDegreeInformation.getConclusionYear(), 1, 1));
-        setCountry(precedentDegreeInformation.getCountry() == null ? null : precedentDegreeInformation.getCountry());
     }
 
     public void delete() {

@@ -79,12 +79,6 @@ public class Summary extends Summary_Base {
         Signal.emit(CREATE_SIGNAL, new DomainObjectEvent<Summary>(this));
     }
 
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkRequiredParameters() {
-        return getTitle() != null && !getTitle().isEmpty() && getSummaryText() != null && !getSummaryText().isEmpty()
-                && getSummaryDateYearMonthDay() != null && getSummaryHourHourMinuteSecond() != null;
-    }
-
     private void lessonInstanceManagement(Lesson lesson, YearMonthDay day) {
         LessonInstance lessonInstance = lesson.getLessonInstanceFor(day);
 

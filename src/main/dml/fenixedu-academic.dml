@@ -63,7 +63,6 @@ enum org.fenixedu.academic.util.Month                                           
 enum org.fenixedu.academic.util.RegimeType                                                                             as RegimeType;
 enum org.fenixedu.academic.util.WeekDay                                                                                as WeekDay;
 enum org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext                                                as EnrolmentEvaluationContext;
-enum org.fenixedu.academic.domain.OperationType																		  as OperationType;
 enum org.fenixedu.academic.domain.contacts.PartyContactValidationState 									              as PartyContactValidationState;
 enum org.fenixedu.academic.domain.SchoolPeriodDuration																  as SchoolPeriodDuration;
 enum java.math.RoundingMode 																							as RoundingMode;
