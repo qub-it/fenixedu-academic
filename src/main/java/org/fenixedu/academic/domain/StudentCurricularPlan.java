@@ -74,7 +74,6 @@ import org.fenixedu.academic.domain.studentCurriculum.curriculumLine.CurriculumL
 import org.fenixedu.academic.domain.studentCurriculum.curriculumLine.MoveCurriculumLinesBean;
 import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.util.predicates.AndPredicate;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
@@ -353,19 +352,17 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     }
 
     final public boolean hasAnyCurriculumLines(final ExecutionYear executionYear) {
-        final AndPredicate<CurriculumModule> andPredicate = new AndPredicate<CurriculumModule>();
-        andPredicate.add(new CurriculumModulePredicateByType(CurriculumLine.class));
-        andPredicate.add(new CurriculumModulePredicateByExecutionYear(executionYear));
+        final Predicate<CurriculumModule> predicate = new CurriculumModulePredicateByType(CurriculumLine.class).and(
+                new CurriculumModulePredicateByExecutionYear(executionYear));
 
-        return hasAnyCurriculumModules(andPredicate);
+        return hasAnyCurriculumModules(predicate);
     }
 
     public boolean hasAnyCurriculumLines(final ExecutionInterval executionInterval) {
-        final AndPredicate<CurriculumModule> andPredicate = new AndPredicate<CurriculumModule>();
-        andPredicate.add(new CurriculumModulePredicateByType(CurriculumLine.class));
-        andPredicate.add(new CurriculumModulePredicateByExecutionInterval(executionInterval));
+        final Predicate<CurriculumModule> predicate = new CurriculumModulePredicateByType(CurriculumLine.class).and(
+                new CurriculumModulePredicateByExecutionInterval(executionInterval));
 
-        return hasAnyCurriculumModules(andPredicate);
+        return hasAnyCurriculumModules(predicate);
     }
 
     final public boolean hasEnrolments(final Enrolment enrolment) {
