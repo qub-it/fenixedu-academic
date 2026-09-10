@@ -13,9 +13,6 @@ import java.util.function.Predicate;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.EnrolmentEvaluation;
-import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.EvaluationSeasonTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -727,6 +724,46 @@ public class CurriculumGroupTest {
         // optional: C4 (dismissal) approved -> filtered out;
         assertEquals(1, optionalCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).size());
         assertTrue(optionalCurriculumGroup.getCurricularCoursesToDismissal(firstSemester).contains(cc5));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasEnrolment() {
+        // C1-C3 are enrolled in executionYear/firstSemester
+        assertTrue(mandatoryCurriculumGroup.hasEnrolment(executionYear));
+        assertTrue(cycleCurriculumGroup.hasEnrolment(executionYear));
+        assertTrue(mandatoryCurriculumGroup.hasEnrolment(firstSemester));
+        assertTrue(cycleCurriculumGroup.hasEnrolment(firstSemester));
+
+        // C4 is a Dismissal, not an Enrolment
+        assertFalse(optionalCurriculumGroup.hasEnrolment(executionYear));
+        assertFalse(optionalCurriculumGroup.hasEnrolment(firstSemester));
+
+        // no enrolments in other years
+        final ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
+        assertFalse(mandatoryCurriculumGroup.hasEnrolment(previousYear));
+        assertFalse(cycleCurriculumGroup.hasEnrolment(previousYear));
+        assertFalse(mandatoryCurriculumGroup.hasEnrolment(previousYear.getLastExecutionPeriod()));
+    }
+
+    @Test
+    public void testCurriculumGroup_hasAnyApprovedCurriculumLines() {
+        // C1 is approved
+        assertTrue(mandatoryCurriculumGroup.hasAnyApprovedCurriculumLines());
+
+        // C4 dismissal is an approved CurriculumLine
+        assertTrue(optionalCurriculumGroup.hasAnyApprovedCurriculumLines());
+
+        // group with curriculum lines but NONE approved
+        final NoCourseGroupCurriculumGroup group =
+                NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, rootCurriculumGroup);
+        try {
+            assertFalse(group.hasAnyApprovedCurriculumLines());
+            ConclusionRulesTestUtil.enrol(studentCurricularPlan, executionYear, "C5");
+            assertFalse(group.hasAnyApprovedCurriculumLines()); // cc5 enrolled but not approved
+        } finally {
+            group.getEnrolmentsSet().forEach(Enrolment::delete);
+            group.delete();
+        }
     }
 
     /* Tests for private utility methods commented out because methods are private
