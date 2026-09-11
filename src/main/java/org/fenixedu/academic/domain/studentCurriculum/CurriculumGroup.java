@@ -54,10 +54,7 @@ import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
-
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.predicates.AndPredicate;
-import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -418,14 +415,6 @@ public class CurriculumGroup extends CurriculumGroup_Base {
                 .map(group -> group.findCurriculumGroupFor(courseGroup)).filter(Objects::nonNull).findFirst().orElse(null);
     }
 
-    @Override
-    public void getCurriculumModules(final ResultCollection<CurriculumModule> collection) {
-        collection.condicionalAdd(this);
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            curriculumModule.getCurriculumModules(collection);
-        }
-    }
-
     final public Set<CurriculumLine> getCurriculumLines() {
         return getCurriculumModulesSet().stream().filter(CurriculumModule::isLeaf).map(CurriculumLine.class::cast)
                 .collect(Collectors.toCollection(() -> new TreeSet<CurriculumLine>(CurriculumModule.COMPARATOR_BY_NAME_AND_ID)));
@@ -444,11 +433,9 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     final public boolean hasAnyApprovedCurriculumLines() {
-        final AndPredicate<CurriculumModule> andPredicate = new AndPredicate<CurriculumModule>();
-        andPredicate.add(new CurriculumModulePredicateByType(CurriculumLine.class));
-        andPredicate.add(new CurriculumModulePredicateByApproval());
-
-        return hasAnyCurriculumModules(andPredicate);
+        final Predicate<CurriculumModule> predicate =
+                new CurriculumModulePredicateByType(CurriculumLine.class).and(new CurriculumModulePredicateByApproval());
+        return hasAnyCurriculumModules(predicate);
     }
 
     final public Set<CurriculumGroup> getCurriculumGroups() {
@@ -846,20 +833,16 @@ public class CurriculumGroup extends CurriculumGroup_Base {
 
     @Override
     public boolean hasEnrolment(ExecutionYear executionYear) {
-        final AndPredicate<CurriculumModule> andPredicate = new AndPredicate<CurriculumModule>();
-        andPredicate.add(new CurriculumModulePredicateByType(Enrolment.class));
-        andPredicate.add(new CurriculumModulePredicateByExecutionYear(executionYear));
-
-        return hasAnyCurriculumModules(andPredicate);
+        final Predicate<CurriculumModule> predicate = new CurriculumModulePredicateByType(Enrolment.class).and(
+                new CurriculumModulePredicateByExecutionYear(executionYear));
+        return hasAnyCurriculumModules(predicate);
     }
 
     @Override
     public boolean hasEnrolment(ExecutionInterval executionInterval) {
-        final AndPredicate<CurriculumModule> andPredicate = new AndPredicate<CurriculumModule>();
-        andPredicate.add(new CurriculumModulePredicateByType(Enrolment.class));
-        andPredicate.add(new CurriculumModulePredicateByExecutionInterval(executionInterval));
-
-        return hasAnyCurriculumModules(andPredicate);
+        final Predicate<CurriculumModule> predicate = new CurriculumModulePredicateByType(Enrolment.class).and(
+                new CurriculumModulePredicateByExecutionInterval(executionInterval));
+        return hasAnyCurriculumModules(predicate);
     }
 
     public Set<Enrolment> getEnrolmentsBy(final ExecutionYear executionYear) {

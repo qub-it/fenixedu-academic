@@ -1,3 +1,4 @@
+- Refactor: Deletes Predicates classes [#qubIT-Fenix-9322]
 - Refactor: Improves TeacherAuthorization domain methods [#qubIT-Fenix-9409]
 - Refactor: Improve Unit domain methods [#qubIT-Fenix-9003]
 - Refactor: Deletes CurricularCourseExecutionScope and Season unused classes [#qubIT-Fenix-9314]
