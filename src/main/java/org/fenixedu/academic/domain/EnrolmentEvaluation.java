@@ -22,64 +22,28 @@ import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.FenixDigestUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.fenixedu.academic.util.Bundle.APPLICATION;
 
 public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
-    public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN = new Comparator<EnrolmentEvaluation>() {
+    public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN =
+            Comparator.comparing(EnrolmentEvaluation::getWhenDateTime, Comparator.nullsFirst(Comparator.naturalOrder()));
 
-        @Override
-        public int compare(EnrolmentEvaluation o1, EnrolmentEvaluation o2) {
-            final DateTime o1When = o1.getWhenDateTime();
-            final DateTime o2When = o2.getWhenDateTime();
-
-            if (o1When != null && o2When != null) {
-                return o1When.compareTo(o2When);
-            }
-
-            return o1When == null ? -1 : 1;
-        }
-
-    };
-
-    public static final Comparator<EnrolmentEvaluation> SORT_BY_STUDENT_NUMBER = new Comparator<EnrolmentEvaluation>() {
-
-        @Override
-        public int compare(EnrolmentEvaluation o1, EnrolmentEvaluation o2) {
-            final Student s1 = o1.getRegistration().getStudent();
-            final Student s2 = o2.getRegistration().getStudent();
-            return s1.getNumber().compareTo(s2.getNumber());
-        }
-
-    };
-
-    static final public Comparator<EnrolmentEvaluation> COMPARATOR_BY_EXAM_DATE = new Comparator<EnrolmentEvaluation>() {
-        @Override
-        public int compare(EnrolmentEvaluation o1, EnrolmentEvaluation o2) {
-            if (o1.getExamDateYearMonthDay() == null && o2.getExamDateYearMonthDay() == null) {
-                return 0;
-            }
-            if (o1.getExamDateYearMonthDay() == null) {
-                return -1;
-            }
-            if (o2.getExamDateYearMonthDay() == null) {
-                return 1;
-            }
-            return o1.getExamDateYearMonthDay().compareTo(o2.getExamDateYearMonthDay());
-        }
-    };
+    static final Comparator<EnrolmentEvaluation> COMPARATOR_BY_EXAM_DATE =
+            Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     public EnrolmentEvaluation() {
         super();
@@ -103,29 +67,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         setEvaluationSeason(season);
     }
 
-    private EnrolmentEvaluation(Enrolment enrolment, EnrolmentEvaluationState enrolmentEvaluationState, EvaluationSeason season,
-            Person responsibleFor, Grade grade, Date availableDate, Date examDate) {
-
-        this(enrolment, season);
-
-        if (enrolmentEvaluationState == null || responsibleFor == null) {
-            throw new DomainException("error.enrolmentEvaluation.invalid.parameters");
-        }
-        setEnrolmentEvaluationState(enrolmentEvaluationState);
-        setPersonResponsibleForGrade(responsibleFor);
-        setGrade(grade);
-        setGradeAvailableDate(availableDate);
-        setExamDate(examDate);
-
-        generateCheckSum();
-    }
-
-    protected EnrolmentEvaluation(Enrolment enrolment, EnrolmentEvaluationState enrolmentEvaluationState, EvaluationSeason season,
-            Person responsibleFor, Grade grade, Date availableDate, Date examDate, DateTime when) {
-        this(enrolment, enrolmentEvaluationState, season, responsibleFor, grade, availableDate, examDate);
-        setWhenDateTime(when);
-    }
-
     protected EnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season, EnrolmentEvaluationState evaluationState) {
         this(enrolment, season);
         if (evaluationState == null) {
@@ -133,24 +74,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         }
         setEnrolmentEvaluationState(evaluationState);
         setWhenDateTime(new DateTime());
-    }
-
-    protected EnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season, EnrolmentEvaluationState evaluationState,
-            Person person) {
-        this(enrolment, season, evaluationState);
-        if (person == null) {
-            throw new DomainException("error.enrolmentEvaluation.invalid.parameters");
-        }
-        setPerson(person);
-    }
-
-    protected EnrolmentEvaluation(Enrolment enrolment, EvaluationSeason season, EnrolmentEvaluationState evaluationState,
-            Person person, ExecutionInterval executionInterval) {
-        this(enrolment, season, evaluationState, person);
-        if (executionInterval == null) {
-            throw new DomainException("error.enrolmentEvaluation.invalid.parameters");
-        }
-        setExecutionPeriod(executionInterval);
     }
 
     public EnrollmentState getEnrollmentStateByGrade() {
@@ -224,10 +147,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         setExamDateYearMonthDay(null);
         setGradeAvailableDateYearMonthDay(null);
         setPersonResponsibleForGrade(null);
-    }
-
-    private ExecutionYear getExecutionYear() {
-        return getExecutionInterval().getExecutionYear();
     }
 
     public void confirmSubmission(Person person, String observation) {
@@ -318,6 +237,7 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         super.setGradeValue(grade.getValue());
     }
 
+    // Used in reports
     @Deprecated
     public Registration getStudent() {
         return this.getRegistration();
@@ -339,14 +259,10 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         return !getGrade().isEmpty();
     }
 
-    final public boolean hasExamDateYearMonthDay() {
-        return getExamDateYearMonthDay() != null;
-    }
-
     /**
      * @deprecated use {@link #getExecutionInterval()} instead.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @Override
     public ExecutionInterval getExecutionPeriod() {
         return getExecutionInterval();
@@ -360,8 +276,12 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         return getEnrolment().getExecutionInterval();
     }
 
-    @Deprecated
-    public java.util.Date getExamDate() {
+    public LocalDate getExamLocalDate() {
+        return Optional.ofNullable(getExamDateYearMonthDay()).map(YearMonthDay::toLocalDate).orElse(null);
+    }
+
+    @Deprecated(forRemoval = true)
+    public Date getExamDate() {
         org.joda.time.YearMonthDay ymd = getExamDateYearMonthDay();
         return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
     }
@@ -375,7 +295,12 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         }
     }
 
-    @Deprecated
+    public LocalDate getGradeAvailableLocalDate() {
+        return Optional.ofNullable(getGradeAvailableDateYearMonthDay()).map(YearMonthDay::toLocalDate).orElse(null);
+
+    }
+
+    @Deprecated(forRemoval = true)
     public java.util.Date getGradeAvailableDate() {
         org.joda.time.YearMonthDay ymd = getGradeAvailableDateYearMonthDay();
         return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
@@ -390,19 +315,9 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         }
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public java.util.Date getWhen() {
         org.joda.time.DateTime dt = getWhenDateTime();
         return (dt == null) ? null : new java.util.Date(dt.getMillis());
     }
-
-    @Deprecated
-    public void setWhen(java.util.Date date) {
-        if (date == null) {
-            setWhenDateTime(null);
-        } else {
-            setWhenDateTime(new org.joda.time.DateTime(date.getTime()));
-        }
-    }
-
 }
