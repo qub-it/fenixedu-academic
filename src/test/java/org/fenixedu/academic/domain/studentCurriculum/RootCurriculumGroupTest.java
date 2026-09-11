@@ -215,15 +215,25 @@ public class RootCurriculumGroupTest {
 
     @Test
     public void testRootCurriculumGroup_GetAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
+        final NoCourseGroupCurriculumGroup rootExtraCurricular =
+                root.getNoCourseGroupCurriculumGroup(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR);
+        assertNotNull(rootExtraCurricular);
+
         final Set<CurriculumGroup> groups = root.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
         assertNotNull(groups);
+        assertFalse(groups.contains(rootExtraCurricular));
         assertTrue(groups.contains(root.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
         assertTrue(groups.contains(root.getCycleCurriculumGroup(CycleType.SECOND_CYCLE)));
         assertTrue(groups.stream().noneMatch(NoCourseGroupCurriculumGroup.class::isInstance));
         assertFalse(groups.contains(root));
 
+        final NoCourseGroupCurriculumGroup externalRootExtraCurricular =
+                externalRoot.getNoCourseGroupCurriculumGroup(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR);
+        assertNotNull(externalRootExtraCurricular);
+
         final Set<CurriculumGroup> externalGroups = externalRoot.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
         assertNotNull(externalGroups);
+        assertFalse(externalGroups.contains(externalRootExtraCurricular));
         assertTrue(externalGroups.contains(externalRoot.getCycleCurriculumGroup(CycleType.FIRST_CYCLE)));
         assertTrue(externalGroups.contains(externalCycle));
         assertTrue(externalGroups.stream().noneMatch(NoCourseGroupCurriculumGroup.class::isInstance));

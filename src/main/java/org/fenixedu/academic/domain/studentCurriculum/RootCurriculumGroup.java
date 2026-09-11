@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -120,9 +120,12 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
 
     private void createCycle(final RootCourseGroup rootCourseGroup, final ExecutionInterval executionInterval,
             final CycleType cycle) {
-        Optional.ofNullable(cycle)
-                .or(() -> Optional.ofNullable(rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType())).ifPresent(
-                        c -> CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(c), executionInterval));
+        final CycleType cycleToCreate =
+                cycle != null ? cycle : rootCourseGroup.getDegree().getDegreeType().getFirstOrderedCycleType();
+
+        if (cycleToCreate != null) {
+            CurriculumGroupFactory.createGroup(this, rootCourseGroup.getCycleCourseGroup(cycleToCreate), executionInterval);
+        }
     }
 
     private void checkInitConstraints(final StudentCurricularPlan studentCurricularPlan, final RootCourseGroup rootCourseGroup) {
