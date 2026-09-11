@@ -20,10 +20,8 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Comparator;
 
-import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -37,24 +35,11 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
  */
 public class CycleCurriculumGroup extends CycleCurriculumGroup_Base {
 
-    static final private Comparator<CycleCurriculumGroup> COMPARATOR_BY_CYCLE_TYPE = new Comparator<CycleCurriculumGroup>() {
-        @Override
-        final public int compare(final CycleCurriculumGroup o1, final CycleCurriculumGroup o2) {
-            return CycleType.COMPARATOR_BY_LESS_WEIGHT.compare(o1.getCycleType(), o2.getCycleType());
-        }
-    };
+    static final private Comparator<CycleCurriculumGroup> COMPARATOR_BY_CYCLE_TYPE =
+            (o1, o2) -> CycleType.COMPARATOR_BY_LESS_WEIGHT.compare(o1.getCycleType(), o2.getCycleType());
 
     static final public Comparator<CycleCurriculumGroup> COMPARATOR_BY_CYCLE_TYPE_AND_ID =
-            new Comparator<CycleCurriculumGroup>() {
-                @Override
-                final public int compare(final CycleCurriculumGroup o1, final CycleCurriculumGroup o2) {
-                    final ComparatorChain comparatorChain = new ComparatorChain();
-                    comparatorChain.addComparator(CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE);
-                    comparatorChain.addComparator(DomainObjectUtil.COMPARATOR_BY_ID);
-
-                    return comparatorChain.compare(o1, o2);
-                }
-            };
+            COMPARATOR_BY_CYCLE_TYPE.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     protected CycleCurriculumGroup() {
         super();
@@ -140,17 +125,11 @@ public class CycleCurriculumGroup extends CycleCurriculumGroup_Base {
 
     @Override
     public void deleteRecursive() {
-        for (final CurriculumModule child : getCurriculumModulesSet()) {
-            child.deleteRecursive();
-        }
+        getCurriculumModulesSet().stream().toList().forEach(CurriculumModule::deleteRecursive);
 
         super.delete();
     }
-
-    public Double getDefaultEcts(final ExecutionYear executionYear) {
-        return getDegreeModule().getDefaultEcts(executionYear);
-    }
-
+    
     @Override
     public CycleCurriculumGroup getParentCycleCurriculumGroup() {
         return this;

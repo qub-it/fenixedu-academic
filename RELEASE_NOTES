@@ -1,3 +1,4 @@
+- Refactor: Improve CycleCurriculumGroup domain methods [#qubIT-Fenix-9395]
 - Refactor: Add tests and improve methods from Attends class [#qubIT-Fenix-8922]
 - Refactor: Deletes unused GrantOwnerType class methods [#qubIT-Fenix-9332]
 - Refactor: Improves DegreeOfficialPublication domain methods [#qubIT-Fenix-9299]
