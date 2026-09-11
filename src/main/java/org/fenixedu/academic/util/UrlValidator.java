@@ -18,7 +18,6 @@
  */
 package org.fenixedu.academic.util;
 
-import pt.ist.fenixWebFramework.renderers.validators.HtmlChainValidator;
 import pt.ist.fenixWebFramework.renderers.validators.HtmlValidator;
 
 public class UrlValidator extends HtmlValidator {
@@ -34,14 +33,6 @@ public class UrlValidator extends HtmlValidator {
      */
     public UrlValidator() {
         super();
-        setKey(true);
-        setMessage("renderers.validator.url");
-        setRequired(true);
-    }
-
-    public UrlValidator(HtmlChainValidator htmlChainValidator) {
-        super(htmlChainValidator);
-        // default messsage
         setKey(true);
         setMessage("renderers.validator.url");
         setRequired(true);
