@@ -33,9 +33,4 @@ public class ShiftProfessorship extends ShiftProfessorship_Base {
         setRootDomainObject(null);
         super.deleteDomainObject();
     }
-
-    public boolean belongsToExecutionPeriod(ExecutionInterval executionInterval) {
-        return this.getProfessorship().getExecutionCourse().getExecutionInterval().equals(executionInterval);
-    }
-
 }

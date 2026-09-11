@@ -141,10 +141,6 @@ public class Professorship extends Professorship_Base {
         return getPerson() != null && getPerson().getTeacher() != null;
     }
 
-    public void removeTeacher() {
-        setPerson(null);
-    }
-
     public String getDegreeSiglas() {
         return getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
                 .map(cc -> cc.getDegreeCurricularPlan().getDegree().getSigla()).distinct().sorted()
