@@ -1,3 +1,4 @@
+- Refactor: Deletes CurricularCourseExecutionScope and Season unused classes [#qubIT-Fenix-9314]
 - Refactor: Deletes deprecated EvaluationSeason class methods [#qubIT-Fenix-9320]
 - Refactor: Improve Evaluation domain methods [#qubIT-Fenix-9251]
 
