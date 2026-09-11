@@ -42,14 +42,10 @@ public class Season implements Serializable {
     public static final String SPECIAL_SEASON_STRING = "Época Especial";
     public static final String DEFAULT = "[Escolha a Epoca]";
 
-    public static final Season SEASON1_OBJ = new Season(SEASON1);
-    public static final Season SEASON2_OBJ = new Season(SEASON2);
-    public static final Season SPECIAL_SEASON_OBJ = new Season(SPECIAL_SEASON);
-
     private final Integer season;
 
     public Season(int season) {
-        this.season = new Integer(season);
+        this.season = season;
     }
 
     public Season(Integer season) {
@@ -72,7 +68,7 @@ public class Season implements Serializable {
     public boolean equals(Object o) {
         if (o instanceof Season) {
             Season aux = (Season) o;
-            return this.season.equals(aux.getseason());
+            return this.season.equals(aux.getSeason());
         }
         return false;
     }
@@ -89,10 +85,6 @@ public class Season implements Serializable {
             return Season.SPECIAL_SEASON_STRING;
         }
         return "ERROR";
-    }
-
-    public java.lang.Integer getseason() {
-        return season;
     }
 
     public java.lang.Integer getSeason() {
