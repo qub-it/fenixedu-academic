@@ -156,7 +156,7 @@ valueType org.fenixedu.academic.util.PeriodState as PeriodState {
 
 valueType org.fenixedu.academic.util.Season as Season {
     externalizeWith {
-        Integer getseason();
+        Integer getSeason();
     }
 }
 
