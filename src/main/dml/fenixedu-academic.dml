@@ -118,12 +118,6 @@ valueType org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCurricularYea
     internalizeWith internalize();
 }
 
-valueType org.fenixedu.academic.util.CurricularCourseExecutionScope as CurricularCourseExecutionScope {
-    externalizeWith {
-        Integer getType();
-    }
-}
-
 valueType org.fenixedu.academic.util.DiaSemana as DiaSemana {
     externalizeWith {
         Integer getDiaSemana();
@@ -152,12 +146,6 @@ valueType org.fenixedu.academic.util.PeriodState as PeriodState {
     }
 
     internalizeWith valueOf();
-}
-
-valueType org.fenixedu.academic.util.Season as Season {
-    externalizeWith {
-        Integer getseason();
-    }
 }
 
 valueType org.joda.time.Interval as Interval {
