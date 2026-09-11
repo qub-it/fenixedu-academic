@@ -19,6 +19,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.util.ConclusionRulesTestUtil;
+import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degreeStructure.BranchType;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -758,7 +759,7 @@ public class CurriculumGroupTest {
                 NoCourseGroupCurriculumGroup.create(NoCourseGroupCurriculumGroupType.EXTRA_CURRICULAR, rootCurriculumGroup);
         try {
             assertFalse(group.hasAnyApprovedCurriculumLines());
-            ConclusionRulesTestUtil.enrol(studentCurricularPlan, executionYear, "C5");
+            new Enrolment(studentCurricularPlan, group, cc5, firstSemester, EnrollmentCondition.FINAL, STUDENT_USERNAME);
             assertFalse(group.hasAnyApprovedCurriculumLines()); // cc5 enrolled but not approved
         } finally {
             group.getEnrolmentsSet().forEach(Enrolment::delete);

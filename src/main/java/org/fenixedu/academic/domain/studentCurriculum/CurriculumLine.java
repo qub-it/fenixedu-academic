@@ -36,7 +36,6 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.EnrolmentActionType;
-import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
@@ -159,11 +158,6 @@ abstract public class CurriculumLine extends CurriculumLine_Base {
     @Override
     public ExecutionYear getIEnrolmentsLastExecutionYear() {
         return getExecutionYear();
-    }
-
-    @Override
-    public void getCurriculumModules(final ResultCollection<CurriculumModule> collection) {
-        collection.condicionalAdd(this);
     }
 
     public CurricularCourse getCurricularCourse() {
