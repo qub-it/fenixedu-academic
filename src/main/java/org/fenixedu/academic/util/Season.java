@@ -53,38 +53,27 @@ public class Season implements Serializable {
     }
 
     public Season(String season) {
-        if (season.equals(Season.SEASON1_STRING)) {
-            this.season = Integer.valueOf(Season.SEASON1);
-        } else if (season.equals(Season.SEASON2_STRING)) {
-            this.season = Integer.valueOf(Season.SEASON2);
-        } else if (season.equals(Season.SPECIAL_SEASON_STRING)) {
-            this.season = Integer.valueOf(Season.SPECIAL_SEASON);
-        } else {
-            throw new UnsupportedOperationException();
+        switch (season) {
+        case Season.SEASON1_STRING -> this.season = Season.SEASON1;
+        case Season.SEASON2_STRING -> this.season = Season.SEASON2;
+        case Season.SPECIAL_SEASON_STRING -> this.season = Season.SPECIAL_SEASON;
+        default -> throw new UnsupportedOperationException();
         }
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Season) {
-            Season aux = (Season) o;
-            return this.season.equals(aux.getSeason());
-        }
-        return false;
+        return o instanceof Season season && this.season.equals(season.getSeason());
     }
 
     @Override
     public String toString() {
-        if (season.intValue() == Season.SEASON1) {
-            return Season.SEASON1_STRING;
-        }
-        if (season.intValue() == Season.SEASON2) {
-            return Season.SEASON2_STRING;
-        }
-        if (season.intValue() == Season.SPECIAL_SEASON) {
-            return Season.SPECIAL_SEASON_STRING;
-        }
-        return "ERROR";
+        return switch (season) {
+            case SEASON1 -> SEASON1_STRING;
+            case SEASON2 -> SEASON2_STRING;
+            case SPECIAL_SEASON -> SPECIAL_SEASON_STRING;
+            default -> "ERROR";
+        };
     }
 
     public java.lang.Integer getSeason() {
