@@ -42,10 +42,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
     public static final Comparator<EnrolmentEvaluation> COMPARATOR_BY_WHEN =
             Comparator.comparing(EnrolmentEvaluation::getWhenDateTime, Comparator.nullsFirst(Comparator.naturalOrder()));
 
-    @Deprecated
-    public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN =
-            Comparator.comparing(EnrolmentEvaluation::getWhenDateTime, Comparator.nullsFirst(Comparator.naturalOrder()));
-
     public EnrolmentEvaluation() {
         super();
         setRootDomainObject(Bennu.getInstance());
