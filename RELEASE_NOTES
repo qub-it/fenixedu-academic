@@ -1,3 +1,4 @@
+- Refactor: Improve StandaloneCurriculumGroup domain methods [#qubIT-Fenix-9406]
 - Refactor: Improve NoCourseGroupCurriculumGroup domain methods [#qubIT-Fenix-9407]
 - Refactor: Deletes Predicates classes [#qubIT-Fenix-9322]
 - Refactor: Improves TeacherAuthorization domain methods [#qubIT-Fenix-9409]
