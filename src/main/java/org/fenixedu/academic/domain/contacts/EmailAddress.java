@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.contacts;
 
 import java.util.Comparator;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,48 +51,9 @@ public class EmailAddress extends EmailAddress_Base {
                 .orElseGet(() -> EmailAddress.create(party, email, type, isDefault));
     }
 
-    @Deprecated(forRemoval = true)
-    public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
-            final Boolean isDefault, final Boolean visibleToPublic, final Boolean visibleToStudents,
-            final Boolean visibleToStaff) {
-        final Supplier<EmailAddress> supplier =
-                () -> new EmailAddress(party, type, visibleToPublic, visibleToStudents, visibleToStaff, isDefault, email);
-        return createEmailAddress(supplier, party, email);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static EmailAddress createEmailAddress(final Party party, final String email, final PartyContactType type,
-            final boolean isDefault) {
-        final Supplier<EmailAddress> supplier = () -> new EmailAddress(party, type, isDefault, email);
-        return createEmailAddress(supplier, party, email);
-    }
-
-    @Deprecated(forRemoval = true)
-    private static EmailAddress createEmailAddress(final Supplier<EmailAddress> supplier, final Party party, final String email) {
-        return StringUtils.isEmpty(email) ? null : party.getEmailAddressStream()
-                .filter(ea -> email.equalsIgnoreCase(ea.getValue())).findAny().orElseGet(supplier);
-    }
-
     protected EmailAddress() {
         super();
         new EmailValidation(this);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected EmailAddress(final Party party, final PartyContactType type, final boolean defaultContact, final String value) {
-        this();
-        super.init(party, type, defaultContact);
-        checkParameters(value);
-        setValue(value);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected EmailAddress(final Party party, final PartyContactType type, final boolean visibleToPublic,
-            final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String value) {
-        this();
-        super.init(party, type, visibleToPublic, visibleToStudents, visibleToStaff, defaultContact);
-        checkParameters(value);
-        setValue(value);
     }
 
     private static void checkParameters(final String value) {
@@ -220,5 +180,4 @@ public class EmailAddress extends EmailAddress_Base {
     public void logRefuse(final Person person) {
         logRefuseAux(person, "label.partyContacts.EmailAddress");
     }
-
 }
