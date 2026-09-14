@@ -1,3 +1,4 @@
+- Refactor: Cleans StringFormatter of unused methods [#qubIT-Fenix-8839]
 - Refactor: Improves EnrolmentEvaluation domain methods [#qubIT-Fenix-9300]
 - Refactor: Deletes unused classes and methods [#qubIT-Fenix-9332]
 - Refactor: Clean up BusinessArea entity [#qubIT-Fenix-9224]
