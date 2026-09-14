@@ -99,10 +99,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public void setType(PartyTypeEnum partyTypeEnum) {
         if (partyTypeEnum != null) {
-            PartyType partyType = PartyType.readPartyTypeByType(partyTypeEnum);
-            if (partyType == null) {
-                throw new DomainException("error.Party.unknown.partyType");
-            }
+            final PartyType partyType = PartyType.of(partyTypeEnum)
+                    .orElseThrow(() -> new DomainException("error.Party.unknown.partyType"));
             setPartyType(partyType);
         } else {
             setPartyType(null);
