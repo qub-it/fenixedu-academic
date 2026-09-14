@@ -179,8 +179,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
             df.delete();
         });
 
-        for (; !getPartyContactsSet().isEmpty(); getPartyContactsSet().iterator().next().deleteWithoutCheckRules()) {
-            ;
+        while (!getPartyContactsSet().isEmpty()) {
+            getPartyContactsSet().forEach(PartyContact::deleteWithoutCheckRules);
         }
 
         if (getPartySocialSecurityNumber() != null) {
@@ -297,25 +297,10 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return false;
     }
 
-    public boolean hasPartyContact(final Class<? extends PartyContact> clazz, final PartyContactType type, final String value) {
-        final List<? extends PartyContact> allPartyContacts = getPartyContacts(clazz, type);
-        for (PartyContact contact : allPartyContacts) {
-            if (contact.hasValue(value)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public List<? extends PartyContact> getAllPartyContacts(final Class<? extends PartyContact> clazz,
             final PartyContactType type) {
-        final List<PartyContact> result = new ArrayList<PartyContact>();
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && (type == null || contact.getType() == type)) {
-                result.add(contact);
-            }
-        }
-        return result;
+        return getPartyContactsSet().stream().filter(contact -> clazz.isAssignableFrom(contact.getClass()))
+                .filter(contact -> type == null || contact.getType() == type).collect(Collectors.toList());
     }
 
     public List<? extends PartyContact> getAllPartyContacts(final Class<? extends PartyContact> clazz) {
@@ -330,14 +315,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public List<? extends PartyContact> getPartyContacts(final Class<? extends PartyContact> clazz, final PartyContactType type) {
-        final List<PartyContact> result = new ArrayList<PartyContact>();
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && (type == null || contact.getType() == type)
-                    && contact.isActiveAndValid()) {
-                result.add(contact);
-            }
-        }
-        return result;
+        return getAllPartyContacts(clazz, type).stream().filter(PartyContact::isActiveAndValid).collect(Collectors.toList());
     }
 
     public List<? extends PartyContact> getPendingOrValidPartyContacts(final Class<? extends PartyContact> clazz,
