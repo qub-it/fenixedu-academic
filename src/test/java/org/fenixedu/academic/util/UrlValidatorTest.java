@@ -14,13 +14,106 @@ import pt.ist.fenixWebFramework.renderers.validators.HtmlValidator;
 @RunWith(FenixFrameworkRunner.class)
 public class UrlValidatorTest {
 
-    private static final class TestValidatable implements Validatable {
+    private boolean isValid(String value) {
+        return isValid(value, false);
+    }
 
-        private final String value;
+    private boolean isValid(String value, boolean required) {
+        final UrlValidator validator = createUrlValidator(value, required);
+        validator.performValidation();
+        return validator.isValid();
+    }
 
-        TestValidatable(String value) {
-            this.value = value;
-        }
+    private static UrlValidator createUrlValidator(final String value, final boolean required) {
+        final UrlValidator validator = new UrlValidator();
+        validator.setRequired(required);
+        final HtmlChainValidator chain = new HtmlChainValidator(new TestValidatable(value));
+        chain.addValidator(validator);
+        return validator;
+    }
+
+    @Test
+    public void givenDefaultValidator_thenRequiredIsTrue() {
+        assertTrue(new UrlValidator().isRequired());
+    }
+
+    @Test
+    public void givenCompleteHttpUrl_isValid() {
+        assertTrue(isValid("http://example.com"));
+    }
+
+    @Test
+    public void givenCompleteHttpsUrl_isValid() {
+        assertTrue(isValid("https://www.example.com/sub/page?q=1#frag"));
+    }
+
+    @Test
+    public void givenUrlWithoutScheme_isValid() {
+        assertTrue(isValid("example.com"));
+    }
+
+    @Test
+    public void givenUrlWithoutSchemeWithPortAndPath_isValid() {
+        assertTrue(isValid("example.com:8080/path"));
+    }
+
+    @Test
+    public void givenIpAddressUrl_isValid() {
+        assertTrue(isValid("http://192.168.1.1:8080/page"));
+    }
+
+    @Test
+    public void givenMalformedUrlWithSpaces_isInvalid() {
+        assertFalse(isValid("http://exa mple.com"));
+    }
+
+    @Test
+    public void givenMalformedUrlWithoutScheme_isInvalid() {
+        assertFalse(isValid("not a url"));
+    }
+
+    @Test
+    public void givenSingleLabelHost_isInvalid() {
+        assertFalse(isValid("foo"));
+    }
+
+    @Test
+    public void givenMissingHost_isInvalid() {
+        assertFalse(isValid("http://"));
+    }
+
+    @Test
+    public void givenSchemeNameOnly_isInvalid() {
+        assertFalse(isValid("http"));
+        assertFalse(isValid("https"));
+    }
+
+    @Test
+    public void givenUppercaseSchemeUrl_isInvalid() {
+        assertFalse(isValid("HTTP://EXAMPLE.COM"));
+    }
+
+    @Test
+    public void givenRequiredAndEmptyValue_isInvalid() {
+        assertFalse(isValid("", true));
+    }
+
+    @Test
+    public void givenRequiredAndNullValue_isInvalid() {
+        assertFalse(isValid(null, true));
+    }
+
+    @Test
+    public void givenNotRequiredAndEmptyValue_isValid() {
+        assertTrue(isValid("", false));
+    }
+
+    @Test
+    public void givenNotRequiredAndNullValue_isValid() {
+        assertTrue(isValid(null, false));
+    }
+
+    private record TestValidatable(String value) implements Validatable {
 
         @Override
         public String getValue() {
@@ -33,10 +126,6 @@ public class UrlValidatorTest {
         }
 
         @Override
-        public void setChainValidator(HtmlChainValidator chainValidator) {
-        }
-
-        @Override
         public void addValidator(HtmlValidator validator) {
         }
 
@@ -44,160 +133,10 @@ public class UrlValidatorTest {
         public HtmlChainValidator getChainValidator() {
             return null;
         }
+
+        @Override
+        public void setChainValidator(HtmlChainValidator chainValidator) {
+        }
     }
 
-    private UrlValidator validatorFor(String value) {
-        return validatorFor(value, true);
-    }
-
-    private UrlValidator validatorFor(String value, boolean required) {
-        final HtmlChainValidator chain = new HtmlChainValidator(new TestValidatable(value));
-        final UrlValidator validator = new UrlValidator();
-        validator.setRequired(required);
-        chain.addValidator(validator);
-        return validator;
-    }
-
-    @Test
-    public void givenCompleteHttpUrl_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("http://example.com");
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenCompleteHttpsUrl_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("https://www.example.com/sub/page?q=1#frag");
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenUrlWithoutScheme_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("example.com");
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenUrlWithoutSchemeWithPortAndPath_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("example.com:8080/path");
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenIpAddressUrl_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("http://192.168.1.1:8080/page");
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenMalformedUrlWithSpaces_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("http://exa mple.com");
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenMalformedUrlWithoutScheme_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("not a url");
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenSingleLabelHost_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("foo");
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenMissingHost_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("http://");
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenSchemeNameOnly_whenValidating_thenInvalid() {
-        final UrlValidator http = validatorFor("http");
-        final UrlValidator https = validatorFor("https");
-
-        http.performValidation();
-        https.performValidation();
-
-        assertFalse(http.isValid());
-        assertFalse(https.isValid());
-    }
-
-    @Test
-    public void givenUppercaseSchemeUrl_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("HTTP://EXAMPLE.COM");
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenRequiredAndEmptyValue_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor("", true);
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenRequiredAndNullValue_whenValidating_thenInvalid() {
-        final UrlValidator validator = validatorFor(null, true);
-
-        validator.performValidation();
-
-        assertFalse(validator.isValid());
-    }
-
-    @Test
-    public void givenNotRequiredAndEmptyValue_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor("", false);
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenNotRequiredAndNullValue_whenValidating_thenValid() {
-        final UrlValidator validator = validatorFor(null, false);
-
-        validator.performValidation();
-
-        assertTrue(validator.isValid());
-    }
-
-    @Test
-    public void givenDefaultValidator_thenRequiredIsTrue() {
-        assertTrue(new UrlValidator().isRequired());
-    }
 }
