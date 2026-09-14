@@ -85,13 +85,13 @@ public class PhysicalAddressTest {
 
     @Test
     public void testGetUiFiscalPresentationValue() {
-        assertEquals("Rua das Flores, 1000 123, Lisboa, Portugal", address.getUiFiscalPresentationValue());
+        assertEquals("Rua das Flores, 1000 123, Lisboa, Portugal", address.getPresentationValue());
 
         // empty fields are skipped
         address.setAreaCode(null);
         address.setAreaOfAreaCode(null);
         address.setDistrictSubdivisionOfResidence(null);
         address.setCountryOfResidence(null);
-        assertEquals(ADDRESS, address.getUiFiscalPresentationValue());
+        assertEquals(ADDRESS, address.getPresentationValue());
     }
 }
