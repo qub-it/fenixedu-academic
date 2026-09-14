@@ -53,11 +53,7 @@ public class StandaloneCurriculumGroup extends StandaloneCurriculumGroup_Base {
 
     @Override
     public int getNumberOfAllApprovedEnrolments(final ExecutionInterval executionInterval) {
-        int result = 0;
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            result += curriculumModule.getNumberOfAllApprovedEnrolments(executionInterval);
-        }
-        return result;
+        return getCurriculumModulesSet().stream().mapToInt(cm -> cm.getNumberOfAllApprovedEnrolments(executionInterval)).sum();
     }
 
     @Override
