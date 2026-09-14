@@ -16,6 +16,7 @@ import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,15 +27,25 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class PartyTest {
 
+    private static Person party;
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             Installation.ensureInstallation();
+            party = createPerson("Party", "party");
             if (PartyType.findByCode(PartyTypeEnum.PLANET.name()).isEmpty()) {
                 new PartyType(PartyTypeEnum.PLANET);
             }
             return null;
         });
+    }
+
+    @After
+    public void cleanPartyContacts() {
+        while (!party.getPartyContactsSet().isEmpty()) {
+            party.getPartyContactsSet().forEach(PartyContact::deleteWithoutCheckRules);
+        }
     }
 
     private static Person createPerson(final String name, final String username) {
@@ -48,8 +59,6 @@ public class PartyTest {
 
     @Test
     public void testGetAllPartyContacts() {
-        final Person party = createPerson("Party", "party");
-
         final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
         final EmailAddress workEmail = EmailAddress.create(party, "work@example.com", PartyContactType.WORK, true);
         workEmail.setActive(false); // inactive contacts are still returned
@@ -73,9 +82,7 @@ public class PartyTest {
     }
 
     @Test
-    public void testGetPartyContacts_shouldReturnOnlyActiveAndValid() {
-        final Person party = createPerson("Party", "party");
-
+    public void testGetPartyContacts() {
         final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
         personalEmail.setValid();
         final EmailAddress workEmail = EmailAddress.create(party, "work@example.com", PartyContactType.WORK, true);
@@ -90,7 +97,7 @@ public class PartyTest {
         inactiveEmail.setValid();
         inactiveEmail.setActive(false);
 
-        // only valid active contacts
+        // only active and valid contacts
         final List<? extends PartyContact> emails = party.getPartyContacts(EmailAddress.class);
         assertEquals(2, emails.size());
         assertTrue(emails.contains(personalEmail));
@@ -98,6 +105,60 @@ public class PartyTest {
         assertFalse(emails.contains(pendingEmail));           // active but not valid
         assertFalse(emails.contains(inactiveEmail));          // valid but inactive
         assertFalse(emails.contains(personalPhone));          // different class
+    }
+
+    @Test
+    public void testGetPendingOrValidPartyContacts() {
+        // active but never validated
+        final EmailAddress pendingEmail = EmailAddress.create(party, "pending@example.com", PartyContactType.PERSONAL, true);
+        // validated and active
+        final EmailAddress validEmail = EmailAddress.create(party, "valid@example.com", PartyContactType.PERSONAL, true);
+        validEmail.setValid();
+        // inactive, neither isActiveAndValid() nor waitsValidation()
+        final EmailAddress inactiveEmail = EmailAddress.create(party, "inactive@example.com", PartyContactType.PERSONAL, true);
+        inactiveEmail.setActive(false);
+
+        // pending or active and valid contacts
+        final List<? extends PartyContact> pendingOrValid = party.getPendingOrValidPartyContacts(EmailAddress.class);
+        assertTrue(pendingOrValid.contains(pendingEmail));
+        assertTrue(pendingOrValid.contains(validEmail));
+        assertFalse(pendingOrValid.contains(inactiveEmail));
+        assertEquals(2, pendingOrValid.size());
+
+        // only pending contacts
+        final List<? extends PartyContact> pending = party.getPendingPartyContacts(EmailAddress.class);
+        assertTrue(pending.contains(pendingEmail));
+        assertFalse(pending.contains(validEmail));
+        assertFalse(pending.contains(inactiveEmail));
+        assertEquals(1, pending.size());
+    }
+
+    @Test
+    public void testHasAnyPartyContact() {
+        // valid active contacts
+        final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
+        personalEmail.setValid();
+        final Phone personalPhone = Phone.create(party, "911111111", PartyContactType.PERSONAL, true);
+        personalPhone.setValid();
+        // active but never validated
+        final EmailAddress pendingWorkEmail = EmailAddress.create(party, "pending@example.com", PartyContactType.WORK, true);
+        // inactive
+        final EmailAddress inactiveWorkEmail = EmailAddress.create(party, "inactive@example.com", PartyContactType.WORK, true);
+        inactiveWorkEmail.setActive(false);
+
+        assertTrue(party.hasAnyPartyContact(EmailAddress.class));
+        assertTrue(party.hasAnyPartyContact(Phone.class));
+
+        // WORK emails exist but all are excluded (pending or inactive)
+        assertTrue(party.hasAnyPartyContact(EmailAddress.class, PartyContactType.PERSONAL)); // personalEmail
+        assertFalse(party.hasAnyPartyContact(EmailAddress.class, PartyContactType.WORK));    // only pending/inactive
+
+        // class with no contacts at all
+        assertFalse(party.hasAnyPartyContact(MobilePhone.class));
+
+        // party with no contacts
+        final Person emptyParty = createPerson("Empty Party", "empty.party");
+        assertFalse(emptyParty.hasAnyPartyContact(EmailAddress.class));
     }
 
     @Test

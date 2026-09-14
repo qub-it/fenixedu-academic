@@ -24,7 +24,6 @@ package org.fenixedu.academic.domain.organizationalStructure;
 
 import static org.fenixedu.academic.util.StringFormatter.NAME_COMPARATOR;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -299,7 +298,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public List<? extends PartyContact> getAllPartyContacts(final Class<? extends PartyContact> clazz,
             final PartyContactType type) {
-        return getPartyContactsSet().stream().filter(contact -> clazz.isAssignableFrom(contact.getClass()))
+        return getPartyContactsSet().stream().filter(clazz::isInstance)
                 .filter(contact -> type == null || contact.getType() == type).collect(Collectors.toList());
     }
 
@@ -320,14 +319,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public List<? extends PartyContact> getPendingOrValidPartyContacts(final Class<? extends PartyContact> clazz,
             final PartyContactType type) {
-        final List<PartyContact> result = new ArrayList<PartyContact>();
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && (type == null || contact.getType() == type)
-                    && (contact.isActiveAndValid() || contact.waitsValidation())) {
-                result.add(contact);
-            }
-        }
-        return result;
+        return getAllPartyContacts(clazz, type).stream()
+                .filter(contact -> contact.isActiveAndValid() || contact.waitsValidation()).collect(Collectors.toList());
     }
 
     public List<? extends PartyContact> getPendingOrValidPartyContacts(final Class<? extends PartyContact> clazz) {
@@ -336,24 +329,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
 
     public List<? extends PartyContact> getPendingPartyContacts(final Class<? extends PartyContact> clazz,
             final PartyContactType type) {
-        final List<PartyContact> result = new ArrayList<PartyContact>();
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && (type == null || contact.getType() == type)
-                    && contact.waitsValidation()) {
-                result.add(contact);
-            }
-        }
-        return result;
-    }
-
-    public List<? extends PartyContact> getAllPendingPartyContacts() {
-        final List<PartyContact> result = new ArrayList<PartyContact>();
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (contact.waitsValidation()) {
-                result.add(contact);
-            }
-        }
-        return result;
+        return getAllPartyContacts(clazz, type).stream().filter(PartyContact::waitsValidation).collect(Collectors.toList());
     }
 
     public <T extends PartyContact> Stream<T> getPartyContactStream(final Class<T> clazz) {
@@ -368,22 +344,9 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return getPendingPartyContacts(clazz, null);
     }
 
-    public boolean hasPendingPartyContacts(final Class<? extends PartyContact> clazz) {
-        return getPendingPartyContacts(clazz, null).size() > 0;
-    }
-
-    public boolean hasPendingPartyContacts() {
-        return getAllPendingPartyContacts().size() > 0;
-    }
-
     public boolean hasAnyPartyContact(final Class<? extends PartyContact> clazz, final PartyContactType type) {
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && (type == null || contact.getType() == type)
-                    && contact.isActiveAndValid()) {
-                return true;
-            }
-        }
-        return false;
+        return getPartyContactsSet().stream().filter(clazz::isInstance)
+                .filter(contact -> type == null || contact.getType() == type).anyMatch(PartyContact::isActiveAndValid);
     }
 
     public boolean hasAnyPartyContact(final Class<? extends PartyContact> clazz) {
