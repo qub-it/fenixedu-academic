@@ -50,37 +50,9 @@ public class WebAddress extends WebAddress_Base {
                 .orElseGet(() -> WebAddress.create(party, url, type, isDefault));
     }
 
-    @Deprecated(forRemoval = true)
-    public static WebAddress createWebAddress(Party party, String url, PartyContactType type, Boolean isDefault,
-            Boolean visibleToPublic, Boolean visibleToStudents, Boolean visibleToStaff) {
-        return !StringUtils.isEmpty(url) ? new WebAddress(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
-                isDefault, url) : null;
-    }
-
-    @Deprecated(forRemoval = true)
-    public static WebAddress createWebAddress(Party party, String url, PartyContactType type, boolean isDefault) {
-        return party.getWebAddresses().stream().filter(webAddress -> webAddress.getUrl().equals(url)).findFirst()
-                .orElseGet(() -> !StringUtils.isEmpty(url) ? new WebAddress(party, type, isDefault, url) : null);
-    }
-
     protected WebAddress() {
         super();
         // no validation is necessary
-    }
-
-    @Deprecated(forRemoval = true)
-    protected WebAddress(final Party party, final PartyContactType type, final boolean defaultContact, final String url) {
-        this();
-        super.init(party, type, defaultContact);
-        setUrl(url);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected WebAddress(final Party party, final PartyContactType type, final boolean visibleToPublic,
-            final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String url) {
-        this();
-        super.init(party, type, visibleToPublic, visibleToStudents, visibleToStaff, defaultContact);
-        setUrl(url);
     }
 
     private void checkParameters(final String url) {
@@ -159,5 +131,4 @@ public class WebAddress extends WebAddress_Base {
     public void logDelete(Person person) {
         logDeleteAux(person, "label.partyContacts.WebAddress");
     }
-
 }

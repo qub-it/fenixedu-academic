@@ -43,38 +43,9 @@ public class Phone extends Phone_Base {
         return phone;
     }
 
-    @Deprecated(forRemoval = true)
-    public static Phone createPhone(Party party, String number, PartyContactType type, Boolean isDefault, Boolean visibleToPublic,
-            Boolean visibleToStudents, Boolean visibleToStaff) {
-        return !StringUtils.isEmpty(number) ? new Phone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
-                isDefault, number) : null;
-    }
-
-    @Deprecated(forRemoval = true)
-    public static Phone createPhone(Party party, String number, PartyContactType type, boolean isDefault) {
-        return (!StringUtils.isEmpty(number)) ? new Phone(party, type, isDefault, number) : null;
-    }
-
     protected Phone() {
         super();
         new PhoneValidation(this);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected Phone(final Party party, final PartyContactType type, final boolean defaultContact, final String number) {
-        this();
-        super.init(party, type, defaultContact);
-        checkParameters(number);
-        super.setNumber(number);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected Phone(final Party party, final PartyContactType type, final boolean visibleToPublic,
-            final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String number) {
-        this();
-        super.init(party, type, visibleToPublic, visibleToStudents, visibleToStaff, defaultContact);
-        checkParameters(number);
-        super.setNumber(number);
     }
 
     private void checkParameters(final String number) {
@@ -143,5 +114,4 @@ public class Phone extends Phone_Base {
     public void logRefuse(Person person) {
         logRefuseAux(person, "label.partyContacts.Phone");
     }
-
 }
