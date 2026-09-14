@@ -39,11 +39,12 @@ import static org.fenixedu.academic.util.Bundle.APPLICATION;
 
 public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
-    public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN =
+    public static final Comparator<EnrolmentEvaluation> COMPARATOR_BY_WHEN =
             Comparator.comparing(EnrolmentEvaluation::getWhenDateTime, Comparator.nullsFirst(Comparator.naturalOrder()));
 
-    static final Comparator<EnrolmentEvaluation> COMPARATOR_BY_EXAM_DATE =
-            Comparator.comparing(EnrolmentEvaluation::getExamDateYearMonthDay, Comparator.nullsFirst(Comparator.naturalOrder()));
+    @Deprecated
+    public static final Comparator<EnrolmentEvaluation> COMPARATORY_BY_WHEN =
+            Comparator.comparing(EnrolmentEvaluation::getWhenDateTime, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     public EnrolmentEvaluation() {
         super();
