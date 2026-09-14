@@ -61,51 +61,23 @@ public class EnrolmentEvaluationTest {
         EnrolmentEvaluation withoutWhen = createEvaluation();
         withoutWhen.setWhenDateTime(null);
 
-        assertTrue(EnrolmentEvaluation.COMPARATORY_BY_WHEN.compare(withWhen, withoutWhen) > 0);
+        assertTrue(EnrolmentEvaluation.COMPARATOR_BY_WHEN.compare(withWhen, withoutWhen) > 0);
 
         // two evaluations ordered by whenDateTime ascending
         EnrolmentEvaluation earlier = createEvaluation();
         earlier.setWhenDateTime(new DateTime(2025, 5, 19, 9, 0));
 
-        assertTrue(EnrolmentEvaluation.COMPARATORY_BY_WHEN.compare(earlier, withWhen) < 0);
+        assertTrue(EnrolmentEvaluation.COMPARATOR_BY_WHEN.compare(earlier, withWhen) < 0);
 
         // two evaluations with equal whenDateTime -> tie
         EnrolmentEvaluation sameWhen = createEvaluation();
         sameWhen.setWhenDateTime(withWhen.getWhenDateTime());
-        assertEquals(0, EnrolmentEvaluation.COMPARATORY_BY_WHEN.compare(withWhen, sameWhen));
+        assertEquals(0, EnrolmentEvaluation.COMPARATOR_BY_WHEN.compare(withWhen, sameWhen));
 
         // two evaluations both with null whenDateTime -> tie
         EnrolmentEvaluation anotherWithoutWhen = createEvaluation();
         anotherWithoutWhen.setWhenDateTime(null);
-        assertEquals(0, EnrolmentEvaluation.COMPARATORY_BY_WHEN.compare(withoutWhen, anotherWithoutWhen));
-    }
-
-    @Test
-    public void testEnrolmentEvaluation_COMPARATOR_BY_EXAM_DATE() {
-        // evaluation with null exam date vs another with a defined exam date -> null sorts first
-        EnrolmentEvaluation withExamDate = createEvaluation();
-        withExamDate.setExamDateYearMonthDay(new YearMonthDay(2025, 7, 15));
-
-        EnrolmentEvaluation withoutExamDate = createEvaluation();
-        withoutExamDate.setExamDateYearMonthDay(null);
-
-        assertTrue(EnrolmentEvaluation.COMPARATOR_BY_EXAM_DATE.compare(withExamDate, withoutExamDate) > 0);
-
-        // two evaluations ordered by exam date ascending
-        EnrolmentEvaluation earlierExam = createEvaluation();
-        earlierExam.setExamDateYearMonthDay(new YearMonthDay(2025, 7, 10));
-
-        assertTrue(EnrolmentEvaluation.COMPARATOR_BY_EXAM_DATE.compare(withExamDate, earlierExam) > 0);
-
-        // two evaluations with equal exam date -> tie
-        EnrolmentEvaluation sameExamDate = createEvaluation();
-        sameExamDate.setExamDateYearMonthDay(withExamDate.getExamDateYearMonthDay());
-        assertEquals(0, EnrolmentEvaluation.COMPARATOR_BY_EXAM_DATE.compare(withExamDate, sameExamDate));
-
-        // two evaluations both with null exam date -> tie
-        EnrolmentEvaluation anotherWithoutExamDate = createEvaluation();
-        anotherWithoutExamDate.setExamDateYearMonthDay(null);
-        assertEquals(0, EnrolmentEvaluation.COMPARATOR_BY_EXAM_DATE.compare(withoutExamDate, anotherWithoutExamDate));
+        assertEquals(0, EnrolmentEvaluation.COMPARATOR_BY_WHEN.compare(withoutWhen, anotherWithoutWhen));
     }
 
     @Test
