@@ -48,39 +48,9 @@ public class MobilePhone extends MobilePhone_Base {
                 .orElseGet(() -> MobilePhone.create(party, number, type, isDefault));
     }
 
-    @Deprecated(forRemoval = true)
-    public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, Boolean isDefault,
-            Boolean visibleToPublic, Boolean visibleToStudents, Boolean visibleToStaff) {
-        return !StringUtils.isEmpty(number) ? new MobilePhone(party, type, visibleToPublic, visibleToStudents, visibleToStaff,
-                isDefault, number) : null;
-    }
-
-    @Deprecated(forRemoval = true)
-    public static MobilePhone createMobilePhone(Party party, String number, PartyContactType type, boolean isDefault) {
-        return party.getMobilePhones().stream().filter(phone -> phone.getNumber().equals(number)).findFirst()
-                .orElseGet(() -> !StringUtils.isEmpty(number) ? new MobilePhone(party, type, isDefault, number) : null);
-    }
-
     protected MobilePhone() {
         super();
         new PhoneValidation(this);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected MobilePhone(final Party party, final PartyContactType type, final boolean defaultContact, final String number) {
-        this();
-        super.init(party, type, defaultContact);
-        checkParameters(number);
-        super.setNumber(number);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected MobilePhone(final Party party, final PartyContactType type, final boolean visibleToPublic,
-            final boolean visibleToStudents, final boolean visibleToStaff, final boolean defaultContact, final String number) {
-        this();
-        super.init(party, type, visibleToPublic, visibleToStudents, visibleToStaff, defaultContact);
-        checkParameters(number);
-        super.setNumber(number);
     }
 
     private void checkParameters(final String number) {
@@ -149,5 +119,4 @@ public class MobilePhone extends MobilePhone_Base {
     public void logRefuse(Person person) {
         logRefuseAux(person, "label.partyContacts.MobilePhone");
     }
-
 }
