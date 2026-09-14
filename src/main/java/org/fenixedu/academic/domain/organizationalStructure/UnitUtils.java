@@ -49,7 +49,7 @@ public class UnitUtils {
     }
 
     public static List<Unit> readAllActiveUnitsByType(PartyTypeEnum type) {
-        PartyType partyType = PartyType.readPartyTypeByType(type);
+        final PartyType partyType = PartyType.of(type).orElse(null);
         if (partyType == null) {
             return Collections.emptyList();
         }
