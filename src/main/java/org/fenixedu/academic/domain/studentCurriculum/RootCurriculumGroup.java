@@ -291,16 +291,6 @@ public class RootCurriculumGroup extends RootCurriculumGroup_Base {
                 .map(ExternalCurriculumGroup.class::cast).collect(Collectors.toList());
     }
 
-    public double getDefaultEcts(final ExecutionYear executionYear) {
-        double result = 0d;
-
-        for (final CycleCurriculumGroup cycleCurriculumGroup : getInternalCycleCurriculumGroups()) {
-            result += cycleCurriculumGroup.getDefaultEcts(executionYear);
-        }
-
-        return result;
-    }
-
     @Override
     public Set<CurriculumGroup> getAllCurriculumGroups() {
         Set<CurriculumGroup> result = new HashSet<CurriculumGroup>();
