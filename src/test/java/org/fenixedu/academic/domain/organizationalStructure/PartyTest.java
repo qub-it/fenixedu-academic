@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
+import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
