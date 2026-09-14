@@ -49,22 +49,7 @@ public enum PartyTypeEnum {
     DEGREE_UNIT,
 
     @Deprecated
-    SECTION,
-
-    @Deprecated
     RESEARCH_UNIT,
-
-    @Deprecated
-    PEDAGOGICAL_COUNCIL,
-
-    @Deprecated
-    SCIENTIFIC_COUNCIL,
-
-    @Deprecated
-    MANAGEMENT_COUNCIL,
-
-    @Deprecated
-    PHD_PROGRAM_UNIT,
 
     PERSON;
 

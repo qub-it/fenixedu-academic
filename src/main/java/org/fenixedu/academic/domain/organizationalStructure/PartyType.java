@@ -18,9 +18,8 @@
  */
 package org.fenixedu.academic.domain.organizationalStructure;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -90,54 +89,13 @@ public class PartyType extends PartyType_Base {
         return getType() != null ? getType().getLocalizedName() : super.getTypeName().getContent();
     }
 
-    protected Collection<PartyType> getAllowedChildPartyTypes(final Boolean managedByUser) {
-
-        final Set<PartyType> result = new HashSet<PartyType>();
-
-        for (final ConnectionRule connectionRule : getAllowedChildConnectionRulesSet()) {
-            if (managedByUser != null && connectionRule.getManagedByUser() != managedByUser.booleanValue()) {
-                continue;
-            }
-
-            result.add(connectionRule.getAllowedChildPartyType());
-        }
-
-        return result;
-    }
-
-    public Collection<AccountabilityType> getAllowedAccountabilityTypesFor(final PartyType childPartyType) {
-        final Set<AccountabilityType> result = new HashSet<AccountabilityType>();
-
-        for (final ConnectionRule connectionRule : getAllowedChildConnectionRulesSet()) {
-            if (connectionRule.isValid(this, childPartyType)) {
-                result.add(connectionRule.getAccountabilityType());
-            }
-        }
-
-        return result;
-    }
-
     public static Optional<PartyType> of(final PartyTypeEnum partyTypeEnum) {
         return partyTypeEnum == null ? Optional.empty() : Bennu.getInstance().getPartyTypesSet().stream()
                 .filter(pt -> pt.getType() == partyTypeEnum).findAny();
     }
 
-    /**
-     * @deprecated use {@code #of(PartyTypeEnum)}
-     */
-    @Deprecated
-    public static PartyType readPartyTypeByType(final PartyTypeEnum partyTypeEnum) {
-        for (final PartyType partyType : Bennu.getInstance().getPartyTypesSet()) {
-            if (partyType.getType() == partyTypeEnum) {
-                return partyType;
-            }
-        }
-        return null;
-    }
-
     public static Set<Party> getPartiesSet(final PartyTypeEnum partyTypeEnum) {
-        final PartyType partyType = readPartyTypeByType(partyTypeEnum);
-        return partyType == null ? Collections.EMPTY_SET : partyType.getPartiesSet();
+        return of(partyTypeEnum).map(PartyType::getPartiesSet).orElse(Collections.emptySet());
     }
 
     public void delete() {
