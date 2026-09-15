@@ -1,3 +1,4 @@
+- Refactor: Improve Unit domain methods [#qubIT-Fenix-9003]
 - Refactor: Deletes CurricularCourseExecutionScope and Season unused classes [#qubIT-Fenix-9314]
 - Refactor: Deletes StudentCurricularPlanIDDomainType, UniqueAcronymCreator, PredicateContainer and DayType unused classes [#qubIT-Fenix-9314]
 
