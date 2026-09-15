@@ -380,4 +380,29 @@ public class OrganizationalStructureTest {
         assertEquals(spainCountry, schoolUnit.getCountry());
         assertEquals(spainCountry, coursesGroupUnit.getCountry());
     }
+
+    @Test
+    public void testUnit_isInternal() {
+        // institution itself and everything under it
+        assertTrue(UnitUtils.readInstitutionUnit().isInternal());                       // university "QU"
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isInternal());          // school
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isInternal()); // courses group
+
+        // ancestors above the institution are not internal
+        assertFalse(UnitUtils.readEarthUnit().isInternal());                                      // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isInternal()); // Portugal
+    }
+
+    @Test
+    public void testUnit_isNoOfficialExternal() {
+        // external institution itself and everything under it
+        assertTrue(UnitUtils.readExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isNoOfficialExternal());         // school
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isNoOfficialExternal()); // courses group
+
+        // ancestors above the external institution are not no-official-external
+        assertFalse(UnitUtils.readEarthUnit().isNoOfficialExternal());                                     // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
+    }
+
 }

@@ -231,29 +231,12 @@ public class Unit extends Unit_Base {
     }
 
     public boolean isInternal() {
-        if (this.equals(UnitUtils.readInstitutionUnit())) {
-            return true;
-        }
-
-        for (final Unit parentUnit : getParentUnits()) {
-            if (parentUnit.isInternal()) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.equals(UnitUtils.readInstitutionUnit()) || getParentUnits().stream().anyMatch(Unit::isInternal);
     }
 
     public boolean isNoOfficialExternal() {
-        if (this.equals(UnitUtils.readExternalInstitutionUnit())) {
-            return true;
-        }
-        for (final Unit parentUnit : getParentUnits()) {
-            if (parentUnit.isNoOfficialExternal()) {
-                return true;
-            }
-        }
-        return false;
+        return this.equals(UnitUtils.readExternalInstitutionUnit()) || getParentUnits().stream()
+                .anyMatch(Unit::isNoOfficialExternal);
     }
 
     public boolean isActive(YearMonthDay currentDate) {
