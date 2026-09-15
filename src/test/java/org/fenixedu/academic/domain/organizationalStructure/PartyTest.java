@@ -2,6 +2,7 @@ package org.fenixedu.academic.domain.organizationalStructure;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -159,6 +160,55 @@ public class PartyTest {
         // party with no contacts
         final Person emptyParty = createPerson("Empty Party", "empty.party");
         assertFalse(emptyParty.hasAnyPartyContact(EmailAddress.class));
+    }
+
+    @Test
+    public void testGetDefaultPartyContact() {
+        // default, active and valid contact is returned
+        final EmailAddress defaultEmail = EmailAddress.create(party, "default@example.com", PartyContactType.PERSONAL, true);
+        defaultEmail.setValid();
+        assertEquals(defaultEmail, party.getDefaultPartyContact(EmailAddress.class));
+
+        // valid but not default is excluded
+        final EmailAddress nonDefaultEmail = EmailAddress.create(party, "other@example.com", PartyContactType.PERSONAL, false);
+        nonDefaultEmail.setValid();
+        assertFalse(nonDefaultEmail.isDefault());
+        assertEquals(defaultEmail, party.getDefaultPartyContact(EmailAddress.class));
+
+        // active but never validated (pending) is excluded
+        final EmailAddress pendingEmail = EmailAddress.create(party, "pending@example.com", PartyContactType.PERSONAL, true);
+        assertEquals(defaultEmail, party.getDefaultPartyContact(EmailAddress.class));
+
+        // a default contact of another class is not matched
+        final Phone defaultPhone = Phone.create(party, "911111111", PartyContactType.PERSONAL, true);
+        defaultPhone.setValid();
+        assertEquals(defaultPhone, party.getDefaultPartyContact(Phone.class));
+        assertEquals(defaultEmail, party.getDefaultPartyContact(EmailAddress.class));
+
+        // inactive default is excluded
+        defaultPhone.setActive(false);
+        assertNull(party.getDefaultPartyContact(Phone.class));
+
+        // party with no contacts
+        final Person emptyParty = createPerson("Empty Party", "empty.party");
+        assertNull(emptyParty.getDefaultPartyContact(EmailAddress.class));
+    }
+
+    @Test
+    public void testGetInstitutionalPartyContact() {
+        // party without any institutional contact
+        assertNull(party.getInstitutionalPartyContact(EmailAddress.class));
+
+        // personal emails are never returned
+        final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
+        personalEmail.setValid();
+        assertNull(party.getInstitutionalPartyContact(EmailAddress.class));
+
+        // active and valid institutional contact is returned
+        final EmailAddress institutionalEmail =
+                EmailAddress.create(party, "institutional@example.com", PartyContactType.INSTITUTIONAL, true);
+        institutionalEmail.setValid();
+        assertEquals(institutionalEmail, party.getInstitutionalPartyContact(EmailAddress.class));
     }
 
     @Test
