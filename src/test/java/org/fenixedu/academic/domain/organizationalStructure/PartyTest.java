@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
@@ -29,14 +30,17 @@ public class PartyTest {
 
     private static Person party;
     private static PartyContact defaultEmail, pendingEmail, nonDefaultEmail, institutionalEmail, defaultPhone;
+    private static Optional<PartyType> planetPartyType;
 
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             Installation.ensureInstallation();
             party = createPerson("Party", "party");
-            if (PartyType.findByCode(PartyTypeEnum.PLANET.name()).isEmpty()) {
-                new PartyType(PartyTypeEnum.PLANET);
+
+            planetPartyType = PartyType.findByCode(PartyTypeEnum.PLANET.name());
+            if (planetPartyType.isEmpty()) {
+                planetPartyType = Optional.of(new PartyType(PartyTypeEnum.PLANET));
             }
             return null;
         });
@@ -68,7 +72,8 @@ public class PartyTest {
     }
 
     private static Unit createUnit(final String name) {
-        return Unit.createNewUnit(PartyType.of(PartyTypeEnum.PLANET), new LocalizedString.Builder().with(Locale.getDefault(), name).build(), name, null, null);
+        return Unit.createNewUnit(planetPartyType, new LocalizedString.Builder().with(Locale.getDefault(), name).build(), name,
+                null, null);
     }
 
     @Test
