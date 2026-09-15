@@ -353,7 +353,7 @@ public class Lesson extends Lesson_Base {
                     period.getIntervalWithNextPeriods().getEnd().withTime(endTime.getHour(), endTime.getMinuteOfHour(), 0, 0);
 
             while (dateToCheck.isBefore(lastDate)) {
-                boolean dateValid = period.isDateInNestedPeriods(period, dateToCheck);
+                boolean dateValid = period.isDateInNestedPeriods(dateToCheck);
                 if (dateValid && !Holiday.isHoliday(dateToCheck.toLocalDate())) {
                     result.add(dateToCheck.toLocalDate());
                 }
