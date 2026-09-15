@@ -2189,13 +2189,6 @@ relation CurriculumGroupConclusionProcess {
     protected student.curriculum.ConclusionProcess playsRole conclusionProcess;
 }
 
-relation DegreeCurricularPlanCurricularCourse {
-    CurricularCourse playsRole curricularCourses {
-        multiplicity *;
-    }
-    DegreeCurricularPlan playsRole degreeCurricularPlan;
-}
-
 relation DegreeCurricularPlanDegreeModule {
     degreeStructure.RootCourseGroup playsRole root {
         multiplicity 1..1;
