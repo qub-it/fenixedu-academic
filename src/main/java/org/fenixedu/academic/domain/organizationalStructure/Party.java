@@ -306,11 +306,9 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return getAllPartyContacts(clazz, null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T extends PartyContact> Stream<T> getPartyContactStream(final Class<T> clazz, final PartyContactType type) {
-        final Stream<PartyContact> stream = getPartyContactsSet().stream();
-        return (Stream) stream.filter(
-                c -> clazz.isAssignableFrom(c.getClass()) && (type == null || c.getType() == type) && c.isActiveAndValid());
+        return getPartyContactsSet().stream().filter(clazz::isInstance).filter(c -> type == null || c.getType() == type)
+                .filter(PartyContact::isActiveAndValid).map(clazz::cast);
     }
 
     public List<? extends PartyContact> getPartyContacts(final Class<? extends PartyContact> clazz, final PartyContactType type) {
