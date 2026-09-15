@@ -36,6 +36,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 
@@ -84,10 +85,10 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
 
     @Override
     public LocalizedString getName() {
-        return new LocalizedString(org.fenixedu.academic.util.LocaleUtils.PT,
-                getNoCourseGroupCurriculumGroupType().getLocalizedName(org.fenixedu.academic.util.LocaleUtils.PT)).with(
-                        org.fenixedu.academic.util.LocaleUtils.EN,
-                        getNoCourseGroupCurriculumGroupType().getLocalizedName(org.fenixedu.academic.util.LocaleUtils.EN));
+        final NoCourseGroupCurriculumGroupType type = getNoCourseGroupCurriculumGroupType();
+        
+        return new LocalizedString(LocaleUtils.PT, type.getLocalizedName(LocaleUtils.PT)).with(LocaleUtils.EN,
+                type.getLocalizedName(LocaleUtils.EN));
     }
 
     @Override
@@ -107,26 +108,13 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
 
     @Override
     public boolean hasDegreeModule(DegreeModule degreeModule) {
-        for (final CurriculumModule curriculumModule : this.getCurriculumModulesSet()) {
-            if (curriculumModule.hasDegreeModule(degreeModule)) {
-                return true;
-            }
-        }
-        return false;
+        return getCurriculumModulesSet().stream().anyMatch(curriculumModule -> curriculumModule.hasDegreeModule(degreeModule));
     }
 
     @Override
     public boolean hasCourseGroup(CourseGroup courseGroup) {
-        for (final CurriculumModule curriculumModule : getCurriculumModulesSet()) {
-            if (!curriculumModule.isLeaf()) {
-                final CurriculumGroup group = (CurriculumGroup) curriculumModule;
-                if (group.hasCourseGroup(courseGroup)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return getCurriculumModulesSet().stream().filter(curriculumModule -> !curriculumModule.isLeaf())
+                .map(CurriculumGroup.class::cast).anyMatch(group -> group.hasCourseGroup(courseGroup));
     }
 
     /**
@@ -134,12 +122,8 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
      */
     @Override
     public CurriculumGroup findCurriculumGroupFor(final CourseGroup courseGroup) {
-        for (final CurriculumModule each : getCurriculumModulesSet()) {
-            if (!each.isLeaf() && each.getDegreeModule() == courseGroup) {
-                return (CurriculumGroup) each;
-            }
-        }
-        return null;
+        return getCurriculumModulesSet().stream().filter(each -> !each.isLeaf() && each.getDegreeModule() == courseGroup)
+                .map(CurriculumGroup.class::cast).findFirst().orElse(null);
     }
 
     @Override
@@ -149,8 +133,8 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
 
     @Override
     protected Integer searchChildOrderForChild(final CurriculumGroup child, final ExecutionInterval executionInterval) {
-        final List<CurriculumModule> result = new ArrayList<CurriculumModule>(getCurriculumModulesSet());
-        Collections.sort(result, CurriculumModule.COMPARATOR_BY_NAME_AND_ID);
+        final List<CurriculumModule> result = new ArrayList<>(getCurriculumModulesSet());
+        result.sort(CurriculumModule.COMPARATOR_BY_NAME_AND_ID);
         return result.indexOf(child);
     }
 
@@ -175,13 +159,13 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
     }
 
     @Override
-    final public Curriculum getCurriculum(final DateTime when, final ExecutionYear executionYear) {
+    public final Curriculum getCurriculum(final DateTime when, final ExecutionYear executionYear) {
         return Curriculum.createEmpty(this, executionYear);
     }
 
     @Override
     public Double getCreditsConcluded(ExecutionYear executionYear) {
-        return Double.valueOf(0d);
+        return 0d;
     }
 
     @Override
@@ -202,12 +186,12 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
 
     @Override
     public Double getAprovedEctsCredits() {
-        return Double.valueOf(0d);
+        return 0d;
     }
 
     @Override
     public Collection<NoCourseGroupCurriculumGroup> getNoCourseGroupCurriculumGroups() {
-        Collection<NoCourseGroupCurriculumGroup> res = new HashSet<NoCourseGroupCurriculumGroup>();
+        Collection<NoCourseGroupCurriculumGroup> res = new HashSet<>();
         res.add(this);
         res.addAll(super.getNoCourseGroupCurriculumGroups());
         return res;
@@ -219,7 +203,7 @@ public abstract class NoCourseGroupCurriculumGroup extends NoCourseGroupCurricul
         return null;
     }
 
-    abstract public NoCourseGroupCurriculumGroupType getNoCourseGroupCurriculumGroupType();
+    public abstract NoCourseGroupCurriculumGroupType getNoCourseGroupCurriculumGroupType();
 
     @Override
     public int getNumberOfAllApprovedCurriculumLines() {

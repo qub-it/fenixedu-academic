@@ -1,3 +1,4 @@
+- Refactor: Improve NoCourseGroupCurriculumGroup domain methods [#qubIT-Fenix-9407]
 - Refactor: Improve RootCurriculumGroup domain methods [#qubIT-Fenix-9265]
 - Refactor: Improves EnrolmentEvaluation domain methods [#qubIT-Fenix-9300]
 - Refactor: Deletes unused classes and methods [#qubIT-Fenix-9332]
