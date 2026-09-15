@@ -6,6 +6,7 @@
 - Refactor: Improves EnrolmentEvaluation domain methods [#qubIT-Fenix-9300]
 - Refactor: Deletes unused classes and methods [#qubIT-Fenix-9332]
 - Refactor: Clean up BusinessArea entity [#qubIT-Fenix-9224]
+- Refactor: Cleans Season class [#qubIT-Fenix-8839]
 - Refactor: Delete deprecated DataTranferObject class [#qubIT-Fenix-9310]
 - Refactor: Delete deprecated Pair class [#qubIT-Fenix-9310]
 - Refactor: Add tests and improve methods from Attends class [#qubIT-Fenix-8922]
