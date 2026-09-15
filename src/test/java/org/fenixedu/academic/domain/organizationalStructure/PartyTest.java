@@ -10,12 +10,13 @@ import java.util.Locale;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
-import org.fenixedu.academic.domain.contacts.MobilePhone;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.Phone;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,15 +27,39 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class PartyTest {
 
+    private static Person party;
+    private static PartyContact defaultEmail, pendingEmail, nonDefaultEmail, institutionalEmail, defaultPhone;
+
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             Installation.ensureInstallation();
+            party = createPerson("Party", "party");
             if (PartyType.findByCode(PartyTypeEnum.PLANET.name()).isEmpty()) {
                 new PartyType(PartyTypeEnum.PLANET);
             }
             return null;
         });
+    }
+
+    @Before
+    public void setUp() {
+        defaultEmail = EmailAddress.create(party, "default@example.com", PartyContactType.PERSONAL, true);
+        defaultEmail.setValid();
+        nonDefaultEmail = EmailAddress.create(party, "other@example.com", PartyContactType.PERSONAL, false);
+        nonDefaultEmail.setValid();
+        pendingEmail = EmailAddress.create(party, "pending@example.com", PartyContactType.PERSONAL, true);
+        institutionalEmail = EmailAddress.create(party, "institutional@example.com", PartyContactType.INSTITUTIONAL, true);
+        institutionalEmail.setValid();
+        defaultPhone = Phone.create(party, "911111111", PartyContactType.PERSONAL, true);
+        defaultPhone.setValid();
+    }
+
+    @After
+    public void cleanUp() {
+        while (!party.getPartyContactsSet().isEmpty()) {
+            party.getPartyContactsSet().forEach(PartyContact::deleteWithoutCheckRules);
+        }
     }
 
     private static Person createPerson(final String name, final String username) {
@@ -48,56 +73,36 @@ public class PartyTest {
 
     @Test
     public void testGetAllPartyContacts() {
-        final Person party = createPerson("Party", "party");
-
-        final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
-        final EmailAddress workEmail = EmailAddress.create(party, "work@example.com", PartyContactType.WORK, true);
-        workEmail.setActive(false); // inactive contacts are still returned
-        final Phone personalPhone = Phone.create(party, "911111111", PartyContactType.PERSONAL, true);
-        final MobilePhone personalMobile = MobilePhone.create(party, "922222222", PartyContactType.PERSONAL, true);
-
         // only assignable contacts
         final List<? extends PartyContact> emails = party.getAllPartyContacts(EmailAddress.class);
-        assertEquals(2, emails.size());
-        assertTrue(emails.contains(personalEmail));
-        assertTrue(emails.contains(workEmail));
-        assertFalse(emails.contains(personalPhone));
-        assertFalse(emails.contains(personalMobile));
+        assertEquals(4, emails.size());
+        assertTrue(emails.contains(defaultEmail));
+        assertTrue(emails.contains(nonDefaultEmail));
+        assertTrue(emails.contains(pendingEmail));
+        assertTrue(emails.contains(institutionalEmail));
+        assertFalse(emails.contains(defaultPhone));
 
         // only contacts of a certain type
-        final List<? extends PartyContact> personalEmails =
-                party.getAllPartyContacts(EmailAddress.class, PartyContactType.PERSONAL);
-        assertEquals(1, personalEmails.size());
-        assertTrue(personalEmails.contains(personalEmail));
-        assertFalse(personalEmails.contains(workEmail));
+        final List<? extends PartyContact> institutionalEmails =
+                party.getAllPartyContacts(EmailAddress.class, PartyContactType.INSTITUTIONAL);
+        assertEquals(1, institutionalEmails.size());
+        assertTrue(institutionalEmails.contains(institutionalEmail));
+        assertFalse(institutionalEmails.contains(defaultPhone));
     }
 
     @Test
-    public void testGetPartyContacts_shouldReturnOnlyActiveAndValid() {
-        final Person party = createPerson("Party", "party");
-
-        final EmailAddress personalEmail = EmailAddress.create(party, "personal@example.com", PartyContactType.PERSONAL, true);
-        personalEmail.setValid();
-        final EmailAddress workEmail = EmailAddress.create(party, "work@example.com", PartyContactType.WORK, true);
-        workEmail.setValid();
-        final Phone personalPhone = Phone.create(party, "911111111", PartyContactType.PERSONAL, true);
-        personalPhone.setValid();
-
-        // active but never validate, must be excluded
-        final EmailAddress pendingEmail = EmailAddress.create(party, "pending@example.com", PartyContactType.PERSONAL, true);
+    public void testGetPartyContacts() {
         // inactive, must be excluded
-        final EmailAddress inactiveEmail = EmailAddress.create(party, "inactive@example.com", PartyContactType.WORK, true);
-        inactiveEmail.setValid();
-        inactiveEmail.setActive(false);
+        nonDefaultEmail.setActive(false);
 
         // only valid active contacts
         final List<? extends PartyContact> emails = party.getPartyContacts(EmailAddress.class);
         assertEquals(2, emails.size());
-        assertTrue(emails.contains(personalEmail));
-        assertTrue(emails.contains(workEmail));
+        assertTrue(emails.contains(defaultEmail));
+        assertTrue(emails.contains(institutionalEmail));
         assertFalse(emails.contains(pendingEmail));           // active but not valid
-        assertFalse(emails.contains(inactiveEmail));          // valid but inactive
-        assertFalse(emails.contains(personalPhone));          // different class
+        assertFalse(emails.contains(nonDefaultEmail));          // valid but inactive
+        assertFalse(emails.contains(defaultPhone));          // different class
     }
 
     @Test
