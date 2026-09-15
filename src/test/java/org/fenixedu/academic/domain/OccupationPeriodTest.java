@@ -124,4 +124,83 @@ public class OccupationPeriodTest {
         assertFalse(rootOccupationPeriod.allNestedPeriodsAreEmpty());
         assertFalse(leafOccupationPeriod.allNestedPeriodsAreEmpty());
     }
+
+    @Test
+    public void testOccupationPeriod_getLastOccupationPeriodOfNestedPeriods() {
+        // single period: the last nested period is the receiver itself
+        OccupationPeriod singleOccupationPeriod = new OccupationPeriod(SEPTEMBER_INTERVAL);
+        assertEquals(singleOccupationPeriod, singleOccupationPeriod.getLastOccupationPeriodOfNestedPeriods());
+
+        // nested periods: the last period of the chain is returned
+        OccupationPeriod rootOccupationPeriod =
+                new OccupationPeriod(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL).iterator());
+
+        OccupationPeriod middleOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        OccupationPeriod leafOccupationPeriod = middleOccupationPeriod.getNextPeriod();
+
+        assertEquals(leafOccupationPeriod, rootOccupationPeriod.getLastOccupationPeriodOfNestedPeriods());
+
+        // the same last period is returned regardless of the starting node
+        assertEquals(leafOccupationPeriod, middleOccupationPeriod.getLastOccupationPeriodOfNestedPeriods());
+        assertEquals(leafOccupationPeriod, leafOccupationPeriod.getLastOccupationPeriodOfNestedPeriods());
+    }
+
+    @Test
+    public void testOccupationPeriod_getFirstOccupationPeriodOfNestedPeriods() {
+        // single period: the first nested period is the receiver itself
+        OccupationPeriod singleOccupationPeriod = new OccupationPeriod(SEPTEMBER_INTERVAL);
+        assertEquals(singleOccupationPeriod, singleOccupationPeriod.getFirstOccupationPeriodOfNestedPeriods());
+
+        // nested periods: the root of the chain is returned regardless of the starting node
+        OccupationPeriod rootOccupationPeriod =
+                new OccupationPeriod(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL).iterator());
+
+        OccupationPeriod middleOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        OccupationPeriod leafOccupationPeriod = middleOccupationPeriod.getNextPeriod();
+
+        assertEquals(rootOccupationPeriod, rootOccupationPeriod.getFirstOccupationPeriodOfNestedPeriods());
+        assertEquals(rootOccupationPeriod, middleOccupationPeriod.getFirstOccupationPeriodOfNestedPeriods());
+        assertEquals(rootOccupationPeriod, leafOccupationPeriod.getFirstOccupationPeriodOfNestedPeriods());
+    }
+
+    @Test
+    public void testOccupationPeriod_nestedOccupationPeriodsContainsDay() {
+        // single period: the start day is inclusive
+        OccupationPeriod singleOccupationPeriod = new OccupationPeriod(SEPTEMBER_INTERVAL);
+        assertTrue(singleOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 9, 1)));
+
+        // the end day is exclusive
+        assertFalse(singleOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 10, 1)));
+
+        // day before the interval is not contained
+        assertFalse(singleOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 8, 31)));
+
+        // nested periods: a day of any of the linked periods is contained
+        OccupationPeriod rootOccupationPeriod = new OccupationPeriod(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL).iterator());
+        assertTrue(rootOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 11, 1)));
+
+        // a day in the gap between the linked periods is not contained
+        assertFalse(rootOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 10, 1)));
+
+        // only the receiver and its following periods are considered
+        OccupationPeriod nestedOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        assertFalse(nestedOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 9, 1)));
+        assertTrue(nestedOccupationPeriod.nestedOccupationPeriodsContainsDay(new YearMonthDay(2026, 11, 1)));
+    }
+
+    @Test
+    public void testOccupationPeriod_getIntervals() {
+        // single period: only its own interval is returned
+        OccupationPeriod singleOccupationPeriod = new OccupationPeriod(SEPTEMBER_INTERVAL);
+        assertEquals(List.of(SEPTEMBER_INTERVAL), singleOccupationPeriod.getIntervals());
+
+        // nested periods: intervals are returned in linking order
+        OccupationPeriod rootOccupationPeriod =
+                new OccupationPeriod(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL).iterator());
+        assertEquals(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL), rootOccupationPeriod.getIntervals());
+
+        // from an inner period only the following intervals are returned
+        OccupationPeriod middleOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        assertEquals(List.of(NOVEMBER_INTERVAL, JANUARY_INTERVAL), middleOccupationPeriod.getIntervals());
+    }
 }
