@@ -1,3 +1,4 @@
+- Refactor: Improve CycleType enum and unit tests [#qubIT-Fenix-9343]
 - Refactor: Deletes unused relation between DegreeCurricularPlan and CurricularCourse [#qubIT-Fenix-9223]
 - Refactor: Cleans StringFormatter, removes unused methods [#qubIT-Fenix-8839]
 - Refactor: Updates EnrolmentEvaluation comparators [#qubIT-Fenix-9300]
