@@ -153,12 +153,6 @@ valueType org.fenixedu.academic.util.PeriodState as PeriodState {
     internalizeWith valueOf();
 }
 
-valueType org.fenixedu.academic.util.Season as Season {
-    externalizeWith {
-        Integer getSeason();
-    }
-}
-
 valueType org.joda.time.Interval as Interval {
     externalizeWith {
         String org.fenixedu.academic.util.date.SerializationTool.intervalSerialize();
