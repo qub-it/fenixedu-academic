@@ -31,8 +31,10 @@ import pt.ist.fenixframework.FenixFramework;
 public class PartyTest {
 
     private static Person party;
-    private static PartyContact defaultEmail, pendingEmail, nonDefaultEmail, institutionalEmail, defaultPhone;
+    private static EmailAddress defaultEmail, pendingEmail, nonDefaultEmail, institutionalEmail;
+    private static Phone defaultPhone;
     private static Optional<PartyType> planetPartyType;
+
 
     @BeforeClass
     public static void init() {
@@ -98,6 +100,26 @@ public class PartyTest {
         assertEquals(1, institutionalEmails.size());
         assertTrue(institutionalEmails.contains(institutionalEmail));
         assertFalse(institutionalEmails.contains(defaultPhone));
+    }
+
+    @Test
+    public void testGetPartyContactStream() {
+        // only active and valid contacts assignable to the given class
+        final List<EmailAddress> emails = party.getPartyContactStream(EmailAddress.class).toList();
+        assertEquals(3, emails.size());
+        assertTrue(emails.contains(defaultEmail));
+        assertTrue(emails.contains(nonDefaultEmail));
+        assertTrue(emails.contains(institutionalEmail));
+        assertFalse(emails.contains(pendingEmail));    // active but not valid
+        assertFalse(emails.contains(defaultPhone));
+
+        final List<EmailAddress> personalEmails =
+                party.getPartyContactStream(EmailAddress.class, PartyContactType.INSTITUTIONAL).toList();
+        assertEquals(1, personalEmails.size());
+        assertTrue(personalEmails.contains(institutionalEmail));
+        assertFalse(personalEmails.contains(defaultEmail));
+
+        assertTrue(party.getPartyContactStream(MobilePhone.class).findAny().isEmpty());
     }
 
     @Test
