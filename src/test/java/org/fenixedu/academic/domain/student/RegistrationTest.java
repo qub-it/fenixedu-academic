@@ -5,11 +5,23 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.CompetenceCourseTest;
+import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.EnrolmentTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
+import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
@@ -36,19 +48,29 @@ public class RegistrationTest {
     private static ExecutionInterval firstSemester, secondSemester, nextYearFirstSemester, nextYearSecondSemester,
             presentFirstSemester, futureFirstSemester;
     private static Registration registration;
+    private static StudentCurricularPlan studentCurricularPlan;
+    private static ExecutionInterval executionInterval;
+    private static CurricularCourse curricularCourse;
 
     private static final String PRESENT_ACADEMIC_YEAR_NAME = "PRESENT_YEAR";
     private static final String FUTURE_ACADEMIC_YEAR_NAME = "FUTURE_YEAR";
+    public static final String INGRESSION_CODE = "I";
+    public static final String PROTOCOL_CODE = "P";
 
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            StudentTest.initStudentAndRegistration();
+            EnrolmentTest.initEnrolments();
 
             registration = Student.readStudentByNumber(1)
                     .getRegistrationStream()
                     .findAny()
                     .orElseThrow();
+
+            studentCurricularPlan = registration.getLastStudentCurricularPlan();
+            executionInterval = ExecutionInterval.findFirstCurrentChild(studentCurricularPlan.getDegree().getCalendar());
+            curricularCourse =
+                    studentCurricularPlan.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
 
             final int presentYear = LocalDate.now().getYear();
             AcademicYearCE presentAcademicYearEntry =
@@ -118,6 +140,72 @@ public class RegistrationTest {
 
             return null;
         });
+    }
+
+    public static Registration createRegistration(final Student student, final DegreeCurricularPlan degreeCurricularPlan,
+            final ExecutionYear executionYear) {
+        return Registration.create(student, degreeCurricularPlan, executionYear, RegistrationProtocol.findByCode(PROTOCOL_CODE),
+                IngressionType.findIngressionTypeByCode(INGRESSION_CODE).orElseThrow());
+    }
+
+    @Test
+    public void testRegistration_create() {
+        Student student = StudentTest.createStudent("John Doe", "johndoe");
+        DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
+        RegistrationProtocol protocol = RegistrationProtocol.findByCode(PROTOCOL_CODE);
+        IngressionType ingressionType = IngressionType.findIngressionTypeByCode(INGRESSION_CODE).orElseThrow();
+
+        Registration result = Registration.create(student, degreeCurricularPlan, executionYear, protocol, ingressionType);
+
+        assertEquals(student.getPerson(), result.getPerson());
+        assertEquals(degreeCurricularPlan.getDegree(), result.getDegree());
+        assertEquals(executionYear, result.getRegistrationYear());
+        assertEquals(protocol, result.getRegistrationProtocol());
+        assertEquals(ingressionType, result.getIngressionType());
+        assertTrue(result.isActive());
+        assertEquals(degreeCurricularPlan, result.getLastStudentCurricularPlan().getDegreeCurricularPlan());
+        assertNotNull(student.getPersonalIngressionDataByExecutionYear(executionYear));
+    }
+
+    @Test
+    public void testGetEnrolmentsExecutionYearStream_matchesGetEnrolmentsExecutionYears() {
+        Student student = StudentTest.createStudent("John Foe", "johnfoe");
+        DegreeCurricularPlan degreeCurricularPlan = studentCurricularPlan.getDegreeCurricularPlan();
+        Registration newRegistration = createRegistration(student, degreeCurricularPlan, executionYear);
+        StudentCurricularPlan newStudentCurricularPlan = newRegistration.getLastStudentCurricularPlan();
+        Context context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny()
+                .orElseThrow();
+
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, executionInterval, context, StudentTest.STUDENT_A_USERNAME);
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, nextYearFirstSemester, context, StudentTest.STUDENT_A_USERNAME);
+
+        Set<ExecutionYear> expected = new HashSet<>(newRegistration.getEnrolmentsExecutionYears());
+        Set<ExecutionYear> actual = newRegistration.getEnrolmentsExecutionYearStream().collect(Collectors.toSet());
+        assertEquals(Set.of(executionYear, nextExecutionYear), expected);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetStateInDate_dateTimeMatchesLocalDate() {
+        RegistrationState interrupted = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-02-01"),
+                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).orElseThrow(), executionInterval);
+        RegistrationState registered = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-03-01"),
+                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).orElseThrow(), executionInterval);
+        RegistrationState concluded = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-04-01"),
+                RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).orElseThrow(), executionInterval);
+
+        Map<LocalDate, RegistrationState> expected = new HashMap<>();
+        expected.put(new LocalDate(2020, 1, 1), null); // before any state
+        expected.put(new LocalDate(2020, 2, 1), interrupted);
+        expected.put(new LocalDate(2020, 3, 15), registered);
+        expected.put(new LocalDate(2020, 4, 1), concluded);
+        expected.put(new LocalDate(2020, 12, 31), concluded); // after the latest state
+
+        for (Map.Entry<LocalDate, RegistrationState> entry : expected.entrySet()) {
+            assertEquals(entry.getValue(), registration.getStateInDate(entry.getKey().toDateTimeAtStartOfDay()));
+            assertEquals(registration.getStateInDate(entry.getKey()),
+                    registration.getStateInDate(entry.getKey().toDateTimeAtStartOfDay()));
+        }
     }
 
     @Test
@@ -268,6 +356,4 @@ public class RegistrationTest {
         assertEquals("For different past execution years, the active state should be the last state created",
                 lastState, activeState);
     }
-
 }
-
