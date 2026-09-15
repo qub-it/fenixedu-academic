@@ -197,13 +197,13 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
         return importRegistration(person, degreeCurricularPlan, protocol, cycleType, executionYear);
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
             final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
         final Registration registration = new Registration(person, null,
@@ -653,7 +653,7 @@ public class Registration extends Registration_Base {
     /**
      * @deprecated use getEnrolmentsExecutionYearStream instead
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     final public Collection<ExecutionYear> getEnrolmentsExecutionYears() {
         final Set<ExecutionYear> result = new HashSet<>();
 
@@ -759,31 +759,6 @@ public class Registration extends Registration_Base {
             }
         }
         return attends;
-    }
-
-    @Deprecated
-    final public static Registration readByUsername(final String username) {
-        final Person person = Person.readPersonByUsername(username);
-        if (person != null) {
-            for (final Registration registration : person.getStudentsSet()) {
-                return registration;
-            }
-        }
-        return null;
-    }
-
-    @Deprecated
-    final public static Registration readStudentByNumberAndDegreeType(final Integer number, final DegreeType degreeType) {
-        Registration nonActiveRegistration = null;
-        for (Registration registration : Bennu.getInstance().getRegistrationsSet()) {
-            if (registration.getNumber().intValue() == number.intValue() && registration.getDegreeType().equals(degreeType)) {
-                if (registration.isActive()) {
-                    return registration;
-                }
-                nonActiveRegistration = registration;
-            }
-        }
-        return nonActiveRegistration;
     }
 
     final public static Registration readByNumberAndDegreeCurricularPlan(final Integer number,
@@ -976,15 +951,6 @@ public class Registration extends Registration_Base {
         return result.size();
     }
 
-    /**
-     * @deprecated method is never used... delete it
-     */
-    @Deprecated
-    final public Integer getNumberOfExecutionCoursesWithEnroledShiftsFor(final ExecutionInterval executionInterval) {
-        return getAttendingExecutionCoursesFor(executionInterval).size()
-                - countNumberOfDistinctExecutionCoursesOfShiftsFor(executionInterval);
-    }
-
     final public Set<SchoolClass> getSchoolClassesToEnrol() {
         final Set<SchoolClass> result = new HashSet<>();
         for (final Attends attends : getAssociatedAttendsSet()) {
@@ -1031,30 +997,29 @@ public class Registration extends Registration_Base {
 
     private ExecutionYear inspectIngressionYear(final Registration registration) {
         if (registration.getSourceRegistration() == null) {
-            return registration.getStartExecutionYear();
+            return registration.getRegistrationYear();
         }
 
         return inspectIngressionYear(registration.getSourceRegistration());
     }
 
     public String getDegreeNameWithDegreeCurricularPlanName() {
-        final StudentCurricularPlan toAsk = getStudentCurricularPlan(
-                getStartExecutionYear()) == null ? getFirstStudentCurricularPlan() : getStudentCurricularPlan(
-                        getStartExecutionYear());
+        final StudentCurricularPlan toAsk = getStudentCurricularPlan(getRegistrationYear())
+                == null ? getFirstStudentCurricularPlan() : getStudentCurricularPlan(getRegistrationYear());
 
         if (toAsk == null) {
             return StringUtils.EMPTY;
         }
 
-        return toAsk.getPresentationName(getStartExecutionYear());
+        return toAsk.getPresentationName(getRegistrationYear());
     }
 
     public String getDegreeNameWithDescription() {
-        return getDegree().getPresentationName(getStartExecutionYear());
+        return getDegree().getPresentationName(getRegistrationYear());
     }
 
     public String getDegreeName() {
-        return getDegree().getNameFor(getStartExecutionYear()).getContent();
+        return getDegree().getNameI18N(getRegistrationYear()).getContent();
     }
 
     final public String getDegreeDescription(final ExecutionYear executionYear, ProgramConclusion programConclusion,
@@ -1086,7 +1051,7 @@ public class Registration extends Registration_Base {
             }
         }
 
-        res.append(degree.getNameFor(executionYear).getContent(locale).toUpperCase());
+        res.append(degree.getNameI18N(executionYear).getContent(locale).toUpperCase());
 
         return res.toString();
     }
@@ -1178,7 +1143,7 @@ public class Registration extends Registration_Base {
     /**
      * @deprecated use {@link #getStateInDate(DateTime)}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public RegistrationState getStateInDate(final LocalDate localDate) {
         final List<RegistrationState> sortedRegistrationStates = new ArrayList<>(getRegistrationStatesSet());
         Collections.sort(sortedRegistrationStates, RegistrationState.DATE_COMPARATOR);
@@ -1520,7 +1485,7 @@ public class Registration extends Registration_Base {
     /**
      * @deprecated Replaced by {@link #getRegistrationYear()}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     final public ExecutionYear getStartExecutionYear() {
         return getRegistrationYear();
     }
@@ -1548,16 +1513,6 @@ public class Registration extends Registration_Base {
 
     final public Attends readAttendByExecutionCourse(final ExecutionCourse executionCourse) {
         return getStudent().findAttends(executionCourse).orElse(null);
-    }
-
-    @Deprecated
-    final public Attends readRegistrationAttendByExecutionCourse(final ExecutionCourse executionCourse) {
-        for (final Attends attend : this.getAssociatedAttendsSet()) {
-            if (attend.isFor(executionCourse)) {
-                return attend;
-            }
-        }
-        return null;
     }
 
     public Optional<Attends> findAttends(final ExecutionCourse executionCourse) {
