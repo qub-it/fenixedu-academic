@@ -29,6 +29,9 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.spaces.domain.Information;
+import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -405,4 +408,101 @@ public class OrganizationalStructureTest {
         assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
     }
 
+    @Test
+    public void testUnit_getCampus() {
+        final SpaceClassification roomType = new SpaceClassification("ROOM", new LocalizedString(Locale.getDefault(), "Room"));
+        final Space campusA = new Space(new Information.Builder().classification(roomType).name("Campus A").build());
+        final Space campusB = new Space(new Information.Builder().classification(roomType).name("Campus B").build());
+
+        final Unit university = UnitUtils.readInstitutionUnit();
+        final Unit school = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit coursesGroup = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+        assertNull(university.getCampus());
+        assertNull(school.getCampus());
+        assertNull(coursesGroup.getCampus());
+
+        // set campus on university, school and coursesGroup inherit
+        university.setCampus(campusA);
+        assertEquals(campusA, university.getCampus());
+        assertEquals(campusA, school.getCampus());
+        assertEquals(campusA, coursesGroup.getCampus());
+
+        // set own campus on school, school returns its own and coursesGroup now inherits from school
+        school.setCampus(campusB);
+        assertEquals(campusA, university.getCampus());
+        assertEquals(campusB, school.getCampus());
+        assertEquals(campusB, coursesGroup.getCampus());
+
+        // ancestors above the institution always return null
+        assertNull(UnitUtils.readEarthUnit().getCampus());
+    }
+
+    @Test
+    public void testUnits_getAllSubUnits() {
+        final Collection<Unit> universitySubUnits = universityUnit.getAllSubUnits();
+        assertEquals(5, universitySubUnits.size());
+        assertTrue(universitySubUnits.contains(schoolUnit));
+        assertTrue(universitySubUnits.contains(coursesAgregatorUnit));
+        assertTrue(universitySubUnits.contains(degreesUnit));
+        assertTrue(universitySubUnits.contains(coursesGroupUnit));
+        assertTrue(universitySubUnits.contains(inactiveUnit));
+        assertFalse(universitySubUnits.contains(universityUnit));
+
+        assertTrue(coursesGroupUnit.getAllSubUnits().isEmpty());
+        assertTrue(inactiveUnit.getAllSubUnits().isEmpty());
+    }
+
+    @Test
+    public void testUnits_getAllParentUnits() {
+        assertEquals(1, countryUnit.getAllParentUnits().size());    // planet
+        assertEquals(2, universityUnit.getAllParentUnits().size()); // country, planet
+        assertEquals(3, schoolUnit.getAllParentUnits().size());     // university, country, planet
+        assertEquals(3, inactiveUnit.getAllParentUnits().size());   // university, country, planet
+
+        assertTrue(planetUnit.getAllParentUnits().isEmpty());
+    }
+
+    //    @Test
+    //    public void testUnits_getSubUnitsByState() {
+    //        final YearMonthDay today = new YearMonthDay();
+    //
+    //        final List<Unit> activeSubUnits = universityUnit.getSubUnitsByState(today, true);
+    //        assertEquals(1, activeSubUnits.size());
+    //        assertTrue(activeSubUnits.contains(schoolUnit));
+    //        assertFalse(activeSubUnits.contains(inactiveUnit));
+    //
+    //        final List<Unit> inactiveSubUnits = universityUnit.getSubUnitsByState(today, false);
+    //        assertEquals(1, inactiveSubUnits.size());
+    //        assertTrue(inactiveSubUnits.contains(inactiveUnit));
+    //        assertFalse(inactiveSubUnits.contains(schoolUnit));
+    //    }
+
+    //    @Test
+    //    public void testUnits_getAllActiveAndInactiveSubUnits() {
+    //        final YearMonthDay today = new YearMonthDay();
+    //
+    //        // diamond: coursesGroup becomes a sub unit of BOTH coursesAgregator and degrees
+    //        final Accountability diamondLink =
+    //                coursesGroupUnit.addParentUnit(degreesUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
+    //        try {
+    //
+    //            final List<Unit> activeSubUnits = universityUnit.getAllActiveSubUnits(today);
+    //            assertEquals(4, activeSubUnits.size());
+    //            assertTrue(activeSubUnits.contains(schoolUnit));
+    //            assertTrue(activeSubUnits.contains(coursesAgregatorUnit));
+    //            assertTrue(activeSubUnits.contains(degreesUnit));
+    //            assertTrue(activeSubUnits.contains(coursesGroupUnit));
+    //            assertFalse(activeSubUnits.contains(inactiveUnit));
+    //            assertEquals(activeSubUnits.size(), new HashSet<>(activeSubUnits).size()); // HashSet dedups the diamond
+    //
+    //            final List<Unit> inactiveSubUnits = universityUnit.getAllInactiveSubUnits(today);
+    //            assertEquals(1, inactiveSubUnits.size());
+    //            assertTrue(inactiveSubUnits.contains(inactiveUnit));
+    //            assertFalse(inactiveSubUnits.contains(schoolUnit));
+    //            assertEquals(inactiveSubUnits.size(), new HashSet<>(inactiveSubUnits).size());
+    //
+    //        } finally {
+    //            diamondLink.delete(); // restore shared dataset for other tests
+    //        }
+    //    }
 }

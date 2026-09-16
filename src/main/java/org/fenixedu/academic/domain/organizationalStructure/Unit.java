@@ -215,19 +215,13 @@ public class Unit extends Unit_Base {
 
     @Override
     public Space getCampus() {
-
         Space campus = super.getCampus();
-
         if (campus != null) {
             return campus;
         }
 
         Collection<Unit> parentUnits = getParentUnits();
-        if (parentUnits.size() == 1) {
-            campus = parentUnits.iterator().next().getCampus();
-        }
-
-        return campus;
+        return parentUnits.size() == 1 ? parentUnits.iterator().next().getCampus() : null;
     }
 
     public boolean isInternal() {
@@ -258,50 +252,19 @@ public class Unit extends Unit_Base {
     }
 
     private List<Unit> getSubUnitsByState(YearMonthDay currentDate, boolean state) {
-        List<Unit> allSubUnits = new ArrayList<Unit>();
-        for (Unit subUnit : this.getSubUnits()) {
-            if (subUnit.isActive(currentDate) == state) {
-                allSubUnits.add(subUnit);
-            }
-        }
-        return allSubUnits;
+        return getSubUnits().stream().filter(subUnit -> subUnit.isActive(currentDate) == state).collect(Collectors.toList());
     }
 
     private List<Unit> getAllInactiveSubUnits(YearMonthDay currentDate) {
-        Set<Unit> allInactiveSubUnits = new HashSet<Unit>();
-        allInactiveSubUnits.addAll(getInactiveSubUnits(currentDate));
-        for (Unit subUnit : getSubUnits()) {
-            allInactiveSubUnits.addAll(subUnit.getAllInactiveSubUnits(currentDate));
-        }
-        return new ArrayList<Unit>(allInactiveSubUnits);
+        return Stream.concat(getInactiveSubUnits(currentDate).stream(),
+                        getSubUnits().stream().flatMap(subUnit -> subUnit.getAllInactiveSubUnits(currentDate).stream())).distinct()
+                .toList();
     }
 
     private List<Unit> getAllActiveSubUnits(YearMonthDay currentDate) {
-        Set<Unit> allActiveSubUnits = new HashSet<Unit>();
-        allActiveSubUnits.addAll(getActiveSubUnits(currentDate));
-        for (Unit subUnit : getSubUnits()) {
-            allActiveSubUnits.addAll(subUnit.getAllActiveSubUnits(currentDate));
-        }
-        return new ArrayList<Unit>(allActiveSubUnits);
-    }
-
-    public List<Unit> getAllActiveSubUnitsWithAllowedChildParties(final YearMonthDay currentDate, final PartyType childType) {
-        final Set<Unit> allActiveSubUnits = new HashSet<Unit>();
-        allActiveSubUnits.addAll(getActiveSubUnitsWithAllowedChildParties(currentDate, childType));
-        for (Unit subUnit : getSubUnits()) {
-            allActiveSubUnits.addAll(subUnit.getAllActiveSubUnitsWithAllowedChildParties(currentDate, childType));
-        }
-        return new ArrayList<Unit>(allActiveSubUnits);
-    }
-
-    private List<Unit> getActiveSubUnitsWithAllowedChildParties(YearMonthDay currentDate, final PartyType childType) {
-        final List<Unit> allSubUnits = new ArrayList<Unit>();
-        for (Unit subUnit : this.getSubUnits()) {
-            if (subUnit.isActive(currentDate) && subUnit.getAllowedChildPartyTypes(null).contains(childType)) {
-                allSubUnits.add(subUnit);
-            }
-        }
-        return allSubUnits;
+        return Stream.concat(getActiveSubUnits(currentDate).stream(),
+                        getSubUnits().stream().flatMap(subUnit -> subUnit.getAllActiveSubUnits(currentDate).stream())).distinct()
+                .toList();
     }
 
     public Collection<PartyType> getAllowedChildPartyTypes(final Boolean managedByUser) {
@@ -315,22 +278,18 @@ public class Unit extends Unit_Base {
     }
 
     public Collection<Unit> getAllSubUnits() {
-        Set<Unit> allSubUnits = new HashSet<Unit>();
         Collection<Unit> subUnits = getSubUnits();
-        allSubUnits.addAll(subUnits);
-        for (Unit subUnit : subUnits) {
-            allSubUnits.addAll(subUnit.getAllSubUnits());
-        }
+        Set<Unit> allSubUnits = new HashSet<>(subUnits);
+
+        subUnits.stream().map(Unit::getAllSubUnits).forEach(allSubUnits::addAll);
         return allSubUnits;
     }
 
     public Collection<Unit> getAllParentUnits() {
-        Set<Unit> allParentUnits = new HashSet<Unit>();
         Collection<Unit> parentUnits = getParentUnits();
-        allParentUnits.addAll(parentUnits);
-        for (Unit subUnit : parentUnits) {
-            allParentUnits.addAll(subUnit.getAllParentUnits());
-        }
+        Set<Unit> allParentUnits = new HashSet<>(parentUnits);
+
+        parentUnits.stream().map(Unit::getAllParentUnits).forEach(allParentUnits::addAll);
         return allParentUnits;
     }
 
