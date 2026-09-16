@@ -1,3 +1,4 @@
+- Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
 - Refactor: Improve CycleCurriculumGroup domain methods [#qubIT-Fenix-9395]
 - Refactor: Improve CycleType enum and unit tests [#qubIT-Fenix-9343]
 - Refactor: Deletes unused relation between DegreeCurricularPlan and CurricularCourse [#qubIT-Fenix-9223]

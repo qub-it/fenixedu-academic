@@ -55,29 +55,14 @@ import org.joda.time.YearMonthDay;
 
 abstract public class CurriculumModule extends CurriculumModule_Base {
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_NAME_AND_ID = new Comparator<CurriculumModule>() {
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            int result = o1.getName().compareTo(o2.getName());
-            return (result == 0) ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : result;
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_NAME_AND_ID =
+            Comparator.comparing(CurriculumModule::getName).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_FULL_PATH_NAME_AND_ID = new Comparator<CurriculumModule>() {
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            int result = o1.getFullPath().compareTo(o2.getFullPath());
-            return (result == 0) ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : result;
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_FULL_PATH_NAME_AND_ID =
+            Comparator.comparing(CurriculumModule::getFullPath).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_CREATION_DATE = new Comparator<CurriculumModule>() {
-
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            return o1.getCreationDateDateTime().compareTo(o2.getCreationDateDateTime());
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_CREATION_DATE =
+            Comparator.comparing(CurriculumModule::getCreationDateDateTime);
 
     public CurriculumModule() {
         super();
