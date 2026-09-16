@@ -461,48 +461,4 @@ public class OrganizationalStructureTest {
 
         assertTrue(planetUnit.getAllParentUnits().isEmpty());
     }
-
-    //    @Test
-    //    public void testUnits_getSubUnitsByState() {
-    //        final YearMonthDay today = new YearMonthDay();
-    //
-    //        final List<Unit> activeSubUnits = universityUnit.getSubUnitsByState(today, true);
-    //        assertEquals(1, activeSubUnits.size());
-    //        assertTrue(activeSubUnits.contains(schoolUnit));
-    //        assertFalse(activeSubUnits.contains(inactiveUnit));
-    //
-    //        final List<Unit> inactiveSubUnits = universityUnit.getSubUnitsByState(today, false);
-    //        assertEquals(1, inactiveSubUnits.size());
-    //        assertTrue(inactiveSubUnits.contains(inactiveUnit));
-    //        assertFalse(inactiveSubUnits.contains(schoolUnit));
-    //    }
-
-    //    @Test
-    //    public void testUnits_getAllActiveAndInactiveSubUnits() {
-    //        final YearMonthDay today = new YearMonthDay();
-    //
-    //        // diamond: coursesGroup becomes a sub unit of BOTH coursesAgregator and degrees
-    //        final Accountability diamondLink =
-    //                coursesGroupUnit.addParentUnit(degreesUnit, AccountabilityType.readByType(ORGANIZATIONAL_STRUCTURE));
-    //        try {
-    //
-    //            final List<Unit> activeSubUnits = universityUnit.getAllActiveSubUnits(today);
-    //            assertEquals(4, activeSubUnits.size());
-    //            assertTrue(activeSubUnits.contains(schoolUnit));
-    //            assertTrue(activeSubUnits.contains(coursesAgregatorUnit));
-    //            assertTrue(activeSubUnits.contains(degreesUnit));
-    //            assertTrue(activeSubUnits.contains(coursesGroupUnit));
-    //            assertFalse(activeSubUnits.contains(inactiveUnit));
-    //            assertEquals(activeSubUnits.size(), new HashSet<>(activeSubUnits).size()); // HashSet dedups the diamond
-    //
-    //            final List<Unit> inactiveSubUnits = universityUnit.getAllInactiveSubUnits(today);
-    //            assertEquals(1, inactiveSubUnits.size());
-    //            assertTrue(inactiveSubUnits.contains(inactiveUnit));
-    //            assertFalse(inactiveSubUnits.contains(schoolUnit));
-    //            assertEquals(inactiveSubUnits.size(), new HashSet<>(inactiveSubUnits).size());
-    //
-    //        } finally {
-    //            diamondLink.delete(); // restore shared dataset for other tests
-    //        }
-    //    }
 }
