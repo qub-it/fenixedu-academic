@@ -37,11 +37,6 @@ public abstract class EventSpaceOccupation extends EventSpaceOccupation_Base {
         super.addSpace(resource);
     }
 
-    @Deprecated
-    public Space getRoom() {
-        return getSpace();
-    }
-
     public Space getSpace() {
         Set<Space> spaces = getSpaces();
         return spaces.isEmpty() ? null : spaces.iterator().next();

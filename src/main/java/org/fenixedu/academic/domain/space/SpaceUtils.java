@@ -18,28 +18,24 @@
  */
 package org.fenixedu.academic.domain.space;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.spaces.domain.SpaceClassification;
 
 public class SpaceUtils {
-    public static final String SCHOOL_SPACES = "School Spaces";
     public static final String CAMPUS = "Campus";
     public static final String BUILDING = "Building";
     public static final String FLOOR = "Floor";
-    public static final String ROOM = "Room";
 
     public static Stream<Space> allocatableSpaces() {
-        return Space.getSpaces().filter(space -> isAllocatable(space)).sorted();
+        return Space.getSpaces().filter(SpaceUtils::isAllocatable).sorted();
     }
 
     public static List<Space> buildings() {
-        return Space.getSpaces().filter(space -> isBuilding(space)).sorted().collect(Collectors.toList());
+        return Space.getSpaces().filter(SpaceUtils::isBuilding).sorted().collect(Collectors.toList());
     }
 
     public static boolean isAllocatable(Space space) {
@@ -64,14 +60,6 @@ public class SpaceUtils {
 
     public static Stream<Space> findSpaceByName(String name) {
         return Space.getSpaces().filter(space -> name.equals(space.getName()));
-    }
-
-    public static Space getDefaultCampus() {
-        if (Bennu.getInstance().getDefaultCampus() == null) {
-            return Space.getTopLevelSpaces().stream().sorted(Comparator.comparing(Space::getPresentationName)).findFirst()
-                    .orElse(null);
-        }
-        return Bennu.getInstance().getDefaultCampus();
     }
 
     public static Space getSpaceBuilding(Space space) {
