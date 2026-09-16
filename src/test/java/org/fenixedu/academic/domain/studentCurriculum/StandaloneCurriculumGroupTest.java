@@ -4,6 +4,7 @@ import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_A_CODE;
 import static org.fenixedu.academic.domain.CompetenceCourseTest.COURSE_B_CODE;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.math.BigDecimal;
 
@@ -25,6 +26,7 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
@@ -42,6 +44,7 @@ public class StandaloneCurriculumGroupTest {
 
     private static StandaloneCurriculumGroup standaloneGroup;
     private static StandaloneCurriculumGroup emptyStandaloneGroup;
+    private static Enrolment nonApprovedEnrolment;
     private static ExecutionInterval firstSemester;
     private static ExecutionInterval secondSemester;
 
@@ -84,12 +87,23 @@ public class StandaloneCurriculumGroupTest {
                     new Enrolment(scp, standaloneGroup, courseB, firstSemester, EnrollmentCondition.FINAL, STUDENT_USERNAME);
             approve(courseBEnrolment);
 
+            // "CC" CompetenceCourse must be created before createCourse() since it's not in CompetenceCourseTest.initCompetenceCourse()
+            CompetenceCourseTest.createCompetenceCourse("Course C", "CC", new BigDecimal("6.0"), AcademicPeriod.SEMESTER,
+                    firstSemester, Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow());
+            final CurricularCourse courseCCurricular = createCourse(dcp, "CC", semesterPeriod);
+
+            nonApprovedEnrolment =
+                    new Enrolment(scp, standaloneGroup, courseCCurricular, firstSemester, EnrollmentCondition.FINAL,
+                            STUDENT_USERNAME);
+
             return null;
         });
     }
 
     @Test
     public void testStandaloneCurriculumGroup_getNumberOfAllApprovedEnrolments() {
+        // standaloneGroup has 3 enrolments: CA (approved), CB annual (approved), CC (enroled, not approved)
+        assertFalse(nonApprovedEnrolment.isApproved());
         assertEquals(2, standaloneGroup.getNumberOfAllApprovedEnrolments(firstSemester));
         assertEquals(1, standaloneGroup.getNumberOfAllApprovedEnrolments(secondSemester));
         assertEquals(0, emptyStandaloneGroup.getNumberOfAllApprovedEnrolments(firstSemester));
