@@ -149,7 +149,11 @@ public class StudentCurricularPlanEnrolmentManager extends StudentCurricularPlan
             }
         }
 
-        getRegistration().updateEnrolmentDate(getExecutionYear());
+        if (!this.enrolmentContext.getToRemove().isEmpty() || this.enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .anyMatch(dm -> dm.isLeaf())) {
+            getRegistration().updateEnrolmentDate(getExecutionYear());
+        }
+
         Signal.emit(NORMAL_ENROLMENT, new DomainObjectEvent<>(enrolmentContext.getRegistration()));
     }
 
