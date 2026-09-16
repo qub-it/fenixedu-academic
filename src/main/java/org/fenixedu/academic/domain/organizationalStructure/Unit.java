@@ -326,8 +326,9 @@ public class Unit extends Unit_Base {
             return getParentUnits().stream().flatMap(u -> u.getAllowedChildPartyTypes(managedByUser).stream())
                     .collect(Collectors.toSet());
         }
-        return Optional.ofNullable(getPartyType()).map(pt -> pt.getAllowedChildPartyTypes(managedByUser))
-                .orElseGet(() -> Set.of());
+        return Optional.ofNullable(getPartyType()).map(pt -> pt.getAllowedChildConnectionRulesSet().stream()
+                .filter(cr -> managedByUser == null || cr.getManagedByUser() == managedByUser)
+                .map(ConnectionRule::getAllowedChildPartyType).collect(Collectors.toSet())).orElseGet(Set::of);
     }
 
     public Collection<Unit> getAllSubUnits() {
