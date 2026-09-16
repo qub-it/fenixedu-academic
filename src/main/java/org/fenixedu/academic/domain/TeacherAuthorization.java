@@ -105,6 +105,10 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
         return super.getExecutionSemester();
     }
 
+    public void setExecutionInterval(ExecutionInterval executionInterval) {
+        super.setExecutionSemester(executionInterval);
+    }
+
     @Override
     public Teacher getTeacher() {
         if (getRevokedRootDomainObject() != null) {
