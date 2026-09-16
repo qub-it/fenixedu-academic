@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 
 public class RestrictionEnroledDegreeModuleExecutor extends CurricularRuleExecutor {
 
@@ -70,15 +69,8 @@ public class RestrictionEnroledDegreeModuleExecutor extends CurricularRuleExecut
 
         Collection<CycleCourseGroup> cycleCourseGroups =
                 restrictionEnroledDegreeModule.getPrecedenceDegreeModule().getParentCycleCourseGroups();
-        for (CycleCourseGroup cycleCourseGroup : cycleCourseGroups) {
-            CycleCurriculumGroup cycleCurriculumGroup =
-                    (CycleCurriculumGroup) enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(cycleCourseGroup);
-            if (cycleCurriculumGroup != null) {
-                return true;
-            }
-        }
-
-        return false;
+        return cycleCourseGroups.stream()
+                .anyMatch(ccg -> enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(ccg) != null);
     }
 
 }

@@ -18,8 +18,6 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
-import java.math.BigDecimal;
-
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
@@ -82,13 +80,6 @@ public class CreditsLimitExecutor extends CurricularRuleExecutor {
                 .getExecutionYear()) : curriculumModule.getEnroledEctsCredits(enrolmentContext.getExecutionPeriod());
     }
 
-    private Double calculatePreviousPeriodEnroledEctsCredits(EnrolmentContext enrolmentContext,
-            final CurriculumModule curriculumModule) {
-        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumModule
-                .getEnroledEctsCredits(enrolmentContext.getExecutionYear().getPreviousExecutionYear()) : curriculumModule
-                        .getEnroledEctsCredits(enrolmentContext.getExecutionPeriod().getPrevious());
-    }
-
     private RuleResult evaluateIfCanEnrolToOptionalDegreeModule(final EnrolmentContext enrolmentContext, final CreditsLimit rule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
         final CurricularCourse curricularCourse;
@@ -108,15 +99,10 @@ public class CreditsLimitExecutor extends CurricularRuleExecutor {
             final CurriculumModule parentCurriculumModule) {
         final ExecutionInterval executionInterval = enrolmentContext.getExecutionPeriod();
 
-        BigDecimal result = BigDecimal.ZERO;
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isEnroling()
-                    && parentCurriculumModule.hasCurriculumModule(degreeModuleToEvaluate.getCurriculumGroup())) {
-                result = result.add(BigDecimal.valueOf(degreeModuleToEvaluate.getEctsCredits(executionInterval)));
-            }
-        }
-
-        return Double.valueOf(result.doubleValue());
+        return enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .filter(dme -> dme.isEnroling()
+                        && parentCurriculumModule.hasCurriculumModule(dme.getCurriculumGroup()))
+                .mapToDouble(dme -> dme.getEctsCredits(executionInterval)).sum();
     }
 
     private RuleResult createFalseRuleResult(final CreditsLimit rule, final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate,

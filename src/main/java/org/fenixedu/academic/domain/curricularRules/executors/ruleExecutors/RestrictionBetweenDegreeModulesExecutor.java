@@ -28,7 +28,6 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 
 public class RestrictionBetweenDegreeModulesExecutor extends CurricularRuleExecutor {
 
@@ -72,13 +71,6 @@ public class RestrictionBetweenDegreeModulesExecutor extends CurricularRuleExecu
                 rule.getDegreeModuleToApplyRule().getName(), rule.getPrecedenceDegreeModule().getName());
     }
 
-    protected Double calculatePreviousPeriodEnroledEctsCredits(final EnrolmentContext enrolmentContext,
-            final CurriculumModule curriculumModule) {
-        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumModule
-                .getEnroledEctsCredits(enrolmentContext.getExecutionYear().getPreviousExecutionYear()) : curriculumModule
-                        .getEnroledEctsCredits(enrolmentContext.getExecutionPeriod().getPrevious());
-    }
-
     private RuleResult createFalseRuleResultWithInvalidEcts(final RestrictionBetweenDegreeModules rule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
         return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(),
@@ -111,15 +103,8 @@ public class RestrictionBetweenDegreeModulesExecutor extends CurricularRuleExecu
 
         Collection<CycleCourseGroup> cycleCourseGroups =
                 restrictionBetweenDegreeModules.getPrecedenceDegreeModule().getParentCycleCourseGroups();
-        for (CycleCourseGroup cycleCourseGroup : cycleCourseGroups) {
-            CycleCurriculumGroup cycleCurriculumGroup =
-                    (CycleCurriculumGroup) enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(cycleCourseGroup);
-            if (cycleCurriculumGroup != null) {
-                return true;
-            }
-        }
-
-        return false;
+        return cycleCourseGroups.stream()
+                .anyMatch(ccg -> enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(ccg) != null);
     }
 
 }

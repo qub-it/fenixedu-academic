@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,10 +36,8 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
-import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
-import org.fenixedu.academic.domain.curricularRules.Exclusiveness;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.PreviousYearsEnrolmentCurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
@@ -105,14 +102,8 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
 
     private boolean isEnrollingInCourseGroupsOnly(final EnrolmentContext enrolmentContext,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext
-                .getAllChildDegreeModulesToEvaluateFor(sourceDegreeModuleToEvaluate.getDegreeModule())) {
-            if (degreeModuleToEvaluate.isLeaf()) {
-                return false;
-            }
-        }
-
-        return true;
+        return enrolmentContext.getAllChildDegreeModulesToEvaluateFor(sourceDegreeModuleToEvaluate.getDegreeModule()).stream()
+                .noneMatch(IDegreeModuleToEvaluate::isLeaf);
     }
 
     protected void printCurricularCoursesToEnrol(Map<Integer, Set<CurricularCourse>> curricularCoursesToEnrolByYear) {
@@ -408,13 +399,8 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
     }
 
     private boolean isExclusiveWithExisting(CourseGroup courseGroup, EnrolmentContext enrolmentContext) {
-        for (final Exclusiveness exclusiveness : courseGroup.getExclusivenessRules(enrolmentContext.getExecutionPeriod())) {
-            if (isEnroled(enrolmentContext, exclusiveness.getExclusiveDegreeModule())) {
-                return true;
-            }
-        }
-
-        return false;
+        return courseGroup.getExclusivenessRules(enrolmentContext.getExecutionPeriod()).stream()
+                .anyMatch(e -> isEnroled(enrolmentContext, e.getExclusiveDegreeModule()));
     }
 
     static private boolean hasRuleBypassingPreviousYearsEnrolmentCurricularRule(final CourseGroup courseGroup,
@@ -426,23 +412,13 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
 
         });
 
-        for (final CurricularRule curricularRule : courseGroup.getCurricularRules(enrolmentContext.getExecutionPeriod())) {
-            if (bypassing.contains(curricularRule.getCurricularRuleType())) {
-                return true;
-            }
-        }
-
-        return false;
+        return courseGroup.getCurricularRules(enrolmentContext.getExecutionPeriod()).stream()
+                .anyMatch(cr -> bypassing.contains(cr.getCurricularRuleType()));
     }
 
     protected int getChildDegreeModulesCount(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext) {
-        int childDegreeModulesCount = 0;
-        for (final Context context : courseGroup.getChildContextsSet()) {
-            if (context.isOpen(enrolmentContext.getExecutionYear())) {
-                childDegreeModulesCount++;
-            }
-        }
-        return childDegreeModulesCount;
+        return (int) courseGroup.getChildContextsSet().stream()
+                .filter(ctx -> ctx.isOpen(enrolmentContext.getExecutionYear())).count();
     }
 
     protected void collectCurricularCoursesToEnrol(final Map<Integer, Set<CurricularCourse>> result,
@@ -462,61 +438,37 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
             final SortedSet<Context> sortedCurricularCoursesContexts, final EnrolmentContext enrolmentContext,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
 
-        final Iterator<Context> iterator = sortedCurricularCoursesContexts.iterator();
-
-        while (iterator.hasNext()) {
-
-            final Context context = iterator.next();
+        sortedCurricularCoursesContexts.removeIf(context -> {
             final CurricularCourse curricularCourse = (CurricularCourse) context.getChildDegreeModule();
-
-            if (isApproved(enrolmentContext, curricularCourse)) {
-                iterator.remove();
-
-            } else if (isEnroled(enrolmentContext, curricularCourse) || isEnrolling(enrolmentContext, curricularCourse)) {
-                iterator.remove();
-
-            } else if (!isCurricularRulesSatisfied(enrolmentContext, context, sourceDegreeModuleToEvaluate)) {
-                iterator.remove();
-
-            }
-        }
-
+            return isApproved(enrolmentContext, curricularCourse)
+                    || isEnroled(enrolmentContext, curricularCourse) || isEnrolling(enrolmentContext, curricularCourse)
+                    || !isCurricularRulesSatisfied(enrolmentContext, context, sourceDegreeModuleToEvaluate);
+        });
     }
 
     private void addValidCurricularCourses(final Map<Integer, Set<CurricularCourse>> result,
             final Set<Context> curricularCoursesContexts, final CourseGroup courseGroup, final ExecutionYear executionYear) {
-        for (final Context context : curricularCoursesContexts) {
-            if (context.isValidForExecutionAggregation(executionYear)) {
-                addCurricularCourse(result, context.getCurricularYear(), (CurricularCourse) context.getChildDegreeModule());
-            }
-        }
+        curricularCoursesContexts.stream().filter(ctx -> ctx.isValidForExecutionAggregation(executionYear))
+                .forEach(ctx -> addCurricularCourse(result, ctx.getCurricularYear(), (CurricularCourse) ctx.getChildDegreeModule()));
     }
 
     private boolean isCurricularRulesSatisfied(EnrolmentContext enrolmentContext, Context context,
             IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate) {
         final CurricularCourse curricularCourse = (CurricularCourse) context.getChildDegreeModule();
 
-        RuleResult result = RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());
         //Besides course unit rules we can only securely evaluate root curricum group rules, other group rules would require that we know the curriculum group 
         //from where the course unit was collected, otherwise we could wrongly evaluate rules, which is very dangerous if we are collecting course units from 
         //previous years and curriculum group is not enroled yet. A possible improvement, would be to find the corresponding curriculum groups, but branches 
         //and optional groups would require extra caution because two different groups might have the same course unit
-        for (final ICurricularRule curricularRule : Stream
+        return Stream
                 .concat(curricularCourse.getCurricularRules(enrolmentContext.getExecutionPeriod()).stream(),
                         enrolmentContext.getStudentCurricularPlan().getRoot()
                                 .getCurricularRules(enrolmentContext.getExecutionPeriod()).stream())
-                .collect(Collectors.toSet())) {
-
-            if (!curricularRule.appliesToContext(context)) {
-                continue;
-            }
-
-            result = result.and(curricularRule.verify(getVerifyRuleLevel(enrolmentContext), enrolmentContext, curricularCourse,
-                    (CourseGroup) sourceDegreeModuleToEvaluate.getDegreeModule()));
-        }
-
-        return result.isTrue();
-
+                .collect(Collectors.toSet()).stream()
+                .filter(cr -> cr.appliesToContext(context))
+                .map(cr -> cr.verify(getVerifyRuleLevel(enrolmentContext), enrolmentContext, curricularCourse,
+                        (CourseGroup) sourceDegreeModuleToEvaluate.getDegreeModule()))
+                .reduce(RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule()), RuleResult::and).isTrue();
     }
 
     private VerifyRuleLevel getVerifyRuleLevel(final EnrolmentContext enrolmentContext) {
@@ -559,13 +511,10 @@ public class PreviousYearsEnrolmentByYearExecutor extends CurricularRuleExecutor
     }
 
     private Set<Context> getActiveChildCurricularCourses(final CourseGroup courseGroup, final EnrolmentContext enrolmentContext) {
-        final Set<Context> result = new HashSet<Context>();
-        for (final Context context : courseGroup.getChildContextsSet()) {
-            if (context.isOpen(enrolmentContext.getExecutionYear()) && context.getChildDegreeModule().isCurricularCourse()) {
-                result.add(context);
-            }
-        }
-        return result;
+        return courseGroup.getChildContextsSet().stream()
+                .filter(ctx -> ctx.isOpen(enrolmentContext.getExecutionYear())
+                        && ctx.getChildDegreeModule().isCurricularCourse())
+                .collect(Collectors.toSet());
     }
 
     private Set<Context> getSelectedChildCurricularCoursesContexts(final CourseGroup courseGroup,

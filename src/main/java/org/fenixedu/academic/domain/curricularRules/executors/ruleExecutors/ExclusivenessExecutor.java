@@ -28,7 +28,6 @@ import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 
 public class ExclusivenessExecutor extends CurricularRuleExecutor {
 
@@ -123,15 +122,8 @@ public class ExclusivenessExecutor extends CurricularRuleExecutor {
 
         Collection<CycleCourseGroup> cycleCourseGroups =
                 exclusivenessRule.getExclusiveDegreeModule().getParentCycleCourseGroups();
-        for (CycleCourseGroup cycleCourseGroup : cycleCourseGroups) {
-            CycleCurriculumGroup cycleCurriculumGroup =
-                    (CycleCurriculumGroup) enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(cycleCourseGroup);
-            if (cycleCurriculumGroup != null) {
-                return true;
-            }
-        }
-
-        return false;
+        return cycleCourseGroups.stream()
+                .anyMatch(ccg -> enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(ccg) != null);
     }
 
 }
