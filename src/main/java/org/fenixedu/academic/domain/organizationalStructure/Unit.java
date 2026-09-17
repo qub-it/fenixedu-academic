@@ -252,7 +252,7 @@ public class Unit extends Unit_Base {
     }
 
     private List<Unit> getSubUnitsByState(YearMonthDay currentDate, boolean state) {
-        return getSubUnits().stream().filter(subUnit -> subUnit.isActive(currentDate) == state).collect(Collectors.toList());
+        return getSubUnits().stream().filter(subUnit -> subUnit.isActive(currentDate) == state).toList();
     }
 
     private List<Unit> getAllInactiveSubUnits(YearMonthDay currentDate) {
