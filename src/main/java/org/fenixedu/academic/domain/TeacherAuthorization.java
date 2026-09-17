@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
@@ -26,6 +27,11 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.joda.time.DateTime;
 
 public class TeacherAuthorization extends TeacherAuthorization_Base implements Comparable<TeacherAuthorization> {
+
+    private static final Comparator<TeacherAuthorization> COMPARATOR_BY_INTERVAL_AND_CATEGORY =
+            Comparator.comparing(TeacherAuthorization::getExecutionInterval)
+                    .thenComparing(TeacherAuthorization::getTeacherCategory).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
+
     protected TeacherAuthorization() {
         super();
         setRootDomainObject(Bennu.getInstance());
@@ -92,7 +98,7 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
     /**
      * @deprecated use {@link #getExecutionInterval()} instead.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @Override
     public ExecutionInterval getExecutionSemester() {
         return getExecutionInterval();
@@ -123,20 +129,8 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
     }
 
     @Override
-    public int compareTo(TeacherAuthorization o) {
-        int semester = getExecutionInterval().compareTo(o.getExecutionInterval());
-        if (semester != 0) {
-            return semester;
-        }
-        int category = getTeacherCategory().compareTo(o.getTeacherCategory());
-        if (category != 0) {
-            return category;
-        }
-        return getExternalId().compareTo(o.getExternalId());
-    }
-
-    protected ExecutionInterval getRevokedExecutionInterval() {
-        return super.getRevokedExecutionSemester();
+    public int compareTo(TeacherAuthorization other) {
+        return COMPARATOR_BY_INTERVAL_AND_CATEGORY.compare(this, other);
     }
 
     public void delete() {
