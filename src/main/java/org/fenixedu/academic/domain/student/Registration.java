@@ -554,36 +554,18 @@ public class Registration extends Registration_Base {
     }
 
     public boolean hasAnyEnroledEnrolments(final ExecutionYear year) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-                if (enrolment.isEnroled() && enrolment.isValid(year)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getStudentCurricularPlanStream().flatMap(scp -> scp.getEnrolmentsSet().stream())
+                .anyMatch(e -> e.isEnroled() && e.isValid(year));
     }
 
     final public boolean hasAnyEnrolmentsIn(final ExecutionYear executionYear) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-                if (enrolment.getExecutionInterval().getExecutionYear() == executionYear) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getStudentCurricularPlanStream().flatMap(scp -> scp.getEnrolmentsSet().stream())
+                .anyMatch(e -> e.getExecutionYear() == executionYear);
     }
 
     public boolean hasAnyEnrolmentsIn(final ExecutionInterval executionInterval) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-                if (enrolment.getExecutionInterval() == executionInterval) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getStudentCurricularPlanStream().flatMap(scp -> scp.getEnrolmentsSet().stream())
+                .anyMatch(e -> e.getExecutionInterval() == executionInterval);
     }
 
     final public boolean hasAnyStandaloneEnrolmentsIn(final ExecutionYear executionYear) {
@@ -614,8 +596,8 @@ public class Registration extends Registration_Base {
     }
 
     final public Stream<ExecutionYear> getEnrolmentsExecutionYearStream() {
-        return getStudentCurricularPlansSet().stream().flatMap(scp -> scp.getEnrolmentStream()).map(e -> e.getExecutionYear())
-                .distinct();
+        return getStudentCurricularPlansSet().stream().flatMap(StudentCurricularPlan::getEnrolmentStream)
+                .map(CurriculumLine::getExecutionYear).distinct();
     }
 
     /**
@@ -643,15 +625,8 @@ public class Registration extends Registration_Base {
     }
 
     public Collection<ExecutionYear> getCurriculumLinesExecutionYears() {
-        final Collection<ExecutionYear> result = new ArrayList<>();
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final CurriculumLine curriculumLine : studentCurricularPlan.getAllCurriculumLines()) {
-                if (curriculumLine.getExecutionInterval() != null) {
-                    result.add(curriculumLine.getExecutionInterval().getExecutionYear());
-                }
-            }
-        }
-        return result;
+        return getStudentCurricularPlanStream().flatMap(scp -> scp.getAllCurriculumLines().stream())
+                .filter(cl -> cl.getExecutionInterval() != null).map(CurriculumLine::getExecutionYear).toList();
     }
 
     public SortedSet<ExecutionYear> getSortedCurriculumLinesExecutionYears() {
@@ -665,13 +640,9 @@ public class Registration extends Registration_Base {
         return executionYears.isEmpty() ? null : executionYears.first();
     }
 
-    final public ExecutionYear getLastEnrolmentExecutionYear() {
+    public ExecutionYear getLastEnrolmentExecutionYear() {
         SortedSet<ExecutionYear> sorted = getSortedEnrolmentsExecutionYears();
-        if (!sorted.isEmpty()) {
-            return sorted.last();
-        } else {
-            return null;
-        }
+        return sorted.isEmpty() ? null : sorted.last();
     }
 
     public ExecutionYear getLastApprovementExecutionYear() {

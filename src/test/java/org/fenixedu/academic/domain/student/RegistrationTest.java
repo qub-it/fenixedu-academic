@@ -2,7 +2,9 @@ package org.fenixedu.academic.domain.student;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -293,6 +295,75 @@ public class RegistrationTest {
         Collection<ExternalEnrolment> approved = newRegistration.getApprovedExternalEnrolments();
         assertEquals(1, approved.size());
         assertTrue(approved.contains(externalEnrolment));
+    }
+
+    @Test
+    public void testRegistration_hasAnyEnroledEnrolments() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertFalse(newRegistration.hasAnyEnroledEnrolments(executionYear));
+        assertFalse(newRegistration.hasAnyEnroledEnrolments(nextExecutionYear));
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertTrue(newRegistration.hasAnyEnroledEnrolments(executionYear));
+        assertFalse(newRegistration.hasAnyEnroledEnrolments(nextExecutionYear));
+    }
+
+    @Test
+    public void testRegistration_hasAnyEnrolmentsIn_executionYear() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(executionYear));
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(nextExecutionYear));
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertTrue(newRegistration.hasAnyEnrolmentsIn(executionYear));
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(nextExecutionYear));
+    }
+
+    @Test
+    public void testRegistration_hasAnyEnrolmentsIn_executionInterval() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(executionInterval));
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(executionInterval.getNext()));
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertTrue(newRegistration.hasAnyEnrolmentsIn(executionInterval));
+        assertFalse(newRegistration.hasAnyEnrolmentsIn(executionInterval.getNext()));
+    }
+
+    @Test
+    public void testRegistration_getCurriculumLinesExecutionYears() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertTrue(newRegistration.getCurriculumLinesExecutionYears().isEmpty());
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertFalse(newRegistration.getCurriculumLinesExecutionYears().isEmpty());
+        assertTrue(newRegistration.getCurriculumLinesExecutionYears().contains(executionYear));
+        assertFalse(newRegistration.getCurriculumLinesExecutionYears().contains(nextExecutionYear));
+    }
+
+    @Test
+    public void testRegistration_getLastEnrolmentExecutionYear() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan newStudentCurricularPlan = newRegistration.getLastStudentCurricularPlan();
+
+        assertNull(newRegistration.getLastEnrolmentExecutionYear());
+
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, executionInterval, context, "admin");
+
+        assertEquals(executionYear, newRegistration.getLastEnrolmentExecutionYear());
+
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, nextExecutionYear.getFirstExecutionPeriod(), context, "admin");
+
+        assertNotEquals(executionYear, newRegistration.getLastEnrolmentExecutionYear());
+        assertEquals(nextExecutionYear, newRegistration.getLastEnrolmentExecutionYear());
     }
 
     @Test
