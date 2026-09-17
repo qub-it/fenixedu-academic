@@ -29,6 +29,9 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.spaces.domain.Information;
+import org.fenixedu.spaces.domain.Space;
+import org.fenixedu.spaces.domain.SpaceClassification;
 import org.joda.time.YearMonthDay;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -379,5 +382,83 @@ public class OrganizationalStructureTest {
         assertEquals(portugalCountry, universityUnit.getCountry());
         assertEquals(spainCountry, schoolUnit.getCountry());
         assertEquals(spainCountry, coursesGroupUnit.getCountry());
+    }
+
+    @Test
+    public void testUnit_isInternal() {
+        // institution itself and everything under it
+        assertTrue(UnitUtils.readInstitutionUnit().isInternal());                       // university "QU"
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isInternal());          // school
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isInternal()); // courses group
+
+        // ancestors above the institution are not internal
+        assertFalse(UnitUtils.readEarthUnit().isInternal());                                      // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isInternal()); // Portugal
+    }
+
+    @Test
+    public void testUnit_isNoOfficialExternal() {
+        // external institution itself and everything under it
+        assertTrue(UnitUtils.readExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isNoOfficialExternal());         // school
+        assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isNoOfficialExternal()); // courses group
+
+        // ancestors above the external institution are not no-official-external
+        assertFalse(UnitUtils.readEarthUnit().isNoOfficialExternal());                                     // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
+    }
+
+    @Test
+    public void testUnit_getCampus() {
+        final SpaceClassification roomType = new SpaceClassification("ROOM", new LocalizedString(Locale.getDefault(), "Room"));
+        final Space campusA = new Space(new Information.Builder().classification(roomType).name("Campus A").build());
+        final Space campusB = new Space(new Information.Builder().classification(roomType).name("Campus B").build());
+
+        final Unit university = UnitUtils.readInstitutionUnit();
+        final Unit school = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
+        final Unit coursesGroup = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
+        assertNull(university.getCampus());
+        assertNull(school.getCampus());
+        assertNull(coursesGroup.getCampus());
+
+        // set campus on university, school and coursesGroup inherit
+        university.setCampus(campusA);
+        assertEquals(campusA, university.getCampus());
+        assertEquals(campusA, school.getCampus());
+        assertEquals(campusA, coursesGroup.getCampus());
+
+        // set own campus on school, school returns its own and coursesGroup now inherits from school
+        school.setCampus(campusB);
+        assertEquals(campusA, university.getCampus());
+        assertEquals(campusB, school.getCampus());
+        assertEquals(campusB, coursesGroup.getCampus());
+
+        // ancestors above the institution always return null
+        assertNull(UnitUtils.readEarthUnit().getCampus());
+    }
+
+    @Test
+    public void testUnits_getAllSubUnits() {
+        final Collection<Unit> universitySubUnits = universityUnit.getAllSubUnits();
+        assertEquals(5, universitySubUnits.size());
+        assertTrue(universitySubUnits.contains(schoolUnit));
+        assertTrue(universitySubUnits.contains(coursesAgregatorUnit));
+        assertTrue(universitySubUnits.contains(degreesUnit));
+        assertTrue(universitySubUnits.contains(coursesGroupUnit));
+        assertTrue(universitySubUnits.contains(inactiveUnit));
+        assertFalse(universitySubUnits.contains(universityUnit));
+
+        assertTrue(coursesGroupUnit.getAllSubUnits().isEmpty());
+        assertTrue(inactiveUnit.getAllSubUnits().isEmpty());
+    }
+
+    @Test
+    public void testUnits_getAllParentUnits() {
+        assertEquals(1, countryUnit.getAllParentUnits().size());    // planet
+        assertEquals(2, universityUnit.getAllParentUnits().size()); // country, planet
+        assertEquals(3, schoolUnit.getAllParentUnits().size());     // university, country, planet
+        assertEquals(3, inactiveUnit.getAllParentUnits().size());   // university, country, planet
+
+        assertTrue(planetUnit.getAllParentUnits().isEmpty());
     }
 }
