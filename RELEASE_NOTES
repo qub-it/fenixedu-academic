@@ -35,6 +35,7 @@
 - Refactor: Replace references of deprecated method PhysicalAddress#getUiFiscalPresentationValue [#qubIT-Fenix-9225]
 - Refactor: Removes deprecated methods from EventSpaceOccupation and unused methods from SpaceUtils [#qubIT-Fenix-9408]
 - Refactor: Removes references to deprecated methods and values of Party Type and Enum [#qubIT-Fenix-9393]
+- Refactor: Clean up rule executor code [#qubIT-Fenix-9429]
 - Improvement: Check if there is always a student curricular plan on registration start year [#qubIT-Fenix-9173]
 - Bug Fix: Only update registration data by year when enrolments are changed [#UCP-FENIXEDU-762]
 - Bug Fix: Fixes error in Manage Teacher Authorizations screen [#ISCTE-FENIXEDU-1597]
