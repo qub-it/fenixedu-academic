@@ -1,3 +1,4 @@
+- Refactor: Deletes CurricularCourseExecutionScope and Season unused classes [#qubIT-Fenix-9314]
 - Refactor: Deletes StudentCurricularPlanIDDomainType, UniqueAcronymCreator, PredicateContainer and DayType unused classes [#qubIT-Fenix-9314]
 
 62.0.1 (17-09-2026)
