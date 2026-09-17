@@ -29,12 +29,8 @@ import jvstm.cps.ConsistencyPredicate;
 
 public class PersonalIngressionData extends PersonalIngressionData_Base {
 
-    public static Comparator<PersonalIngressionData> COMPARATOR_BY_EXECUTION_YEAR = new Comparator<PersonalIngressionData>() {
-        @Override
-        public int compare(PersonalIngressionData data1, PersonalIngressionData data2) {
-            return data1.getExecutionYear().getYear().compareTo(data2.getExecutionYear().getYear());
-        }
-    };
+    public static Comparator<PersonalIngressionData> COMPARATOR_BY_EXECUTION_YEAR =
+            Comparator.comparing(pid -> pid.getExecutionYear().getYear());
 
     public PersonalIngressionData() {
         super();
@@ -54,34 +50,23 @@ public class PersonalIngressionData extends PersonalIngressionData_Base {
 
     @Override
     public void setExecutionYear(ExecutionYear executionYear) {
-        super.setExecutionYear(executionYear);
-
         if (executionYear != null && getStudent() != null && studentHasRepeatedPID(getStudent(), executionYear)) {
             throw new DomainException("A Student cannot have two PersonalIngressionData objects for the same ExecutionYear.");
         }
+        super.setExecutionYear(executionYear);
     }
 
     @Override
     public void setStudent(Student student) {
-        super.setStudent(student);
-
         if (student != null && getExecutionYear() != null && studentHasRepeatedPID(student, getExecutionYear())) {
             throw new DomainException("A Student cannot have two PersonalIngressionData objects for the same ExecutionYear.");
         }
+        super.setStudent(student);
     }
 
-    private static boolean studentHasRepeatedPID(Student student, ExecutionYear executionYear) {
-        PersonalIngressionData existingPid = null;
-        for (PersonalIngressionData pid : student.getPersonalIngressionsDataSet()) {
-            if (pid.getExecutionYear().equals(executionYear)) {
-                if (existingPid == null) {
-                    existingPid = pid;
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean studentHasRepeatedPID(Student student, ExecutionYear executionYear) {
+        return student.getPersonalIngressionsDataSet().stream().filter(pid -> pid != this)
+                .anyMatch(pid -> pid.getExecutionYear().equals(executionYear));
     }
 
     public void delete() {
