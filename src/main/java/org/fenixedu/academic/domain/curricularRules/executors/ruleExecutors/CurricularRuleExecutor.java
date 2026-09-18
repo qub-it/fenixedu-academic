@@ -18,9 +18,9 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -114,12 +114,8 @@ abstract public class CurricularRuleExecutor {
 
     protected IDegreeModuleToEvaluate searchDegreeModuleToEvaluate(final EnrolmentContext enrolmentContext,
             final DegreeModule degreeModule) {
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isFor(degreeModule)) {
-                return degreeModuleToEvaluate;
-            }
-        }
-        return null;
+        return enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .filter(dme -> dme.isFor(degreeModule)).findFirst().orElse(null);
     }
 
     protected IDegreeModuleToEvaluate searchDegreeModuleToEvaluate(final EnrolmentContext enrolmentContext,
@@ -129,14 +125,10 @@ abstract public class CurricularRuleExecutor {
 
     protected Collection<IDegreeModuleToEvaluate> collectDegreeModuleToEnrolFromCourseGroup(
             final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {
-        final Collection<IDegreeModuleToEvaluate> result = new ArrayList<IDegreeModuleToEvaluate>();
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (!degreeModuleToEvaluate.isEnroled()
-                    && degreeModuleToEvaluate.getContext().getParentCourseGroup() == courseGroup) {
-                result.add(degreeModuleToEvaluate);
-            }
-        }
-        return result;
+        return enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .filter(dme -> !dme.isEnroled()
+                        && dme.getContext().getParentCourseGroup() == courseGroup)
+                .collect(Collectors.toList());
     }
 
     protected boolean canApplyRule(final EnrolmentContext enrolmentContext, final ICurricularRule curricularRule) {
@@ -212,13 +204,9 @@ abstract public class CurricularRuleExecutor {
     }
 
     private boolean isEnroled(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse) {
-        for (final ExecutionInterval executionInterval : enrolmentContext.getExecutionIntervalsToEvaluate()) {
-            if (enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return enrolmentContext.getExecutionIntervalsToEvaluate().stream()
+                .anyMatch(ei -> enrolmentContext.getStudentCurricularPlan()
+                        .isEnroledInExecutionPeriod(curricularCourse, ei));
     }
 
     private boolean isEnroled(final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {
@@ -232,13 +220,9 @@ abstract public class CurricularRuleExecutor {
 
     protected boolean isEnroled(final EnrolmentContext enrolmentContext, final CurricularCourse curricularCourse,
             final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (enrolmentContext.getStudentCurricularPlan().isEnroledInExecutionPeriod(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return executionYear.getChildIntervals().stream()
+                .anyMatch(ei -> enrolmentContext.getStudentCurricularPlan()
+                        .isEnroledInExecutionPeriod(curricularCourse, ei));
     }
 
     protected boolean hasEnrolmentWithEnroledState(final EnrolmentContext enrolmentContext,
@@ -249,15 +233,9 @@ abstract public class CurricularRuleExecutor {
 
     protected boolean hasEnrolmentWithEnroledState(final EnrolmentContext enrolmentContext,
             final CurricularCourse curricularCourse, final ExecutionYear executionYear) {
-
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (enrolmentContext.getStudentCurricularPlan().getRoot().hasEnrolmentWithEnroledState(curricularCourse,
-                    executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return executionYear.getChildIntervals().stream()
+                .anyMatch(ei -> enrolmentContext.getStudentCurricularPlan().getRoot()
+                        .hasEnrolmentWithEnroledState(curricularCourse, ei));
     }
 
     protected boolean isEnrolling(final EnrolmentContext enrolmentContext, final DegreeModule degreeModule) {

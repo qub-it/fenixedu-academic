@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -114,13 +113,8 @@ public class PreviousYearsEnrolmentBySemesterExecutor extends PreviousYearsEnrol
             missingEctsToConcludeGroup = courseGroup.getMinEctsCredits(enrolmentContext.getExecutionYear());
         }
 
-        final Iterator<Context> iterator = contexts.iterator();
-        while (iterator.hasNext()) {
-            final Context context = iterator.next();
-            if (canObtainApprovalInOtherCurricularPeriod(missingEctsToConcludeGroup, contexts, context, enrolmentContext)) {
-                iterator.remove();
-            }
-        }
+        contexts.removeIf(context -> canObtainApprovalInOtherCurricularPeriod(missingEctsToConcludeGroup, contexts, context,
+                enrolmentContext));
     }
 
     private double calculateTotalEctsInGroup(final EnrolmentContext enrolmentContext, final CurriculumGroup curriculumGroup) {
@@ -132,40 +126,28 @@ public class PreviousYearsEnrolmentBySemesterExecutor extends PreviousYearsEnrol
 
     private double calculateEnrollingEctsCreditsInCurricularCoursesFor(final EnrolmentContext enrolmentContext,
             final CourseGroup courseGroup) {
-        double result = 0;
-
-        for (final IDegreeModuleToEvaluate degreeModuleToEvaluate : enrolmentContext.getDegreeModulesToEvaluate()) {
-            if (degreeModuleToEvaluate.isLeaf() && degreeModuleToEvaluate.isEnroling()
-                    && degreeModuleToEvaluate.getCurriculumGroup().getDegreeModule() == courseGroup) {
-                result += degreeModuleToEvaluate.getDegreeModule().getMinEctsCredits(enrolmentContext.getExecutionYear());
-            }
-        }
-
-        return result;
-
+        return enrolmentContext.getDegreeModulesToEvaluate().stream()
+                .filter(dme -> dme.isLeaf() && dme.isEnroling()
+                        && dme.getCurriculumGroup().getDegreeModule() == courseGroup)
+                .mapToDouble(dme -> dme.getDegreeModule().getMinEctsCredits(enrolmentContext.getExecutionYear())).sum();
     }
 
     private boolean canObtainApprovalInOtherCurricularPeriod(final double missingEctsToConcludeGroup,
             final SortedSet<Context> contexts, final Context curricularCourseContext, EnrolmentContext enrolmentContext) {
-        double ectsToApproveInOtherPeriods = 0;
         final Set<CurricularCourse> uniqueOtherPeriodCourses = contexts.stream().filter(
                 ctx -> ctx.getCurricularPeriod().getChildOrder() > curricularCourseContext.getCurricularPeriod().getChildOrder())
                 .map(ctx -> (CurricularCourse) ctx.getChildDegreeModule()).collect(Collectors.toSet());
 
-        for (final CurricularCourse curricularCourse : uniqueOtherPeriodCourses) {
-            ectsToApproveInOtherPeriods += curricularCourse.getMinEctsCredits(enrolmentContext.getExecutionYear());
-        }
+        final double ectsToApproveInOtherPeriods = uniqueOtherPeriodCourses.stream()
+                .mapToDouble(cc -> cc.getMinEctsCredits(enrolmentContext.getExecutionYear())).sum();
 
         return ectsToApproveInOtherPeriods >= missingEctsToConcludeGroup;
     }
 
     private void addValidCurricularCourses(final Map<Integer, Set<CurricularCourse>> result, final Set<Context> contexts,
             final CourseGroup courseGroup, final ExecutionInterval executionInterval) {
-        for (final Context context : contexts) {
-            if (context.isValid(executionInterval)) {
-                addCurricularCourse(result, context.getCurricularYear(), (CurricularCourse) context.getChildDegreeModule());
-            }
-        }
+        contexts.stream().filter(ctx -> ctx.isValid(executionInterval))
+                .forEach(ctx -> addCurricularCourse(result, ctx.getCurricularYear(), (CurricularCourse) ctx.getChildDegreeModule()));
     }
 
     private void addCurricularCourse(Map<Integer, Set<CurricularCourse>> result, Integer curricularYear,

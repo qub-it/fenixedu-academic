@@ -18,16 +18,14 @@
  */
 package org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.curricularRules.DegreeModulesSelectionLimit;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
@@ -49,13 +47,6 @@ public class DegreeModulesSelectionLimitExecutor extends CurricularRuleExecutor 
     private int countNumberOfChildEnrolments(final EnrolmentContext enrolmentContext, final CurriculumGroup curriculumGroup) {
         return enrolmentContext.isToEvaluateRulesByYear() ? curriculumGroup.getNumberOfChildEnrolments(enrolmentContext
                 .getExecutionYear()) : curriculumGroup.getNumberOfChildEnrolments(enrolmentContext.getExecutionPeriod());
-    }
-
-    private int countPreviousPeriodNumberOfChildEnrolments(final EnrolmentContext enrolmentContext,
-            final CurriculumGroup curriculumGroup) {
-        return enrolmentContext.isToEvaluateRulesByYear() ? curriculumGroup
-                .getNumberOfChildEnrolments(enrolmentContext.getExecutionYear().getPreviousExecutionYear()) : curriculumGroup
-                        .getNumberOfChildEnrolments(enrolmentContext.getExecutionPeriod().getPrevious());
     }
 
     private RuleResult createFalseRuleResult(final DegreeModulesSelectionLimit rule,
@@ -87,16 +78,12 @@ public class DegreeModulesSelectionLimitExecutor extends CurricularRuleExecutor 
     }
 
     private int countNumberOfDegreeModulesToEnrol(final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {
-        final Set<DegreeModule> result = new HashSet<>();
-        for (final Context context : getValidChildContexts(enrolmentContext, courseGroup)) {
-            if (isEnrolling(enrolmentContext, context.getChildDegreeModule())
-                    && searchDegreeModuleToEvaluate(enrolmentContext, context.getChildDegreeModule()).getCurriculumGroup()
-                            .getDegreeModule() == courseGroup) {
-                result.add(context.getChildDegreeModule());
-            }
-        }
-
-        return result.size();
+        return getValidChildContexts(enrolmentContext, courseGroup).stream()
+                .filter(ctx -> isEnrolling(enrolmentContext, ctx.getChildDegreeModule())
+                        && searchDegreeModuleToEvaluate(enrolmentContext, ctx.getChildDegreeModule()).getCurriculumGroup()
+                                .getDegreeModule() == courseGroup)
+                .map(Context::getChildDegreeModule)
+                .collect(Collectors.toSet()).size();
     }
 
     private List<Context> getValidChildContexts(final EnrolmentContext enrolmentContext, final CourseGroup courseGroup) {

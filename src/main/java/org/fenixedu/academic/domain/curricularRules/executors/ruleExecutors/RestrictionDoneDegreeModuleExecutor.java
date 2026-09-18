@@ -31,7 +31,6 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.joda.time.DateTime;
 
 public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor {
@@ -101,13 +100,9 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
     }
 
     private boolean isEnrolledOrEnrollingInSameSemester(EnrolmentContext enrolmentContext, RestrictionDoneDegreeModule rule) {
-        for (final ExecutionInterval executionInterval : enrolmentContext.getExecutionYear().getChildIntervals()) {
-            if (isEnrolledOrEnrolling(enrolmentContext, rule.getDegreeModuleToApplyRule(), executionInterval)
-                    && isEnrolledOrEnrolling(enrolmentContext, rule.getPrecedenceDegreeModule(), executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return enrolmentContext.getExecutionYear().getChildIntervals().stream().anyMatch(ei ->
+                isEnrolledOrEnrolling(enrolmentContext, rule.getDegreeModuleToApplyRule(), ei)
+                && isEnrolledOrEnrolling(enrolmentContext, rule.getPrecedenceDegreeModule(), ei));
     }
 
     private boolean isEnrolledOrEnrolling(EnrolmentContext enrolmentContext, DegreeModule degreeModule,
@@ -135,18 +130,6 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
         return createFalseRuleResult(rule, sourceDegreeModuleToEvaluate, message);
     }
 
-    private boolean hasPreviousPeriodEnrolmentWithEnroledState(EnrolmentContext enrolmentContext,
-            CurricularCourse curricularCourse) {
-
-        if (enrolmentContext.isToEvaluateRulesByYear()) {
-            return hasEnrolmentWithEnroledState(enrolmentContext, curricularCourse,
-                    enrolmentContext.getExecutionYear().getPreviousExecutionYear());
-        }
-
-        return hasEnrolmentWithEnroledState(enrolmentContext, curricularCourse,
-                enrolmentContext.getExecutionPeriod().getPrevious());
-    }
-
     private RuleResult createFalseRuleResult(final RestrictionDoneDegreeModule rule,
             final IDegreeModuleToEvaluate sourceDegreeModuleToEvaluate, final String message) {
         return RuleResult.createFalse(sourceDegreeModuleToEvaluate.getDegreeModule(), message,
@@ -169,15 +152,8 @@ public class RestrictionDoneDegreeModuleExecutor extends CurricularRuleExecutor 
 
         Collection<CycleCourseGroup> cycleCourseGroups =
                 restrictionDoneDegreeModule.getPrecedenceDegreeModule().getParentCycleCourseGroups();
-        for (CycleCourseGroup cycleCourseGroup : cycleCourseGroups) {
-            CycleCurriculumGroup cycleCurriculumGroup =
-                    (CycleCurriculumGroup) enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(cycleCourseGroup);
-            if (cycleCurriculumGroup != null) {
-                return true;
-            }
-        }
-
-        return false;
+        return cycleCourseGroups.stream()
+                .anyMatch(ccg -> enrolmentContext.getStudentCurricularPlan().findCurriculumGroupFor(ccg) != null);
     }
 
 }
