@@ -1,3 +1,4 @@
+- Refactor: Renames TeacherAuthorization ExecutionSemester DML relations and roles to ExecutionInterval [#qubIT-Fenix-9409]
 - Refactor: Add UnitUtils methods to Unit domain class [#qubIT-Fenix-9003]
 - Refactor: Improve PersonalIngressionData domain methods [#qubIT-Fenix-9430]
 - Refactor: Improve Party domain methods [#qubIT-Fenix-8960]
