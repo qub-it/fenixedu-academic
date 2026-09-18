@@ -625,6 +625,25 @@ public class StudentCurricularPlanTest {
         assertTrue(scpV1.getPropaedeuticEnrolments().contains(propaedeuticEnrolment));
     }
 
+    @Test
+    public void testStudentCurricularPlan_hasAnyCurriculumLines() {
+        final ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
+        final ExecutionInterval lastSemester = executionYear.getLastExecutionPeriod();
+
+        // no curriculum lines
+        assertFalse(scpV1.hasAnyCurriculumLines(executionYear));
+        assertFalse(scpV1.hasAnyCurriculumLines(previousYear));
+        assertFalse(scpV1.hasAnyCurriculumLines(executionInterval));
+        assertFalse(scpV1.hasAnyCurriculumLines(lastSemester));
+
+        createEnrolmentInCourse(curricularCourseA, curricularCourseAContext, executionInterval);
+        assertTrue(scpV1.hasAnyCurriculumLines(executionYear));
+        assertFalse(scpV1.hasAnyCurriculumLines(previousYear));
+
+        assertTrue(scpV1.hasAnyCurriculumLines(executionInterval));
+        assertFalse(scpV1.hasAnyCurriculumLines(lastSemester));
+    }
+
     // Helpers
 
     private static Enrolment createEnrolmentInCourse(CurricularCourse course, Context context, ExecutionInterval interval) {

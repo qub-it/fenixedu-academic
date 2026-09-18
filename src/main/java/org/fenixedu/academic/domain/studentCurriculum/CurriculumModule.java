@@ -47,7 +47,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.predicates.ResultCollection;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
@@ -439,8 +438,6 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     abstract public int getNumberOfAllApprovedEnrolments(final ExecutionInterval executionInterval);
-
-    abstract public void getCurriculumModules(final ResultCollection<CurriculumModule> collection);
 
     public boolean hasAnyCurriculumModules(final Predicate<CurriculumModule> predicate) {
         return predicate.test(this);
