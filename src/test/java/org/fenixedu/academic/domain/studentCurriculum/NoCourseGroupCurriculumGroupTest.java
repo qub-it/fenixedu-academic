@@ -58,7 +58,8 @@ public class NoCourseGroupCurriculumGroupTest {
     private static CurricularCourse courseB;
     private static CurricularCourse nonEnrolledCourse;
     private static NoCourseGroupCurriculumGroup extraGroup;
-    private static CurriculumGroup childGroup;
+    private static CurriculumGroup childCurriculumGroup;
+    private static CourseGroup childCourseGroup;
 
     private static StandaloneCurriculumGroup standaloneGroup;
     private static StandaloneCurriculumGroup emptyStandaloneGroup;
@@ -73,7 +74,7 @@ public class NoCourseGroupCurriculumGroupTest {
         //   ├─ extraGroup (EXTRA_CURRICULAR auto-created)
         //   │  ├─ Enrolment courseA
         //   │  ├─ Enrolment courseB
-        //   │  └─ childGroup -> childCourseGroup ("Child Group")
+        //   │  └─ childCurriculumGroup -> childCourseGroup ("Child Group")
         //   └─ (other default NoCourseGroup groups, unused here)
         //
         // Structure of the enrolment tree under test (independent of the SCP root tree above):
@@ -125,9 +126,8 @@ public class NoCourseGroupCurriculumGroupTest {
             new Enrolment(scp, extraGroup, courseB, firstSemester, EnrollmentCondition.FINAL, STUDENT_USERNAME);
 
             // Child CurriculumGroup under the group
-            final CourseGroup childCourseGroup =
-                    new CourseGroup(dcp.getRoot(), "Child Group", "Child Group", firstSemester, null);
-            childGroup = new CurriculumGroup(extraGroup, childCourseGroup);
+            childCourseGroup = new CourseGroup(dcp.getRoot(), "Child Group", "Child Group", firstSemester, null);
+            childCurriculumGroup = new CurriculumGroup(extraGroup, childCourseGroup);
 
             // COURSE_A_CODE's CompetenceCourse is SEMESTER (only valid in firstSemester)
             final CurricularCourse standaloneCourseA = createCourse(dcp, COURSE_A_CODE, semesterPeriod);
@@ -194,12 +194,14 @@ public class NoCourseGroupCurriculumGroupTest {
 
     @Test
     public void testNoCourseGroupCurriculumGroup_hasCourseGroup() {
+        assertTrue(extraGroup.hasCourseGroup(childCourseGroup));
         assertFalse(extraGroup.hasCourseGroup(dcp.getRoot()));
         assertFalse(extraGroup.hasCourseGroup(null));
     }
 
     @Test
     public void testNoCourseGroupCurriculumGroup_findCurriculumGroupFor() {
+        assertEquals(childCurriculumGroup, extraGroup.findCurriculumGroupFor(childCourseGroup));
         assertNull(extraGroup.findCurriculumGroupFor(dcp.getRoot()));
         assertNull(extraGroup.findCurriculumGroupFor(null));
     }
@@ -215,7 +217,7 @@ public class NoCourseGroupCurriculumGroupTest {
         assertEquals(-1, orderSameGroup);
 
         // Real child group -> non-negative position
-        final int orderChild = extraGroup.searchChildOrderForChild(childGroup, firstSemester);
+        final int orderChild = extraGroup.searchChildOrderForChild(childCurriculumGroup, firstSemester);
         assertTrue(orderChild >= 0);
     }
 
