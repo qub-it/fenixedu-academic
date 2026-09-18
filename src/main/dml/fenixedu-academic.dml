@@ -3983,8 +3983,8 @@ relation UnitRevokedTeacherAuthorizations {
     }
 }
 
-relation ExecutionSemesterTeacherAuthorizations {
-    public ExecutionInterval playsRole executionSemester {
+relation ExecutionIntervalTeacherAuthorizations {
+    public ExecutionInterval playsRole executionInterval {
         multiplicity 0..1;
     }
     public TeacherAuthorization playsRole teacherAuthorization {
@@ -3992,8 +3992,8 @@ relation ExecutionSemesterTeacherAuthorizations {
     }
 }
 
-relation ExecutionSemesterRevokedTeacherAuthorizations {
-    ExecutionInterval playsRole revokedExecutionSemester {
+relation ExecutionIntervalRevokedTeacherAuthorizations {
+    ExecutionInterval playsRole revokedExecutionInterval {
         multiplicity 0..1;
     }
     TeacherAuthorization playsRole revokedTeacherAuthorization {

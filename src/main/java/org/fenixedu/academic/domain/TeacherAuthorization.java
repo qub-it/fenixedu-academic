@@ -43,7 +43,7 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
         this();
         setTeacher(teacher);
         setUnit(unit);
-        setExecutionSemester(executionInterval);
+        setExecutionInterval(executionInterval);
         setTeacherCategory(teacherCategory);
         setContracted(contracted);
         setLessonHours(lessonHours);
@@ -77,8 +77,8 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
         setTeacher(null);
         setRevokedUnit(getUnit());
         setUnit(null);
-        setRevokedExecutionSemester(getExecutionInterval());
-        setExecutionSemester(null);
+        setRevokedExecutionInterval(getExecutionInterval());
+        setExecutionInterval(null);
         setRevoker(Authenticate.getUser());
         setRevokeTime(new DateTime());
         setRevokedRootDomainObject(getRootDomainObject());
@@ -95,24 +95,11 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
         return super.getUnit();
     }
 
-    /**
-     * @deprecated use {@link #getExecutionInterval()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    @Override
-    public ExecutionInterval getExecutionSemester() {
-        return getExecutionInterval();
-    }
-
     public ExecutionInterval getExecutionInterval() {
         if (getRevokedRootDomainObject() != null) {
-            return getRevokedExecutionSemester();
+            return getRevokedExecutionInterval();
         }
-        return super.getExecutionSemester();
-    }
-
-    public void setExecutionInterval(ExecutionInterval executionInterval) {
-        super.setExecutionSemester(executionInterval);
+        return super.getExecutionInterval();
     }
 
     @Override
@@ -136,12 +123,12 @@ public class TeacherAuthorization extends TeacherAuthorization_Base implements C
     public void delete() {
         super.setTeacher(null);
         super.setUnit(null);
-        super.setExecutionSemester(null);
+        super.setExecutionInterval(null);
         super.setAuthorizer(null);
         super.setTeacherCategory(null);
         super.setRootDomainObject(null);
 
-        super.setRevokedExecutionSemester(null);
+        super.setRevokedExecutionInterval(null);
         super.setRevokedTeacher(null);
         super.setRevokedUnit(null);
         super.setRevokedRootDomainObject(null);
