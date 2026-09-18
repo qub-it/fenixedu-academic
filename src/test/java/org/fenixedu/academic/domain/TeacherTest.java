@@ -221,7 +221,7 @@ public class TeacherTest {
         assertTrue(testTeacher.getTeacherAuthorization(nextYear.getFirstExecutionPeriod()).isEmpty());
         assertEquals(auth, testTeacher.getTeacherAuthorization().orElse(null));
 
-        auth.setExecutionSemester(secondSemester);
+        auth.setExecutionInterval(secondSemester);
 
         assertTrue(testTeacher.getTeacherAuthorization(firstSemester).isEmpty());
         assertEquals(auth, testTeacher.getTeacherAuthorization(secondSemester).orElse(null));
