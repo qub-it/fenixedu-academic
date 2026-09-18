@@ -458,4 +458,28 @@ public class Unit extends Unit_Base {
     public boolean isSubUnitOf(final Collection<Unit> units) {
         return units.contains(this) || !Collections.disjoint(units, getAllParentUnits());
     }
+
+    public static Unit getExternalInstitutionUnit() {
+        return Bennu.getInstance().getExternalInstitutionUnit();
+    }
+
+    private static Optional<Unit> findExternalInstitutionUnitByName(final String name) {
+        return Optional.ofNullable(findExternalInstitutionUnitByName(getExternalInstitutionUnit(), name));
+    }
+
+    private static Unit findExternalInstitutionUnitByName(final Unit unit, final String name) {
+        if (unit.getName().equals(name)) {
+            return unit;
+        }
+        return unit.getChildsSet().stream().map(Accountability::getChildParty).filter(Unit.class::isInstance)
+                .map(Unit.class::cast).map(childUnit -> findExternalInstitutionUnitByName(childUnit, name)).findFirst()
+                .orElse(null);
+    }
+
+    public static Stream<Unit> findAllActiveUnitsByType(final PartyTypeEnum type) {
+        final YearMonthDay now = new YearMonthDay();
+
+        return PartyType.of(type).map(PartyType::getPartiesSet).stream().flatMap(Collection::stream).filter(Party::isUnit)
+                .map(Unit.class::cast).filter(unit -> unit.isActive(now));
+    }
 }
