@@ -18,9 +18,7 @@
  */
 package org.fenixedu.academic.domain.curricularPeriod;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,10 +64,7 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     }
 
     public List<CurricularPeriod> getSortedChilds() {
-        List<CurricularPeriod> sortedChilds = new ArrayList<CurricularPeriod>();
-        sortedChilds.addAll(getChildsSet());
-        Collections.sort(sortedChilds);
-        return sortedChilds;
+        return getChildsSet().stream().sorted().toList();
     }
 
     public Optional<CurricularPeriod> findChild(AcademicPeriod academicPeriod, int order) {
@@ -77,17 +72,18 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
                 .filter(cp -> cp.getAcademicPeriod().equals(academicPeriod)).findAny();
     }
 
+    /**
+     * Returns the period reached by walking the given path of child segments from
+     * this CurricularPeriod, or null if any segment has no matching child.
+     */
     public CurricularPeriod getCurricularPeriod(CurricularPeriodInfoDTO... curricularPeriodsPaths) {
-
-        validatePath(curricularPeriodsPaths);
-
         CurricularPeriod curricularPeriod = this;
 
-        for (CurricularPeriodInfoDTO path : curricularPeriodsPaths) {
-            curricularPeriod = curricularPeriod.findChild(path.getPeriodType(), path.getOrder().intValue()).orElse(null);
+        for (CurricularPeriodInfoDTO path : sortAndValidatePath(curricularPeriodsPaths)) {
+            curricularPeriod = curricularPeriod.findChild(path.getPeriodType(), path.getOrder()).orElse(null);
 
             if (curricularPeriod == null) {
-                return null;
+                break;
             }
         }
 
@@ -95,33 +91,31 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     }
 
     public Integer getOrderByType(AcademicPeriod academicPeriod) {
-
-        Integer resultOrder = null;
-
-        if (this.getAcademicPeriod().equals(academicPeriod)) {
-            resultOrder = this.getChildOrder();
-        } else if (this.getParent() != null
-                && this.getParent().getAcademicPeriod().getWeight() > this.getAcademicPeriod().getWeight()) {
-            resultOrder = (this.getParent()).getOrderByType(academicPeriod);
+        if (getAcademicPeriod().equals(academicPeriod)) {
+            return getChildOrder();
         }
 
-        return resultOrder;
+        if (getParent() != null && getParent().getAcademicPeriod().getWeight() > getAcademicPeriod().getWeight()) {
+            return this.getParent().getOrderByType(academicPeriod);
+        }
+
+        return null;
     }
 
-    private void validatePath(CurricularPeriodInfoDTO... curricularPeriodsPaths) {
+    private CurricularPeriodInfoDTO[] sortAndValidatePath(CurricularPeriodInfoDTO... curricularPeriodsPaths) {
+        CurricularPeriodInfoDTO[] sorted = curricularPeriodsPaths.clone();
 
-        Arrays.sort(curricularPeriodsPaths, new Comparator<CurricularPeriodInfoDTO>() {
-            @Override
-            public int compare(CurricularPeriodInfoDTO c1, CurricularPeriodInfoDTO c2) {
-                if (c1.getPeriodType().getWeight() > c2.getPeriodType().getWeight()) {
-                    return -1;
-                } else if (c1.getPeriodType().getWeight() < c2.getPeriodType().getWeight()) {
-                    return 1;
-                }
+        Arrays.sort(sorted, (c1, c2) -> {
+            final float c1Weight = c1.getPeriodType().getWeight();
+            final float c2Weight = c2.getPeriodType().getWeight();
+
+            if (c1Weight == c2Weight) {
                 throw new DomainException("error.pathShouldNotHaveSameTypePeriods");
             }
 
+            return Float.compare(c2Weight, c1Weight);
         });
+        return sorted;
     }
 
     public void delete() {
@@ -165,45 +159,23 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
 
     @Override
     public int compareTo(CurricularPeriod o) {
-        int rootCompare = Comparator.nullsFirst(Comparator.<CurricularPeriod> naturalOrder()).compare(getParent(), o.getParent());
-        if (rootCompare != 0) {
-            return rootCompare; // roots go first
+        // sort by Parent
+        int parentCompare = Comparator.nullsFirst(CurricularPeriod::compareTo).compare(getParent(), o.getParent());
+        if (parentCompare != 0) {
+            return parentCompare;
         }
 
-        int parentsCompare = collectParentsWeight(this).compareTo(collectParentsWeight(o));
-        if (parentsCompare != 0) {
-            return parentsCompare; // if different parents (usually years), sort by them first
+        // sort by AcademicPeriod
+        Float w1 = Optional.ofNullable(getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(null);
+        Float w2 = Optional.ofNullable(o.getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(null);
+
+        int academicPeriodTypeCompare = Comparator.nullsFirst(Float::compareTo).compare(w1, w2);
+        if (academicPeriodTypeCompare != 0) {
+            return academicPeriodTypeCompare;
         }
 
-        if (Objects.equals(this.getAcademicPeriod(), o.getAcademicPeriod())) {
-            return this.getFullWeight().compareTo(o.getFullWeight()); // if same type (e.g., both semesters), sort by full weight
-        }
-
-        Float thisPeriodWeight = Optional.ofNullable(this.getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(0f);
-        Float otherPeriodWeight = Optional.ofNullable(o.getAcademicPeriod()).map(AcademicPeriod::getWeight).orElse(0f);
-
-        return thisPeriodWeight.compareTo(
-                otherPeriodWeight); // if different types (e.g., semester vs trimester), sort by type weight
-    }
-
-    Float getWeight() {
-        float periodTypeWeight = (this.getAcademicPeriod() == null) ? 0 : this.getAcademicPeriod().getWeight();
-        float periodOrder = (this.getChildOrder() == null) ? 0 : this.getChildOrder();
-        return periodTypeWeight * periodOrder;
-    }
-
-    Float getFullWeight() {
-        return this.getWeight() + this.collectParentsWeight(this);
-    }
-
-    private Float collectParentsWeight(CurricularPeriod period) {
-        Float result = Float.valueOf(0);
-
-        if (period.getParent() != null) {
-            result = period.getParent().getWeight() + collectParentsWeight(period.getParent());
-        }
-
-        return result;
+        // sort by child order
+        return Comparator.nullsFirst(Integer::compareTo).compare(getChildOrder(), o.getChildOrder());
     }
 
     private static class CurricularPeriodParentChildsListener extends RelationAdapter<CurricularPeriod, CurricularPeriod> {
@@ -229,11 +201,7 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     }
 
     public Integer getParentOrder() {
-        if (this.getParent() != null) {
-            return this.getParent().getChildOrder();
-        }
-
-        return null;
+        return Optional.ofNullable(getParent()).map(CurricularPeriod::getChildOrder).orElse(null);
     }
 
     public CurricularPeriod getNext() {
@@ -254,37 +222,20 @@ public class CurricularPeriod extends CurricularPeriod_Base implements Comparabl
     }
 
     public CurricularPeriod contains(AcademicPeriod academicPeriod, Integer order) {
-        if (this.getAcademicPeriod().equals(academicPeriod) && this.getChildOrder().equals(order)) {
+        if (Objects.equals(getAcademicPeriod(), academicPeriod) && Objects.equals(getChildOrder(), order)) {
             return this;
         }
-        for (CurricularPeriod curricularPeriod : getChildsSet()) {
-            CurricularPeriod period = curricularPeriod.contains(academicPeriod, order);
-            if (period != null) {
-                return period;
-            }
-        }
-        return null;
+
+        return getChildsSet().stream().map(child -> child.contains(academicPeriod, order)).filter(Objects::nonNull).findFirst()
+                .orElse(null);
     }
 
     public boolean hasCurricularPeriod(AcademicPeriod academicPeriod, Integer order) {
-        if (this.getAcademicPeriod().equals(academicPeriod) && this.getChildOrder().equals(order)) {
+        if (Objects.equals(getAcademicPeriod(), academicPeriod) && Objects.equals(getChildOrder(), order)) {
             return true;
         }
-        if (getParent() != null) {
-            return getParent().hasCurricularPeriod(academicPeriod, order);
-        } else {
-            return false;
-        }
-    }
 
-    @Deprecated
-    public Integer getOrder() {
-        return super.getChildOrder();
-    }
-
-    @Deprecated
-    public void setOrder(Integer order) {
-        super.setChildOrder(order);
+        return Optional.ofNullable(getParent()).map(parent -> parent.hasCurricularPeriod(academicPeriod, order)).orElse(false);
     }
 
     public int getAbsoluteOrderOfChild() {
