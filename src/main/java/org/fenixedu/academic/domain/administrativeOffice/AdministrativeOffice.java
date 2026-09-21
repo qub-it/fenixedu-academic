@@ -81,7 +81,7 @@ public class AdministrativeOffice extends AdministrativeOffice_Base {
     }
 
     public Set<Degree> getAdministratedDegrees() {
-        final Set<Degree> result = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
+        final Set<Degree> result = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID);
         for (AcademicProgram program : getManagedAcademicProgramSet()) {
             if (program instanceof Degree) {
                 result.add((Degree) program);
@@ -91,7 +91,7 @@ public class AdministrativeOffice extends AdministrativeOffice_Base {
     }
 
     public Set<Degree> getAdministratedDegreesForStudentCreationWithoutCandidacy() {
-        final Set<Degree> result = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID);
+        final Set<Degree> result = new TreeSet<Degree>(Degree.COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID);
         result.addAll(getAdministratedDegrees());
         return result;
     }
