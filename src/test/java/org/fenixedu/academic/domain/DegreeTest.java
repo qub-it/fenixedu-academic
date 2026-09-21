@@ -20,6 +20,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -214,6 +215,31 @@ public class DegreeTest {
         // Test that it also works with ExecutionYear
         assertEquals("Get Name For test", testDegree.getNameFor(executionYear).getContent());
         assertEquals(testDegree.getNameFor(executionYear), testDegree.getNameFor(executionYear.getFirstExecutionPeriod()));
+
+        testDegree.delete();
+    }
+
+    @Test
+    public void testDegree_getName_and_getNameEn() {
+        Degree testDegree = createDegree(degreeType, "GET_NAME_AND_NAME_EN_TEST", "Get Name and NameEn test", executionYear);
+
+        DegreeInfo degreeInfo = testDegree.getDegreeInfoFor(executionYear);
+        degreeInfo.setName(
+                new LocalizedString().with(LocaleUtils.PT, "Teste Informação de Curso").with(LocaleUtils.EN, "Degree Info Test"));
+
+        assertEquals("Teste Informação de Curso", testDegree.getName());
+        assertEquals("Degree Info Test", testDegree.getNameEn());
+
+        testDegree.delete();
+    }
+
+    @Test
+    public void testDegree_getNameI18N() {
+        Degree testDegree = createDegree(degreeType, "GET_NAME_I18N_TEST", "Get NameI18N test", executionYear);
+
+        assertEquals("Get NameI18N test", testDegree.getNameI18N().getContent());
+        assertEquals("Get NameI18N test", testDegree.getNameI18N(executionYear).getContent());
+        assertEquals("Get NameI18N test", testDegree.getNameI18N(null).getContent());
 
         testDegree.delete();
     }
