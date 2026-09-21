@@ -427,12 +427,12 @@ public class Unit extends Unit_Base {
     }
 
     static public LocalizedString getInstitutionName() {
-        return Optional.ofNullable(Bennu.getInstance().getInstitutionUnit()).map(Unit::getNameI18n)
+        return Optional.ofNullable(getInstitutionUnit()).map(Unit::getNameI18n)
                 .orElseGet(() -> BundleUtil.getLocalizedString(Bundle.GLOBAL, "error.institutionUnit.notconfigured"));
     }
 
     static public String getInstitutionAcronym() {
-        return Optional.ofNullable(Bennu.getInstance().getInstitutionUnit()).map(Unit::getAcronym)
+        return Optional.ofNullable(getInstitutionUnit()).map(Unit::getAcronym)
                 .orElseGet(() -> BundleUtil.getString(Bundle.GLOBAL, "error.institutionUnit.notconfigured"));
     }
 
@@ -463,17 +463,21 @@ public class Unit extends Unit_Base {
         return Bennu.getInstance().getExternalInstitutionUnit();
     }
 
-    private static Optional<Unit> findExternalInstitutionUnitByName(final String name) {
-        return Optional.ofNullable(findExternalInstitutionUnitByName(getExternalInstitutionUnit(), name));
+    public static Unit getInstitutionUnit() {
+        return Bennu.getInstance().getInstitutionUnit();
     }
 
-    private static Unit findExternalInstitutionUnitByName(final Unit unit, final String name) {
-        if (unit.getName().equals(name)) {
-            return unit;
-        }
-        return unit.getChildsSet().stream().map(Accountability::getChildParty).filter(Unit.class::isInstance)
-                .map(Unit.class::cast).map(childUnit -> findExternalInstitutionUnitByName(childUnit, name)).findFirst()
-                .orElse(null);
+    public static Unit getEarthUnit() {
+        return Bennu.getInstance().getEarthUnit();
+    }
+
+    public static Optional<Unit> findExternalInstitutionUnitByName(final String name) {
+        return Optional.ofNullable(getExternalInstitutionUnitByName(getExternalInstitutionUnit(), name));
+    }
+
+    private static Unit getExternalInstitutionUnitByName(final Unit unit, final String name) {
+        return unit.getName().equals(name) ? unit : unit.getSubUnits().stream()
+                .map(childUnit -> getExternalInstitutionUnitByName(childUnit, name)).findFirst().orElse(null);
     }
 
     public static Stream<Unit> findAllActiveUnitsByType(final PartyTypeEnum type) {
@@ -481,5 +485,37 @@ public class Unit extends Unit_Base {
 
         return PartyType.of(type).map(PartyType::getPartiesSet).stream().flatMap(Collection::stream).filter(Party::isUnit)
                 .map(Unit.class::cast).filter(unit -> unit.isActive(now));
+    }
+
+    public List<Unit> getUnitFullPath(final List<AccountabilityTypeEnum> validAccountabilityTypes) {
+        final Collection<Unit> parentUnits = getParentUnits(validAccountabilityTypes);
+        if (parentUnits.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (parentUnits.size() > 1) {
+            throw new DomainException("error.unit.full.path.has.more.than.one.parent");
+        }
+
+        final List<Unit> result = parentUnits.iterator().next().getUnitFullPath(validAccountabilityTypes);
+        result.add(this);
+        return result;
+    }
+
+    public String getUnitFullPathName(final List<AccountabilityTypeEnum> validAccountabilityTypes) {
+        if (this == getEarthUnit()) {
+            return StringUtils.EMPTY;
+        }
+        final Collection<Unit> parentUnits = getParentUnits(validAccountabilityTypes);
+        if (parentUnits.isEmpty()) {
+            return getName();
+        }
+
+        if (parentUnits.size() > 1) {
+            throw new DomainException("error.unit.full.path.has.more.than.one.parent");
+        }
+
+        final Unit parentUnit = parentUnits.iterator().next();
+        return parentUnit.getUnitFullPathName(validAccountabilityTypes) + (parentUnit == getEarthUnit() ? "" : " > " + getName());
     }
 }

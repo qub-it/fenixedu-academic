@@ -7,6 +7,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.organizationalStructure.Accountability;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityType;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
@@ -460,5 +463,51 @@ public class OrganizationalStructureTest {
         assertEquals(3, inactiveUnit.getAllParentUnits().size());   // university, country, planet
 
         assertTrue(planetUnit.getAllParentUnits().isEmpty());
+    }
+
+    @Test
+    public void testUnitUtils_getUnitFullPath() {
+        final List<AccountabilityTypeEnum> validTypes = List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE);
+
+        // full path, ordered from the higher (Earth excluded) down to the unit itself
+        assertEquals(List.of(countryUnit, universityUnit, schoolUnit, coursesAgregatorUnit, coursesGroupUnit),
+                UnitUtils.getUnitFullPath(coursesGroupUnit, validTypes));
+
+        // a unit with no ancestors of the valid types has an empty path
+        assertTrue(UnitUtils.getUnitFullPath(planetUnit, validTypes).isEmpty());
+        assertTrue(UnitUtils.getUnitFullPath(schoolUnit, List.of(GEOGRAPHIC)).isEmpty());
+
+        // units only from certain accountability types are considered
+        assertEquals(List.of(schoolUnit, coursesAgregatorUnit, coursesGroupUnit),
+                UnitUtils.getUnitFullPath(coursesGroupUnit, List.of(ORGANIZATIONAL_STRUCTURE)));
+
+        // more than one parent of the valid types is ambiguous and rejected
+        final Accountability extraParent = schoolUnit.addParentUnit(countryUnit, AccountabilityType.readByType(GEOGRAPHIC));
+        assertThrows(DomainException.class, () -> UnitUtils.getUnitFullPath(schoolUnit, validTypes));
+        extraParent.delete();
+    }
+
+    @Test
+    public void testUnitUtils_getUnitFullPathName() {
+        final List<AccountabilityTypeEnum> validTypes = List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE);
+
+        // full path name, " > " separated, Earth omitted
+        assertEquals("Portugal > qub University > qub School > Courses > Courses Group",
+                UnitUtils.getUnitFullPathName(coursesGroupUnit, validTypes).toString());
+
+        // a unit whose parent is Earth is named normally
+        assertEquals("Portugal", UnitUtils.getUnitFullPathName(countryUnit, validTypes).toString());
+
+        // the Earth unit itself has no name in the path
+        assertEquals("", UnitUtils.getUnitFullPathName(planetUnit, validTypes).toString());
+
+        // units only from certain accountability types are considered
+        assertEquals("qub University > qub School",
+                UnitUtils.getUnitFullPathName(schoolUnit, List.of(ORGANIZATIONAL_STRUCTURE)).toString());
+
+        // more than one parent of the valid types is ambiguous and rejected
+        final Accountability extraParent = schoolUnit.addParentUnit(countryUnit, AccountabilityType.readByType(GEOGRAPHIC));
+        assertThrows(DomainException.class, () -> UnitUtils.getUnitFullPathName(schoolUnit, validTypes));
+        extraParent.delete();
     }
 }

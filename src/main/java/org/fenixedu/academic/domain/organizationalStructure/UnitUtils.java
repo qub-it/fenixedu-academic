@@ -67,14 +67,17 @@ public class UnitUtils {
         return Bennu.getInstance().getExternalInstitutionUnit();
     }
 
+    @Deprecated
     public static Unit readInstitutionUnit() {
         return Bennu.getInstance().getInstitutionUnit();
     }
 
+    @Deprecated
     public static Unit readEarthUnit() {
         return Bennu.getInstance().getEarthUnit();
     }
 
+    @Deprecated
     public static List<Unit> getUnitFullPath(final Unit unit, final List<AccountabilityTypeEnum> validAccountabilityTypes) {
         final Collection<Unit> parentUnits = unit.getParentUnits(validAccountabilityTypes);
         if (parentUnits.isEmpty()) {
@@ -89,6 +92,7 @@ public class UnitUtils {
         throw new DomainException("error.unitUtils.unit.full.path.has.more.than.one.parent");
     }
 
+    @Deprecated
     public static StringBuilder getUnitFullPathName(final Unit unit,
             final List<AccountabilityTypeEnum> validAccountabilityTypes) {
         if (unit == readEarthUnit()) {
