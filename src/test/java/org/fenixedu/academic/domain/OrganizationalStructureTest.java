@@ -27,7 +27,6 @@ import org.fenixedu.academic.domain.organizationalStructure.PartyType;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitAcronym;
-import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
@@ -124,8 +123,8 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnits_institution() {
-        assertNotNull(UnitUtils.readInstitutionUnit());
-        assertEquals(UnitUtils.readInstitutionUnit().getAcronym(), "QU");
+        assertNotNull(Unit.getInstitutionUnit());
+        assertEquals(Unit.getInstitutionUnit().getAcronym(), "QU");
 
     }
 
@@ -144,7 +143,7 @@ public class OrganizationalStructureTest {
         assertTrue(Unit.findInternalUnitByAcronymPath("").isPresent());
         assertTrue(Unit.findInternalUnitByAcronymPath(null).isPresent());
 
-        final Unit institutionUnit = UnitUtils.readInstitutionUnit();
+        final Unit institutionUnit = Unit.getInstitutionUnit();
         assertEquals(Unit.findInternalUnitByAcronymPath("").get(), institutionUnit);
         assertEquals(Unit.findInternalUnitByAcronymPath(null).get(), institutionUnit);
     }
@@ -165,9 +164,9 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnits_getParentUnitsPresentationName() {
-        final Unit universityUnit = UnitUtils.readInstitutionUnit();
+        final Unit universityUnit = Unit.getInstitutionUnit();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
-        final Unit earthUnit = UnitUtils.readEarthUnit();
+        final Unit earthUnit = Unit.getEarthUnit();
 
         String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
 
@@ -235,7 +234,7 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnitAcronym_readUnitAcronymByAcronym() {
-        Unit institutionUnit = UnitUtils.readInstitutionUnit();
+        Unit institutionUnit = Unit.getInstitutionUnit();
 
         assertTrue(UnitAcronym.readUnitAcronymByAcronym(null).isEmpty());
         assertEquals(institutionUnit.getUnitAcronym().getAcronym(),
@@ -244,8 +243,8 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testParty_getParentParties() {
-        final Unit universityUnit = UnitUtils.readInstitutionUnit();
-        final Unit earthUnit = UnitUtils.readEarthUnit();
+        final Unit universityUnit = Unit.getInstitutionUnit();
+        final Unit earthUnit = Unit.getEarthUnit();
         final Unit countryUnit = Unit.findUnitByAcronymPath("PT", earthUnit).orElseThrow();
 
         assertTrue(earthUnit.getParentUnits().isEmpty());
@@ -306,41 +305,51 @@ public class OrganizationalStructureTest {
     }
 
     @Test
-    public void testUnitUtils_readExternalInstitutionUnitByName() {
+    public void testUnit_findExternalInstitutionUnitByName() {
         // root level
-        assertEquals(universityUnit, UnitUtils.readExternalInstitutionUnitByName("qub University"));
+        Optional<Unit> optUnit = Unit.findExternalInstitutionUnitByName("qub University");
+        assertTrue(optUnit.isPresent());
+        assertEquals(universityUnit, optUnit.get());
         // depth 1
-        assertEquals(schoolUnit, UnitUtils.readExternalInstitutionUnitByName("qub School"));
+        optUnit = Unit.findExternalInstitutionUnitByName("qub School");
+        assertTrue(optUnit.isPresent());
+        assertEquals(schoolUnit, optUnit.get());
         // depth 2
-        assertEquals(coursesAgregatorUnit, UnitUtils.readExternalInstitutionUnitByName("Courses"));
-        assertEquals(degreesUnit, UnitUtils.readExternalInstitutionUnitByName("Degrees"));
+        optUnit = Unit.findExternalInstitutionUnitByName("Courses");
+        assertTrue(optUnit.isPresent());
+        assertEquals(coursesAgregatorUnit, optUnit.get());
+        optUnit = Unit.findExternalInstitutionUnitByName("Degrees");
+        assertTrue(optUnit.isPresent());
+        assertEquals(degreesUnit, optUnit.get());
         // depth 3
-        assertEquals(coursesGroupUnit, UnitUtils.readExternalInstitutionUnitByName("Courses Group"));
+        optUnit = Unit.findExternalInstitutionUnitByName("Courses Group");
+        assertTrue(optUnit.isPresent());
+        assertEquals(coursesGroupUnit, optUnit.get());
 
         // not found
-        assertNull(UnitUtils.readExternalInstitutionUnitByName("Non Existent Unit"));
-        assertNull(UnitUtils.readExternalInstitutionUnitByName("qub school"));
-        assertNull(UnitUtils.readExternalInstitutionUnitByName("COURSES"));
-        assertNull(UnitUtils.readExternalInstitutionUnitByName(""));
+        assertTrue(Unit.findExternalInstitutionUnitByName("Non Existent Unit").isEmpty());
+        assertTrue(Unit.findExternalInstitutionUnitByName("qub school").isEmpty());
+        assertTrue(Unit.findExternalInstitutionUnitByName("COURSES").isEmpty());
+        assertTrue(Unit.findExternalInstitutionUnitByName("").isEmpty());
     }
 
     @Test
-    public void testUnitUtils_readAllActiveUnitsByType() {
-        List<Unit> universities = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.UNIVERSITY);
+    public void testUnit_findAllActiveUnitsByType() {
+        List<Unit> universities = Unit.findAllActiveUnitsByType(PartyTypeEnum.UNIVERSITY).toList();
         assertEquals(1, universities.size());
         assertEquals(universityUnit, universities.get(0));
 
-        List<Unit> aggregateUnits = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.AGGREGATE_UNIT);
+        List<Unit> aggregateUnits = Unit.findAllActiveUnitsByType(PartyTypeEnum.AGGREGATE_UNIT).toList();
         assertEquals(2, aggregateUnits.size());
         assertTrue(aggregateUnits.contains(coursesAgregatorUnit));
         assertTrue(aggregateUnits.contains(degreesUnit));
 
         // no units of type
-        List<Unit> result = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCIENTIFIC_AREA);
+        List<Unit> result = Unit.findAllActiveUnitsByType(PartyTypeEnum.SCIENTIFIC_AREA).toList();
         assertTrue(result.isEmpty());
 
         // only returns active units
-        List<Unit> schools = UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.SCHOOL);
+        List<Unit> schools = Unit.findAllActiveUnitsByType(PartyTypeEnum.SCHOOL).toList();
         // "qub School" is active, "Inactive School" has endDate in the past
         assertEquals(1, schools.size());
         assertEquals(schoolUnit, schools.get(0));
@@ -390,25 +399,25 @@ public class OrganizationalStructureTest {
     @Test
     public void testUnit_isInternal() {
         // institution itself and everything under it
-        assertTrue(UnitUtils.readInstitutionUnit().isInternal());                       // university "QU"
+        assertTrue(Unit.getInstitutionUnit().isInternal());                       // university "QU"
         assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isInternal());          // school
         assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isInternal()); // courses group
 
         // ancestors above the institution are not internal
-        assertFalse(UnitUtils.readEarthUnit().isInternal());                                      // planet Earth
-        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isInternal()); // Portugal
+        assertFalse(Unit.getEarthUnit().isInternal());                                      // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.getEarthUnit()).orElseThrow().isInternal()); // Portugal
     }
 
     @Test
     public void testUnit_isNoOfficialExternal() {
         // external institution itself and everything under it
-        assertTrue(UnitUtils.readExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
+        assertTrue(Unit.getExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
         assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isNoOfficialExternal());         // school
         assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isNoOfficialExternal()); // courses group
 
         // ancestors above the external institution are not no-official-external
-        assertFalse(UnitUtils.readEarthUnit().isNoOfficialExternal());                                     // planet Earth
-        assertFalse(Unit.findUnitByAcronymPath("PT", UnitUtils.readEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
+        assertFalse(Unit.getEarthUnit().isNoOfficialExternal());                                     // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.getEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
     }
 
     @Test
@@ -417,7 +426,7 @@ public class OrganizationalStructureTest {
         final Space campusA = new Space(new Information.Builder().classification(roomType).name("Campus A").build());
         final Space campusB = new Space(new Information.Builder().classification(roomType).name("Campus B").build());
 
-        final Unit university = UnitUtils.readInstitutionUnit();
+        final Unit university = Unit.getInstitutionUnit();
         final Unit school = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
         final Unit coursesGroup = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
         assertNull(university.getCampus());
@@ -437,7 +446,7 @@ public class OrganizationalStructureTest {
         assertEquals(campusB, coursesGroup.getCampus());
 
         // ancestors above the institution always return null
-        assertNull(UnitUtils.readEarthUnit().getCampus());
+        assertNull(Unit.getEarthUnit().getCampus());
     }
 
     @Test
@@ -466,48 +475,49 @@ public class OrganizationalStructureTest {
     }
 
     @Test
-    public void testUnitUtils_getUnitFullPath() {
+    public void testUnit_getUnitFullPath() {
         final List<AccountabilityTypeEnum> validTypes = List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE);
 
         // full path, ordered from the higher (Earth excluded) down to the unit itself
         assertEquals(List.of(countryUnit, universityUnit, schoolUnit, coursesAgregatorUnit, coursesGroupUnit),
-                UnitUtils.getUnitFullPath(coursesGroupUnit, validTypes));
+                coursesGroupUnit.getUnitFullPath(validTypes));
 
         // a unit with no ancestors of the valid types has an empty path
-        assertTrue(UnitUtils.getUnitFullPath(planetUnit, validTypes).isEmpty());
-        assertTrue(UnitUtils.getUnitFullPath(schoolUnit, List.of(GEOGRAPHIC)).isEmpty());
+        assertTrue(planetUnit.getUnitFullPath(validTypes).isEmpty());
+        assertTrue(schoolUnit.getUnitFullPath(List.of(GEOGRAPHIC)).isEmpty());
 
         // units only from certain accountability types are considered
         assertEquals(List.of(schoolUnit, coursesAgregatorUnit, coursesGroupUnit),
-                UnitUtils.getUnitFullPath(coursesGroupUnit, List.of(ORGANIZATIONAL_STRUCTURE)));
+                coursesGroupUnit.getUnitFullPath(List.of(ORGANIZATIONAL_STRUCTURE)));
 
         // more than one parent of the valid types is ambiguous and rejected
-        final Accountability extraParent = schoolUnit.addParentUnit(countryUnit, AccountabilityType.readByType(GEOGRAPHIC));
-        assertThrows(DomainException.class, () -> UnitUtils.getUnitFullPath(schoolUnit, validTypes));
+        final Accountability extraParent =
+                schoolUnit.addParentUnit(countryUnit, AccountabilityType.findByType(GEOGRAPHIC).orElse(null));
+        assertThrows(DomainException.class, () -> schoolUnit.getUnitFullPath(validTypes));
         extraParent.delete();
     }
 
     @Test
-    public void testUnitUtils_getUnitFullPathName() {
+    public void testUnit_getUnitFullPathName() {
         final List<AccountabilityTypeEnum> validTypes = List.of(GEOGRAPHIC, ORGANIZATIONAL_STRUCTURE);
 
         // full path name, " > " separated, Earth omitted
         assertEquals("Portugal > qub University > qub School > Courses > Courses Group",
-                UnitUtils.getUnitFullPathName(coursesGroupUnit, validTypes).toString());
+                coursesGroupUnit.getUnitFullPathName(validTypes));
 
         // a unit whose parent is Earth is named normally
-        assertEquals("Portugal", UnitUtils.getUnitFullPathName(countryUnit, validTypes).toString());
+        assertEquals("Portugal", countryUnit.getUnitFullPathName(validTypes));
 
         // the Earth unit itself has no name in the path
-        assertEquals("", UnitUtils.getUnitFullPathName(planetUnit, validTypes).toString());
+        assertEquals("", planetUnit.getUnitFullPathName(validTypes));
 
         // units only from certain accountability types are considered
-        assertEquals("qub University > qub School",
-                UnitUtils.getUnitFullPathName(schoolUnit, List.of(ORGANIZATIONAL_STRUCTURE)).toString());
+        assertEquals("qub University > qub School", schoolUnit.getUnitFullPathName(List.of(ORGANIZATIONAL_STRUCTURE)));
 
         // more than one parent of the valid types is ambiguous and rejected
-        final Accountability extraParent = schoolUnit.addParentUnit(countryUnit, AccountabilityType.readByType(GEOGRAPHIC));
-        assertThrows(DomainException.class, () -> UnitUtils.getUnitFullPathName(schoolUnit, validTypes));
+        final Accountability extraParent =
+                schoolUnit.addParentUnit(countryUnit, AccountabilityType.findByType(GEOGRAPHIC).orElse(null));
+        assertThrows(DomainException.class, () -> schoolUnit.getUnitFullPathName(validTypes));
         extraParent.delete();
     }
 }
