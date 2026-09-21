@@ -24,7 +24,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -402,42 +401,18 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     }
 
     private DegreeCurricularPlan getMostRecentDegreeCurricularPlanByInitialDate() {
-        DegreeCurricularPlan mostRecentDegreeCurricularPlan = null;
-        for (final DegreeCurricularPlan degreeCurricularPlan : this.getActiveDegreeCurricularPlans()) {
-            if (mostRecentDegreeCurricularPlan == null || degreeCurricularPlan.getInitialDateYearMonthDay()
-                    .isAfter(mostRecentDegreeCurricularPlan.getInitialDateYearMonthDay())) {
-                mostRecentDegreeCurricularPlan = degreeCurricularPlan;
-            }
-        }
-        return mostRecentDegreeCurricularPlan;
+        return getActiveDegreeCurricularPlans().stream().filter(dcp -> dcp.getInitialDateYearMonthDay() != null)
+                .max(Comparator.comparing(DegreeCurricularPlan::getInitialDateYearMonthDay)).orElse(null);
     }
 
     public Collection<Registration> getActiveRegistrations() {
-        final Collection<Registration> result = new HashSet<>();
-
-        for (final DegreeCurricularPlan degreeCurricularPlan : getActiveDegreeCurricularPlans()) {
-            result.addAll(degreeCurricularPlan.getActiveRegistrations());
-        }
-
-        return result;
+        return getActiveDegreeCurricularPlans().stream().flatMap(dcp -> dcp.getActiveRegistrations().stream())
+                .collect(Collectors.toSet());
     }
 
     public DegreeCurricularPlan getFirstDegreeCurricularPlan() {
-        if (getDegreeCurricularPlansSet().isEmpty()) {
-            return null;
-        }
-
-        DegreeCurricularPlan firstDCP = getDegreeCurricularPlansSet().iterator().next();
-        for (final DegreeCurricularPlan degreeCurricularPlan : getDegreeCurricularPlansSet()) {
-            if (degreeCurricularPlan.getInitialDateYearMonthDay() == null) {
-                continue;
-            }
-            if (firstDCP.getInitialDateYearMonthDay() == null
-                    || degreeCurricularPlan.getInitialDateYearMonthDay().isBefore(firstDCP.getInitialDateYearMonthDay())) {
-                firstDCP = degreeCurricularPlan;
-            }
-        }
-        return firstDCP.getInitialDateYearMonthDay() == null ? null : firstDCP;
+        return getDegreeCurricularPlansSet().stream().filter(dcp -> dcp.getInitialDateYearMonthDay() != null)
+                .min(Comparator.comparing(DegreeCurricularPlan::getInitialDateYearMonthDay)).orElse(null);
     }
 
     // -------------------------------------------------------------
@@ -449,9 +424,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     private static void loadCache() {
         synchronized (degrees) {
             degrees.clear();
-            for (final Degree degree : Degree.readNotEmptyDegrees()) {
-                degrees.put(degree.getSigla().toLowerCase(), new SoftReference<>(degree));
-            }
+            Degree.findAll().forEach(degree -> degrees.put(degree.getSigla().toLowerCase(), new SoftReference<>(degree)));
         }
     }
 
@@ -567,17 +540,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
                 executionYear);
     }
 
-//    public Collection<Space> getCampus(final ExecutionYear executionYear) {
-//        Set<Space> result = new HashSet<>();
-//        for (final DegreeCurricularPlan degreeCurricularPlan : getDegreeCurricularPlansSet()) {
-//            final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);
-//            if (executionDegree != null && executionDegree.getCampus() != null) {
-//                result.add(executionDegree.getCampus());
-//            }
-//        }
-//        return new ArrayList<>(result);
-//    }
-
     public boolean isFirstCycle() {
         return getDegreeType().isFirstCycle();
     }
@@ -608,7 +570,7 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
     @Override
     public void setMinistryCode(final String ministryCode) {
-        super.setMinistryCode(ministryCode == null || ministryCode.length() == 0 ? null : ministryCode);
+        super.setMinistryCode(ministryCode == null || ministryCode.isEmpty() ? null : ministryCode);
     }
 
     public String getDegreeTypeName() {
