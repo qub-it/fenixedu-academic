@@ -18,10 +18,8 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.io.Serializable;
 import java.lang.ref.SoftReference;
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Hashtable;
@@ -64,30 +62,10 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     static final public Comparator<Degree> COMPARATOR_BY_NAME_AND_ID =
             COMPARATOR_BY_NAME.thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    @Deprecated(forRemoval = true)
-    static final private Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_NAME = new Comparator<Degree>() {
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            return collator.compare(o1.getDegreeType().getName().getContent(), o2.getDegreeType().getName().getContent());
-        }
-    };
-
     static final private Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE = Comparator.comparing(Degree::getDegreeType);
-
-    @Deprecated(forRemoval = true)
-    private static class ComparatorByDegreeTypeAndNameAndId implements Serializable, Comparator<Degree> {
-        @Override
-        public int compare(final Degree o1, final Degree o2) {
-            final int typeResult = COMPARATOR_BY_DEGREE_TYPE_NAME.compare(o1, o2);
-            return typeResult == 0 ? COMPARATOR_BY_NAME_AND_ID.compare(o1, o2) : typeResult;
-        }
-    }
 
     static final public Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_DEGREE_NAME_AND_ID =
             COMPARATOR_BY_DEGREE_TYPE.thenComparing(COMPARATOR_BY_NAME_AND_ID);
-
-    @Deprecated(forRemoval = true)
-    static final public Comparator<Degree> COMPARATOR_BY_DEGREE_TYPE_AND_NAME_AND_ID = new ComparatorByDegreeTypeAndNameAndId();
 
     @Override
     public int compareTo(final Degree o) {
@@ -265,11 +243,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
     @Override
     public Collection<CycleType> getCycleTypes() {
         return getDegreeType().getCycleTypes();
-    }
-
-    @Deprecated(forRemoval = true)
-    public boolean isEmpty() {
-        return false;
     }
 
     public static Degree find(final String code) {
@@ -468,22 +441,6 @@ public class Degree extends Degree_Base implements Comparable<Degree> {
 
     public static Stream<Degree> findAll() {
         return Bennu.getInstance().getDegreesSet().stream();
-    }
-
-    /**
-     * @deprecated Degrees cannot be empty anymore so usage of this method is unecessary
-     */
-    @Deprecated(forRemoval = true)
-    public static List<Degree> readNotEmptyDegrees() {
-        return new ArrayList<>(Bennu.getInstance().getDegreesSet());
-    }
-
-    /**
-     * @deprecated Degrees cannot be non bolonha anymore so usage of this method is unecessary
-     */
-    @Deprecated(forRemoval = true)
-    public static List<Degree> readBolonhaDegrees() {
-        return new ArrayList<>(Bennu.getInstance().getDegreesSet());
     }
 
     public static List<Degree> readAllMatching(final Predicate<DegreeType> predicate) {
