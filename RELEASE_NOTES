@@ -11,6 +11,7 @@
 - Refactor: Deletes StudentCurricularPlanIDDomainType, UniqueAcronymCreator, PredicateContainer and DayType unused classes [#qubIT-Fenix-9314]
 - Refactor: Improves Degree domain methods [#qubIT-Fenix-9283]
 - Refactor: Deletes Degree deprecated domain methods [#qubIT-Fenix-9283]
+- Refactor: Delete unused UrlValidator [#qubIT-Fenix-8839]
 - Improvement: Minor improvements to Registration unit tests [#qubIT-Fenix-9383]
 
 62.0.1 (17-09-2026)
