@@ -28,14 +28,6 @@ public class Mark extends Mark_Base {
         setRootDomainObject(Bennu.getInstance());
     }
 
-    public Mark(final Attends attends, final Evaluation evaluation, final String mark) {
-        this();
-        setAttend(attends);
-        setEvaluation(evaluation);
-        setMark(mark);
-        setPublishedMark(null);
-    }
-
     @Override
     public void setMark(String mark) {
         if (validateMark(mark)) {
