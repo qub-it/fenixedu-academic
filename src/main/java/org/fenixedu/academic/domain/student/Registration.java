@@ -1359,20 +1359,12 @@ public class Registration extends Registration_Base {
     }
 
     public StudentCurricularPlan getStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.getDegreeCurricularPlan().equals(degreeCurricularPlan)) {
-                return studentCurricularPlan;
-            }
-        }
-        return null;
+        return getStudentCurricularPlanStream().filter(scp -> scp.getDegreeCurricularPlan() == degreeCurricularPlan).findFirst()
+                .orElse(null);
     }
 
     public Set<DegreeCurricularPlan> getDegreeCurricularPlans() {
-        Set<DegreeCurricularPlan> result = new HashSet<>();
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            result.add(studentCurricularPlan.getDegreeCurricularPlan());
-        }
-        return result;
+        return getStudentCurricularPlanStream().map(StudentCurricularPlan::getDegreeCurricularPlan).collect(Collectors.toSet());
     }
 
     @Override
@@ -1541,22 +1533,12 @@ public class Registration extends Registration_Base {
     }
 
     public boolean hasRegistrationRegime(final ExecutionYear executionYear, final RegistrationRegimeType type) {
-        for (final RegistrationRegime regime : getRegistrationRegimesSet()) {
-            if (regime.isFor(executionYear) && regime.hasRegime(type)) {
-                return true;
-            }
-        }
-        return false;
+        return getRegistrationRegimesSet().stream().anyMatch(r -> r.isFor(executionYear) && r.hasRegime(type));
     }
 
     public RegistrationRegimeType getRegimeType(final ExecutionYear executionYear) {
-        for (final RegistrationRegime regime : getRegistrationRegimesSet()) {
-            if (regime.isFor(executionYear)) {
-                return regime.getRegimeType();
-            }
-        }
-        // if not specified, use the default regime
-        return RegistrationRegimeType.defaultType();
+        return getRegistrationRegimesSet().stream().filter(r -> r.isFor(executionYear)).findFirst()
+                .map(RegistrationRegime::getRegimeType).orElseGet(RegistrationRegimeType::defaultType);
     }
 
     public boolean isPartialRegime(final ExecutionYear executionYear) {
@@ -1584,17 +1566,12 @@ public class Registration extends Registration_Base {
     }
 
     public boolean hasReingression(final ExecutionYear executionYear) {
-        return getDataByExecutionYear(executionYear).stream().anyMatch(rd -> rd.isReingression());
+        return getDataByExecutionYear(executionYear).stream().anyMatch(RegistrationDataByExecutionYear::isReingression);
     }
 
     public Set<RegistrationDataByExecutionYear> getReingressions() {
-        Set<RegistrationDataByExecutionYear> reingressions = new HashSet<>();
-        for (RegistrationDataByExecutionYear year : getRegistrationDataByExecutionYearSet()) {
-            if (year.isReingression()) {
-                reingressions.add(year);
-            }
-        }
-        return reingressions;
+        return getRegistrationDataByExecutionYearSet().stream().filter(RegistrationDataByExecutionYear::isReingression)
+                .collect(Collectors.toSet());
     }
 
     public List<CycleCurriculumGroup> getInternalCycleCurriculumGrops() {
