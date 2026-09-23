@@ -48,6 +48,7 @@ import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
@@ -100,20 +101,10 @@ public class Registration extends Registration_Base {
 
     public static final String REGISTRATION_CREATE_SIGNAL = "academic.registration.create";
 
-    static final public Comparator<Registration> NUMBER_COMPARATOR = new Comparator<Registration>() {
-        @Override
-        public int compare(final Registration o1, final Registration o2) {
-            return o1.getNumber().compareTo(o2.getNumber());
-        }
-    };
+    public static final Comparator<Registration> NUMBER_COMPARATOR = Comparator.comparing(Registration::getNumber);
 
-    static final public Comparator<Registration> COMPARATOR_BY_START_DATE = new Comparator<Registration>() {
-        @Override
-        public int compare(final Registration o1, final Registration o2) {
-            final int comparationResult = o1.getStartDate().compareTo(o2.getStartDate());
-            return comparationResult == 0 ? o1.getOid().compareTo(o2.getOid()) : comparationResult;
-        }
-    };
+    public static final Comparator<Registration> COMPARATOR_BY_START_DATE =
+            Comparator.comparing(Registration::getStartDate).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     private static Function<RegistrationConclusionBean, Boolean> CONCLUSION_PROCESS_ENABLER = (bean) -> false;
 
@@ -252,26 +243,26 @@ public class Registration extends Registration_Base {
             df.delete();
         });
 
-        getRegistrationStatesSet().forEach(rs -> rs.delete());
+        getRegistrationStatesSet().forEach(RegistrationState::delete);
 
-        getStudentCurricularPlansSet().forEach(scp -> scp.delete());
+        getStudentCurricularPlansSet().forEach(StudentCurricularPlan::delete);
 
-        getAssociatedAttendsSet().forEach(a -> a.delete());
+        getAssociatedAttendsSet().forEach(Attends::delete);
 
-        getExternalEnrolmentsSet().forEach(ee -> ee.delete());
+        getExternalEnrolmentsSet().forEach(ExternalEnrolment::delete);
 
-        getRegistrationDataByExecutionYearSet().forEach(rsey -> rsey.delete());
+        getRegistrationDataByExecutionYearSet().forEach(RegistrationDataByExecutionYear::delete);
 
-        getRegistrationRegimesSet().forEach(rr -> rr.delete());
+        getRegistrationRegimesSet().forEach(RegistrationRegime::delete);
 
-        getCurriculumLineLogsSet().forEach(cll -> cll.delete());
+        getCurriculumLineLogsSet().forEach(CurriculumLineLog::delete);
 
         if (getRegistrationNumber() != null) {
             getRegistrationNumber().delete();
         }
 
-        Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(pdi -> pdi.delete());
-        Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(pdi -> pdi.delete());
+        Optional.ofNullable(getCompletedDegreeInformation()).ifPresent(PrecedentDegreeInformation::delete);
+        Optional.ofNullable(getPreviousDegreeInformation()).ifPresent(PrecedentDegreeInformation::delete);
 
         setSourceRegistration(null);
         setRegistrationYear(null);
@@ -301,24 +292,19 @@ public class Registration extends Registration_Base {
     }
 
     public StudentCurricularPlan getFirstStudentCurricularPlan() {
-        return !getStudentCurricularPlansSet().isEmpty() ? (StudentCurricularPlan) Collections.min(getStudentCurricularPlansSet(),
+        return !getStudentCurricularPlansSet().isEmpty() ? Collections.min(getStudentCurricularPlansSet(),
                 StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE) : null;
     }
 
     public List<StudentCurricularPlan> getSortedStudentCurricularPlans() {
         final ArrayList<StudentCurricularPlan> sortedStudentCurricularPlans =
                 new ArrayList<>(super.getStudentCurricularPlansSet());
-        Collections.sort(sortedStudentCurricularPlans, StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
+        sortedStudentCurricularPlans.sort(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
         return sortedStudentCurricularPlans;
     }
 
     public boolean attends(final ExecutionCourse executionCourse) {
-        for (final Attends attends : getAssociatedAttendsSet()) {
-            if (attends.isFor(executionCourse)) {
-                return true;
-            }
-        }
-        return false;
+        return getAssociatedAttendsSet().stream().anyMatch(a -> a.isFor(executionCourse));
     }
 
     final public Stream<StudentCurricularPlan> getStudentCurricularPlanStream() {
@@ -433,13 +419,7 @@ public class Registration extends Registration_Base {
     }
 
     final public boolean hasAnyEnrolments() {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.hasAnyEnrolments()) {
-                return true;
-            }
-        }
-
-        return false;
+        return getStudentCurricularPlanStream().anyMatch(StudentCurricularPlan::hasAnyEnrolments);
     }
 
     final public boolean hasAnyCurriculumLines() {
@@ -473,7 +453,7 @@ public class Registration extends Registration_Base {
     }
 
     public Stream<Enrolment> findEnrolments() {
-        return getStudentCurricularPlansSet().stream().flatMap(scp -> scp.getEnrolmentStream());
+        return getStudentCurricularPlanStream().flatMap(StudentCurricularPlan::getEnrolmentStream);
     }
 
     final public Collection<Enrolment> getEnrolments(final ExecutionYear executionYear) {
@@ -489,23 +469,11 @@ public class Registration extends Registration_Base {
     }
 
     final public Collection<Enrolment> getApprovedEnrolments() {
-        final Collection<Enrolment> result = new HashSet<>();
-
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            result.addAll(studentCurricularPlan.getAprovedEnrolments());
-        }
-
-        return result;
+        return getStudentCurricularPlanStream().flatMap(scp -> scp.getAprovedEnrolments().stream()).collect(Collectors.toSet());
     }
 
     final public Collection<ExternalEnrolment> getApprovedExternalEnrolments() {
-        final Collection<ExternalEnrolment> result = new HashSet<>();
-        for (final ExternalEnrolment externalEnrolment : getExternalEnrolmentsSet()) {
-            if (externalEnrolment.isApproved()) {
-                result.add(externalEnrolment);
-            }
-        }
-        return result;
+        return getExternalEnrolmentsSet().stream().filter(ExternalEnrolment::isApproved).collect(Collectors.toSet());
     }
 
     final public Collection<CurriculumLine> getExtraCurricularCurriculumLines() {
