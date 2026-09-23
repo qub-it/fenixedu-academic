@@ -18,7 +18,7 @@
  */
 package org.fenixedu.academic.servlet.taglib;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 public class AcademicGroupNotAllowedTagLib extends AcademicGroupTagLib {
 

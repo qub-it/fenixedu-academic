@@ -1,6 +1,6 @@
 package org.fenixedu.academic.servlet;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.fenixedu.bennu.core.domain.User;
 
