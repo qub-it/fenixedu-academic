@@ -543,11 +543,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     @Override
-    final public Integer getFinalGrade() {
-        return getGrade().getIntegerValue();
-    }
-
-    @Override
     final public boolean isEnroled() {
         return this.getEnrollmentState() == EnrollmentState.ENROLLED;
     }

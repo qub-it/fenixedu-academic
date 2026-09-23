@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.comparators.ComparatorChain;
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.ExternalCurricularCourse;
@@ -196,12 +195,6 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     @Override
     final public boolean isEnrolment() {
         return false;
-    }
-
-    @Override
-    public Integer getFinalGrade() {
-        final String grade = getGradeValue();
-        return StringUtils.isEmpty(grade) || !StringUtils.isNumeric(grade) ? null : Integer.valueOf(grade);
     }
 
     @Override
