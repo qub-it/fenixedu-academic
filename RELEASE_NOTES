@@ -1,3 +1,4 @@
+62.0.2 (23-09-2026)
 - Refactor: Deletes EnrolmentEvaluation deprecated methods [#qubIT-Fenix-9300]
 - Bug Fix: Allow duplicate conclusion process numbers for migration purposes [#qubIT-Fenix-9467]
 - Refactor: Deletes deprecated EnrolmentEvaluation comparator [#qubIT-Fenix-9300]
