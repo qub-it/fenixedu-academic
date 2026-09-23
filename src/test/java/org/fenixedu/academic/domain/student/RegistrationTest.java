@@ -45,6 +45,8 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -599,6 +601,73 @@ public class RegistrationTest {
         assertEquals(registered, newRegistration.getStateInDate(new DateTime("2020-03-15")));
         assertEquals(concluded, newRegistration.getStateInDate(new DateTime("2020-04-01")));
         assertEquals(concluded, newRegistration.getStateInDate(new DateTime("2020-12-31"))); // after the latest state
+    }
+
+    @Test
+    public void testRegistration_getStudentCurricularPlan() {
+        assertEquals(studentCurricularPlan,
+                registration.getStudentCurricularPlan(studentCurricularPlan.getDegreeCurricularPlan()));
+
+        DegreeCurricularPlan newDcp =
+                new DegreeCurricularPlan(registration.getDegree(), "New Unrelated DCP", AcademicPeriod.THREE_YEAR);
+
+        assertNull(registration.getStudentCurricularPlan(newDcp));
+    }
+
+    @Test
+    public void testRegistration_getDegreeCurricularPlans() {
+        Set<DegreeCurricularPlan> degreeCurricularPlans = registration.getDegreeCurricularPlans();
+
+        assertEquals(1, degreeCurricularPlans.size());
+        assertTrue(degreeCurricularPlans.contains(studentCurricularPlan.getDegreeCurricularPlan()));
+    }
+
+    @Test
+    public void testRegistration_hasRegistrationRegime() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertFalse(newRegistration.hasRegistrationRegime(executionYear, RegistrationRegimeType.FULL_TIME));
+        assertFalse(newRegistration.hasRegistrationRegime(executionYear, RegistrationRegimeType.PARTIAL_TIME));
+        assertFalse(newRegistration.hasRegistrationRegime(nextExecutionYear, RegistrationRegimeType.FULL_TIME));
+
+        new RegistrationRegime(newRegistration, executionYear, RegistrationRegimeType.FULL_TIME);
+
+        assertTrue(newRegistration.hasRegistrationRegime(executionYear, RegistrationRegimeType.FULL_TIME));
+        assertFalse(newRegistration.hasRegistrationRegime(executionYear, RegistrationRegimeType.PARTIAL_TIME));
+        assertFalse(newRegistration.hasRegistrationRegime(nextExecutionYear, RegistrationRegimeType.FULL_TIME));
+    }
+
+    @Test
+    public void testRegistration_getRegimeType() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertEquals(RegistrationRegimeType.FULL_TIME, newRegistration.getRegimeType(executionYear));
+
+        User user = newRegistration.getPerson().getUser();
+        Authenticate.mock(user, user.getUsername());
+        try {
+            new RegistrationRegime(newRegistration, executionYear, RegistrationRegimeType.PARTIAL_TIME);
+        } finally {
+            Authenticate.unmock();
+        }
+
+        assertEquals(RegistrationRegimeType.PARTIAL_TIME, newRegistration.getRegimeType(executionYear));
+        assertEquals(RegistrationRegimeType.FULL_TIME, newRegistration.getRegimeType(nextExecutionYear));
+    }
+
+    @Test
+    public void testRegistration_getReingressions() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertTrue(newRegistration.getReingressions().isEmpty());
+
+        newRegistration.createReingression(executionYear, new LocalDate(DateTime.now().minusMonths(1)));
+
+        Set<RegistrationDataByExecutionYear> reingressions = newRegistration.getReingressions();
+
+        assertFalse(reingressions.isEmpty());
+        assertTrue(reingressions.stream().anyMatch(rd -> rd.getExecutionYear() == executionYear));
+        assertTrue(reingressions.stream().allMatch(RegistrationDataByExecutionYear::isReingression));
     }
 
     // Helpers
