@@ -256,15 +256,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         return !getGrade().isEmpty();
     }
 
-    /**
-     * @deprecated use {@link #getExecutionInterval()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    @Override
-    public ExecutionInterval getExecutionPeriod() {
-        return getExecutionInterval();
-    }
-
     public ExecutionInterval getExecutionInterval() {
         if (getEvaluationSeason().isImprovement()) {
             return super.getExecutionPeriod();
@@ -275,12 +266,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
     public LocalDate getExamLocalDate() {
         return Optional.ofNullable(getExamDateYearMonthDay()).map(YearMonthDay::toLocalDate).orElse(null);
-    }
-
-    @Deprecated(forRemoval = true)
-    public Date getExamDate() {
-        org.joda.time.YearMonthDay ymd = getExamDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
     }
 
     @Deprecated
@@ -297,12 +282,6 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
 
     }
 
-    @Deprecated(forRemoval = true)
-    public java.util.Date getGradeAvailableDate() {
-        org.joda.time.YearMonthDay ymd = getGradeAvailableDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
     @Deprecated
     public void setGradeAvailableDate(java.util.Date date) {
         if (date == null) {
@@ -310,11 +289,5 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         } else {
             setGradeAvailableDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
         }
-    }
-
-    @Deprecated(forRemoval = true)
-    public java.util.Date getWhen() {
-        org.joda.time.DateTime dt = getWhenDateTime();
-        return (dt == null) ? null : new java.util.Date(dt.getMillis());
     }
 }
