@@ -22,15 +22,12 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.date.IntervalTools;
@@ -114,7 +111,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         return this.getPeriodInterval().contains(day.toDateTimeAtMidnight());
     }
 
-    public boolean isDateInNestedPeriods(final OccupationPeriod rootOccupationPeriod, final DateTime dateToCheck) {
+    public boolean isDateInNestedPeriods(final DateTime dateToCheck) {
         return getIntervals().stream().anyMatch(interval -> interval.contains(dateToCheck));
     }
 
@@ -138,11 +135,6 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         }
     }
 
-    @Deprecated
-    public void deleteFromNestedPeriods(final OccupationPeriod period) {
-        deleteFromNestedPeriods();
-    }
-
     public void deleteFromNestedPeriods() {
         if (getPreviousPeriod() != null) { // not a 'root' period
             getPreviousPeriod().setNextPeriodWithoutChecks(getNextPeriod());
@@ -151,28 +143,11 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     public List<OccupationPeriod> getAllNestedPeriods() {
-        final List<OccupationPeriod> periods = new ArrayList<>();
-        OccupationPeriod occupationPeriod = this;
-        periods.add(occupationPeriod);
-        while (occupationPeriod.getNextPeriod() != null) {
-            occupationPeriod = occupationPeriod.getNextPeriod();
-            periods.add(occupationPeriod);
-        }
-        return periods;
+        return Stream.iterate(this, Objects::nonNull, OccupationPeriod::getNextPeriod).collect(Collectors.toList());
     }
 
     public boolean allNestedPeriodsAreEmpty() {
-        OccupationPeriod firstOccupationPeriod = getFirstOccupationPeriodOfNestedPeriods();
-        if (!firstOccupationPeriod.isEmpty()) {
-            return false;
-        }
-        while (firstOccupationPeriod.getNextPeriod() != null) {
-            if (!firstOccupationPeriod.getNextPeriod().isEmpty()) {
-                return false;
-            }
-            firstOccupationPeriod = firstOccupationPeriod.getNextPeriod();
-        }
-        return true;
+        return getFirstOccupationPeriodOfNestedPeriods().getAllNestedPeriods().stream().allMatch(OccupationPeriod::isEmpty);
     }
 
     private boolean isEmpty() {
