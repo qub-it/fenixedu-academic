@@ -187,6 +187,16 @@ abstract public class ConclusionProcess extends ConclusionProcess_Base {
         super.setNumber(number);
     }
 
+    /**
+     * This method is used to set the number without checking for duplicates.
+     * IT SHOULD BE USED FOR MIGRATION PURPOSES ONLY.
+     * @param number
+     */
+    public void setNumberWithoutRules(String number) {
+        super.setNumber(number);
+    }
+
+
     public void deleteNumber() {
         this.setNumber(null);
     }
