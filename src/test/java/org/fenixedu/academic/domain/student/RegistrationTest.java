@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -417,6 +418,59 @@ public class RegistrationTest {
     }
 
     @Test
+    public void testRegistration_readByNumber() {
+        // Every registration of the same student have the same registration number
+        List<Registration> result = Registration.readByNumber(registration.getNumber());
+
+        assertTrue(result.contains(registration));
+        result.forEach(r -> assertEquals(registration.getNumber(), r.getNumber()));
+        assertTrue(Registration.readByNumber(999999).isEmpty());
+    }
+
+    @Test
+    public void testRegistration_getAttendingExecutionCoursesFor() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor().isEmpty());
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor(executionInterval).isEmpty());
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor(nextYearFirstSemester).isEmpty());
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor().contains(executionCourseA));
+
+        List<ExecutionCourse> coursesForExecutionInterval = newRegistration.getAttendingExecutionCoursesFor(executionInterval);
+
+        assertTrue(coursesForExecutionInterval.contains(executionCourseA));
+        coursesForExecutionInterval.forEach(ec -> assertEquals(executionInterval, ec.getExecutionInterval()));
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor(nextYearFirstSemester).isEmpty());
+
+        List<ExecutionCourse> coursesForExecutionYear = newRegistration.getAttendingExecutionCoursesFor(executionYear);
+
+        assertTrue(coursesForExecutionYear.contains(executionCourseA));
+        coursesForExecutionYear.forEach(ec -> assertEquals(executionYear, ec.getExecutionYear()));
+        assertTrue(newRegistration.getAttendingExecutionCoursesFor(nextExecutionYear).isEmpty());
+    }
+
+    @Test
+    public void testRegistration_getAttendsForExecutionPeriod() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertTrue(newRegistration.getAttendsForExecutionPeriod(executionInterval).isEmpty());
+        assertTrue(newRegistration.getAttendsForExecutionPeriod(nextYearFirstSemester).isEmpty());
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        List<Attends> attendsForExecutionInterval = newRegistration.getAttendsForExecutionPeriod(executionInterval);
+
+        assertFalse(attendsForExecutionInterval.isEmpty());
+        assertTrue(attendsForExecutionInterval.stream()
+                .anyMatch(a -> a.getExecutionCourse() == executionCourseA && a.getRegistration() == newRegistration));
+        attendsForExecutionInterval.forEach(a -> assertTrue(a.isFor(executionInterval)));
+        assertTrue(newRegistration.getAttendsForExecutionPeriod(nextYearFirstSemester).isEmpty());
+    }
+
+    @Test
     public void testRegistration_activeState_shouldReturnStateFromRegistration() {
         final RegistrationState firstState = RegistrationState.createRegistrationState(registration, null, DateTime.now(),
                 RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).get(), firstSemester);
@@ -563,6 +617,58 @@ public class RegistrationTest {
 
         assertEquals("For different past execution years, the active state should be the last state created",
                 lastState, activeState);
+    }
+
+    @Test
+    public void testRegistration_hasActiveLastState() {
+        assertFalse(registration.hasActiveLastState(firstSemester));
+
+        // single interrupted state (inactive) -> false
+        RegistrationState.createRegistrationState(registration, null, DateTime.now(),
+                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).orElseThrow(), firstSemester);
+
+        assertFalse(registration.hasActiveLastState(firstSemester));
+
+        // two states, most recent is registered (active) -> true
+        RegistrationState.createRegistrationState(registration, null, DateTime.now(),
+                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).orElseThrow(), firstSemester);
+
+        assertTrue(registration.hasActiveLastState(firstSemester));
+
+        // no states in the queried interval -> falls back to last state from the most recent earlier interval
+        assertTrue(registration.hasActiveLastState(secondSemester));
+        assertTrue(registration.hasActiveLastState(nextYearFirstSemester));
+
+        // three states, most recent is interrupted (inactive) -> false
+        RegistrationState.createRegistrationState(registration, null, DateTime.now(),
+                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).orElseThrow(), firstSemester);
+
+        assertFalse(registration.hasActiveLastState(firstSemester));
+        assertFalse(registration.hasActiveLastState(secondSemester));
+        assertFalse(registration.hasActiveLastState(nextYearFirstSemester));
+    }
+
+    @Test
+    public void testRegistration_getStateInDate() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertNull(newRegistration.getStateInDate(new DateTime("2020-04-01")));
+
+        RegistrationState interrupted =
+                RegistrationState.createRegistrationState(newRegistration, null, new DateTime("2020-02-01"),
+                        RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).orElseThrow(),
+                        executionInterval);
+        RegistrationState registered =
+                RegistrationState.createRegistrationState(newRegistration, null, new DateTime("2020-03-01"),
+                        RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).orElseThrow(), executionInterval);
+        RegistrationState concluded = RegistrationState.createRegistrationState(newRegistration, null, new DateTime("2020-04-01"),
+                RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).orElseThrow(), executionInterval);
+
+        assertNull(newRegistration.getStateInDate(new DateTime("2020-01-01"))); // before any state
+        assertEquals(interrupted, newRegistration.getStateInDate(new DateTime("2020-02-01")));
+        assertEquals(registered, newRegistration.getStateInDate(new DateTime("2020-03-15")));
+        assertEquals(concluded, newRegistration.getStateInDate(new DateTime("2020-04-01")));
+        assertEquals(concluded, newRegistration.getStateInDate(new DateTime("2020-12-31"))); // after the latest state
     }
 
     // Helpers
