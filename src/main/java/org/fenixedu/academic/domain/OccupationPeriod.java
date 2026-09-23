@@ -156,30 +156,17 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     public OccupationPeriod getLastOccupationPeriodOfNestedPeriods() {
-        OccupationPeriod occupationPeriod = this;
-        while (occupationPeriod.getNextPeriod() != null) {
-            occupationPeriod = occupationPeriod.getNextPeriod();
-        }
-        return occupationPeriod;
+        List<OccupationPeriod> allNestedPeriods = getAllNestedPeriods();
+        return allNestedPeriods.get(allNestedPeriods.size() - 1);
     }
 
-    private OccupationPeriod getFirstOccupationPeriodOfNestedPeriods() {
-        OccupationPeriod occupationPeriod = this;
-        while (occupationPeriod.getPreviousPeriod() != null) {
-            occupationPeriod = occupationPeriod.getPreviousPeriod();
-        }
-        return occupationPeriod;
+    protected OccupationPeriod getFirstOccupationPeriodOfNestedPeriods() {
+        List<OccupationPeriod> periods = Stream.iterate(this, Objects::nonNull, OccupationPeriod::getPreviousPeriod).toList();
+        return periods.get(periods.size() - 1);
     }
 
     public boolean nestedOccupationPeriodsContainsDay(YearMonthDay day) {
-        OccupationPeriod firstOccupationPeriod = this;
-        while (firstOccupationPeriod != null) {
-            if (firstOccupationPeriod.containsDay(day)) {
-                return true;
-            }
-            firstOccupationPeriod = firstOccupationPeriod.getNextPeriod();
-        }
-        return false;
+        return getAllNestedPeriods().stream().anyMatch(period -> period.containsDay(day));
     }
 
     private YearMonthDay getEndYearMonthDayWithNextPeriods() {
@@ -209,16 +196,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     public List<Interval> getIntervals() {
-        List<Interval> intervals = new LinkedList<Interval>();
-
-        OccupationPeriod period = this;
-
-        while (period != null) {
-            intervals.add(period.getPeriodInterval());
-            period = period.getNextPeriod();
-        }
-
-        return intervals;
+        return getAllNestedPeriods().stream().map(OccupationPeriod::getPeriodInterval).collect(Collectors.toList());
     }
 
     public void editDates(Iterator<Interval> intervals) {
