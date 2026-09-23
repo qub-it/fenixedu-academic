@@ -1,3 +1,4 @@
+- Refactor: Deletes unused constructor in Mark class [#qubIT-Fenix-9332]
 - Refactor: Improves CurricularPeriod domain methods [#qubIT-Fenix-9269]
 - Refactor: Improve StandaloneCurriculumGroup domain methods [#qubIT-Fenix-9406]
 - Refactor: Improve NoCourseGroupCurriculumGroup domain methods [#qubIT-Fenix-9407]
