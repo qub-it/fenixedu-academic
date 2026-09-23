@@ -1,3 +1,4 @@
+- Refactor: Deletes deprecated EnrolmentEvaluation comparator [#qubIT-Fenix-9300]
 - Refactor: Improves OccupationPeriod domain methods [#qubIT-Fenix-9398]
 - Refactor: Improves CurricularPeriod domain methods [#qubIT-Fenix-9269]
 - Refactor: Improve StandaloneCurriculumGroup domain methods [#qubIT-Fenix-9406]
