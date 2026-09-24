@@ -2,6 +2,7 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
@@ -40,7 +42,6 @@ import org.fenixedu.academic.domain.util.UserUtil;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.User;
-
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -61,6 +62,8 @@ public class CurriculumModuleTest {
 
     private static Enrolment enrolmentEnroled;
     private static Enrolment enrolmentApproved;
+    private static Enrolment enrolmentOtherInterval;
+    private static Enrolment enrolmentOtherYear;
     private static CurricularCourse curricularCourseEnroled;
     private static CurricularCourse curricularCourseApproved;
     private static ExecutionYear executionYear;
@@ -103,6 +106,7 @@ public class CurriculumModuleTest {
 
             final CurricularPeriod year1 = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
             final CurricularPeriod semester1 = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, year1);
+            final CurricularPeriod semester2 = new CurricularPeriod(AcademicPeriod.SEMESTER, 2, year1);
 
             final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
             final CompetenceCourse ccEnroled =
@@ -113,6 +117,7 @@ public class CurriculumModuleTest {
                             AcademicPeriod.SEMESTER, executionInterval, coursesUnit);
 
             curricularCourseEnroled = new CurricularCourse(6d, ccEnroled, courseGroupA, semester1, executionInterval, null);
+            new Context(courseGroupA, curricularCourseEnroled, semester2, executionInterval, null);
             curricularCourseApproved = new CurricularCourse(6d, ccApproved, courseGroupA, semester1, executionInterval, null);
 
             final StudentCurricularPlan scp = registration.getLastStudentCurricularPlan();
@@ -120,6 +125,16 @@ public class CurriculumModuleTest {
                     UserUtil.ADMIN_USERNAME);
             enrolmentApproved = new Enrolment(scp, groupA, curricularCourseApproved, executionInterval, EnrollmentCondition.FINAL,
                     UserUtil.ADMIN_USERNAME);
+
+            // same execution year, different execution interval (2nd semester)
+            final ExecutionInterval otherInterval = executionYear.getLastExecutionPeriod();
+            enrolmentOtherInterval = new Enrolment(scp, groupA, curricularCourseEnroled, otherInterval, EnrollmentCondition.FINAL,
+                    UserUtil.ADMIN_USERNAME);
+
+            // different execution year
+            final ExecutionYear otherYear = (ExecutionYear) executionYear.getNext();
+            enrolmentOtherYear = new Enrolment(scp, groupA, curricularCourseEnroled, otherYear.getFirstExecutionPeriod(),
+                    EnrollmentCondition.FINAL, UserUtil.ADMIN_USERNAME);
 
             final GradeScale type20 = GradeScale.findUniqueByCode("TYPE20").orElseGet(
                     () -> GradeScale.create("TYPE20", new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
@@ -236,6 +251,11 @@ public class CurriculumModuleTest {
                 new CurriculumModule.CurriculumModulePredicateByExecutionInterval(interval);
         assertTrue(predicate.test(enrolmentEnroled));
         assertFalse(predicate.test(groupA));
+
+        // enrolment from a different execution interval
+        assertNotSame(interval, enrolmentOtherInterval.getExecutionInterval());
+        assertFalse(predicate.test(enrolmentOtherInterval));
+        assertFalse(predicate.test(enrolmentOtherYear));
     }
 
     @Test
@@ -244,6 +264,13 @@ public class CurriculumModuleTest {
                 new CurriculumModule.CurriculumModulePredicateByExecutionYear(executionYear);
         assertTrue(predicate.test(enrolmentEnroled));
         assertFalse(predicate.test(groupA));
+
+        // enrolment from a different interval of the same year still matches
+        assertTrue(predicate.test(enrolmentOtherInterval));
+
+        // enrolment from a different execution year
+        assertNotSame(executionYear, enrolmentOtherYear.getExecutionYear());
+        assertFalse(predicate.test(enrolmentOtherYear));
     }
 
     @Test
