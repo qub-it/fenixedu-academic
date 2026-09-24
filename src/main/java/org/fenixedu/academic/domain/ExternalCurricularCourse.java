@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -99,7 +98,7 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
         final List<AccountabilityTypeEnum> validAccountabilityTypes =
                 Arrays.asList(AccountabilityTypeEnum.GEOGRAPHIC, AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE,
                         AccountabilityTypeEnum.ACADEMIC_STRUCTURE);
-        return UnitUtils.getUnitFullPathName(getUnit(), validAccountabilityTypes) + " > " + getName();
+        return getUnit().getUnitFullPathName(validAccountabilityTypes) + " > " + getName();
     }
 
     final public Unit getAcademicUnit() {
@@ -109,7 +108,7 @@ public class ExternalCurricularCourse extends ExternalCurricularCourse_Base {
 
         Unit universityUnit = null;
         Unit schoolUnit = null;
-        for (final Unit unit : UnitUtils.getUnitFullPath(getUnit(), validAccountabilityTypes)) {
+        for (final Unit unit : getUnit().getUnitFullPath(validAccountabilityTypes)) {
             if (unit.isUniversityUnit()) {
                 universityUnit = unit;
             } else if (unit.isSchoolUnit()) {

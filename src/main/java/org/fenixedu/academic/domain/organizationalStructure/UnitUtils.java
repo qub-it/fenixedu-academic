@@ -35,10 +35,12 @@ import org.joda.time.YearMonthDay;
 
 public class UnitUtils {
 
+    @Deprecated
     public static Unit readExternalInstitutionUnitByName(final String name) {
         return readExternalInstitutionUnitByName(readExternalInstitutionUnit(), name);
     }
 
+    @Deprecated
     private static Unit readExternalInstitutionUnitByName(final Unit unit, final String name) {
         if (unit.getName().equals(name)) {
             return unit;
@@ -48,6 +50,7 @@ public class UnitUtils {
                 .filter(Objects::nonNull).findFirst().orElse(null);
     }
 
+    @Deprecated
     public static List<Unit> readAllActiveUnitsByType(PartyTypeEnum type) {
         final PartyType partyType = PartyType.of(type).orElse(null);
         if (partyType == null) {
@@ -59,18 +62,22 @@ public class UnitUtils {
                 .collect(Collectors.toList());
     }
 
+    @Deprecated
     public static Unit readExternalInstitutionUnit() {
         return Bennu.getInstance().getExternalInstitutionUnit();
     }
 
+    @Deprecated
     public static Unit readInstitutionUnit() {
         return Bennu.getInstance().getInstitutionUnit();
     }
 
+    @Deprecated
     public static Unit readEarthUnit() {
         return Bennu.getInstance().getEarthUnit();
     }
 
+    @Deprecated
     public static List<Unit> getUnitFullPath(final Unit unit, final List<AccountabilityTypeEnum> validAccountabilityTypes) {
         final Collection<Unit> parentUnits = unit.getParentUnits(validAccountabilityTypes);
         if (parentUnits.isEmpty()) {
@@ -85,6 +92,7 @@ public class UnitUtils {
         throw new DomainException("error.unitUtils.unit.full.path.has.more.than.one.parent");
     }
 
+    @Deprecated
     public static StringBuilder getUnitFullPathName(final Unit unit,
             final List<AccountabilityTypeEnum> validAccountabilityTypes) {
         if (unit == readEarthUnit()) {
