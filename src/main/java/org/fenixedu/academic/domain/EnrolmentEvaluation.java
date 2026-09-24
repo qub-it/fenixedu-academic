@@ -264,8 +264,16 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
         return getEnrolment().getExecutionInterval();
     }
 
+    public void setExecutionInterval(ExecutionInterval executionInterval) {
+        setExecutionPeriod(executionInterval);
+    }
+
     public LocalDate getExamLocalDate() {
         return Optional.ofNullable(getExamDateYearMonthDay()).map(YearMonthDay::toLocalDate).orElse(null);
+    }
+
+    public void setExamLocalDate(LocalDate date) {
+        setExamDateYearMonthDay(date == null ? null : new YearMonthDay(date));
     }
 
     @Deprecated
@@ -280,6 +288,10 @@ public class EnrolmentEvaluation extends EnrolmentEvaluation_Base {
     public LocalDate getGradeAvailableLocalDate() {
         return Optional.ofNullable(getGradeAvailableDateYearMonthDay()).map(YearMonthDay::toLocalDate).orElse(null);
 
+    }
+
+    public void setGradeAvailableLocalDate(LocalDate date) {
+        setGradeAvailableDateYearMonthDay(date == null ? null : new YearMonthDay(date));
     }
 
     @Deprecated
