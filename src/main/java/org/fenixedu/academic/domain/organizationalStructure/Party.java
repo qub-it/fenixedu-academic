@@ -304,11 +304,9 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
         return getAllPartyContacts(clazz, null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T extends PartyContact> Stream<T> getPartyContactStream(final Class<T> clazz, final PartyContactType type) {
-        final Stream<PartyContact> stream = getPartyContactsSet().stream();
-        return (Stream) stream.filter(
-                c -> clazz.isAssignableFrom(c.getClass()) && (type == null || c.getType() == type) && c.isActiveAndValid());
+        return getPartyContactsSet().stream().filter(clazz::isInstance).filter(c -> type == null || c.getType() == type)
+                .filter(PartyContact::isActiveAndValid).map(clazz::cast);
     }
 
     public List<? extends PartyContact> getPartyContacts(final Class<? extends PartyContact> clazz, final PartyContactType type) {
@@ -352,12 +350,8 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public PartyContact getDefaultPartyContact(final Class<? extends PartyContact> clazz) {
-        for (final PartyContact contact : getPartyContactsSet()) {
-            if (clazz.isAssignableFrom(contact.getClass()) && contact.isDefault() && contact.isActiveAndValid()) {
-                return contact;
-            }
-        }
-        return null;
+        return getPartyContactsSet().stream().filter(clazz::isInstance).filter(PartyContact::isDefault)
+                .filter(PartyContact::isActiveAndValid).findFirst().orElse(null);
     }
 
     public boolean hasDefaultPartyContact(final Class<? extends PartyContact> clazz) {
@@ -365,9 +359,7 @@ public abstract class Party extends Party_Base implements Comparable<Party> {
     }
 
     public PartyContact getInstitutionalPartyContact(final Class<? extends PartyContact> clazz) {
-        List<EmailAddress> institutionals =
-                (List<EmailAddress>) getPartyContacts(EmailAddress.class, PartyContactType.INSTITUTIONAL);
-        return institutionals.isEmpty() ? null : institutionals.iterator().next();
+        return getPartyContacts(clazz, PartyContactType.INSTITUTIONAL).stream().findFirst().orElse(null);
     }
 
     public boolean hasInstitutionalPartyContact(final Class<? extends PartyContact> clazz) {
