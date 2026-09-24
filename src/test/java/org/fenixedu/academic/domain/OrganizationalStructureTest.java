@@ -123,8 +123,8 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnits_institution() {
-        assertNotNull(Unit.getInstitutionUnit());
-        assertEquals(Unit.getInstitutionUnit().getAcronym(), "QU");
+        assertNotNull(Unit.findInstitutionUnit());
+        assertEquals(Unit.findInstitutionUnit().getAcronym(), "QU");
 
     }
 
@@ -143,7 +143,7 @@ public class OrganizationalStructureTest {
         assertTrue(Unit.findInternalUnitByAcronymPath("").isPresent());
         assertTrue(Unit.findInternalUnitByAcronymPath(null).isPresent());
 
-        final Unit institutionUnit = Unit.getInstitutionUnit();
+        final Unit institutionUnit = Unit.findInstitutionUnit();
         assertEquals(Unit.findInternalUnitByAcronymPath("").get(), institutionUnit);
         assertEquals(Unit.findInternalUnitByAcronymPath(null).get(), institutionUnit);
     }
@@ -164,9 +164,9 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnits_getParentUnitsPresentationName() {
-        final Unit universityUnit = Unit.getInstitutionUnit();
+        final Unit universityUnit = Unit.findInstitutionUnit();
         final Unit coursesUnit = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
-        final Unit earthUnit = Unit.getEarthUnit();
+        final Unit earthUnit = Unit.findEarthUnit();
 
         String parentUnitsPresentationName = coursesUnit.getParentUnitsPresentationName(" > ");
 
@@ -234,7 +234,7 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testUnitAcronym_readUnitAcronymByAcronym() {
-        Unit institutionUnit = Unit.getInstitutionUnit();
+        Unit institutionUnit = Unit.findInstitutionUnit();
 
         assertTrue(UnitAcronym.readUnitAcronymByAcronym(null).isEmpty());
         assertEquals(institutionUnit.getUnitAcronym().getAcronym(),
@@ -243,8 +243,8 @@ public class OrganizationalStructureTest {
 
     @Test
     public void testParty_getParentParties() {
-        final Unit universityUnit = Unit.getInstitutionUnit();
-        final Unit earthUnit = Unit.getEarthUnit();
+        final Unit universityUnit = Unit.findInstitutionUnit();
+        final Unit earthUnit = Unit.findEarthUnit();
         final Unit countryUnit = Unit.findUnitByAcronymPath("PT", earthUnit).orElseThrow();
 
         assertTrue(earthUnit.getParentUnits().isEmpty());
@@ -399,25 +399,25 @@ public class OrganizationalStructureTest {
     @Test
     public void testUnit_isInternal() {
         // institution itself and everything under it
-        assertTrue(Unit.getInstitutionUnit().isInternal());                       // university "QU"
+        assertTrue(Unit.findInstitutionUnit().isInternal());                       // university "QU"
         assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isInternal());          // school
         assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isInternal()); // courses group
 
         // ancestors above the institution are not internal
-        assertFalse(Unit.getEarthUnit().isInternal());                                      // planet Earth
-        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.getEarthUnit()).orElseThrow().isInternal()); // Portugal
+        assertFalse(Unit.findEarthUnit().isInternal());                                      // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.findEarthUnit()).orElseThrow().isInternal()); // Portugal
     }
 
     @Test
     public void testUnit_isNoOfficialExternal() {
         // external institution itself and everything under it
-        assertTrue(Unit.getExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
+        assertTrue(Unit.findExternalInstitutionUnit().isNoOfficialExternal());                        // university "QU"
         assertTrue(Unit.findInternalUnitByAcronymPath("QS").orElseThrow().isNoOfficialExternal());         // school
         assertTrue(Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow().isNoOfficialExternal()); // courses group
 
         // ancestors above the external institution are not no-official-external
-        assertFalse(Unit.getEarthUnit().isNoOfficialExternal());                                     // planet Earth
-        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.getEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
+        assertFalse(Unit.findEarthUnit().isNoOfficialExternal());                                     // planet Earth
+        assertFalse(Unit.findUnitByAcronymPath("PT", Unit.findEarthUnit()).orElseThrow().isNoOfficialExternal()); // Portugal
     }
 
     @Test
@@ -426,7 +426,7 @@ public class OrganizationalStructureTest {
         final Space campusA = new Space(new Information.Builder().classification(roomType).name("Campus A").build());
         final Space campusB = new Space(new Information.Builder().classification(roomType).name("Campus B").build());
 
-        final Unit university = Unit.getInstitutionUnit();
+        final Unit university = Unit.findInstitutionUnit();
         final Unit school = Unit.findInternalUnitByAcronymPath("QS").orElseThrow();
         final Unit coursesGroup = Unit.findInternalUnitByAcronymPath("QS>Courses>CC").orElseThrow();
         assertNull(university.getCampus());
@@ -446,7 +446,7 @@ public class OrganizationalStructureTest {
         assertEquals(campusB, coursesGroup.getCampus());
 
         // ancestors above the institution always return null
-        assertNull(Unit.getEarthUnit().getCampus());
+        assertNull(Unit.findEarthUnit().getCampus());
     }
 
     @Test
