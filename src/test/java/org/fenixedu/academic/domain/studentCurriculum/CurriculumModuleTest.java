@@ -2,10 +2,7 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-<<<<<<< HEAD
 import static org.junit.Assert.assertNotSame;
-=======
->>>>>>> 2560be01b3 (Refactor domain methods, add unit tests)
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -45,7 +42,6 @@ import org.fenixedu.academic.domain.util.UserUtil;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.User;
-
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -66,11 +62,9 @@ public class CurriculumModuleTest {
 
     private static Enrolment enrolmentEnroled;
     private static Enrolment enrolmentApproved;
-<<<<<<< HEAD
     private static Enrolment enrolmentOtherInterval;
     private static Enrolment enrolmentOtherYear;
-=======
->>>>>>> 2560be01b3 (Refactor domain methods, add unit tests)
+
     private static CurricularCourse curricularCourseEnroled;
     private static CurricularCourse curricularCourseApproved;
     private static ExecutionYear executionYear;
@@ -113,10 +107,7 @@ public class CurriculumModuleTest {
 
             final CurricularPeriod year1 = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
             final CurricularPeriod semester1 = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, year1);
-<<<<<<< HEAD
             final CurricularPeriod semester2 = new CurricularPeriod(AcademicPeriod.SEMESTER, 2, year1);
-=======
->>>>>>> 2560be01b3 (Refactor domain methods, add unit tests)
 
             final Unit coursesUnit = Unit.findInternalUnitByAcronymPath(CompetenceCourseTest.COURSES_UNIT_PATH).orElseThrow();
             final CompetenceCourse ccEnroled =
