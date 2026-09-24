@@ -30,7 +30,7 @@ import jvstm.cps.ConsistencyPredicate;
 public class PersonalIngressionData extends PersonalIngressionData_Base {
 
     public static Comparator<PersonalIngressionData> COMPARATOR_BY_EXECUTION_YEAR =
-            Comparator.comparing(pid -> pid.getExecutionYear().getYear());
+            Comparator.comparing(PersonalIngressionData::getExecutionYear, ExecutionYear.COMPARATOR_BY_YEAR);
 
     public PersonalIngressionData() {
         super();
