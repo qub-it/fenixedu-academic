@@ -9,7 +9,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
@@ -28,6 +30,9 @@ import org.fenixedu.academic.domain.OrganizationalStructureTest;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
+import org.fenixedu.academic.domain.curricularRules.EvenOddRule;
+import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
@@ -59,6 +64,8 @@ public class CurriculumModuleTest {
     private static CurriculumGroup groupA2;
     private static CurriculumGroup groupB;
     private static CurriculumGroup groupC;
+    private static RootCurriculumGroup root;
+    private static DegreeCurricularPlan dcp;
 
     private static Enrolment enrolmentEnroled;
     private static Enrolment enrolmentApproved;
@@ -82,11 +89,11 @@ public class CurriculumModuleTest {
             executionYear = ExecutionYear.findCurrent(null);
             final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
-            final DegreeCurricularPlan dcp = createDcp(executionYear);
+            dcp = createDcp(executionYear);
             final Student student = StudentTest.createStudent("Curriculum Module Test Student",
                     "curriculum.module.test.student." + UUID.randomUUID());
             final Registration registration = StudentTest.createRegistration(student, dcp, executionYear);
-            final RootCurriculumGroup root = registration.getLastStudentCurricularPlan().getRoot();
+            root = registration.getLastStudentCurricularPlan().getRoot();
 
             // Group Structure:
             //
@@ -137,16 +144,11 @@ public class CurriculumModuleTest {
             enrolmentOtherYear = new Enrolment(scp, groupA, curricularCourseEnroled, otherYear.getFirstExecutionPeriod(),
                     EnrollmentCondition.FINAL, UserUtil.ADMIN_USERNAME);
 
-            final GradeScale type20 = GradeScale.findUniqueByCode("TYPE20").orElseGet(
+            GradeScale.findUniqueByCode("TYPE20").orElseGet(
                     () -> GradeScale.create("TYPE20", new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
                             new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true));
 
-            final EnrolmentEvaluation evaluation = enrolmentApproved.getEvaluationsSet().iterator().next();
-            final Grade grade = Grade.createGrade("14", type20);
-            evaluation.setGrade(grade);
-            evaluation.setExamDateYearMonthDay(new YearMonthDay());
-            evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
-            enrolmentApproved.setEnrollmentState(EnrollmentState.APROVED);
+            approve(enrolmentApproved);
 
             return null;
         });
@@ -281,6 +283,63 @@ public class CurriculumModuleTest {
         assertTrue(predicate.test(enrolmentApproved));
         assertFalse(predicate.test(enrolmentEnroled));
         assertFalse(predicate.test(groupA));
+    }
+
+    @Test
+    public void testCurriculumModule_GetApprovedCurriculumLinesLastExecutionYear() {
+        final ExecutionYear otherYear = (ExecutionYear) executionYear.getNext();
+
+        // single approved line: the result is its execution year
+        assertEquals(executionYear, enrolmentApproved.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(executionYear, groupA.getApprovedCurriculumLinesLastExecutionYear());
+
+        // enrolmentOtherYear (in otherYear) is not approved, so it is ignored
+        assertEquals(executionYear, root.getApprovedCurriculumLinesLastExecutionYear());
+
+        // approve a line in a later year: groups now return the most recent year
+        final Enrolment approvedOtherYear = new Enrolment(root.getStudentCurricularPlan(), groupA, curricularCourseApproved,
+                otherYear.getFirstExecutionPeriod(), EnrollmentCondition.FINAL, UserUtil.ADMIN_USERNAME);
+        approve(approvedOtherYear);
+        assertEquals(otherYear, approvedOtherYear.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(otherYear, groupA.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(otherYear, root.getApprovedCurriculumLinesLastExecutionYear());
+
+        // no approved lines: falls back to the current year
+        assertEquals(executionYear, groupB.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(executionYear, enrolmentEnroled.getApprovedCurriculumLinesLastExecutionYear());
+    }
+
+    @Test
+    public void testCurriculumModule_GetCurricularRules() {
+        final ExecutionInterval interval = executionYear.getFirstExecutionPeriod();
+
+        final ICurricularRule ruleA = new CreditsLimit(groupA.getDegreeModule(), null, interval, null, 0d, 60d);
+        final ICurricularRule ruleB = new CreditsLimit(groupB.getDegreeModule(), null, interval, null, 0d, 30d);
+        final ICurricularRule ruleCourse =
+                new EvenOddRule(curricularCourseEnroled, null, 1, AcademicPeriod.SEMESTER, true, interval, null);
+
+        assertTrue(root.getCurricularRules(interval).isEmpty());
+        assertEquals(Set.of(ruleA), groupA.getCurricularRules(interval));
+        assertEquals(Set.of(ruleA, ruleB), groupB.getCurricularRules(interval));
+        assertEquals(Set.of(ruleA, ruleCourse), enrolmentEnroled.getCurricularRules(interval));
+
+        assertFalse(groupA.getCurricularRules(interval).contains(ruleB));
+        assertFalse(enrolmentApproved.getCurricularRules(interval).contains(ruleCourse));
+    }
+
+    @Test
+    public void testCurriculumModule_GetDegreeCurricularPlanOfDegreeModule() {
+        Stream.of(root, groupA, groupA2, groupB, groupC, enrolmentEnroled, enrolmentApproved)
+                .forEach(m -> assertEquals(m.getFullPath(), dcp, m.getDegreeCurricularPlanOfDegreeModule()));
+    }
+
+    private static void approve(final Enrolment enrolment) {
+        final GradeScale type20 = GradeScale.findUniqueByCode("TYPE20").orElseThrow();
+        final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
+        evaluation.setGrade(Grade.createGrade("14", type20));
+        evaluation.setExamDateYearMonthDay(new YearMonthDay());
+        evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+        enrolment.setEnrollmentState(EnrollmentState.APROVED);
     }
 
     private static DegreeCurricularPlan createDcp(final ExecutionYear executionYear) {

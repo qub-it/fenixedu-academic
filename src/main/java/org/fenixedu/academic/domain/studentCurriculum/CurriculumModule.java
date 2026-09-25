@@ -19,12 +19,13 @@
 package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -132,10 +133,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlanOfDegreeModule() {
-        if (getDegreeModule() != null) {
-            return getDegreeModule().getParentDegreeCurricularPlan();
-        }
-        return null;
+        return Optional.ofNullable(getDegreeModule()).map(DegreeModule::getParentDegreeCurricularPlan).orElse(null);
     }
 
     public LocalizedString getName() {
@@ -170,12 +168,10 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         return getCurriculumGroup() != null && getCurriculumGroup().isNoCourseGroupCurriculumGroup();
     }
 
-    public Set<ICurricularRule> getCurricularRules(ExecutionInterval executionInterval) {
-        final Set<ICurricularRule> result = getCurriculumGroup() != null ? new HashSet<ICurricularRule>(
-                getCurriculumGroup().getCurricularRules(executionInterval)) : new HashSet<ICurricularRule>();
-        result.addAll(getDegreeModule().getCurricularRules(executionInterval));
-
-        return result;
+    public Set<ICurricularRule> getCurricularRules(final ExecutionInterval executionInterval) {
+        return Stream.of(getCurriculumGroup() != null ? getCurriculumGroup().getCurricularRules(
+                        executionInterval) : Collections.<ICurricularRule> emptySet(),
+                getDegreeModule().getCurricularRules(executionInterval)).flatMap(Collection::stream).collect(Collectors.toSet());
     }
 
     public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
@@ -218,16 +214,9 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public ExecutionYear getApprovedCurriculumLinesLastExecutionYear() {
-        final SortedSet<ExecutionYear> executionYears = new TreeSet<ExecutionYear>(ExecutionYear.COMPARATOR_BY_YEAR);
-
-        for (final CurriculumLine curriculumLine : getApprovedCurriculumLines()) {
-            if (curriculumLine.getExecutionInterval() != null) {
-                executionYears.add(curriculumLine.getExecutionInterval().getExecutionYear());
-            }
-        }
-
-        return executionYears.isEmpty() ? ExecutionYear.findCurrent(getRegistration().getDegree().getCalendar()) : executionYears
-                .last();
+        return getApprovedCurriculumLines().stream().map(CurriculumLine::getExecutionInterval).filter(Objects::nonNull)
+                .map(ExecutionInterval::getExecutionYear).max(ExecutionYear.COMPARATOR_BY_YEAR)
+                .orElseGet(() -> ExecutionYear.findCurrent(getRegistration().getDegree().getCalendar()));
     }
 
     final public Collection<CurriculumLine> getApprovedCurriculumLines() {
