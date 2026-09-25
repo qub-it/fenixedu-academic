@@ -1,6 +1,7 @@
 - Refactor: Add UnitUtils methods to Unit domain class [#qubIT-Fenix-9003]
 - Refactor: Improve PersonalIngressionData domain methods [#qubIT-Fenix-9430]
 - Refactor: Improve Party domain methods [#qubIT-Fenix-8960]
+- Improvement: Attempt to maintain person display name when changing given and family names [#ISCTE-FENIXEDU-185]
 
 62.0.2 (23-09-2026)
 - Refactor: Deletes EnrolmentEvaluation deprecated methods [#qubIT-Fenix-9300]

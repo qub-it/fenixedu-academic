@@ -277,7 +277,21 @@ public class Person extends Person_Base {
 
     private void setProperties(final PersonBean personBean) {
 
-        getProfile().changeName(personBean.getGivenNames(), personBean.getFamilyNames(), null);
+        // name
+        final UserProfile profile = getProfile();
+        final boolean givenNamesChanged = !Objects.equals(profile.getGivenNames(), personBean.getGivenNames());
+        final boolean familyNamesChanged = !Objects.equals(profile.getFamilyNames(), personBean.getFamilyNames());
+        final boolean displayNameChanged = !Objects.equals(profile.getDisplayName(), personBean.getNickname());
+        final boolean displayNameNotEmpty = StringUtils.isNotBlank(personBean.getNickname());
+
+        if (givenNamesChanged || familyNamesChanged || (displayNameChanged && displayNameNotEmpty)) {
+            try {
+                profile.changeName(personBean.getGivenNames(), personBean.getFamilyNames(), personBean.getNickname());
+            } catch (Exception e) {
+                // if a display name validation error occurred, we will reset it
+                profile.changeName(personBean.getGivenNames(), personBean.getFamilyNames(), null);
+            }
+        }
 
         setGender(personBean.getGender());
         setProfession(personBean.getProfession());
