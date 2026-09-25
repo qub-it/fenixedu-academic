@@ -5,7 +5,6 @@
 
 62.0.2 (23-09-2026)
 - Refactor: Deletes EnrolmentEvaluation deprecated methods [#qubIT-Fenix-9300]
-- Bug Fix: Allow duplicate conclusion process numbers for migration purposes [#qubIT-Fenix-9467]
 - Refactor: Deletes deprecated EnrolmentEvaluation comparator [#qubIT-Fenix-9300]
 - Refactor: Improves OccupationPeriod domain methods [#qubIT-Fenix-9398]
 - Refactor: Improves CurricularPeriod domain methods [#qubIT-Fenix-9269]
@@ -20,6 +19,7 @@
 - Refactor: Deletes Degree deprecated domain methods [#qubIT-Fenix-9283]
 - Refactor: Delete unused UrlValidator [#qubIT-Fenix-8839]
 - Improvement: Minor improvements to Registration unit tests [#qubIT-Fenix-9383]
+- Bug Fix: Allow duplicate conclusion process numbers for migration purposes [#qubIT-Fenix-9467]
 
 62.0.1 (17-09-2026)
 - Bug Fix: Remove party contact type redundant test [#UL-FC-6226]
