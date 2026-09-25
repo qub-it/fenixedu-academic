@@ -7,8 +7,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -28,6 +30,7 @@ import org.fenixedu.academic.domain.OrganizationalStructureTest;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
@@ -59,6 +62,8 @@ public class CurriculumModuleTest {
     private static CurriculumGroup groupA2;
     private static CurriculumGroup groupB;
     private static CurriculumGroup groupC;
+    private static RootCurriculumGroup root;
+    private static DegreeCurricularPlan dcp;
 
     private static Enrolment enrolmentEnroled;
     private static Enrolment enrolmentApproved;
@@ -81,11 +86,11 @@ public class CurriculumModuleTest {
             executionYear = ExecutionYear.findCurrent(null);
             final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
 
-            final DegreeCurricularPlan dcp = createDcp(executionYear);
+            dcp = createDcp(executionYear);
             final Student student = StudentTest.createStudent("Curriculum Module Test Student",
                     "curriculum.module.test.student." + UUID.randomUUID());
             final Registration registration = StudentTest.createRegistration(student, dcp, executionYear);
-            final RootCurriculumGroup root = registration.getLastStudentCurricularPlan().getRoot();
+            root = registration.getLastStudentCurricularPlan().getRoot();
 
             // Group Structure:
             //
@@ -280,6 +285,53 @@ public class CurriculumModuleTest {
         assertTrue(predicate.test(enrolmentApproved));
         assertFalse(predicate.test(enrolmentEnroled));
         assertFalse(predicate.test(groupA));
+    }
+
+    @Test
+    public void testCurriculumModule_GetApprovedCurriculumLinesLastExecutionYear() {
+        assertEquals(executionYear, enrolmentApproved.getApprovedCurriculumLinesLastExecutionYear());
+
+        // groups recursing over subtrees that contain the approved enrolment
+        assertEquals(executionYear, groupA.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(executionYear, root.getApprovedCurriculumLinesLastExecutionYear());
+
+        // no approved curriculum lines: falls back to the current year of the degree's calendar
+        assertEquals(executionYear, groupB.getApprovedCurriculumLinesLastExecutionYear());
+        assertEquals(executionYear, enrolmentEnroled.getApprovedCurriculumLinesLastExecutionYear());
+    }
+
+    @Test
+    public void testCurriculumModule_GetCurricularRules() {
+        final ExecutionInterval interval = executionYear.getFirstExecutionPeriod();
+
+        // root has no parent curriculum group: only its degree module contributes
+        assertEquals(new HashSet<>(root.getDegreeModule().getCurricularRules(interval)), root.getCurricularRules(interval));
+
+        // groupA = parent's rules (root) + its own degree module rules
+        final Set<ICurricularRule> expectedA = new HashSet<>(root.getDegreeModule().getCurricularRules(interval));
+        expectedA.addAll(groupA.getDegreeModule().getCurricularRules(interval));
+        assertEquals(expectedA, groupA.getCurricularRules(interval));
+
+        // the union chains up through the hierarchy
+        final Set<ICurricularRule> expectedB = new HashSet<>(groupA.getCurricularRules(interval));
+        expectedB.addAll(groupB.getDegreeModule().getCurricularRules(interval));
+        assertEquals(expectedB, groupB.getCurricularRules(interval));
+
+        // a curriculum line: parent group rules + its own curricular course rules
+        final Set<ICurricularRule> expectedEnrolment = new HashSet<>(groupA.getCurricularRules(interval));
+        expectedEnrolment.addAll(curricularCourseEnroled.getCurricularRules(interval));
+        assertEquals(expectedEnrolment, enrolmentEnroled.getCurricularRules(interval));
+    }
+
+    @Test
+    public void testCurriculumModule_GetDegreeCurricularPlanOfDegreeModule() {
+        assertEquals(dcp, root.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, groupA.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, groupA2.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, groupB.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, groupC.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, enrolmentEnroled.getDegreeCurricularPlanOfDegreeModule());
+        assertEquals(dcp, enrolmentApproved.getDegreeCurricularPlanOfDegreeModule());
     }
 
     private static DegreeCurricularPlan createDcp(final ExecutionYear executionYear) {
