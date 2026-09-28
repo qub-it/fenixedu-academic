@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -169,9 +168,11 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public Set<ICurricularRule> getCurricularRules(final ExecutionInterval executionInterval) {
-        return Stream.of(getCurriculumGroup() != null ? getCurriculumGroup().getCurricularRules(
-                        executionInterval) : Collections.<ICurricularRule> emptySet(),
-                getDegreeModule().getCurricularRules(executionInterval)).flatMap(Collection::stream).collect(Collectors.toSet());
+        final Stream<ICurricularRule> parentRules =
+                getCurriculumGroup() != null ? getCurriculumGroup().getCurricularRules(executionInterval)
+                        .stream() : Stream.empty();
+        return Stream.concat(parentRules, getDegreeModule().getCurricularRules(executionInterval).stream())
+                .collect(Collectors.toSet());
     }
 
     public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
