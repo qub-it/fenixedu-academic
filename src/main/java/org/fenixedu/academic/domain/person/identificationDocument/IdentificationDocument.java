@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentExtraInfoValidator;
+import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.bennu.core.domain.Bennu;
 
@@ -21,8 +21,8 @@ public class IdentificationDocument extends IdentificationDocument_Base {
             final IdentificationDocumentType identificationDocumentType) {
         final IdentificationDocument identificationDocument = new IdentificationDocument();
         identificationDocument.setPerson(person);
-        identificationDocument.setValue(value);
         identificationDocument.setIdentificationDocumentType(identificationDocumentType);
+        identificationDocument.setValue(value);
 
         return identificationDocument;
     }
@@ -33,6 +33,21 @@ public class IdentificationDocument extends IdentificationDocument_Base {
 
         setRootDomainObject(null);
         this.deleteDomainObject();
+    }
+
+    @Override
+    public void setValue(final String value) {
+        if (StringUtils.isNotBlank(value) && getIdentificationDocumentType().hasValidator()) {
+            IdentificationDocumentValidator validator =
+                    IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getValidator());
+            if (validator == null) {
+                throw new DomainException("error.IdentificationDocument.validator.not.found",
+                        getIdentificationDocumentType().getValidator());
+            }
+
+            validator.validateValue(value);
+        }
+        super.setValue(value);
     }
 
     public boolean hasExtraInfo() {
@@ -46,15 +61,15 @@ public class IdentificationDocument extends IdentificationDocument_Base {
                         getIdentificationDocumentType().getName().getContent());
             }
 
-            if (getIdentificationDocumentType().hasExtraInfoValidator()) {
-                IdentificationDocumentExtraInfoValidator validator =
-                        IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getExtraInfoValidator());
+            if (getIdentificationDocumentType().hasValidator()) {
+                IdentificationDocumentValidator validator =
+                        IdentificationDocumentValidatorRegistry.get(getIdentificationDocumentType().getValidator());
                 if (validator == null) {
                     throw new DomainException("error.IdentificationDocument.validator.not.found",
-                            getIdentificationDocumentType().getExtraInfoValidator());
+                            getIdentificationDocumentType().getValidator());
                 }
 
-                validator.validate(extraInfo, getValue());
+                validator.validateExtraInfo(extraInfo, getValue());
             }
 
             super.setExtraInfo(extraInfo);
