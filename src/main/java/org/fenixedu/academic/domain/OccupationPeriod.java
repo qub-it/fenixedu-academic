@@ -73,7 +73,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         this.setPeriodInterval(interval);
 
         if (intervals.hasNext()) {
-            this.setNextPeriod(new OccupationPeriod(intervals));
+            this.setNextPeriodWithoutChecks(new OccupationPeriod(intervals));
         }
     }
 
@@ -205,7 +205,7 @@ public class OccupationPeriod extends OccupationPeriod_Base {
         this.setPeriodInterval(intervals.next());
 
         if (intervals.hasNext()) {
-            this.setNextPeriod(new OccupationPeriod(intervals));
+            this.setNextPeriodWithoutChecks(new OccupationPeriod(intervals));
         }
     }
 
