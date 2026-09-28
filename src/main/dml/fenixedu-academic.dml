@@ -1129,6 +1129,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
         String code (REQUIRED);
         LocalizedString name (REQUIRED);
         boolean active;
+        String validator;
         String extraInfoValidator;
         boolean hasExtraInfo;
     }

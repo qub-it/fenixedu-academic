@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain.person.identificationDocument;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.ID_DOCUMENT_TYPE;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.ID_DOCUMENT_VALUE;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.initIdentificationDocument;
+import static org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidatorTest.initIdentityCardValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -37,6 +38,7 @@ public class IdentificationDocumentTypeTest {
     @Before
     public void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
+            initIdentityCardValidator();
             initIdentificationDocumentType();
             initIdentificationDocument();
             return null;
@@ -173,12 +175,30 @@ public class IdentificationDocumentTypeTest {
     }
 
     @Test
-    public void testIdentificationDocumentType_hasExtraInfoValidator() {
+    public void testIdentificationDocumentType_hasValidator() {
         IdentificationDocumentType identificationDocumentType =
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
         assertTrue(identificationDocumentType.getHasExtraInfo());
-        assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(),
-                identificationDocumentType.getExtraInfoValidator());
+        assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(), identificationDocumentType.getValidator());
+    }
+
+    @Test
+    public void testIdentificationDocumentType_validatorSettersStayInSync() {
+        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+
+        // a new type has neither field configured
+        assertNull(identificationDocumentType.getValidator());
+        assertNull(identificationDocumentType.getExtraInfoValidator());
+
+        // setting the new field must also populate the legacy field
+        identificationDocumentType.setValidator("SomeValidator");
+        assertEquals("SomeValidator", identificationDocumentType.getValidator());
+        assertEquals("SomeValidator", identificationDocumentType.getExtraInfoValidator());
+
+        // setting the legacy field must also populate the new field
+        identificationDocumentType.setExtraInfoValidator("AnotherValidator");
+        assertEquals("AnotherValidator", identificationDocumentType.getValidator());
+        assertEquals("AnotherValidator", identificationDocumentType.getExtraInfoValidator());
     }
 }
