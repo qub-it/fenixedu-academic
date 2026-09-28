@@ -88,7 +88,7 @@ public class AnyCurricularCourseTest {
 
     @Test
     public void enrolmentAllowed_whenMinimumEqualToCredits() {
-        final AnyCurricularCourseScenario scenario = createScenario(COURSE_CREDITS(), null);
+        final AnyCurricularCourseScenario scenario = createScenario(COURSE_CREDITS, null);
 
         final RuleResult result = evaluateEnrolling(scenario, "C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
@@ -106,7 +106,7 @@ public class AnyCurricularCourseTest {
 
     @Test
     public void enrolmentAllowed_whenMaximumEqualToCredits() {
-        final AnyCurricularCourseScenario scenario = createScenario(null, COURSE_CREDITS());
+        final AnyCurricularCourseScenario scenario = createScenario(null, COURSE_CREDITS);
 
         final RuleResult result = evaluateEnrolling(scenario, "C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
@@ -262,8 +262,8 @@ public class AnyCurricularCourseTest {
     @Test
     public void enrolmentBlocked_whenAlreadyApproved() {
         final AnyCurricularCourseScenario scenario = createScenario(null, null);
-        enrol(scenario.getStudentCurricularPlan(), scenario.executionYear(), "C1");
-        approve(scenario.getStudentCurricularPlan(), scenario.executionYear(), "C1");
+        enrol(scenario.curricularPlan, scenario.executionYear(), "C1");
+        approve(scenario.curricularPlan, scenario.executionYear(), "C1");
 
         final RuleResult result = evaluateEnrolling(scenario, "C1", CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
@@ -278,8 +278,8 @@ public class AnyCurricularCourseTest {
         final ExecutionInterval interval = scenario.executionYear()
                 .getChildInterval(optionalContext.getCurricularPeriod().getChildOrder(),
                         optionalContext.getCurricularPeriod().getAcademicPeriod());
-        EnrolmentTest.createOptionalEnrolment(scenario.getStudentCurricularPlan(), interval, optionalContext,
-                course(scenario, "C4"), ADMIN_USERNAME);
+        EnrolmentTest.createOptionalEnrolment(scenario.curricularPlan, interval, optionalContext, course(scenario, "C4"),
+                ADMIN_USERNAME);
 
         final RuleResult result = evaluateEnrolling(scenario, "C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
@@ -293,16 +293,16 @@ public class AnyCurricularCourseTest {
         final ExecutionInterval interval = scenario.executionYear()
                 .getChildInterval(optionalContext.getCurricularPeriod().getChildOrder(),
                         optionalContext.getCurricularPeriod().getAcademicPeriod());
-        EnrolmentTest.createOptionalEnrolment(scenario.getStudentCurricularPlan(), interval, optionalContext,
+        EnrolmentTest.createOptionalEnrolment(scenario.curricularPlan, interval, optionalContext,
                 course(scenario, "C4"), ADMIN_USERNAME);
         final OptionalEnrolment optionalEnrolment =
-                (OptionalEnrolment) scenario.getStudentCurricularPlan().getEnrolments(course(scenario, "C4")).iterator().next();
+                (OptionalEnrolment) scenario.curricularPlan.getEnrolments(course(scenario, "C4")).iterator().next();
 
         scenario.rule().getCompetenceCoursesSet().add(course(scenario, "C1").getCompetenceCourse());
 
         final EnroledOptionalEnrolment enroled =
                 new EnroledOptionalEnrolment(optionalEnrolment, scenario.optionalCourse(), interval);
-        final RuleResult result = evaluate(enroled, scenario.rule(), scenario.getStudentCurricularPlan(), interval,
+        final RuleResult result = evaluate(enroled, scenario.rule(), scenario.curricularPlan, interval,
                 CurricularRuleLevel.ENROLMENT_VERIFICATION_WITH_RULES);
 
         assertTrue(result.isTrue());
@@ -338,10 +338,10 @@ public class AnyCurricularCourseTest {
         final Context context = c4.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = interval(scenario);
         final CurriculumGroup curriculumGroup =
-                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.getStudentCurricularPlan(), scenario.mandatoryGroup());
+                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.curricularPlan, scenario.mandatoryGroup());
         final DegreeModuleToEnrol module = new DegreeModuleToEnrol(curriculumGroup, context, interval);
 
-        final RuleResult result = evaluate(module, scenario.rule(), scenario.getStudentCurricularPlan(), interval,
+        final RuleResult result = evaluate(module, scenario.rule(), scenario.curricularPlan, interval,
                 CurricularRuleLevel.ENROLMENT_PREFILTER);
 
         assertTrue(result.isNA());
@@ -360,11 +360,11 @@ public class AnyCurricularCourseTest {
                 .getChildInterval(context.getCurricularPeriod().getChildOrder(),
                         context.getCurricularPeriod().getAcademicPeriod());
         final CurriculumGroup curriculumGroup =
-                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.getStudentCurricularPlan(), scenario.mandatoryGroup());
+                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.curricularPlan, scenario.mandatoryGroup());
         final OptionalDegreeModuleToEnrol module =
                 new OptionalDegreeModuleToEnrol(curriculumGroup, context, interval, c4FromOtherDegreeCurricularPlan);
 
-        final RuleResult result = evaluate(module, scenario.rule(), scenario.getStudentCurricularPlan(), interval,
+        final RuleResult result = evaluate(module, scenario.rule(), scenario.curricularPlan, interval,
                 CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
         assertTrue(result.isFalse());
@@ -395,9 +395,7 @@ public class AnyCurricularCourseTest {
 
     // ==================== Helpers ====================
 
-    private static Double COURSE_CREDITS() {
-        return 6d;
-    }
+    private static Double COURSE_CREDITS = 6d;
 
     private static CompetenceCourseLevelType createLevelType() {
         return CompetenceCourseLevelType.create("LVL" + System.currentTimeMillis(),
@@ -411,9 +409,8 @@ public class AnyCurricularCourseTest {
         final CourseGroup mandatoryGroup = getChildGroup(cycleGroup, MANDATORY_GROUP);
         final CourseGroup optionalGroup = getChildGroup(cycleGroup, OPTIONAL_GROUP);
         final CurricularPeriod period1Y1S = degreeCurricularPlan.getCurricularPeriodFor(1, 1, SEMESTER);
-        final OptionalCurricularCourse optionalCourse =
-                createOptionalCurricularCourse("Optional 1", period1Y1S,
-                        executionYear != null ? executionYear.getFirstExecutionPeriod() : null, mandatoryGroup);
+        final OptionalCurricularCourse optionalCourse = createOptionalCurricularCourse("Optional 1", period1Y1S,
+                executionYear != null ? executionYear.getFirstExecutionPeriod() : null, mandatoryGroup);
         final AnyCurricularCourse rule =
                 new AnyCurricularCourse(optionalCourse, null, executionYear, null, minimumCredits, maximumCredits);
         final StudentCurricularPlan curricularPlan =
@@ -445,10 +442,10 @@ public class AnyCurricularCourseTest {
                 .getChildInterval(context.getCurricularPeriod().getChildOrder(),
                         context.getCurricularPeriod().getAcademicPeriod());
         final CurriculumGroup curriculumGroup =
-                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.getStudentCurricularPlan(), scenario.mandatoryGroup());
+                EnrolmentTest.findOrCreateCurriculumGroupFor(scenario.curricularPlan, scenario.mandatoryGroup());
         final OptionalDegreeModuleToEnrol module =
                 new OptionalDegreeModuleToEnrol(curriculumGroup, context, interval, targetCourse);
-        return evaluate(module, rule, scenario.getStudentCurricularPlan(), interval, curricularRuleLevel);
+        return evaluate(module, rule, scenario.curricularPlan, interval, curricularRuleLevel);
     }
 
     private static RuleResult evaluate(final IDegreeModuleToEvaluate module, final AnyCurricularCourse rule,
@@ -476,8 +473,5 @@ public class AnyCurricularCourseTest {
                                                OptionalCurricularCourse optionalCourse, AnyCurricularCourse rule,
                                                StudentCurricularPlan curricularPlan) {
 
-        private StudentCurricularPlan getStudentCurricularPlan() {
-            return curricularPlan;
-        }
     }
 }
