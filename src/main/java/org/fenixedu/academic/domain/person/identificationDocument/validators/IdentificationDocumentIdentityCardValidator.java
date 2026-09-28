@@ -8,10 +8,17 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 
-public class IdentificationDocumentIdentityCardValidator implements IdentificationDocumentExtraInfoValidator{
+public class IdentificationDocumentIdentityCardValidator implements IdentificationDocumentValidator {
 
     @Override
-    public void validate(final String extraInfo, final String identificationDocumentValue) {
+    public void validateValue(final String identificationDocumentValue) {
+        if (StringUtils.isNotEmpty(identificationDocumentValue) && !identificationDocumentValue.matches("\\d{1,8}")) {
+            throw new DomainException("label.identificationDocument.invalid.value");
+        }
+    }
+
+    @Override
+    public void validateExtraInfo(final String extraInfo, final String identificationDocumentValue) {
         if (extraInfo != null && !extraInfo.isEmpty()) {
             if (extraInfo.length() == 1){
                 validateBI(extraInfo, identificationDocumentValue);

@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.dto.person.PersonBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.YearMonthDay;
 import org.junit.After;
@@ -137,7 +138,7 @@ public class IdentificationDocumentTest {
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
 
-        String newDocValue = "NEW_DOC_123456";
+        String newDocValue = "12345678";
         IdentificationDocument newDoc = IdentificationDocument.create(newPerson, newDocValue, identificationDocumentType);
 
         assertNotNull(newDoc);
@@ -152,7 +153,7 @@ public class IdentificationDocumentTest {
         IdentificationDocumentType identificationDocumentType =
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         IdentificationDocument identificationDocument =
-                IdentificationDocument.create(null, "NO_PERSON_DOC", identificationDocumentType);
+                IdentificationDocument.create(null, "12345678", identificationDocumentType);
 
         assertNull(identificationDocument.getPerson());
 
@@ -169,6 +170,7 @@ public class IdentificationDocumentTest {
         assertEquals(expirationDate.toLocalDate(), identificationDocument.getExpirationDate());
     }
 
+    @Test
     public void testIdentificationDocument_extraInfoValidatorIsNull() {
         IdentificationDocumentType identificationDocumentType = idDoc.getIdentificationDocumentType();
         assertNotNull(identificationDocumentType);
@@ -191,5 +193,39 @@ public class IdentificationDocumentTest {
         String extraInfo = "0";
         DomainException exception = assertThrows(DomainException.class, () -> idDoc.setExtraInfo(extraInfo));
         assertEquals("error.IdentificationDocument.extraInfo.not.allowed", exception.getKey());
+    }
+
+    @Test
+    public void testPerson_setIdentification() {
+        Person newPerson = StudentTest.createStudent("Identification Create Test", "identification.create.test").getPerson();
+        IdentificationDocumentType type = IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
+
+        assertNotNull(type);
+
+        // accepts the value and creates the document.
+        newPerson.setIdentification("12345678", type);
+
+        assertNotNull(newPerson.getDefaultIdentificationDocument());
+        assertEquals("12345678", newPerson.getDefaultIdentificationDocument().getValue());
+        assertEquals(type, newPerson.getDefaultIdentificationDocument().getIdentificationDocumentType());
+
+        // updating identification value
+        newPerson.setIdentification("87654321", type);
+
+        assertEquals("87654321", newPerson.getDefaultIdentificationDocument().getValue());
+        assertEquals(type, newPerson.getDefaultIdentificationDocument().getIdentificationDocumentType());
+    }
+
+    @Test
+    public void testPersonBean_save_updatesExistingDocument() {
+        PersonBean personBean = new PersonBean(person);
+        personBean.setDocumentIdNumber("12345678");
+
+        // person editing path
+        person.editPersonalInformation(personBean);
+
+        assertEquals("12345678", person.getDefaultIdentificationDocument().getValue());
+        assertEquals(idDoc.getIdentificationDocumentType(),
+                person.getDefaultIdentificationDocument().getIdentificationDocumentType());
     }
 }

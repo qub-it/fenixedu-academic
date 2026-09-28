@@ -35,76 +35,86 @@ public class IdentificationDocumentIdentityCardValidatorTest {
     }
 
     @Test
-    public void testValidate_withOneDigit_valid() {
-        String identificationDocumentValue = "00000000";
-        String extraInfo = "0";
+    public void testValidate() {
+        assertDoesNotThrow(() -> validator.validateValue(null));
+        assertDoesNotThrow(() -> validator.validateValue(""));
+        assertDoesNotThrow(() -> validator.validateValue("12345678"));
 
-        assertDoesNotThrow(() -> validator.validate(extraInfo, identificationDocumentValue));
+        assertThrows(DomainException.class, () -> validator.validateValue("123456789"));
+        assertThrows(DomainException.class, () -> validator.validateValue("INVALID"));
     }
 
     @Test
-    public void testValidate_withOneDigit_invalidChecksum() {
+    public void testValidateExtraInfo_withOneDigit_valid() {
+        String identificationDocumentValue = "00000000";
+        String extraInfo = "0";
+
+        assertDoesNotThrow(() -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
+    }
+
+    @Test
+    public void testValidateExtraInfo_withOneDigit_invalidChecksum() {
         String identificationDocumentValue = "12345678";
         String extraInfo = "1";
 
         DomainException exception = assertThrows(DomainException.class,
-                () -> validator.validate(extraInfo, identificationDocumentValue));
+                () -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
         assertEquals("label.identificationDocumentExtraDigit.invalid", exception.getKey());
     }
 
     @Test
-    public void testValidate_withOneDigit_invalidFormat() {
+    public void testValidateExtraInfo_withOneDigit_invalidFormat() {
         String identificationDocumentValue = "12345678";
         String extraInfo = "A";
 
         DomainException exception = assertThrows(DomainException.class,
-                () -> validator.validate(extraInfo, identificationDocumentValue));
+                () -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
         assertEquals("label.identificationDocumentExtraDigit.invalid.format", exception.getKey());
     }
 
     @Test
-    public void testValidate_withExtraInfo_nullOrEmpty() {
+    public void testValidateExtraInfo_withExtraInfo_nullOrEmpty() {
         String identificationDocumentValue = "12345678";
 
-        assertDoesNotThrow(() -> validator.validate(null, identificationDocumentValue));
-        assertDoesNotThrow(() -> validator.validate("", identificationDocumentValue));
+        assertDoesNotThrow(() -> validator.validateExtraInfo(null, identificationDocumentValue));
+        assertDoesNotThrow(() -> validator.validateExtraInfo("", identificationDocumentValue));
     }
 
     @Test
-    public void testValidate_withMultipleDigits_valid() {
+    public void testValidateExtraInfo_withMultipleDigits_valid() {
         String identificationDocumentValue = "00000000";
         String extraInfo = "0ZZ4";
 
-        assertDoesNotThrow(() -> validator.validate(extraInfo, identificationDocumentValue));
+        assertDoesNotThrow(() -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
     }
 
     @Test
-    public void testValidate_withMultipleDigits_invalidFormat() {
+    public void testValidateExtraInfo_withMultipleDigits_invalidFormat() {
         String identificationDocumentValue = "12345678";
         String extraInfo = "ABCD";
 
         DomainException exception = assertThrows(DomainException.class,
-                () -> validator.validate(extraInfo, identificationDocumentValue));
+                () -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
         assertEquals("label.identificationDocumentSeriesNumber.invalid.format", exception.getKey());
     }
 
     @Test
-    public void testValidate_withMultipleDigits_invalidChecksum() {
+    public void testValidateExtraInfo_withMultipleDigits_invalidChecksum() {
         String identificationDocumentValue = "12345678";
         String extraInfo = "0000";
 
         DomainException exception = assertThrows(DomainException.class,
-                () -> validator.validate(extraInfo, identificationDocumentValue));
+                () -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
         assertEquals("label.identificationDocumentSeriesNumber.invalid", exception.getKey());
     }
 
     @Test
-    public void testValidate_withMultipleDigits_wrongLength() {
+    public void testValidateExtraInfo_withMultipleDigits_wrongLength() {
         String identificationDocumentValue = "12345678";
         String extraInfo = "12";
 
         DomainException exception = assertThrows(DomainException.class,
-                () -> validator.validate(extraInfo, identificationDocumentValue));
+                () -> validator.validateExtraInfo(extraInfo, identificationDocumentValue));
         assertEquals("label.identificationDocumentSeriesNumber.invalid.format", exception.getKey());
     }
 }
