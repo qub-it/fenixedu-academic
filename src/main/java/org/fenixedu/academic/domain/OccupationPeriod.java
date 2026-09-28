@@ -200,19 +200,13 @@ public class OccupationPeriod extends OccupationPeriod_Base {
     }
 
     public void editDates(Iterator<Interval> intervals) {
+        getAllNestedPeriods().stream().filter(op -> op != this).forEach(OccupationPeriod::deleteFromNestedPeriods);
 
         this.setPeriodInterval(intervals.next());
 
-        if (!intervals.hasNext()) {
-            this.setNextPeriodWithoutChecks(null);
-        } else {
-            if (this.getNextPeriod() != null) {
-                this.getNextPeriod().editDates(intervals);
-            } else {
-                this.setNextPeriodWithoutChecks(new OccupationPeriod(intervals));
-            }
+        if (intervals.hasNext()) {
+            this.setNextPeriod(new OccupationPeriod(intervals));
         }
-
     }
 
     @Override

@@ -3,12 +3,14 @@ package org.fenixedu.academic.domain;
 import static org.fenixedu.academic.domain.DegreeTest.DEGREE_A_CODE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
 import org.fenixedu.academic.domain.schedule.lesson.LessonPeriod;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.YearMonthDay;
@@ -202,5 +204,34 @@ public class OccupationPeriodTest {
         // from an inner period only the following intervals are returned
         OccupationPeriod middleOccupationPeriod = rootOccupationPeriod.getNextPeriod();
         assertEquals(List.of(NOVEMBER_INTERVAL, JANUARY_INTERVAL), middleOccupationPeriod.getIntervals());
+    }
+
+    @Test
+    public void testOccupationPeriod_editDates() {
+        // shrinking the chain: the receiver is kept and the following periods are removed
+        OccupationPeriod rootOccupationPeriod =
+                new OccupationPeriod(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL).iterator());
+        OccupationPeriod middleOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        OccupationPeriod leafOccupationPeriod = middleOccupationPeriod.getNextPeriod();
+
+        rootOccupationPeriod.editDates(List.of(NOVEMBER_INTERVAL).iterator());
+        assertEquals(List.of(NOVEMBER_INTERVAL), rootOccupationPeriod.getIntervals());
+        assertNull(rootOccupationPeriod.getNextPeriod());
+
+        // the removed periods are deleted
+        assertFalse(Bennu.getInstance().getOccupationPeriodsSet().contains(middleOccupationPeriod));
+        assertFalse(Bennu.getInstance().getOccupationPeriodsSet().contains(leafOccupationPeriod));
+
+        // growing the chain: new nested periods are created in linking order
+        rootOccupationPeriod.editDates(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL).iterator());
+        assertEquals(List.of(SEPTEMBER_INTERVAL, NOVEMBER_INTERVAL, JANUARY_INTERVAL), rootOccupationPeriod.getIntervals());
+        assertEquals(rootOccupationPeriod, rootOccupationPeriod.getNextPeriod().getPreviousPeriod());
+
+        // editing from an inner period only replaces the receiver and its following periods
+        OccupationPeriod innerOccupationPeriod = rootOccupationPeriod.getNextPeriod();
+        innerOccupationPeriod.editDates(List.of(JANUARY_INTERVAL).iterator());
+        assertEquals(List.of(SEPTEMBER_INTERVAL, JANUARY_INTERVAL), rootOccupationPeriod.getIntervals());
+        assertEquals(innerOccupationPeriod, rootOccupationPeriod.getNextPeriod());
+        assertNull(innerOccupationPeriod.getNextPeriod());
     }
 }
