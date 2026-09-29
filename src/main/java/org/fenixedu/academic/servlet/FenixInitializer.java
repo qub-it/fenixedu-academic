@@ -182,9 +182,7 @@ public class FenixInitializer implements ServletContextListener {
                 return;
             }
 
-            final boolean hasExtraInfo = type.getHasExtraInfo();
             type.setValidator(validator);
-            type.setHasExtraInfo(hasExtraInfo);
             migrated.incrementAndGet();
         });
 
