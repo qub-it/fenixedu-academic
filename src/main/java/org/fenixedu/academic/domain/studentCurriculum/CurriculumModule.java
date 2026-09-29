@@ -22,9 +22,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,6 +47,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
@@ -54,29 +55,14 @@ import org.joda.time.YearMonthDay;
 
 abstract public class CurriculumModule extends CurriculumModule_Base {
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_NAME_AND_ID = new Comparator<CurriculumModule>() {
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            int result = o1.getName().compareTo(o2.getName());
-            return (result == 0) ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : result;
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_NAME_AND_ID =
+            Comparator.comparing(CurriculumModule::getName).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_FULL_PATH_NAME_AND_ID = new Comparator<CurriculumModule>() {
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            int result = o1.getFullPath().compareTo(o2.getFullPath());
-            return (result == 0) ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : result;
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_FULL_PATH_NAME_AND_ID =
+            Comparator.comparing(CurriculumModule::getFullPath).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    static final public Comparator<CurriculumModule> COMPARATOR_BY_CREATION_DATE = new Comparator<CurriculumModule>() {
-
-        @Override
-        public int compare(CurriculumModule o1, CurriculumModule o2) {
-            return o1.getCreationDateDateTime().compareTo(o2.getCreationDateDateTime());
-        }
-    };
+    public static final Comparator<CurriculumModule> COMPARATOR_BY_CREATION_DATE =
+            Comparator.comparing(CurriculumModule::getCreationDateDateTime);
 
     public CurriculumModule() {
         super();
@@ -145,20 +131,17 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public DegreeCurricularPlan getDegreeCurricularPlanOfDegreeModule() {
-        if (getDegreeModule() != null) {
-            return getDegreeModule().getParentDegreeCurricularPlan();
-        }
-        return null;
+        return Optional.ofNullable(getDegreeModule()).map(DegreeModule::getParentDegreeCurricularPlan).orElse(null);
     }
 
     public LocalizedString getName() {
         LocalizedString LocalizedString = new LocalizedString();
 
-        if (this.getDegreeModule().getName() != null && this.getDegreeModule().getName().length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.PT, this.getDegreeModule().getName());
+        if (this.getDegreeModule().getName() != null && !this.getDegreeModule().getName().isEmpty()) {
+            LocalizedString = LocalizedString.with(LocaleUtils.PT, this.getDegreeModule().getName());
         }
-        if (this.getDegreeModule().getNameEn() != null && this.getDegreeModule().getNameEn().length() > 0) {
-            LocalizedString = LocalizedString.with(org.fenixedu.academic.util.LocaleUtils.EN, this.getDegreeModule().getNameEn());
+        if (this.getDegreeModule().getNameEn() != null && !this.getDegreeModule().getNameEn().isEmpty()) {
+            LocalizedString = LocalizedString.with(LocaleUtils.EN, this.getDegreeModule().getNameEn());
         }
         return LocalizedString;
     }
@@ -183,17 +166,12 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         return getCurriculumGroup() != null && getCurriculumGroup().isNoCourseGroupCurriculumGroup();
     }
 
-    public boolean parentAllowAccumulatedEctsCredits() {
-        return !parentCurriculumGroupIsNoCourseGroupCurriculumGroup()
-                || ((NoCourseGroupCurriculumGroup) getCurriculumGroup()).allowAccumulatedEctsCredits();
-    }
-
-    public Set<ICurricularRule> getCurricularRules(ExecutionInterval executionInterval) {
-        final Set<ICurricularRule> result = getCurriculumGroup() != null ? new HashSet<ICurricularRule>(
-                getCurriculumGroup().getCurricularRules(executionInterval)) : new HashSet<ICurricularRule>();
-        result.addAll(getDegreeModule().getCurricularRules(executionInterval));
-
-        return result;
+    public Set<ICurricularRule> getCurricularRules(final ExecutionInterval executionInterval) {
+        final Stream<ICurricularRule> parentRules =
+                getCurriculumGroup() != null ? getCurriculumGroup().getCurricularRules(executionInterval)
+                        .stream() : Stream.empty();
+        return Stream.concat(parentRules, getDegreeModule().getCurricularRules(executionInterval).stream())
+                .collect(Collectors.toSet());
     }
 
     public ICurricularRule getMostRecentActiveCurricularRule(final CurricularRuleType ruleType,
@@ -203,11 +181,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public String getFullPath() {
-        if (isRoot()) {
-            return getName().getContent();
-        } else {
-            return getCurriculumGroup().getFullPath() + " > " + getName().getContent();
-        }
+        return isRoot() ? getName().getContent() : getCurriculumGroup().getFullPath() + " > " + getName().getContent();
     }
 
     public List<CurriculumModule> getPath() {
@@ -240,38 +214,15 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public ExecutionYear getApprovedCurriculumLinesLastExecutionYear() {
-        final SortedSet<ExecutionYear> executionYears = new TreeSet<ExecutionYear>(ExecutionYear.COMPARATOR_BY_YEAR);
-
-        for (final CurriculumLine curriculumLine : getApprovedCurriculumLines()) {
-            if (curriculumLine.getExecutionInterval() != null) {
-                executionYears.add(curriculumLine.getExecutionInterval().getExecutionYear());
-            }
-        }
-
-        return executionYears.isEmpty() ? ExecutionYear.findCurrent(getRegistration().getDegree().getCalendar()) : executionYears
-                .last();
+        return getApprovedCurriculumLines().stream().map(CurriculumLine::getExecutionInterval).filter(Objects::nonNull)
+                .map(ExecutionInterval::getExecutionYear).max(ExecutionYear.COMPARATOR_BY_YEAR)
+                .orElseGet(() -> ExecutionYear.findCurrent(getRegistration().getDegree().getCalendar()));
     }
 
     final public Collection<CurriculumLine> getApprovedCurriculumLines() {
         final Collection<CurriculumLine> result = new HashSet<CurriculumLine>();
         addApprovedCurriculumLines(result);
         return result;
-    }
-
-    final public CurriculumLine getLastApprovement() {
-        final SortedSet<CurriculumLine> curriculumLines =
-                new TreeSet<CurriculumLine>(CurriculumLine.COMPARATOR_BY_APPROVEMENT_DATE_AND_ID);
-        curriculumLines.addAll(getApprovedCurriculumLines());
-
-        if (curriculumLines.isEmpty()) {
-            throw new DomainException("error.curriculum.group.has.no.approved.curriculum.lines", getName().getContent());
-        }
-
-        return curriculumLines.last();
-    }
-
-    final public YearMonthDay getLastApprovementDate() {
-        return getLastApprovement().getApprovementDate();
     }
 
     final public ExecutionYear getLastApprovementExecutionYear() {
@@ -307,13 +258,8 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
     }
 
     public boolean hasEnrolmentWithEnroledState(final CurricularCourse curricularCourse, final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (hasEnrolmentWithEnroledState(curricularCourse, executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return executionYear.getChildIntervals().stream()
+                .anyMatch(interval -> hasEnrolmentWithEnroledState(curricularCourse, interval));
     }
 
     abstract public Double getEctsCredits();
@@ -443,10 +389,6 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         return predicate.test(this);
     }
 
-    public boolean hasAnyCurriculumLines() {
-        return hasAnyCurriculumModules(new CurriculumModulePredicateByType(CurriculumLine.class));
-    }
-
     abstract public Set<CurriculumGroup> getAllCurriculumGroups();
 
     abstract public Set<CurriculumGroup> getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups();
@@ -461,11 +403,7 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
 
         @Override
         public boolean test(final CurriculumModule curriculumModule) {
-            if (clazz.isAssignableFrom(curriculumModule.getClass())) {
-                return true;
-            }
-
-            return false;
+            return clazz.isAssignableFrom(curriculumModule.getClass());
         }
 
     }
@@ -480,14 +418,8 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
 
         @Override
         public boolean test(final CurriculumModule curriculumModule) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.getExecutionInterval().equals(executionInterval)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return curriculumModule.isCurriculumLine() && ((CurriculumLine) curriculumModule).getExecutionInterval()
+                    .equals(executionInterval);
         }
 
     }
@@ -502,32 +434,17 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
 
         @Override
         public boolean test(final CurriculumModule curriculumModule) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.getExecutionYear().equals(executionYear)) {
-                    return true;
-                }
-            }
-
-            return false;
+            return curriculumModule.isCurriculumLine() && ((CurriculumLine) curriculumModule).getExecutionYear()
+                    .equals(executionYear);
         }
-
     }
 
     static public class CurriculumModulePredicateByApproval implements Predicate<CurriculumModule> {
 
         @Override
         public boolean test(final CurriculumModule curriculumModule) {
-            if (curriculumModule.isCurriculumLine()) {
-                final CurriculumLine curriculumLine = (CurriculumLine) curriculumModule;
-                if (curriculumLine.isApproved()) {
-                    return true;
-                }
-            }
-
-            return false;
+            return curriculumModule.isCurriculumLine() && ((CurriculumLine) curriculumModule).isApproved();
         }
-
     }
 
     @Deprecated
