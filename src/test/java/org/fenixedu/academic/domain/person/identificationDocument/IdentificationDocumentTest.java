@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain.person.identificationDocument;
 
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTypeTest.initIdentificationDocumentType;
-import static org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidatorTest.initIdentityCardValidator;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,7 +37,6 @@ public class IdentificationDocumentTest {
     @Before
     public void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            initIdentityCardValidator();
             initIdentificationDocumentType();
             initIdentificationDocument();
             return null;

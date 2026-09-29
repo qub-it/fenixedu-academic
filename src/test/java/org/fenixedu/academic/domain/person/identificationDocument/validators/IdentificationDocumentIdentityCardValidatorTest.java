@@ -20,7 +20,6 @@ public class IdentificationDocumentIdentityCardValidatorTest {
     public void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             initIdentificationDocumentType();
-            initIdentityCardValidator();
             validator = (IdentificationDocumentIdentityCardValidator) IdentificationDocumentValidatorRegistry
                     .get(validatorName);
             return null;

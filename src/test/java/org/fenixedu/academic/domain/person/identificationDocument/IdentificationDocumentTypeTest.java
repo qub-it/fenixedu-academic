@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -38,7 +38,6 @@ public class IdentificationDocumentTypeTest {
     @Before
     public void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            initIdentityCardValidator();
             initIdentificationDocumentType();
             initIdentificationDocument();
             return null;
@@ -46,6 +45,7 @@ public class IdentificationDocumentTypeTest {
     }
 
     public static IdentificationDocumentType initIdentificationDocumentType() {
+        initIdentityCardValidator();
         String code = IdentificationDocumentType.IDENTITY_CARD_CODE;
         LocalizedString name = new LocalizedString(Locale.getDefault(), code);
 
