@@ -42,7 +42,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CurricularCourse;
@@ -1001,17 +1000,6 @@ public class Registration extends Registration_Base {
         }
 
         return inspectIngressionYear(registration.getSourceRegistration());
-    }
-
-    public String getDegreeNameWithDegreeCurricularPlanName() {
-        final StudentCurricularPlan toAsk = getStudentCurricularPlan(getRegistrationYear())
-                == null ? getFirstStudentCurricularPlan() : getStudentCurricularPlan(getRegistrationYear());
-
-        if (toAsk == null) {
-            return StringUtils.EMPTY;
-        }
-
-        return toAsk.getPresentationName(getRegistrationYear());
     }
 
     public String getDegreeNameWithDescription() {
