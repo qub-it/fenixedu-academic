@@ -51,7 +51,8 @@ public class IdentificationDocumentTypeTest {
 
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.findByCode(code)
                 .orElseGet(() -> IdentificationDocumentType.create(code, name));
-        identificationDocumentType.setExtraInfoValidator(IdentificationDocumentIdentityCardValidator.class.getName());
+        identificationDocumentType.setValidator(IdentificationDocumentIdentityCardValidator.class.getName());
+        identificationDocumentType.setHasExtraInfo(true);
         return identificationDocumentType;
     }
 
