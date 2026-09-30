@@ -135,8 +135,8 @@ public class Person extends Person_Base {
         if (identificationDocument == null) {
             IdentificationDocument.create(this, documentNumber, identificationDocumentType);
         } else {
-            identificationDocument.setValue(documentNumber);
             identificationDocument.setIdentificationDocumentType(identificationDocumentType);
+            identificationDocument.setValue(documentNumber);
         }
     }
 
@@ -149,6 +149,11 @@ public class Person extends Person_Base {
                     });
 
             setIdentificationDocument(trimmedDocumentIdNumber, identificationDocumentType);
+        }
+
+        if (getDefaultIdentificationDocument() == null) {
+            throw new DomainException(StringUtils.isBlank(
+                    documentIdNumber) ? "error.person.empty.documentIdNumber" : "error.person.empty.idDocumentType");
         }
     }
 
