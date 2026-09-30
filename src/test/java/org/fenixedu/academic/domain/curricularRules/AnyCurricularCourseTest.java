@@ -51,13 +51,15 @@ public class AnyCurricularCourseTest {
 
     private static final Double COURSE_CREDITS = 6d;
 
+    private static final String TARGET_COURSE = "C4";
+
     private static ExecutionYear executionYear;
     private static DegreeCurricularPlan degreeCurricularPlan;
     private static CourseGroup mandatoryGroup;
     private static CourseGroup optionalGroup;
     private static OptionalCurricularCourse optionalCourse;
     private static AnyCurricularCourse rule;
-    private static StudentCurricularPlan curricularPlan;
+    private static StudentCurricularPlan studentCurricularPlan;
 
     @BeforeClass
     public static void init() {
@@ -78,234 +80,165 @@ public class AnyCurricularCourseTest {
         optionalCourse = ConclusionRulesTestUtil.createOptionalCurricularCourse("Optional 1",
                 degreeCurricularPlan.getCurricularPeriodFor(1, 1, SEMESTER), executionYear.getFirstExecutionPeriod(),
                 mandatoryGroup);
+        studentCurricularPlan =
+                ConclusionRulesTestUtil.createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
+        setupRule(null, null);
     }
 
     @Test
-    public void enrolmentAllowed_withNoRestrictions() {
-        createScenario(null, null);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+    public void succeeds_withNoRestrictions() {
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenCreditsBelowMinimum() {
-        createScenario(7d, null);
+    public void fails_byCreditsBelowMinimum() {
+        setupRule(7d, null);
 
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        final RuleResult result = evaluateEnrolment();
 
         assertTrue(result.isFalse());
         assertFalse(result.getMessages().isEmpty());
     }
 
     @Test
-    public void enrolmentAllowed_whenMinimumEqualToCredits() {
-        createScenario(COURSE_CREDITS, null);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+    public void succeeds_withMinimumEqualToCredits() {
+        setupRule(COURSE_CREDITS, null);
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenCreditsAboveMaximum() {
-        createScenario(null, 5d);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+    public void fails_byCreditsAboveMaximum() {
+        setupRule(null, 5d);
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_whenMaximumEqualToCredits() {
-        createScenario(null, COURSE_CREDITS);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+    public void succeeds_withMaximumEqualToCredits() {
+        setupRule(null, COURSE_CREDITS);
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentAllowed_whenCreditsWithinBounds() {
-        createScenario(4d, 8d);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+    public void succeeds_withCreditsWithinBounds() {
+        setupRule(4d, 8d);
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentAllowed_whenCourseGroupMatches() {
-        createScenario(null, null);
+    public void succeeds_byCourseGroupMatch() {
         rule.getCourseGroupsSet().add(optionalGroup);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenCourseGroupDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byCourseGroupMismatch() {
         rule.getCourseGroupsSet().add(optionalGroup);
-
-        final RuleResult result = evaluateEnrolling("C3", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment("C3", CurricularRuleLevel.ENROLMENT_WITH_RULES).isFalse());
     }
 
     @Test
-    public void enrolmentBlocked_whenDegreeCurricularPlanDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byDegreeCurricularPlanMismatch() {
         final DegreeCurricularPlan otherDegreeCurricularPlan = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
         rule.getDegreeCurricularPlansSet().add(otherDegreeCurricularPlan);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentBlocked_whenDegreeDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byDegreeMismatch() {
         final DegreeCurricularPlan otherDegreeCurricularPlan = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
         rule.getDegreesSet().add(otherDegreeCurricularPlan.getDegree());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentBlocked_whenDegreeTypeDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byDegreeTypeMismatch() {
         rule.getDegreeTypesSet().add(new DegreeType(new LocalizedString(Locale.getDefault(), "Other Degree Type")));
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_whenCompetenceCourseMatches() {
-        createScenario(null, null);
-        rule.getCompetenceCoursesSet().add(getCurricularCourse("C4").getCompetenceCourse());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+    public void succeeds_byCompetenceCourseMatch() {
+        rule.getCompetenceCoursesSet().add(getCurricularCourse(TARGET_COURSE).getCompetenceCourse());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenCompetenceCourseDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byCompetenceCourseMismatch() {
         rule.getCompetenceCoursesSet().add(getCurricularCourse("C1").getCompetenceCourse());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_whenLevelTypeMatches() {
-        createScenario(null, null);
+    public void succeeds_byLevelTypeMatch() {
         final CompetenceCourseLevelType levelType = createLevelType();
         rule.getCompetenceCourseLevelTypesSet().add(levelType);
-        final ExecutionInterval interval = getExecutionInterval(getCurricularCourse("C4"));
+        final ExecutionInterval interval = getExecutionInterval(getCurricularCourse(TARGET_COURSE));
         final CompetenceCourseInformation information =
-                getCurricularCourse("C4").getCompetenceCourse().findInformationMostRecentUntil(interval);
+                getCurricularCourse(TARGET_COURSE).getCompetenceCourse().findInformationMostRecentUntil(interval);
         information.setLevelType(levelType);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenLevelTypeDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byLevelTypeMismatch() {
         rule.getCompetenceCourseLevelTypesSet().add(createLevelType());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_whenUnitMatches() {
-        createScenario(null, null);
+    public void succeeds_byUnitMatch() {
         rule.getUnitsSet().add(Unit.findInternalUnitByAcronymPath(COMPETENCE_COURSES_UNIT).orElseThrow());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenUnitDoesNotMatch() {
-        createScenario(null, null);
+    public void fails_byUnitMismatch() {
         rule.getUnitsSet().add(Unit.findInternalUnitByAcronymPath(OTHER_UNIT).orElseThrow());
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentBlocked_withNegation_whenRuleMatches() {
-        createScenario(null, null);
+    public void fails_byNegatedRuleMatch() {
         rule.setNegation(true);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_withNegation_whenRuleDoesNotMatch() {
-        createScenario(7d, null);
+    public void succeeds_byNegatedRuleMismatch() {
+        setupRule(7d, null);
         rule.setNegation(true);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenAlreadyApproved() {
-        createScenario(null, null);
-        ConclusionRulesTestUtil.enrol(curricularPlan, executionYear, "C1");
-        ConclusionRulesTestUtil.approve(curricularPlan, executionYear, "C1");
+    public void fails_byCourseAlreadyApproved() {
+        ConclusionRulesTestUtil.enrol(studentCurricularPlan, executionYear, "C1");
+        ConclusionRulesTestUtil.approve(studentCurricularPlan, executionYear, "C1");
 
-        final RuleResult result = evaluateEnrolling("C1", CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        final RuleResult result = evaluateEnrolment("C1", CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
         assertTrue(result.isFalse());
         assertFalse(result.getMessages().isEmpty());
     }
 
     @Test
-    public void enrolmentBlocked_whenAlreadyEnrolled() {
-        createScenario(null, null);
+    public void fails_byCourseAlreadyEnrolled() {
         final Context optionalContext = optionalCourse.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = getExecutionInterval(optionalCourse);
-        EnrolmentTest.createOptionalEnrolment(curricularPlan, interval, optionalContext, getCurricularCourse("C4"),
-                ConclusionRulesTestUtil.ADMIN_USERNAME);
+        EnrolmentTest.createOptionalEnrolment(studentCurricularPlan, interval, optionalContext,
+                getCurricularCourse(TARGET_COURSE), ConclusionRulesTestUtil.ADMIN_USERNAME);
 
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     @Test
-    public void enrolmentImpossible_whenEnrolledCourseStopsMatchingTheRule() {
-        createScenario(null, null);
+    public void succeeds_whenEnrolledCourseStopsMatchingTheRule() {
         final Context optionalContext = optionalCourse.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = getExecutionInterval(optionalCourse);
-        EnrolmentTest.createOptionalEnrolment(curricularPlan, interval, optionalContext, getCurricularCourse("C4"),
-                ConclusionRulesTestUtil.ADMIN_USERNAME);
+        EnrolmentTest.createOptionalEnrolment(studentCurricularPlan, interval, optionalContext,
+                getCurricularCourse(TARGET_COURSE), ConclusionRulesTestUtil.ADMIN_USERNAME);
         final OptionalEnrolment optionalEnrolment =
-                (OptionalEnrolment) curricularPlan.getEnrolments(getCurricularCourse("C4")).iterator().next();
+                (OptionalEnrolment) studentCurricularPlan.getEnrolments(getCurricularCourse(TARGET_COURSE)).iterator().next();
 
         rule.getCompetenceCoursesSet().add(getCurricularCourse("C1").getCompetenceCourse());
 
@@ -317,77 +250,61 @@ public class AnyCurricularCourseTest {
     }
 
     @Test
-    public void enrolmentNA_whenRuleDoesNotApply() {
-        createScenario(null, null);
+    public void fails_whenRuleScopedToOtherCourse() {
         final AnyCurricularCourse otherRule =
                 new AnyCurricularCourse(optionalCourse, mandatoryGroup, executionYear, null, null, null);
 
-        final RuleResult result = evaluateEnrolling("C4", otherRule, CurricularRuleLevel.ENROLMENT_WITH_RULES);
+        final RuleResult result = evaluateEnrolment("C4", otherRule, CurricularRuleLevel.ENROLMENT_WITH_RULES);
 
         assertTrue(result.isNA());
         assertFalse(result.isTrue());
     }
 
     @Test
-    public void prefilterEnrolmentBlocked_whenRuleFails() {
-        createScenario(7d, null);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_PREFILTER);
-
-        assertTrue(result.isFalse());
+    public void fails_byCreditsBelowMinimum_inPrefilter() {
+        setupRule(7d, null);
+        assertTrue(evaluateEnrolment("C4", CurricularRuleLevel.ENROLMENT_PREFILTER).isFalse());
     }
 
     @Test
-    public void prefilterEnrolmentNA_whenNonOptionalModule() {
-        createScenario(null, null);
-        final CurricularCourse c4 = getCurricularCourse("C4");
+    public void fails_whenModuleIsMandatory_inPrefilter() {
+        final CurricularCourse c4 = getCurricularCourse(TARGET_COURSE);
         final Context context = c4.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = getExecutionInterval(c4);
-        final CurriculumGroup curriculumGroup = EnrolmentTest.findOrCreateCurriculumGroupFor(curricularPlan, mandatoryGroup);
+        final CurriculumGroup curriculumGroup =
+                EnrolmentTest.findOrCreateCurriculumGroupFor(studentCurricularPlan, mandatoryGroup);
         final DegreeModuleToEnrol module = new DegreeModuleToEnrol(curriculumGroup, context, interval);
 
-        final RuleResult result = evaluate(module, rule, interval, CurricularRuleLevel.ENROLMENT_PREFILTER);
-
-        assertTrue(result.isNA());
+        assertTrue(evaluate(module, rule, interval, CurricularRuleLevel.ENROLMENT_PREFILTER).isNA());
     }
 
     @Test
-    public void enrolmentBlocked_whenFilteredException_onOtherDegreeCurricularPlan() {
-        createScenario(null, null);
+    public void fails_byFilteredExceptionOnOtherDegreeCurricularPlan() {
         setupExceptionsConfiguration();
 
         final DegreeCurricularPlan otherDegreeCurricularPlan = ConclusionRulesTestUtil.createDegreeCurricularPlan(executionYear);
         final CurricularCourse c4FromOtherDegreeCurricularPlan = otherDegreeCurricularPlan.getCurricularCourseByCode("C4");
         final Context context = c4FromOtherDegreeCurricularPlan.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = getExecutionInterval(c4FromOtherDegreeCurricularPlan);
-        final CurriculumGroup curriculumGroup = EnrolmentTest.findOrCreateCurriculumGroupFor(curricularPlan, mandatoryGroup);
+        final CurriculumGroup curriculumGroup =
+                EnrolmentTest.findOrCreateCurriculumGroupFor(studentCurricularPlan, mandatoryGroup);
         final OptionalDegreeModuleToEnrol module =
                 new OptionalDegreeModuleToEnrol(curriculumGroup, context, interval, c4FromOtherDegreeCurricularPlan);
 
-        final RuleResult result = evaluate(module, rule, interval, CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluate(module, rule, interval, CurricularRuleLevel.ENROLMENT_WITH_RULES).isFalse());
     }
 
     @Test
-    public void enrolmentAllowed_whenFilteredException_onSameDegreeCurricularPlan() {
-        createScenario(null, null);
+    public void succeeds_byFilteredExceptionOnSameDegreeCurricularPlan() {
         setupExceptionsConfiguration();
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isTrue());
+        assertTrue(evaluateEnrolment().isTrue());
     }
 
     @Test
-    public void enrolmentBlocked_whenFilteredException_onSameDegreeCurricularPlan_withFilterStudentDegree() {
-        createScenario(null, null);
+    public void fails_byFilteredExceptionWithStudentDegreeFilter() {
         setupExceptionsConfiguration();
         rule.setFilterStudentDegree(true);
-
-        final RuleResult result = evaluateEnrolling("C4", CurricularRuleLevel.ENROLMENT_WITH_RULES);
-
-        assertTrue(result.isFalse());
+        assertTrue(evaluateEnrolment().isFalse());
     }
 
     private static CompetenceCourseLevelType createLevelType() {
@@ -395,10 +312,8 @@ public class AnyCurricularCourseTest {
                 new LocalizedString(Locale.getDefault(), "Level"));
     }
 
-    private static void createScenario(final Double minimumCredits, final Double maximumCredits) {
+    private static void setupRule(final Double minimumCredits, final Double maximumCredits) {
         rule = new AnyCurricularCourse(optionalCourse, null, executionYear, null, minimumCredits, maximumCredits);
-        curricularPlan =
-                ConclusionRulesTestUtil.createRegistration(degreeCurricularPlan, executionYear).getLastStudentCurricularPlan();
     }
 
     private static CurricularCourse getCurricularCourse(final String code) {
@@ -411,16 +326,21 @@ public class AnyCurricularCourseTest {
                 context.getCurricularPeriod().getAcademicPeriod());
     }
 
-    private static RuleResult evaluateEnrolling(final String courseCode, final CurricularRuleLevel curricularRuleLevel) {
-        return evaluateEnrolling(courseCode, rule, curricularRuleLevel);
+    private static RuleResult evaluateEnrolment() {
+        return evaluateEnrolment(TARGET_COURSE, CurricularRuleLevel.ENROLMENT_WITH_RULES);
     }
 
-    private static RuleResult evaluateEnrolling(final String courseCode, final AnyCurricularCourse rule,
+    private static RuleResult evaluateEnrolment(final String courseCode, final CurricularRuleLevel curricularRuleLevel) {
+        return evaluateEnrolment(courseCode, rule, curricularRuleLevel);
+    }
+
+    private static RuleResult evaluateEnrolment(final String courseCode, final AnyCurricularCourse rule,
             final CurricularRuleLevel curricularRuleLevel) {
         final CurricularCourse targetCourse = getCurricularCourse(courseCode);
         final Context context = targetCourse.getParentContextsSet().iterator().next();
         final ExecutionInterval interval = getExecutionInterval(targetCourse);
-        final CurriculumGroup curriculumGroup = EnrolmentTest.findOrCreateCurriculumGroupFor(curricularPlan, mandatoryGroup);
+        final CurriculumGroup curriculumGroup =
+                EnrolmentTest.findOrCreateCurriculumGroupFor(studentCurricularPlan, mandatoryGroup);
         final OptionalDegreeModuleToEnrol module =
                 new OptionalDegreeModuleToEnrol(curriculumGroup, context, interval, targetCourse);
         return evaluate(module, rule, interval, curricularRuleLevel);
@@ -431,7 +351,7 @@ public class AnyCurricularCourseTest {
         try {
             Authenticate.mock(User.findByUsername(ConclusionRulesTestUtil.ADMIN_USERNAME), "none");
             final EnrolmentContext enrolmentContext =
-                    new EnrolmentContext(curricularPlan, interval, Set.of(module), List.of(), curricularRuleLevel);
+                    new EnrolmentContext(studentCurricularPlan, interval, Set.of(module), List.of(), curricularRuleLevel);
             return rule.evaluate(module, enrolmentContext);
         } finally {
             Authenticate.unmock();
@@ -442,7 +362,7 @@ public class AnyCurricularCourseTest {
         AnyCurricularCourseExceptionsConfiguration.init();
         AnyCurricularCourseExceptionsConfiguration.getInstance().clearCompetenceCourses();
         AnyCurricularCourseExceptionsConfiguration.getInstance()
-                .addCompetenceCourse(getCurricularCourse("C4").getCompetenceCourse());
+                .addCompetenceCourse(getCurricularCourse(TARGET_COURSE).getCompetenceCourse());
         rule.setFilterExceptions(true);
     }
 }
