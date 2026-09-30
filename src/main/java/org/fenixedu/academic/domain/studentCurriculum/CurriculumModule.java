@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -223,6 +225,22 @@ abstract public class CurriculumModule extends CurriculumModule_Base {
         final Collection<CurriculumLine> result = new HashSet<CurriculumLine>();
         addApprovedCurriculumLines(result);
         return result;
+    }
+
+    final public CurriculumLine getLastApprovement() {
+        final SortedSet<CurriculumLine> curriculumLines =
+                new TreeSet<CurriculumLine>(CurriculumLine.COMPARATOR_BY_APPROVEMENT_DATE_AND_ID);
+        curriculumLines.addAll(getApprovedCurriculumLines());
+
+        if (curriculumLines.isEmpty()) {
+            throw new DomainException("error.curriculum.group.has.no.approved.curriculum.lines", getName().getContent());
+        }
+
+        return curriculumLines.last();
+    }
+
+    final public YearMonthDay getLastApprovementDate() {
+        return getLastApprovement().getApprovementDate();
     }
 
     final public ExecutionYear getLastApprovementExecutionYear() {
