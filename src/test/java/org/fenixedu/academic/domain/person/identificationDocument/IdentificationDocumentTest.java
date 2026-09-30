@@ -199,13 +199,6 @@ public class IdentificationDocumentTest {
         IdentificationDocumentType type = IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(type);
 
-        // throws when setting blank values to a person without default document
-        assertEquals("error.person.empty.idDocumentType",
-                assertThrows(DomainException.class, () -> newPerson.setIdentification("00000000", null)).getKey());
-        assertEquals("error.person.empty.documentIdNumber",
-                assertThrows(DomainException.class, () -> newPerson.setIdentification(null, type)).getKey());
-        assertNull(newPerson.getDefaultIdentificationDocument());
-
         // accepts the value and creates the document.
         newPerson.setIdentification("12345678", type);
 
@@ -219,9 +212,11 @@ public class IdentificationDocumentTest {
         assertEquals("87654321", newPerson.getDefaultIdentificationDocument().getValue());
         assertEquals(type, newPerson.getDefaultIdentificationDocument().getIdentificationDocumentType());
 
-        // does not throw because person have a document
-        assertDoesNotThrow(() -> newPerson.setIdentification(null, type));
-        assertDoesNotThrow(() -> newPerson.setIdentification("00000000", null));
+        // throws when setting blank values to a person default document
+        assertEquals("error.person.empty.idDocumentType",
+                assertThrows(DomainException.class, () -> newPerson.setIdentification("00000000", null)).getKey());
+        assertEquals("error.person.empty.documentIdNumber",
+                assertThrows(DomainException.class, () -> newPerson.setIdentification(null, type)).getKey());
         assertEquals("87654321", newPerson.getDefaultIdentificationDocument().getValue());
         assertEquals(type, newPerson.getDefaultIdentificationDocument().getIdentificationDocumentType());
 
