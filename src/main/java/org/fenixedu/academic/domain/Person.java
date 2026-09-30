@@ -141,20 +141,19 @@ public class Person extends Person_Base {
     }
 
     public void setIdentification(String documentIdNumber, final IdentificationDocumentType identificationDocumentType) {
-        if (StringUtils.isNotBlank(documentIdNumber) && identificationDocumentType != null) {
-            String trimmedDocumentIdNumber = documentIdNumber.trim();
-            findByDocumentIdentification(trimmedDocumentIdNumber, identificationDocumentType).stream()
-                    .filter(person -> !person.equals(this)).findAny().ifPresent(p -> {
-                        throw new DomainException("error.person.existent.docIdAndType");
-                    });
-
-            setIdentificationDocument(trimmedDocumentIdNumber, identificationDocumentType);
+        if (StringUtils.isBlank(documentIdNumber)) {
+            throw new DomainException("error.person.empty.documentIdNumber");
+        } else if (identificationDocumentType == null) {
+            throw new DomainException("error.person.empty.idDocumentType");
         }
 
-        if (getDefaultIdentificationDocument() == null) {
-            throw new DomainException(StringUtils.isBlank(
-                    documentIdNumber) ? "error.person.empty.documentIdNumber" : "error.person.empty.idDocumentType");
-        }
+        String trimmedDocumentIdNumber = documentIdNumber.trim();
+        findByDocumentIdentification(trimmedDocumentIdNumber, identificationDocumentType).stream()
+                .filter(person -> !person.equals(this)).findAny().ifPresent(p -> {
+                    throw new DomainException("error.person.existent.docIdAndType");
+                });
+
+        setIdentificationDocument(trimmedDocumentIdNumber, identificationDocumentType);
     }
 
     public void setGivenNames(final String newGivenNames) {
