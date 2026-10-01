@@ -48,7 +48,6 @@ import org.fenixedu.academic.domain.accessControl.PersistentStudentGroup;
 import org.fenixedu.academic.domain.accessControl.PersistentTeacherGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -59,7 +58,7 @@ import pt.ist.fenixframework.Atomic.TxMode;
  */
 public class MergeExecutionCourses {
 
-    public static class MergeNotPossibleException extends FenixServiceException {
+    public static class MergeNotPossibleException extends DomainException {
         private static final long serialVersionUID = 3761968254943244338L;
 
         public MergeNotPossibleException(Set<String> blockers) {
@@ -73,7 +72,7 @@ public class MergeExecutionCourses {
             return Collections.<String> emptySet();
         }
 
-        public void merge(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) throws FenixServiceException;
+        public void merge(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo);
     }
 
     private static final ConcurrentLinkedQueue<SubDomainMergeHandler> handlers = new ConcurrentLinkedQueue<>();
@@ -93,8 +92,7 @@ public class MergeExecutionCourses {
             };
 
             @Override
-            public void merge(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo)
-                    throws FenixServiceException {
+            public void merge(ExecutionCourse executionCourseFrom, ExecutionCourse executionCourseTo) {
                 copyShifts(executionCourseFrom, executionCourseTo);
             }
         });
@@ -111,8 +109,7 @@ public class MergeExecutionCourses {
     }
 
     @Atomic(mode = TxMode.WRITE)
-    public static void merge(ExecutionCourse executionCourseTo, ExecutionCourse executionCourseFrom)
-            throws FenixServiceException {
+    public static void merge(ExecutionCourse executionCourseTo, ExecutionCourse executionCourseFrom) {
         if (executionCourseFrom == null) {
             throw new DomainException("error.ExecutionCourse.merge.executionCourseFromRequired");
         }
@@ -170,8 +167,7 @@ public class MergeExecutionCourses {
         }
     }
 
-    private static void removeEvaluations(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo)
-            throws FenixServiceException {
+    private static void removeEvaluations(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo) {
         while (!executionCourseFrom.getAssociatedEvaluationsSet().isEmpty()) {
             final Evaluation evaluation = executionCourseFrom.getAssociatedEvaluationsSet().iterator().next();
             executionCourseTo.getAssociatedEvaluationsSet().add(evaluation);
@@ -183,8 +179,7 @@ public class MergeExecutionCourses {
         executionCourseTo.getShiftsSet().addAll(executionCourseFrom.getShiftsSet());
     }
 
-    private static void copyAttends(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo)
-            throws FenixServiceException {
+    private static void copyAttends(final ExecutionCourse executionCourseFrom, final ExecutionCourse executionCourseTo) {
         for (Attends attendsFrom : executionCourseFrom.getAttendsSet()) {
             final Attends attendsTo = executionCourseTo.getAttendsByStudent(attendsFrom.getRegistration());
             if (attendsTo == null) {
@@ -216,7 +211,7 @@ public class MergeExecutionCourses {
         }
     }
 
-    private static void mergeAttends(Attends attendsFrom, final Attends attendsTo) throws FenixServiceException {
+    private static void mergeAttends(Attends attendsFrom, final Attends attendsTo) {
         if (attendsFrom.getEnrolment() != null && attendsTo.getEnrolment() == null) {
             attendsTo.setEnrolment(attendsFrom.getEnrolment());
         } else if (attendsTo.getEnrolment() != null && attendsFrom.getEnrolment() == null) {
@@ -228,7 +223,7 @@ public class MergeExecutionCourses {
                 attendsTo.setEnrolment(attendsFrom.getEnrolment());
                 attendsFrom.delete();
             } else {
-                throw new FenixServiceException("Unable to merge execution courses. Registration "
+                throw new DomainException("Unable to merge execution courses. Registration "
                         + attendsFrom.getRegistration().getNumber() + " has an enrolment in both.");
             }
             return;
