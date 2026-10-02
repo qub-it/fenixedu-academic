@@ -50,48 +50,9 @@ public class PhysicalAddress extends PhysicalAddress_Base {
         return address;
     }
 
-    @Deprecated(forRemoval = true)
-    static public PhysicalAddress createPhysicalAddress(final Party party, final PhysicalAddressData data,
-            final PartyContactType type, final Boolean isDefault) {
-        return new PhysicalAddress(party, type, isDefault, data);
-    }
-
     protected PhysicalAddress() {
         super();
         new PhysicalAddressValidation(this);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected PhysicalAddress(final Party party, final PartyContactType type, final boolean defaultContact,
-            final PhysicalAddressData data) {
-        this(party, type, defaultContact, data, true);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected PhysicalAddress(final Party party, final PartyContactType type, final boolean defaultContact,
-            final PhysicalAddressData data, final boolean hasCheckRules) {
-        this();
-        super.init(party, type, defaultContact);
-        setVisibleToPublic(Boolean.FALSE);
-        setVisibleToStudents(Boolean.FALSE);
-        setVisibleToStaff(Boolean.FALSE);
-        edit(data, hasCheckRules);
-
-        if (hasCheckRules) {
-            checkRules();
-        }
-    }
-
-    // Called from renders with constructor clause.
-    @Deprecated(forRemoval = true)
-    public PhysicalAddress(final Party party, final PartyContactType type, final Boolean defaultContact, final String address,
-            final String areaCode, final String areaOfAreaCode, final String area, final String parishOfResidence,
-            final String districtSubdivisionOfResidence, final String districtOfResidence, final Country countryOfResidence) {
-        this(party, type, defaultContact.booleanValue(),
-                new PhysicalAddressData(address, areaCode, areaOfAreaCode, area, parishOfResidence,
-                        districtSubdivisionOfResidence, districtOfResidence, countryOfResidence));
-
-        checkRules();
     }
 
     public void edit(final PhysicalAddressData data) {
