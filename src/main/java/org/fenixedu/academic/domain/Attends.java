@@ -214,10 +214,6 @@ public class Attends extends Attends_Base {
         return null;
     }
 
-    public boolean hasExecutionCourseTo(final DegreeCurricularPlan degreeCurricularPlan) {
-        return getExecutionCourse().getAssociatedCurricularCoursesSet().stream().anyMatch(degreeCurricularPlan::hasDegreeModule);
-    }
-
     boolean canMove(final StudentCurricularPlan from, final StudentCurricularPlan to) {
         if (getEnrolment() != null) {
             return !from.hasEnrolments(getEnrolment()) && to.hasEnrolments(getEnrolment());

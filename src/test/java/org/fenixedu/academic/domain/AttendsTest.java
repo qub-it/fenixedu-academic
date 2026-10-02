@@ -219,20 +219,6 @@ public class AttendsTest {
     }
 
     @Test
-    public void testAttends_HasExecutionCourseTo() {
-        final Attends attends = registration.getAssociatedAttendsSet().iterator().next();
-        final DegreeCurricularPlan dcp = registration.getLastStudentCurricularPlan().getDegreeCurricularPlan();
-        assertTrue(attends.hasExecutionCourseTo(dcp));
-
-        final DegreeCurricularPlan otherDcp =
-                new DegreeCurricularPlan(dcp.getDegree(), UUID.randomUUID().toString(), AcademicPeriod.THREE_YEAR,
-                        executionInterval);
-        assertFalse(attends.hasExecutionCourseTo(otherDcp));
-
-        otherDcp.delete();
-    }
-
-    @Test
     public void createdOnPostExecutionCourseCreation() {
         final Enrolment enrolment = createAdhocEnrolmentWithoutAttends();
         assertTrue(enrolment.getAttendsSet().isEmpty());

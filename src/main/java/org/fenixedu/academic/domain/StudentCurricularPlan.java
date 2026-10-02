@@ -1051,7 +1051,9 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     private void correctInvalidAttends(final StudentCurricularPlan to) {
         for (final Attends attend : getRegistration().getAssociatedAttendsSet()) {
-            if (!attend.hasExecutionCourseTo(this.getDegreeCurricularPlan()) && attend.canMove(this, to)) {
+            final boolean hasExecutionCourseInThisDCP = attend.getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
+                    .anyMatch(this.getDegreeCurricularPlan()::hasDegreeModule);
+            if (!hasExecutionCourseInThisDCP && attend.canMove(this, to)) {
                 getRegistration().changeShifts(attend, to.getRegistration());
                 attend.setRegistration(to.getRegistration());
             }
