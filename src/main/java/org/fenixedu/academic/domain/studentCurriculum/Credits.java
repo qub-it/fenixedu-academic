@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -180,11 +181,9 @@ public class Credits extends Credits_Base {
 
     @Override
     final public Double getGivenCredits() {
-        if (super.getGivenCredits() == null) {
-            return getDismissalsSet().stream().map(d -> BigDecimal.valueOf(d.getEctsCredits()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue();
-        }
-        return super.getGivenCredits();
+        return Optional.ofNullable(super.getGivenCredits()).orElseGet(
+                () -> getDismissalsSet().stream().map(d -> BigDecimal.valueOf(d.getEctsCredits()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
     }
 
     public String getGivenGrade() {

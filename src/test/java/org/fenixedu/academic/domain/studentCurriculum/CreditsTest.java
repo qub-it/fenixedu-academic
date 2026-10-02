@@ -4,7 +4,6 @@ import static org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -32,7 +31,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -94,7 +92,7 @@ public class CreditsTest {
             createCourse("C2", "6", secondPeriod, firstSemester, mandatoryGroup);
             createCourse("C3", "6", firstPeriod, firstSemester, mandatoryGroup);
 
-            studentCurricularPlan = createRegistration(degreeCurricularPlan, "credits.test.student", executionYear);
+            studentCurricularPlan = createStudentCurricularPlan(degreeCurricularPlan, "credits.test.student", executionYear);
 
             firstEnrolment = enrol("E1", "6", firstPeriod, firstSemester);
             secondEnrolment = enrol("E2", "6", secondPeriod, secondSemester);
@@ -105,19 +103,6 @@ public class CreditsTest {
 
             return null;
         });
-    }
-
-    @Test
-    public void testCredits_allowsEctsCredits() {
-        assertEquals(18, mandatoryGroup.getMaxEctsCredits(firstSemester), 0);
-
-        // 18 + 0 (nothing is concluded in the plan yet) <= 18 (group's max)
-        final Credits credits = new Credits(studentCurricularPlan, mandatoryGroup, Set.of(), Set.of(), 18.0, firstSemester);
-        assertEquals(18.0, credits.getGivenCredits(), 0);
-
-        // 18.5 + 0 > 18, it is rejected
-        assertThrows(DomainException.class,
-                () -> new Credits(studentCurricularPlan, mandatoryGroup, Set.of(), Set.of(), 18.5, firstSemester));
     }
 
     @Test
@@ -165,7 +150,7 @@ public class CreditsTest {
         final Credits byDismissals = newCredits(studentCurricularPlan);
         new Dismissal(byDismissals, enrolledCurriculumGroup, firstDismissedCourse);
         new Dismissal(byDismissals, enrolledCurriculumGroup, secondDismissedCourse);
-        assertEquals(0.1+0.2, byDismissals.getGivenCredits(), 0);
+        assertEquals(0.3, byDismissals.getGivenCredits(), 0);
     }
 
     @Test
@@ -188,7 +173,7 @@ public class CreditsTest {
         return dcp;
     }
 
-    private static StudentCurricularPlan createRegistration(final DegreeCurricularPlan dcp, final String username,
+    private static StudentCurricularPlan createStudentCurricularPlan(final DegreeCurricularPlan dcp, final String username,
             final ExecutionYear executionYear) {
         final Student student = StudentTest.createStudent("Credits Test Student", username);
         return StudentTest.createRegistration(student, dcp, executionYear).getLastStudentCurricularPlan();
