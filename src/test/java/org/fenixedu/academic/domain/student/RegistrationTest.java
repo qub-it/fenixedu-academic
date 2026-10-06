@@ -1,13 +1,17 @@
 package org.fenixedu.academic.domain.student;
 
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -239,6 +243,47 @@ public class RegistrationTest {
     }
 
     @Test
+    public void testRegistration_getFirstAndLastStudentCurricularPlan() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan firstSCP = newRegistration.getFirstStudentCurricularPlan();
+
+        assertEquals(1, newRegistration.getStudentCurricularPlansSet().size());
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(newRegistration.getFirstStudentCurricularPlan(), newRegistration.getLastStudentCurricularPlan());
+
+        newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V2), nextExecutionYear);
+        StudentCurricularPlan thirdSCP = newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V3),
+                nextExecutionYear.getNext().getExecutionYear());
+
+        assertEquals(3, newRegistration.getStudentCurricularPlansSet().size());
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(thirdSCP, newRegistration.getLastStudentCurricularPlan());
+    }
+
+    @Test
+    public void testRegistration_getSortedStudentCurricularPlans() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan firstSCP = newRegistration.getFirstStudentCurricularPlan();
+
+        assertEquals(List.of(firstSCP), newRegistration.getSortedStudentCurricularPlans());
+
+        StudentCurricularPlan secondSCP =
+                newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V2), nextExecutionYear);
+        StudentCurricularPlan thirdSCP = newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V3),
+                nextExecutionYear.getNext().getExecutionYear());
+        List<StudentCurricularPlan> sorted = newRegistration.getSortedStudentCurricularPlans();
+
+        assertEquals(List.of(firstSCP, secondSCP, thirdSCP), sorted);
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(thirdSCP, newRegistration.getLastStudentCurricularPlan());
+
+        // returned list must be mutable
+        Collections.reverse(sorted);
+        assertEquals(List.of(thirdSCP, secondSCP, firstSCP), sorted);
+        assertEquals(3, newRegistration.getStudentCurricularPlansSet().size());
+    }
+
+    @Test
     public void testRegistration_attends() {
         assertTrue(registration.attends(executionCourseA));
 
@@ -430,13 +475,18 @@ public class RegistrationTest {
         return createRegistration(student, studentCurricularPlan.getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
     }
 
+    private static DegreeCurricularPlan getDcpByName(String name) {
+        return studentCurricularPlan.getDegree().getDegreeCurricularPlansSet().stream().filter(dcp -> name.equals(dcp.getName()))
+                .findAny().orElseThrow();
+    }
+
     private static GradeScale createGradeScale() {
         return GradeScale.findUniqueByCode("TYPE20").orElseGet(
                 () -> GradeScale.create("TYPE20", new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
                         new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true));
     }
 
-    private static void approveEnrolment(final Enrolment enrolment) {
+    private static void approveEnrolment(Enrolment enrolment) {
         enrolment.getEvaluationsSet().forEach(e -> {
             e.setGrade(Grade.createGrade("10", createGradeScale()));
             e.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);

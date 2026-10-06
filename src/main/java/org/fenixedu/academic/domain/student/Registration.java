@@ -282,24 +282,16 @@ public class Registration extends Registration_Base {
     }
 
     public StudentCurricularPlan getLastStudentCurricularPlan() {
-        final Set<StudentCurricularPlan> studentCurricularPlans = getStudentCurricularPlansSet();
-
-        if (studentCurricularPlans.isEmpty()) {
-            return null;
-        }
-        return Collections.max(studentCurricularPlans, StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
+        return getStudentCurricularPlanStream().max(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE).orElse(null);
     }
 
     public StudentCurricularPlan getFirstStudentCurricularPlan() {
-        return !getStudentCurricularPlansSet().isEmpty() ? Collections.min(getStudentCurricularPlansSet(),
-                StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE) : null;
+        return getStudentCurricularPlanStream().min(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE).orElse(null);
     }
 
     public List<StudentCurricularPlan> getSortedStudentCurricularPlans() {
-        final ArrayList<StudentCurricularPlan> sortedStudentCurricularPlans =
-                new ArrayList<>(super.getStudentCurricularPlansSet());
-        sortedStudentCurricularPlans.sort(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE);
-        return sortedStudentCurricularPlans;
+        return getStudentCurricularPlanStream().sorted(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE)
+                .collect(Collectors.toList());
     }
 
     public boolean attends(final ExecutionCourse executionCourse) {
