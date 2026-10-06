@@ -360,6 +360,18 @@ public class GradeScale extends GradeScale_Base {
         return getDefaultGradeScale();
     }
 
+    public boolean hasContinuousGrades() {
+        return hasContinuousApprovedGrades() || hasContinuousReprovedGrades();
+    }
+
+    /**
+     * @deprecated Use {@link #hasContinuousGrades()} instead. Beware that the replacement has the opposite meaning:
+     *             this method returns {@code true} when this grade scale has no intervals defined, while
+     *             {@code hasContinuousGrades()} returns {@code true} when at least one interval is defined.
+     *             Also, this method only checks the minimum interval bound while hasContinuousGrades checks minimum and maximum bounds are both defined
+     *             but {@link ##checksRules()} ensures there can't be half intervals defined. So the method equivalence holds because of that
+     */
+    @Deprecated(forRemoval = true)
     public boolean hasRestrictedGrades() {
         return !(getMinimumApprovedGrade() != null || getMinimumReprovedGrade() != null);
     }
@@ -407,14 +419,16 @@ public class GradeScale extends GradeScale_Base {
         }
     }
 
-    private Function<BigDecimal, Boolean> containedInIntervalFunc(final BigDecimal min, final BigDecimal max) {
-        return new Function<BigDecimal, Boolean>() {
+    private static boolean isWithinInterval(final BigDecimal value, final BigDecimal minimum, final BigDecimal maximum) {
+        return value.compareTo(minimum) >= 0 && value.compareTo(maximum) <= 0;
+    }
 
-            @Override
-            public Boolean apply(BigDecimal v) {
-                return v.compareTo(min) >= 0 && v.compareTo(max) <= 0;
-            }
-        };
+    public boolean hasContinuousApprovedGrades() {
+        return getMinimumApprovedGrade() != null && getMaximumApprovedGrade() != null;
+    }
+
+    public boolean hasContinuousReprovedGrades() {
+        return getMinimumReprovedGrade() != null && getMaximumReprovedGrade() != null;
     }
 
     private boolean isGradeValueContinuousAndApproved(final String gradeValue) {
@@ -422,12 +436,11 @@ public class GradeScale extends GradeScale_Base {
             return false;
         }
 
-        if (getMinimumApprovedGrade() == null || getMaximumApprovedGrade() == null) {
+        if (!hasContinuousApprovedGrades()) {
             return false;
         }
 
-        final BigDecimal numericValue = new BigDecimal(gradeValue);
-        return containedInIntervalFunc(getMinimumApprovedGrade(), getMaximumApprovedGrade()).apply(numericValue);
+        return isWithinInterval(new BigDecimal(gradeValue), getMinimumApprovedGrade(), getMaximumApprovedGrade());
     }
 
     private boolean isGradeValueContinuousAndNotApproved(final String gradeValue) {
@@ -435,12 +448,11 @@ public class GradeScale extends GradeScale_Base {
             return false;
         }
 
-        if (getMinimumReprovedGrade() == null || getMaximumReprovedGrade() == null) {
+        if (!hasContinuousReprovedGrades()) {
             return false;
         }
 
-        final BigDecimal numericValue = new BigDecimal(gradeValue);
-        return containedInIntervalFunc(getMinimumReprovedGrade(), getMaximumReprovedGrade()).apply(numericValue);
+        return isWithinInterval(new BigDecimal(gradeValue), getMinimumReprovedGrade(), getMaximumReprovedGrade());
     }
 
     private boolean isGradeValueContinuous(final String gradeValue) {
