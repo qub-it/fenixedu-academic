@@ -1,5 +1,6 @@
 - Refactor: Clean up party contacts creation [#qubIT-Fenix-9195]
 - Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
+- Refactor: Remove method from Attends [#qubIT-Fenix-8922]
 
 62.1.1 (29-09-2026)
 - Refactor: Improves OccupationPeriod edit dates method [#qubIT-Fenix-9398]
