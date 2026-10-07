@@ -1,3 +1,4 @@
+- Refactor: Remove ChooseEvaluationSeasonBean and subclasses [#qubIT-Fenix-9534]
 - Refactor: Clean up party contacts creation [#qubIT-Fenix-9195]
 - Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
 
