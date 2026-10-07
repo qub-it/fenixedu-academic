@@ -10,11 +10,8 @@ import static org.junit.Assert.fail;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
@@ -297,7 +294,7 @@ public class GradeScaleTest {
         assertEquals(2, GradeScale.findActive().count());
         assertEquals(List.of(gradeScale, internalScale), GradeScale.findActive().toList());
 
-        // test interalGradeScale flag
+        // test internalGradeScale flag
         assertEquals(1, GradeScale.findActive(true).count());
         assertEquals(internalScale, GradeScale.findActive(true).findFirst().get());
 
