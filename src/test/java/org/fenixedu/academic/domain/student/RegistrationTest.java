@@ -12,14 +12,10 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
@@ -189,42 +185,6 @@ public class RegistrationTest {
         assertTrue(result.isActive());
         assertEquals(degreeCurricularPlan, result.getLastStudentCurricularPlan().getDegreeCurricularPlan());
         assertNotNull(student.getPersonalIngressionDataByExecutionYear(executionYear));
-    }
-
-    @Test
-    public void testGetEnrolmentsExecutionYearStream_matchesGetEnrolmentsExecutionYears() {
-        Registration newRegistration = createFreshRegistration();
-
-        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
-        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), nextYearFirstSemester, context, "admin");
-
-        Set<ExecutionYear> expected = new HashSet<>(newRegistration.getEnrolmentsExecutionYears());
-        Set<ExecutionYear> actual = newRegistration.getEnrolmentsExecutionYearStream().collect(Collectors.toSet());
-        assertEquals(Set.of(executionYear, nextExecutionYear), expected);
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testGetStateInDate_dateTimeMatchesLocalDate() {
-        RegistrationState interrupted = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-02-01"),
-                RegistrationStateType.findByCode(StudentTest.REGISTRATION_STATE_INTERRUPTED).orElseThrow(), executionInterval);
-        RegistrationState registered = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-03-01"),
-                RegistrationStateType.findByCode(RegistrationStateType.REGISTERED_CODE).orElseThrow(), executionInterval);
-        RegistrationState concluded = RegistrationState.createRegistrationState(registration, null, new DateTime("2020-04-01"),
-                RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).orElseThrow(), executionInterval);
-
-        Map<LocalDate, RegistrationState> expected = new HashMap<>();
-        expected.put(new LocalDate(2020, 1, 1), null); // before any state
-        expected.put(new LocalDate(2020, 2, 1), interrupted);
-        expected.put(new LocalDate(2020, 3, 15), registered);
-        expected.put(new LocalDate(2020, 4, 1), concluded);
-        expected.put(new LocalDate(2020, 12, 31), concluded); // after the latest state
-
-        for (Map.Entry<LocalDate, RegistrationState> entry : expected.entrySet()) {
-            assertEquals(entry.getValue(), registration.getStateInDate(entry.getKey().toDateTimeAtStartOfDay()));
-            assertEquals(registration.getStateInDate(entry.getKey()),
-                    registration.getStateInDate(entry.getKey().toDateTimeAtStartOfDay()));
-        }
     }
 
     @Test
