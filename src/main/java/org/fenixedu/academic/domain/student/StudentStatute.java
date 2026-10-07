@@ -95,23 +95,11 @@ public class StudentStatute extends StudentStatute_Base {
     }
 
     public boolean isValidOn(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (!isValidInExecutionInterval(executionInterval)) {
-                return false;
-            }
-        }
-
-        return true;
+        return executionYear.getChildIntervals().stream().allMatch(this::isValidInExecutionInterval);
     }
 
     public boolean isValidOnAnyExecutionPeriodFor(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (isValidInExecutionInterval(executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
+        return executionYear.getChildIntervals().stream().anyMatch(this::isValidInExecutionInterval);
     }
 
     public void edit(final Student student, final ExecutionInterval beginExecutionPeriod,
@@ -124,10 +112,8 @@ public class StudentStatute extends StudentStatute_Base {
         setEndDate(endDate);
         setComment(comment);
 
-        for (StudentStatute statute : student.getStudentStatutesSet()) {
-            if (statute.overlapsWith(this)) {
-                throw new DomainException(Optional.of(Bundle.ACADEMIC), "error.studentStatute.alreadyExistsOneOverlapingStatute");
-            }
+        if (student.getStudentStatutesSet().stream().anyMatch(statute -> statute.overlapsWith(this))) {
+            throw new DomainException(Optional.of(Bundle.ACADEMIC), "error.studentStatute.alreadyExistsOneOverlapingStatute");
         }
 
         setStudent(student);
@@ -146,11 +132,6 @@ public class StudentStatute extends StudentStatute_Base {
 
     public boolean isValidOn(final Registration registration, final ExecutionYear executionYear) {
         return isValidOn(executionYear) && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
-    }
-
-    public boolean isValidOnAnyExecutionPeriodFor(final Registration registration, final ExecutionYear executionYear) {
-        return isValidOnAnyExecutionPeriodFor(executionYear)
-                && (!getType().isAppliedOnRegistration() || getRegistration() == registration);
     }
 
     public void delete() {

@@ -1,3 +1,4 @@
+- Refactor: Improve StudentStatute domain methods [#qubIT-Fenix-9536]
 - Refactor: Improves IEnrolment domain methods [#qubIT-Fenix-9462]
 - Refactor: Improve Credits domain methods [#qubIT-Fenix-9491]
 - Refactor: Clean up party contacts creation [#qubIT-Fenix-9195]
