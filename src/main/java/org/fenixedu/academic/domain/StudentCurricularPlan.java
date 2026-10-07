@@ -690,16 +690,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
         return hasPropaedeuticsCurriculumGroup() ? getPropaedeuticCurriculumGroup().getCurriculumLines() : Set.of();
     }
 
-    /**
-     * Note that this method must not use the ExtraCurriculumGroup due to the
-     * pre-Bolonha SCPs
-     *
-     * @return get propaedeutic enrolments
-     */
-    final public Collection<Enrolment> getPropaedeuticEnrolments() {
-        return getEnrolmentsSet().stream().filter(Enrolment::isPropaedeutic).collect(Collectors.toSet());
-    }
-
     public Collection<CurricularCourse> getAllCurricularCoursesToDismissal(final ExecutionInterval input) {
         return getCourseGroupsToApplyDismissals().stream().flatMap(group -> group.getAllCurricularCourses(input).stream())
                 .filter(course -> !isApproved(course)).collect(Collectors.toSet());

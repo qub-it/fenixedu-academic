@@ -614,18 +614,6 @@ public class StudentCurricularPlanTest {
     }
 
     @Test
-    public void testStudentCurricularPlan_getPropaedeuticEnrolments() {
-        assertTrue(scpV1.getPropaedeuticEnrolments().isEmpty());
-
-        Enrolment propaedeuticEnrolment =
-                createNoCourseGroupEnrolment(NoCourseGroupCurriculumGroupType.PROPAEDEUTICS, curricularCourseB,
-                        executionInterval);
-
-        assertEquals(1, scpV1.getPropaedeuticEnrolments().size());
-        assertTrue(scpV1.getPropaedeuticEnrolments().contains(propaedeuticEnrolment));
-    }
-
-    @Test
     public void testStudentCurricularPlan_hasAnyCurriculumLines() {
         final ExecutionYear previousYear = (ExecutionYear) executionYear.getPrevious();
         final ExecutionInterval lastSemester = executionYear.getLastExecutionPeriod();

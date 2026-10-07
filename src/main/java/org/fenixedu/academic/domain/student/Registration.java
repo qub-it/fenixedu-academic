@@ -42,9 +42,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Attends;
-import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
@@ -53,8 +51,6 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -76,11 +72,8 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.domain.studentCurriculum.StandaloneCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.util.Bundle;
@@ -171,12 +164,11 @@ public class Registration extends Registration_Base {
             throw new DomainException("error.Registration.execution.degree.for.year.was.not.found");
         }
 
-        final Registration result =
-                new Registration(student.getPerson(), (Integer) null, degreeCurricularPlan.getDegree(), executionYear);
+        final Registration result = new Registration(student.getPerson(), null, degreeCurricularPlan.getDegree(), executionYear);
         result.setRegistrationProtocol(protocol);
         result.setIngressionType(ingressionType);
 
-        result.createStudentCurricularPlan(degreeCurricularPlan, executionYear, (CycleType) null);
+        result.createStudentCurricularPlan(degreeCurricularPlan, executionYear);
 
         //TODO: clean personal ingression data
         final PersonalIngressionData ingressionData = result.getStudent().getPersonalIngressionDataByExecutionYear(executionYear);
@@ -187,38 +179,14 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    @Deprecated(forRemoval = true)
-    public static Registration create(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
-            final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
-        return importRegistration(person, degreeCurricularPlan, protocol, cycleType, executionYear);
-    }
-
-    @Deprecated(forRemoval = true)
-    public static Registration importRegistration(final Person person, final DegreeCurricularPlan degreeCurricularPlan,
-            final RegistrationProtocol protocol, final CycleType cycleType, final ExecutionYear executionYear) {
-        final Registration registration = new Registration(person, null,
-                degreeCurricularPlan != null ? degreeCurricularPlan.getDegree() : null, executionYear);
-        registration.setRegistrationProtocol(protocol == null ? RegistrationProtocol.getDefault() : protocol);
-        registration.createStudentCurricularPlan(degreeCurricularPlan, executionYear, cycleType);
-
-        return registration;
-    }
-
     public StudentCurricularPlan createStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan,
             final ExecutionYear executionYear) {
 
-        return createStudentCurricularPlan(degreeCurricularPlan, executionYear, (CycleType) null);
-    }
-
-    private StudentCurricularPlan createStudentCurricularPlan(final DegreeCurricularPlan degreeCurricularPlan,
-            final ExecutionYear executionYear, final CycleType cycleType) {
-
-        final ExecutionInterval executionSInterval = executionYear.getFirstExecutionPeriod();
+        final ExecutionInterval executionInterval = executionYear.getFirstExecutionPeriod();
         final YearMonthDay startDay =
-                executionSInterval.isCurrent() ? new YearMonthDay() : executionSInterval.getBeginDateYearMonthDay();
+                executionInterval.isCurrent() ? new YearMonthDay() : executionInterval.getBeginDateYearMonthDay();
 
-        return StudentCurricularPlan.createBolonhaStudentCurricularPlan(this, degreeCurricularPlan, startDay, executionSInterval,
-                cycleType);
+        return StudentCurricularPlan.createBolonhaStudentCurricularPlan(this, degreeCurricularPlan, startDay, executionInterval);
     }
 
     @Override
@@ -302,36 +270,12 @@ public class Registration extends Registration_Base {
         return getStudentCurricularPlansSet().stream();
     }
 
-    public static Boolean getEnrolmentsAllowStudentToChooseAffinityCycle() {
-        return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToChooseAffinityCycle();
-    }
-
-    public static Boolean getEnrolmentsAllowStudentToEnrolInAffinityCycle() {
-        return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToEnrolInAffinityCycle();
-    }
-
-    public static Boolean getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle() {
-        return FenixEduAcademicConfiguration.getConfiguration().getEnrolmentsAllowStudentToCreateRegistrationForAffinityCycle();
-    }
-
     final public ICurriculum getCurriculum() {
-        return getCurriculum(new DateTime(), (ExecutionYear) null, (CycleType) null);
-    }
-
-    final public ICurriculum getCurriculum(final DateTime when) {
-        return getCurriculum(when, (ExecutionYear) null, (CycleType) null);
+        return getCurriculum(new DateTime(), null, null);
     }
 
     final public ICurriculum getCurriculum(final ExecutionYear executionYear) {
-        return getCurriculum(new DateTime(), executionYear, (CycleType) null);
-    }
-
-    final public ICurriculum getCurriculum(final CycleType cycleType) {
-        return getCurriculum(new DateTime(), (ExecutionYear) null, cycleType);
-    }
-
-    final public ICurriculum getCurriculum(final ExecutionYear executionYear, final CycleType cycleType) {
-        return getCurriculum(new DateTime(), executionYear, cycleType);
+        return getCurriculum(new DateTime(), executionYear, null);
     }
 
     final public ICurriculum getCurriculum(final DateTime when, final ExecutionYear executionYear, final CycleType cycleType) {
@@ -359,88 +303,8 @@ public class Registration extends Registration_Base {
 
     }
 
-    public int getNumberOfCurriculumEntries() {
-        return getCurriculum().getCurriculumEntries().size();
-    }
-
-    final public Grade getRawGrade() {
-        return ProgramConclusion.getConclusionProcess(getLastStudentCurricularPlan()).map(ConclusionProcess::getRawGrade)
-                .orElseGet(this::calculateRawGrade);
-    }
-
-    final public Grade calculateRawGrade() {
-        return getCurriculum().getRawGrade();
-    }
-
-    final public BigDecimal getEctsCredits(final ExecutionYear executionYear, final CycleType cycleType) {
-        return getCurriculum(executionYear, cycleType).getSumEctsCredits();
-    }
-
-    final public Grade getFinalGrade() {
-        return ProgramConclusion.getConclusionProcess(getLastStudentCurricularPlan()).map(ConclusionProcess::getFinalGrade)
-                .orElse(null);
-    }
-
-    final public Grade getFinalGrade(final ProgramConclusion programConclusion) {
-        return programConclusion.groupFor(this).map(CurriculumGroup::getFinalGrade).orElse(null);
-    }
-
-    final public Collection<CurricularCourse> getCurricularCoursesApprovedByEnrolment() {
-        final Collection<CurricularCourse> result = new HashSet<>();
-
-        for (final Enrolment enrolment : getApprovedEnrolments()) {
-            result.add(enrolment.getCurricularCourse());
-        }
-
-        return result;
-    }
-
-    final public boolean hasEnrolments(final Enrolment enrolment) {
-        if (enrolment == null) {
-            return false;
-        }
-
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.hasEnrolments(enrolment)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     final public boolean hasAnyEnrolments() {
         return getStudentCurricularPlanStream().anyMatch(StudentCurricularPlan::hasAnyEnrolments);
-    }
-
-    final public boolean hasAnyCurriculumLines() {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.hasAnyCurriculumLines()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    final public boolean hasAnyCurriculumLines(final ExecutionYear executionYear) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.hasAnyCurriculumLines(executionYear)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean hasAnyCurriculumLines(final ExecutionInterval executionInterval) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.hasAnyCurriculumLines(executionInterval)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     public Stream<Enrolment> findEnrolments() {
@@ -471,73 +335,12 @@ public class Registration extends Registration_Base {
         return getLastStudentCurricularPlan().getStandaloneCurriculumLines();
     }
 
-    public void assertConclusionDate(final Collection<CurriculumModule> result) {
-        for (final CurriculumLine curriculumLine : getApprovedCurriculumLines()) {
-            if (curriculumLine.calculateConclusionDate() == null) {
-                result.add(curriculumLine);
-            }
-        }
-    }
-
-    final public Collection<Enrolment> getPropaedeuticEnrolments() {
-        return getLastStudentCurricularPlan().getPropaedeuticEnrolments();
-    }
-
     final public Collection<CurriculumLine> getPropaedeuticCurriculumLines() {
         return getLastStudentCurricularPlan().getPropaedeuticCurriculumLines();
     }
 
-    public YearMonthDay getLastExternalApprovedEnrolmentEvaluationDate() {
-
-        if (getExternalEnrolmentsSet().isEmpty()) {
-            return null;
-        }
-
-        ExternalEnrolment externalEnrolment =
-                Collections.max(getExternalEnrolmentsSet(), ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE);
-
-        return externalEnrolment.getApprovementDate() != null ? externalEnrolment
-                .getApprovementDate() : externalEnrolment.getExecutionInterval() != null ? externalEnrolment
-                        .getExecutionInterval().getEndDateYearMonthDay() : null;
-    }
-
     final public Collection<CurriculumLine> getApprovedCurriculumLines() {
         return getLastStudentCurricularPlan().getApprovedCurriculumLines();
-    }
-
-    final public boolean hasAnyApprovedCurriculumLines() {
-        return getLastStudentCurricularPlan().hasAnyApprovedCurriculumLines();
-    }
-
-    final public Collection<IEnrolment> getApprovedIEnrolments() {
-        final Collection<IEnrolment> result = new HashSet<>();
-
-        for (final CurriculumLine curriculumLine : getApprovedCurriculumLines()) {
-            if (curriculumLine.isEnrolment()) {
-                result.add((Enrolment) curriculumLine);
-            } else if (curriculumLine.isDismissal()) {
-                result.addAll(((Dismissal) curriculumLine).getSourceIEnrolments());
-            }
-        }
-
-        result.addAll(getExternalEnrolmentsSet());
-
-        return result;
-    }
-
-    final public boolean hasAnyApprovedEnrolment() {
-        return getLastStudentCurricularPlan().hasAnyApprovedEnrolment() || hasAnyExternalApprovedEnrolment();
-    }
-
-    final public boolean hasAnyApprovedEnrolments(final ExecutionYear executionYear) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-                if (enrolment.isApproved() && enrolment.getExecutionInterval().getExecutionYear() == executionYear) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public boolean hasAnyEnroledEnrolments(final ExecutionYear year) {
@@ -555,31 +358,8 @@ public class Registration extends Registration_Base {
                 .anyMatch(e -> e.getExecutionInterval() == executionInterval);
     }
 
-    final public boolean hasAnyStandaloneEnrolmentsIn(final ExecutionYear executionYear) {
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            StandaloneCurriculumGroup standaloneCurriculumGroup = studentCurricularPlan.getStandaloneCurriculumGroup();
-            if (standaloneCurriculumGroup != null && standaloneCurriculumGroup.hasEnrolment(executionYear)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    final public boolean hasAnyExternalApprovedEnrolment() {
-        for (final ExternalEnrolment externalEnrolment : this.getExternalEnrolmentsSet()) {
-            if (externalEnrolment.isApproved()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     final public Double getDismissalsEctsCredits() {
         return getLastStudentCurricularPlan().getDismissalsEctsCredits();
-    }
-
-    final public boolean getHasExternalEnrolments() {
-        return !getExternalEnrolmentsSet().isEmpty();
     }
 
     final public Stream<ExecutionYear> getEnrolmentsExecutionYearStream() {
