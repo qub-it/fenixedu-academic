@@ -23,13 +23,11 @@ import static org.fenixedu.academic.domain.student.registrationStates.Registrati
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +61,6 @@ import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.log.CurriculumLineLog;
-import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
@@ -367,21 +364,6 @@ public class Registration extends Registration_Base {
                 .map(CurriculumLine::getExecutionYear).distinct();
     }
 
-    /**
-     * @deprecated use getEnrolmentsExecutionYearStream instead
-     */
-    @Deprecated(forRemoval = true)
-    final public Collection<ExecutionYear> getEnrolmentsExecutionYears() {
-        final Set<ExecutionYear> result = new HashSet<>();
-
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            for (final Enrolment enrolment : studentCurricularPlan.getEnrolmentsSet()) {
-                result.add(enrolment.getExecutionInterval().getExecutionYear());
-            }
-        }
-        return result;
-    }
-
     final public int getNumberOfYearsEnrolledUntil(final ExecutionYear executionYear) {
         return Math.toIntExact(getEnrolmentsExecutionYearStream().filter(y -> y.isBeforeOrEquals(executionYear)).count());
     }
@@ -402,11 +384,6 @@ public class Registration extends Registration_Base {
         return result;
     }
 
-    public ExecutionYear getFirstCurriculumLineExecutionYear() {
-        final SortedSet<ExecutionYear> executionYears = getSortedCurriculumLinesExecutionYears();
-        return executionYears.isEmpty() ? null : executionYears.first();
-    }
-
     public ExecutionYear getLastEnrolmentExecutionYear() {
         SortedSet<ExecutionYear> sorted = getSortedEnrolmentsExecutionYears();
         return sorted.isEmpty() ? null : sorted.last();
@@ -417,140 +394,10 @@ public class Registration extends Registration_Base {
                 .map(Enrolment::getExecutionInterval).collect(Collectors.toSet());
     }
 
-    final public SortedSet<ExecutionInterval> getSortedEnrolmentsExecutionPeriods() {
-        final SortedSet<ExecutionInterval> result = new TreeSet<>(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE);
-        result.addAll(getEnrolmentsExecutionPeriods());
-
-        return result;
-    }
-
-    final public int countCompletedCoursesForActiveUndergraduateCurricularPlan() {
-        return getActiveStudentCurricularPlan().getAprovedEnrolments().size();
-    }
-
-    final public List<StudentCurricularPlan> getStudentCurricularPlansByDegree(final Degree degree) {
-        final List<StudentCurricularPlan> result = new ArrayList<>();
-        for (final StudentCurricularPlan studentCurricularPlan : getStudentCurricularPlansSet()) {
-            if (studentCurricularPlan.getDegree() == degree) {
-                result.add(studentCurricularPlan);
-            }
-        }
-        return result;
-    }
-
-    public List<Attends> readAttendsInCurrentExecutionPeriod() {
-        final List<Attends> attends = new ArrayList<>();
-        for (final Attends attend : this.getAssociatedAttendsSet()) {
-            if (attend.getExecutionCourse().getExecutionInterval().isCurrent()) {
-                attends.add(attend);
-            }
-        }
-        return attends;
-    }
-
-    public List<Attends> readAttendsByExecutionPeriod(final ExecutionInterval executionInterval) {
-        final List<Attends> attends = new ArrayList<>();
-        for (final Attends attend : this.getAssociatedAttendsSet()) {
-            if (attend.isFor(executionInterval)) {
-                attends.add(attend);
-            }
-        }
-        return attends;
-    }
-
-    final public static Registration readByNumberAndDegreeCurricularPlan(final Integer number,
-            final DegreeCurricularPlan degreeCurricularPlan) {
-        Registration nonActiveRegistration = null;
-        for (Registration registration : Bennu.getInstance().getRegistrationsSet()) {
-            if (registration.getNumber().intValue() == number.intValue()
-                    && registration.getDegreeCurricularPlans().contains(degreeCurricularPlan)) {
-                if (registration.isActive()) {
-                    return registration;
-                }
-                nonActiveRegistration = registration;
-            }
-        }
-        return nonActiveRegistration;
-    }
-
-    final public static Collection<Registration> readRegistrationsByNumberAndDegreeTypes(final Integer number,
-            final DegreeType... degreeTypes) {
-        List<Registration> result = new ArrayList<>();
-        final List<DegreeType> degreeTypesList = Arrays.asList(degreeTypes);
-        for (RegistrationNumber registrationNumber : Bennu.getInstance().getRegistrationNumbersSet()) {
-            if (registrationNumber.getNumber().intValue() == number.intValue()) {
-                final Registration registration = registrationNumber.getRegistration();
-                if (degreeTypesList.contains(registration.getDegreeType())) {
-                    result.add(registration);
-                }
-            }
-        }
-        return result;
-    }
-
     public final static List<Registration> readByNumber(final Integer number) {
         return Bennu.getInstance().getRegistrationNumbersSet().stream()
                 .filter(rn -> rn.getNumber().intValue() == number.intValue()).map(RegistrationNumber::getRegistration)
                 .collect(Collectors.toList());
-    }
-
-    final public static List<Registration> readByNumberAndDegreeType(final Integer number, final DegreeType degreeType) {
-        final List<Registration> registrations = new ArrayList<>();
-        for (RegistrationNumber registrationNumber : Bennu.getInstance().getRegistrationNumbersSet()) {
-            if (registrationNumber.getNumber().intValue() == number.intValue()
-                    && registrationNumber.getRegistration().getDegreeType() == degreeType) {
-                registrations.add(registrationNumber.getRegistration());
-            }
-        }
-        return registrations;
-    }
-
-    final public static List<Registration> readByNumberAndDegreeTypeAndAgreement(final Integer number,
-            final DegreeType degreeType, final boolean normalAgreement) {
-        final List<Registration> registrations = new ArrayList<>();
-        for (RegistrationNumber registrationNumber : Bennu.getInstance().getRegistrationNumbersSet()) {
-            if (registrationNumber.getNumber().intValue() == number.intValue()
-                    && registrationNumber.getRegistration().getDegreeType() == degreeType && registrationNumber.getRegistration()
-                            .getRegistrationProtocol() == RegistrationProtocol.getDefault() == normalAgreement) {
-                registrations.add(registrationNumber.getRegistration());
-            }
-        }
-        return registrations;
-    }
-
-    final public static List<Registration> readAllStudentsBetweenNumbers(final Integer fromNumber, final Integer toNumber) {
-        int fromNumberInt = fromNumber.intValue();
-        int toNumberInt = toNumber.intValue();
-
-        final List<Registration> students = new ArrayList<>();
-        for (final Registration registration : Bennu.getInstance().getRegistrationsSet()) {
-            int studentNumberInt = registration.getNumber().intValue();
-            if (studentNumberInt >= fromNumberInt && studentNumberInt <= toNumberInt) {
-                students.add(registration);
-            }
-        }
-        return students;
-    }
-
-    @Deprecated(forRemoval = true)
-    final public static List<Registration> readRegistrationsByDegreeType(final DegreeType degreeType) {
-        final List<Registration> students = new ArrayList<>();
-        for (final Registration registration : Bennu.getInstance().getRegistrationsSet()) {
-            if (registration.getDegreeType().equals(degreeType)) {
-                students.add(registration);
-            }
-        }
-        return students;
-    }
-
-    final public Set<ExecutionCourse> getAttendingExecutionCoursesForCurrentExecutionPeriod() {
-        final Set<ExecutionCourse> result = new HashSet<>();
-        for (final Attends attends : getAssociatedAttendsSet()) {
-            if (attends.getExecutionCourse().getExecutionInterval().isCurrent()) {
-                result.add(attends.getExecutionCourse());
-            }
-        }
-        return result;
     }
 
     final public Set<ExecutionCourse> getAttendingExecutionCoursesFor() {
@@ -578,16 +425,6 @@ public class Registration extends Registration_Base {
         return getAssociatedAttendsSet().stream().filter(a -> a.isFor(executionInterval)).toList();
     }
 
-    final public List<Shift> getShiftsForCurrentExecutionPeriod() {
-        final List<Shift> result = new ArrayList<>();
-        for (final Shift shift : getShiftsSet()) {
-            if (shift.getExecutionCourse().getExecutionInterval().isCurrent()) {
-                result.add(shift);
-            }
-        }
-        return result;
-    }
-
     final public List<Shift> getShiftsFor(final ExecutionInterval executionInterval) {
         final List<Shift> result = new ArrayList<>();
         for (final Shift shift : getShiftsSet()) {
@@ -611,35 +448,6 @@ public class Registration extends Registration_Base {
     public Optional<Shift> findEnrolledShiftFor(final ExecutionCourse executionCourse, final CourseLoadType loadType) {
         return getShiftsSet().stream().filter(s -> s.getExecutionCourse() == executionCourse)
                 .filter(s -> s.getCourseLoadType() == loadType).findAny();
-    }
-
-    private int countNumberOfDistinctExecutionCoursesOfShiftsFor(final ExecutionInterval executionInterval) {
-        final Set<ExecutionCourse> result = new HashSet<>();
-        for (final Shift shift : getShiftsSet()) {
-            if (shift.getExecutionCourse().getExecutionInterval() == executionInterval) {
-                result.add(shift.getExecutionCourse());
-            }
-        }
-        return result.size();
-    }
-
-    final public Set<SchoolClass> getSchoolClassesToEnrol() {
-        final Set<SchoolClass> result = new HashSet<>();
-        for (final Attends attends : getAssociatedAttendsSet()) {
-            final ExecutionCourse executionCourse = attends.getExecutionCourse();
-
-            if (executionCourse.getExecutionInterval().isCurrent()) {
-                result.addAll(getSchoolClassesToEnrolBy(executionCourse));
-            }
-        }
-        return result;
-    }
-
-    final public Set<SchoolClass> getSchoolClassesToEnrolBy(final ExecutionCourse executionCourse) {
-        StudentCurricularPlan scp = getActiveStudentCurricularPlan();
-        Set<SchoolClass> schoolClasses =
-                scp != null ? executionCourse.getSchoolClassesBy(scp.getDegreeCurricularPlan()) : new HashSet<>();
-        return schoolClasses.isEmpty() ? executionCourse.getSchoolClasses() : schoolClasses;
     }
 
     @Override
@@ -788,26 +596,6 @@ public class Registration extends Registration_Base {
                 .max(RegistrationState.DATE_COMPARATOR).orElse(null);
     }
 
-    /**
-     * @deprecated use {@link #getStateInDate(DateTime)}
-     */
-    @Deprecated(forRemoval = true)
-    public RegistrationState getStateInDate(final LocalDate localDate) {
-        final List<RegistrationState> sortedRegistrationStates = new ArrayList<>(getRegistrationStatesSet());
-        Collections.sort(sortedRegistrationStates, RegistrationState.DATE_COMPARATOR);
-
-        for (ListIterator<RegistrationState> iterator =
-                sortedRegistrationStates.listIterator(sortedRegistrationStates.size()); iterator.hasPrevious();) {
-
-            RegistrationState registrationState = iterator.previous();
-            if (!localDate.isBefore(registrationState.getStateDate().toLocalDate())) {
-                return registrationState;
-            }
-        }
-
-        return null;
-    }
-
     public Set<RegistrationState> getRegistrationStates(final ExecutionYear executionYear) {
         final Stream<ExecutionInterval> childIntervals = executionYear.getExecutionPeriodsSet().stream();
         return Stream.concat(Stream.of(executionYear), childIntervals).flatMap(es -> getRegistrationStates(es).stream())
@@ -871,10 +659,6 @@ public class Registration extends Registration_Base {
         return getCurriculum(executionYear).getCurricularYear();
     }
 
-    final public int getCurricularYear(final DateTime when, final ExecutionYear executionYear) {
-        return getCurriculum(when, executionYear, (CycleType) null).getCurricularYear();
-    }
-
     public boolean isRegistrationConclusionProcessed() {
         return getLastStudentCurricularPlan().isConclusionProcessed();
     }
@@ -899,43 +683,6 @@ public class Registration extends Registration_Base {
         }
 
         return lastStudentCurricularPlan.getConclusionDate(cycleType);
-    }
-
-    public YearMonthDay calculateConclusionDate() {
-        return getLastStudentCurricularPlan().getLastApprovementDate();
-    }
-
-    public YearMonthDay calculateConclusionDate(final CycleType cycleType) {
-        if (!getDegreeType().hasAnyCycleTypes()) {
-            return calculateConclusionDate();
-        }
-
-        if (!hasConcludedCycle(cycleType)) {
-            throw new DomainException("Registration.hasnt.finished.given.cycle");
-        }
-
-        final StudentCurricularPlan lastStudentCurricularPlan = getLastStudentCurricularPlan();
-        if (lastStudentCurricularPlan == null) {
-            throw new DomainException("Registration.has.no.student.curricular.plan");
-        }
-
-        return lastStudentCurricularPlan.calculateConclusionDate(cycleType);
-    }
-
-    final public String getGraduateTitle(final ProgramConclusion programConclusion, final Locale locale) {
-        if (programConclusion.isConclusionProcessed(this)) {
-            return programConclusion.groupFor(this)
-                    .map(cg -> cg.getDegreeModule().getGraduateTitle(cg.getConclusionYear(), locale)).orElse(null);
-        }
-        throw new DomainException("Registration.hasnt.concluded.requested.cycle");
-    }
-
-    final public boolean hasConcludedFirstCycle() {
-        return hasConcludedCycle(CycleType.FIRST_CYCLE);
-    }
-
-    final public boolean hasConcludedSecondCycle() {
-        return hasConcludedCycle(CycleType.SECOND_CYCLE);
     }
 
     final public boolean hasConcludedCycle(final CycleType cycleType) {
@@ -965,18 +712,6 @@ public class Registration extends Registration_Base {
         for (final CycleType cycleType : getDegreeType().getCycleTypes()) {
             if (hasConcludedCycle(cycleType)) {
                 result.add(cycleType);
-            }
-        }
-
-        return result;
-    }
-
-    final public Collection<CycleCurriculumGroup> getConclusionProcessedCycles(final ExecutionYear executionYear) {
-        final Collection<CycleCurriculumGroup> result = new HashSet<>();
-
-        for (final CycleCurriculumGroup group : getLastStudentCurricularPlan().getInternalCycleCurriculumGrops()) {
-            if (group.isConclusionProcessed() && group.getConclusionYear() == executionYear) {
-                result.add(group);
             }
         }
 
@@ -1031,11 +766,6 @@ public class Registration extends Registration_Base {
         return getLastStudentCurricularPlan() == null || getLastStudentCurricularPlan().isEmpty();
     }
 
-    final public CycleType getLastConcludedCycleType() {
-        final SortedSet<CycleType> concludedCycles = new TreeSet<>(getConcludedCycles());
-        return concludedCycles.isEmpty() ? null : concludedCycles.last();
-    }
-
     public void conclude(RegistrationConclusionBean bean) {
         if (!bean.isConcluded() && !getConclusionProcessEnabler().apply(bean)) {
             throw new DomainException("error.CycleCurriculumGroup.cycle.is.not.concluded");
@@ -1051,22 +781,6 @@ public class Registration extends Registration_Base {
             RegistrationState.createRegistrationState(this, AccessControl.getPerson(), new DateTime(), targetStateType,
                     bean.getConclusionExecutionInterval());
         }
-    }
-
-
-    public boolean hasApprovement(final ExecutionYear executionYear) {
-        int curricularYearInTheBegin = getCurricularYear(executionYear);
-        int curricularYearAtTheEnd = getCurricularYear(executionYear.getNextExecutionYear());
-
-        if (curricularYearInTheBegin > curricularYearAtTheEnd) {
-            throw new DomainException("Registration.curricular.year.has.decreased");
-        }
-
-        return curricularYearAtTheEnd > curricularYearInTheBegin;
-    }
-
-    public boolean isDEA() {
-        return getDegreeType().isAdvancedSpecializationDiploma();
     }
 
     public Optional<RegistrationDataByExecutionYear> getDataByExecutionYear(final ExecutionYear year) {
@@ -1120,18 +834,6 @@ public class Registration extends Registration_Base {
         }
 
         return null;
-    }
-
-    /**
-     * @deprecated Replaced by {@link #getRegistrationYear()}
-     */
-    @Deprecated(forRemoval = true)
-    final public ExecutionYear getStartExecutionYear() {
-        return getRegistrationYear();
-    }
-
-    final public boolean hasStudentCurricularPlanInExecutionPeriod(final ExecutionInterval executionInterval) {
-        return getStudentCurricularPlan(executionInterval) != null;
     }
 
     final public DegreeCurricularPlan getActiveDegreeCurricularPlan() {
@@ -1197,18 +899,6 @@ public class Registration extends Registration_Base {
         return enrolments;
     }
 
-    final public ExternalEnrolment findExternalEnrolment(final Unit university, final ExecutionInterval period,
-            final String code) {
-        for (final ExternalEnrolment externalEnrolment : this.getExternalEnrolmentsSet()) {
-            if (externalEnrolment.getExecutionInterval() == period
-                    && externalEnrolment.getExternalCurricularCourse().getCode().equals(code)
-                    && externalEnrolment.getExternalCurricularCourse().getUnit() == university) {
-                return externalEnrolment;
-            }
-        }
-        return null;
-    }
-
     public void editStartDates(final ExecutionYear registrationYear, final YearMonthDay startDate,
             final YearMonthDay homologationDate, final YearMonthDay studiesStartDate) {
 
@@ -1268,11 +958,6 @@ public class Registration extends Registration_Base {
         return res;
     }
 
-    public boolean hasStartedBetween(final ExecutionYear firstExecutionYear, final ExecutionYear finalExecutionYear) {
-        return getStartExecutionYear().isAfterOrEquals(firstExecutionYear)
-                && getStartExecutionYear().isBeforeOrEquals(finalExecutionYear);
-    }
-
     public boolean hasRegistrationRegime(final ExecutionYear executionYear, final RegistrationRegimeType type) {
         return getRegistrationRegimesSet().stream().anyMatch(r -> r.isFor(executionYear) && r.hasRegime(type));
     }
@@ -1323,14 +1008,6 @@ public class Registration extends Registration_Base {
         Collection<CurriculumGroup> result = new TreeSet<>(CurriculumGroup.COMPARATOR_BY_NAME_AND_ID);
         for (final StudentCurricularPlan plan : getStudentCurricularPlansSet()) {
             result.addAll(plan.getAllCurriculumGroups());
-        }
-        return result;
-    }
-
-    public Collection<CurriculumGroup> getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups() {
-        Collection<CurriculumGroup> result = new TreeSet<>(CurriculumGroup.COMPARATOR_BY_NAME_AND_ID);
-        for (final StudentCurricularPlan plan : getStudentCurricularPlansSet()) {
-            result.addAll(plan.getAllCurriculumGroupsWithoutNoCourseGroupCurriculumGroups());
         }
         return result;
     }
