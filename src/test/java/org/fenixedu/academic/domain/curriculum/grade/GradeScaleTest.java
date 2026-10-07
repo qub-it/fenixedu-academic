@@ -28,6 +28,7 @@ public class GradeScaleTest {
 
     private static final LocalizedString GRADE_SCALE_NAME = new LocalizedString(Locale.ENGLISH, "Grade Scale");
     private static final String QUALITATIVE_GRADE_SCALE_CODE = "QUALITATIVE";
+    private static final BigDecimal ONE_CENT = new BigDecimal("0.01");
     private static final BigDecimal MINIMUM_APPROVED_GRADE = new BigDecimal("9.5");
     private static final BigDecimal MAXIMUM_APPROVED_GRADE = new BigDecimal("20");
     private static final BigDecimal MINIMUM_REPROVED_GRADE = new BigDecimal("0");
@@ -288,11 +289,11 @@ public class GradeScaleTest {
 //        assertFalse(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE));
 //
 //        // a value just below the lower bound is outside the interval
-//        assertFalse(GradeScale.isWithinInterval(MINIMUM_APPROVED_GRADE.subtract(new BigDecimal("0.01")), MINIMUM_APPROVED_GRADE,
+    //        assertFalse(GradeScale.isWithinInterval(MINIMUM_APPROVED_GRADE.subtract(ONE_CENT), MINIMUM_APPROVED_GRADE,
 //                MAXIMUM_APPROVED_GRADE));
 //
 //        // a value just above the upper bound is outside the interval
-//        assertFalse(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE.add(new BigDecimal("0.01")), MINIMUM_APPROVED_GRADE,
+    //        assertFalse(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE.add(ONE_CENT), MINIMUM_APPROVED_GRADE,
 //                MAXIMUM_APPROVED_GRADE));
 //    }
 //
@@ -311,9 +312,9 @@ public class GradeScaleTest {
 //
 //        // values just outside the approved interval are rejected
 //        assertFalse(gradeScale.isGradeValueContinuousAndApproved(
-//                MINIMUM_APPROVED_GRADE.subtract(new BigDecimal("0.01")).toPlainString()));
+    //                MINIMUM_APPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
 //        assertFalse(
-//                gradeScale.isGradeValueContinuousAndApproved(MAXIMUM_APPROVED_GRADE.add(new BigDecimal("0.01")).toPlainString()));
+    //                gradeScale.isGradeValueContinuousAndApproved(MAXIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
 //
 //        // a non numeric grade value is never continuous and approved
 //        assertFalse(gradeScale.isGradeValueContinuousAndApproved("MB"));
@@ -337,9 +338,9 @@ public class GradeScaleTest {
 //
 //        // values just outside the reproved interval are rejected
 //        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(
-//                MINIMUM_REPROVED_GRADE.subtract(new BigDecimal("0.01")).toPlainString()));
+    //                MINIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
 //        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(
-//                MAXIMUM_REPROVED_GRADE.add(new BigDecimal("0.01")).toPlainString()));
+    //                MAXIMUM_REPROVED_GRADE.add(ONE_CENT).toPlainString()));
 //
 //        // a non numeric grade value is never continuous and not approved
 //        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved("MB"));
