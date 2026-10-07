@@ -113,12 +113,12 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
     }
     
     public boolean isLast() {
-        final List<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesList();
-        return getGradeScale().getOrderedGradeScaleEntriesList().indexOf(this) == orderedGradeScaleEntries.size() - 1;
+        final Stream<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesStream();
+        return getGradeScale().getOrderedGradeScaleEntriesStream().toList().indexOf(this) == orderedGradeScaleEntries.count() - 1;
     }
     
     public boolean isFirst() {
-        final List<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesList();
+        final List<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesStream().toList();
         return orderedGradeScaleEntries.indexOf(this) == 0;
     }
 
