@@ -189,40 +189,6 @@ public class GradeScaleTest {
         assertFalse(gradeScale.hasContinuousGrades());
     }
 
-    // NOTE: This test will be deleted after deleting deprecated #hasRestrictedGrades
-    @Test
-    public void testGradeScale_hasRestrictedGrades_equalsNegationOfHasContinuousGrades() {
-        // a scale without any interval defined, has no continuous grades and is reported as restricted
-        assertFalse(gradeScale.hasContinuousGrades());
-        assertTrue(gradeScale.hasRestrictedGrades());
-        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
-
-        // an approved interval alone makes the scale continuous
-        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
-        assertTrue(gradeScale.hasContinuousGrades());
-        assertFalse(gradeScale.hasRestrictedGrades());
-        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
-
-        // a reproved interval alone also makes the scale continuous
-        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null, null, true, false);
-        assertTrue(gradeScale.hasContinuousGrades());
-        assertFalse(gradeScale.hasRestrictedGrades());
-        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
-
-        // both intervals at once keep the same relationship
-        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
-                MAXIMUM_APPROVED_GRADE, true, false);
-        assertTrue(gradeScale.hasContinuousGrades());
-        assertFalse(gradeScale.hasRestrictedGrades());
-        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
-
-        // removing both intervals makes the scale non continuous and restricted again
-        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
-        assertFalse(gradeScale.hasContinuousGrades());
-        assertTrue(gradeScale.hasRestrictedGrades());
-        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
-    }
-
     @Test
     public void testGradeScale_hasContinuousApprovedGrades() {
         // without any interval the approved grades are not continuous
@@ -374,6 +340,26 @@ public class GradeScaleTest {
         // deleting the entry invalidates the caches, so the value stops being disapproved
         gradeScale.deleteGradeScaleEntry(reprovedEntry);
         assertFalse(gradeScale.isNotApproved("F"));
+    }
+
+    @Test
+    public void testGradeScale_reorderGrades() {
+        GradeScaleEntry firstGradeEntry =
+                gradeScale.createGradeScaleEntry("A", new LocalizedString(Locale.ENGLISH, "Grade A"), false);
+        GradeScaleEntry secondGradeEntry =
+                gradeScale.createGradeScaleEntry("B", new LocalizedString(Locale.ENGLISH, "Grade B"), false);
+        GradeScaleEntry thirdGradeEntry =
+                gradeScale.createGradeScaleEntry("C", new LocalizedString(Locale.ENGLISH, "Grade C"), false);
+
+        firstGradeEntry.setGradeOrder(11);
+        secondGradeEntry.setGradeOrder(12);
+        thirdGradeEntry.setGradeOrder(13);
+
+        assertEquals("A#11 < B#12 < C#13", describeOrderedEntries(gradeScale));
+
+        // deleting the middle entry renumbers the remaining ones into a contiguous sequence, keeping their relative order
+        gradeScale.deleteGradeScaleEntry(secondGradeEntry);
+        assertEquals("A#1 < C#2", describeOrderedEntries(gradeScale));
     }
 
     @Test
