@@ -223,8 +223,9 @@ public class MergeExecutionCourses {
                 attendsTo.setEnrolment(attendsFrom.getEnrolment());
                 attendsFrom.delete();
             } else {
-                throw new DomainException("Unable to merge execution courses. Registration "
-                        + attendsFrom.getRegistration().getNumber() + " has an enrolment in both.");
+                throw new MergeNotPossibleException(
+                        Set.of("Unable to merge execution courses. Registration " + attendsFrom.getRegistration().getNumber()
+                                + " has an enrolment in both."));
             }
             return;
         }
