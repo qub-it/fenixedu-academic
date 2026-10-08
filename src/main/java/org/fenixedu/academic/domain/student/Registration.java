@@ -584,7 +584,7 @@ public class Registration extends Registration_Base {
 
     final public Stream<ExecutionYear> getEnrolmentsExecutionYearStream() {
         return getStudentCurricularPlansSet().stream().flatMap(StudentCurricularPlan::getEnrolmentStream)
-                .map(CurriculumLine::getExecutionYear).distinct();
+                .map(Enrolment::getExecutionYear).distinct();
     }
 
     /**
