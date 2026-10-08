@@ -329,8 +329,17 @@ public class RegistrationTest {
         assertFalse(newRegistration.hasAnyEnroledEnrolments(nextExecutionYear));
 
         EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+        Enrolment enrolment = newRegistration.getEnrolments(executionInterval).iterator().next();
 
+        assertTrue(enrolment.isEnroled());
         assertTrue(newRegistration.hasAnyEnroledEnrolments(executionYear));
+        assertFalse(newRegistration.hasAnyEnroledEnrolments(nextExecutionYear));
+
+        enrolment.annul();
+
+        assertFalse(enrolment.isEnroled());
+        assertFalse(
+                newRegistration.hasAnyEnroledEnrolments(executionYear)); // because we annulled, there are no enrolled enrolments
         assertFalse(newRegistration.hasAnyEnroledEnrolments(nextExecutionYear));
     }
 
@@ -344,11 +353,20 @@ public class RegistrationTest {
         assertFalse(newRegistration.hasAnyEnrolmentsIn(executionInterval.getNext()));
 
         EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+        Enrolment enrolment = newRegistration.getEnrolments(executionInterval).iterator().next();
 
+        assertTrue(enrolment.isEnroled());
         assertTrue(newRegistration.hasAnyEnrolmentsIn(executionYear));
         assertFalse(newRegistration.hasAnyEnrolmentsIn(nextExecutionYear));
         assertTrue(newRegistration.hasAnyEnrolmentsIn(executionInterval));
         assertFalse(newRegistration.hasAnyEnrolmentsIn(executionInterval.getNext()));
+
+        enrolment.annul();
+
+        assertFalse(enrolment.isEnroled());
+        assertTrue(newRegistration.hasAnyEnrolmentsIn(executionYear)); // hasAnyEnrolmentsIn doesn't depend on enrolment state
+        assertTrue(newRegistration.hasAnyEnrolmentsIn(executionInterval));
+        assertFalse(newRegistration.hasAnyEnroledEnrolments(executionYear));
     }
 
     @Test
