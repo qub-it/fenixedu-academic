@@ -1,10 +1,13 @@
 package org.fenixedu.academic.domain.student.statute;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collection;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -284,5 +287,30 @@ public class StudentStatuteTest {
         // edit statute2 so it overlaps with statute1
         assertThrows(DomainException.class,
                 () -> statute2.edit(student, executionInterval, executionInterval.getNext(), null, null, "overlap attempt"));
+    }
+
+    @Test
+    public void testStatuteType_findAll() {
+        Collection<StatuteType> allStatutes = StatuteType.findAll();
+        assertEquals(2, allStatutes.size());
+        assertTrue(allStatutes.contains(statuteTypeA));
+        assertTrue(allStatutes.contains(statuteTypeB));
+
+        Optional<StatuteType> statuteType = StatuteType.findByCode(TYPE_A);
+        assertTrue(statuteType.isPresent());
+        assertEquals(statuteTypeA, statuteType.get());
+
+        Set<StatuteType> predicate = StatuteType.findAll(s -> s.getCode().startsWith("ST-")).collect(Collectors.toSet());
+        assertEquals(2, predicate.size());
+        assertTrue(predicate.contains(statuteTypeA));
+        assertTrue(predicate.contains(statuteTypeB));
+
+        // combined predicates, first matches both, second matches only A
+        Set<StatuteType> combinedPredicates =
+                StatuteType.findAll(s -> s.getCode().startsWith("ST-"), s -> s == statuteTypeA).collect(Collectors.toSet());
+        assertEquals(1, combinedPredicates.size());
+        assertTrue(combinedPredicates.contains(statuteTypeA));
+        assertFalse(combinedPredicates.contains(statuteTypeB));
+
     }
 }
