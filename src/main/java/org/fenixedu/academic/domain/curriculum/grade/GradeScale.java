@@ -3,7 +3,6 @@ package org.fenixedu.academic.domain.curriculum.grade;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +28,10 @@ public class GradeScale extends GradeScale_Base {
     public static final Comparator<GradeScale> COMPARE_BY_NAME =
             Comparator.comparing(GradeScale::getName).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
-    private static final Map<String, GradeScale> GRADE_SCALE_BY_CODE_CACHE = new ConcurrentHashMap<>();
-    private final Map<String, GradeScaleEntry> gradeScaleEntriesByValueCache = new HashMap<>();
-    private final Set<String> approvedGradeValuesCache = new HashSet<>();
-    private final Set<String> notApprovedGradeValuesCache = new HashSet<>();
+    private static final Map<String, GradeScale> GRADE_SCALE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<GradeScale, Map<String, GradeScaleEntry>> INTERNAL_CACHE = new ConcurrentHashMap<>();
+    private Set<String> approvedGradeValuesCache = null;
+    private Set<String> notApprovedGradeValuesCache = null;
 
     public GradeScale() {
         super();
@@ -179,6 +178,8 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public boolean isApproved(final String value) {
+        approvedGradeValuesCache = getApprovedGradeValuesCache();
+
         if (approvedGradeValuesCache.contains(value)) {
             return true;
         }
@@ -194,6 +195,8 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public boolean isNotApproved(final String value) {
+        notApprovedGradeValuesCache = getNotApprovedGradeValuesCache();
+
         if (notApprovedGradeValuesCache.contains(value)) {
             return true;
         }
@@ -344,11 +347,10 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public void invalidateCache() {
-        gradeScaleEntriesByValueCache.clear();
-        approvedGradeValuesCache.clear();
-        notApprovedGradeValuesCache.clear();
-
-        GRADE_SCALE_BY_CODE_CACHE.clear();
+        getApprovedGradeValuesCache().clear();
+        getNotApprovedGradeValuesCache().clear();
+        INTERNAL_CACHE.clear();
+        GRADE_SCALE_CACHE.clear();
     }
 
     public LocalizedString getExtendedValue(Grade grade) {
@@ -362,10 +364,14 @@ public class GradeScale extends GradeScale_Base {
                 .reduce((a, c) -> c.append(a)).orElse(new LocalizedString());
     }
 
-    private Optional<GradeScaleEntry> findGradeScaleEntry(final String gradeValue) {
-        return Optional.ofNullable(gradeScaleEntriesByValueCache.computeIfAbsent(gradeValue,
-                gradeScaleEntry -> getGradeScaleEntriesSet().stream()
-                        .filter(entry -> Objects.equals(entry.getValue(), gradeValue)).findAny().orElse(null)));
+    private Optional<GradeScaleEntry> findGradeScaleEntry(final String value) {
+        return value == null ? Optional.empty() : Optional.ofNullable(of(value));
+    }
+
+    private GradeScaleEntry of(final String value) {
+        final Map<String, GradeScaleEntry> entriesCache = INTERNAL_CACHE.computeIfAbsent(this, c -> new ConcurrentHashMap<>());
+        return entriesCache.computeIfAbsent(value,
+                c -> getGradeScaleEntriesSet().stream().filter(e -> Objects.equals(e.getValue(), value)).findAny().orElse(null));
     }
 
     private void reorderGrades() {
@@ -460,10 +466,29 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public static GradeScale getGradeScaleByCode(final String code) {
-        return code == null ? null : GRADE_SCALE_BY_CODE_CACHE.computeIfAbsent(code, key -> findUniqueByCode(key).get());
+        return code == null ? null : GRADE_SCALE_CACHE.computeIfAbsent(code, key -> findUniqueByCode(key).get());
     }
 
     public static boolean isNumeric(final String value) {
         return NumberUtils.isNumber(value);
+    }
+
+    /*
+     * Lazily created: Fenix Framework materializes persisted instances without invoking constructors,
+     * so field initializers never run for objects loaded from the database — the field
+     * starts out null and first use must create the cache here.
+     */
+    private Set<String> getApprovedGradeValuesCache() {
+        if (approvedGradeValuesCache == null) {
+            approvedGradeValuesCache = new HashSet<>();
+        }
+        return approvedGradeValuesCache;
+    }
+
+    private Set<String> getNotApprovedGradeValuesCache() {
+        if (notApprovedGradeValuesCache == null) {
+            notApprovedGradeValuesCache = new HashSet<>();
+        }
+        return notApprovedGradeValuesCache;
     }
 }
