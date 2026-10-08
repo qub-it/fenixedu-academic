@@ -170,7 +170,7 @@ public class AttendsTest {
                 foundAttends = enrolment.findOrCreateAttends(attends.getExecutionCourse());
             } catch (DomainException e) {
                 attends.setEnrolment(enrolment); // rollback in order to other tests run in initial conditions
-                assertEquals(e.getMessage(), "error.cannot.create.multiple.enrolments.for.student.in.execution.course");
+                assertEquals("error.cannot.create.multiple.enrolments.for.student.in.execution.course", e.getMessage());
             }
             assertNull(foundAttends);
         }
@@ -227,7 +227,7 @@ public class AttendsTest {
         final ExecutionCourse executionCourse =
                 createExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval,
                         curricularCourse);
-        assertEquals(enrolment.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment.getAttendsSet().size());
 
         final Attends attends = enrolment.getAttendsSet().iterator().next();
         assertEquals(enrolment.findOrCreateAttends(executionCourse), attends);
@@ -246,20 +246,20 @@ public class AttendsTest {
         final CurricularCourse curricularCourse2 = enrolment2.getCurricularCourse();
         executionCourse.addAssociatedCurricularCourses(curricularCourse2);
 
-        assertEquals(enrolment1.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment1.getAttendsSet().size());
         assertTrue(enrolment2.getAttendsSet().isEmpty()); // not created because student already had attends for execution course
 
         try {
             enrolment2.findOrCreateAttends(executionCourse);
         } catch (DomainException e) {
-            assertEquals(e.getMessage(), "error.cannot.create.multiple.enrolments.for.student.in.execution.course");
+            assertEquals("error.cannot.create.multiple.enrolments.for.student.in.execution.course", e.getMessage());
         }
 
         enrolment1.annul();
         final Attends attends2 = enrolment2.findOrCreateAttends(executionCourse);
 
         assertTrue(enrolment1.getAttendsSet().isEmpty());
-        assertEquals(enrolment2.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment2.getAttendsSet().size());
         assertEquals(attends1, attends2);
     }
 
@@ -272,10 +272,10 @@ public class AttendsTest {
                 createExecutionCourse(curricularCourse1.getName(), curricularCourse1.getCode(), executionInterval,
                         curricularCourse1);
 
-        assertEquals(enrolment1.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment1.getAttendsSet().size());
 
         enrolment1.annul();
-        assertEquals(enrolment1.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment1.getAttendsSet().size());
         final Attends attends1 = enrolment1.getAttendsSet().iterator().next();
 
         final Enrolment enrolment2 = createAdhocEnrolmentWithoutAttends();
@@ -283,7 +283,7 @@ public class AttendsTest {
         executionCourse.addAssociatedCurricularCourses(enrolment2.getCurricularCourse());
 
         assertTrue(enrolment1.getAttendsSet().isEmpty());
-        assertEquals(enrolment2.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment2.getAttendsSet().size());
         assertTrue(enrolment2.getAttendsSet().contains(attends1));
     }
 
@@ -296,7 +296,7 @@ public class AttendsTest {
                 createExecutionCourse(curricularCourse.getName(), curricularCourse.getCode(), executionInterval,
                         curricularCourse);
 
-        assertEquals(enrolment.getAttendsSet().size(), 1);
+        assertEquals(1, enrolment.getAttendsSet().size());
 
         final ExecutionInterval executionIntervalNext = executionInterval.getNext();
         final ExecutionCourse executionCourseNext =
@@ -304,7 +304,7 @@ public class AttendsTest {
                         curricularCourse);
         enrolment.findOrCreateAttends(executionCourseNext);
 
-        assertEquals(enrolment.getAttendsSet().size(), 2);
+        assertEquals(2, enrolment.getAttendsSet().size());
 
         final Attends attends = enrolment.findAttends(executionInterval).orElseThrow();
         final Attends attendsNext = enrolment.findAttends(executionIntervalNext).orElseThrow();
