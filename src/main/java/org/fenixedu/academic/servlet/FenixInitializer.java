@@ -35,6 +35,7 @@ import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
+import org.fenixedu.academic.domain.student.StudentStatute;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.slf4j.Logger;
@@ -71,6 +72,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
+
+        migrateStudentStatuteExecutionIntervals();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -188,6 +191,39 @@ public class FenixInitializer implements ServletContextListener {
 
         Log.info("IdentificationDocumentType.validator migration: " + migrated.get() + " migrated, " + alreadyConfigured.get()
                 + " already configured.");
+        Log.info("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migrateStudentStatuteExecutionIntervals() {
+        Log.info("---------------------------------------");
+        Log.info("Starting migration of student statutes intervals");
+        final AtomicInteger migrated = new AtomicInteger(0);
+        for (final StudentStatute statute : Bennu.getInstance().getStudentStatutesSet()) {
+            boolean changed = false;
+
+            if (statute.getBeginExecutionInterval() == null) {
+                final ExecutionInterval begin = statute.getBeginExecutionPeriod();
+                if (begin != null) {
+                    statute.setBeginExecutionInterval(begin);
+                    changed = true;
+                }
+            }
+
+            if (statute.getEndExecutionInterval() == null) {
+                final ExecutionInterval end = statute.getEndExecutionPeriod();
+                if (end != null) {
+                    statute.setEndExecutionInterval(end);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                migrated.incrementAndGet();
+            }
+        }
+
+        Log.info("Migrated begin/end execution intervals for " + migrated.get() + " StudentStatute instances.");
         Log.info("---------------------------------------");
     }
 }

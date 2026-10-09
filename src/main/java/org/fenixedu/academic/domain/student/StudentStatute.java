@@ -106,8 +106,8 @@ public class StudentStatute extends StudentStatute_Base {
             final ExecutionInterval endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate,
             final String comment) {
 
-        setBeginExecutionPeriod(beginExecutionPeriod);
-        setEndExecutionPeriod(endExecutionPeriod);
+        setBeginExecutionInterval(beginExecutionPeriod);
+        setEndExecutionInterval(endExecutionPeriod);
         setBeginDate(beginDate);
         setEndDate(endDate);
         setComment(comment);
@@ -135,8 +135,8 @@ public class StudentStatute extends StudentStatute_Base {
     }
 
     public void delete() {
-        setBeginExecutionPeriod(null);
-        setEndExecutionPeriod(null);
+        setBeginExecutionInterval(null);
+        setEndExecutionInterval(null);
         setStudent(null);
         setType(null);
         setRegistration(null);
@@ -187,10 +187,6 @@ public class StudentStatute extends StudentStatute_Base {
     @Deprecated
     @Override
     public ExecutionInterval getBeginExecutionPeriod() {
-        return getBeginExecutionInterval();
-    }
-
-    public ExecutionInterval getBeginExecutionInterval() {
         return super.getBeginExecutionPeriod();
     }
 
@@ -200,10 +196,30 @@ public class StudentStatute extends StudentStatute_Base {
     @Deprecated
     @Override
     public ExecutionInterval getEndExecutionPeriod() {
-        return getEndExecutionInterval();
+        return super.getEndExecutionPeriod();
     }
 
-    public ExecutionInterval getEndExecutionInterval() {
-        return super.getEndExecutionPeriod();
+    @Deprecated
+    @Override
+    public void setBeginExecutionPeriod(final ExecutionInterval beginExecutionPeriod) {
+        setBeginExecutionInterval(beginExecutionPeriod);
+    }
+
+    @Deprecated
+    @Override
+    public void setEndExecutionPeriod(final ExecutionInterval endExecutionPeriod) {
+        setEndExecutionInterval(endExecutionPeriod);
+    }
+
+    @Override
+    public void setBeginExecutionInterval(final ExecutionInterval beginExecutionInterval) {
+        super.setBeginExecutionInterval(beginExecutionInterval);
+        super.setBeginExecutionPeriod(beginExecutionInterval);
+    }
+
+    @Override
+    public void setEndExecutionInterval(final ExecutionInterval endExecutionInterval) {
+        super.setEndExecutionInterval(endExecutionInterval);
+        super.setEndExecutionPeriod(endExecutionInterval);
     }
 }
