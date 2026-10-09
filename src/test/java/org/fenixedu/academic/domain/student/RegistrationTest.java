@@ -1,12 +1,17 @@
 package org.fenixedu.academic.domain.student;
 
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V2;
+import static org.fenixedu.academic.domain.DegreeCurricularPlanTest.DCP_NAME_V3;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -16,12 +21,16 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentTest;
+import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
@@ -29,11 +38,13 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootE
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicIntervalCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
+import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.YearMonthDay;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,6 +64,7 @@ public class RegistrationTest {
     private static ExecutionInterval executionInterval;
     private static CurricularCourse curricularCourse;
     private static Context context;
+    private static ExecutionCourse executionCourseA;
 
     private static final String PRESENT_ACADEMIC_YEAR_NAME = "PRESENT_YEAR";
     private static final String FUTURE_ACADEMIC_YEAR_NAME = "FUTURE_YEAR";
@@ -73,6 +85,7 @@ public class RegistrationTest {
             executionInterval = ExecutionInterval.findFirstCurrentChild(studentCurricularPlan.getDegree().getCalendar());
             curricularCourse =
                     studentCurricularPlan.getDegreeCurricularPlan().getCurricularCourseByCode(CompetenceCourseTest.COURSE_A_CODE);
+            executionCourseA = curricularCourse.findExecutionCourses(executionInterval).iterator().next();
 
             context = curricularCourse.getParentContextsSet().stream().filter(ctx -> ctx.isValid(executionInterval)).findAny()
                     .orElseThrow();
@@ -206,6 +219,103 @@ public class RegistrationTest {
             assertEquals(registration.getStateInDate(entry.getKey()),
                     registration.getStateInDate(entry.getKey().toDateTimeAtStartOfDay()));
         }
+    }
+
+    @Test
+    public void testRegistration_numberComparator() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertEquals(0, Registration.NUMBER_COMPARATOR.compare(registration, registration));
+        assertTrue(Registration.NUMBER_COMPARATOR.compare(registration, newRegistration) < 0);
+        assertTrue(Registration.NUMBER_COMPARATOR.compare(newRegistration, registration) > 0);
+    }
+
+    @Test
+    public void testRegistration_comparatorByStartDate() {
+        Registration newRegistration = createFreshRegistration();
+
+        registration.setStartDate(new YearMonthDay(2020, 1, 1));
+        newRegistration.setStartDate(new YearMonthDay(2021, 1, 1));
+
+        assertEquals(0, Registration.COMPARATOR_BY_START_DATE.compare(registration, registration));
+        assertTrue(Registration.COMPARATOR_BY_START_DATE.compare(registration, newRegistration) < 0);
+        assertTrue(Registration.COMPARATOR_BY_START_DATE.compare(newRegistration, registration) > 0);
+    }
+
+    @Test
+    public void testRegistration_getFirstAndLastStudentCurricularPlan() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan firstSCP = newRegistration.getFirstStudentCurricularPlan();
+
+        assertEquals(1, newRegistration.getStudentCurricularPlansSet().size());
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(newRegistration.getFirstStudentCurricularPlan(), newRegistration.getLastStudentCurricularPlan());
+
+        newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V2), nextExecutionYear);
+        StudentCurricularPlan thirdSCP = newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V3),
+                nextExecutionYear.getNext().getExecutionYear());
+
+        assertEquals(3, newRegistration.getStudentCurricularPlansSet().size());
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(thirdSCP, newRegistration.getLastStudentCurricularPlan());
+    }
+
+    @Test
+    public void testRegistration_getSortedStudentCurricularPlans() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan firstSCP = newRegistration.getFirstStudentCurricularPlan();
+
+        assertEquals(List.of(firstSCP), newRegistration.getSortedStudentCurricularPlans());
+
+        StudentCurricularPlan secondSCP =
+                newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V2), nextExecutionYear);
+        StudentCurricularPlan thirdSCP = newRegistration.createStudentCurricularPlan(getDcpByName(DCP_NAME_V3),
+                nextExecutionYear.getNext().getExecutionYear());
+        List<StudentCurricularPlan> sorted = newRegistration.getSortedStudentCurricularPlans();
+
+        assertEquals(List.of(firstSCP, secondSCP, thirdSCP), sorted);
+        assertEquals(firstSCP, newRegistration.getFirstStudentCurricularPlan());
+        assertEquals(thirdSCP, newRegistration.getLastStudentCurricularPlan());
+
+        // returned list must be mutable
+        Collections.reverse(sorted);
+        assertEquals(List.of(thirdSCP, secondSCP, firstSCP), sorted);
+        assertEquals(3, newRegistration.getStudentCurricularPlansSet().size());
+    }
+
+    @Test
+    public void testRegistration_attends() {
+        assertTrue(registration.attends(executionCourseA));
+
+        ExecutionCourse newExecutionCourse = new ExecutionCourse("Course for Attends Test", "ATT", executionInterval);
+
+        assertFalse(registration.attends(newExecutionCourse));
+    }
+
+    @Test
+    public void testRegistration_hasAnyEnrolments() {
+        Registration newRegistration = createFreshRegistration();
+
+        assertFalse(newRegistration.hasAnyEnrolments());
+
+        EnrolmentTest.createEnrolment(newRegistration.getLastStudentCurricularPlan(), executionInterval, context, "admin");
+
+        assertTrue(newRegistration.hasAnyEnrolments());
+    }
+
+    @Test
+    public void testRegistration_getApprovedEnrolments() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan newStudentCurricularPlan = newRegistration.getLastStudentCurricularPlan();
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, executionInterval, context, "admin");
+
+        assertTrue(newRegistration.getApprovedEnrolments().isEmpty());
+
+        Enrolment enrolment = newStudentCurricularPlan.getEnrolmentsSet().iterator().next();
+        approveEnrolment(enrolment);
+
+        assertTrue(newRegistration.getApprovedEnrolments().contains(enrolment));
+        assertEquals(1, newRegistration.getApprovedEnrolments().size());
     }
 
     @Test
@@ -365,4 +475,21 @@ public class RegistrationTest {
         return createRegistration(student, studentCurricularPlan.getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
     }
 
+    private static DegreeCurricularPlan getDcpByName(String name) {
+        return studentCurricularPlan.getDegree().getDegreeCurricularPlansSet().stream().filter(dcp -> name.equals(dcp.getName()))
+                .findAny().orElseThrow();
+    }
+
+    private static GradeScale createGradeScale() {
+        return GradeScale.findUniqueByCode("TYPE20").orElseGet(
+                () -> GradeScale.create("TYPE20", new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"),
+                        new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true));
+    }
+
+    private static void approveEnrolment(Enrolment enrolment) {
+        enrolment.getEvaluationsSet().forEach(e -> {
+            e.setGrade(Grade.createGrade("10", createGradeScale()));
+            e.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+        });
+    }
 }
