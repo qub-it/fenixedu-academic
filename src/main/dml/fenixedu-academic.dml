@@ -3690,6 +3690,20 @@ relation StudentStatuteEndPeriod {
     }
 }
 
+relation StudentStatuteBeginInterval {
+    ExecutionInterval playsRole beginExecutionInterval;
+    student.StudentStatute playsRole beginningIntervalStudentStatutes {
+        multiplicity *;
+    }
+}
+
+relation StudentStatuteEndInterval {
+    ExecutionInterval playsRole endExecutionInterval;
+    student.StudentStatute playsRole endingIntervalStudentStatutes {
+        multiplicity *;
+    }
+}
+
 relation StudentStatuteStudent {
     student.Student playsRole student;
     student.StudentStatute playsRole studentStatutes {
