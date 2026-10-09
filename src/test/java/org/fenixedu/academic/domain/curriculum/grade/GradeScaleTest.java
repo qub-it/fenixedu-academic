@@ -28,6 +28,7 @@ public class GradeScaleTest {
 
     private static final LocalizedString GRADE_SCALE_NAME = new LocalizedString(Locale.ENGLISH, "Grade Scale");
     private static final String QUALITATIVE_GRADE_SCALE_CODE = "QUALITATIVE";
+    private static final BigDecimal ONE_CENT = new BigDecimal("0.01");
     private static final BigDecimal MINIMUM_APPROVED_GRADE = new BigDecimal("9.5");
     private static final BigDecimal MAXIMUM_APPROVED_GRADE = new BigDecimal("20");
     private static final BigDecimal MINIMUM_REPROVED_GRADE = new BigDecimal("0");
@@ -163,4 +164,188 @@ public class GradeScaleTest {
         gradeScale.moveDown(secondReprovedEntry);
         assertEquals("AP#1 < C#2 < F#3", describeOrderedEntries(gradeScale));
     }
+
+    @Test
+    public void testGradeScale_hasContinuousGrades() {
+        // a scale without any interval defined has no continuous grades
+        assertFalse(gradeScale.hasContinuousGrades());
+
+        // an approved interval alone makes the scale continuous
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+
+        // a reproved interval alone also makes the scale continuous
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null, null, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+
+        // both intervals defined also make the scale continuous
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+                MAXIMUM_APPROVED_GRADE, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+
+        // removing both intervals makes the scale non continuous again
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
+        assertFalse(gradeScale.hasContinuousGrades());
+    }
+
+    // NOTE: This test will be deleted after deleting deprecated #hasRestrictedGrades
+    @Test
+    public void testGradeScale_hasRestrictedGrades_equalsNegationOfHasContinuousGrades() {
+        // a scale without any interval defined, has no continuous grades and is reported as restricted
+        assertFalse(gradeScale.hasContinuousGrades());
+        assertTrue(gradeScale.hasRestrictedGrades());
+        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
+
+        // an approved interval alone makes the scale continuous
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+        assertFalse(gradeScale.hasRestrictedGrades());
+        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
+
+        // a reproved interval alone also makes the scale continuous
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null, null, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+        assertFalse(gradeScale.hasRestrictedGrades());
+        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
+
+        // both intervals at once keep the same relationship
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+                MAXIMUM_APPROVED_GRADE, true, false);
+        assertTrue(gradeScale.hasContinuousGrades());
+        assertFalse(gradeScale.hasRestrictedGrades());
+        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
+
+        // removing both intervals makes the scale non continuous and restricted again
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
+        assertFalse(gradeScale.hasContinuousGrades());
+        assertTrue(gradeScale.hasRestrictedGrades());
+        assertEquals(!gradeScale.hasContinuousGrades(), gradeScale.hasRestrictedGrades());
+    }
+
+    @Test
+    public void testGradeScale_hasContinuousApprovedGrades() {
+        // without any interval the approved grades are not continuous
+        assertFalse(gradeScale.hasContinuousApprovedGrades());
+
+        // a minimum without a maximum does not define a continuous interval
+        gradeScale.setMinimumApprovedGrade(MINIMUM_APPROVED_GRADE);
+        gradeScale.setMaximumApprovedGrade(null);
+        assertFalse(gradeScale.hasContinuousApprovedGrades());
+
+        // a maximum without a minimum does not define a continuous interval either
+        gradeScale.setMinimumApprovedGrade(null);
+        gradeScale.setMaximumApprovedGrade(MAXIMUM_APPROVED_GRADE);
+        assertFalse(gradeScale.hasContinuousApprovedGrades());
+
+        // both bounds together define a continuous approved interval
+        gradeScale.setMinimumApprovedGrade(MINIMUM_APPROVED_GRADE);
+        gradeScale.setMaximumApprovedGrade(MAXIMUM_APPROVED_GRADE);
+        assertTrue(gradeScale.hasContinuousApprovedGrades());
+
+        // removing the approved interval turns it back to a qualitative scale
+        gradeScale.setMinimumApprovedGrade(null);
+        gradeScale.setMaximumApprovedGrade(null);
+        assertFalse(gradeScale.hasContinuousApprovedGrades());
+    }
+
+    @Test
+    public void testGradeScale_hasContinuousReprovedGrades() {
+        // without any interval the reproved grades are not continuous
+        assertFalse(gradeScale.hasContinuousReprovedGrades());
+
+        // a minimum without a maximum does not define a continuous interval
+        gradeScale.setMinimumReprovedGrade(MINIMUM_REPROVED_GRADE);
+        gradeScale.setMaximumReprovedGrade(null);
+        assertFalse(gradeScale.hasContinuousReprovedGrades());
+
+        // a maximum without a minimum does not define a continuous interval either
+        gradeScale.setMinimumReprovedGrade(null);
+        gradeScale.setMaximumReprovedGrade(MAXIMUM_REPROVED_GRADE);
+        assertFalse(gradeScale.hasContinuousReprovedGrades());
+
+        // both bounds together define a continuous reproved interval
+        gradeScale.setMinimumReprovedGrade(MINIMUM_REPROVED_GRADE);
+        gradeScale.setMaximumReprovedGrade(MAXIMUM_REPROVED_GRADE);
+        assertTrue(gradeScale.hasContinuousReprovedGrades());
+    }
+
+    /**
+     * The methods below are private, that is why the tests are commented out
+     */
+
+//    @Test
+//    public void testGradeScale_isWithinInterval() {
+//        // a value strictly between the bounds is within the interval
+//        assertTrue(GradeScale.isWithinInterval(new BigDecimal("15"), MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE));
+//
+//        // the lower bound is included
+//        assertTrue(GradeScale.isWithinInterval(MINIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE));
+//
+//        // the upper bound is included
+//        assertTrue(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE));
+//
+//        // a single value interval accepts that exact value and nothing else
+//        assertTrue(GradeScale.isWithinInterval(MINIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE));
+//        assertFalse(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE));
+//
+//        // a value just below the lower bound is outside the interval
+    //        assertFalse(GradeScale.isWithinInterval(MINIMUM_APPROVED_GRADE.subtract(ONE_CENT), MINIMUM_APPROVED_GRADE,
+//                MAXIMUM_APPROVED_GRADE));
+//
+//        // a value just above the upper bound is outside the interval
+    //        assertFalse(GradeScale.isWithinInterval(MAXIMUM_APPROVED_GRADE.add(ONE_CENT), MINIMUM_APPROVED_GRADE,
+//                MAXIMUM_APPROVED_GRADE));
+//    }
+//
+//    @Test
+//    public void testGradeScale_isGradeValueContinuousAndApproved() {
+//        // no approved intervals configured, so must be return false
+//        assertFalse(gradeScale.isGradeValueContinuousAndApproved("15"));
+//
+//        // configuring an approved interval makes the values inside it continuous and approved
+//        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+//        assertTrue(gradeScale.isGradeValueContinuousAndApproved("15"));
+//
+//        // both bounds of the approved interval are accepted
+//        assertTrue(gradeScale.isGradeValueContinuousAndApproved(MINIMUM_APPROVED_GRADE.toPlainString()));
+//        assertTrue(gradeScale.isGradeValueContinuousAndApproved(MAXIMUM_APPROVED_GRADE.toPlainString()));
+//
+//        // values just outside the approved interval are rejected
+//        assertFalse(gradeScale.isGradeValueContinuousAndApproved(
+    //                MINIMUM_APPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+//        assertFalse(
+    //                gradeScale.isGradeValueContinuousAndApproved(MAXIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
+//
+//        // a non numeric grade value is never continuous and approved
+//        assertFalse(gradeScale.isGradeValueContinuousAndApproved("MB"));
+//
+//        // a null grade value is never continuous and approved
+//        assertFalse(gradeScale.isGradeValueContinuousAndApproved(null));
+//    }
+//
+//    @Test
+//    public void testGradeScale_isGradeValueContinuousAndNotApproved() {
+//        // no reproved intervals configured, so must be return false
+//        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved("5"));
+//
+//        // configuring a reproved interval makes the values inside it continuous and not approved
+//        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null, null, true, false);
+//        assertTrue(gradeScale.isGradeValueContinuousAndNotApproved("5"));
+//
+//        // both bounds of the reproved interval are accepted
+//        assertTrue(gradeScale.isGradeValueContinuousAndNotApproved(MINIMUM_REPROVED_GRADE.toPlainString()));
+//        assertTrue(gradeScale.isGradeValueContinuousAndNotApproved(MAXIMUM_REPROVED_GRADE.toPlainString()));
+//
+//        // values just outside the reproved interval are rejected
+//        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(
+    //                MINIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+//        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(
+    //                MAXIMUM_REPROVED_GRADE.add(ONE_CENT).toPlainString()));
+//
+//        // a non numeric grade value is never continuous and not approved
+//        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved("MB"));
+//
+//        // a null grade value is never continuous and not approved
+//        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(null));
+//    }
 }
