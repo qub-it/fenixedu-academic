@@ -8,11 +8,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
@@ -269,6 +268,40 @@ public class GradeScaleTest {
         assertTrue(gradeScale.hasContinuousReprovedGrades());
     }
 
+    @Test
+    public void testGradeScale_findByCode() {
+        GradeScale otherScale = GradeScale.create("FIND_BY_CODE_OTHER", GRADE_SCALE_NAME, null, null, null, null, false, true);
+        assertEquals(1, GradeScale.findByCode("FIND_BY_CODE_OTHER").count());
+        assertEquals(otherScale, GradeScale.findByCode("FIND_BY_CODE_OTHER").findFirst().get());
+
+        // an unknown code matches nothing
+        assertEquals(0, GradeScale.findByCode("UNKNOWN_CODE").count());
+
+        // a null code matches nothing instead of failing
+        assertEquals(0, GradeScale.findByCode(null).count());
+    }
+
+    @Test
+    public void testGradeScale_findActive() {
+        GradeScale inactiveScale =
+                GradeScale.create("FIND_ACTIVE_INACTIVE", GRADE_SCALE_NAME, null, null, null, null, false, false);
+        //inactiveScale.edit(GRADE_SCALE_NAME, null, null, null, null, false, false);
+        GradeScale internalScale =
+                GradeScale.create("FIND_ACTIVE_INTERNAL", GRADE_SCALE_NAME, null, null, null, null, true, true);
+        //internalScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, true);
+
+        // only the active scales are returned, the inactive one is left out
+        assertEquals(2, GradeScale.findActive().count());
+        assertEquals(List.of(gradeScale, internalScale), GradeScale.findActive().toList());
+
+        // test internalGradeScale flag
+        assertEquals(1, GradeScale.findActive(true).count());
+        assertEquals(internalScale, GradeScale.findActive(true).findFirst().get());
+
+        assertEquals(1, GradeScale.findActive(false).count());
+        assertEquals(gradeScale, GradeScale.findActive(false).findFirst().get());
+    }
+
     /**
      * The methods below are private, that is why the tests are commented out
      */
@@ -348,4 +381,153 @@ public class GradeScaleTest {
 //        // a null grade value is never continuous and not approved
 //        assertFalse(gradeScale.isGradeValueContinuousAndNotApproved(null));
 //    }
+
+    //    @Test
+    //    public void testGradeScale_checkRules() {
+    //        // an empty code is rejected
+    //        try {
+    //            GradeScale.create("", GRADE_SCALE_NAME, null, null, null, null, false, true);
+    //            fail("a scale without a code should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.code.required", domainException.getKey());
+    //        }
+    //
+    //        // a scale with a code and without numeric intervals satisfies the rules
+    //        assertNotNull(GradeScale.create("WITH_CODE_PASSES", GRADE_SCALE_NAME, null, null, null, null, false, true));
+    //
+    //        // an approved interval declared without its maximum is rejected
+    //        try {
+    //            GradeScale.create("INCOMPLETE_APPROVED", GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, null, false, true);
+    //            fail("an approved interval without its maximum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.numericApprovedGrade.incomplete", domainException.getKey());
+    //        }
+    //
+    //        // an approved interval declared without its minimum is rejected
+    //        try {
+    //            GradeScale.create("INCOMPLETE_APPROVED_WITHOUT_MINIMUM", GRADE_SCALE_NAME, null, null, null, MAXIMUM_APPROVED_GRADE,
+    //                    false, true);
+    //            fail("an approved interval without its minimum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.numericApprovedGrade.incomplete", domainException.getKey());
+    //        }
+    //
+    //        // an approved interval declared with both bounds satisfies the rules
+    //        assertNotNull(GradeScale.create("CONTINUOUS_APPROVED", GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE,
+    //                MAXIMUM_APPROVED_GRADE, false, true));
+    //
+    //        // a reproved interval declared without its minimum is rejected
+    //        try {
+    //            GradeScale.create("INCOMPLETE_REPROVED", GRADE_SCALE_NAME, null, MAXIMUM_REPROVED_GRADE, null, null, false, true);
+    //            fail("a reproved interval without its minimum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.numericReprovedGrade.incomplete", domainException.getKey());
+    //        }
+    //
+    //        // a reproved interval declared without its maximum is rejected
+    //        try {
+    //            GradeScale.create("INCOMPLETE_REPROVED_WITHOUT_MAXIMUM", GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, null, null, null,
+    //                    false, true);
+    //            fail("a reproved interval without its maximum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.numericReprovedGrade.incomplete", domainException.getKey());
+    //        }
+    //
+    //        // a reproved interval declared with both bounds satisfies the rules
+    //        assertNotNull(
+    //                GradeScale.create("CONTINUOUS_REPROVED", GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null,
+    //                        null, false, true));
+    //
+    //        // an approved minimum greater than its maximum is rejected
+    //        try {
+    //            GradeScale.create("INVALID_APPROVED", GRADE_SCALE_NAME, null, null, MAXIMUM_APPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+    //                    false, true);
+    //            fail("an approved minimum greater than its maximum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.minimumApprovedGrade.invalid", domainException.getKey());
+    //        }
+    //
+    //        // a reproved minimum greater than its maximum is rejected
+    //        try {
+    //            GradeScale.create("INVALID_REPROVED", GRADE_SCALE_NAME, MAXIMUM_REPROVED_GRADE, MINIMUM_REPROVED_GRADE, null, null,
+    //                    false, true);
+    //            fail("a reproved minimum greater than its maximum should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.minimumReprovedGrade.invalid", domainException.getKey());
+    //        }
+    //
+    //        // a reproved interval reaching into the approved interval is rejected
+    //        try {
+    //            GradeScale.create("REPROVED_OVERLAPS_APPROVED", GRADE_SCALE_NAME, new BigDecimal("0"), new BigDecimal("12"),
+    //                    MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, false, true);
+    //            fail("a reproved interval reaching into the approved interval should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.reproved.overlap.with.approved", domainException.getKey());
+    //        }
+    //
+    //        // an approved interval reaching into the reproved interval is rejected as well.
+    //        try {
+    //            GradeScale.create("APPROVED_OVERLAPS_REPROVED", GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE,
+    //                    new BigDecimal("0"), MAXIMUM_APPROVED_GRADE, false, true);
+    //            fail("an approved interval reaching into the reproved interval should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.approved.overlap.with.reproved", domainException.getKey());
+    //        }
+    //
+    //        // configuring a single continuous approved interval on the existing scale satisfies the rules
+    //        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+    //        assertEquals(MINIMUM_APPROVED_GRADE, gradeScale.getMinimumApprovedGrade());
+    //
+    //        // extending the same scale with a continuous reproved interval still satisfies the rules
+    //        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+    //                MAXIMUM_APPROVED_GRADE, true, false);
+    //        assertEquals(MAXIMUM_REPROVED_GRADE, gradeScale.getMaximumReprovedGrade());
+    //
+    //        // a duplicated code is rejected
+    //        try {
+    //            GradeScale.create(QUALITATIVE_GRADE_SCALE_CODE, GRADE_SCALE_NAME, null, null, null, null, false, true);
+    //            fail("a duplicated code should have been rejected");
+    //        } catch (DomainException domainException) {
+    //            assertEquals("error.GradeScale.code.duplicated", domainException.getKey());
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void testGradeScale_isGradeValueContinuous() {
+    //        // no intervals configured, so must return false
+    //        assertFalse(gradeScale.isGradeValueContinuous("15"));
+    //
+    //        // values inside the approved intervals are continuous
+    //        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+    //        assertTrue(gradeScale.isGradeValueContinuous(MINIMUM_APPROVED_GRADE.toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MINIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MAXIMUM_APPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MAXIMUM_APPROVED_GRADE.toPlainString()));
+    //
+    //        // since no reproved interval is configured, must return false
+    //        assertFalse(gradeScale.isGradeValueContinuous(MINIMUM_REPROVED_GRADE.toPlainString()));
+    //        assertFalse(gradeScale.isGradeValueContinuous(MAXIMUM_REPROVED_GRADE.toPlainString()));
+    //
+    //        // values inside the reproved interval are continuous
+    //        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+    //                MAXIMUM_APPROVED_GRADE, true, false);
+    //        assertTrue(gradeScale.isGradeValueContinuous(MINIMUM_REPROVED_GRADE.toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MINIMUM_REPROVED_GRADE.add(ONE_CENT).toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MAXIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+    //        assertTrue(gradeScale.isGradeValueContinuous(MAXIMUM_REPROVED_GRADE.toPlainString()));
+    //
+    //        // values outside both intervals are not continuous
+    //        assertFalse(gradeScale.isGradeValueContinuous(MINIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+    //        assertFalse(gradeScale.isGradeValueContinuous(MAXIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
+    //
+    //        // a non numeric grade value is never continuous
+    //        assertFalse(gradeScale.isGradeValueContinuous("MB"));
+    //
+    //        // a null grade value is never continuous
+    //        assertFalse(gradeScale.isGradeValueContinuous(null));
+    //
+    //        // removing both intervals turns every grade value non continuous again
+    //        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
+    //        assertFalse(gradeScale.isGradeValueContinuous("15"));
+    //    }
 }

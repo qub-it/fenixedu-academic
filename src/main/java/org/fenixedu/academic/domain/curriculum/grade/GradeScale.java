@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -71,27 +70,23 @@ public class GradeScale extends GradeScale_Base {
             throw new DomainException("error.GradeScale.code.duplicated");
         }
 
-        if ((getMinimumApprovedGrade() != null) ^ (getMaximumApprovedGrade() != null)) {
+        if ((getMinimumApprovedGrade() == null) ^ (getMaximumApprovedGrade() == null)) {
             throw new DomainException("error.GradeScale.numericApprovedGrade.incomplete");
         }
 
-        if ((getMinimumReprovedGrade() != null) ^ (getMaximumReprovedGrade() != null)) {
+        if ((getMinimumReprovedGrade() == null) ^ (getMaximumReprovedGrade() == null)) {
             throw new DomainException("error.GradeScale.numericReprovedGrade.incomplete");
         }
 
-        if (getMinimumApprovedGrade() != null) {
-            if (getMinimumApprovedGrade().compareTo(getMaximumApprovedGrade()) > 0) {
-                throw new DomainException("error.GradeScale.minimumApprovedGrade.invalid");
-            }
+        if (hasContinuousApprovedGrades() && getMinimumApprovedGrade().compareTo(getMaximumApprovedGrade()) > 0) {
+            throw new DomainException("error.GradeScale.minimumApprovedGrade.invalid");
         }
 
-        if (getMinimumReprovedGrade() != null) {
-            if (getMinimumReprovedGrade().compareTo(getMaximumReprovedGrade()) > 0) {
-                throw new DomainException("error.GradeScale.minimumReprovedGrade.invalid");
-            }
+        if (hasContinuousReprovedGrades() && getMinimumReprovedGrade().compareTo(getMaximumReprovedGrade()) > 0) {
+            throw new DomainException("error.GradeScale.minimumReprovedGrade.invalid");
         }
 
-        if (getMinimumReprovedGrade() != null && getMinimumApprovedGrade() != null) {
+        if (hasContinuousReprovedGrades() && hasContinuousApprovedGrades()) {
             if (getMinimumReprovedGrade().compareTo(getMinimumApprovedGrade()) < 0) {
                 if (getMaximumReprovedGrade().compareTo(getMinimumApprovedGrade()) >= 0) {
                     throw new DomainException("error.GradeScale.reproved.overlap.with.approved");
@@ -456,7 +451,8 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private boolean isGradeValueContinuous(final String gradeValue) {
-        return isGradeValueContinuousAndApproved(gradeValue) || isGradeValueContinuousAndNotApproved(gradeValue);
+        return hasContinuousGrades() && (isGradeValueContinuousAndApproved(gradeValue) || isGradeValueContinuousAndNotApproved(
+                gradeValue));
     }
 
     // ############
@@ -476,7 +472,7 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public static Stream<GradeScale> findDefault() {
-        return findAll().filter(gs -> gs.isDefaultGradeScale());
+        return findAll().filter(GradeScale::isDefaultGradeScale);
     }
 
     public static Optional<GradeScale> findUniqueDefault() {
@@ -484,7 +480,7 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public static Stream<GradeScale> findByCode(final String code) {
-        return findAll().filter(e -> code.equals(e.getCode()));
+        return findAll().filter(gradeScale -> Objects.equals(code, gradeScale.getCode()));
     }
 
     public static Optional<GradeScale> findUniqueByCode(final String code) {
@@ -492,11 +488,11 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public static Stream<GradeScale> findActive() {
-        return findAll().filter(e -> e.isActive());
+        return findAll().filter(GradeScale::isActive);
     }
 
     public static Stream<GradeScale> findActive(boolean internalGradeScale) {
-        return findActive().filter(e -> e.isInternalGradeScale());
+        return findActive().filter(gradeScale -> gradeScale.isInternalGradeScale() == internalGradeScale);
     }
 
     private static Map<String, GradeScale> GRADE_SCALE_CACHE = new HashMap<>();
