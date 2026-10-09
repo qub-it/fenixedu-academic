@@ -22,7 +22,10 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -30,9 +33,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
-import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -41,8 +42,6 @@ import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.Se
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.joda.time.DateTime;
-
-import com.google.common.collect.Sets;
 
 public class Credits extends Credits_Base {
 
@@ -125,14 +124,9 @@ public class Credits extends Credits_Base {
         if (courseGroup.isCycleCourseGroup() || courseGroup.isRoot()) {
             return true;
         }
-        for (final Context context : courseGroup.getParentContextsSet()) {
-            if (context.isOpen(executionInterval)) {
-                if (allowsEctsCredits(studentCurricularPlan, context.getParentCourseGroup(), executionInterval, ectsCredits)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return courseGroup.getParentContextsSet().stream().filter(context -> context.isOpen(executionInterval)).anyMatch(
+                context -> allowsEctsCredits(studentCurricularPlan, context.getParentCourseGroup(), executionInterval,
+                        ectsCredits));
     }
 
     protected void init(StudentCurricularPlan studentCurricularPlan, Collection<SelectedCurricularCourse> dismissals,
@@ -172,53 +166,24 @@ public class Credits extends Credits_Base {
     }
 
     protected Set<EnrolmentWrapper> getEnrolmentsSetBefore(final ExecutionYear executionYear) {
-        final Set<EnrolmentWrapper> result = Sets.newHashSet();
-
-        for (final EnrolmentWrapper wrapper : getEnrolmentsSet()) {
-            final IEnrolment enrolment = wrapper.getIEnrolment();
-            if (enrolment != null && isBefore(enrolment, executionYear)) {
-                result.add(wrapper);
-            }
-        }
-
-        return result;
+        return getEnrolmentsSet().stream().filter(w -> w.getIEnrolment() != null && isBefore(w.getIEnrolment(), executionYear))
+                .collect(Collectors.toSet());
     }
 
     final public Collection<IEnrolment> getIEnrolments() {
-        final Set<IEnrolment> result = new HashSet<IEnrolment>();
-        for (final EnrolmentWrapper enrolmentWrapper : this.getEnrolmentsSet()) {
-            IEnrolment enrolment = enrolmentWrapper.getIEnrolment();
-            if (enrolment != null) {
-                result.add(enrolmentWrapper.getIEnrolment());
-            }
-        }
-        return result;
+        return getEnrolmentsSet().stream().map(EnrolmentWrapper::getIEnrolment).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     final public boolean hasIEnrolments(final IEnrolment iEnrolment) {
-        for (final EnrolmentWrapper enrolmentWrapper : this.getEnrolmentsSet()) {
-            if (enrolmentWrapper.getIEnrolment() == iEnrolment) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    final public boolean hasAnyIEnrolments() {
-        return !getEnrolmentsSet().isEmpty();
+        return getEnrolmentsSet().stream().anyMatch(w -> w.getIEnrolment() == iEnrolment);
     }
 
     @Override
     final public Double getGivenCredits() {
-        if (super.getGivenCredits() == null) {
-            BigDecimal bigDecimal = BigDecimal.ZERO;
-            for (Dismissal dismissal : getDismissalsSet()) {
-                bigDecimal = bigDecimal.add(new BigDecimal(dismissal.getEctsCredits()));
-            }
-            return Double.valueOf(bigDecimal.doubleValue());
-        }
-        return super.getGivenCredits();
+        return Optional.ofNullable(super.getGivenCredits()).orElseGet(
+                () -> getDismissalsSet().stream().map(d -> BigDecimal.valueOf(d.getEctsCredits()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
     }
 
     public String getGivenGrade() {
@@ -249,19 +214,7 @@ public class Credits extends Credits_Base {
     }
 
     final public Double getEnrolmentsEcts() {
-        Double result = 0d;
-        for (final IEnrolment enrolment : getIEnrolments()) {
-            result = result + enrolment.getEctsCredits();
-        }
-        return result;
-    }
-
-    final public boolean hasGivenCredits() {
-        return getGivenCredits() != null;
-    }
-
-    final public boolean hasGivenCredits(final Double ectsCredits) {
-        return hasGivenCredits() && getGivenCredits().equals(ectsCredits);
+        return getIEnrolments().stream().mapToDouble(IEnrolment::getEctsCredits).sum();
     }
 
     public boolean isTemporary() {
@@ -284,25 +237,6 @@ public class Credits extends Credits_Base {
         return false;
     }
 
-    public boolean hasAnyDismissalInCurriculum() {
-        for (final Dismissal dismissal : getDismissalsSet()) {
-            if (!dismissal.parentCurriculumGroupIsNoCourseGroupCurriculumGroup()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean hasAnyDismissalInCycle(final CycleType cycleType) {
-        for (final Dismissal dismissal : getDismissalsSet()) {
-            final CycleCurriculumGroup cycle = dismissal.getParentCycleCurriculumGroup();
-            if (cycle != null && cycle.getCycleType().equals(cycleType)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Standard behaviour, may be overriden
      */
@@ -320,20 +254,6 @@ public class Credits extends Credits_Base {
 
     public String getDescription() {
         return BundleUtil.getString("resources.StudentResources", "label.dismissal.Credits");
-    }
-
-    public boolean isAllEnrolmentsAreExternal() {
-        if (getEnrolmentsSet().isEmpty()) {
-            return false;
-        }
-
-        for (EnrolmentWrapper wrapper : getEnrolmentsSet()) {
-            if (!wrapper.getIEnrolment().isExternalEnrolment()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
