@@ -839,12 +839,12 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
                 tryToMakeLineCompatibleWithTargetPlan(curriculumLine, destination.getDegreeCurricularPlanOfStudent());
 
                 if (curriculumLine.getExecutionInterval() != null && curriculumLine.getExecutionInterval().getExecutionYear()
-                        .isBefore(destination.getRegistration().getStartExecutionYear())) {
+                        .isBefore(destination.getRegistration().getRegistrationYear())) {
                     throw new DomainException(
                             "error.StudentCurricularPlan.cannot.move.curriculum.line.to.curriculum.group.invalid.period",
                             curriculumLine.getFullPath(), destination.getFullPath(),
                             curriculumLine.getExecutionInterval().getQualifiedName(),
-                            destination.getRegistration().getStartExecutionYear().getQualifiedName());
+                            destination.getRegistration().getRegistrationYear().getQualifiedName());
                 }
 
                 curriculumLine.setCurriculumGroup(destination);
