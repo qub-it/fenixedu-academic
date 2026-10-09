@@ -10,8 +10,10 @@ import static org.junit.Assert.fail;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.junit.After;
@@ -302,6 +304,206 @@ public class GradeScaleTest {
         assertEquals(gradeScale, GradeScale.findActive(false).findFirst().get());
     }
 
+    @Test
+    public void testGradeScale_isApproved() {
+        // a qualitative scale without entries approves no value
+        assertFalse(gradeScale.isApproved("AP"));
+        assertFalse(gradeScale.isApproved("15"));
+
+        // an entry that allows approval
+        GradeScaleEntry approvedEntry =
+                gradeScale.createGradeScaleEntry("AP", new LocalizedString(Locale.ENGLISH, "Approved AP"), true);
+        assertTrue(gradeScale.isApproved("AP"));
+
+        // a second lookup is served from the approved values cache and keeps the same answer
+        assertTrue(gradeScale.isApproved("AP"));
+
+        // an entry that does not allow approval
+        gradeScale.createGradeScaleEntry("F", new LocalizedString(Locale.ENGLISH, "Not approved F"), false);
+        assertFalse(gradeScale.isApproved("F"));
+
+        // a continuous approved interval approves every value inside it, including both bounds
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+        assertTrue(gradeScale.isApproved(MINIMUM_APPROVED_GRADE.toPlainString()));
+        assertTrue(gradeScale.isApproved(MINIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
+        assertTrue(gradeScale.isApproved(MAXIMUM_APPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+        assertTrue(gradeScale.isApproved(MAXIMUM_APPROVED_GRADE.toPlainString()));
+
+        // values outside interval and nulls are not approved
+        assertFalse(gradeScale.isApproved(MINIMUM_APPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+        assertFalse(gradeScale.isApproved(MAXIMUM_APPROVED_GRADE.add(ONE_CENT).toPlainString()));
+        assertFalse(gradeScale.isApproved(MAXIMUM_REPROVED_GRADE.toPlainString()));
+        assertFalse(gradeScale.isApproved((String) null));
+
+        // deleting the entry invalidates the caches, so the value stops being approved
+        gradeScale.deleteGradeScaleEntry(approvedEntry);
+        assertFalse(gradeScale.isApproved("AP"));
+    }
+
+    @Test
+    public void testGradeScale_isNotApproved() {
+        // a qualitative scale without entries does not disapprove any value
+        assertFalse(gradeScale.isNotApproved("F"));
+        assertFalse(gradeScale.isNotApproved("5"));
+
+        // an entry that does not allow approval
+        GradeScaleEntry reprovedEntry =
+                gradeScale.createGradeScaleEntry("F", new LocalizedString(Locale.ENGLISH, "Not approved F"), false);
+        assertTrue(gradeScale.isNotApproved("F"));
+
+        // a second lookup is served from the not approved values cache and keeps the same answer
+        assertTrue(gradeScale.isNotApproved("F"));
+
+        // an entry that allows approval
+        gradeScale.createGradeScaleEntry("AP", new LocalizedString(Locale.ENGLISH, "Approved AP"), true);
+        assertFalse(gradeScale.isNotApproved("AP"));
+
+        // a continuous reproved interval disapproves every value inside it, including both bounds
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, null, null, true, false);
+        assertTrue(gradeScale.isNotApproved(MINIMUM_REPROVED_GRADE.toPlainString()));
+        assertTrue(gradeScale.isNotApproved(MINIMUM_REPROVED_GRADE.add(ONE_CENT).toPlainString()));
+        assertTrue(gradeScale.isNotApproved(MAXIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+        assertTrue(gradeScale.isNotApproved(MAXIMUM_REPROVED_GRADE.toPlainString()));
+
+        // values outside interval and nulls are not disapproved
+        assertFalse(gradeScale.isNotApproved(MINIMUM_APPROVED_GRADE.toPlainString()));
+        assertFalse(gradeScale.isNotApproved(MINIMUM_REPROVED_GRADE.subtract(ONE_CENT).toPlainString()));
+        assertFalse(gradeScale.isNotApproved(MAXIMUM_REPROVED_GRADE.add(ONE_CENT).toPlainString()));
+        assertFalse(gradeScale.isNotApproved((String) null));
+
+        // deleting the entry invalidates the caches, so the value stops being disapproved
+        gradeScale.deleteGradeScaleEntry(reprovedEntry);
+        assertFalse(gradeScale.isNotApproved("F"));
+    }
+
+    @Test
+    public void testGradeScale_getGradeScaleByCode() {
+        GradeScale otherScale =
+                GradeScale.create("GET_GRADE_SCALE_BY_CODE_OTHER", GRADE_SCALE_NAME, null, null, null, null, false, true);
+
+        // an existing code resolves to its scale
+        assertSame(gradeScale, GradeScale.getGradeScaleByCode(QUALITATIVE_GRADE_SCALE_CODE));
+        assertSame(otherScale, GradeScale.getGradeScaleByCode("GET_GRADE_SCALE_BY_CODE_OTHER"));
+
+        // the result is memoized, so repeated lookups hand back the very same instance
+        assertSame(gradeScale, GradeScale.getGradeScaleByCode(QUALITATIVE_GRADE_SCALE_CODE));
+        assertSame(otherScale, GradeScale.getGradeScaleByCode("GET_GRADE_SCALE_BY_CODE_OTHER"));
+
+        // editing a scale invalidates the code cache, and the code still resolves to that same scale afterwards
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, true, false);
+        assertSame(gradeScale, GradeScale.getGradeScaleByCode(QUALITATIVE_GRADE_SCALE_CODE));
+
+        // an unknown code has no scale to return
+        try {
+            GradeScale.getGradeScaleByCode("UNKNOWN_CODE");
+            fail("resolving an unknown code should not return a grade scale");
+        } catch (NoSuchElementException noSuchElementException) {
+            assertFalse(GradeScale.findUniqueByCode("UNKNOWN_CODE").isPresent());
+        }
+
+        // a null code has no scale to return
+        assertEquals(null, GradeScale.getGradeScaleByCode(null));
+    }
+
+    @Test
+    public void testGradeScale_invalidateCache() {
+        GradeScaleEntry approvedEntry =
+                gradeScale.createGradeScaleEntry("AP", new LocalizedString(Locale.ENGLISH, "Approved AP"), true);
+        GradeScaleEntry reprovedEntry =
+                gradeScale.createGradeScaleEntry("F", new LocalizedString(Locale.ENGLISH, "Not approved F"), false);
+        gradeScale.edit(GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE, MINIMUM_APPROVED_GRADE,
+                MAXIMUM_APPROVED_GRADE, true, false);
+
+        // warm up the entry cache and both approval caches
+        assertTrue(gradeScale.isApproved("AP"));
+        assertTrue(gradeScale.isNotApproved("F"));
+        assertTrue(gradeScale.isApproved("15"));
+        assertTrue(gradeScale.isNotApproved("5"));
+
+        // removing the intervals drops the cached approval decisions, which were decided from those intervals
+        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
+        assertFalse(gradeScale.isApproved("15"));
+        assertFalse(gradeScale.isNotApproved("5"));
+
+        // deleting an entry invalidates the caches, so the deleted values are no longer decided by it
+        gradeScale.deleteGradeScaleEntry(approvedEntry);
+        assertFalse(gradeScale.isApproved("AP"));
+        gradeScale.deleteGradeScaleEntry(reprovedEntry);
+        assertFalse(gradeScale.isNotApproved("F"));
+    }
+
+    @Test
+    public void testGradeScale_compareGrades() {
+        GradeScale continuousScale =
+                GradeScale.create("COMPARE_GRADES_CONTINUOUS", GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE,
+                        MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, false, true);
+        GradeScale otherContinuousScale =
+                GradeScale.create("COMPARE_GRADES_OTHER", GRADE_SCALE_NAME, MINIMUM_REPROVED_GRADE, MAXIMUM_REPROVED_GRADE,
+                        MINIMUM_APPROVED_GRADE, MAXIMUM_APPROVED_GRADE, false, true);
+
+        Grade approvedGrade = Grade.createGrade("15", continuousScale);
+        Grade reprovedGrade = Grade.createGrade("5", continuousScale);
+
+        // an empty right grade sorts after anything, including another empty grade
+        assertEquals(1, continuousScale.compareGrades(approvedGrade, null));
+        assertEquals(1, continuousScale.compareGrades(approvedGrade, Grade.createEmptyGrade()));
+        assertEquals(1, continuousScale.compareGrades(null, null));
+        assertEquals(1, continuousScale.compareGrades(Grade.createEmptyGrade(), Grade.createEmptyGrade()));
+
+        // an empty left grade sorts before anything else
+        assertEquals(-1, continuousScale.compareGrades(null, approvedGrade));
+        assertEquals(-1, continuousScale.compareGrades(Grade.createEmptyGrade(), approvedGrade));
+
+        // grades of different scales cannot be compared
+        try {
+            continuousScale.compareGrades(approvedGrade, Grade.createGrade("15", otherContinuousScale));
+            fail("grades of different scales should not be comparable");
+        } catch (DomainException domainException) {
+            assertEquals("Grade.unsupported.comparison.of.grades.of.different.scales", domainException.getKey());
+        }
+
+        // approved grades sort after reproved ones
+        assertEquals(1, continuousScale.compareGrades(approvedGrade, reprovedGrade));
+        assertEquals(-1, continuousScale.compareGrades(reprovedGrade, approvedGrade));
+
+        // two continuous values are compared numerically
+        assertEquals(-1, continuousScale.compareGrades(approvedGrade, Grade.createGrade("18", continuousScale)));
+        assertEquals(1, continuousScale.compareGrades(Grade.createGrade("18", continuousScale), approvedGrade));
+        assertEquals(0, continuousScale.compareGrades(approvedGrade, Grade.createGrade("15", continuousScale)));
+
+        // values registered as entries are compared by their grade order, once their approval matches
+        GradeScale qualitativeScale =
+                GradeScale.create("COMPARE_GRADES_QUALITATIVE", GRADE_SCALE_NAME, null, null, null, null, false, true);
+        GradeScaleEntry firtReprovedEntry =
+                qualitativeScale.createGradeScaleEntry("F", new LocalizedString(Locale.ENGLISH, "Not approved F"), false);
+        GradeScaleEntry secondReprovedEntry =
+                qualitativeScale.createGradeScaleEntry("C", new LocalizedString(Locale.ENGLISH, "Not approved C"), false);
+        Grade firstReprovedEntryGrade = Grade.createGrade("F", qualitativeScale);
+        Grade secondReprovedEntryGrade = Grade.createGrade("C", qualitativeScale);
+
+        assertEquals(-1, qualitativeScale.compareGrades(firstReprovedEntryGrade, secondReprovedEntryGrade));
+        assertEquals(1, qualitativeScale.compareGrades(secondReprovedEntryGrade, firstReprovedEntryGrade));
+        assertEquals(0, qualitativeScale.compareGrades(firstReprovedEntryGrade, firstReprovedEntryGrade));
+
+        // two values that are neither registered entries nor continuous cannot be ordered at all
+        qualitativeScale.deleteGradeScaleEntry(firtReprovedEntry);
+        qualitativeScale.deleteGradeScaleEntry(secondReprovedEntry);
+        try {
+            qualitativeScale.compareGrades(firstReprovedEntryGrade, secondReprovedEntryGrade);
+            fail("grades that are neither registered entries nor continuous should not be comparable");
+        } catch (DomainException domainException) {
+            assertEquals("Grade.unsupported.comparison.of.grades.of.different.scales", domainException.getKey());
+        }
+
+        // a registered entry value sorts before a continuous one
+        continuousScale.createGradeScaleEntry("AP", new LocalizedString(Locale.ENGLISH, "Approved AP"), true);
+        Grade mixedEntryGrade = Grade.createGrade("AP", continuousScale);
+        Grade mixedContinuousGrade = Grade.createGrade("15", continuousScale);
+
+        assertEquals(-1, continuousScale.compareGrades(mixedEntryGrade, mixedContinuousGrade));
+        assertEquals(1, continuousScale.compareGrades(mixedContinuousGrade, mixedEntryGrade));
+    }
+
     /**
      * The methods below are private, that is why the tests are commented out
      */
@@ -529,5 +731,20 @@ public class GradeScaleTest {
     //        // removing both intervals turns every grade value non continuous again
     //        gradeScale.edit(GRADE_SCALE_NAME, null, null, null, null, true, false);
     //        assertFalse(gradeScale.isGradeValueContinuous("15"));
+    //    }
+    //    @Test
+    //    public void testGradeScale_findGradeScaleEntry() {
+    //        // a scale without entries resolves no value
+    //        assertFalse(gradeScale.findGradeScaleEntry("AP").isPresent());
+    //        assertFalse(gradeScale.findGradeScaleEntry(null).isPresent());
+    //
+    //        // an entry is resolved by its value
+    //        GradeScaleEntry approvedEntry =
+    //                gradeScale.createGradeScaleEntry("AP", new LocalizedString(Locale.ENGLISH, "Approved AP"), true);
+    //        GradeScaleEntry reprovedEntry =
+    //                gradeScale.createGradeScaleEntry("F", new LocalizedString(Locale.ENGLISH, "Not approved F"), false);
+    //
+    //        assertSame(approvedEntry, gradeScale.findGradeScaleEntry("AP").get());
+    //        assertSame(reprovedEntry, gradeScale.findGradeScaleEntry("F").get());
     //    }
 }
