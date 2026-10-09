@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain.student;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
@@ -131,18 +132,25 @@ public class StatuteType extends StatuteType_Base {
     }
 
     public static Collection<StatuteType> findActive() {
-        return readAll(s -> s.getActive()).collect(Collectors.toSet());
+        return findAll(StatuteType::getActive).collect(Collectors.toSet());
     }
 
     public static Optional<StatuteType> findByCode(String code) {
-        return readAll(s -> Objects.equals(code, s.getCode())).findFirst();
+        return findAll(s -> Objects.equals(code, s.getCode())).findFirst();
     }
 
     public static Collection<StatuteType> findAll() {
-        return readAll().collect(Collectors.toSet());
+        return Bennu.getInstance().getStatuteTypesSet();
+    }
+
+    @SafeVarargs
+    public static Stream<StatuteType> findAll(Predicate<StatuteType>... predicates) {
+        Predicate<StatuteType> combinedPredicate = Arrays.stream(predicates).reduce(Predicate::and).orElse(statuteType -> true);
+        return findAll().stream().filter(combinedPredicate);
     }
 
     //TODO: change to private
+    @Deprecated
     @SafeVarargs
     public static Stream<StatuteType> readAll(Predicate<StatuteType>... predicates) {
         Stream<StatuteType> statuteTypes = Bennu.getInstance().getStatuteTypesSet().stream();
@@ -160,8 +168,7 @@ public class StatuteType extends StatuteType_Base {
     public static Stream<StatuteType> findforRegistration(final Registration registration,
             final ExecutionInterval executionInterval, final Interval datesInterval) {
 
-        if (executionInterval instanceof ExecutionYear) {
-            final ExecutionYear executionYear = (ExecutionYear) executionInterval;
+        if (executionInterval instanceof final ExecutionYear executionYear) {
             return executionYear.getExecutionPeriodsSet().stream()
                     .flatMap(ei -> findforRegistrationByChildExecutionIntervalAndDates(registration, ei, datesInterval));
         }
