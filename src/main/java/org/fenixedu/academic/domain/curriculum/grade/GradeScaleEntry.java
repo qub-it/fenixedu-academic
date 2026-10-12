@@ -1,72 +1,74 @@
 package org.fenixedu.academic.domain.curriculum.grade;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class GradeScaleEntry extends GradeScaleEntry_Base {
 
-    public static final Comparator<GradeScaleEntry> COMPARE_BY_GRADE_ORDER = (o1, o2) -> {
-        int c = Integer.compare(o1.getGradeOrder(), o2.getGradeOrder());
-
-        return c != 0 ? c : o1.getExternalId().compareTo(o2.getExternalId());
-    };
+    public static final Comparator<GradeScaleEntry> COMPARE_BY_GRADE_ORDER =
+            Comparator.comparingInt(GradeScaleEntry::getGradeOrder).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     public GradeScaleEntry() {
         super();
         setRootDomainObject(Bennu.getInstance());
     }
 
-    protected GradeScaleEntry(final GradeScale gradeScaleInstance, 
-            final String value, final LocalizedString description, 
+    protected GradeScaleEntry(final GradeScale gradeScaleInstance, final String value, final LocalizedString description,
             final boolean allowsApproval) {
         this();
-        
+
         setGradeScale(gradeScaleInstance);
         setValue(value);
         setDescription(description);
         setAllowsApproval(allowsApproval);
-        
-        if(isAllowsApproval()) {
-            // The new approval grade entry can be ordered at top
-            int newGradeOrder = gradeScaleInstance.getGradeScaleEntriesSet().stream().max(COMPARE_BY_GRADE_ORDER).get().getGradeOrder() + 1;
-            setGradeOrder(newGradeOrder);
-        } else {
-            // Check the minimum aproved grade
-            Optional<GradeScaleEntry> lowestApprovalGrade= gradeScaleInstance.getGradeScaleEntriesSet().stream()
-                .filter(GradeScaleEntry::isAllowsApproval).findFirst();
-            
-            if(lowestApprovalGrade.isPresent()) {
-                int newGradeOrder = lowestApprovalGrade.get().getGradeOrder();
+        setGradeOrder(calculateGradeOrder());
 
-                lowestApprovalGrade.get().setGradeOrder(newGradeOrder + 1);
-                
-                int nextOrder = newGradeOrder + 2;
-                for (GradeScaleEntry gradeScaleEntry : lowestApprovalGrade.get().getHigherGradeEntries()) {
-                    gradeScaleEntry.setGradeOrder(nextOrder);
-                    nextOrder++;
-                }
-                
-                setGradeOrder(newGradeOrder);
-            } else {
-                int newGradeOrder = gradeScaleInstance.getGradeScaleEntriesSet().stream().max(COMPARE_BY_GRADE_ORDER).get().getGradeOrder() + 1;
-                setGradeOrder(newGradeOrder);
-            }
-        }
-        
-        
         checkRules();
     }
-    
+
+    private int calculateGradeOrder() {
+        if (isAllowsApproval()) {
+            // Approval entries are appended after every existing entry
+            return nextGradeOrder();
+        }
+
+        // Non-approved entries are inserted right before the first approved entry.
+        // Defaults to appending at the end when the scale has no approved entries yet.
+        AtomicInteger newEntryOrder = new AtomicInteger(nextGradeOrder());
+        Optional<GradeScaleEntry> lowestApprovedEntry =
+                getGradeScale().getGradeScaleEntriesSet().stream().filter(GradeScaleEntry::isAllowsApproval).findFirst();
+
+        lowestApprovedEntry.ifPresent(approvedEntry -> {
+            // The new entry takes the approved entry's current order
+            int newOrder = approvedEntry.getGradeOrder();
+            newEntryOrder.set(newOrder);
+
+            // Make room by moving the approved entry up one slot
+            approvedEntry.setGradeOrder(newOrder + 1);
+
+            // shift every following entry up by one
+            AtomicInteger nextOrderToAssign = new AtomicInteger(newOrder + 2);
+            approvedEntry.getEntriesAfter().forEach(e -> e.setGradeOrder(nextOrderToAssign.getAndIncrement()));
+        });
+
+        return newEntryOrder.get();
+    }
+
+    private int nextGradeOrder() {
+        return getGradeScale().getGradeScaleEntriesSet().stream().max(COMPARE_BY_GRADE_ORDER)
+                .map(entry -> entry.getGradeOrder() + 1).orElse(1);
+    }
+
     private void checkRules() {
         if (getGradeScale() == null) {
             throw new DomainException("error.GradeScaleEntry.gradeScale.is.required");
@@ -79,11 +81,11 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         if (getDescription() == null || getDescription().isEmpty()) {
             throw new DomainException("error.GradeScaleEntry.description.is.required");
         }
-        
-        if(find(getGradeScale(), getValue()).count() >= 2) {
+
+        if (find(getGradeScale(), getValue()).count() >= 2) {
             throw new DomainException("error.GradeScaleEntry.already.registered.in.scale");
         }
-        
+
     }
 
     public void edit(final LocalizedString description) {
@@ -95,7 +97,7 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
     public boolean isAllowsApproval() {
         return getAllowsApproval();
     }
-    
+
     void delete() {
         setRootDomainObject(null);
         setGradeScale(null);
@@ -103,36 +105,27 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         super.deleteDomainObject();
     }
 
-    private List<GradeScaleEntry> getHigherGradeEntries() {
-        final List<GradeScaleEntry> gradeEntriesList = new ArrayList<>(getGradeScale().getGradeScaleEntriesSet());
-        gradeEntriesList.sort(COMPARE_BY_GRADE_ORDER);
+    private List<GradeScaleEntry> getEntriesAfter() {
+        List<GradeScaleEntry> orderedEntries = getGradeScale().getOrderedGradeScaleEntriesList();
+        return orderedEntries.subList(orderedEntries.indexOf(this) + 1, orderedEntries.size());
+    }
 
-        int indexOf = gradeEntriesList.indexOf(this);
-        return indexOf >= 0 && indexOf < (gradeEntriesList.size() - 1) ? gradeEntriesList.subList(indexOf + 1,
-                gradeEntriesList.size()) : Collections.emptyList();
-    }
-    
     public boolean isLast() {
-        final List<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesList();
-        return getGradeScale().getOrderedGradeScaleEntriesList().indexOf(this) == orderedGradeScaleEntries.size() - 1;
+        final List<GradeScaleEntry> orderedEntries = getGradeScale().getOrderedGradeScaleEntriesList();
+        return orderedEntries.indexOf(this) == orderedEntries.size() - 1;
     }
-    
+
     public boolean isFirst() {
-        final List<GradeScaleEntry> orderedGradeScaleEntries = getGradeScale().getOrderedGradeScaleEntriesList();
-        return orderedGradeScaleEntries.indexOf(this) == 0;
+        return getGradeScale().getOrderedGradeScaleEntriesList().indexOf(this) == 0;
     }
 
     // ########
     // SERVICES
     // ########
 
-    static GradeScaleEntry create(final GradeScale gradeScaleInstance, 
-            final String value,
-            final LocalizedString description, 
+    static GradeScaleEntry create(final GradeScale gradeScaleInstance, final String value, final LocalizedString description,
             final boolean allowsApproval) {
-        final GradeScaleEntry result = new GradeScaleEntry(gradeScaleInstance, value, description, allowsApproval);
-        
-        return result;
+        return new GradeScaleEntry(gradeScaleInstance, value, description, allowsApproval);
     }
 
     public static Stream<GradeScaleEntry> findAll() {
