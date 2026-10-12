@@ -1,3 +1,4 @@
+- Refactor: Improve Substitution domain methods [#qubIT-Fenix-9553]
 - Refactor: Improve Credits domain methods [#qubIT-Fenix-9491]
 - Refactor: Clean up party contacts creation [#qubIT-Fenix-9195]
 - Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
