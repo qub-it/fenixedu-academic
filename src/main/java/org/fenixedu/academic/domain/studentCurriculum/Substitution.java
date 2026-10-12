@@ -20,6 +20,7 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -121,13 +122,7 @@ public class Substitution extends Substitution_Base {
      */
     @Override
     protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
-        final Collection<ICurriculumEntry> result = new HashSet<ICurriculumEntry>();
-
-        for (final EnrolmentWrapper enrolmentWrapper : getEnrolmentsSetBefore(executionYear)) {
-            result.add(enrolmentWrapper.getIEnrolment());
-        }
-
-        return result;
+        return getEnrolmentsSetBefore(executionYear).stream().map(EnrolmentWrapper::getIEnrolment).collect(Collectors.toSet());
     }
 
 }
