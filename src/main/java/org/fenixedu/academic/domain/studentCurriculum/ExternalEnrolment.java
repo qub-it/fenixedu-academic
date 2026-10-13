@@ -20,11 +20,9 @@ package org.fenixedu.academic.domain.studentCurriculum;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.comparators.ComparatorChain;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.ExternalCurricularCourse;
@@ -44,25 +42,12 @@ import org.joda.time.YearMonthDay;
 
 public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolment {
 
-    static public final Comparator<ExternalEnrolment> COMPARATOR_BY_NAME = new Comparator<ExternalEnrolment>() {
-        @Override
-        public int compare(ExternalEnrolment o1, ExternalEnrolment o2) {
-            int result = o1.getName().compareTo(o2.getName());
-            return result != 0 ? result : o1.getExternalId().compareTo(o2.getExternalId());
-        }
-    };
+    public static final Comparator<ExternalEnrolment> COMPARATOR_BY_NAME =
+            Comparator.comparing(ExternalEnrolment::getName).thenComparing(ExternalEnrolment::getExternalId);
 
-    static final public Comparator<ExternalEnrolment> COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE =
-            new Comparator<ExternalEnrolment>() {
-                @Override
-                public int compare(ExternalEnrolment o1, ExternalEnrolment o2) {
-                    final ComparatorChain comparatorChain = new ComparatorChain();
-                    comparatorChain.addComparator(ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_ID);
-                    comparatorChain.addComparator(ExternalEnrolment.COMPARATOR_BY_APPROVEMENT_DATE);
-
-                    return comparatorChain.compare(o1, o2);
-                }
-            };
+    public static final Comparator<ExternalEnrolment> COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE =
+            ((Comparator<ExternalEnrolment>) COMPARATOR_BY_EXECUTION_PERIOD_AND_ID::compare).thenComparing(
+                    COMPARATOR_BY_APPROVEMENT_DATE);
 
     protected ExternalEnrolment() {
         super();
@@ -81,22 +66,19 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
         checkConstraints(registration, externalCurricularCourse, executionInterval, grade, ectsCredits);
         checkIfCanCreateExternalEnrolment(registration, externalCurricularCourse);
 
-        setRegistration(registration);
         setExternalCurricularCourse(externalCurricularCourse);
-        setGrade(grade);
-        setExecutionPeriod(executionInterval);
-        setEvaluationDate(evaluationDate);
-        setEctsCredits(ectsCredits);
+        setFields(registration, grade, executionInterval, evaluationDate, ectsCredits);
     }
 
     private void checkIfCanCreateExternalEnrolment(final Registration registration,
             final ExternalCurricularCourse externalCurricularCourse) {
-        for (final ExternalEnrolment externalEnrolment : registration.getExternalEnrolmentsSet()) {
-            if (externalEnrolment.getExternalCurricularCourse() == externalCurricularCourse) {
-                throw new DomainException(
-                        "error.studentCurriculum.ExternalEnrolment.already.exists.externalEnrolment.for.externalCurricularCourse",
-                        externalCurricularCourse.getName());
-            }
+        final boolean alreadyExists = registration.getExternalEnrolmentsSet().stream()
+                .anyMatch(e -> e.getExternalCurricularCourse() == externalCurricularCourse);
+
+        if (alreadyExists) {
+            throw new DomainException(
+                    "error.studentCurriculum.ExternalEnrolment.already.exists.externalEnrolment.for.externalCurricularCourse",
+                    externalCurricularCourse.getName());
         }
     }
 
@@ -122,12 +104,16 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     public void edit(final Registration registration, final Grade grade, final ExecutionInterval executionInterval,
             final YearMonthDay evaluationDate, final Double ectsCredits) {
 
+        checkConstraints(registration, getExternalCurricularCourse(), executionInterval, grade, ectsCredits);
         if (registration != getRegistration()) {
             checkIfCanCreateExternalEnrolment(registration, getExternalCurricularCourse());
         }
 
-        checkConstraints(registration, getExternalCurricularCourse(), executionInterval, grade, ectsCredits);
+        setFields(registration, grade, executionInterval, evaluationDate, ectsCredits);
+    }
 
+    private void setFields(final Registration registration, final Grade grade, final ExecutionInterval executionInterval,
+            final YearMonthDay evaluationDate, final Double ectsCredits) {
         setRegistration(registration);
         setGrade(grade);
         setExecutionPeriod(executionInterval);
@@ -138,12 +124,10 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     @Override
     public LocalizedString getName() {
         //External enrolments only have one name
-        LocalizedString result = new LocalizedString();
-        String name = getExternalCurricularCourse().getName();
-        for (Locale locale : CoreConfiguration.supportedLocales()) {
-            result = result.with(locale, name);
-        }
-        return result;
+        final String name = getExternalCurricularCourse().getName();
+        final LocalizedString.Builder builder = new LocalizedString.Builder();
+        CoreConfiguration.supportedLocales().forEach(locale -> builder.with(locale, name));
+        return builder.build();
     }
 
     @Override
@@ -242,7 +226,7 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
 
     @Override
     public boolean isAnual() {
-        return getRegime() != null ? getRegime() == RegimeType.ANUAL : false;
+        return getRegime() == RegimeType.ANUAL;
     }
 
     @Override
