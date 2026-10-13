@@ -46,7 +46,7 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         // Defaults to appending at the end when the scale has no approved entries yet.
         AtomicInteger newEntryOrder = new AtomicInteger(nextGradeOrder());
         Optional<GradeScaleEntry> lowestApprovedEntry =
-                getGradeScale().getGradeScaleEntriesSet().stream().filter(GradeScaleEntry::isAllowsApproval).findFirst();
+                getGradeScale().getOrderedGradeScaleEntriesSet().stream().filter(GradeScaleEntry::isAllowsApproval).findFirst();
 
         lowestApprovedEntry.ifPresent(approvedEntry -> {
             // The new entry takes the approved entry's current order
