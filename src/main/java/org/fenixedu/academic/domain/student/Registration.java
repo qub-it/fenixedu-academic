@@ -709,6 +709,7 @@ public class Registration extends Registration_Base {
     }
 
     public final static List<Registration> readByNumber(final Integer number) {
+        Objects.requireNonNull(number, "Number cannot be null");
         return Bennu.getInstance().getRegistrationNumbersSet().stream()
                 .filter(rn -> rn.getNumber().intValue() == number.intValue()).map(RegistrationNumber::getRegistration)
                 .collect(Collectors.toList());

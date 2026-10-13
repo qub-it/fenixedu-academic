@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -424,7 +425,8 @@ public class RegistrationTest {
 
         assertTrue(result.contains(registration));
         result.forEach(r -> assertEquals(registration.getNumber(), r.getNumber()));
-        assertTrue(Registration.readByNumber(999999).isEmpty());
+        assertTrue(Registration.readByNumber(-1).isEmpty());
+        assertThrows(NullPointerException.class, () -> Registration.readByNumber(null), "Number cannot be null");
     }
 
     @Test
