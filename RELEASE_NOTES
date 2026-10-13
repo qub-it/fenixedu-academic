@@ -1,3 +1,4 @@
+- Refactor: Improve ExternalEnrolment domain methods [#qubIT-Fenix-9556]
 - Refactor: Improve Credits domain methods [#qubIT-Fenix-9491]
 - Refactor: Clean up party contacts creation [#qubIT-Fenix-9195]
 - Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
