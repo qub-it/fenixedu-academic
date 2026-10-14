@@ -40,16 +40,13 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class CreditsDismissalTest {
     private static ExecutionYear executionYear;
-    private static ExecutionInterval firstSemester;
-    private static ExecutionInterval secondSemester;
+    private static ExecutionInterval firstSemester, secondSemester;
     private static DegreeCurricularPlan dcp;
     private static StudentCurricularPlan scp;
     private static CurricularPeriod semesterPeriod;
 
-    private static CurricularCourse courseA;
-    private static CurricularCourse courseB;
-    private static CurricularCourse equivalentCourse;
-    private static CurricularCourse unknownCourse;
+    private static CurricularCourse courseA, courseB;
+    private static CurricularCourse equivalentCourse, unknownCourse;
     private static Enrolment enrolment;
 
     @BeforeClass
@@ -75,10 +72,10 @@ public class CreditsDismissalTest {
             final Student student = StudentTest.createStudent("Credits Dismissal Test Student", "credits.dismissal.test");
             scp = StudentTest.createRegistration(student, dcp, executionYear).getLastStudentCurricularPlan();
 
-            courseA = newCourse(COURSE_A_CODE, "Course A Dismissal");
-            courseB = newCourse(COURSE_B_CODE, "Course B Dismissal");
-            equivalentCourse = newCourse(COURSE_A_CODE, "Course A Equivalent");
-            unknownCourse = newCourse(null, "Course Unknown");
+            courseA = newCourse(dcp.getRoot(), COURSE_A_CODE, "Course A Dismissal");
+            courseB = newCourse(dcp.getRoot(), COURSE_B_CODE, "Course B Dismissal");
+            equivalentCourse = newCourse(dcp.getRoot(), COURSE_A_CODE, "Course A Equivalent");
+            unknownCourse = newCourse(dcp.getRoot(), null, "Course Unknown");
 
             enrolment = new Enrolment(scp, newGroup("EnrolmentHolder"), courseA, firstSemester, EnrollmentCondition.FINAL,
                     "credits.dismissal.test");
@@ -109,8 +106,7 @@ public class CreditsDismissalTest {
         final CurriculumGroup otherGroup = newGroup("HasSimilarCreditsDismissalOther");
 
         // Non-credits dismissal in the group -> should be ignored (no ClassCastException)
-        final CurricularCourse groupCourse =
-                newCourse((CourseGroup) group.getDegreeModule(), COURSE_B_CODE, "Course In HasSimilar Group");
+        final CurricularCourse groupCourse = newCourse(group.getDegreeModule(), COURSE_B_CODE, "Course In HasSimilar Group");
         new Dismissal(newCredits(6d), group, groupCourse);
         new CreditsDismissal(newCredits(9d), group, null);
         assertEquals(2, group.getChildDismissals().size());
@@ -173,10 +169,6 @@ public class CreditsDismissalTest {
     private static CurriculumGroup newGroup(final String name) {
         final CourseGroup courseGroup = new CourseGroup(dcp.getRoot(), name, name, firstSemester, null);
         return new CurriculumGroup(scp.getRoot(), courseGroup);
-    }
-
-    private static CurricularCourse newCourse(final String code, final String name) {
-        return newCourse(dcp.getRoot(), code, name);
     }
 
     private static CurricularCourse newCourse(final CourseGroup parent, final String code, final String name) {
