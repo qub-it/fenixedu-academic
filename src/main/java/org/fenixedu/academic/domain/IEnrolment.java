@@ -24,36 +24,11 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 
 public interface IEnrolment extends ICurriculumEntry {
-
-    static final public Comparator<IEnrolment> COMPARATOR_BY_APPROVEMENT_DATE = new Comparator<IEnrolment>() {
-        @Override
-        public int compare(IEnrolment o1, IEnrolment o2) {
-            if (o1.getApprovementDate() == null && o2.getApprovementDate() == null) {
-                return 0;
-            }
-            if (o1.getApprovementDate() == null) {
-                return -1;
-            }
-            if (o2.getApprovementDate() == null) {
-                return 1;
-            }
-            return o1.getApprovementDate().compareTo(o2.getApprovementDate());
-        }
-    };
+    Comparator<IEnrolment> COMPARATOR_BY_APPROVEMENT_DATE =
+            Comparator.comparing(IEnrolment::getApprovementDate, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     @Override
     String getExternalId();
-
-    /**
-     * @deprecated
-     *             Use {@link ICurriculumEntry#getGrade()} instead.
-     *             Code should not assume that final grades are integers.
-     *             This method will be removed on next major release
-     *
-     * 
-     */
-    @Deprecated
-    Integer getFinalGrade();
 
     String getDescription();
 
