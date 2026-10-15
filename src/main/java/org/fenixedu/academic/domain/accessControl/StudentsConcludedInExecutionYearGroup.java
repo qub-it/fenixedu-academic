@@ -18,7 +18,9 @@
  */
 package org.fenixedu.academic.domain.accessControl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -112,7 +114,7 @@ public class StudentsConcludedInExecutionYearGroup extends FenixGroup {
     }
 
     private LocalDate getConclusionDate(Degree degree, Registration registration) {
-        for (StudentCurricularPlan scp : registration.getStudentCurricularPlansByDegree(degree)) {
+        for (StudentCurricularPlan scp : getStudentCurricularPlansByDegree(degree, registration)) {
             if (scp.getLastConcludedCycleCurriculumGroup() != null) {
                 YearMonthDay conclusionDate =
                         registration.getConclusionDate(scp.getLastConcludedCycleCurriculumGroup().getCycleType());
@@ -123,6 +125,16 @@ public class StudentsConcludedInExecutionYearGroup extends FenixGroup {
             return null;
         }
         return null;
+    }
+
+    private List<StudentCurricularPlan> getStudentCurricularPlansByDegree(Degree degree, Registration registration) {
+        final List<StudentCurricularPlan> result = new ArrayList<>();
+        for (final StudentCurricularPlan studentCurricularPlan : registration.getStudentCurricularPlansSet()) {
+            if (studentCurricularPlan.getDegree() == degree) {
+                result.add(studentCurricularPlan);
+            }
+        }
+        return result;
     }
 
     @Override
