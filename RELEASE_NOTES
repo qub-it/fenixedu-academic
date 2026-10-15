@@ -4,6 +4,7 @@
 - Refactor: Remove method from Attends [#qubIT-Fenix-8922]
 - Refactor: Clean up rule executor code [#qubIT-Fenix-9429]
 - Refactor: Improve Registration domain methods [#qubIT-Fenix-9383]
+- Refactor: Makes DegreeCurricularPlan#createDegreeCurricularPlan public [#qubIT-Fenix-9573]
 
 62.1.1 (29-09-2026)
 - Refactor: Improves OccupationPeriod edit dates method [#qubIT-Fenix-9398]
