@@ -5,6 +5,7 @@
 - Refactor: Improve CurriculumModule domain methods [#qubIT-Fenix-9420]
 - Refactor: Remove method from Attends [#qubIT-Fenix-8922]
 - Refactor: Clean up rule executor code [#qubIT-Fenix-9429]
+- Refactor: Improve Registration domain methods [#qubIT-Fenix-9383]
 - Improvement: Adds missing labels for grade scale validation rules [#qubIT-Fenix-9508]
 
 62.1.1 (29-09-2026)
