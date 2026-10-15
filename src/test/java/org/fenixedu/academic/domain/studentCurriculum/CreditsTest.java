@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
@@ -222,13 +223,9 @@ public class CreditsTest {
     }
 
     private static Substitution newSubstitution(final StudentCurricularPlan scp, final IEnrolment... enrolments) {
-        final Substitution substitution = new Substitution();
-        substitution.setStudentCurricularPlan(scp);
-        substitution.setExecutionPeriod(firstSemester);
-        for (final IEnrolment enrolment : enrolments) {
-            EnrolmentWrapper.create(substitution, enrolment);
-        }
-        return substitution;
+        final double credits = Arrays.stream(enrolments).mapToDouble(IEnrolment::getEctsCredits).sum();
+        return new Substitution(scp, scp.findCurriculumGroupFor(enrolledGroup), Arrays.asList(enrolments), credits,
+                firstSemester);
     }
 
     private static Set<IEnrolment> enrolmentOf(final Set<EnrolmentWrapper> wrappers) {
