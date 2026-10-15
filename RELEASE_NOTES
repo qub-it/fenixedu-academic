@@ -5,6 +5,7 @@
 - Refactor: Remove method from Attends [#qubIT-Fenix-8922]
 - Refactor: Clean up rule executor code [#qubIT-Fenix-9429]
 - Improvement: Adds missing labels for grade scale validation rules [#qubIT-Fenix-9508]
+- Bug fix: Localizes Email Validation [#qubIT-Omnis-11631]
 
 62.1.1 (29-09-2026)
 - Refactor: Improves OccupationPeriod edit dates method [#qubIT-Fenix-9398]
