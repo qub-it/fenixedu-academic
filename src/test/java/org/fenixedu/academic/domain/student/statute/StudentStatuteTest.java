@@ -1,15 +1,20 @@
 package org.fenixedu.academic.domain.student.statute;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collection;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentTest;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.Student;
@@ -32,14 +37,25 @@ public class StudentStatuteTest {
 
     private static final String TYPE_B = "ST-B";
     private static final String TYPE_A = "ST-A";
+    private static Student student;
+    private static Registration registration;
+    private static StatuteType statuteTypeA, statuteTypeB;
+    private static ExecutionInterval executionInterval;
+
 
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
             StudentTest.initStudentAndRegistration();
 
-            StatuteType.create(TYPE_A, new LocalizedString.Builder().with(Locale.getDefault(), "Statute A").build());
-            StatuteType.create(TYPE_B, new LocalizedString.Builder().with(Locale.getDefault(), "Statute B").build());
+            student = Student.readStudentByNumber(1);
+            registration = student.getRegistrationStream().findAny().orElseThrow();
+            executionInterval = ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+
+            statuteTypeA =
+                    StatuteType.create(TYPE_A, new LocalizedString.Builder().with(Locale.getDefault(), "Statute A").build());
+            statuteTypeB =
+                    StatuteType.create(TYPE_B, new LocalizedString.Builder().with(Locale.getDefault(), "Statute B").build());
 
             return null;
         });
@@ -52,14 +68,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_isValidOn() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         final StudentStatute studentStatute =
                 new StudentStatute(student, statuteTypeA, executionInterval, executionInterval, null, null, null, registration);
 
@@ -74,14 +82,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_isValidOn_onlyBeginInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         final StudentStatute studentStatute =
                 new StudentStatute(student, statuteTypeA, executionInterval, null, null, null, null, registration);
 
@@ -96,14 +96,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_isValidOn_onlyEndInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         final StudentStatute studentStatute =
                 new StudentStatute(student, statuteTypeA, null, executionInterval, null, null, null, registration);
 
@@ -120,15 +112,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByExecutionInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-        final StatuteType statuteTypeB = StatuteType.findByCode(TYPE_B).orElseThrow();
-
         new StudentStatute(student, statuteTypeA, executionInterval, executionInterval, null, null, null, registration);
 
         Set<StatuteType> statuteTypesForInterval =
@@ -159,14 +142,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByExecutionInterval_onlyBeginInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         new StudentStatute(student, statuteTypeA, executionInterval, null, null, null, null, registration);
 
         Set<StatuteType> statuteTypesForInterval =
@@ -186,14 +161,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByExecutionInterval_onlyEndInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         new StudentStatute(student, statuteTypeA, null, executionInterval, null, null, null, registration);
 
         Set<StatuteType> statuteTypesForInterval =
@@ -213,15 +180,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByExecutionInterval_createdWithoutAnyInterval() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-        final StatuteType statuteTypeB = StatuteType.findByCode(TYPE_B).orElseThrow();
-
         new StudentStatute(student, statuteTypeA, null, null, null, null, null, registration);
 
         Set<StatuteType> statuteTypesForInterval =
@@ -244,15 +202,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByExecutionYear() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-        final StatuteType statuteTypeB = StatuteType.findByCode(TYPE_B).orElseThrow();
-
         new StudentStatute(student, statuteTypeA, executionInterval, executionInterval, null, null, null, registration);
 
         final ExecutionInterval executionYear = ExecutionInterval.findCurrentAggregator(registration.getDegree().getCalendar());
@@ -286,14 +235,6 @@ public class StudentStatuteTest {
 
     @Test
     public void registrationStatutes_findByDates() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-
-        final ExecutionInterval executionInterval =
-                ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
         final LocalDate startDate = new LocalDate(2020, 9, 15);
         final LocalDate endDate = new LocalDate(2020, 9, 25);
 
@@ -331,6 +272,45 @@ public class StudentStatuteTest {
                         .findforRegistration(registration, executionInterval.getNext(),
                                 new Interval(new DateTime(2020, 9, 10, 0, 0), new DateTime(2020, 9, 25, 0, 0)))
                         .findAny().isEmpty());
+
+    }
+
+    @Test
+    public void testStudentStatute_editDetectsOverlap() {
+        // create two non-overlapping statutes initially
+        final StudentStatute statute1 =
+                new StudentStatute(student, statuteTypeA, executionInterval, executionInterval, null, null, null, registration);
+        final StudentStatute statute2 =
+                new StudentStatute(student, statuteTypeA, executionInterval.getNext(), executionInterval.getNext(), null, null,
+                        null, registration);
+
+        // edit statute2 so it overlaps with statute1
+        assertThrows(DomainException.class,
+                () -> statute2.edit(student, executionInterval, executionInterval.getNext(), null, null, "overlap attempt"));
+    }
+
+    @Test
+    public void testStatuteType_findAll() {
+        Collection<StatuteType> allStatutes = StatuteType.findAll();
+        assertEquals(2, allStatutes.size());
+        assertTrue(allStatutes.contains(statuteTypeA));
+        assertTrue(allStatutes.contains(statuteTypeB));
+
+        Optional<StatuteType> statuteType = StatuteType.findByCode(TYPE_A);
+        assertTrue(statuteType.isPresent());
+        assertEquals(statuteTypeA, statuteType.get());
+
+        Set<StatuteType> predicate = StatuteType.findAll(s -> s.getCode().startsWith("ST-")).collect(Collectors.toSet());
+        assertEquals(2, predicate.size());
+        assertTrue(predicate.contains(statuteTypeA));
+        assertTrue(predicate.contains(statuteTypeB));
+
+        // combined predicates, first matches both, second matches only A
+        Set<StatuteType> combinedPredicates =
+                StatuteType.findAll(s -> s.getCode().startsWith("ST-"), s -> s == statuteTypeA).collect(Collectors.toSet());
+        assertEquals(1, combinedPredicates.size());
+        assertTrue(combinedPredicates.contains(statuteTypeA));
+        assertFalse(combinedPredicates.contains(statuteTypeB));
 
     }
 }
