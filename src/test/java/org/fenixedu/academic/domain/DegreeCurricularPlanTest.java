@@ -95,7 +95,7 @@ public class DegreeCurricularPlanTest {
         new Context(degreeCurricularPlan.getRoot(), curricularCourse, semesterPeriod, currentInterval, null);
     }
 
-    private static DegreeCurricularPlan createDegreeCurricularPlan(final String dcpName) {
+    public static DegreeCurricularPlan createDegreeCurricularPlan(final String dcpName) {
         DegreeType degreeType = DegreeType.findByCode(DEGREE_TYPE_CODE).get();
         Degree degree = DegreeTest.createDegree(degreeType, "DCP_TEST_" + UUID.randomUUID(), "Degree " + dcpName, currentYear);
         return new DegreeCurricularPlan(degree, dcpName, AcademicPeriod.THREE_YEAR, currentYear);
