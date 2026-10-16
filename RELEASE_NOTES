@@ -1,3 +1,4 @@
+63.0.0 (16-10-2026)
 - Refactor: Remove ChooseEvaluationSeasonBean and subclasses [#qubIT-Fenix-9534]
 - Refactor: Improve StudentStatute domain methods [#qubIT-Fenix-9536]
 - Refactor: Improves IEnrolment domain methods [#qubIT-Fenix-9462]
