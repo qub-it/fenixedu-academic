@@ -61,25 +61,6 @@ public class IdentificationDocumentType extends IdentificationDocumentType_Base 
         super.setCode(code);
     }
 
-    @Override
-    public void setValidator(final String validator) {
-        super.setValidator(validator);
-        super.setExtraInfoValidator(validator);
-    }
-
-    @Deprecated
-    @Override
-    public void setExtraInfoValidator(final String extraInfoValidator) {
-        setHasExtraInfo(StringUtils.isNotBlank(extraInfoValidator));
-        super.setExtraInfoValidator(extraInfoValidator);
-        super.setValidator(extraInfoValidator);
-    }
-
-    @Deprecated
-    public boolean hasExtraInfoValidator() {
-        return StringUtils.isNotBlank(getExtraInfoValidator());
-    }
-
     public boolean hasValidator() {
         return StringUtils.isNotBlank(getValidator());
     }

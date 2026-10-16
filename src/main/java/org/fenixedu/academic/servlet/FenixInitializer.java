@@ -26,13 +26,11 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
-import org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentType;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
@@ -63,7 +61,6 @@ public class FenixInitializer implements ServletContextListener {
 
         registerChecksumFilterRules();
 
-        migrateIdentificationDocumentTypeValidator();
         registerIdentificationDocumentValidators();
 
         initializeAcademicPeriodOrder();
@@ -161,33 +158,6 @@ public class FenixInitializer implements ServletContextListener {
                 });
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
-        Log.info("---------------------------------------");
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    void migrateIdentificationDocumentTypeValidator() {
-        Log.info("---------------------------------------");
-        Log.info("Starting migrating identification document types validators");
-
-        final AtomicInteger migrated = new AtomicInteger(0);
-        final AtomicInteger alreadyConfigured = new AtomicInteger(0);
-
-        IdentificationDocumentType.findAll().forEach(type -> {
-            final String validator = type.getExtraInfoValidator();
-            if (StringUtils.isBlank(validator)) {
-                return;
-            }
-            if (StringUtils.isNotBlank(type.getValidator())) {
-                alreadyConfigured.incrementAndGet();
-                return;
-            }
-
-            type.setValidator(validator);
-            migrated.incrementAndGet();
-        });
-
-        Log.info("IdentificationDocumentType.validator migration: " + migrated.get() + " migrated, " + alreadyConfigured.get()
-                + " already configured.");
         Log.info("---------------------------------------");
     }
 }
