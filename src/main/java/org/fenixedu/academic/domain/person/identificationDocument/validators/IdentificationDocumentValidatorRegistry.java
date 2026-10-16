@@ -6,17 +6,17 @@ import java.util.Map;
 
 public class IdentificationDocumentValidatorRegistry {
 
-    private static final Map<String, IdentificationDocumentExtraInfoValidator> validators = new HashMap<>();
+    private static final Map<String, IdentificationDocumentValidator> validators = new HashMap<>();
 
-    public static void register(String validatorName, IdentificationDocumentExtraInfoValidator validator) {
+    public static void register(String validatorName, IdentificationDocumentValidator validator) {
         validators.put(validatorName, validator);
     }
 
-    public static IdentificationDocumentExtraInfoValidator get(String validatorName) {
+    public static IdentificationDocumentValidator get(String validatorName) {
         return validators.get(validatorName);
     }
 
-    public static Collection<IdentificationDocumentExtraInfoValidator> getAllValidators() {
+    public static Collection<IdentificationDocumentValidator> getAllValidators() {
         return validators.values();
     }
 }

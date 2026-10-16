@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain.person.identificationDocument;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.ID_DOCUMENT_TYPE;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.ID_DOCUMENT_VALUE;
 import static org.fenixedu.academic.domain.person.identificationDocument.IdentificationDocumentTest.initIdentificationDocument;
+import static org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidatorTest.initIdentityCardValidator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -16,8 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
+import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -44,12 +45,14 @@ public class IdentificationDocumentTypeTest {
     }
 
     public static IdentificationDocumentType initIdentificationDocumentType() {
+        initIdentityCardValidator();
         String code = IdentificationDocumentType.IDENTITY_CARD_CODE;
         LocalizedString name = new LocalizedString(Locale.getDefault(), code);
 
         IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.findByCode(code)
                 .orElseGet(() -> IdentificationDocumentType.create(code, name));
-        identificationDocumentType.setExtraInfoValidator(IdentificationDocumentIdentityCardValidator.class.getName());
+        identificationDocumentType.setValidator(IdentificationDocumentIdentityCardValidator.class.getName());
+        identificationDocumentType.setHasExtraInfo(true);
         return identificationDocumentType;
     }
 
@@ -173,12 +176,30 @@ public class IdentificationDocumentTypeTest {
     }
 
     @Test
-    public void testIdentificationDocumentType_hasExtraInfoValidator() {
+    public void testIdentificationDocumentType_hasValidator() {
         IdentificationDocumentType identificationDocumentType =
                 IdentificationDocumentType.findByCode(ID_DOCUMENT_TYPE).orElse(null);
         assertNotNull(identificationDocumentType);
         assertTrue(identificationDocumentType.getHasExtraInfo());
-        assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(),
-                identificationDocumentType.getExtraInfoValidator());
+        assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(), identificationDocumentType.getValidator());
+    }
+
+    @Test
+    public void testIdentificationDocumentType_validatorSettersStayInSync() {
+        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
+
+        // a new type has neither field configured
+        assertNull(identificationDocumentType.getValidator());
+        assertNull(identificationDocumentType.getExtraInfoValidator());
+
+        // setting the new field must also populate the legacy field
+        identificationDocumentType.setValidator("SomeValidator");
+        assertEquals("SomeValidator", identificationDocumentType.getValidator());
+        assertEquals("SomeValidator", identificationDocumentType.getExtraInfoValidator());
+
+        // setting the legacy field must also populate the new field
+        identificationDocumentType.setExtraInfoValidator("AnotherValidator");
+        assertEquals("AnotherValidator", identificationDocumentType.getValidator());
+        assertEquals("AnotherValidator", identificationDocumentType.getExtraInfoValidator());
     }
 }
