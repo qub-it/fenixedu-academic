@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.fenixedu.academic.domain.CompetenceCourse;
@@ -21,9 +22,11 @@ import org.fenixedu.academic.domain.EvaluationSeasonTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionIntervalTest;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
@@ -39,6 +42,8 @@ import pt.ist.fenixframework.FenixFramework;
 
 @RunWith(FenixFrameworkRunner.class)
 public class CreditsDismissalTest {
+    private static final double MAX_GROUP_CREDITS = Double.MAX_VALUE;
+
     private static ExecutionYear executionYear;
     private static ExecutionInterval firstSemester, secondSemester;
     private static DegreeCurricularPlan dcp;
@@ -65,6 +70,7 @@ public class CreditsDismissalTest {
             final Degree degree = Degree.find(DEGREE_A_CODE);
             dcp = new DegreeCurricularPlan(degree, "Credits Dismissal DCP", AcademicPeriod.THREE_YEAR, executionYear);
             dcp.createExecutionDegree(executionYear);
+            new CreditsLimit(dcp.getRoot(), null, firstSemester, null, 0d, MAX_GROUP_CREDITS);
 
             final CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, dcp.getDegreeStructure());
             semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
@@ -88,16 +94,15 @@ public class CreditsDismissalTest {
     public void testCreditsDismissal_checkIfCanCreate() {
         final CurriculumGroup group = newGroup("CheckIfCanCreate");
 
-        new CreditsDismissal(newCredits(6d), group, null);
+        newCreditsDismissal(6d, group, null);
         assertEquals(1, group.getChildDismissals().size());
 
         // Create another identical dismissal in the same group -> should throw exception
-        final DomainException thrown = assertThrows(DomainException.class,
-                () -> new CreditsDismissal(newCredits(6d), group, null));
+        final DomainException thrown = assertThrows(DomainException.class, () -> newCreditsDismissal(6d, group, null));
         assertEquals("error.CreditsDismissal.already.exists.similar", thrown.getKey());
 
         // Create an identical dismissal in a different group -> should be allowed
-        new CreditsDismissal(newCredits(6d), newGroup("CheckIfCanCreateOther"), null);
+        newCreditsDismissal(6d, newGroup("CheckIfCanCreateOther"), null);
     }
 
     @Test
@@ -105,19 +110,20 @@ public class CreditsDismissalTest {
         final CurriculumGroup group = newGroup("HasSimilarCreditsDismissal");
         final CurriculumGroup otherGroup = newGroup("HasSimilarCreditsDismissalOther");
 
+        final CreditsDismissal creditsDismissal = newCreditsDismissal(9d, group, null);
+
         // Non-credits dismissal in the group -> should be ignored (no ClassCastException)
         final CurricularCourse groupCourse = newCourse(group.getDegreeModule(), COURSE_B_CODE, "Course In HasSimilar Group");
-        new Dismissal(newCredits(6d), group, groupCourse);
-        new CreditsDismissal(newCredits(9d), group, null);
+        new Dismissal(creditsDismissal.getCredits(), group, groupCourse);
         assertEquals(2, group.getChildDismissals().size());
 
         // Only the same group is checked: 6 ECTS in another group doesn't block 6 ECTS here
-        new CreditsDismissal(newCredits(6d), otherGroup, null);
-        new CreditsDismissal(newCredits(6d), group, null);
+        newCreditsDismissal(6d, otherGroup, null);
+        newCreditsDismissal(6d, group, null);
         assertEquals(3, group.getChildDismissals().size());
 
-        assertThrows(DomainException.class, () -> new CreditsDismissal(newCredits(9d), group, null));
-        assertThrows(DomainException.class, () -> new CreditsDismissal(newCredits(6d), group, null));
+        assertThrows(DomainException.class, () -> newCreditsDismissal(9d, group, null));
+        assertThrows(DomainException.class, () -> newCreditsDismissal(6d, group, null));
         assertEquals(3, group.getChildDismissals().size());
         assertEquals(1, otherGroup.getChildDismissals().size());
     }
@@ -125,28 +131,26 @@ public class CreditsDismissalTest {
     @Test
     public void testCreditsDismissal_isSimilar() {
         final CurriculumGroup group = newGroup("IsSimilar");
-        new CreditsDismissal(newCredits(6d), group, List.of(courseA));
-        new CreditsDismissal(newCredits(9d), group, null);
+        newCreditsDismissal(6d, group, List.of(courseA));
+        newCreditsDismissal(9d, group, null);
 
         // 6 ECTS without courses -> similar to the 6 ECTS [courseA] one, since courses aren't compared when null
-        assertThrows(DomainException.class, () -> new CreditsDismissal(newCredits(6d), group, null));
+        assertThrows(DomainException.class, () -> newCreditsDismissal(6d, group, null));
 
         // 6 ECTS with [courseB] -> allowed (different courses)
-        new CreditsDismissal(newCredits(6d), group, List.of(courseB));
+        newCreditsDismissal(6d, group, List.of(courseB));
 
         // 6 ECTS with [courseA] -> same ECTS, IEnrolments and courses as the first one -> should throw exception
-        assertThrows(DomainException.class, () -> new CreditsDismissal(newCredits(6d), group, List.of(courseA)));
+        assertThrows(DomainException.class, () -> newCreditsDismissal(6d, group, List.of(courseA)));
 
         // 6 ECTS without courses but with an enrolment -> allowed (different IEnrolments)
-        final Credits creditsWithEnrolment = newCredits(6d);
-        EnrolmentWrapper.create(creditsWithEnrolment, enrolment);
-        new CreditsDismissal(creditsWithEnrolment, group, null);
+        newCreditsDismissal(6d, group, null, enrolment);
     }
 
     @Test
     public void testCreditsDismissal_hasEquivalentNoEnrolCurricularCourse() {
         final CurriculumGroup group = newGroup("HasEquivalentNoEnrolCurricularCourse");
-        final CreditsDismissal dismissal = new CreditsDismissal(newCredits(6d), group, List.of(courseA));
+        final CreditsDismissal dismissal = newCreditsDismissal(6d, group, List.of(courseA));
 
         // Course is in the set -> should be approved
         assertTrue(dismissal.isApproved(courseA, null));
@@ -168,6 +172,7 @@ public class CreditsDismissalTest {
 
     private static CurriculumGroup newGroup(final String name) {
         final CourseGroup courseGroup = new CourseGroup(dcp.getRoot(), name, name, firstSemester, null);
+        new CreditsLimit(courseGroup, null, firstSemester, null, 0d, MAX_GROUP_CREDITS);
         return new CurriculumGroup(scp.getRoot(), courseGroup);
     }
 
@@ -181,11 +186,10 @@ public class CreditsDismissalTest {
         return curricularCourse;
     }
 
-    private static Credits newCredits(final Double ects) {
-        final Credits credits = new Credits();
-        credits.setStudentCurricularPlan(scp);
-        credits.setGivenCredits(ects);
-        credits.setExecutionPeriod(firstSemester);
-        return credits;
+    private static CreditsDismissal newCreditsDismissal(final double ects, final CurriculumGroup group,
+            final Collection<CurricularCourse> noEnrolCurricularCourses, final IEnrolment... enrolments) {
+        final Credits credits =
+                new Credits(scp, group.getDegreeModule(), List.of(enrolments), noEnrolCurricularCourses, ects, firstSemester);
+        return (CreditsDismissal) credits.getDismissalsSet().iterator().next();
     }
 }
