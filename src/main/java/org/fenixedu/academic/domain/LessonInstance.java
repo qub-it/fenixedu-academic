@@ -30,8 +30,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.space.LessonInstanceSpaceOccupation;
 import org.fenixedu.academic.domain.space.LessonSpaceOccupation;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.DiaSemana;
 import org.fenixedu.academic.util.HourMinuteSecond;
+import org.fenixedu.academic.util.WeekDay;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.spaces.domain.Space;
@@ -168,12 +168,12 @@ public class LessonInstance extends LessonInstance_Base {
         return spaceOccupation != null ? spaceOccupation.getSpaces().stream() : Stream.empty();
     }
 
-    public DiaSemana getDayOfweek() {
-        return new DiaSemana(DiaSemana.getDiaSemana(getDay()));
+    public WeekDay getWeekDay() {
+        return WeekDay.fromJodaTimeToWeekDay(getDay().toDateTimeAtMidnight());
     }
 
     public String prettyPrint() {
-        return getDayOfweek().getDiaSemanaString() + " (" + getStartTime().toString("HH:mm") + " - " + getEndDateTime().toString(
+        return getWeekDay().getLabelShort() + " (" + getStartTime().toString("HH:mm") + " - " + getEndDateTime().toString(
                 "HH:mm") + ") " + getSpaces().map(Space::getName).collect(Collectors.joining(", "));
     }
 
