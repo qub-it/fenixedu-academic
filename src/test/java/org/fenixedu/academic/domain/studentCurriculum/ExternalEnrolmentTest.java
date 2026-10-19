@@ -10,30 +10,25 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DegreeCurricularPlanTest;
 import org.fenixedu.academic.domain.DegreeTest;
 import org.fenixedu.academic.domain.EvaluationSeasonTest;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionIntervalTest;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.ExternalCurricularCourse;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
-import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.RegimeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
-import org.fenixedu.bennu.core.domain.UserProfile;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.YearMonthDay;
@@ -62,17 +57,15 @@ public class ExternalEnrolmentTest {
     @BeforeClass
     public static void init() {
         FenixFramework.getTransactionManager().withTransaction(() -> {
-            ExecutionIntervalTest.initRootCalendarAndExecutionYears();
-            DegreeTest.initDegree();
-            CompetenceCourseTest.initCompetenceCourse();
+            StudentTest.initStudentAndRegistration();
             EvaluationSeasonTest.initEvaluationSeasons();
-            StudentTest.initRegistrationConfigEntities();
 
             executionYear = ExecutionYear.findCurrent(null);
             firstSemester = executionYear.getFirstExecutionPeriod();
             lastSemester = executionYear.getLastExecutionPeriod();
 
-            degreeCurricularPlan = createDegreeCurricularPlan();
+            degreeCurricularPlan = Degree.find(DegreeTest.DEGREE_A_CODE).getDegreeCurricularPlansSet().stream()
+                    .filter(dcp -> DegreeCurricularPlanTest.DCP_NAME_V1.equals(dcp.getName())).findAny().orElseThrow();
 
             gradeScale = GradeScale.findUniqueByCode("TYPE20").orElseGet(() -> GradeScale.create("TYPE20",
                     new LocalizedString(Locale.getDefault(), "Type 20"), new BigDecimal("0"), new BigDecimal("9.49"),
@@ -253,16 +246,6 @@ public class ExternalEnrolmentTest {
 
         enrolment.setRegime(RegimeType.SEMESTRIAL);
         assertFalse(enrolment.isAnual());
-    }
-
-    private static DegreeCurricularPlan createDegreeCurricularPlan() {
-        final Degree degree = DegreeTest.createDegree(DegreeType.findByCode(DegreeTest.DEGREE_TYPE_CODE).orElseThrow(),
-                "EE_DEGREE_" + UUID.randomUUID(), "EE Degree", executionYear);
-        final Person person =
-                new Person(new UserProfile("EE", "Creator", "EE Creator", "ee.creator@qubit.com", Locale.getDefault()));
-        final DegreeCurricularPlan dcp = degree.createDegreeCurricularPlan("EE Plan", person, AcademicPeriod.THREE_YEAR);
-        dcp.createExecutionDegree(executionYear);
-        return dcp;
     }
 
     private static Registration newRegistration(final String username) {
