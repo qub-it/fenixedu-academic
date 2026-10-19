@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
@@ -163,6 +164,24 @@ public class CreditsTest {
         assertEquals(0.0, empty.getEnrolmentsEcts(), 0);
     }
 
+    @Test
+    public void testSubstitution_getAverageEntries() {
+        final Substitution substitution = newSubstitution(studentCurricularPlan, firstEnrolment, previousYearEnrolment);
+
+        // a null year filters nothing, so both origins are returned
+        assertEquals(Set.of(firstEnrolment, previousYearEnrolment), substitution.getAverageEntries(null, null));
+
+        // only the previous year enrolment is before the current execution year
+        assertEquals(Set.of(previousYearEnrolment), substitution.getAverageEntries(null, executionYear));
+
+        // both enrolments are before the next execution year
+        final ExecutionYear nextExecutionYear = (ExecutionYear) executionYear.getNext();
+        assertEquals(Set.of(firstEnrolment, previousYearEnrolment), substitution.getAverageEntries(null, nextExecutionYear));
+
+        // nothing is before the previous year
+        assertTrue(substitution.getAverageEntries(null, previousYear).isEmpty());
+    }
+
     private static DegreeCurricularPlan createDcp(final ExecutionYear executionYear, final DegreeType degreeType) {
         final Degree degree =
                 DegreeTest.createDegree(degreeType, "D" + UUID.randomUUID(), "D" + UUID.randomUUID(), executionYear);
@@ -201,6 +220,12 @@ public class CreditsTest {
             EnrolmentWrapper.create(credits, enrolment);
         }
         return credits;
+    }
+
+    private static Substitution newSubstitution(final StudentCurricularPlan scp, final IEnrolment... enrolments) {
+        final double credits = Arrays.stream(enrolments).mapToDouble(IEnrolment::getEctsCredits).sum();
+        return new Substitution(scp, scp.findCurriculumGroupFor(enrolledGroup), Arrays.asList(enrolments), credits,
+                firstSemester);
     }
 
     private static Set<IEnrolment> enrolmentOf(final Set<EnrolmentWrapper> wrappers) {
