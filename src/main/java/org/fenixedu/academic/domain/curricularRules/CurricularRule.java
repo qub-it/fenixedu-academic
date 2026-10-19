@@ -193,7 +193,7 @@ public abstract class CurricularRule extends CurricularRule_Base implements ICur
 
     @Override
     public boolean isActive() {
-        return getEndInterval() == null || getEndInterval().getAcademicInterval().containsNow();
+        return getEndInterval() == null || getEndInterval().toInterval().containsNow();
     }
 
     protected void checkExecutionPeriods(ExecutionInterval beginExecutionInterval, ExecutionInterval endExecutionInterval) {

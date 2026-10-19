@@ -28,13 +28,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.util.PeriodState;
@@ -79,12 +77,11 @@ public class ExecutionYear extends ExecutionYear_Base {
         setRootDomainObjectForExecutionYear(Bennu.getInstance());
     }
 
-    public ExecutionYear(AcademicInterval academicInterval, String year) {
+    public ExecutionYear(AcademicCalendarEntry academicCalendarEntry, String year) {
         this();
-        setAcademicInterval(academicInterval);
-        setAcademicCalendarEntry(academicInterval.getAcademicCalendarEntry());
-        setBeginDateYearMonthDay(academicInterval.getBeginYearMonthDayWithoutChronology());
-        setEndDateYearMonthDay(academicInterval.getEndYearMonthDayWithoutChronology());
+        setAcademicCalendarEntry(academicCalendarEntry);
+        setBeginDateYearMonthDay(academicCalendarEntry.getBegin().toYearMonthDay());
+        setEndDateYearMonthDay(academicCalendarEntry.getEnd().toYearMonthDay());
         setYear(year);
     }
 
@@ -263,7 +260,7 @@ public class ExecutionYear extends ExecutionYear_Base {
      */
     public static ExecutionYear findCurrent(final AcademicCalendarRootEntry calendar) {
         final AcademicCalendarEntry calendarToCheck = calendar != null ? calendar : AcademicCalendarEntry.findDefaultCalendar();
-        return findCurrents().stream().filter(ey -> ey.getAcademicInterval().getAcademicCalendar() == calendarToCheck).findFirst()
+        return findCurrents().stream().filter(ey -> ey.getAcademicCalendarEntry().getRootEntry() == calendarToCheck).findFirst()
                 .orElse(null);
     }
 
@@ -391,15 +388,6 @@ public class ExecutionYear extends ExecutionYear_Base {
 
     static public ExecutionYear readLastExecutionYear() {
         return Bennu.getInstance().getExecutionYearsSet().stream().max(Comparator.naturalOrder()).orElse(null);
-    }
-
-    public static ExecutionYear readByAcademicInterval(AcademicInterval academicInterval) {
-        for (final ExecutionYear executionYear : Bennu.getInstance().getExecutionYearsSet()) {
-            if (executionYear.getAcademicInterval().equals(academicInterval)) {
-                return executionYear;
-            }
-        }
-        return null;
     }
 
     @Override

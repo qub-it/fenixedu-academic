@@ -227,7 +227,7 @@ public class Teacher extends Teacher_Base {
     }
 
     public Optional<TeacherAuthorization> getLatestTeacherAuthorizationInInterval(Interval interval) {
-        return getTeacherAuthorizationStream().filter(ta -> ta.getExecutionInterval().getAcademicInterval().overlaps(interval))
+        return getTeacherAuthorizationStream().filter(ta -> ta.getExecutionInterval().toInterval().overlaps(interval))
                 .findFirst();
     }
 
