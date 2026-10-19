@@ -96,14 +96,6 @@ valueType org.fenixedu.academic.domain.Grade as Grade {
     internalizeWith importFromString();
 }
 
-valueType org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval as AcademicInterval {
-    externalizeWith {
-        String getRepresentationInStringFormat();
-    }
-
-    internalizeWith getAcademicIntervalFromString();
-}
-
 valueType org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod as AcademicPeriod {
     externalizeWith {
         String getRepresentationInStringFormat();
@@ -504,11 +496,9 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class ExecutionDegree  {
         LocalizedString anotation;
         Boolean temporaryExamMap;                           
-        AcademicInterval executionInterval;
     }
 
     class ExecutionInterval  {
-        AcademicInterval academicInterval;                          
         PeriodState state;
         String name;        
         YearMonthDay beginDateYearMonthDay;
