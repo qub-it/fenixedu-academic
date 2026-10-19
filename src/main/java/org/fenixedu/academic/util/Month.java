@@ -53,8 +53,8 @@ public enum Month {
 
     public static List<Month> getIntervalMonths(final ExecutionInterval interval) {
 
-        int monthStart = interval.getAcademicInterval().getStart().getMonthOfYear();
-        int monthEnd = interval.getAcademicInterval().getEnd().getMonthOfYear();
+        int monthStart = interval.getAcademicCalendarEntry().getBegin().getMonthOfYear();
+        int monthEnd = interval.getAcademicCalendarEntry().getEnd().getMonthOfYear();
 
         if (monthStart > monthEnd) {
             monthEnd += 12;
