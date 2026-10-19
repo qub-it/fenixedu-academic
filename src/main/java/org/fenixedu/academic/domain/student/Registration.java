@@ -335,10 +335,6 @@ public class Registration extends Registration_Base {
         return getLastStudentCurricularPlan().getStandaloneCurriculumLines();
     }
 
-    final public Collection<CurriculumLine> getPropaedeuticCurriculumLines() {
-        return getLastStudentCurricularPlan().getPropaedeuticCurriculumLines();
-    }
-
     final public Collection<CurriculumLine> getApprovedCurriculumLines() {
         return getLastStudentCurricularPlan().getApprovedCurriculumLines();
     }
