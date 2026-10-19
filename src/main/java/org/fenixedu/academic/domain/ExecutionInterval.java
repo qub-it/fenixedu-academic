@@ -18,8 +18,10 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,23 +29,20 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
 public class ExecutionInterval extends ExecutionInterval_Base implements Comparable<ExecutionInterval> {
 
-    public static final Comparator<ExecutionInterval> COMPARATOR_BY_BEGIN_DATE = new Comparator<ExecutionInterval>() {
-
-        @Override
-        public int compare(final ExecutionInterval o1, final ExecutionInterval o2) {
-            return AcademicInterval.COMPARATOR_BY_BEGIN_DATE.compare(o1.getAcademicInterval(), o2.getAcademicInterval());
-        }
-    };
+    public static final Comparator<ExecutionInterval> COMPARATOR_BY_BEGIN_DATE =
+            Comparator.<ExecutionInterval, DateTime> comparing(ei -> ei.getAcademicCalendarEntry().getBegin())
+                    .thenComparing((ExecutionInterval ei) -> ei.getAcademicCalendarEntry().getEnd(), Comparator.reverseOrder());
 
     protected ExecutionInterval() {
         super();
@@ -51,23 +50,14 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         setState(PeriodState.NOT_OPEN);
     }
 
-    public ExecutionInterval(ExecutionYear executionYear, AcademicInterval academicInterval, String name) {
+    public ExecutionInterval(ExecutionYear executionYear, AcademicCalendarEntry academicCalendarEntry, String name) {
         this();
         setRootDomainObjectForExecutionPeriod(Bennu.getInstance());
         setExecutionYear(executionYear);
-        setAcademicInterval(academicInterval);
-        setAcademicCalendarEntry(academicInterval.getAcademicCalendarEntry());
-        setBeginDateYearMonthDay(academicInterval.getBeginYearMonthDayWithoutChronology());
-        setEndDateYearMonthDay(academicInterval.getEndYearMonthDayWithoutChronology());
+        setAcademicCalendarEntry(academicCalendarEntry);
+        setBeginDateYearMonthDay(academicCalendarEntry.getBegin().toYearMonthDay());
+        setEndDateYearMonthDay(academicCalendarEntry.getEnd().toYearMonthDay());
         setName(name);
-    }
-
-    @Override
-    public void setAcademicInterval(AcademicInterval academicInterval) {
-        if (academicInterval == null) {
-            throw new DomainException("error.executionInterval.empty.executionInterval");
-        }
-        super.setAcademicInterval(academicInterval);
     }
 
     @Override
@@ -124,7 +114,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
 
 //    abstract public String getQualifiedName();
     public String getQualifiedName() {
-        final String localizedName = getAcademicInterval().getAcademicCalendarEntry().getTitle().getContent();
+        final String localizedName = getAcademicCalendarEntry().getTitle().getContent();
         final String name = StringUtils.isNotBlank(localizedName) ? localizedName : getName();
 
         return name + " " + this.getExecutionYear().getName();
@@ -170,10 +160,6 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return null;
     }
 
-    public static ExecutionInterval getExecutionInterval(AcademicInterval academicInterval) {
-        return academicInterval.getAcademicCalendarEntry().getExecutionInterval();
-    }
-
     public static ExecutionInterval getExecutionInterval(AcademicCalendarEntry entry) {
         return entry != null ? entry.getExecutionInterval() : null;
     }
@@ -205,11 +191,10 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
             return 1;
         }
 
-        final Comparator<ExecutionInterval> comparatorByStart = (ei1, ei2) -> ei1.getAcademicInterval()
-                .getStartDateTimeWithoutChronology().compareTo(ei2.getAcademicInterval().getStartDateTimeWithoutChronology());
+        final Comparator<ExecutionInterval> comparatorByStart =
+                Comparator.comparing(ei -> ei.getAcademicCalendarEntry().getBegin());
 
-        final Comparator<ExecutionInterval> comparatorByEnd = (ei1, ei2) -> ei1.getAcademicInterval()
-                .getEndDateTimeWithoutChronology().compareTo(ei2.getAcademicInterval().getEndDateTimeWithoutChronology());
+        final Comparator<ExecutionInterval> comparatorByEnd = Comparator.comparing(ei -> ei.getAcademicCalendarEntry().getEnd());
 
         return comparatorByStart.thenComparing(comparatorByEnd.reversed()).thenComparing(ExecutionInterval::getOid) // end comparator is reversed in order to year be first than 1st semester (as it is first than 2nd semester)
                 .compare(this, anotherInterval);
@@ -294,7 +279,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
 
 //    public abstract Integer getChildOrder();
     public Integer getChildOrder() {
-        return getAcademicInterval().getAcademicCalendarEntry().getCardinality();
+        return getAcademicCalendarEntry().getCardinality();
     }
 
     public ExecutionInterval getNext() {
@@ -425,7 +410,7 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
      */
     private static Collection<ExecutionInterval> findCurrentChilds(final AcademicCalendarRootEntry calendar) {
         final AcademicCalendarEntry calendarToCheck = calendar != null ? calendar : AcademicCalendarEntry.findDefaultCalendar();
-        return findCurrentsChilds().stream().filter(ey -> ey.getAcademicInterval().getAcademicCalendar() == calendarToCheck)
+        return findCurrentsChilds().stream().filter(ey -> ey.getAcademicCalendarEntry().getRootEntry() == calendarToCheck)
                 .collect(Collectors.toSet());
     }
 
@@ -457,24 +442,8 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return Optional.ofNullable(getAcademicCalendarEntry()).map(ace -> ace.getAcademicPeriod()).orElse(null);
     }
 
-    // TODO: after ensuring that there aren't anymore ExecutionInterval instances without AcademicCalendarEntry, remove null safety checks 
-    public AcademicInterval getAcademicInterval() {
-        return Optional.ofNullable(getAcademicCalendarEntry()).map(ace -> new AcademicInterval(ace, ace.getRootEntry()))
-                .orElseGet(() -> super.getAcademicInterval());
-    }
-
-    // TODO: after ensuring that there aren't anymore ExecutionInterval instances without AcademicCalendarEntry, remove null safety checks
     public AcademicCalendarEntry getAcademicCalendar() {
-        return Optional.ofNullable(getAcademicCalendarEntry()).map(ace -> ace.getAcademicCalendar())
-                .orElseGet(() -> super.getAcademicInterval().getAcademicCalendar());
-    }
-
-    public boolean populateAcademicCalendarEntry() {
-        if (getAcademicCalendarEntry() == null) {
-            setAcademicCalendarEntry(super.getAcademicInterval().getAcademicCalendarEntry());
-            return true;
-        }
-        return false;
+        return getAcademicCalendarEntry().getRootEntry();
     }
 
     public void delete() {

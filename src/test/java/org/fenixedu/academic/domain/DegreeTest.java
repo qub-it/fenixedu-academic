@@ -75,7 +75,7 @@ public class DegreeTest {
     public static Degree createDegree(final DegreeType degreeType, String code, String name, final ExecutionYear executionYear) {
         final Degree result = new Degree(name, name, code, degreeType, new GradeScale(), new GradeScale(), executionYear);
         result.setCode(code);
-        result.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
+        result.setCalendar(executionYear.getAcademicCalendarEntry().getRootEntry());
 
         return result;
     }
