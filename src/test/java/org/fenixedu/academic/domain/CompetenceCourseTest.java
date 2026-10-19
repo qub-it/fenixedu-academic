@@ -95,7 +95,7 @@ public class CompetenceCourseTest {
                 new Degree("CC Test Degree", "CC Test Degree", "CC_DEGREE", degreeType, new GradeScale(), new GradeScale(),
                         executionYear);
         degree.setCode("CC_DEGREE");
-        degree.setCalendar(executionYear.getAcademicInterval().getAcademicCalendar());
+        degree.setCalendar(executionYear.getAcademicCalendarEntry().getRootEntry());
 
         testDegreeCurricularPlan = new DegreeCurricularPlan(degree, "CC_DCP", AcademicPeriod.THREE_YEAR);
 

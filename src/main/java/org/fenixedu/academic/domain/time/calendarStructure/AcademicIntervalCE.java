@@ -51,7 +51,7 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
 
     private void createNewExecutionPeriod() {
         ExecutionYear executionYear = ExecutionYear.getExecutionYear((AcademicYearCE) getParentEntry());
-        new ExecutionInterval(executionYear, new AcademicInterval(this, getRootEntry()), getTitle().getContent());
+        new ExecutionInterval(executionYear, this, getTitle().getContent());
     }
 
     @Override
