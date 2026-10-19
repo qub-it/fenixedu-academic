@@ -1,3 +1,4 @@
+- Refactor: Deletes AcademicInterval class [#qubIT-Fenix-9217]
 - Refactor: Replaces AcademicInterval references [#qubIT-Fenix-9217]
 - Refactor: Adds ExecutionInterval#toInterval, #getPathName and #contains methods [#qubIT-Fenix-9217]
 - Refactor: Remove ChooseEvaluationSeasonBean and subclasses [#qubIT-Fenix-9534]
