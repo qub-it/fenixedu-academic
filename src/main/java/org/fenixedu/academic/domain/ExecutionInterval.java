@@ -135,6 +135,23 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return localizedName.append(this.getExecutionYear().getAcademicCalendarEntry().getTitle(), " ");
     }
 
+    public String getPathName() {
+        List<String> path = new ArrayList<>();
+
+        AcademicCalendarEntry academicCalendarEntry = getAcademicCalendarEntry();
+        while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {
+            path.add(academicCalendarEntry.getTitle().getContent());
+            academicCalendarEntry = academicCalendarEntry.getParentEntry();
+        }
+
+        return String.join(" - ", path);
+    }
+
+    public Interval toInterval() {
+        final AcademicCalendarEntry entry = getAcademicCalendarEntry();
+        return new Interval(entry.getBegin(), entry.getEnd());
+    }
+
 //    abstract public boolean isCurrent();
     public boolean isCurrent() {
         return getState().equals(PeriodState.CURRENT);
@@ -175,6 +192,11 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
 
     public boolean isBeforeOrEquals(ExecutionInterval input) {
         return this.compareTo(input) <= 0;
+    }
+
+    public boolean contains(ExecutionInterval other) {
+        return other != null && !getAcademicCalendarEntry().getBegin().isAfter(other.getAcademicCalendarEntry().getBegin())
+                && !getAcademicCalendarEntry().getEnd().isBefore(other.getAcademicCalendarEntry().getEnd());
     }
 
     @Override
