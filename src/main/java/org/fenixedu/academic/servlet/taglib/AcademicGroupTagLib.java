@@ -21,8 +21,8 @@ package org.fenixedu.academic.servlet.taglib;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.TagSupport;
 
 import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;

@@ -91,5 +91,5 @@ response.setStatus(404);
 			</c:if>
 		</div>
 	</div>
-	<!-- Message: '<c:out value="${pageContext.findAttribute('javax.servlet.error.message')}" />' -->
+	<!-- Message: '<c:out value="${pageContext.findAttribute('jakarta.servlet.error.message')}" />' -->
 </body>
