@@ -21,10 +21,10 @@ package org.fenixedu.academic.servlet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -111,7 +111,7 @@ public class FenixInitializer implements ServletContextListener {
     private void registerChecksumFilterRules() {
         RequestChecksumFilter.registerFilterRule(new ChecksumPredicate() {
             @Override
-            public boolean shouldFilter(HttpServletRequest request) {
+            public boolean shouldFilter(final HttpServletRequest request) {
                 final String uri = request.getRequestURI().substring(request.getContextPath().length());
                 if (uri.indexOf("home.do") >= 0) {
                     return false;
