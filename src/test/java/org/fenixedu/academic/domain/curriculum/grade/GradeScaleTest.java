@@ -270,7 +270,9 @@ public class GradeScaleTest {
     }
 
     /**
-     * The methods below are private, that is why the tests are commented out
+     * These tests are commented out because the methods under test are private.
+     * To run them locally, temporarily change the methods to public and uncomment the tests.
+     * They are kept here for optional local testing.
      */
 
 //    @Test
