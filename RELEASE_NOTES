@@ -1,3 +1,5 @@
+- Refactor: Improve ExternalEnrolment domain methods [#qubIT-Fenix-9556]
+
 64.0.0 (20-10-2026)
 - Refactor: Migrate from javaee to jakarta [#qubIT-Omnis-10960]
 - Refactor: Improve Substitution domain methods [#qubIT-Fenix-9553]
