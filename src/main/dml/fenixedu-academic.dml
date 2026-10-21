@@ -2895,6 +2895,18 @@ relation RegistrationDegree {
     }
 }
 
+/* Precedent Degrees */
+
+relation DegreePrecedentDegree {
+    Degree playsRole precedentDegrees {
+        multiplicity *;
+    }
+
+    Degree playsRole subsequentDegrees {
+        multiplicity *;
+    }
+}
+
 relation ResponsibleForConclusionProcessVersion {
     Person playsRole responsible;
     student.curriculum.ConclusionProcessVersion playsRole conclusionProcessVersions {
