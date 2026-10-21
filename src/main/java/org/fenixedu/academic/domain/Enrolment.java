@@ -15,13 +15,11 @@
 package org.fenixedu.academic.domain;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -68,46 +66,16 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     static final public Logger logger = LoggerFactory.getLogger(Enrolment.class);
 
-    static final public Comparator<Enrolment> REVERSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_ID = new Comparator<Enrolment>() {
-        @Override
-        public int compare(final Enrolment o1, final Enrolment o2) {
-            return -COMPARATOR_BY_EXECUTION_PERIOD_AND_ID.compare(o1, o2);
-        }
-    };
-
-    static final public Comparator<Enrolment> COMPARATOR_BY_STUDENT_NUMBER = new Comparator<Enrolment>() {
-        @Override
-        public int compare(final Enrolment e1, final Enrolment e2) {
-            final int s1 = e1.getStudent().getNumber().intValue();
-            final int s2 = e2.getStudent().getNumber().intValue();
-            return s1 == s2 ? e1.getExternalId().compareTo(e2.getExternalId()) : s1 - s2;
-        }
-    };
-
     public static final String SIGNAL_CREATED = "fenixedu.academic.enrolment.created";
 
     protected Enrolment() {
         super();
-        super.setIsExtraCurricular(Boolean.FALSE);
         Signal.emit(Enrolment.SIGNAL_CREATED, new DomainObjectEvent<>(this));
     }
-
-    // TODO: DELETE
-//    public Enrolment(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
-//            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
-//        this();
-//        initializeAsNew(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-//        createCurriculumLineLog(EnrolmentAction.ENROL);
-//    }
 
     @Override
     final public boolean isEnrolment() {
         return true;
-    }
-
-    @Override
-    public boolean isOptional() {
-        return false;
     }
 
     @Override
@@ -123,23 +91,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     public boolean isExtraCurricular() {
         return super.isExtraCurricular();
-    }
-
-    @Override
-    @Deprecated
-    public Boolean getIsExtraCurricular() {
-        return isExtraCurricular();
-    }
-
-    @Override
-    @Deprecated
-    public void setIsExtraCurricular(final Boolean isExtraCurricular) {
-        throw new DomainException("error.org.fenixedu.academic.domain.Enrolment.use.markAsExtraCurricular.method.instead");
-    }
-
-    public void markAsExtraCurricular() {
-        setCurriculumGroup(getStudentCurricularPlan().getExtraCurriculumGroup());
-        super.setIsExtraCurricular(null);
     }
 
     final public boolean isFinal() {
@@ -160,7 +111,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return getEnrolmentCondition() == EnrollmentCondition.IMPOSSIBLE;
     }
 
-    // new student structure methods
     public Enrolment(final StudentCurricularPlan studentCurricularPlan, final CurriculumGroup curriculumGroup,
             final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
             final EnrollmentCondition enrolmentCondition, final String createdBy) {
@@ -169,8 +119,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             throw new DomainException("invalid arguments");
         }
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval);
-        // TODO: check this
-        // validateDegreeModuleLink(curriculumGroup, curricularCourse);
         initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
                 createdBy);
         createCurriculumLineLog(EnrolmentActionType.ENROL);
@@ -202,15 +150,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
     }
 
-    // end
-
-//    protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
-//            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
-//        initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition,
-//                createdBy);
-//        createEnrolmentEvaluationWithoutGrade();
-//    }
-
     private void initializeCommon(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
             final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
         setCurricularCourse(curricularCourse);
@@ -222,16 +161,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         setCreationDateDateTime(new DateTime());
         setEnrolmentCondition(enrolmentCondition);
         curricularCourse.findExecutionCourses(executionInterval).findAny().ifPresent(this::findOrCreateAttends);
-
-        super.setIsExtraCurricular(Boolean.FALSE);
     }
-
-//    protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
-//            final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
-//            final EnrollmentCondition enrolmentCondition, final String createdBy) {
-//        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-//        setStudentCurricularPlan(studentCurricularPlan);
-//    }
 
     @Override
     public void delete() {
@@ -261,7 +191,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
             if (attends.getAssociatedMarksSet().isEmpty()) {
                 boolean hasShiftEnrolment = false;
-                for (Shift shift : attends.getExecutionCourse().getAssociatedShifts()) {
+                for (Shift shift : attends.getExecutionCourse().getShiftsSet()) {
                     if (shift.getStudentsSet().contains(registration)) {
                         hasShiftEnrolment = true;
                         break;
@@ -289,15 +219,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
     }
 
-    final public Collection<Enrolment> getBrothers() {
-        final Collection<Enrolment> result = new HashSet<>();
-
-        result.addAll(getStudentCurricularPlan().getEnrolments(getCurricularCourse()));
-        result.remove(this);
-
-        return result;
-    }
-
     final public Optional<EnrolmentEvaluation> getEnrolmentEvaluationBySeasonAndState(final EnrolmentEvaluationState state,
             final EvaluationSeason season) {
 
@@ -319,10 +240,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     final public Stream<EnrolmentEvaluation> getEnrolmentEvaluationBySeason(final EvaluationSeason season) {
         return getEvaluationsSet().stream().filter(e -> e.getEvaluationSeason().equals(season));
-    }
-
-    public boolean isEvaluatedInSeason(final EvaluationSeason season, final ExecutionInterval interval) {
-        return getEnrolmentEvaluation(season, interval, Boolean.TRUE).isPresent();
     }
 
     public boolean isEnroledInSeason(final EvaluationSeason season, final ExecutionInterval interval) {
@@ -374,12 +291,11 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     protected void createEnrolmentEvaluationWithoutGrade() {
-        boolean existing =
-                getEnrolmentEvaluationBySeason(EvaluationConfiguration.getInstance().getDefaultEvaluationSeason()).filter(
-                        e -> e.getGrade().equals(null)).findAny().isPresent();
-        if (!existing) {
-            EnrolmentEvaluation evaluation =
-                    new EnrolmentEvaluation(this, EvaluationConfiguration.getInstance().getDefaultEvaluationSeason(),
+        EvaluationSeason evaluationSeason = EvaluationConfiguration.getInstance().getDefaultEvaluationSeason();
+
+        boolean hasEvaluationWithoutGrade = getEnrolmentEvaluationBySeason(evaluationSeason).anyMatch(e -> e.getGrade() == null);
+        if (!hasEvaluationWithoutGrade) {
+            EnrolmentEvaluation evaluation = new EnrolmentEvaluation(this, evaluationSeason,
                             EnrolmentEvaluationState.TEMPORARY_OBJ);
             evaluation.setWhenDateTime(new DateTime());
             addEvaluations(evaluation);
@@ -418,48 +334,20 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     final public List<EnrolmentEvaluation> getAllFinalEnrolmentEvaluations() {
-        final List<EnrolmentEvaluation> result = new ArrayList<>();
-
-        for (final EnrolmentEvaluation enrolmentEvaluation : getEvaluationsSet()) {
-            if (enrolmentEvaluation.isFinal()) {
-                result.add(enrolmentEvaluation);
-            }
-        }
-
-        return result;
+        return getEvaluationsSet().stream().filter(EnrolmentEvaluation::isFinal).collect(Collectors.toList());
     }
 
     public boolean hasImprovementFor(final ExecutionInterval interval) {
         final Collection<ExecutionInterval> intervals =
                 interval instanceof ExecutionYear ? ((ExecutionYear) interval).getChildIntervals() : Set.of(interval);
 
-        for (EnrolmentEvaluation enrolmentEvaluation : this.getEvaluationsSet()) {
-            if (enrolmentEvaluation.getEvaluationSeason().isImprovement()) {
-                final ExecutionInterval evalPeriod = enrolmentEvaluation.getExecutionInterval();
-                if (evalPeriod != null && intervals.contains(evalPeriod)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getEvaluationsSet().stream().filter(evaluation -> evaluation.getEvaluationSeason().isImprovement())
+                .map(EnrolmentEvaluation::getExecutionInterval).filter(Objects::nonNull).anyMatch(intervals::contains);
     }
 
     public boolean hasSpecialSeasonFor(final ExecutionInterval interval) {
         return this.getEvaluationsSet().stream().filter(ee -> ee.getEvaluationSeason().isSpecial())
                 .anyMatch(ee -> ee.getExecutionInterval() == interval);
-    }
-
-    @Deprecated
-    final public boolean hasSpecialSeason() {
-        for (final EnrolmentEvaluation evaluation : getEvaluationsSet()) {
-            final EvaluationSeason season = evaluation.getEvaluationSeason();
-
-            if (season.isSpecial() && isEnroledInSeason(season, getExecutionInterval())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     final public boolean isFlunked() {

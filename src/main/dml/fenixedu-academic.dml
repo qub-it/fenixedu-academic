@@ -1472,7 +1472,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             class Enrolment extends studentCurriculum.CurriculumLine {
                 EnrollmentState enrollmentState;
                 EnrollmentCondition enrolmentCondition;
-                Boolean isExtraCurricular;
                 Double weigth;
                 DateTime annulmentDate;
             }
