@@ -21,6 +21,9 @@ package org.fenixedu.academic.domain.studentCurriculum;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
@@ -78,19 +81,12 @@ public class InternalSubstitution extends InternalSubstitution_Base {
     }
 
     private void checkEnrolments(final StudentCurricularPlan studentCurricularPlan, final Collection<IEnrolment> enrolments) {
-        for (final IEnrolment iEnrolment : enrolments) {
-
-            if (iEnrolment.isExternalEnrolment()) {
-                continue;
-            }
-
-            final Enrolment enrolment = (Enrolment) iEnrolment;
-            if (enrolment.getStudentCurricularPlan() != studentCurricularPlan) {
-                throw new DomainException("error.InternalSubstitution.invalid.enrolment");
-            }
+        if (enrolments.stream().filter(iEnrolment -> !iEnrolment.isExternalEnrolment()).map(Enrolment.class::cast)
+                .anyMatch(enrolment -> enrolment.getStudentCurricularPlan() != studentCurricularPlan)) {
+            throw new DomainException("error.InternalSubstitution.invalid.enrolment");
         }
     }
-
+    
     private void changeParentCurriculumGroup(final StudentCurricularPlan studentCurricularPlan,
             final Collection<IEnrolment> enrolments) {
 
@@ -132,10 +128,8 @@ public class InternalSubstitution extends InternalSubstitution_Base {
     private void moveExistingEnrolmentsToExtraCurriculumGroup() {
         final ExtraCurriculumGroup extraCurriculumGroup = ensureExtraCurriculumGroup();
 
-        for (final EnrolmentWrapper wrapper : getEnrolmentsSet()) {
-            final Enrolment enrolment = (Enrolment) wrapper.getIEnrolment();
-            enrolment.setCurriculumGroup(extraCurriculumGroup);
-        }
+        getEnrolmentsSet().stream().map(EnrolmentWrapper::getIEnrolment).map(Enrolment.class::cast)
+                .forEach(enrolment -> enrolment.setCurriculumGroup(extraCurriculumGroup));
     }
 
     private ExtraCurriculumGroup ensureExtraCurriculumGroup() {
@@ -147,12 +141,9 @@ public class InternalSubstitution extends InternalSubstitution_Base {
     }
 
     private void deleteSourceGroupIfEmpty() {
-        final NoCourseGroupCurriculumGroup group = getStudentCurricularPlan()
-                .getNoCourseGroupCurriculumGroup(NoCourseGroupCurriculumGroupType.INTERNAL_CREDITS_SOURCE_GROUP);
-
-        if (group != null && group.isDeletable()) {
-            group.delete();
-        }
+        Optional.ofNullable(getStudentCurricularPlan().getNoCourseGroupCurriculumGroup(
+                        NoCourseGroupCurriculumGroupType.INTERNAL_CREDITS_SOURCE_GROUP)).filter(NoCourseGroupCurriculumGroup::isDeletable)
+                .ifPresent(NoCourseGroupCurriculumGroup::delete);
     }
 
     @Override
@@ -171,15 +162,14 @@ public class InternalSubstitution extends InternalSubstitution_Base {
     @Override
     protected Curriculum getCurriculum(final Dismissal dismissal, final DateTime when, final ExecutionYear year) {
 
-        Curriculum curriculum = Curriculum.createEmpty(year);
+        final Curriculum curriculum = Curriculum.createEmpty(year);
 
-        for (final EnrolmentWrapper wrapper : getEnrolmentsSetBefore(year)) {
-            final Enrolment enrolment = (Enrolment) wrapper.getIEnrolment();
+        final Set<ICurriculumEntry> entries =
+                getEnrolmentsSetBefore(year).stream().map(EnrolmentWrapper::getIEnrolment).map(Enrolment.class::cast)
+                        .filter(enrolment -> enrolment.wasCreated(when)).collect(Collectors.toSet());
 
-            if (enrolment.wasCreated(when)) {
-                curriculum.add(new Curriculum(dismissal, year, Collections.<ICurriculumEntry> singleton(enrolment),
-                        Collections.<ICurriculumEntry> emptySet(), Collections.<ICurriculumEntry> singleton(enrolment)));
-            }
+        if (!entries.isEmpty()) {
+            curriculum.add(new Curriculum(dismissal, year, entries, Collections.<ICurriculumEntry> emptySet(), entries));
         }
 
         return curriculum;
