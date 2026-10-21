@@ -8,6 +8,7 @@ import static org.fenixedu.academic.domain.degreeStructure.CourseLoadType.THEORE
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -427,5 +428,38 @@ public class EnrolmentTest {
         assertEquals(newRegistration.getCurriculumLineLogs(executionInterval).size(), 2);
         assertEquals(curricularCourse.getCurriculumLineLogsSet().size(), curricularCourseLogCounter + 2);
         assertEquals(executionInterval.getCurriculumLineLogsSet().size(), executionIntervalLogCounter + 2);
+    }
+
+    @Test
+    public void testEnrolment_createEnrolmentEvaluationWithoutGrade() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        assertTrue(enrolment.getEvaluationsSet().isEmpty());
+
+        enrolment.createEnrolmentEvaluationWithoutGrade();
+
+        // exactly one evaluation was created, without grade, for the default season
+        assertEquals(1, enrolment.getEvaluationsSet().size());
+        final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
+        assertEquals(EvaluationConfiguration.getInstance().getDefaultEvaluationSeason(), evaluation.getEvaluationSeason());
+        assertTrue(evaluation.getGrade().isEmpty());
+        assertTrue(evaluation.isTemporary());
+        assertNotNull(evaluation.getWhenDateTime());
+    }
+
+    @Test
+    public void testEnrolment_getAllFinalEnrolmentEvaluations() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        assertTrue(enrolment.getEvaluationsSet().isEmpty());
+
+        // two enrolment evaluations, one TEMPORARY and one FINAL
+        enrolment.createEnrolmentEvaluationWithoutGrade();
+        final EnrolmentEvaluation finalEvaluation = createImprovementEvaluation(enrolment, executionInterval);
+
+        finalEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+
+        // only the evaluation in FINAL state are returned
+        final List<EnrolmentEvaluation> result = enrolment.getAllFinalEnrolmentEvaluations();
+        assertEquals(1, result.size());
+        assertTrue(result.contains(finalEvaluation));
     }
 }
