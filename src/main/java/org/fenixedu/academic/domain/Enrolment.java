@@ -365,22 +365,19 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return latestEnrolmentEvaluation != null && latestEnrolmentEvaluation.isApproved();
     }
 
-    final public boolean isAproved(final ExecutionYear executionYear) {
+    final public boolean isApproved(final ExecutionYear executionYear) {
         return (executionYear == null || getExecutionYear().isBeforeOrEquals(executionYear)) && isApproved();
     }
 
     @Override
     public boolean isApproved(final CurricularCourse curricularCourse, final ExecutionInterval executionInterval) {
-        if (executionInterval == null || getExecutionInterval().isBeforeOrEquals(executionInterval)) {
-            return isApproved() && hasCurricularCourse(getCurricularCourse(), curricularCourse, executionInterval);
-        } else {
-            return false;
-        }
+        return (executionInterval == null || getExecutionInterval().isBeforeOrEquals(executionInterval)) && isApproved()
+                && hasCurricularCourse(getCurricularCourse(), curricularCourse, executionInterval);
     }
 
     @Override
     public final ConclusionValue isConcluded(final ExecutionYear executionYear) {
-        return ConclusionValue.create(isAproved(executionYear));
+        return ConclusionValue.create(isApproved(executionYear));
     }
 
     @Override
@@ -402,8 +399,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     final public Curriculum getCurriculum(final DateTime when, final ExecutionYear year) {
         if (wasCreated(when) && (year == null || getExecutionYear().isBefore(
                 year)) && isApproved() && !isPropaedeutic() && !isExtraCurricular()) {
-            return new Curriculum(this, year, Collections.singleton((ICurriculumEntry) this), Collections.EMPTY_SET,
-                    Collections.singleton((ICurriculumEntry) this));
+            return new Curriculum(this, year, Collections.singleton(this), Collections.EMPTY_SET, Collections.singleton(this));
         }
 
         return Curriculum.createEmpty(this, year);
@@ -418,7 +414,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     public Grade getGrade(final ExecutionInterval executionInterval) {
         final Optional<EnrolmentEvaluation> enrolmentEvaluation =
                 EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this, executionInterval);
-        return enrolmentEvaluation.map(EnrolmentEvaluation::getGrade).orElseGet(() -> Grade.createEmptyGrade());
+        return enrolmentEvaluation.map(EnrolmentEvaluation::getGrade).orElseGet(Grade::createEmptyGrade);
     }
 
     @Override
@@ -456,18 +452,13 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     final public Attends getAttendsByExecutionCourse(final ExecutionCourse executionCourse) {
-        for (final Attends attends : this.getAttendsSet()) {
-            if (attends.isFor(executionCourse)) {
-                return attends;
-            }
-        }
-        return null;
+        return getAttendsSet().stream().filter(attends -> attends.isFor(executionCourse)).findFirst().orElse(null);
     }
 
     /**
      * @deprecated use {@link #findAttends(ExecutionInterval)}
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public Attends getAttendsFor(final ExecutionInterval interval) {
         Attends result = null;
 
@@ -485,13 +476,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     final public ExecutionCourse getExecutionCourseFor(final ExecutionInterval executionInterval) {
-        for (final Attends attend : getAttendsSet()) {
-            if (attend.getExecutionCourse().getExecutionInterval() == executionInterval) {
-                return attend.getExecutionCourse();
-            }
-        }
-
-        return null;
+        return getAttendsSet().stream().map(Attends::getExecutionCourse)
+                .filter(executionCourse -> executionCourse.getExecutionInterval() == executionInterval).findFirst().orElse(null);
     }
 
     public EnrolmentEvaluation getLatestEnrolmentEvaluationBySeason(final EvaluationSeason season) {
@@ -500,10 +486,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     final public EnrolmentEvaluation getFinalEnrolmentEvaluation() {
         return EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this).orElse(null);
-    }
-
-    public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluationBySeason(final EvaluationSeason season) {
-        return EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this, season);
     }
 
     @Override
