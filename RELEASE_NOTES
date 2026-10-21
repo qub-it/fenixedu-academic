@@ -1,3 +1,4 @@
+- Refactor: Moves DegreePrecedentDegree relation from academic-extensions to this module [#qubIT-Fenix-9588]
 - Refactor: Adds ExecutionInterval#toInterval, #getPathName and #contains methods [#qubIT-Fenix-9217]
 - Refactor: Improves GradeScale domain methods [#qubIT-Fenix-9508]
 - Refactor: Remove entity DiaSemana [#qubIT-Fenix-9580]
