@@ -3,6 +3,7 @@
 64.0.0 (20-10-2026)
 - Refactor: Migrate from javaee to jakarta [#qubIT-Omnis-10960]
 - Refactor: Improve Substitution domain methods [#qubIT-Fenix-9553]
+- Refactor: Remove deprecated lesson methods [#qubIT-Fenix-9230]
 
 63.0.0 (16-10-2026)
 - Refactor: Remove ChooseEvaluationSeasonBean and subclasses [#qubIT-Fenix-9534]
