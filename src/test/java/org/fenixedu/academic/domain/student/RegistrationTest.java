@@ -19,9 +19,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.fenixedu.academic.domain.Attends;
+import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CompetenceCourseTest;
 import org.fenixedu.academic.domain.CurricularCourse;
+import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.DegreeTest;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentTest;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -31,6 +34,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.StudentTest;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
+import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -636,6 +640,142 @@ public class RegistrationTest {
     }
 
     @Test
+    public void testRegistration_findActiveRegistrationExecutionYears() {
+        Registration newRegistration = createFreshRegistration();
+        StudentCurricularPlan newStudentCurricularPlan = newRegistration.getLastStudentCurricularPlan();
+
+        assertTrue(newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()).isEmpty());
+
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, firstSemester, context, "admin");
+
+        assertEquals(Set.of(executionYear), newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()));
+
+        EnrolmentTest.createEnrolment(newStudentCurricularPlan, nextYearFirstSemester, context, "admin");
+
+        assertEquals(Set.of(executionYear, nextExecutionYear),
+                newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testRegistration_findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations() {
+        Student student = createFreshStudent();
+
+        DegreeCurricularPlan currentDcp = createDegreeCurricularPlanWithCourseIn(nextYearFirstSemester);
+        Registration currentRegistration = createRegistration(student, currentDcp, nextExecutionYear);
+
+        DegreeCurricularPlan precedentDcp = createDegreeCurricularPlanWithCourseIn(firstSemester);
+        Registration precedentRegistration = createRegistration(student, precedentDcp, executionYear);
+
+        // there are no enrolments yet -> no active RegistrationDataByExecutionYear
+        assertTrue(currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations()
+                .collect(Collectors.toSet()).isEmpty());
+
+        // create enrolments in precedent and current registrations
+        EnrolmentTest.createEnrolment(precedentRegistration.getLastStudentCurricularPlan(), firstSemester,
+                getContext(precedentDcp, firstSemester), "admin");
+        EnrolmentTest.createEnrolment(currentRegistration.getLastStudentCurricularPlan(), nextYearFirstSemester,
+                getContext(currentDcp, nextYearFirstSemester), "admin");
+
+        // only nextExecutionYear is returned because precedentDegree is not yet a precedent of currentDegree
+        assertEquals(Set.of(nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations()
+                        .collect(Collectors.toSet()));
+
+        // add precedentDegree as a precedent of currentDegree
+        currentDcp.getDegree().addPrecedentDegrees(precedentDcp.getDegree());
+
+        assertEquals(Set.of(executionYear, nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations()
+                        .collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testRegistration_findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations_untilExecutionYear() {
+        Student student = createFreshStudent();
+
+        DegreeCurricularPlan currentDcp = createDegreeCurricularPlanWithCourseIn(nextYearFirstSemester);
+        Registration currentRegistration = createRegistration(student, currentDcp, nextExecutionYear);
+
+        DegreeCurricularPlan precedentDcp = createDegreeCurricularPlanWithCourseIn(firstSemester);
+        Registration precedentRegistration = createRegistration(student, precedentDcp, executionYear);
+
+        // there are no enrolments yet -> no active RegistrationDataByExecutionYear
+        assertTrue(currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(nextExecutionYear)
+                .collect(Collectors.toSet()).isEmpty());
+
+        // create enrolments in precedent and current registrations
+        EnrolmentTest.createEnrolment(precedentRegistration.getLastStudentCurricularPlan(), firstSemester,
+                getContext(precedentDcp, firstSemester), "admin");
+        EnrolmentTest.createEnrolment(currentRegistration.getLastStudentCurricularPlan(), nextYearFirstSemester,
+                getContext(currentDcp, nextYearFirstSemester), "admin");
+
+        // only nextExecutionYear is returned because precedentDegree is not yet a precedent of currentDegree
+        assertEquals(Set.of(nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(nextExecutionYear)
+                        .collect(Collectors.toSet()));
+
+        assertEquals(Set.of(nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(null)
+                        .collect(Collectors.toSet()));
+
+        // add precedentDegree as a precedent of currentDegree
+        currentDcp.getDegree().addPrecedentDegrees(precedentDcp.getDegree());
+
+        // untilExecutionYear = nextExecutionYear
+        assertEquals(Set.of(executionYear, nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(nextExecutionYear)
+                        .collect(Collectors.toSet()));
+
+        // untilExecutionYear = executionYear
+        assertEquals(Set.of(executionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(executionYear)
+                        .collect(Collectors.toSet()));
+
+        // untilExecutionYear = previousExecutionYear
+        assertTrue(currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(
+                executionYear.getPrevious().getExecutionYear()).collect(Collectors.toSet()).isEmpty());
+
+        // untilExecutionYear = null
+        assertEquals(Set.of(executionYear, nextExecutionYear),
+                currentRegistration.findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(null)
+                        .collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void testRegistration_findPrecedentDegreeRegistrations() {
+        Student student = createFreshStudent();
+
+        DegreeCurricularPlan currentDcp = createDegreeCurricularPlanWithCourseIn(nextYearFirstSemester);
+        Registration currentRegistration = createRegistration(student, currentDcp, nextExecutionYear);
+
+        DegreeCurricularPlan precedentDcp = createDegreeCurricularPlanWithCourseIn(firstSemester);
+        Registration precedentRegistration = createRegistration(student, precedentDcp, executionYear);
+
+        // there is no precedent degree yet -> no precedent degree registrations
+        assertTrue(currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()).isEmpty());
+
+        // add precedentDegree as a precedent of currentDegree
+        currentDcp.getDegree().addPrecedentDegrees(precedentDcp.getDegree());
+
+        assertEquals(Set.of(precedentRegistration),
+                currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()));
+
+        // registrations of other students in the precedent degree are not precedent degree registrations
+        Student otherStudent = createFreshStudent();
+        createRegistration(otherStudent, precedentDcp, executionYear);
+
+        assertEquals(Set.of(precedentRegistration),
+                currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()));
+
+        // concluded registrations are not precedent degree registrations
+        RegistrationState.createRegistrationState(precedentRegistration, null, DateTime.now().plusDays(1),
+                RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).orElseThrow(),
+                precedentRegistration.getRegistrationYear().getFirstExecutionPeriod());
+
+        assertTrue(currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()).isEmpty());
+    }
+
+    @Test
     public void testRegistration_getStudentCurricularPlan() {
         assertEquals(studentCurricularPlan,
                 registration.getStudentCurricularPlan(studentCurricularPlan.getDegreeCurricularPlan()));
@@ -704,10 +844,14 @@ public class RegistrationTest {
 
     // Helpers
 
-    private static Registration createFreshRegistration() {
+    private static Student createFreshStudent() {
         String username = UUID.randomUUID().toString();
-        Student student = StudentTest.createStudent(username, username);
-        return createRegistration(student, studentCurricularPlan.getDegreeCurricularPlan(), ExecutionYear.findCurrent(null));
+        return StudentTest.createStudent(username, username);
+    }
+
+    private static Registration createFreshRegistration() {
+        return createRegistration(createFreshStudent(), studentCurricularPlan.getDegreeCurricularPlan(),
+                ExecutionYear.findCurrent(null));
     }
 
     private static DegreeCurricularPlan getDcpByName(String name) {
@@ -726,5 +870,28 @@ public class RegistrationTest {
             e.setGrade(Grade.createGrade("10", createGradeScale()));
             e.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
         });
+    }
+
+    private static DegreeCurricularPlan createDegreeCurricularPlanWithCourseIn(ExecutionInterval executionInterval) {
+        ExecutionYear executionYear = executionInterval.getExecutionYear();
+
+        String degreeName = UUID.randomUUID().toString();
+        Degree degree = DegreeTest.createDegree(registration.getDegree().getDegreeType(), degreeName, degreeName, executionYear);
+        DegreeCurricularPlan degreeCurricularPlan = new DegreeCurricularPlan(degree, degreeName, AcademicPeriod.THREE_YEAR);
+        degreeCurricularPlan.createExecutionDegree(executionYear);
+
+        CurricularCourse course = new CurricularCourse();
+        course.setCompetenceCourse(CompetenceCourse.find(CompetenceCourseTest.COURSE_A_CODE));
+
+        CurricularPeriod yearPeriod = new CurricularPeriod(AcademicPeriod.YEAR, 1, degreeCurricularPlan.getDegreeStructure());
+        CurricularPeriod semesterPeriod = new CurricularPeriod(AcademicPeriod.SEMESTER, 1, yearPeriod);
+        new Context(degreeCurricularPlan.getRoot(), course, semesterPeriod, executionInterval, null);
+
+        return degreeCurricularPlan;
+    }
+
+    private static Context getContext(DegreeCurricularPlan degreeCurricularPlan, ExecutionInterval executionInterval) {
+        return degreeCurricularPlan.getCurricularCoursesSet().stream().flatMap(course -> course.getParentContextsSet().stream())
+                .filter(context -> context.isValid(executionInterval)).findAny().orElseThrow();
     }
 }
