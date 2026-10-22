@@ -92,13 +92,13 @@ public class ProgramConclusionProcess extends ProgramConclusionProcess_Base {
     }
 
     private Enrolment getDissertationEnrolment() {
-        Stream<Enrolment> enrolments = getGroup().getEnrolmentsSet().stream().filter(Enrolment::isDissertation);
+        Stream<Enrolment> enrolments = getGroup().getEnrolmentsSet().stream().filter(Enrolment::isFinalWork);
 
         List<Dismissal> dismissalsList = new ArrayList<>();
         getGroup().collectDismissals(dismissalsList);
 
         Stream<Enrolment> dismissals = dismissalsList.stream().flatMap(d -> d.getSourceIEnrolments().stream())
-                .filter(e -> e.isEnrolment() && ((Enrolment) e).isDissertation()).map(ie -> (Enrolment) ie);
+                .filter(e -> e.isEnrolment() && ((Enrolment) e).isFinalWork()).map(ie -> (Enrolment) ie);
         return Stream.concat(enrolments, dismissals).max(Enrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_ID).orElse(null);
     }
 
