@@ -119,8 +119,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             throw new DomainException("invalid arguments");
         }
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval);
-        initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
-                createdBy);
+        init(curriculumGroup, curricularCourse, executionInterval, enrolmentCondition, createdBy);
+        createEnrolmentEvaluation();
         createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
@@ -135,23 +135,10 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
     }
 
-    protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurriculumGroup curriculumGroup,
+    protected void init(final CurriculumGroup curriculumGroup,
             final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
             final EnrollmentCondition enrolmentCondition, final String createdBy) {
-        initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval,
-                enrolmentCondition, createdBy);
-        createEnrolmentEvaluation();
-    }
-
-    protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
-            final CurriculumGroup curriculumGroup, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
         setCurriculumGroup(curriculumGroup);
-        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-    }
-
-    private void initializeCommon(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
         setCurricularCourse(curricularCourse);
         setWeigth(curricularCourse.getEctsCredits(executionInterval));
         setEnrollmentState(EnrollmentState.ENROLLED);
@@ -448,26 +435,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return getAttendsSet().stream().filter(attends -> attends.isFor(executionCourse)).findFirst().orElse(null);
     }
 
-    /**
-     * @deprecated use {@link #findAttends(ExecutionInterval)}
-     */
-    @Deprecated(forRemoval = true)
-    public Attends getAttendsFor(final ExecutionInterval interval) {
-        Attends result = null;
-
-        for (final Attends attends : getAttendsSet()) {
-            if (attends.isFor(interval)) {
-                if (result == null) {
-                    result = attends;
-                } else {
-                    throw new DomainException("Enrolment.found.two.attends.for.same.execution.period");
-                }
-            }
-        }
-
-        return result;
-    }
-
     final public ExecutionCourse getExecutionCourseFor(final ExecutionInterval executionInterval) {
         return getAttendsSet().stream().map(Attends::getExecutionCourse)
                 .filter(executionCourse -> executionCourse.getExecutionInterval() == executionInterval).findFirst().orElse(null);
@@ -508,12 +475,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     public boolean isValid(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (isValid(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return executionYear.getChildIntervals().stream().anyMatch(this::isValid);
     }
 
     @Override
@@ -524,10 +486,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     final public Collection<ExecutionCourse> getExecutionCourses() {
         return this.getCurricularCourse().getAssociatedExecutionCoursesSet();
-    }
-
-    final public boolean isEnrolmentTypeNormal() {
-        return !getCurricularCourse().isOptionalCurricularCourse() && !isExtraCurricular() && !isOptional();
     }
 
     @Override
@@ -550,7 +508,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public Double getWeigth() {
-
         final Function<ICurriculumEntry, BigDecimal> provider = EctsAndWeightProviderRegistry.getWeightProvider(Enrolment.class);
         if (provider != null) {
             BigDecimal providedValue = provider.apply(this);
@@ -591,7 +548,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public Double getEctsCredits() {
-
         final Function<ICurriculumEntry, BigDecimal> provider = EctsAndWeightProviderRegistry.getEctsProvider(Enrolment.class);
         if (provider != null) {
             final BigDecimal providedValue = provider.apply(this);
@@ -603,7 +559,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public BigDecimal getEctsCreditsForCurriculum() {
-
         final Function<ICurriculumEntry, BigDecimal> provider =
                 EctsAndWeightProviderRegistry.getEctsForCurriculumProvider(Enrolment.class);
         if (provider != null) {
@@ -646,7 +601,9 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
         if (isValid(executionInterval) && isEnroled()) {
-            if (isFromExternalDegree()) {
+            boolean isFromExternalDegree =
+                    getDegreeModule().getParentDegreeCurricularPlan() != getDegreeCurricularPlanOfDegreeModule();
+            if (isFromExternalDegree) {
                 return Collections.<IDegreeModuleToEvaluate> singleton(
                         new ExternalDegreeEnrolmentWrapper(this, executionInterval));
             } else {
@@ -654,10 +611,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             }
         }
         return Collections.emptySet();
-    }
-
-    private boolean isFromExternalDegree() {
-        return getDegreeModule().getParentDegreeCurricularPlan() != getDegreeCurricularPlanOfDegreeModule();
     }
 
     @Override
@@ -676,10 +629,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public String getCode() {
-        if (getDegreeModule() != null) {
-            return getDegreeModule().getCode();
-        }
-        return null;
+        return getDegreeModule() != null ? getDegreeModule().getCode() : null;
     }
 
     @Override
@@ -755,27 +705,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return curricularCourse != null && curricularCourse.isAnual();
     }
 
-    public boolean hasAnyNonTemporaryEvaluations() {
-        for (EnrolmentEvaluation evaluation : this.getEvaluationsSet()) {
-            if (!EnrolmentEvaluationState.TEMPORARY_OBJ.equals(evaluation.getEnrolmentEvaluationState())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public boolean canBeUsedAsCreditsSource() {
         return !isInvisible() && isApproved();
-    }
-
-    /**
-     * @use {@link #isFinalWork()}
-     * @deprecated
-     */
-    @Deprecated
-    public boolean isDissertation() {
-        return isFinalWork();
     }
 
     public boolean isFinalWork() {

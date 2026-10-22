@@ -51,8 +51,7 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval, optionalCurricularCourse);
         // TODO: check this
         // validateDegreeModuleLink(curriculumGroup, curricularCourse);
-        initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
-                createdBy);
+        init(curriculumGroup, curricularCourse, executionInterval, enrolmentCondition, createdBy);
         setOptionalCurricularCourse(optionalCurricularCourse);
         createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
@@ -163,11 +162,11 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
     }
 
     /**
-     * 
+     *
      * After create new OptionalEnrolment, must delete Enrolment (to delete
      * Enrolment disconnect at least: ProgramCertificateRequests,
      * CourseLoadRequests, ExamDateCertificateRequests)
-     * 
+     *
      * @param enrolment
      * @param curriculumGroup
      *            : new CurriculumGroup for OptionalEnrolment

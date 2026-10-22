@@ -524,4 +524,17 @@ public class EnrolmentTest {
         assertNull(enrolment.getExecutionCourseFor(executionInterval.getPrevious()));
         assertNull(enrolment.getExecutionCourseFor(null));
     }
+
+    @Test
+    public void testEnrolment_isValidWithExecutionYear() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        final ExecutionYear executionYear = enrolment.getExecutionYear();
+
+        // the enrolment's own execution year is valid
+        assertTrue(enrolment.isValid(executionYear));
+
+        // previous and next execution years are not valid
+        assertFalse(enrolment.isValid((ExecutionYear) executionYear.getPrevious()));
+        assertFalse(enrolment.isValid((ExecutionYear) executionYear.getNext()));
+    }
 }
