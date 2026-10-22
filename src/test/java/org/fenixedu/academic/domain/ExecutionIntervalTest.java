@@ -230,6 +230,23 @@ public class ExecutionIntervalTest {
     }
 
     @Test
+    public void testExecutionInterval_getPathName() {
+        AcademicCalendarRootEntry rootEntry = Bennu.getInstance().getDefaultAcademicCalendar();
+        AcademicYearCE yearEntry = createStandardYearInterval(rootEntry, 1999);
+        assertEquals("1999/2000", yearEntry.getExecutionInterval().getPathName());
+
+        AcademicIntervalCE firstSemesterEntry = createFirstSemesterInterval(yearEntry);
+        assertEquals("1st Semester - 1999/2000", firstSemesterEntry.getExecutionInterval().getPathName());
+
+        AcademicIntervalCE monthEntry = createMonthInterval(yearEntry, 3);
+        assertEquals("Month 3 - 1999/2000", monthEntry.getExecutionInterval().getPathName());
+
+        monthEntry.delete(rootEntry);
+        firstSemesterEntry.delete(rootEntry);
+        yearEntry.delete(rootEntry);
+    }
+
+    @Test
     public void testChangeStateToCurrentSwitchesPrevious() {
         final AcademicCalendarRootEntry rootEntry = Bennu.getInstance().getDefaultAcademicCalendar();
         AcademicYearCE year1 = createStandardYearInterval(rootEntry, 1950);
