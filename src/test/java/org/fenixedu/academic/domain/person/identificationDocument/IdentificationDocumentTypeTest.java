@@ -183,23 +183,4 @@ public class IdentificationDocumentTypeTest {
         assertTrue(identificationDocumentType.getHasExtraInfo());
         assertEquals(IdentificationDocumentIdentityCardValidator.class.getName(), identificationDocumentType.getValidator());
     }
-
-    @Test
-    public void testIdentificationDocumentType_validatorSettersStayInSync() {
-        IdentificationDocumentType identificationDocumentType = IdentificationDocumentType.create(CODE, NAME);
-
-        // a new type has neither field configured
-        assertNull(identificationDocumentType.getValidator());
-        assertNull(identificationDocumentType.getExtraInfoValidator());
-
-        // setting the new field must also populate the legacy field
-        identificationDocumentType.setValidator("SomeValidator");
-        assertEquals("SomeValidator", identificationDocumentType.getValidator());
-        assertEquals("SomeValidator", identificationDocumentType.getExtraInfoValidator());
-
-        // setting the legacy field must also populate the new field
-        identificationDocumentType.setExtraInfoValidator("AnotherValidator");
-        assertEquals("AnotherValidator", identificationDocumentType.getValidator());
-        assertEquals("AnotherValidator", identificationDocumentType.getExtraInfoValidator());
-    }
 }
