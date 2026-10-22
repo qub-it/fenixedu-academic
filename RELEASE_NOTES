@@ -1,3 +1,4 @@
+- Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 - Refactor: Moves DegreePrecedentDegree relation from academic-extensions to this module [#qubIT-Fenix-9588]
 
 64.0.0 (20-10-2026)
