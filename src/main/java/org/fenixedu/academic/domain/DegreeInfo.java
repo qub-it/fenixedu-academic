@@ -20,6 +20,8 @@ package org.fenixedu.academic.domain;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -128,6 +130,10 @@ public class DegreeInfo extends DegreeInfo_Base {
     public DegreeInfo(final DegreeInfo degreeInfo, final ExecutionYear executionYear) {
         this(degreeInfo.getDegree(), executionYear);
         setName(degreeInfo.getName());
+
+        degreeInfo.getDynamicFieldSet().stream().filter(df -> StringUtils.isNotBlank(df.getValue()))
+                .map(df -> df.getDescriptor().getCode())
+                .forEach(code -> DynamicField.setFieldValue(this, code, DynamicField.getFieldValue(degreeInfo, code)));
     }
 
     public void delete() {

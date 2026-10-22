@@ -1,5 +1,6 @@
 - Refactor: Improve CreditsDismissal domain methods [#qubIT-Fenix-9519]
 - Refactor: Remove deprecated lesson methods [#qubIT-Fenix-9230]
+- Refactor: Move DegreeInfo dynamic field setup to DegreeInfo domain [#qubIT-Fenix-9533]
 
 64.0.0 (20-10-2026)
 - Refactor: Migrate from javaee to jakarta [#qubIT-Omnis-10960]
