@@ -33,7 +33,6 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -41,8 +40,8 @@ import org.joda.time.YearMonthDay;
 public class ExecutionInterval extends ExecutionInterval_Base implements Comparable<ExecutionInterval> {
 
     public static final Comparator<ExecutionInterval> COMPARATOR_BY_BEGIN_DATE =
-            Comparator.<ExecutionInterval, DateTime> comparing(ei -> ei.getAcademicCalendarEntry().getBegin())
-                    .thenComparing((ExecutionInterval ei) -> ei.getAcademicCalendarEntry().getEnd(), Comparator.reverseOrder());
+            Comparator.comparing((ExecutionInterval ei) -> ei.getAcademicCalendarEntry().getBegin())
+                    .thenComparing(ei -> ei.getAcademicCalendarEntry().getEnd(), Comparator.reverseOrder());
 
     protected ExecutionInterval() {
         super();
