@@ -783,6 +783,33 @@ public class Registration extends Registration_Base {
         return getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getExecutionYear() == year).findAny();
     }
 
+    public Stream<ExecutionYear> findActiveRegistrationExecutionYears() {
+        return getRegistrationDataByExecutionYearSet().stream().filter(RegistrationDataByExecutionYear::getActive)
+                .map(RegistrationDataByExecutionYear::getExecutionYear);
+    }
+
+    public Stream<ExecutionYear> findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations() {
+        return Stream.concat(Stream.of(this), findPrecedentDegreeRegistrations())
+                .flatMap(Registration::findActiveRegistrationExecutionYears).distinct();
+    }
+
+    public Stream<ExecutionYear> findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations(
+            ExecutionYear untilExecutionYear) {
+        return findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations().filter(
+                ey -> untilExecutionYear == null || ey.isBeforeOrEquals(untilExecutionYear));
+    }
+
+    public Stream<Registration> findPrecedentDegreeRegistrations() {
+        Set<Degree> precedentDegreesUntilRoot = getPrecedentDegreesUntilRoot(getDegree());
+        return getStudent().getRegistrationsSet().stream().filter(r -> this != r && !r.isConcluded() && !r.hasConcluded())
+                .filter(r -> precedentDegreesUntilRoot.contains(r.getDegree()));
+    }
+
+    private static Set<Degree> getPrecedentDegreesUntilRoot(Degree degree) {
+        return degree.getPrecedentDegreesSet().stream()
+                .flatMap(d -> Stream.concat(Stream.of(d), getPrecedentDegreesUntilRoot(d).stream())).collect(Collectors.toSet());
+    }
+
     public boolean isFirstTime(final ExecutionYear executionYear) {
         return getRegistrationYear() == executionYear;
     }

@@ -1,4 +1,4 @@
-- Refactor: Moves DegreePrecedentDegree relation from academic-extensions to this module [#qubIT-Fenix-9588]
+- Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 
 64.3.0 (06-11-2026)
 - Refactor: Clean up StudentStatute old period relation [#qubIT-Fenix-9536]
