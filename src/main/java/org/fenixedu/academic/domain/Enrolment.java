@@ -119,8 +119,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             throw new DomainException("invalid arguments");
         }
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval);
-        initializeAsNew(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval, enrolmentCondition,
-                createdBy);
+        init(curriculumGroup, curricularCourse, executionInterval, enrolmentCondition, createdBy);
+        createEnrolmentEvaluationWithoutGrade();
         createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
@@ -135,23 +135,10 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
     }
 
-    protected void initializeAsNew(final StudentCurricularPlan studentCurricularPlan, final CurriculumGroup curriculumGroup,
+    protected void init(final CurriculumGroup curriculumGroup,
             final CurricularCourse curricularCourse, final ExecutionInterval executionInterval,
             final EnrollmentCondition enrolmentCondition, final String createdBy) {
-        initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval,
-                enrolmentCondition, createdBy);
-        createEnrolmentEvaluationWithoutGrade();
-    }
-
-    protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
-            final CurriculumGroup curriculumGroup, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
         setCurriculumGroup(curriculumGroup);
-        initializeCommon(studentCurricularPlan, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-    }
-
-    private void initializeCommon(final StudentCurricularPlan studentCurricularPlan, final CurricularCourse curricularCourse,
-            final ExecutionInterval executionInterval, final EnrollmentCondition enrolmentCondition, final String createdBy) {
         setCurricularCourse(curricularCourse);
         setWeigth(curricularCourse.getEctsCredits(executionInterval));
         setEnrollmentState(EnrollmentState.ENROLLED);
@@ -515,12 +502,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     public boolean isValid(final ExecutionYear executionYear) {
-        for (final ExecutionInterval executionInterval : executionYear.getChildIntervals()) {
-            if (isValid(executionInterval)) {
-                return true;
-            }
-        }
-        return false;
+        return executionYear.getChildIntervals().stream().anyMatch(this::isValid);
     }
 
     @Override
@@ -531,10 +513,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     final public Collection<ExecutionCourse> getExecutionCourses() {
         return this.getCurricularCourse().getAssociatedExecutionCoursesSet();
-    }
-
-    final public boolean isEnrolmentTypeNormal() {
-        return !getCurricularCourse().isOptionalCurricularCourse() && !isExtraCurricular() && !isOptional();
     }
 
     @Override
@@ -557,7 +535,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public Double getWeigth() {
-
         final Function<ICurriculumEntry, BigDecimal> provider = EctsAndWeightProviderRegistry.getWeightProvider(Enrolment.class);
         if (provider != null) {
             BigDecimal providedValue = provider.apply(this);
@@ -598,7 +575,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public Double getEctsCredits() {
-
         final Function<ICurriculumEntry, BigDecimal> provider = EctsAndWeightProviderRegistry.getEctsProvider(Enrolment.class);
         if (provider != null) {
             final BigDecimal providedValue = provider.apply(this);
@@ -610,7 +586,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public BigDecimal getEctsCreditsForCurriculum() {
-
         final Function<ICurriculumEntry, BigDecimal> provider =
                 EctsAndWeightProviderRegistry.getEctsForCurriculumProvider(Enrolment.class);
         if (provider != null) {
@@ -653,7 +628,9 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     @Override
     public Set<IDegreeModuleToEvaluate> getDegreeModulesToEvaluate(final ExecutionInterval executionInterval) {
         if (isValid(executionInterval) && isEnroled()) {
-            if (isFromExternalDegree()) {
+            boolean isFromExternalDegree =
+                    getDegreeModule().getParentDegreeCurricularPlan() != getDegreeCurricularPlanOfDegreeModule();
+            if (isFromExternalDegree) {
                 return Collections.<IDegreeModuleToEvaluate> singleton(
                         new ExternalDegreeEnrolmentWrapper(this, executionInterval));
             } else {
@@ -661,10 +638,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             }
         }
         return Collections.emptySet();
-    }
-
-    private boolean isFromExternalDegree() {
-        return getDegreeModule().getParentDegreeCurricularPlan() != getDegreeCurricularPlanOfDegreeModule();
     }
 
     @Override
@@ -683,10 +656,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     final public String getCode() {
-        if (getDegreeModule() != null) {
-            return getDegreeModule().getCode();
-        }
-        return null;
+        return getDegreeModule() != null ? getDegreeModule().getCode() : null;
     }
 
     @Override
@@ -762,16 +732,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return curricularCourse != null && curricularCourse.isAnual();
     }
 
-    public boolean hasAnyNonTemporaryEvaluations() {
-        for (EnrolmentEvaluation evaluation : this.getEvaluationsSet()) {
-            if (!EnrolmentEvaluationState.TEMPORARY_OBJ.equals(evaluation.getEnrolmentEvaluationState())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public boolean canBeUsedAsCreditsSource() {
         return !isInvisible() && isApproved();
     }
@@ -780,7 +740,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
      * @use {@link #isFinalWork()}
      * @deprecated
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public boolean isDissertation() {
         return isFinalWork();
     }
