@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -133,10 +132,6 @@ public class SchoolClass extends SchoolClass_Base {
                         .flatMap(ec -> ec.getShiftsSet().stream());
 
         return allShifts.filter(s -> !getAssociatedShiftsSet().contains(s)).collect(Collectors.toSet());
-    }
-
-    public AcademicInterval getAcademicInterval() {
-        return getExecutionInterval().getAcademicInterval();
     }
 
     public ExecutionInterval getExecutionInterval() {

@@ -961,9 +961,8 @@ public class Registration extends Registration_Base {
     }
 
     public RegistrationState getActiveState() {
-        return getRegistrationStatesSet().stream()
-                .filter(s -> s.getExecutionInterval() != null
-                        && (s.getExecutionInterval().getExecutionYear().getAcademicInterval().getStart().isBeforeNow()
+        return getRegistrationStatesSet().stream().filter(s -> s.getExecutionInterval() != null && (
+                        s.getExecutionInterval().getExecutionYear().getAcademicCalendarEntry().getBegin().isBeforeNow()
                                 || s.getExecutionInterval().isCurrent()))
                 .max(RegistrationState.EXECUTION_INTERVAL_AND_DATE_COMPARATOR).orElseGet(this::getLastState);
     }
