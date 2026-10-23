@@ -970,4 +970,8 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
         super.setDegreeModule(degreeModule);
     }
+
+    public Stream<Shift> findShiftsEnroledFor(final ExecutionInterval executionInterval) {
+        return getRegistration().getShiftsFor(getExecutionCourseFor(executionInterval)).stream();
+    }
 }
