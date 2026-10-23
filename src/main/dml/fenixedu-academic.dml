@@ -3676,20 +3676,6 @@ relation StudentStudentNumber {
     student.StudentNumber playsRole studentNumber;
 }
 
-relation StudentStatuteBeginPeriod {
-    ExecutionInterval playsRole beginExecutionPeriod;
-    student.StudentStatute playsRole beginningStudentStatutes {
-        multiplicity *;
-    }
-}
-
-relation StudentStatuteEndPeriod {
-    ExecutionInterval playsRole endExecutionPeriod;
-    student.StudentStatute playsRole endingStudentStatutes {
-        multiplicity *;
-    }
-}
-
 relation StudentStatuteBeginInterval {
     ExecutionInterval playsRole beginExecutionInterval;
     student.StudentStatute playsRole beginningIntervalStudentStatutes {
