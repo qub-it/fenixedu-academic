@@ -42,13 +42,14 @@ public class StudentStatute extends StudentStatute_Base {
         setCreationDate(new DateTime());
     }
 
-    public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionInterval beginExecutionPeriod,
-            final ExecutionInterval endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate, final String comment,
+    public StudentStatute(final Student student, final StatuteType statuteType, final ExecutionInterval beginExecutionInterval,
+            final ExecutionInterval endExecutionInterval, final LocalDate beginDate, final LocalDate endDate,
+            final String comment,
             final Registration registration) {
         this();
         setType(statuteType);
         setRegistration(registration);
-        edit(student, beginExecutionPeriod, endExecutionPeriod, beginDate, endDate, comment);
+        edit(student, beginExecutionInterval, endExecutionInterval, beginDate, endDate, comment);
     }
 
     protected void checkRules() {
@@ -102,12 +103,12 @@ public class StudentStatute extends StudentStatute_Base {
         return executionYear.getChildIntervals().stream().anyMatch(this::isValidInExecutionInterval);
     }
 
-    public void edit(final Student student, final ExecutionInterval beginExecutionPeriod,
-            final ExecutionInterval endExecutionPeriod, final LocalDate beginDate, final LocalDate endDate,
+    public void edit(final Student student, final ExecutionInterval beginExecutionInterval,
+            final ExecutionInterval endExecutionInterval, final LocalDate beginDate, final LocalDate endDate,
             final String comment) {
 
-        setBeginExecutionInterval(beginExecutionPeriod);
-        setEndExecutionInterval(endExecutionPeriod);
+        setBeginExecutionInterval(beginExecutionInterval);
+        setEndExecutionInterval(endExecutionInterval);
         setBeginDate(beginDate);
         setEndDate(endDate);
         setComment(comment);
@@ -179,47 +180,5 @@ public class StudentStatute extends StudentStatute_Base {
         return statuteBegin.isAfterOrEquals(thisStatuteBegin) && statuteBegin.isBeforeOrEquals(thisStatuteEnd)
                 || statuteEnd.isAfterOrEquals(thisStatuteBegin) && statuteEnd.isBeforeOrEquals(thisStatuteEnd);
 
-    }
-
-    /**
-     * @deprecated use {@link #getBeginExecutionInterval()} instead.
-     */
-    @Deprecated
-    @Override
-    public ExecutionInterval getBeginExecutionPeriod() {
-        return super.getBeginExecutionPeriod();
-    }
-
-    /**
-     * @deprecated use {@link #getEndExecutionInterval()} instead.
-     */
-    @Deprecated
-    @Override
-    public ExecutionInterval getEndExecutionPeriod() {
-        return super.getEndExecutionPeriod();
-    }
-
-    @Deprecated
-    @Override
-    public void setBeginExecutionPeriod(final ExecutionInterval beginExecutionPeriod) {
-        setBeginExecutionInterval(beginExecutionPeriod);
-    }
-
-    @Deprecated
-    @Override
-    public void setEndExecutionPeriod(final ExecutionInterval endExecutionPeriod) {
-        setEndExecutionInterval(endExecutionPeriod);
-    }
-
-    @Override
-    public void setBeginExecutionInterval(final ExecutionInterval beginExecutionInterval) {
-        super.setBeginExecutionInterval(beginExecutionInterval);
-        super.setBeginExecutionPeriod(beginExecutionInterval);
-    }
-
-    @Override
-    public void setEndExecutionInterval(final ExecutionInterval endExecutionInterval) {
-        super.setEndExecutionInterval(endExecutionInterval);
-        super.setEndExecutionPeriod(endExecutionInterval);
     }
 }
