@@ -1,3 +1,4 @@
+- Refactor: Clean up StudentStatute old period relation [#qubIT-Fenix-9536]
 - Refactor: Clean up IdentificationDocumentType extraInfo validator field [#UL-REIT-5228]
 - Refactor: StudentStatute begin and end periods relations [#qubIT-Fenix-9536]
 - Refactor: Remove UnitUtils class [#qubIT-Fenix-9003]
