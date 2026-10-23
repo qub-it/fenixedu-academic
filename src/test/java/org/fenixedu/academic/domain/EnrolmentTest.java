@@ -431,11 +431,11 @@ public class EnrolmentTest {
     }
 
     @Test
-    public void testEnrolment_createEnrolmentEvaluationWithoutGrade() {
+    public void testEnrolment_createEnrolmentEvaluation() {
         final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
         assertTrue(enrolment.getEvaluationsSet().isEmpty());
 
-        enrolment.createEnrolmentEvaluationWithoutGrade();
+        enrolment.createEnrolmentEvaluation();
 
         // exactly one evaluation was created, without grade, for the default season
         assertEquals(1, enrolment.getEvaluationsSet().size());
@@ -452,7 +452,7 @@ public class EnrolmentTest {
         assertTrue(enrolment.getEvaluationsSet().isEmpty());
 
         // two enrolment evaluations, one TEMPORARY and one FINAL
-        enrolment.createEnrolmentEvaluationWithoutGrade();
+        enrolment.createEnrolmentEvaluation();
         final EnrolmentEvaluation finalEvaluation = createImprovementEvaluation(enrolment, executionInterval);
 
         finalEvaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);

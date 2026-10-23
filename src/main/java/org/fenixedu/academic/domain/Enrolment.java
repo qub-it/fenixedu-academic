@@ -140,7 +140,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
             final EnrollmentCondition enrolmentCondition, final String createdBy) {
         initializeAsNewWithoutEnrolmentEvaluation(studentCurricularPlan, curriculumGroup, curricularCourse, executionInterval,
                 enrolmentCondition, createdBy);
-        createEnrolmentEvaluationWithoutGrade();
+        createEnrolmentEvaluation();
     }
 
     protected void initializeAsNewWithoutEnrolmentEvaluation(final StudentCurricularPlan studentCurricularPlan,
@@ -286,16 +286,9 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return getEvaluationsSet().stream().filter(ee -> ee.getExecutionInterval() == executionInterval);
     }
 
-    protected void createEnrolmentEvaluationWithoutGrade() {
-        EvaluationSeason evaluationSeason = EvaluationConfiguration.getInstance().getDefaultEvaluationSeason();
-
-        boolean hasEvaluationWithoutGrade = getEnrolmentEvaluationBySeason(evaluationSeason).anyMatch(e -> e.getGrade() == null);
-        if (!hasEvaluationWithoutGrade) {
-            EnrolmentEvaluation evaluation = new EnrolmentEvaluation(this, evaluationSeason,
+    protected void createEnrolmentEvaluation() {
+        new EnrolmentEvaluation(this, EvaluationConfiguration.getInstance().getDefaultEvaluationSeason(),
                             EnrolmentEvaluationState.TEMPORARY_OBJ);
-            evaluation.setWhenDateTime(new DateTime());
-            addEvaluations(evaluation);
-        }
     }
 
     public Attends findOrCreateAttends(final ExecutionCourse executionCourse) {
