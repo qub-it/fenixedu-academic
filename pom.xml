@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.qubit.solution.fenixedu.build</groupId>
         <artifactId>qub-fenixedu-project</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
         <relativePath />
     </parent>
 
@@ -72,7 +72,7 @@
             <dependency>
                 <groupId>com.qubit.solution.fenixedu</groupId>
                 <artifactId>fenixedu-oss-dependency-management</artifactId>
-                <version>798</version>
+                <version>802</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
