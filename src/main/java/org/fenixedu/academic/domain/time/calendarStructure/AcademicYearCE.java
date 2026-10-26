@@ -46,6 +46,18 @@ public class AcademicYearCE extends AcademicYearCE_Base {
     }
 
     @Override
+    public AcademicCalendarEntry getNextAcademicCalendarEntry() {
+        return getParentEntry().getChildEntriesSet().stream().filter(AcademicCalendarEntry::isAcademicYear)
+                .filter(e -> e.getBegin().isAfter(getBegin())).min(AcademicCalendarEntry.COMPARATOR_BY_BEGIN_DATE).orElse(null);
+    }
+
+    @Override
+    public AcademicCalendarEntry getPreviousAcademicCalendarEntry() {
+        return getParentEntry().getChildEntriesSet().stream().filter(AcademicCalendarEntry::isAcademicYear)
+                .filter(e -> e.getBegin().isBefore(getBegin())).max(AcademicCalendarEntry.COMPARATOR_BY_BEGIN_DATE).orElse(null);
+    }
+
+    @Override
     protected boolean isParentEntryInvalid(AcademicCalendarEntry parentEntry) {
         return !parentEntry.isRoot();
     }
