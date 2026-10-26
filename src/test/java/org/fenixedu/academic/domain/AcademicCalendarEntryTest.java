@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicIntervalCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
@@ -25,9 +26,10 @@ import pt.ist.fenixframework.FenixFramework;
 @RunWith(FenixFrameworkRunner.class)
 public class AcademicCalendarEntryTest {
 
-    private static AcademicCalendarRootEntry rootEntry;
-    private static AcademicYearCE year2024, year2025, year2026;
-    private static AcademicIntervalCE semester2_2024, semester1_2025, semester2_2025, semester1_2026;
+    private static AcademicCalendarRootEntry rootEntry, mixedRootEntry;
+    private static AcademicYearCE year2024, year2025, year2026, mixedYear;
+    private static AcademicIntervalCE semester2_2024, semester1_2025, semester2_2025, semester1_2026, mixedSemester1, month,
+            nextMonth, mixedSemester2, firstOtherInterval, secondOtherInterval;
 
     @BeforeClass
     public static void init() {
@@ -38,6 +40,8 @@ public class AcademicCalendarEntryTest {
     }
 
     private static void initSetup() {
+        AcademicPeriodOrder.initialize();
+
         rootEntry = new AcademicCalendarRootEntry(buildLocalizedString("Test Calendar"), buildLocalizedString("Test Calendar Description"));
 
         year2024 = new AcademicYearCE(rootEntry, buildLocalizedString("2024/2025"), buildLocalizedString("Year 2024/2025"),
@@ -49,21 +53,57 @@ public class AcademicCalendarEntryTest {
         year2026 = new AcademicYearCE(rootEntry, buildLocalizedString("2026/2027"), buildLocalizedString("Year 2026/2027"),
                 new DateTime(2026, 9, 1, 0, 0), new DateTime(2027, 8, 31, 23, 59), rootEntry);
 
-        semester2_2024 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2024, buildLocalizedString("2nd Semester"),
-                buildLocalizedString("2nd Semester 2024/2025"), new DateTime(2024, 9, 1, 0, 0), new DateTime(2025, 1, 31, 23, 59),
-                rootEntry);
+        semester2_2024 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 2).orElseThrow(), year2024,
+                buildLocalizedString("2nd Semester"), buildLocalizedString("2nd Semester 2024/2025"),
+                new DateTime(2024, 9, 1, 0, 0), new DateTime(2025, 1, 31, 23, 59), rootEntry);
 
-        semester1_2025 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2025, buildLocalizedString("1st Semester"),
-                buildLocalizedString("1st Semester 2025/2026"), new DateTime(2025, 9, 1, 0, 0), new DateTime(2026, 1, 31, 23, 59),
-                rootEntry);
+        semester1_2025 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 1).orElseThrow(), year2025,
+                buildLocalizedString("1st Semester"), buildLocalizedString("1st Semester 2025/2026"),
+                new DateTime(2025, 9, 1, 0, 0), new DateTime(2026, 1, 31, 23, 59), rootEntry);
 
-        semester2_2025 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2025, buildLocalizedString("2nd Semester"),
-                buildLocalizedString("2nd Semester 2025/2026"), new DateTime(2026, 2, 1, 0, 0), new DateTime(2026, 8, 31, 23, 59),
-                rootEntry);
+        semester2_2025 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 2).orElseThrow(), year2025,
+                buildLocalizedString("2nd Semester"), buildLocalizedString("2nd Semester 2025/2026"),
+                new DateTime(2026, 2, 1, 0, 0), new DateTime(2026, 8, 31, 23, 59), rootEntry);
 
-        semester1_2026 = new AcademicIntervalCE(AcademicPeriod.SEMESTER, year2026, buildLocalizedString("1st Semester"),
-                buildLocalizedString("1st Semester 2026/2027"), new DateTime(2026, 9, 1, 0, 0), new DateTime(2027, 1, 31, 23, 59),
-                rootEntry);
+        semester1_2026 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 1).orElseThrow(), year2026,
+                buildLocalizedString("1st Semester"), buildLocalizedString("1st Semester 2026/2027"),
+                new DateTime(2026, 9, 1, 0, 0), new DateTime(2027, 1, 31, 23, 59), rootEntry);
+
+        firstOtherInterval = new AcademicIntervalCE(AcademicPeriod.OTHER, null, year2025, buildLocalizedString("Other 1"),
+                buildLocalizedString("Other 1"), new DateTime(2025, 10, 1, 0, 0), new DateTime(2025, 10, 31, 23, 59), rootEntry);
+
+        secondOtherInterval = new AcademicIntervalCE(AcademicPeriod.OTHER, null, year2025, buildLocalizedString("Other 2"),
+                buildLocalizedString("Other 2"), new DateTime(2025, 11, 1, 0, 0), new DateTime(2025, 11, 30, 23, 59), rootEntry);
+
+        mixedRootEntry = new AcademicCalendarRootEntry(buildLocalizedString("Mixed Calendar"),
+                buildLocalizedString("Mixed Calendar Description"));
+        mixedYear = new AcademicYearCE(mixedRootEntry, buildLocalizedString("2030/2031"),
+                buildLocalizedString("Year 2030/2031"), new DateTime(2030, 9, 1, 0, 0), new DateTime(2031, 8, 31, 23, 59),
+                mixedRootEntry);
+
+        mixedSemester1 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 1).orElseThrow(), mixedYear,
+                buildLocalizedString("1st Semester"), buildLocalizedString("1st Semester 2030/2031"),
+                new DateTime(2030, 9, 1, 0, 0), new DateTime(2030, 12, 31, 23, 59), mixedRootEntry);
+
+        month = new AcademicIntervalCE(AcademicPeriod.MONTH,
+                AcademicPeriodOrder.findBy(AcademicPeriod.MONTH, 1).orElseThrow(), mixedYear,
+                buildLocalizedString("January"), buildLocalizedString("January 2031"), new DateTime(2031, 1, 1, 0, 0),
+                new DateTime(2031, 1, 31, 23, 59), mixedRootEntry);
+
+        nextMonth = new AcademicIntervalCE(AcademicPeriod.MONTH,
+                AcademicPeriodOrder.findBy(AcademicPeriod.MONTH, 2).orElseThrow(), mixedYear,
+                buildLocalizedString("February"), buildLocalizedString("February 2031"),
+                new DateTime(2031, 2, 1, 0, 0), new DateTime(2031, 2, 28, 23, 59), mixedRootEntry);
+
+        mixedSemester2 = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 2).orElseThrow(), mixedYear,
+                buildLocalizedString("2nd Semester"), buildLocalizedString("2nd Semester 2030/2031"),
+                new DateTime(2031, 2, 1, 0, 0), new DateTime(2031, 5, 31, 23, 59), mixedRootEntry);
     }
 
     private static LocalizedString buildLocalizedString(String content) {
@@ -111,34 +151,61 @@ public class AcademicCalendarEntryTest {
 
     @Test
     public void testAcademicCalendarEntry_getNextAcademicCalendarEntry() {
+        assertNull(rootEntry.getNextAcademicCalendarEntry());
+
+        // Ordered by begin date
         assertEquals(year2025, year2024.getNextAcademicCalendarEntry());
         assertEquals(year2026, year2025.getNextAcademicCalendarEntry());
-
-        // lastEntry.getNext returns null
         assertNull(year2026.getNextAcademicCalendarEntry());
 
+        // Ordered by Parent begin date, then AcademicPeriodOrder
         assertEquals(semester1_2025, semester2_2024.getNextAcademicCalendarEntry());
         assertEquals(semester2_2025, semester1_2025.getNextAcademicCalendarEntry());
         assertEquals(semester1_2026, semester2_2025.getNextAcademicCalendarEntry());
-
-        // lastEntry.getNext returns null
         assertNull(semester1_2026.getNextAcademicCalendarEntry());
+        assertEquals(nextMonth, month.getNextAcademicCalendarEntry());
+        assertEquals(mixedSemester2, mixedSemester1.getNextAcademicCalendarEntry());
+
+        // AcademicPeriod.OTHER entries have no AcademicPeriodOrder and are ordered by begin date
+        assertEquals(secondOtherInterval, firstOtherInterval.getNextAcademicCalendarEntry());
+        assertNull(secondOtherInterval.getNextAcademicCalendarEntry());
     }
 
     @Test
     public void testAcademicCalendarEntry_getPreviousAcademicCalendarEntry() {
+        assertNull(rootEntry.getPreviousAcademicCalendarEntry());
+
+        // Ordered by begin date
         assertEquals(year2025, year2026.getPreviousAcademicCalendarEntry());
         assertEquals(year2024, year2025.getPreviousAcademicCalendarEntry());
-
-        // firstEntry.getPrevious returns null
         assertNull(year2024.getPreviousAcademicCalendarEntry());
 
+        // Ordered by Parent begin date, then AcademicPeriodOrder
         assertEquals(semester2_2025, semester1_2026.getPreviousAcademicCalendarEntry());
         assertEquals(semester1_2025, semester2_2025.getPreviousAcademicCalendarEntry());
         assertEquals(semester2_2024, semester1_2025.getPreviousAcademicCalendarEntry());
-
-        // firstEntry.getPrevious returns null
         assertNull(semester2_2024.getPreviousAcademicCalendarEntry());
+        assertEquals(month, nextMonth.getPreviousAcademicCalendarEntry());
+        assertEquals(mixedSemester1, mixedSemester2.getPreviousAcademicCalendarEntry());
+
+        // AcademicPeriod.OTHER entries have no AcademicPeriodOrder and are ordered by begin date
+        assertEquals(firstOtherInterval, secondOtherInterval.getPreviousAcademicCalendarEntry());
+        assertNull(firstOtherInterval.getPreviousAcademicCalendarEntry());
+    }
+
+    @Test
+    public void testAcademicCalendarEntry_getCardinality() {
+        assertEquals(1, semester1_2025.getCardinality());
+        assertEquals(2, semester2_2025.getCardinality());
+        assertEquals(1, mixedSemester1.getCardinality());
+        assertEquals(1, month.getCardinality());
+        assertEquals(2, nextMonth.getCardinality());
+        assertEquals(2, mixedSemester2.getCardinality());
+        assertEquals(0, year2024.getCardinality());
+        assertEquals(0, mixedYear.getCardinality());
+        assertEquals(0, rootEntry.getCardinality());
+        assertEquals(0, firstOtherInterval.getCardinality());
+        assertEquals(0, secondOtherInterval.getCardinality());
     }
 
     // -------------------------------

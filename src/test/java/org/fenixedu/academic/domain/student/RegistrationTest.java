@@ -38,6 +38,7 @@ import org.fenixedu.academic.domain.student.registrationStates.RegistrationState
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicIntervalCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.academic.util.PeriodState;
@@ -121,7 +122,8 @@ public class RegistrationTest {
 
     private static AcademicIntervalCE createFirstSemesterInterval(AcademicYearCE academicYearEntry) {
         final int year = academicYearEntry.getBegin().getYear();
-        final AcademicIntervalCE firstSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER, academicYearEntry,
+        final AcademicIntervalCE firstSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 1).orElseThrow(), academicYearEntry,
                 new LocalizedString().with(Locale.getDefault(), "1st Semester"), null, new DateTime(year, 9, 1, 0, 0, 0),
                 new DateTime(year + 1, 1, 31, 23, 59, 59), academicYearEntry.getRootEntry());
 
