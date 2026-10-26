@@ -1,3 +1,5 @@
+- Bug fix: Localizes Email Validation [#qubIT-Omnis-11631]
+
 64.1.0 (26-10-2026)
 - Refactor: Clean up IdentificationDocumentType extraInfo validator field [#UL-REIT-5228]
 - Refactor: StudentStatute begin and end periods relations [#qubIT-Fenix-9536]
