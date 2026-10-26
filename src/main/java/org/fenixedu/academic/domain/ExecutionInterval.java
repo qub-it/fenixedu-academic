@@ -32,6 +32,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -135,6 +136,11 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return localizedName.append(this.getExecutionYear().getAcademicCalendarEntry().getTitle(), " ");
     }
 
+    public Interval toInterval() {
+        final AcademicCalendarEntry entry = getAcademicCalendarEntry();
+        return new Interval(entry.getBegin(), entry.getEnd());
+    }
+
 //    abstract public boolean isCurrent();
     public boolean isCurrent() {
         return getState().equals(PeriodState.CURRENT);
@@ -175,6 +181,11 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
 
     public boolean isBeforeOrEquals(ExecutionInterval input) {
         return this.compareTo(input) <= 0;
+    }
+
+    public boolean contains(ExecutionInterval other) {
+        return other != null && !getAcademicCalendarEntry().getBegin().isAfter(other.getAcademicCalendarEntry().getBegin())
+                && !getAcademicCalendarEntry().getEnd().isBefore(other.getAcademicCalendarEntry().getEnd());
     }
 
     @Override
