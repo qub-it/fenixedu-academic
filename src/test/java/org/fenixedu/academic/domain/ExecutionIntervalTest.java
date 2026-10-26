@@ -65,6 +65,7 @@ public class ExecutionIntervalTest {
                 new AcademicCalendarRootEntry(new LocalizedString().with(Locale.getDefault(), "Root entry"), null);
         Bennu.getInstance().setDefaultAcademicCalendar(rootEntry);
 
+        AcademicPeriodOrder.initialize();
         final int year = CURRENT_YEAR;
 
         academicYearEntryFirst = createStandardYearInterval(rootEntry, year - 1);
@@ -100,8 +101,6 @@ public class ExecutionIntervalTest {
         createCivilYearIntervalAndMonths(civilCalendar, year + 1);
         createCivilYearIntervalAndMonths(civilCalendar, year + 2);
         createCivilYearIntervalAndMonths(civilCalendar, year + 3);
-
-        AcademicPeriodOrder.initialize();
     }
 
     private static AcademicYearCE createStandardYearInterval(final AcademicCalendarRootEntry calendar, final int year) {
@@ -115,7 +114,8 @@ public class ExecutionIntervalTest {
     }
     private static AcademicIntervalCE createFirstSemesterInterval(AcademicYearCE academicYearEntry) {
         final int year = academicYearEntry.getBegin().getYear();
-        final AcademicIntervalCE firstSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER, academicYearEntry,
+        final AcademicIntervalCE firstSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 1).orElseThrow(), academicYearEntry,
                 new LocalizedString().with(Locale.getDefault(), "1st Semester"), null, new DateTime(year, 9, 1, 0, 0, 0),
                 new DateTime(year + 1, 1, 31, 23, 59, 59), academicYearEntry.getRootEntry());
 
@@ -125,7 +125,8 @@ public class ExecutionIntervalTest {
 
     private static AcademicIntervalCE createSecondSemesterInterval(AcademicYearCE calendar) {
         final int year = calendar.getBegin().getYear();
-        final AcademicIntervalCE secondSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER, calendar,
+        final AcademicIntervalCE secondSemesterEntry = new AcademicIntervalCE(AcademicPeriod.SEMESTER,
+                AcademicPeriodOrder.findBy(AcademicPeriod.SEMESTER, 2).orElseThrow(), calendar,
                 new LocalizedString().with(Locale.getDefault(), "2nd Semester"), null, new DateTime(year + 1, 2, 1, 0, 0, 0),
                 new DateTime(year + 1, 8, 31, 23, 59, 59), calendar.getRootEntry());
         secondSemesterEntry.getExecutionInterval().setState(PeriodState.OPEN);
@@ -147,7 +148,8 @@ public class ExecutionIntervalTest {
 
     private static AcademicIntervalCE createMonthInterval(AcademicYearCE academicYearEntry, int month) {
         final int year = academicYearEntry.getBegin().getYear();
-        final AcademicIntervalCE monthEntry = new AcademicIntervalCE(AcademicPeriod.MONTH, academicYearEntry,
+        final AcademicIntervalCE monthEntry = new AcademicIntervalCE(AcademicPeriod.MONTH,
+                AcademicPeriodOrder.findBy(AcademicPeriod.MONTH, month).orElseThrow(), academicYearEntry,
                 new LocalizedString().with(Locale.getDefault(), "Month " + month), null, new DateTime(year, month, 1, 0, 0, 0),
                 new DateTime(year, month, YearMonth.of(year, month).lengthOfMonth(), 0, 0, 0), academicYearEntry.getRootEntry());
         monthEntry.getExecutionInterval().setState(PeriodState.OPEN);

@@ -141,6 +141,16 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
     }
 
     @Override
+    public AcademicCalendarEntry getNextAcademicCalendarEntry() {
+        return null;
+    }
+
+    @Override
+    public AcademicCalendarEntry getPreviousAcademicCalendarEntry() {
+        return null;
+    }
+
+    @Override
     public boolean containsInstant(final long instant) {
         return true;
     }

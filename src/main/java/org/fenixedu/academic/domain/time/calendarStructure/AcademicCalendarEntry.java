@@ -83,12 +83,13 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         if (!canBeDeleted(rootEntry)) {
             throw new DomainException("error.now.its.impossible.delete.entry.but.in.the.future.will.be.possible");
         }
-        
+
         ExecutionInterval executionInterval = getExecutionInterval();
         if (executionInterval != null) {
             executionInterval.delete();
-        }        
-        
+        }
+
+        setAcademicPeriodOrder(null);
         super.setParentEntry(null);
         setRootDomainObject(null);
         deleteDomainObject();
@@ -306,30 +307,13 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         return this.equals(entry);
     }
 
-    public AcademicCalendarEntry getNextAcademicCalendarEntry() {
-        return getRootEntry().getAllChildEntries(getAcademicPeriod()).stream()
-                .filter(entry -> entry.getBegin().isAfter(getBegin())).min(Comparator.comparing(AcademicCalendarEntry::getBegin))
-                .orElse(null);
-    }
+    public abstract AcademicCalendarEntry getNextAcademicCalendarEntry();
 
-    public AcademicCalendarEntry getPreviousAcademicCalendarEntry() {
-        return getRootEntry().getAllChildEntries(getAcademicPeriod()).stream()
-                .filter(entry -> entry.getBegin().isBefore(getBegin())).max(Comparator.comparing(AcademicCalendarEntry::getBegin))
-                .orElse(null);
-    }
+    public abstract AcademicCalendarEntry getPreviousAcademicCalendarEntry();
 
-    /**
-     * @return The cardinality of this entry relatively to its parent,
-     *         counting entries of same period type and sorted by begin date.
-     *         The first entry has cardinality of 1
-     */
     public int getCardinality() {
-        final AcademicPeriod academicPeriod = getAcademicPeriod();
-
-        // not using directly getChildEntries(academicPeriod) in order optimize performance avoiding unecessary list collect, because this method will be invoked intensively
-        return getParentEntry() != null ?
-                getParentEntry().getChildEntriesSet().stream().filter(e -> e.getAcademicPeriod().equals(academicPeriod))
-                        .sorted(COMPARATOR_BY_BEGIN_DATE).toList().indexOf(this) + 1 : 0;
+        AcademicPeriodOrder academicPeriodOrder = getAcademicPeriodOrder();
+        return academicPeriodOrder == null ? 0 : academicPeriodOrder.getPeriodOrder();
     }
 
     public static AcademicCalendarEntry findDefaultCalendar() {

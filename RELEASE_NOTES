@@ -1,3 +1,4 @@
+- Refactor: AcademicIntervalCE#getNextAcademicCalendarEntry and #getPreviousAcademicCalendarEntry now navigate by AcademicPeriodOrder instead of interval dates [#qubIT-Fenix-9811]
 - Refactor: Adds academic period order relation to academic calendar entries [#qubIT-Fenix-9811]
 
 64.5.0 (12-11-2026)
