@@ -176,7 +176,7 @@ public class StudentGroup extends FenixGroup {
         }
         if (executionCourse != null) {
             parts.add(executionCourse.getName() + " (" + executionCourse.getSigla() + ") "
-                    + executionCourse.getExecutionInterval().getPathName());
+                    + executionCourse.getExecutionInterval().getQualifiedName());
         }
         if (cycle != null) {
             parts.add(cycle.getDescription());
