@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -30,11 +32,8 @@ public class GradeScale extends GradeScale_Base {
 
     private static final Map<GradeScale, Map<String, GradeScaleEntry>> INTERNAL_CACHE = new ConcurrentHashMap<>();
 
-    public static final Comparator<GradeScale> COMPARE_BY_NAME = (o1, o2) -> {
-        int c = o1.getName().compareTo(o2.getName());
-
-        return c != 0 ? c : o1.getExternalId().compareTo(o2.getExternalId());
-    };
+    public static final Comparator<GradeScale> COMPARE_BY_NAME =
+            Comparator.comparing(GradeScale::getName).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
 
     public GradeScale() {
         super();
@@ -118,11 +117,10 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public void markAsDefaultGradeScale() {
-        if (findUniqueDefault().isPresent()) {
-            GradeScale oldGradeScale = findUniqueDefault().get();
+        findUniqueDefault().ifPresent(oldGradeScale -> {
             oldGradeScale.setDefaultGradeScale(false);
             oldGradeScale.checkRules();
-        }
+        });
 
         super.setDefaultGradeScale(true);
     }
@@ -260,6 +258,11 @@ public class GradeScale extends GradeScale_Base {
         invalidateCache();
     }
 
+    public Stream<GradeScaleEntry> getOrderedGradeScaleEntriesStream() {
+        return getGradeScaleEntriesSet().stream().sorted(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
+    }
+
+    @Deprecated(forRemoval = true)
     public List<GradeScaleEntry> getOrderedGradeScaleEntriesList() {
         final List<GradeScaleEntry> gradeEntriesList = new ArrayList<>(getGradeScaleEntriesSet());
         gradeEntriesList.sort(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
@@ -267,6 +270,7 @@ public class GradeScale extends GradeScale_Base {
         return gradeEntriesList;
     }
 
+    @Deprecated(forRemoval = true)
     public Set<GradeScaleEntry> getOrderedGradeScaleEntriesSet() {
         final Set<GradeScaleEntry> result = new TreeSet<>(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
         result.addAll(getGradeScaleEntriesSet());
@@ -284,6 +288,10 @@ public class GradeScale extends GradeScale_Base {
         super.deleteDomainObject();
     }
 
+    /**
+     * @deprecated Use {@link #moveDown()}
+     */
+    @Deprecated(forRemoval = true)
     public void orderNextGradeScaleEntry(final GradeScaleEntry entry) {
         if (entry.isLast()) {
             return;
@@ -298,6 +306,10 @@ public class GradeScale extends GradeScale_Base {
         entry.setGradeOrder(tempOrder);
     }
 
+    /**
+     * @deprecated Use {@link #moveUp()}
+     */
+    @Deprecated(forRemoval = true)
     public void orderPreviousGradeScaleEntry(final GradeScaleEntry entry) {
         if (entry.isFirst()) {
             return;
@@ -310,6 +322,30 @@ public class GradeScale extends GradeScale_Base {
         int tempOrder = previousEntry.getGradeOrder();
         previousEntry.setGradeOrder(entry.getGradeOrder());
         entry.setGradeOrder(tempOrder);
+    }
+
+    public void moveUp(GradeScaleEntry entry) {
+        if (entry.isFirst()) {
+            return;
+        }
+        swapGradeOrderWithNeighbour(entry, -1);
+    }
+
+    public void moveDown(GradeScaleEntry entry) {
+        if (entry.isLast()) {
+            return;
+        }
+        swapGradeOrderWithNeighbour(entry, 1);
+    }
+
+    private void swapGradeOrderWithNeighbour(GradeScaleEntry entry, int offset) {
+        List<GradeScaleEntry> orderedEntries = getOrderedGradeScaleEntriesList();
+        int index = orderedEntries.indexOf(entry);
+        GradeScaleEntry neighbour = orderedEntries.get(index + offset);
+
+        int entryOrder = entry.getGradeOrder();
+        entry.setGradeOrder(neighbour.getGradeOrder());
+        neighbour.setGradeOrder(entryOrder);
     }
 
     public boolean isActive() {
