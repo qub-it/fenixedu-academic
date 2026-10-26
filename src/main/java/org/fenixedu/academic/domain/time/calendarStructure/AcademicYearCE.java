@@ -32,7 +32,7 @@ public class AcademicYearCE extends AcademicYearCE_Base {
         setAcademicPeriod(AcademicPeriod.YEAR);
 
         // create ExecutionYear
-        new ExecutionYear(this, getTitle().getContent());
+        new ExecutionYear(this);
     }
 
     @Override

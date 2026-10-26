@@ -77,18 +77,22 @@ public class ExecutionYear extends ExecutionYear_Base {
         setRootDomainObjectForExecutionYear(Bennu.getInstance());
     }
 
+    @Deprecated(forRemoval = true)
     public ExecutionYear(AcademicCalendarEntry academicCalendarEntry, String year) {
         this();
         setAcademicCalendarEntry(academicCalendarEntry);
-        setBeginDateYearMonthDay(academicCalendarEntry.getBegin().toYearMonthDay());
-        setEndDateYearMonthDay(academicCalendarEntry.getEnd().toYearMonthDay());
-        setYear(year);
+    }
+
+    public ExecutionYear(AcademicCalendarEntry academicCalendarEntry) {
+        this();
+        setAcademicCalendarEntry(academicCalendarEntry);
     }
 
     public String getYear() {
         return getName();
     }
 
+    @Deprecated(forRemoval = true)
     public void setYear(String year) {
         if (year == null || StringUtils.isEmpty(year.trim())) {
             throw new DomainException("error.ExecutionYear.empty.year");
@@ -97,7 +101,6 @@ public class ExecutionYear extends ExecutionYear_Base {
                 .anyMatch(ey -> year.equals(ey.getName()))) {
             throw new DomainException("error.ExecutionYear.existing.year");
         }
-        super.setName(year);
     }
 
     @Override
