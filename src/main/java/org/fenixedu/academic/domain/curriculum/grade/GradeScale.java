@@ -3,7 +3,6 @@ package org.fenixedu.academic.domain.curriculum.grade;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +25,13 @@ import pt.ist.fenixframework.FenixFramework;
 
 public class GradeScale extends GradeScale_Base {
 
-    private Map<String, Object> CACHE_APPROVED_GRADE_VALUES = null;
-    private Map<String, Object> CACHE_NOT_APPROVED_GRADE_VALUES = null;
-
-    private static final Map<GradeScale, Map<String, GradeScaleEntry>> INTERNAL_CACHE = new ConcurrentHashMap<>();
-
     public static final Comparator<GradeScale> COMPARE_BY_NAME =
             Comparator.comparing(GradeScale::getName).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID);
+
+    private static final Map<String, GradeScale> GRADE_SCALE_CACHE = new ConcurrentHashMap<>();
+    private static final Map<GradeScale, Map<String, GradeScaleEntry>> INTERNAL_CACHE = new ConcurrentHashMap<>();
+    private Set<String> approvedGradeValuesCache = null;
+    private Set<String> notApprovedGradeValuesCache = null;
 
     public GradeScale() {
         super();
@@ -142,15 +141,12 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
+        if (rightGrade == null || rightGrade.isEmpty()) {
+            return 1;
+        }
 
-        {
-            if (rightGrade == null || rightGrade.isEmpty()) {
-                return 1;
-            }
-
-            if (leftGrade == null || leftGrade.isEmpty()) {
-                return -1;
-            }
+        if (leftGrade == null || leftGrade.isEmpty()) {
+            return -1;
         }
 
         if (!leftGrade.getGradeScale().equals(rightGrade.getGradeScale())) {
@@ -158,15 +154,8 @@ public class GradeScale extends GradeScale_Base {
                     rightGrade.toString());
         }
 
-        {
-            final boolean isLeftApproved = isApproved(leftGrade);
-            final boolean isRightApproved = isApproved(rightGrade);
-
-            if (isLeftApproved && !isRightApproved) {
-                return 1;
-            } else if (!isLeftApproved && isRightApproved) {
-                return -1;
-            }
+        if (isApproved(leftGrade) != isApproved(rightGrade)) {
+            return isApproved(leftGrade) ? 1 : -1;
         }
 
         final Optional<GradeScaleEntry> gradeEntryLeft = findGradeScaleEntry(leftGrade.getValue());
@@ -174,40 +163,31 @@ public class GradeScale extends GradeScale_Base {
 
         if (gradeEntryLeft.isPresent() && gradeEntryRight.isPresent()) {
             return Integer.compare(gradeEntryLeft.get().getGradeOrder(), gradeEntryRight.get().getGradeOrder());
-        } else {
-            final boolean isLeftGradeValueContinuous = isGradeValueContinuous(leftGrade.getValue());
-            final boolean isRightGradeValueContinuous = isGradeValueContinuous(rightGrade.getValue());
-
-            if (isLeftGradeValueContinuous && !isRightGradeValueContinuous) {
-                return 1;
-            } else if (!isLeftGradeValueContinuous && isRightGradeValueContinuous) {
-                return -1;
-            } else if (isLeftGradeValueContinuous && isRightGradeValueContinuous) {
-                return leftGrade.getNumericValue().compareTo(rightGrade.getNumericValue());
-            } else {
-                throw new DomainException("Grade.unsupported.comparison.of.grades.of.different.scales");
-            }
         }
+
+        final boolean isLeftGradeValueContinuous = isGradeValueContinuous(leftGrade.getValue());
+        final boolean isRightGradeValueContinuous = isGradeValueContinuous(rightGrade.getValue());
+
+        if (isLeftGradeValueContinuous != isRightGradeValueContinuous) {
+            return isLeftGradeValueContinuous ? 1 : -1;
+        } else if (isLeftGradeValueContinuous && isRightGradeValueContinuous) {
+            return leftGrade.getNumericValue().compareTo(rightGrade.getNumericValue());
+        }
+
+        throw new DomainException("Grade.unsupported.comparison.of.grades.of.different.scales");
     }
 
     public boolean isApproved(final String value) {
-        if (CACHE_APPROVED_GRADE_VALUES == null) {
-            CACHE_APPROVED_GRADE_VALUES = new HashMap<>();
-        }
+        approvedGradeValuesCache = getApprovedGradeValuesCache();
 
-        if (CACHE_APPROVED_GRADE_VALUES.containsKey(value)) {
+        if (approvedGradeValuesCache.contains(value)) {
             return true;
         }
 
         Optional<GradeScaleEntry> matchEntry = findGradeScaleEntry(value);
 
-        if (matchEntry.isPresent() && matchEntry.get().isAllowsApproval()) {
-            CACHE_APPROVED_GRADE_VALUES.put(value, matchEntry.get());
-            return true;
-        }
-
-        if (isGradeValueContinuousAndApproved(value)) {
-            CACHE_APPROVED_GRADE_VALUES.put(value, value);
+        if (matchEntry.isPresent() && matchEntry.get().isAllowsApproval() || isGradeValueContinuousAndApproved(value)) {
+            approvedGradeValuesCache.add(value);
             return true;
         }
 
@@ -215,23 +195,16 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public boolean isNotApproved(final String value) {
-        if (CACHE_NOT_APPROVED_GRADE_VALUES == null) {
-            CACHE_NOT_APPROVED_GRADE_VALUES = new HashMap<>();
-        }
+        notApprovedGradeValuesCache = getNotApprovedGradeValuesCache();
 
-        if (CACHE_NOT_APPROVED_GRADE_VALUES.containsKey(value)) {
+        if (notApprovedGradeValuesCache.contains(value)) {
             return true;
         }
 
         Optional<GradeScaleEntry> matchEntry = findGradeScaleEntry(value);
 
-        if (matchEntry.isPresent() && !matchEntry.get().isAllowsApproval()) {
-            CACHE_NOT_APPROVED_GRADE_VALUES.put(value, matchEntry.get());
-            return true;
-        }
-
-        if (isGradeValueContinuousAndNotApproved(value)) {
-            CACHE_NOT_APPROVED_GRADE_VALUES.put(value, value);
+        if (matchEntry.isPresent() && !matchEntry.get().isAllowsApproval() || isGradeValueContinuousAndNotApproved(value)) {
+            notApprovedGradeValuesCache.add(value);
             return true;
         }
 
@@ -279,6 +252,8 @@ public class GradeScale extends GradeScale_Base {
         for (GradeScaleEntry entry : getGradeScaleEntriesSet()) {
             entry.delete();
         }
+
+        invalidateCache();
 
         super.deleteDomainObject();
     }
@@ -372,15 +347,10 @@ public class GradeScale extends GradeScale_Base {
     }
 
     public void invalidateCache() {
-        if (this.CACHE_APPROVED_GRADE_VALUES != null) {
-            this.CACHE_APPROVED_GRADE_VALUES.clear();
-        }
-
-        if (this.CACHE_NOT_APPROVED_GRADE_VALUES != null) {
-            this.CACHE_NOT_APPROVED_GRADE_VALUES.clear();
-        }
-
+        getApprovedGradeValuesCache().clear();
+        getNotApprovedGradeValuesCache().clear();
         INTERNAL_CACHE.clear();
+        GRADE_SCALE_CACHE.clear();
     }
 
     public LocalizedString getExtendedValue(Grade grade) {
@@ -395,7 +365,7 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private Optional<GradeScaleEntry> findGradeScaleEntry(final String value) {
-        return Optional.ofNullable(of(value));
+        return value == null ? Optional.empty() : Optional.ofNullable(of(value));
     }
 
     private GradeScaleEntry of(final String value) {
@@ -495,22 +465,30 @@ public class GradeScale extends GradeScale_Base {
         return findActive().filter(gradeScale -> gradeScale.isInternalGradeScale() == internalGradeScale);
     }
 
-    private static Map<String, GradeScale> GRADE_SCALE_CACHE = new HashMap<>();
-
     public static GradeScale getGradeScaleByCode(final String code) {
-        if (!GRADE_SCALE_CACHE.containsKey(code)) {
-            GRADE_SCALE_CACHE.put(code, findUniqueByCode(code).get());
-        }
-
-        return GRADE_SCALE_CACHE.get(code);
+        return code == null ? null : GRADE_SCALE_CACHE.computeIfAbsent(code, key -> findUniqueByCode(key).get());
     }
 
     public static boolean isNumeric(final String value) {
         return NumberUtils.isNumber(value);
     }
 
-    // ##########
-    // # CACHES #
-    // ##########
+    /*
+     * Lazily created: Fenix Framework materializes persisted instances without invoking constructors,
+     * so field initializers never run for objects loaded from the database — the field
+     * starts out null and first use must create the cache here.
+     */
+    private Set<String> getApprovedGradeValuesCache() {
+        if (approvedGradeValuesCache == null) {
+            approvedGradeValuesCache = new HashSet<>();
+        }
+        return approvedGradeValuesCache;
+    }
 
+    private Set<String> getNotApprovedGradeValuesCache() {
+        if (notApprovedGradeValuesCache == null) {
+            notApprovedGradeValuesCache = new HashSet<>();
+        }
+        return notApprovedGradeValuesCache;
+    }
 }
