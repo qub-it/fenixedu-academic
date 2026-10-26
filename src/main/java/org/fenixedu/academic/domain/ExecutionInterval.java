@@ -32,6 +32,7 @@ import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.PeriodState;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 
@@ -133,18 +134,6 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
     public LocalizedString getQualifiedNameI18N() {
         final LocalizedString localizedName = getAcademicCalendarEntry().getTitle();
         return localizedName.append(this.getExecutionYear().getAcademicCalendarEntry().getTitle(), " ");
-    }
-
-    public String getPathName() {
-        List<String> path = new ArrayList<>();
-
-        AcademicCalendarEntry academicCalendarEntry = getAcademicCalendarEntry();
-        while (!(academicCalendarEntry instanceof AcademicCalendarRootEntry)) {
-            path.add(academicCalendarEntry.getTitle().getContent());
-            academicCalendarEntry = academicCalendarEntry.getParentEntry();
-        }
-
-        return String.join(" - ", path);
     }
 
     public Interval toInterval() {
