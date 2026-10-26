@@ -117,12 +117,6 @@ valueType org.fenixedu.academic.domain.schedule.lesson.LessonPeriodCurricularYea
     internalizeWith internalize();
 }
 
-valueType org.fenixedu.academic.util.DiaSemana as DiaSemana {
-    externalizeWith {
-        Integer getDiaSemana();
-    }
-}
-
 valueType org.fenixedu.academic.util.EnrolmentEvaluationState as EnrolmentEvaluationState {
     externalizeWith {
         Integer getState();

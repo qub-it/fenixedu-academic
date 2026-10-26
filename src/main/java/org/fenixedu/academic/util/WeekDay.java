@@ -45,27 +45,6 @@ public enum WeekDay {
         return ordinal() + 1;
     }
 
-    public static WeekDay getWeekDay(final DiaSemana weekDay) {
-        switch (weekDay.getDiaSemana()) {
-        case DiaSemana.DOMINGO:
-            return WeekDay.SUNDAY;
-        case DiaSemana.SEGUNDA_FEIRA:
-            return WeekDay.MONDAY;
-        case DiaSemana.TERCA_FEIRA:
-            return WeekDay.TUESDAY;
-        case DiaSemana.QUARTA_FEIRA:
-            return WeekDay.WEDNESDAY;
-        case DiaSemana.QUINTA_FEIRA:
-            return WeekDay.THURSDAY;
-        case DiaSemana.SEXTA_FEIRA:
-            return WeekDay.FRIDAY;
-        case DiaSemana.SABADO:
-            return WeekDay.SATURDAY;
-        default:
-            return null;
-        }
-    }
-
     public static WeekDay fromJodaTimeToWeekDay(final DateTime date) {
         final int dayOfWeek = date.dayOfWeek().get();
         switch (dayOfWeek) {
