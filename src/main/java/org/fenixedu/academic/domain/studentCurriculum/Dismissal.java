@@ -21,13 +21,13 @@ package org.fenixedu.academic.domain.studentCurriculum;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -156,16 +156,9 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
     }
 
     private String buildSourcesToPrint() {
-        final StringBuilder result = new StringBuilder();
-        for (final EnrolmentWrapper wrapper : getCredits().getEnrolmentsSet()) {
-            result.append(wrapper.getIEnrolment().getCode()).append("(")
-                    .append(wrapper.getIEnrolment().getEctsCreditsForCurriculum().toPlainString()).append(")").append(", ");
-        }
-
-        if (result.toString().endsWith(", ")) {
-            result.delete(result.length() - 2, result.length());
-        }
-        return result.toString();
+        return getCredits().getEnrolmentsSet().stream().map(EnrolmentWrapper::getIEnrolment)
+                .map(ie -> ie.getCode() + "(" + ie.getEctsCreditsForCurriculum().toPlainString() + ")")
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -175,16 +168,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     @Override
     final public ExecutionYear getIEnrolmentsLastExecutionYear() {
-        ExecutionYear result = null;
-
-        for (final IEnrolment iEnrolment : this.getSourceIEnrolments()) {
-            final ExecutionYear executionYear = iEnrolment.getExecutionYear();
-            if (result == null || result.isBefore(executionYear)) {
-                result = executionYear;
-            }
-        }
-
-        return result;
+        return getSourceIEnrolments().stream().map(IEnrolment::getExecutionYear).max(Comparator.naturalOrder()).orElse(null);
     }
 
     public Collection<IEnrolment> getSourceIEnrolments() {
@@ -235,7 +219,8 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
             return provider.apply(this);
         }
 
-        return BigDecimal.valueOf(getEctsCredits());
+        final Double ects = getEctsCredits();
+        return ects != null ? BigDecimal.valueOf(ects) : null;
     }
 
     protected Double getEnrolmentsEcts() {
@@ -336,22 +321,13 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     @Override
     public YearMonthDay calculateConclusionDate() {
-
         if (getCredits().getOfficialDate() != null) {
             return new YearMonthDay(getCredits().getOfficialDate());
         }
 
-        final SortedSet<IEnrolment> iEnrolments = new TreeSet<IEnrolment>(IEnrolment.COMPARATOR_BY_APPROVEMENT_DATE);
-        iEnrolments.addAll(getSourceIEnrolments());
-
         final YearMonthDay beginDate = getExecutionInterval().getBeginDateYearMonthDay();
-        if (!iEnrolments.isEmpty()) {
-            final IEnrolment enrolment = iEnrolments.last();
-            final YearMonthDay approvementDate = enrolment.getApprovementDate();
-            return approvementDate != null ? approvementDate : beginDate;
-        } else {
-            return beginDate;
-        }
+        return getSourceIEnrolments().stream().max(IEnrolment.COMPARATOR_BY_APPROVEMENT_DATE).map(IEnrolment::getApprovementDate)
+                .orElse(beginDate);
     }
 
     @Override
@@ -404,7 +380,8 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
             return provider.apply(this);
         }
 
-        return BigDecimal.valueOf(getWeigth());
+        final Double weight = getWeigth();
+        return weight != null ? BigDecimal.valueOf(weight) : null;
     }
 
     @Override

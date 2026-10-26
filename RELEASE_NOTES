@@ -1,3 +1,4 @@
+- Refactor: Improve Dismissal domain methods [#qubIT-Fenix-9598]
 - Refactor: Improve CreditsDismissal domain methods [#qubIT-Fenix-9519]
 - Refactor: Remove deprecated lesson methods [#qubIT-Fenix-9230]
 
