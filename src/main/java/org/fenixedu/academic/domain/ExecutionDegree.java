@@ -37,7 +37,6 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.schedule.lesson.ExecutionDegreeLessonPeriod;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -169,10 +168,6 @@ public class ExecutionDegree extends ExecutionDegree_Base implements Comparable<
 
     public DegreeType getDegreeType() {
         return getDegree().getDegreeType();
-    }
-
-    public AcademicInterval getAcademicInterval() {
-        return getExecutionYear().getAcademicInterval();
     }
 
     public SortedSet<SchoolClass> getSortedSchoolClasses() {

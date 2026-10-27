@@ -107,7 +107,7 @@ abstract public class CurricularRuleNotPersistent implements ICurricularRule {
 
     @Override
     public boolean isActive() {
-        return getEndInterval() == null || getEndInterval().getAcademicInterval().containsNow();
+        return getEndInterval() == null || getEndInterval().toInterval().containsNow();
     }
 
     @Override

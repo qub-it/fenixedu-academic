@@ -23,7 +23,6 @@ import java.util.Comparator;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.dml.DynamicField;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
@@ -148,10 +147,6 @@ public class DegreeInfo extends DegreeInfo_Base {
         setExecutionYear(null);
 
         deleteDomainObject();
-    }
-
-    public AcademicInterval getAcademicInterval() {
-        return getExecutionYear().getAcademicInterval();
     }
 
     /*

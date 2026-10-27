@@ -288,9 +288,10 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
 
     public void setStartDate(YearMonthDay startDate) {
         if (startDate != null && getStartExecutionInterval() != null) {
-            final Interval startDateInterval =
+            Interval startDateInterval =
                     new Interval(startDate.toDateTimeAtMidnight(), startDate.plusDays(1).toDateTimeAtMidnight());
-            if (!getStartExecutionInterval().getAcademicInterval().overlaps(startDateInterval)) {
+            
+            if (!getStartExecutionInterval().toInterval().overlaps(startDateInterval)) {
                 throw new DomainException("error.StudentCurricularPlan.setting.startDate.outsideExecutionInterval",
                         startDate.toString(), getStartExecutionInterval().getQualifiedName());
             }
