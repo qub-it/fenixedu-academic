@@ -18,10 +18,9 @@
  */
 package org.fenixedu.academic.domain;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -54,8 +53,6 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         setRootDomainObjectForExecutionPeriod(Bennu.getInstance());
         setExecutionYear(executionYear);
         setAcademicCalendarEntry(academicCalendarEntry);
-        setBeginDateYearMonthDay(academicCalendarEntry.getBegin().toYearMonthDay());
-        setEndDateYearMonthDay(academicCalendarEntry.getEnd().toYearMonthDay());
         setName(name);
     }
 
@@ -103,12 +100,6 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         getExecutionYear().setState(PeriodState.OPEN);
         setRootDomainObjectForCurrentExecutionInterval(null);
         getExecutionYear().setRootDomainObjectForCurrentExecutionInterval(null);
-    }
-
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkDateInterval() {
-        return getBeginDateYearMonthDay() != null && getEndDateYearMonthDay() != null
-                && getBeginDateYearMonthDay().isBefore(getEndDateYearMonthDay());
     }
 
 //    abstract public String getQualifiedName();
@@ -217,44 +208,32 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return result;
     }
 
-    @Deprecated
-    public java.util.Date getBeginDate() {
-        org.joda.time.YearMonthDay ymd = getBeginDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
+    public Date getBeginDate() {
+        return getAcademicCalendarEntry().getBegin().toDate();
     }
 
+    @Deprecated
     public LocalDate getBeginLocalDate() {
-        final YearMonthDay result = getBeginDateYearMonthDay();
-        return result == null ? null : result.toLocalDate();
+        return getAcademicCalendarEntry().getBegin().toLocalDate();
     }
 
     @Deprecated
-    public void setBeginDate(java.util.Date date) {
-        if (date == null) {
-            setBeginDateYearMonthDay(null);
-        } else {
-            setBeginDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
+    public YearMonthDay getBeginDateYearMonthDay() {
+        return getAcademicCalendarEntry().getBegin().toYearMonthDay();
+    }
+
+    public Date getEndDate() {
+        return getAcademicCalendarEntry().getEnd().toDate();
     }
 
     @Deprecated
-    public java.util.Date getEndDate() {
-        org.joda.time.YearMonthDay ymd = getEndDateYearMonthDay();
-        return (ymd == null) ? null : new java.util.Date(ymd.getYear() - 1900, ymd.getMonthOfYear() - 1, ymd.getDayOfMonth());
-    }
-
     public LocalDate getEndLocalDate() {
-        final YearMonthDay result = getEndDateYearMonthDay();
-        return result == null ? null : result.toLocalDate();
+        return getAcademicCalendarEntry().getEnd().toLocalDate();
     }
 
     @Deprecated
-    public void setEndDate(java.util.Date date) {
-        if (date == null) {
-            setEndDateYearMonthDay(null);
-        } else {
-            setEndDateYearMonthDay(org.joda.time.YearMonthDay.fromDateFields(date));
-        }
+    public YearMonthDay getEndDateYearMonthDay() {
+        return getAcademicCalendarEntry().getEnd().toYearMonthDay();
     }
 
     //public abstract <E extends ExecutionInterval> E convert(final Class<E> concreteExecution);

@@ -500,9 +500,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 
     class ExecutionInterval  {
         PeriodState state;
-        String name;        
-        YearMonthDay beginDateYearMonthDay;
-        YearMonthDay endDateYearMonthDay;
+        String name;
     }
         
     class ExecutionYear extends ExecutionInterval {                                         
