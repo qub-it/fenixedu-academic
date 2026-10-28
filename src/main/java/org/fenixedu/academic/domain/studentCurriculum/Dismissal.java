@@ -414,21 +414,6 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
         new DismissalLog(type, getRegistration(), getCurricularCourse(), getCredits(), getExecutionPeriod(), getCurrentUser());
     }
 
-    public String getEnrolmentTypeName() {
-        if (isExtraCurricular()) {
-            return "EXTRA_CURRICULAR_ENROLMENT";
-        } else if (isOptional()) {
-            return "ENROLMENT_IN_OPTIONAL_DEGREE_MODULE";
-        } else {
-            return "COMPULSORY_ENROLMENT";
-        }
-    }
-
-    public boolean isAnual() {
-        final CurricularCourse curricularCourse = getCurricularCourse();
-        return curricularCourse != null && curricularCourse.isAnual();
-    }
-
     @Override
     public String getModuleTypeName() {
         return BundleUtil.getString(Bundle.ENUMERATION, this.getClass().getName());
