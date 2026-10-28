@@ -20,6 +20,7 @@ package org.fenixedu.academic.servlet;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Installation;
@@ -28,6 +29,9 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusionConfig;
 import org.fenixedu.academic.domain.organizationalStructure.UnitNamePart;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentIdentityCardValidator;
 import org.fenixedu.academic.domain.person.identificationDocument.validators.IdentificationDocumentValidatorRegistry;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicYearCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriodOrder;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.slf4j.Logger;
@@ -67,6 +71,8 @@ public class FenixInitializer implements ServletContextListener {
         initializeCurrentExecutionIntervals();
 
         initializeProgramConclusionConfigs();
+
+        initializeCalendarEntryAcademicPeriodOrdersRelation();
     }
 
     @Atomic(mode = TxMode.WRITE)
@@ -158,5 +164,32 @@ public class FenixInitializer implements ServletContextListener {
 
         Log.info("Finished initialization of ProgramConclusionConfig. Processed " + counter.get() + " CourseGroup instances.");
         Log.info("---------------------------------------");
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void initializeCalendarEntryAcademicPeriodOrdersRelation() {
+        Log.info("---------------------------------------");
+        Log.info("Starting initialization of calendar entry academic period orders");
+
+        final AtomicInteger migrated = new AtomicInteger(0);
+        Bennu.getInstance().getAcademicCalendarsSet()
+                .forEach(rootEntry -> initializeAcademicPeriodOrdersForRootEntry(rootEntry, migrated));
+
+        Log.info("Finished initialization of calendar entry academic period orders. Processed " + migrated.get() + " entries.");
+        Log.info("---------------------------------------");
+    }
+
+    private void initializeAcademicPeriodOrdersForRootEntry(AcademicCalendarRootEntry rootEntry, AtomicInteger migrated) {
+        getAllEntries(rootEntry).filter(e -> !(e instanceof AcademicYearCE)).filter(e -> e.getAcademicPeriodOrder() == null)
+                .forEach(entry -> {
+                    AcademicPeriodOrder.findBy(entry.getAcademicPeriod(), entry.getCardinality()).ifPresent(order -> {
+                        entry.setAcademicPeriodOrder(order);
+                        migrated.incrementAndGet();
+                    });
+                });
+    }
+
+    private Stream<AcademicCalendarEntry> getAllEntries(final AcademicCalendarEntry parentEntry) {
+        return parentEntry.getChildEntriesSet().stream().flatMap(entry -> Stream.concat(Stream.of(entry), getAllEntries(entry)));
     }
 }

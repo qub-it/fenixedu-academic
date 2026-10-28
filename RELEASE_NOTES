@@ -1,3 +1,5 @@
+- Refactor: Adds academic period order relation to academic calendar entries [#qubIT-Fenix-9811]
+
 64.5.0 (12-11-2026)
 - Refactor: Deletes ExecutionInterval name, begin and end date fields [#qubIT-Fenix-9810]
 - Refactor: Remove Person#setIdentificationDocument method [#qubIT-Fenix-9126]
