@@ -1729,6 +1729,13 @@ relation AcademicCalendarEntryAcademicCalendarEntry {
     }
 }
 
+relation AcademicCalendarEntryAcademicPeriodOrder {
+    time.calendarStructure.AcademicPeriodOrder playsRole academicPeriodOrder;
+    time.calendarStructure.AcademicCalendarEntry playsRole academicCalendarEntries {
+        multiplicity *;
+    }
+}
+
 relation AcademicServiceRequestAcademicServiceRequestSituation {
     serviceRequests.AcademicServiceRequest playsRole academicServiceRequest {
     	multiplicity 1..1;
