@@ -127,15 +127,9 @@ public class ProfessorshipsGroup extends FenixGroup {
             if (user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
                 return true;
             }
-        } else {
-            for (final Professorship professorship : user.getPerson().getProfessorshipsSet()) {
-                final ExecutionCourse executionCourse = professorship.getExecutionCourse();
-                if (executionInterval.contains(executionCourse.getExecutionInterval())) {
-                    return true;
-                }
-            }
         }
-        return false;
+
+        return !user.getPerson().getProfessorships(executionInterval).isEmpty();
     }
 
     @Override
