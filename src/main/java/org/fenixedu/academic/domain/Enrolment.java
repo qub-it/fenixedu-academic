@@ -120,7 +120,6 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         }
         checkInitConstraints(studentCurricularPlan, curricularCourse, executionInterval);
         init(curriculumGroup, curricularCourse, executionInterval, enrolmentCondition, createdBy);
-        createEnrolmentEvaluation();
         createCurriculumLineLog(EnrolmentActionType.ENROL);
     }
 
@@ -148,6 +147,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         setCreationDateDateTime(new DateTime());
         setEnrolmentCondition(enrolmentCondition);
         curricularCourse.findExecutionCourses(executionInterval).findAny().ifPresent(this::findOrCreateAttends);
+        createEnrolmentEvaluation();
     }
 
     @Override
