@@ -1,3 +1,4 @@
+- Refactor: Remove FenixServiceException and IDocumentRequestBean classes [#qubIT-Fenix-9518]
 - Refactor: Improve ExternalEnrolment domain methods [#qubIT-Fenix-9556]
 
 64.2.0 (27-10-2026)
