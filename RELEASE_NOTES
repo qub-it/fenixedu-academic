@@ -1,3 +1,4 @@
+- Refactor: Deprecate Person#setIdentificationDocument method [#qubIT-Fenix-9126]
 - Refactor: Improve ExternalEnrolment domain methods [#qubIT-Fenix-9556]
 
 64.2.0 (27-10-2026)
