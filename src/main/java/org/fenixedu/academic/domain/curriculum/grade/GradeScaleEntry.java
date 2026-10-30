@@ -31,9 +31,9 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         setValue(value);
         setDescription(description);
         setAllowsApproval(allowsApproval);
-        setGradeOrder(calculateGradeOrder());
 
         checkRules();
+        setGradeOrder(calculateGradeOrder());
     }
 
     private int calculateGradeOrder() {

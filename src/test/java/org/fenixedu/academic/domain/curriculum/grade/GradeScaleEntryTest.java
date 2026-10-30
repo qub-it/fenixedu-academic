@@ -44,6 +44,18 @@ public class GradeScaleEntryTest {
         // An entry always compares as equal to itself
         assertEquals(0, GradeScaleEntry.COMPARE_BY_GRADE_ORDER.compare(entryWithOrderOne, entryWithOrderOne));
 
+        // Entries that share the same grade order are tie-broken by their domain object id
+        GradeScaleEntry tieBreakEntryWithOrderThree =
+                GradeScaleEntry.create(gradeScale, "ORDER_THREE", new LocalizedString().with(Locale.getDefault(), "Order three"),
+                        true);
+        GradeScaleEntry tieBreakEntryWithSameOrder = GradeScaleEntry.create(gradeScale, "ORDER_THREE_DUPLICATE",
+                new LocalizedString().with(Locale.getDefault(), "Order three duplicate"), true);
+        tieBreakEntryWithSameOrder.setGradeOrder(3);
+
+        assertTrue(tieBreakEntryWithOrderThree.getGradeOrder() == tieBreakEntryWithSameOrder.getGradeOrder());
+        assertTrue(GradeScaleEntry.COMPARE_BY_GRADE_ORDER.compare(tieBreakEntryWithOrderThree, tieBreakEntryWithSameOrder) < 0);
+        assertTrue(GradeScaleEntry.COMPARE_BY_GRADE_ORDER.compare(tieBreakEntryWithSameOrder, tieBreakEntryWithOrderThree) > 0);
+
         // Sorting a list with the comparator yields the entries ordered by grade order
         List<GradeScaleEntry> outOfOrderEntries = Arrays.asList(entryWithOrderTwo, entryWithOrderOne);
         outOfOrderEntries.sort(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
@@ -136,6 +148,16 @@ public class GradeScaleEntryTest {
         assertEquals(Arrays.asList(reprovedA, reprovedB, notApprovedBeforeApproved, mainApprovedEntry, anotherApprovedEntry),
                 reprovedScale.getOrderedGradeScaleEntriesList());
 
+        // A second not approved entry is appended after the previous not approved ones, keeping insertion order
+        GradeScaleEntry notApprovedAfterNotApproved = GradeScaleEntry.create(reprovedScale, "CREATE_RO_SECOND",
+                new LocalizedString().with(Locale.getDefault(), "Not approved second"), false);
+        assertEquals(4, notApprovedAfterNotApproved.getGradeOrder());
+        assertEquals(5, mainApprovedEntry.getGradeOrder());
+        assertEquals(6, anotherApprovedEntry.getGradeOrder());
+        assertEquals(
+                Arrays.asList(reprovedA, reprovedB, notApprovedBeforeApproved, notApprovedAfterNotApproved, mainApprovedEntry,
+                        anotherApprovedEntry), reprovedScale.getOrderedGradeScaleEntriesList());
+        
         // Creating an entry with a blank value is rejected
         assertThrows(DomainException.class,
                 () -> GradeScaleEntry.create(gradeScale, "   ", new LocalizedString().with(Locale.getDefault(), "Description"),
@@ -151,5 +173,9 @@ public class GradeScaleEntryTest {
                 new LocalizedString().with(Locale.getDefault(), "First with the duplicated value"), true);
         assertThrows(DomainException.class, () -> GradeScaleEntry.create(gradeScale, "CREATE_DUP",
                 new LocalizedString().with(Locale.getDefault(), "Second with the same value"), true));
+
+        // Creating an entry without a grade scale is rejected
+        assertThrows(DomainException.class, () -> GradeScaleEntry.create(null, "CREATE_NULL_SCALE",
+                new LocalizedString().with(Locale.getDefault(), "No scale"), true));
     }
 }
