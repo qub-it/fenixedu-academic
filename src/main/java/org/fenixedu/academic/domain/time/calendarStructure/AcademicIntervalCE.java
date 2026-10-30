@@ -36,16 +36,6 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
                     // if PeriodOrder is null (e.g. AcademicPeriod.OTHER -> fallback to compare by begin date)
                     .thenComparing(AcademicCalendarEntry.COMPARATOR_BY_BEGIN_DATE);
 
-    @Deprecated(forRemoval = true)
-    public AcademicIntervalCE(AcademicPeriod academicPeriod, AcademicCalendarEntry parentEntry, LocalizedString title,
-            LocalizedString description, DateTime begin, DateTime end, AcademicCalendarRootEntry rootEntry) {
-
-        super();
-        setAcademicPeriod(academicPeriod);
-        super.initEntry(parentEntry, title, description, begin, end, rootEntry);
-        createNewExecutionPeriod();
-    }
-
     public AcademicIntervalCE(AcademicPeriod academicPeriod, AcademicPeriodOrder academicPeriodOrder,
             AcademicCalendarEntry parentEntry, LocalizedString title, LocalizedString description, DateTime begin, DateTime end,
             AcademicCalendarRootEntry rootEntry) {
