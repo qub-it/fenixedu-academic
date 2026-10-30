@@ -31,9 +31,9 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         setValue(value);
         setDescription(description);
         setAllowsApproval(allowsApproval);
-        setGradeOrder(calculateGradeOrder());
 
         checkRules();
+        setGradeOrder(calculateGradeOrder());
     }
 
     private int calculateGradeOrder() {
@@ -46,7 +46,7 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
         // Defaults to appending at the end when the scale has no approved entries yet.
         AtomicInteger newEntryOrder = new AtomicInteger(nextGradeOrder());
         Optional<GradeScaleEntry> lowestApprovedEntry =
-                getGradeScale().getOrderedGradeScaleEntriesSet().stream().filter(GradeScaleEntry::isAllowsApproval).findFirst();
+                getGradeScale().getOrderedGradeScaleEntriesStream().filter(GradeScaleEntry::isAllowsApproval).findFirst();
 
         lowestApprovedEntry.ifPresent(approvedEntry -> {
             // The new entry takes the approved entry's current order
@@ -106,7 +106,7 @@ public class GradeScaleEntry extends GradeScaleEntry_Base {
     }
 
     private List<GradeScaleEntry> getEntriesAfter() {
-        List<GradeScaleEntry> orderedEntries = getGradeScale().getOrderedGradeScaleEntriesList();
+        final List<GradeScaleEntry> orderedEntries = getGradeScale().getOrderedGradeScaleEntriesStream().toList();
         return orderedEntries.subList(orderedEntries.indexOf(this) + 1, orderedEntries.size());
     }
 
