@@ -114,4 +114,15 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
     public String getPresentationName() {
         return getParentEntry().getTitle().getContent() + " - " + getTitle().getContent() + " - [" + getType() + "]";
     }
+
+    @Override
+    public int getCardinality() {
+        AcademicPeriod academicPeriod = getAcademicPeriod();
+
+        if (academicPeriod == AcademicPeriod.OTHER) {
+            return calculateDateBasedCardinality(academicPeriod);
+        }
+
+        return super.getCardinality();
+    }
 }

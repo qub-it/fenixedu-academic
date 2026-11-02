@@ -73,4 +73,9 @@ public class AcademicYearCE extends AcademicYearCE_Base {
         }
         return false;
     }
+
+    @Override
+    public int getCardinality() {
+        return calculateDateBasedCardinality(getAcademicPeriod());
+    }
 }
