@@ -201,11 +201,13 @@ public class AcademicCalendarEntryTest {
         assertEquals(1, month.getCardinality());
         assertEquals(2, nextMonth.getCardinality());
         assertEquals(2, mixedSemester2.getCardinality());
-        assertEquals(0, year2024.getCardinality());
-        assertEquals(0, mixedYear.getCardinality());
+        assertEquals(1, year2024.getCardinality());
+        assertEquals(2, year2025.getCardinality());
+        assertEquals(3, year2026.getCardinality());
+        assertEquals(1, mixedYear.getCardinality());
         assertEquals(0, rootEntry.getCardinality());
-        assertEquals(0, firstOtherInterval.getCardinality());
-        assertEquals(0, secondOtherInterval.getCardinality());
+        assertEquals(1, firstOtherInterval.getCardinality());
+        assertEquals(2, secondOtherInterval.getCardinality());
     }
 
     // -------------------------------

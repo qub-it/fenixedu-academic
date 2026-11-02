@@ -316,6 +316,11 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         return academicPeriodOrder == null ? 0 : academicPeriodOrder.getPeriodOrder();
     }
 
+    protected int calculateDateBasedCardinality(AcademicPeriod academicPeriod) {
+        return getParentEntry().getChildEntriesSet().stream().filter(e -> academicPeriod.equals(e.getAcademicPeriod()))
+                .sorted(COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList()).indexOf(this) + 1;
+    }
+
     public static AcademicCalendarEntry findDefaultCalendar() {
         return Bennu.getInstance().getDefaultAcademicCalendar();
     }
