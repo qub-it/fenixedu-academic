@@ -21,11 +21,6 @@ package org.fenixedu.academic.domain.time.calendarStructure;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.fenixedu.academic.domain.time.AcademicPeriodType;
-import org.fenixedu.academic.domain.time.chronologies.durationFields.AcademicTrimestersDurationFieldType;
-import org.joda.time.DurationFieldType;
-import org.joda.time.PeriodType;
-
 public class AcademicTrimesters extends AcademicPeriod {
 
     protected AcademicTrimesters(int period, String name, String code) {
@@ -35,16 +30,6 @@ public class AcademicTrimesters extends AcademicPeriod {
     @Override
     public float getWeight() {
         return getValue() / 4f;
-    }
-
-    @Override
-    public DurationFieldType getFieldType() {
-        return AcademicTrimestersDurationFieldType.academicTrimesters();
-    }
-
-    @Override
-    public PeriodType getPeriodType() {
-        return AcademicPeriodType.academicTrimesters();
     }
 
     /**

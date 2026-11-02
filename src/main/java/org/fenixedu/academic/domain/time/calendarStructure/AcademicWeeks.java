@@ -3,9 +3,6 @@ package org.fenixedu.academic.domain.time.calendarStructure;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.joda.time.DurationFieldType;
-import org.joda.time.PeriodType;
-
 public class AcademicWeeks extends AcademicPeriod {
 
     protected AcademicWeeks(int period, String name, String code) {
@@ -15,16 +12,6 @@ public class AcademicWeeks extends AcademicPeriod {
     @Override
     public float getWeight() {
         return getValue() / 52f;
-    }
-
-    @Override
-    public DurationFieldType getFieldType() {
-        return DurationFieldType.weeks();
-    }
-
-    @Override
-    public PeriodType getPeriodType() {
-        return PeriodType.weeks();
     }
 
     @Override

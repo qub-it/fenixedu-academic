@@ -22,25 +22,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fenixedu.academic.domain.time.AcademicPeriodType;
-import org.fenixedu.academic.domain.time.chronologies.durationFields.AcademicYearsDurationFieldType;
-import org.joda.time.DurationFieldType;
-import org.joda.time.PeriodType;
-
 public class AcademicYears extends AcademicPeriod {
 
     protected AcademicYears(int period, String name, String code) {
         super(period, name, code);
-    }
-
-    @Override
-    public DurationFieldType getFieldType() {
-        return AcademicYearsDurationFieldType.academicYears();
-    }
-
-    @Override
-    public PeriodType getPeriodType() {
-        return AcademicPeriodType.academicYears();
     }
 
     @Override
