@@ -21,25 +21,10 @@ package org.fenixedu.academic.domain.time.calendarStructure;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.fenixedu.academic.domain.time.AcademicPeriodType;
-import org.fenixedu.academic.domain.time.chronologies.durationFields.AcademicSemestersDurationFieldType;
-import org.joda.time.DurationFieldType;
-import org.joda.time.PeriodType;
-
 public class AcademicSemesters extends AcademicPeriod {
 
     protected AcademicSemesters(int period, String name, String code) {
         super(period, name, code);
-    }
-
-    @Override
-    public DurationFieldType getFieldType() {
-        return AcademicSemestersDurationFieldType.academicSemesters();
-    }
-
-    @Override
-    public PeriodType getPeriodType() {
-        return AcademicPeriodType.academicSemesters();
     }
 
     @Override
