@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 abstract public class StudentCurricularPlanEnrolment {
 
-    private static Logger logger = LoggerFactory.getLogger(StudentCurricularPlanEnrolment.class);
+    private static final Logger logger = LoggerFactory.getLogger(StudentCurricularPlanEnrolment.class);
 
     protected EnrolmentContext enrolmentContext;
 
