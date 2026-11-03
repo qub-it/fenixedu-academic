@@ -806,8 +806,14 @@ public class Registration extends Registration_Base {
     }
 
     private static Set<Degree> getPrecedentDegreesUntilRoot(Degree degree) {
-        return degree.getPrecedentDegreesSet().stream()
-                .flatMap(d -> Stream.concat(Stream.of(d), getPrecedentDegreesUntilRoot(d).stream())).collect(Collectors.toSet());
+        Set<Degree> result = new HashSet<>();
+
+        for (Degree precedent : degree.getPrecedentDegreesSet()) {
+            result.add(precedent);
+            result.addAll(getPrecedentDegreesUntilRoot(precedent));
+        }
+
+        return result;
     }
 
     public boolean isFirstTime(final ExecutionYear executionYear) {
