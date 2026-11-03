@@ -1,3 +1,4 @@
+- Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 - Refactor: Makes DegreeCurricularPlan#createDegreeCurricularPlan public [#qubIT-Fenix-9573]
 
 64.2.1 (30-10-2026)
