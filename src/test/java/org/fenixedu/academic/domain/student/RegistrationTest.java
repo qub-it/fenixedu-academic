@@ -651,8 +651,18 @@ public class RegistrationTest {
 
         assertEquals(Set.of(executionYear), newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()));
 
+        // RegistrationDataByExecutionYear defaults to active = false until an enrolment exists for the year
+        RegistrationDataByExecutionYear nextYearRegistrationData =
+                RegistrationDataByExecutionYear.getOrCreateRegistrationDataByYear(newRegistration, nextExecutionYear);
+
+        assertFalse(nextYearRegistrationData.getActive());
+        assertEquals(Set.of(executionYear),
+                newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()));
+
+        // Make the RegistrationDataByExecutionYear active by creating an enrolment
         EnrolmentTest.createEnrolment(newStudentCurricularPlan, nextYearFirstSemester, context, "admin");
 
+        assertTrue(nextYearRegistrationData.getActive());
         assertEquals(Set.of(executionYear, nextExecutionYear),
                 newRegistration.findActiveRegistrationExecutionYears().collect(Collectors.toSet()));
     }
