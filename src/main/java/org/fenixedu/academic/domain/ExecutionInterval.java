@@ -211,11 +211,11 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return result;
     }
 
+    @Deprecated
     public Date getBeginDate() {
         return getAcademicCalendarEntry().getBegin().toDate();
     }
 
-    @Deprecated
     public LocalDate getBeginLocalDate() {
         return getAcademicCalendarEntry().getBegin().toLocalDate();
     }
@@ -225,11 +225,11 @@ public class ExecutionInterval extends ExecutionInterval_Base implements Compara
         return getAcademicCalendarEntry().getBegin().toYearMonthDay();
     }
 
+    @Deprecated
     public Date getEndDate() {
         return getAcademicCalendarEntry().getEnd().toDate();
     }
 
-    @Deprecated
     public LocalDate getEndLocalDate() {
         return getAcademicCalendarEntry().getEnd().toLocalDate();
     }
