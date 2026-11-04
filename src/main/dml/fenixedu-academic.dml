@@ -502,8 +502,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     }
 
     class ExecutionDegree  {
-        LocalizedString anotation;
-        Boolean temporaryExamMap;                           
         AcademicInterval executionInterval;
     }
 
