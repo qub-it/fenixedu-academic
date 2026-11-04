@@ -92,17 +92,6 @@ public class ExecutionYear extends ExecutionYear_Base {
         return getName();
     }
 
-    @Deprecated(forRemoval = true)
-    public void setYear(String year) {
-        if (year == null || StringUtils.isEmpty(year.trim())) {
-            throw new DomainException("error.ExecutionYear.empty.year");
-        }
-        if (Bennu.getInstance().getExecutionYearsSet().stream().filter(ey -> ey != this)
-                .anyMatch(ey -> year.equals(ey.getName()))) {
-            throw new DomainException("error.ExecutionYear.existing.year");
-        }
-    }
-
     @Override
     public String getQualifiedName() {
         return getName();
