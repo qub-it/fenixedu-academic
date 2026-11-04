@@ -1,3 +1,5 @@
+- Refactor: Remove ExecutionDegree deprecated fields [#qubIT-Fenix-8888]
+
 64.4.0 (11-11-2026)
 - Refactor: Deletes AcademicInterval class [#qubIT-Fenix-9217]
 - Refactor: Replaces AcademicInterval references [#qubIT-Fenix-9217]
