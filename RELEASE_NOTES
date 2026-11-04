@@ -1,4 +1,5 @@
 - Refactor: Makes DegreeCurricularPlan#createDegreeCurricularPlan public [#qubIT-Fenix-9573]
+- Bug Fix: Add ID as tiebreaker to ExternalEnrolment COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE [#UCP-FENIXEDU-1006]
 
 64.2.1 (30-10-2026)
 - Refactor: Remove FenixServiceException and IDocumentRequestBean classes [#qubIT-Fenix-9518]
