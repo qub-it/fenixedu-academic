@@ -122,6 +122,10 @@ public class Person extends Person_Base {
         return getProfile().getFamilyNames();
     }
 
+    /**
+     * @deprecated Use {@link #setIdentification()}
+     */
+    @Deprecated(forRemoval = true)
     public void setIdentificationDocument(final String documentNumber,
             final IdentificationDocumentType identificationDocumentType) {
         if (documentNumber == null || Strings.isNullOrEmpty(documentNumber)) {
@@ -140,20 +144,26 @@ public class Person extends Person_Base {
         }
     }
 
-    public void setIdentification(String documentIdNumber, final IdentificationDocumentType identificationDocumentType) {
-        if (StringUtils.isBlank(documentIdNumber)) {
+    public void setIdentification(final String documentNumber, final IdentificationDocumentType identificationDocumentType) {
+        if (StringUtils.isBlank(documentNumber)) {
             throw new DomainException("error.person.empty.documentIdNumber");
         } else if (identificationDocumentType == null) {
             throw new DomainException("error.person.empty.idDocumentType");
         }
 
-        String trimmedDocumentIdNumber = documentIdNumber.trim();
-        findByDocumentIdentification(trimmedDocumentIdNumber, identificationDocumentType).stream()
+        String trimmedDocumentNumber = documentNumber.trim();
+        findByDocumentIdentification(trimmedDocumentNumber, identificationDocumentType).stream()
                 .filter(person -> !person.equals(this)).findAny().ifPresent(p -> {
                     throw new DomainException("error.person.existent.docIdAndType");
                 });
 
-        setIdentificationDocument(trimmedDocumentIdNumber, identificationDocumentType);
+        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
+        if (identificationDocument == null) {
+            IdentificationDocument.create(this, trimmedDocumentNumber, identificationDocumentType);
+        } else {
+            identificationDocument.setIdentificationDocumentType(identificationDocumentType);
+            identificationDocument.setValue(trimmedDocumentNumber);
+        }
     }
 
     public void setGivenNames(final String newGivenNames) {
