@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain.curriculum.grade;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -9,8 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
@@ -230,22 +229,6 @@ public class GradeScale extends GradeScale_Base {
         return getGradeScaleEntriesSet().stream().sorted(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
     }
 
-    @Deprecated(forRemoval = true)
-    public List<GradeScaleEntry> getOrderedGradeScaleEntriesList() {
-        final List<GradeScaleEntry> gradeEntriesList = new ArrayList<>(getGradeScaleEntriesSet());
-        gradeEntriesList.sort(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
-
-        return gradeEntriesList;
-    }
-
-    @Deprecated(forRemoval = true)
-    public Set<GradeScaleEntry> getOrderedGradeScaleEntriesSet() {
-        final Set<GradeScaleEntry> result = new TreeSet<>(GradeScaleEntry.COMPARE_BY_GRADE_ORDER);
-        result.addAll(getGradeScaleEntriesSet());
-
-        return result;
-    }
-
     public void delete() {
         setDomainRoot(null);
 
@@ -256,42 +239,6 @@ public class GradeScale extends GradeScale_Base {
         invalidateCache();
 
         super.deleteDomainObject();
-    }
-
-    /**
-     * @deprecated Use {@link #moveDown()}
-     */
-    @Deprecated(forRemoval = true)
-    public void orderNextGradeScaleEntry(final GradeScaleEntry entry) {
-        if (entry.isLast()) {
-            return;
-        }
-
-        final List<GradeScaleEntry> orderedEntries = getOrderedGradeScaleEntriesList();
-        int indexOf = orderedEntries.indexOf(entry);
-        GradeScaleEntry nextEntry = orderedEntries.get(indexOf + 1);
-
-        int tempOrder = nextEntry.getGradeOrder();
-        nextEntry.setGradeOrder(entry.getGradeOrder());
-        entry.setGradeOrder(tempOrder);
-    }
-
-    /**
-     * @deprecated Use {@link #moveUp()}
-     */
-    @Deprecated(forRemoval = true)
-    public void orderPreviousGradeScaleEntry(final GradeScaleEntry entry) {
-        if (entry.isFirst()) {
-            return;
-        }
-
-        final List<GradeScaleEntry> orderedEntries = getOrderedGradeScaleEntriesList();
-        int indexOf = orderedEntries.indexOf(entry);
-        GradeScaleEntry previousEntry = orderedEntries.get(indexOf - 1);
-
-        int tempOrder = previousEntry.getGradeOrder();
-        previousEntry.setGradeOrder(entry.getGradeOrder());
-        entry.setGradeOrder(tempOrder);
     }
 
     public void moveUp(GradeScaleEntry entry) {
@@ -309,7 +256,7 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private void swapGradeOrderWithNeighbour(GradeScaleEntry entry, int offset) {
-        List<GradeScaleEntry> orderedEntries = getOrderedGradeScaleEntriesList();
+        List<GradeScaleEntry> orderedEntries = getOrderedGradeScaleEntriesStream().toList();
         int index = orderedEntries.indexOf(entry);
         GradeScaleEntry neighbour = orderedEntries.get(index + offset);
 
@@ -332,18 +279,6 @@ public class GradeScale extends GradeScale_Base {
 
     public boolean hasContinuousGrades() {
         return hasContinuousApprovedGrades() || hasContinuousReprovedGrades();
-    }
-
-    /**
-     * @deprecated Use {@link #hasContinuousGrades()} instead. Beware that the replacement has the opposite meaning:
-     *             this method returns {@code true} when this grade scale has no intervals defined, while
-     *             {@code hasContinuousGrades()} returns {@code true} when at least one interval is defined.
-     *             Also, this method only checks the minimum interval bound while hasContinuousGrades checks minimum and maximum bounds are both defined
-     *             but {@link ##checksRules()} ensures there can't be half intervals defined. So the method equivalence holds because of that
-     */
-    @Deprecated(forRemoval = true)
-    public boolean hasRestrictedGrades() {
-        return !(getMinimumApprovedGrade() != null || getMinimumReprovedGrade() != null);
     }
 
     public void invalidateCache() {
@@ -375,13 +310,8 @@ public class GradeScale extends GradeScale_Base {
     }
 
     private void reorderGrades() {
-        final List<GradeScaleEntry> gradeEntriesList = getOrderedGradeScaleEntriesList();
-
-        int order = 1;
-        for (GradeScaleEntry gradeScaleEntry : gradeEntriesList) {
-            gradeScaleEntry.setGradeOrder(order);
-            order++;
-        }
+        AtomicInteger order = new AtomicInteger(1);
+        getOrderedGradeScaleEntriesStream().forEach(entry -> entry.setGradeOrder(order.getAndIncrement()));
     }
 
     private static boolean isWithinInterval(final BigDecimal value, final BigDecimal minimum, final BigDecimal maximum) {
