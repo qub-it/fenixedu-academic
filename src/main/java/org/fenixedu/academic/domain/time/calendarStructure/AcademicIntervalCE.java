@@ -95,8 +95,7 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
         }
 
         boolean isAlreadyUsed = getParentEntry().getChildEntriesSet().stream().filter(entry -> entry != this)
-                .filter(entry -> getAcademicPeriod().equals(entry.getAcademicPeriod()))
-                .anyMatch(entry -> Objects.equals(academicPeriodOrder, entry.getAcademicPeriodOrder()));
+                .anyMatch(entry -> academicPeriodOrder == entry.getAcademicPeriodOrder());
 
         if (isAlreadyUsed) {
             throw new DomainException("error.AcademicIntervalCE.academicPeriodOrder.duplicated");
