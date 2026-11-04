@@ -3,6 +3,7 @@ package org.fenixedu.academic.domain.time.calendarStructure;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +77,7 @@ public class AcademicPeriodTest {
     public void testAcademicPeriod_getPossibleChilds() {
         // multi-year periods have no other children than themselves
         assertTrue(AcademicPeriod.TWO_YEAR.getPossibleChilds().contains(AcademicPeriod.YEAR));
-        assertTrue(!AcademicPeriod.TWO_YEAR.getPossibleChilds().contains(AcademicPeriod.SEMESTER));
+        assertFalse(AcademicPeriod.TWO_YEAR.getPossibleChilds().contains(AcademicPeriod.SEMESTER));
 
         // a single academic year expands to all smaller periods
         assertEquals(6, AcademicPeriod.YEAR.getPossibleChilds().size());
