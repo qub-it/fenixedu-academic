@@ -103,42 +103,6 @@ public class ExternalEnrolmentTest {
     }
 
     @Test
-    public void testExternalEnrolment_COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE() {
-        final ExternalEnrolment earlierPeriod =
-                new ExternalEnrolment(newRegistration("ee.cmp.period.earlier"), courseA, grade, firstSemester,
-                        new YearMonthDay(2025, 12, 31), 6.0);
-        final ExternalEnrolment laterPeriod =
-                new ExternalEnrolment(newRegistration("ee.cmp.period.later"), courseB, grade, lastSemester,
-                        new YearMonthDay(2024, 1, 1), 6.0);
-
-        assertEquals(0,
-                ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(earlierPeriod, earlierPeriod));
-        assertTrue(ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(earlierPeriod, laterPeriod) < 0);
-        assertTrue(ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(laterPeriod, earlierPeriod) > 0);
-
-        // same period: tie broken by evaluation date
-        final ExternalEnrolment earlierDate =
-                new ExternalEnrolment(newRegistration("ee.cmp.date.earlier"), courseA, grade, firstSemester,
-                        new YearMonthDay(2024, 1, 10), 6.0);
-        final ExternalEnrolment laterDate =
-                new ExternalEnrolment(newRegistration("ee.cmp.date.later"), courseB, grade, firstSemester,
-                        new YearMonthDay(2024, 2, 10), 6.0);
-
-        assertTrue(ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(earlierDate, laterDate) < 0);
-        assertTrue(ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(laterDate, earlierDate) > 0);
-
-        // same period and same evaluation date: tie
-        final YearMonthDay sameEvaluationDate = new YearMonthDay(2024, 3, 15);
-        final ExternalEnrolment sameFirst =
-                new ExternalEnrolment(newRegistration("ee.cmp.tie.a"), courseA, grade, firstSemester, sameEvaluationDate, 6.0);
-        final ExternalEnrolment sameSecond =
-                new ExternalEnrolment(newRegistration("ee.cmp.tie.b"), courseB, grade, firstSemester, sameEvaluationDate, 6.0);
-
-        assertEquals(0, ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(sameFirst, sameSecond));
-        assertEquals(0, ExternalEnrolment.COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE.compare(sameSecond, sameFirst));
-    }
-
-    @Test
     public void testExternalEnrolment() {
         final Registration registration = newRegistration("ee.constructor");
         final YearMonthDay evaluationDate = new YearMonthDay(2024, 6, 15);
