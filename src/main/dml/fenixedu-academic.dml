@@ -670,21 +670,6 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		LocalizedString description (REQUIRED);
 		
 		boolean requiresUnfinishedSourceDegreeInformation;
-		
-		// These predicates correspond to some of the old enumeration values used in the business code
-		// The code must assure that only one IngressionType instance has one of these fields as true
-		protected boolean isExternalDegreeChange;
-		protected boolean isInternalDegreeChange;
-		protected boolean isTransfer;
-		protected boolean isMiddleAndSuperiorCourses;
-		protected boolean isOver23;
-		protected boolean isInternal2ndCycleAccess;
-		protected boolean isIsolatedCurricularUnits;
-		protected boolean isInternal3rdCycleAccess;
-		protected boolean isDirectAccessFrom1stCycle;
-		protected boolean isHandicappedContingent;
-		protected boolean isFirstCycleAttribution;
-		protected boolean isReIngression;
 	}
 	
     class contacts.ContactRoot {
