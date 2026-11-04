@@ -1,3 +1,4 @@
+- Refactor: Add EvaluationSeason information fields [#qubIT-Fenix-5018]
 - Refactor: Deprecate Person#setIdentificationDocument method [#qubIT-Fenix-9126]
 - Refactor: Makes DegreeCurricularPlan#createDegreeCurricularPlan public [#qubIT-Fenix-9573]
 

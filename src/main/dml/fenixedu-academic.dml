@@ -442,6 +442,14 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 	    boolean improvement;
 	    boolean special;
 	    boolean specialAuthorization;
+        boolean active;
+        boolean requiresEnrolmentEvaluation;
+        boolean supportsEmptyGrades;
+        boolean supportsTeacherConfirmation;
+        boolean allowsMarksheets;
+        Integer seasonOrder;
+        Integer minPastYearsToAcceptImprovementEnrolments;
+        Integer maxPastYearsToAcceptImprovementEnrolments;
 	}
 	
 	class EnrolmentEvaluation  {
