@@ -1,3 +1,4 @@
+- Refactor: Adds curricular year field to RegistrationDataByExecutionYear [#qubIT-Fenix-9854]
 - Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 - Refactor: Makes DegreeCurricularPlan#createDegreeCurricularPlan public [#qubIT-Fenix-9573]
 
