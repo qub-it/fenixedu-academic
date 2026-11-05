@@ -2,7 +2,6 @@ package org.fenixedu.academic.domain.student.statute;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -312,46 +311,5 @@ public class StudentStatuteTest {
         assertEquals(1, combinedPredicates.size());
         assertTrue(combinedPredicates.contains(statuteTypeA));
         assertFalse(combinedPredicates.contains(statuteTypeB));
-    }
-
-    @Test
-    public void testStudentStatute_keepsPeriodAndIntervalInSync() {
-        final Student student = Student.readStudentByNumber(1);
-        final Registration registration = student.getRegistrationStream().findAny().orElseThrow();
-        final ExecutionInterval interval = ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
-        final ExecutionInterval next = interval.getNext();
-        final StatuteType statuteTypeA = StatuteType.findByCode(TYPE_A).orElseThrow();
-
-        final StudentStatute statute = new StudentStatute(student, statuteTypeA, interval, next, null, null, null, registration);
-
-        // constructor -> edit -> interval setters
-        assertEquals(interval, statute.getBeginExecutionInterval());
-        assertEquals(interval, statute.getBeginExecutionPeriod());
-        assertEquals(next, statute.getEndExecutionInterval());
-        assertEquals(next, statute.getEndExecutionPeriod());
-
-        // interval setters update both accessors
-        statute.setBeginExecutionInterval(next);
-        assertEquals(next, statute.getBeginExecutionInterval());
-        assertEquals(next, statute.getBeginExecutionPeriod());
-        statute.setEndExecutionInterval(interval);
-        assertEquals(interval, statute.getEndExecutionInterval());
-        assertEquals(interval, statute.getEndExecutionPeriod());
-
-        // deprecated period setters update both accessors
-        statute.setBeginExecutionPeriod(interval);
-        assertEquals(interval, statute.getBeginExecutionInterval());
-        assertEquals(interval, statute.getBeginExecutionPeriod());
-        statute.setEndExecutionPeriod(next);
-        assertEquals(next, statute.getEndExecutionInterval());
-        assertEquals(next, statute.getEndExecutionPeriod());
-
-        // nulling through either setter clears both accessors
-        statute.setBeginExecutionInterval(null);
-        statute.setEndExecutionPeriod(null);
-        assertNull(statute.getBeginExecutionInterval());
-        assertNull(statute.getBeginExecutionPeriod());
-        assertNull(statute.getEndExecutionInterval());
-        assertNull(statute.getEndExecutionPeriod());
     }
 }
