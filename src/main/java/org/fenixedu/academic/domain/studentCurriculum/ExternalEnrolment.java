@@ -45,10 +45,6 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     public static final Comparator<ExternalEnrolment> COMPARATOR_BY_NAME =
             Comparator.comparing(ExternalEnrolment::getName).thenComparing(ExternalEnrolment::getExternalId);
 
-    public static final Comparator<ExternalEnrolment> COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE =
-            ((Comparator<ExternalEnrolment>) COMPARATOR_BY_EXECUTION_PERIOD::compare).thenComparing(
-                    COMPARATOR_BY_APPROVEMENT_DATE);
-
     protected ExternalEnrolment() {
         super();
         setRootDomainObject(Bennu.getInstance());
