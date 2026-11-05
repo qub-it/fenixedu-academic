@@ -1332,6 +1332,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
 		boolean active;
 		LocalDate reingressionDate;
         protected LocalDate enrolmentDate;
+        Integer curricularYear;
     }
 
     class student.RegistrationNumber  {
