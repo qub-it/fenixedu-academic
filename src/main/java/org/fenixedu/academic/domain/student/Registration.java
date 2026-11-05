@@ -778,7 +778,12 @@ public class Registration extends Registration_Base {
         }
     }
 
+    @Deprecated(forRemoval = true)
     public Optional<RegistrationDataByExecutionYear> getDataByExecutionYear(final ExecutionYear year) {
+        return getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getExecutionYear() == year).findAny();
+    }
+
+    public Optional<RegistrationDataByExecutionYear> findDataByExecutionYear(ExecutionYear year) {
         return getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getExecutionYear() == year).findAny();
     }
 
