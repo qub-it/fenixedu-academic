@@ -156,11 +156,6 @@ public class InternalSubstitution extends InternalSubstitution_Base {
     }
 
     @Override
-    public boolean isInternalSubstitution() {
-        return true;
-    }
-
-    @Override
     public String getDescription() {
         return BundleUtil.getString("resources.StudentResources", "label.dismissal.InternalSubstitution");
     }
