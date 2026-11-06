@@ -1,3 +1,4 @@
+64.3.0 (06-11-2026)
 - Refactor: Clean up StudentStatute old period relation [#qubIT-Fenix-9536]
 - Refactor: Add EnrolmentServices method to domain [#qubIT-Fenix-9581]
 - Refactor: Remove ExternalEnrolment COMPARATOR_BY_EXECUTION_PERIOD_AND_EVALUATION_DATE [#UCP-FENIXEDU-1006]
