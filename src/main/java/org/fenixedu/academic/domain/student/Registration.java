@@ -789,7 +789,7 @@ public class Registration extends Registration_Base {
     }
 
     public Stream<ExecutionYear> findActiveRegistrationExecutionYearsIncludingPrecedentRegistrations() {
-        return Stream.concat(Stream.of(this), findPrecedentDegreeRegistrations())
+        return Stream.concat(Stream.of(this), findNonConcludedPrecedentDegreeRegistrations())
                 .flatMap(Registration::findActiveRegistrationExecutionYears).distinct();
     }
 
@@ -799,7 +799,7 @@ public class Registration extends Registration_Base {
                 ey -> untilExecutionYear == null || ey.isBeforeOrEquals(untilExecutionYear));
     }
 
-    public Stream<Registration> findPrecedentDegreeRegistrations() {
+    public Stream<Registration> findNonConcludedPrecedentDegreeRegistrations() {
         Set<Degree> precedentDegreesUntilRoot = getPrecedentDegreesUntilRoot(getDegree());
         return getStudent().getRegistrationsSet().stream().filter(r -> this != r && !r.isConcluded() && !r.hasConcluded())
                 .filter(r -> precedentDegreesUntilRoot.contains(r.getDegree()));
