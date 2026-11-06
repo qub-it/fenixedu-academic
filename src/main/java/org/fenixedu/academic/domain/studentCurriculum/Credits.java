@@ -229,10 +229,6 @@ public class Credits extends Credits_Base {
         return false;
     }
 
-    public boolean isInternalSubstitution() {
-        return false;
-    }
-
     public boolean isEquivalence() {
         return false;
     }

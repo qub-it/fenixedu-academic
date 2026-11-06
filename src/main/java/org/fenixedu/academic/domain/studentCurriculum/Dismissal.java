@@ -356,19 +356,12 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     @Override
     final public Curriculum getCurriculum(final DateTime when, final ExecutionYear year) {
-
         if (wasCreated(when) && isValid(year)) {
             return getCredits().getCurriculum(this, when, year);
-
-        } else if (getCredits().isInternalSubstitution()) {
-            // Evaluate each origin creation date and add them to averageEnrolmentRelatedEntries 
-            return getCredits().getCurriculum(this, when, year);
-
-        } else {
-            return Curriculum.createEmpty(this, year);
         }
+        return Curriculum.createEmpty(this, year);
     }
-
+    
     @Override
     public Grade getGrade() {
         return getCredits().isEquivalence() ? getCredits().getGrade() : Grade.createEmptyGrade();
