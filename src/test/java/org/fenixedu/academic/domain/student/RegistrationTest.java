@@ -752,7 +752,7 @@ public class RegistrationTest {
     }
 
     @Test
-    public void testRegistration_findPrecedentDegreeRegistrations() {
+    public void testRegistration_findNonConcludedPrecedentDegreeRegistrations() {
         Student student = createFreshStudent();
 
         DegreeCurricularPlan currentDcp = createDegreeCurricularPlanWithCourseIn(nextYearFirstSemester);
@@ -762,27 +762,27 @@ public class RegistrationTest {
         Registration precedentRegistration = createRegistration(student, precedentDcp, executionYear);
 
         // there is no precedent degree yet -> no precedent degree registrations
-        assertTrue(currentRegistration.findPrecedentDegreeRegistrations().findAny().isEmpty());
+        assertTrue(currentRegistration.findNonConcludedPrecedentDegreeRegistrations().findAny().isEmpty());
 
         // add precedentDegree as a precedent of currentDegree
         currentDcp.getDegree().addPrecedentDegrees(precedentDcp.getDegree());
 
         assertEquals(Set.of(precedentRegistration),
-                currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()));
+                currentRegistration.findNonConcludedPrecedentDegreeRegistrations().collect(Collectors.toSet()));
 
         // registrations of other students in the precedent degree are not precedent degree registrations
         Student otherStudent = createFreshStudent();
         createRegistration(otherStudent, precedentDcp, executionYear);
 
         assertEquals(Set.of(precedentRegistration),
-                currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()));
+                currentRegistration.findNonConcludedPrecedentDegreeRegistrations().collect(Collectors.toSet()));
 
         // concluded registrations are not precedent degree registrations
         RegistrationState.createRegistrationState(precedentRegistration, null, DateTime.now().plusDays(1),
                 RegistrationStateType.findByCode(RegistrationStateType.CONCLUDED_CODE).orElseThrow(),
                 precedentRegistration.getRegistrationYear().getFirstExecutionPeriod());
 
-        assertTrue(currentRegistration.findPrecedentDegreeRegistrations().collect(Collectors.toSet()).isEmpty());
+        assertTrue(currentRegistration.findNonConcludedPrecedentDegreeRegistrations().collect(Collectors.toSet()).isEmpty());
     }
 
     @Test
