@@ -62,7 +62,6 @@ import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.ExtraCurriculumGroup;
-import org.fenixedu.academic.domain.studentCurriculum.InternalSubstitution;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroupType;
 import org.fenixedu.academic.domain.studentCurriculum.OptionalDismissal;
@@ -740,13 +739,6 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
             Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
             ExecutionInterval executionInterval) {
         return CreditsManager.createSubstitution(this, courseGroup, curriculumGroup, dismissals, enrolments, givenCredits,
-                executionInterval);
-    }
-
-    public InternalSubstitution createNewInternalSubstitution(CourseGroup courseGroup, CurriculumGroup curriculumGroup,
-            Collection<SelectedCurricularCourse> dismissals, Collection<IEnrolment> enrolments, Double givenCredits,
-            ExecutionInterval executionInterval) {
-        return CreditsManager.createInternalSubstitution(this, courseGroup, curriculumGroup, dismissals, enrolments, givenCredits,
                 executionInterval);
     }
 
