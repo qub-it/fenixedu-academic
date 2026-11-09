@@ -22,19 +22,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.time.chronologies.AcademicChronology;
 import org.fenixedu.academic.dto.GenericPair;
-import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.academic.util.LocaleUtils;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 
@@ -164,88 +159,47 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
     private void refreshParentTimeInterval() {
         AcademicCalendarEntry parentEntry = getParentEntry();
 
-        if (!parentEntry.isRoot()) {
+        if (parentEntry.isRoot()) {
+            return;
+        }
 
-            GenericPair<DateTime, DateTime> childMaxAndMinDateTimes = parentEntry.getChildMaxAndMinDateTimes();
+        GenericPair<DateTime, DateTime> childMaxAndMinDateTimes = parentEntry.getChildMaxAndMinDateTimes();
+        if (childMaxAndMinDateTimes == null) {
+            return;
+        }
 
-            if (childMaxAndMinDateTimes != null) {
+        DateTime begin = childMaxAndMinDateTimes.getLeft();
+        DateTime end = childMaxAndMinDateTimes.getRight();
+        boolean changeBeginDate = !parentEntry.getBegin().isBefore(begin);
+        boolean changeEndDate = !parentEntry.getEnd().isAfter(end);
 
-                DateTime begin = childMaxAndMinDateTimes.getLeft();
-                DateTime end = childMaxAndMinDateTimes.getRight();
-
-                boolean changeBeginDate = !parentEntry.getBegin().isBefore(begin);
-                boolean changeEndDate = !parentEntry.getEnd().isAfter(end);
-
-                if (!parentEntry.isRoot()) {
-
-                    if (changeBeginDate || changeEndDate) {
-
-                        DateTime beginDate = changeBeginDate ? begin : parentEntry.getBegin();
-                        DateTime endDate = changeEndDate ? end : parentEntry.getEnd();
-
-                        parentEntry.setTimeInterval(beginDate, endDate);
-                    }
-
-                } else if (changeBeginDate || changeEndDate) {
-                    throw new DomainException("error.AcademicCalendarEntry.impossible.refresh.time.interval",
-                            getClass().getName());
-                }
-            }
+        if (changeBeginDate || changeEndDate) {
+            DateTime beginDate = changeBeginDate ? begin : parentEntry.getBegin();
+            DateTime endDate = changeEndDate ? end : parentEntry.getEnd();
+            parentEntry.setTimeInterval(beginDate, endDate);
         }
     }
 
     private GenericPair<DateTime, DateTime> getChildMaxAndMinDateTimes() {
         Set<AcademicCalendarEntry> childEntries = getChildEntriesSet();
 
-        if (!childEntries.isEmpty()) {
-            DateTime begin = null;
-            DateTime end = null;
-
-            for (AcademicCalendarEntry entry : childEntries) {
-                if (begin == null || entry.getBegin().isBefore(begin)) {
-                    begin = entry.getBegin();
-                }
-                if (end == null || entry.getEnd().isAfter(end)) {
-                    end = entry.getEnd();
-                }
-            }
-
-            return new GenericPair<DateTime, DateTime>(begin, end);
-        } else {
+        if (childEntries.isEmpty()) {
             return null;
         }
-    }
 
-    public List<AcademicCalendarEntry> getFullPath() {
-        List<AcademicCalendarEntry> result = new ArrayList<>();
-        result.add(this);
-        AcademicCalendarEntry parentEntry = getParentEntry();
-        while (parentEntry != null) {
-            result.add(0, parentEntry);
-            parentEntry = parentEntry.getParentEntry();
+        DateTime begin = null;
+        DateTime end = null;
+
+        for (AcademicCalendarEntry entry : childEntries) {
+            if (begin == null || entry.getBegin().isBefore(begin)) {
+                begin = entry.getBegin();
+            }
+            if (end == null || entry.getEnd().isAfter(end)) {
+                end = entry.getEnd();
+            }
         }
-        return result;
-    }
 
-    public String getPresentationTimeInterval() {
-        if (!isRoot()) {
-            return getBegin().toString("dd-MM-yyyy HH:mm") + " - " + getEnd().toString("dd-MM-yyyy HH:mm");
-        } else {
-            DateTime begin = getBegin();
-            return begin != null ? begin.toString("dd-MM-yyyy HH:mm") + " - " + "**-**-**** **:**" : "";
-        }
-    }
-
-    public LocalizedString getType() {
-        LocalizedString type = new LocalizedString();
-        String key = "label." + getClass().getSimpleName() + ".type";
-        type = type.with(LocaleUtils.PT,
-                BundleUtil.getString(Bundle.MANAGER, new Locale("pt", "PT"), key));
-        return type;
-    }
-
-    public String getPresentationName() {
-        return getTitle().getContent() + " - " + "[" + getType().getContent() + "]";
+        return new GenericPair<>(begin, end);
     }
 
     public AcademicCalendarRootEntry getAcademicCalendar() {
@@ -259,10 +213,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         return getParentEntry().getRootEntry();
     }
 
-    public AcademicChronology getAcademicChronology() {
-        return getRootEntry().getAcademicChronology();
-    }
-
     protected List<AcademicCalendarEntry> getChildEntries(final AcademicPeriod subEntryAcademicPeriod) {
         return getChildEntriesSet().stream().filter(e -> e.getAcademicPeriod().equals(subEntryAcademicPeriod))
                 .collect(Collectors.toList());
@@ -273,7 +223,7 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
             return Collections.emptyList();
         }
 
-        List<AcademicCalendarEntry> allChildEntries = new ArrayList<AcademicCalendarEntry>();
+        List<AcademicCalendarEntry> allChildEntries = new ArrayList<>();
         for (AcademicCalendarEntry child : getChildEntriesSet()) {
             if (subEntryAcademicPeriod.equals(child.getAcademicPeriod())) {
                 allChildEntries.add(child);
@@ -285,10 +235,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
 
     public boolean belongsToPeriod(DateTime begin, DateTime end) {
         return !getBegin().isAfter(end) && !getEnd().isBefore(begin);
-    }
-
-    public boolean containsInstant(long instant) {
-        return getBegin().getMillis() <= instant && getEnd().getMillis() >= instant;
     }
 
     public boolean isOfType(AcademicPeriod period) {
@@ -303,10 +249,6 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
         return false;
     }
 
-    public boolean isEqualOrEquivalent(AcademicCalendarEntry entry) {
-        return this.equals(entry);
-    }
-
     public abstract AcademicCalendarEntry getNextAcademicCalendarEntry();
 
     public abstract AcademicCalendarEntry getPreviousAcademicCalendarEntry();
@@ -318,7 +260,7 @@ public abstract class AcademicCalendarEntry extends AcademicCalendarEntry_Base {
 
     protected int calculateDateBasedCardinality(AcademicPeriod academicPeriod) {
         return getParentEntry().getChildEntriesSet().stream().filter(e -> academicPeriod.equals(e.getAcademicPeriod()))
-                .sorted(COMPARATOR_BY_BEGIN_DATE).collect(Collectors.toList()).indexOf(this) + 1;
+                .sorted(COMPARATOR_BY_BEGIN_DATE).toList().indexOf(this) + 1;
     }
 
     public static AcademicCalendarEntry findDefaultCalendar() {
