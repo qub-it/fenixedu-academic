@@ -1,3 +1,4 @@
+- Refactor: Add domain methods to EvaluationSeason entity [#qubIT-Fenix-5018]
 - Refactor: Add EvaluationSeason information fields [#qubIT-Fenix-5018]
 - Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 
