@@ -33,6 +33,7 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         setEvaluationConfiguration(EvaluationConfiguration.getInstance());
     }
 
+    @Deprecated(forRemoval = true)
     public EvaluationSeason(LocalizedString acronym, LocalizedString name, boolean normal, boolean improvement,
             boolean specialAuthorization, boolean special) {
         this();
@@ -44,6 +45,33 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         setSpecial(special);
     }
 
+    public static EvaluationSeason create(final String code, final LocalizedString acronym, final LocalizedString name,
+            final boolean normal, final boolean improvement, final boolean specialAuthorization, final boolean special,
+            final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
+        EvaluationSeason evaluationSeason = new EvaluationSeason();
+        evaluationSeason.edit(code, acronym, name, normal, improvement, specialAuthorization, special, getNextSeasonOrder(),
+                active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation, allowsMarksheets);
+        return evaluationSeason;
+    }
+
+    public void edit(final String code, final LocalizedString acronym, final LocalizedString name, final boolean normal,
+            final boolean improvement, final boolean specialAuthorization, final boolean special, final Integer seasonOrder,
+            final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
+            final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
+        setAcronym(acronym);
+        setName(name);
+        setNormal(normal);
+        setImprovement(improvement);
+        setSpecialAuthorization(specialAuthorization);
+        setSpecial(special);
+        setCode(code);
+        setProperties(seasonOrder, active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation,
+                allowsMarksheets);
+
+        checkRules();
+    }
+
     public void setProperties(final Integer seasonOrder, final boolean active, final boolean requiresEnrolmentEvaluation,
             final boolean supportsEmptyGrades, final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
         setSeasonOrder(seasonOrder);
@@ -52,10 +80,35 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         setSupportsEmptyGrades(supportsEmptyGrades);
         setSupportsTeacherConfirmation(supportsTeacherConfirmation);
         setAllowsMarksheets(allowsMarksheets);
+    }
 
+    private void checkRules() {
         if (getSeasonOrder() == null) {
             throw new DomainException("error.EvaluationSeason.order.required");
         }
+
+        if (StringUtils.isBlank(getCode())) {
+            throw new DomainException("error.EvaluationSeason.code.required");
+        }
+
+        if (getAcronym() == null || getAcronym().isEmpty()) {
+            throw new DomainException("error.EvaluationSeason.acronym.required");
+        }
+
+        if (getName() == null || getName().isEmpty()) {
+            throw new DomainException("error.EvaluationSeason.name.required");
+        }
+
+        if (!hasValidType()) {
+            throw new DomainException("error.EvaluationSeason.type.not.unique");
+        }
+    }
+
+    private boolean hasValidType() {
+        if (isSpecialAuthorization()) {
+            return true;
+        }
+        return Stream.of(isNormal(), isImprovement(), isSpecial()).filter(Boolean::booleanValue).count() == 1;
     }
 
     public boolean isNormal() {
@@ -105,6 +158,21 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         super.setCode(code);
     }
 
+    @Override
+    public void setName(final LocalizedString name) {
+        if (name != null && !name.isEmpty()) {
+            if (all().anyMatch(es -> es != this && name.equals(es.getName()))) {
+                throw new DomainException("error.EvaluationSeason.duplicated.name");
+            }
+        }
+
+        super.setName(name);
+    }
+
+    public static Integer getNextSeasonOrder() {
+        return all().map(EvaluationSeason::getSeasonOrder).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1;
+    }
+
     public static Stream<EvaluationSeason> readNormalSeasons() {
         return all().filter(EvaluationSeason::isNormal);
     }
@@ -126,7 +194,11 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
     }
 
     public static Optional<EvaluationSeason> findByCode(final String code) {
-        return all().filter(s -> Objects.equals(s.getCode(), code)).findFirst();
+        return all().filter(es -> Objects.equals(es.getCode(), code)).findFirst();
+    }
+
+    public static Stream<EvaluationSeason> findByActive(final boolean active) {
+        return all().filter(es -> active == es.getActive());
     }
 
     @Override
