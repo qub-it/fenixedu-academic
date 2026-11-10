@@ -1,3 +1,5 @@
+- Refactor: Move Substitution under Credits [#qubIT-Fenix-9840]
+
 64.6.0 (17-11-2026)
 - Refactor: Add EvaluationSeason information fields and domain methods [#qubIT-Fenix-5018]
 - Refactor: Remove InternalSubstitution entity [#qubIT-Fenix-9840]
