@@ -44,6 +44,20 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         setSpecial(special);
     }
 
+    public void setProperties(final Integer seasonOrder, final boolean active, final boolean requiresEnrolmentEvaluation,
+            final boolean supportsEmptyGrades, final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
+        setSeasonOrder(seasonOrder);
+        setActive(active);
+        setRequiresEnrolmentEvaluation(requiresEnrolmentEvaluation);
+        setSupportsEmptyGrades(supportsEmptyGrades);
+        setSupportsTeacherConfirmation(supportsTeacherConfirmation);
+        setAllowsMarksheets(allowsMarksheets);
+
+        if (getSeasonOrder() == null) {
+            throw new DomainException("error.EvaluationSeason.order.required");
+        }
+    }
+
     public boolean isNormal() {
         return getNormal();
     }
@@ -58,6 +72,26 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
 
     public boolean isSpecialAuthorization() {
         return getSpecialAuthorization();
+    }
+
+    public boolean isActive() {
+        return getActive();
+    }
+
+    public boolean isRequiresEnrolmentEvaluation() {
+        return getRequiresEnrolmentEvaluation();
+    }
+
+    public boolean isSupportsEmptyGrades() {
+        return getSupportsEmptyGrades();
+    }
+
+    public boolean isSupportsTeacherConfirmation() {
+        return getSupportsTeacherConfirmation();
+    }
+
+    public boolean isAllowsMarksheets() {
+        return getAllowsMarksheets();
     }
 
     @Override
