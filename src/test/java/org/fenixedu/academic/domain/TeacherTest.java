@@ -12,7 +12,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.util.UserUtil;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
@@ -239,11 +238,11 @@ public class TeacherTest {
 
         TeacherAuthorization auth = createAuthorization(testTeacher, firstSemester, category);
 
-        AcademicInterval firstSemesterInterval = firstSemester.getAcademicInterval();
-        assertEquals(auth, testTeacher.getLatestTeacherAuthorizationInInterval(firstSemesterInterval.toInterval()).orElse(null));
+        Interval firstSemesterInterval = firstSemester.toInterval();
+        assertEquals(auth, testTeacher.getLatestTeacherAuthorizationInInterval(firstSemesterInterval).orElse(null));
 
-        AcademicInterval nextYearInterval = nextYear.getFirstExecutionPeriod().getAcademicInterval();
-        assertTrue(testTeacher.getLatestTeacherAuthorizationInInterval(nextYearInterval.toInterval()).isEmpty());
+        assertTrue(
+                testTeacher.getLatestTeacherAuthorizationInInterval(nextYear.getFirstExecutionPeriod().toInterval()).isEmpty());
 
         Interval dateInsideFirstSemester = new Interval(firstSemesterInterval.getStart().getMillis(),
                 firstSemesterInterval.getStart().plusDays(1).getMillis());

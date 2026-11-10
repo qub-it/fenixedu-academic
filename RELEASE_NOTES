@@ -1,3 +1,4 @@
+- Refactor: Replaces AcademicInterval references [#qubIT-Fenix-9217]
 - Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
 
 64.3.0 (06-11-2026)

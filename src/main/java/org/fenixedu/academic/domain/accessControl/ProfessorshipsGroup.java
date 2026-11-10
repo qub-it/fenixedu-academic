@@ -19,6 +19,7 @@
 package org.fenixedu.academic.domain.accessControl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,7 +28,6 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Professorship;
-import org.fenixedu.academic.domain.time.calendarStructure.AcademicInterval;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.annotation.GroupArgument;
@@ -85,7 +85,7 @@ public class ProfessorshipsGroup extends FenixGroup {
     public Stream<User> getMembers(DateTime when) {
         Set<User> users = new HashSet<>();
         //TODO: select active 'when'
-        ExecutionInterval interval = ExecutionInterval.getExecutionInterval(AcademicInterval.readDefaultAcademicInterval(period));
+        ExecutionInterval interval = getCurrentExecutionInterval(period);
         if (interval instanceof ExecutionYear) {
             for (ExecutionInterval childInterval : ((ExecutionYear) interval).getExecutionPeriodsSet()) {
                 fillMembers(users, childInterval);
@@ -123,21 +123,15 @@ public class ProfessorshipsGroup extends FenixGroup {
             return false;
         }
         //TODO: select active 'when'
-        AcademicInterval interval = AcademicInterval.readDefaultAcademicInterval(period);
-        ExecutionInterval executionInterval = ExecutionInterval.getExecutionInterval(interval);
-        if (externalAuthorizations) {
-            if (user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
-                return true;
-            }
-        } else {
-            for (final Professorship professorship : user.getPerson().getProfessorshipsSet()) {
-                final ExecutionCourse executionCourse = professorship.getExecutionCourse();
-                if (interval.contains(executionCourse.getAcademicInterval())) {
-                    return true;
-                }
-            }
+        ExecutionInterval executionInterval = getCurrentExecutionInterval(period);
+        if (externalAuthorizations && user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
+            return true;
         }
-        return false;
+
+        List<Professorship> professorships = executionInterval instanceof ExecutionYear executionYear ? user.getPerson()
+                .getProfessorships(executionYear) : user.getPerson().getProfessorships(executionInterval);
+
+        return !professorships.isEmpty();
     }
 
     @Override
@@ -157,5 +151,15 @@ public class ProfessorshipsGroup extends FenixGroup {
     @Override
     public int hashCode() {
         return Objects.hashCode(externalAuthorizations, period);
+    }
+
+    private static ExecutionInterval getCurrentExecutionInterval(AcademicPeriod academicPeriod) {
+        if (academicPeriod.equals(AcademicPeriod.SEMESTER)) {
+            return ExecutionInterval.findCurrentChild(academicPeriod, null);
+        } else if (academicPeriod.equals(AcademicPeriod.YEAR)) {
+            return ExecutionYear.findCurrent(null);
+        }
+
+        throw new UnsupportedOperationException("Unknown AcademicPeriod " + academicPeriod);
     }
 }
