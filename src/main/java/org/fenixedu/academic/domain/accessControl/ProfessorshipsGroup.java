@@ -19,6 +19,7 @@
 package org.fenixedu.academic.domain.accessControl;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -123,13 +124,14 @@ public class ProfessorshipsGroup extends FenixGroup {
         }
         //TODO: select active 'when'
         ExecutionInterval executionInterval = getCurrentExecutionInterval(period);
-        if (externalAuthorizations) {
-            if (user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
-                return true;
-            }
+        if (externalAuthorizations && user.getPerson().getTeacher().getTeacherAuthorization(executionInterval).isPresent()) {
+            return true;
         }
 
-        return !user.getPerson().getProfessorships(executionInterval).isEmpty();
+        List<Professorship> professorships = executionInterval instanceof ExecutionYear executionYear ? user.getPerson()
+                .getProfessorships(executionYear) : user.getPerson().getProfessorships(executionInterval);
+
+        return !professorships.isEmpty();
     }
 
     @Override
