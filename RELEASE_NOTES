@@ -1,3 +1,5 @@
+- Refactor: Move Substitution under Credits [#qubIT-Fenix-9840]
+
 64.3.0 (06-11-2026)
 - Refactor: Clean up StudentStatute old period relation [#qubIT-Fenix-9536]
 - Refactor: Add EnrolmentServices method to domain [#qubIT-Fenix-9581]
