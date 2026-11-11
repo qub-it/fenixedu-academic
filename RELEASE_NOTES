@@ -1,3 +1,4 @@
+- Refactor: Remove Person#setIdentificationDocument method [#qubIT-Fenix-9126]
 - Refactor: Remove ExecutionDegree deprecated fields [#qubIT-Fenix-8888]
 
 64.4.0 (11-11-2026)

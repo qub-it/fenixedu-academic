@@ -122,28 +122,6 @@ public class Person extends Person_Base {
         return getProfile().getFamilyNames();
     }
 
-    /**
-     * @deprecated Use {@link #setIdentification()}
-     */
-    @Deprecated(forRemoval = true)
-    public void setIdentificationDocument(final String documentNumber,
-            final IdentificationDocumentType identificationDocumentType) {
-        if (documentNumber == null || Strings.isNullOrEmpty(documentNumber)) {
-            throw new DomainException("error.person.empty.documentIdNumber");
-        }
-        if (identificationDocumentType == null) {
-            throw new DomainException("error.person.empty.idDocumentType");
-        }
-
-        IdentificationDocument identificationDocument = getDefaultIdentificationDocument();
-        if (identificationDocument == null) {
-            IdentificationDocument.create(this, documentNumber, identificationDocumentType);
-        } else {
-            identificationDocument.setIdentificationDocumentType(identificationDocumentType);
-            identificationDocument.setValue(documentNumber);
-        }
-    }
-
     public void setIdentification(final String documentNumber, final IdentificationDocumentType identificationDocumentType) {
         if (StringUtils.isBlank(documentNumber)) {
             throw new DomainException("error.person.empty.documentIdNumber");
