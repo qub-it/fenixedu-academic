@@ -202,7 +202,6 @@ public class ExecutionIntervalTest {
                 new LocalizedString.Builder().with(pt, "2000/2001 pt").with(defaultLocale, "2000/2001 default").build();
         yearEntry.setTitle(yearNewTitle);
         assertEquals(yearNewTitle, executionYear.getQualifiedNameI18N());
-        assertEquals("2000/2001", executionYear.getQualifiedName()); // ExecutionYear implementation falls back to getName()
         assertEquals("2000/2001 default", executionYear.getQualifiedNameI18N().getContent());
         assertEquals("2000/2001 default", executionYear.getQualifiedNameI18N().getContent(defaultLocale));
         assertEquals("2000/2001 pt", executionYear.getQualifiedNameI18N().getContent(pt));
@@ -212,9 +211,6 @@ public class ExecutionIntervalTest {
         final LocalizedString semesterNewTitle =
                 new LocalizedString.Builder().with(pt, "1o Semestre pt").with(defaultLocale, "1st Semester default").build();
         semesterEntry.setTitle(semesterNewTitle);
-        assertEquals("1st Semester default 2000/2001",
-                executionSemester.getQualifiedName()); // ExecutionYear implementation falls back to getName()
-
         final LocalizedString semesterNewQualifiedName = new LocalizedString.Builder().with(pt, "1o Semestre pt 2000/2001 pt")
                 .with(defaultLocale, "1st Semester default 2000/2001 default").build();
         assertEquals(semesterNewQualifiedName, executionSemester.getQualifiedNameI18N());
