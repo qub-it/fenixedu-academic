@@ -1,3 +1,4 @@
+64.4.0 (11-11-2026)
 - Refactor: Deletes AcademicInterval class [#qubIT-Fenix-9217]
 - Refactor: Replaces AcademicInterval references [#qubIT-Fenix-9217]
 - Refactor: Moves RegistrationServices methods to Registration domain entity [#qubIT-Fenix-9573]
