@@ -150,10 +150,11 @@ public class StudentStatute extends StudentStatute_Base {
         if (statute == this) {
             return false;
         }
-        ExecutionInterval statuteBegin = statute.getBeginExecutionInterval() != null ? statute
-                .getBeginExecutionInterval() : ExecutionInterval.findFirstChild();
+        ExecutionInterval statuteBegin = statute.getBeginExecutionInterval()
+                != null ? statute.getBeginExecutionInterval() : ExecutionInterval.findFirstChild(null).orElseThrow();
         ExecutionInterval statuteEnd =
-                statute.getEndExecutionInterval() != null ? statute.getEndExecutionInterval() : ExecutionInterval.findLastChild();
+                statute.getEndExecutionInterval() != null ? statute.getEndExecutionInterval() : ExecutionInterval.findLastChild(
+                        null).orElseThrow();
 
         return overlapsWith(statute.getType(), statuteBegin, statuteEnd, statute.getRegistration());
 
