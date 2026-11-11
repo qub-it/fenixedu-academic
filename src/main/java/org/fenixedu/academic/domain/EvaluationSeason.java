@@ -46,25 +46,25 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
     }
 
     public static EvaluationSeason create(final String code, final LocalizedString acronym, final LocalizedString name,
-            final boolean normal, final boolean improvement, final boolean specialAuthorization, final boolean special,
+            final boolean normal, final boolean improvement, final boolean special, final boolean specialAuthorization,
             final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
             final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
         EvaluationSeason evaluationSeason = new EvaluationSeason();
-        evaluationSeason.edit(code, acronym, name, normal, improvement, specialAuthorization, special, getNextSeasonOrder(),
+        evaluationSeason.edit(code, acronym, name, normal, improvement, special, specialAuthorization, getNextSeasonOrder(),
                 active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation, allowsMarksheets);
         return evaluationSeason;
     }
 
     public void edit(final String code, final LocalizedString acronym, final LocalizedString name, final boolean normal,
-            final boolean improvement, final boolean specialAuthorization, final boolean special, final Integer seasonOrder,
+            final boolean improvement, final boolean special, final boolean specialAuthorization, final Integer seasonOrder,
             final boolean active, final boolean requiresEnrolmentEvaluation, final boolean supportsEmptyGrades,
             final boolean supportsTeacherConfirmation, final boolean allowsMarksheets) {
         setAcronym(acronym);
         setName(name);
         setNormal(normal);
         setImprovement(improvement);
-        setSpecialAuthorization(specialAuthorization);
         setSpecial(special);
+        setSpecialAuthorization(specialAuthorization);
         setCode(code);
         setProperties(seasonOrder, active, requiresEnrolmentEvaluation, supportsEmptyGrades, supportsTeacherConfirmation,
                 allowsMarksheets);
@@ -167,6 +167,17 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         }
 
         super.setName(name);
+    }
+
+    public void delete() {
+        if (!getEvaluationSet().isEmpty()) {
+            throw new DomainException("error.EvaluationSeason.not.empty.to.delete");
+        }
+
+        super.setEvaluationConfiguration(null);
+        super.setEvaluationConfigurationAsDefault(null);
+        getUnitsAllowedForDirectEnrolmentSet().clear();
+        super.deleteDomainObject();
     }
 
     public static Integer getNextSeasonOrder() {
