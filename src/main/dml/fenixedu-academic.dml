@@ -1405,7 +1405,7 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
             Grade grade;
         }
 
-            class studentCurriculum.Substitution extends studentCurriculum.Equivalence {
+            class studentCurriculum.Substitution extends studentCurriculum.Credits {
             }
 
                 class studentCurriculum.InternalSubstitution extends studentCurriculum.Substitution {

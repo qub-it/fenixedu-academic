@@ -25,14 +25,15 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.dto.administrativeOffice.dismissal.DismissalBean.SelectedCurricularCourse;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.joda.time.DateTime;
 
 public class Substitution extends Substitution_Base {
 
@@ -88,33 +89,24 @@ public class Substitution extends Substitution_Base {
     }
 
     @Override
+    public boolean isCredits() {
+        return false;
+    }
+
+    @Override
+    protected Curriculum getCurriculum(final Dismissal dismissal, final DateTime when, final ExecutionYear year) {
+        final Collection<ICurriculumEntry> averageEntries = getAverageEntries(dismissal, year);
+        return averageEntries.isEmpty() ? Curriculum.createEmpty(dismissal, year) : super.getCurriculum(dismissal, when, year);
+    }
+
+    @Override
     final public boolean isSubstitution() {
         return true;
     }
 
     @Override
-    public boolean isEquivalence() {
-        return false;
-    }
-
-    @Override
-    public Grade getGrade() {
-        return getEnrolmentsAverageGrade();
-    }
-
-    private Grade getEnrolmentsAverageGrade() {
-        return null;
-    }
-
-    @Override
     public String getDescription() {
         return BundleUtil.getString("resources.StudentResources", "label.dismissal.Substitution");
-    }
-
-    @Override
-    @jvstm.cps.ConsistencyPredicate
-    protected boolean checkGrade() {
-        return true;
     }
 
     /**
