@@ -1487,11 +1487,14 @@ valueType org.fenixedu.academic.domain.util.i18n.Languages as Languages {
     class studentCurriculum.EnrolmentWrapper  {
     }
     
-        class studentCurriculum.InternalEnrolmentWrapper extends studentCurriculum.EnrolmentWrapper {
-        }
-        
-        class studentCurriculum.ExternalEnrolmentWrapper extends studentCurriculum.EnrolmentWrapper {
-    }
+            class studentCurriculum.CreditsSource extends studentCurriculum.EnrolmentWrapper {
+            }
+
+            class studentCurriculum.InternalEnrolmentWrapper extends studentCurriculum.CreditsSource {
+            }
+
+            class studentCurriculum.ExternalEnrolmentWrapper extends studentCurriculum.CreditsSource {
+            }
 
     class studentCurriculum.ExternalEnrolment  {
         String createdBy;
@@ -2340,6 +2343,24 @@ relation InternalEnrolmentWrapperEnrolment {
 relation ExternalEnrolmentWrapperEnrolment {
     studentCurriculum.ExternalEnrolment playsRole enrolment;
     studentCurriculum.ExternalEnrolmentWrapper playsRole enrolmentWrappers {
+        multiplicity *;
+    }
+}
+
+relation CreditsSourceEnrolment {
+    Enrolment playsRole sourceEnrolment {
+        multiplicity 0..1;
+    }
+    studentCurriculum.CreditsSource playsRole creditsSources {
+        multiplicity *;
+    }
+}
+
+relation CreditsSourceExternalEnrolment {
+    studentCurriculum.ExternalEnrolment playsRole sourceExternalEnrolment {
+        multiplicity 0..1;
+    }
+    studentCurriculum.CreditsSource playsRole creditsSources {
         multiplicity *;
     }
 }

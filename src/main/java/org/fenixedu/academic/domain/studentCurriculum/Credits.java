@@ -179,10 +179,18 @@ public class Credits extends Credits_Base {
         return getEnrolmentsSet().stream().anyMatch(w -> w.getIEnrolment() == iEnrolment);
     }
 
+    public Collection<IEnrolment> getCreditsSources() {
+        return getIEnrolments();
+    }
+
+    public Set<Dismissal> getCreditsTargets() {
+        return Collections.unmodifiableSet(getDismissalsSet());
+    }
+
     @Override
     final public Double getGivenCredits() {
         return Optional.ofNullable(super.getGivenCredits()).orElseGet(
-                () -> getDismissalsSet().stream().map(d -> BigDecimal.valueOf(d.getEctsCredits()))
+                () -> getCreditsTargets().stream().map(d -> BigDecimal.valueOf(d.getEctsCredits()))
                         .reduce(BigDecimal.ZERO, BigDecimal::add).doubleValue());
     }
 

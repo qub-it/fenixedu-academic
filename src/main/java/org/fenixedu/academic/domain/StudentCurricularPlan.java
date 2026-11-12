@@ -889,7 +889,7 @@ public class StudentCurricularPlan extends StudentCurricularPlan_Base {
     private static void updateCreditsStudentCurricularPlan(final MoveCurriculumLinesBean bean) {
         final Set<Dismissal> dismissalsOfCreditsPartiallyMoved =
                 bean.getCurriculumLineLocations().stream().filter(cll -> cll.getCurriculumLine().isDismissal())
-                        .map(cll -> (Dismissal) cll.getCurriculumLine()).filter(d -> d.getCredits().getDismissalsSet().stream()
+                        .map(cll -> (Dismissal) cll.getCurriculumLine()).filter(d -> d.getCredits().getCreditsTargets().stream()
                                 .anyMatch(od -> od.getStudentCurricularPlan() != d.getStudentCurricularPlan()))
                         .collect(Collectors.toSet());
 
