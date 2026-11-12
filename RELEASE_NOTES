@@ -1,3 +1,4 @@
+- Refactor: Adds curricular year field to RegistrationDataByExecutionYear [#qubIT-Fenix-9854]
 - Refactor: Deletes ExecutionInterval name, begin and end date fields [#qubIT-Fenix-9810]
 - Refactor: Remove Person#setIdentificationDocument method [#qubIT-Fenix-9126]
 - Refactor: Remove ExecutionDegree deprecated fields [#qubIT-Fenix-8888]

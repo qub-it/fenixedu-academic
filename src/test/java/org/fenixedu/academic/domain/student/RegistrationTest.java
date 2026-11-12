@@ -859,7 +859,7 @@ public class RegistrationTest {
         return StudentTest.createStudent(username, username);
     }
 
-    private static Registration createFreshRegistration() {
+    public static Registration createFreshRegistration() {
         return createRegistration(createFreshStudent(), studentCurricularPlan.getDegreeCurricularPlan(),
                 ExecutionYear.findCurrent(null));
     }
