@@ -207,7 +207,7 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     public Set<CurriculumLine> getCurriculumLinesForCurriculum(final StudentCurricularPlan studentCurricularPlan) {
         return studentCurricularPlan.getCreditsSet().stream()
                 .filter(c -> c.getEnrolmentsSet().stream().anyMatch(ew -> ew.getIEnrolment() == this))
-                .flatMap(c -> c.getDismissalsSet().stream()).collect(Collectors.toSet());
+                .flatMap(c -> c.getCreditsTargets().stream()).collect(Collectors.toSet());
     }
 
     @Override

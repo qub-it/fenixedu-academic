@@ -301,7 +301,7 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
         final Credits credits = getCredits();
         setCredits(null);
-        if (credits != null && credits.getDismissalsSet().isEmpty()) {
+        if (credits != null && credits.getCreditsTargets().isEmpty()) {
             credits.delete();
         }
 
