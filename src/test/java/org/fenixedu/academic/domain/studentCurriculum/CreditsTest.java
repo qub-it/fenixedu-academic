@@ -121,9 +121,9 @@ public class CreditsTest {
     }
 
     @Test
-    public void testCredits_getIEnrolments() {
+    public void testCredits_getCreditsSources() {
         final Credits credits = newCredits(studentCurricularPlan, firstEnrolment, firstEnrolment, secondEnrolment);
-        final Collection<IEnrolment> result = credits.getIEnrolments();
+        final Collection<IEnrolment> result = credits.getCreditsSources();
         assertTrue(result instanceof Set);
         assertEquals(2, result.size());
         assertTrue(result.contains(firstEnrolment));
