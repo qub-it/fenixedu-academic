@@ -19,7 +19,6 @@
 package org.fenixedu.academic.domain.time.calendarStructure;
 
 import java.util.Comparator;
-import java.util.Objects;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -97,11 +96,6 @@ public class AcademicIntervalCE extends AcademicIntervalCE_Base {
     private void createNewExecutionPeriod() {
         ExecutionYear executionYear = ExecutionYear.getExecutionYear((AcademicYearCE) getParentEntry());
         new ExecutionInterval(executionYear, this);
-    }
-
-    @Override
-    public String getPresentationName() {
-        return getParentEntry().getTitle().getContent() + " - " + getTitle().getContent() + " - [" + getType() + "]";
     }
 
     @Override

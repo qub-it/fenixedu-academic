@@ -18,18 +18,12 @@
  */
 package org.fenixedu.academic.domain.time.calendarStructure;
 
-import java.util.Comparator;
-import java.util.List;
-
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.time.chronologies.AcademicChronology;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 
 public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
-
-    private transient volatile AcademicChronology academicChronology;
 
     public AcademicCalendarRootEntry(LocalizedString title, LocalizedString description) {
         super();
@@ -54,18 +48,6 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
     }
 
     @Override
-    public AcademicChronology getAcademicChronology() {
-        if (academicChronology == null) {
-            synchronized (AcademicCalendarRootEntry.class) {
-                if (academicChronology == null) {
-                    academicChronology = new AcademicChronology(this);
-                }
-            }
-        }
-        return academicChronology;
-    }
-
-    @Override
     public void setRootDomainObjectForRootEntries(Bennu rootDomainObjectForRootEntries) {
         if (rootDomainObjectForRootEntries == null) {
             throw new DomainException("error.RootEntry.empty.rootDomainObject.to.academic.calendars");
@@ -76,23 +58,6 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
     @Override
     public DateTime getBegin() {
         return getChildEntriesSet().stream().map(AcademicCalendarEntry::getBegin).min(DateTime::compareTo).orElse(null);
-    }
-
-    public AcademicCalendarEntry getEntryByInstant(long instant, AcademicPeriod academicPeriod) {
-        return getAllChildEntries(academicPeriod).stream().filter(entry -> entry.containsInstant(instant))
-                .max(Comparator.comparing(AcademicCalendarEntry::getBegin)).orElse(null);
-    }
-
-    public Integer getEntryIndexByInstant(long instant, AcademicPeriod academicPeriod) {
-        long count = getAllChildEntries(academicPeriod).stream()
-                .filter(entry -> entry.containsInstant(instant) || entry.getEnd().isBefore(instant)).count();
-        return count > 0 ? Long.valueOf(count).intValue() : null;
-    }
-
-    public AcademicCalendarEntry getEntryByIndex(int index, AcademicPeriod academicPeriod) {
-        List<AcademicCalendarEntry> allChildEntries = getAllChildEntries(academicPeriod);
-        allChildEntries.sort(COMPARATOR_BY_BEGIN_DATE);
-        return index > 0 && index <= allChildEntries.size() ? allChildEntries.get(index - 1) : null;
     }
 
     public static AcademicCalendarRootEntry getAcademicCalendarByTitle(String title) {
@@ -149,10 +114,4 @@ public class AcademicCalendarRootEntry extends AcademicCalendarRootEntry_Base {
     public AcademicCalendarEntry getPreviousAcademicCalendarEntry() {
         return null;
     }
-
-    @Override
-    public boolean containsInstant(final long instant) {
-        return true;
-    }
-
 }
