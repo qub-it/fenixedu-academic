@@ -5,6 +5,7 @@ import java.time.YearMonth;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicIntervalCE;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
@@ -256,4 +257,35 @@ public class ExecutionIntervalTest {
         year2.delete(rootEntry);
     }
 
+    @Test
+    public void testExecutionInterval_getExecutionInterval() {
+        assertNull(ExecutionInterval.getExecutionInterval((AcademicCalendarEntry) null));
+        assertNull(ExecutionInterval.getExecutionInterval("Unknown Semester 1999/2000"));
+
+        ExecutionInterval firstSemesterSecondYear =
+                ((ExecutionYear) academicYearEntrySecond.getExecutionInterval()).getChildInterval(1, AcademicPeriod.SEMESTER);
+        ExecutionInterval foundByName = ExecutionInterval.getExecutionInterval("1st Semester 2020/2021");
+        assertEquals(firstSemesterSecondYear, foundByName);
+    }
+
+    @Test
+    public void testExecutionInterval_compareTo() {
+        ExecutionYear executionYearFirst = (ExecutionYear) academicYearEntryFirst.getExecutionInterval();
+        ExecutionYear executionYearSecond = (ExecutionYear) academicYearEntrySecond.getExecutionInterval();
+        ExecutionInterval firstSemesterFirstYear = executionYearFirst.getChildInterval(1, AcademicPeriod.SEMESTER);
+        ExecutionInterval secondSemesterFirstYear = executionYearFirst.getChildInterval(2, AcademicPeriod.SEMESTER);
+        ExecutionInterval firstSemesterSecondYear = executionYearSecond.getChildInterval(1, AcademicPeriod.SEMESTER);
+
+        assertTrue(firstSemesterFirstYear.compareTo(null) > 0);
+        assertEquals(0, firstSemesterFirstYear.compareTo(firstSemesterFirstYear));
+        assertTrue(firstSemesterFirstYear.compareTo(secondSemesterFirstYear) < 0);
+        assertTrue(secondSemesterFirstYear.compareTo(firstSemesterFirstYear) > 0);
+        assertTrue(secondSemesterFirstYear.compareTo(firstSemesterSecondYear) < 0);
+        assertTrue(firstSemesterFirstYear.compareTo(executionYearSecond) < 0);
+
+        // equal begin dates: the interval with the later end (year) sorts before the shorter end (semester),
+        // because the comparator orders the end date in reverse
+        assertTrue(firstSemesterSecondYear.compareTo(executionYearSecond) > 0);
+        assertTrue(executionYearSecond.compareTo(firstSemesterSecondYear) < 0);
+    }
 }
