@@ -9,12 +9,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +25,7 @@ import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.accessControl.SchoolClassStudentsGroup;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CourseLoadType;
@@ -37,7 +41,8 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroupFactory;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.junit.After;
+import org.fenixedu.commons.i18n.LocalizedString;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -71,7 +76,7 @@ public class EnrolmentTest {
         });
     }
 
-    @After
+    @Before
     public void clearEnrolmentEvaluations() {
         registration.findEnrolments().flatMap(e -> e.getEvaluationsSet().stream()).forEach(e -> {
             e.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
@@ -461,5 +466,62 @@ public class EnrolmentTest {
         final List<EnrolmentEvaluation> result = enrolment.getAllFinalEnrolmentEvaluations();
         assertEquals(1, result.size());
         assertTrue(result.contains(finalEvaluation));
+    }
+
+    @Test
+    public void testEnrolment_isApprovedWithCurricularCourseAndExecutionInterval() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        assertTrue(enrolment.getEvaluationsSet().isEmpty());
+
+        // the evaluation of the enrolment, still temporary
+        enrolment.createEnrolmentEvaluation();
+        final EnrolmentEvaluation evaluation = enrolment.getEvaluationsSet().iterator().next();
+
+        // no final evaluation, so the enrolment is not approved
+        assertFalse(enrolment.isApproved(curricularCourse, executionInterval));
+
+        // approve the enrolment
+        final GradeScale gradeScale =
+                GradeScale.create("ENROLMENT_TEST_TYPE20", new LocalizedString(Locale.getDefault(), "Type 20"),
+                        new BigDecimal("0"), new BigDecimal("9.49"), new BigDecimal("9.50"), new BigDecimal("20"), false, true);
+        evaluation.setGrade(Grade.createGrade("10", gradeScale));
+        evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.FINAL_OBJ);
+
+        // approved
+        assertTrue(enrolment.isApproved(curricularCourse, executionInterval));
+        assertTrue(enrolment.isApproved(curricularCourse, null));
+        assertTrue(enrolment.isApproved(curricularCourse, executionInterval.getNext()));
+
+        // not approved
+        assertFalse(enrolment.isApproved(curricularCourse, executionInterval.getPrevious()));
+
+        final CurricularCourse otherCourse = new CurricularCourse();
+        assertFalse(enrolment.isApproved(otherCourse, executionInterval));
+    }
+
+    @Test
+    public void testEnrolment_getAttendsByExecutionCourse() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        final ExecutionCourse executionCourse = findOrCreateExecutionCourse(curricularCourse, executionInterval);
+
+        final Attends attends = enrolment.getAttendsByExecutionCourse(executionCourse);
+        assertEquals(executionCourse, attends.getExecutionCourse());
+        assertEquals(enrolment, attends.getEnrolment());
+
+        // no attends for an execution course the enrolment is not related to
+        final ExecutionCourse otherExecutionCourse = new ExecutionCourse("Other Course", "OTHER", executionInterval);
+        assertNull(enrolment.getAttendsByExecutionCourse(otherExecutionCourse));
+    }
+    
+    @Test
+    public void testEnrolment_getExecutionCourseFor() {
+        final Enrolment enrolment = registration.getEnrolments(executionInterval).iterator().next();
+        final ExecutionCourse executionCourse = findOrCreateExecutionCourse(curricularCourse, executionInterval);
+
+        assertEquals(executionCourse, enrolment.getExecutionCourseFor(executionInterval));
+
+        // no execution course for an interval in which the enrolment has no attends
+        assertNull(enrolment.getExecutionCourseFor(executionInterval.getPrevious()));
+        assertNull(enrolment.getExecutionCourseFor(null));
     }
 }
