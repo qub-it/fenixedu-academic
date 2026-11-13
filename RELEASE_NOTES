@@ -1,3 +1,4 @@
+- Refactor: Removes AcademicChronology and its dateTimeField/durationField subclasses [#qubIT-Fenix-9877]
 - Refactor: Removes unused calendar entry methods from AcademicCalendarEntry and AcademicCalendarRootEntry [#qubIT-Fenix-9138]
 - Refactor: Removes joda-time BaseSingleFieldPeriod inheritance from AcademicPeriod and its subclasses [#qubIT-Fenix-9835]
 - Refactor: Removes deprecated AcademicIntervalCE constructor and AcademicPeriodOrder migration logic [#qubIT-Fenix-9811]
