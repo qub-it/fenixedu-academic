@@ -28,9 +28,8 @@ import java.util.Set;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.joda.time.base.BaseSingleFieldPeriod;
 
-public abstract class AcademicPeriod extends BaseSingleFieldPeriod {
+public abstract class AcademicPeriod implements Comparable<AcademicPeriod> {
 
     public static AcademicPeriod SEMESTER = new AcademicSemesters(1, "SEMESTER", "S");
     public static AcademicPeriod YEAR = new AcademicYears(1, "YEAR", "A");
@@ -62,12 +61,14 @@ public abstract class AcademicPeriod extends BaseSingleFieldPeriod {
         academicPeriods.put(OTHER.getRepresentationInStringFormat(), OTHER);
     }
 
+    private final int value;
+
     private final String name;
 
     private final String code;
 
-    protected AcademicPeriod(final int period, final String name, final String code) {
-        super(period);
+    protected AcademicPeriod(final int value, final String name, final String code) {
+        this.value = value;
         this.name = name;
         this.code = code;
     }
@@ -92,23 +93,18 @@ public abstract class AcademicPeriod extends BaseSingleFieldPeriod {
         return academicPeriods.get(representationInStringFormat);
     }
 
-    @Override
-    final protected void setValue(int value) {
-
+    protected int getValue() {
+        return value;
     }
 
     public abstract float getWeight();
 
     @Override
-    public int compareTo(BaseSingleFieldPeriod other) {
-        if (!(other instanceof AcademicPeriod)) {
-            throw new ClassCastException(getClass() + " cannot be compared to " + other.getClass());
-        }
-
-        AcademicPeriod otherAcademicPeriod = (AcademicPeriod) other;
-        if (getWeight() > otherAcademicPeriod.getWeight()) {
+    public int compareTo(AcademicPeriod other) {
+        float otherWeight = other.getWeight();
+        if (getWeight() > otherWeight) {
             return -1;
-        } else if (getWeight() < otherAcademicPeriod.getWeight()) {
+        } else if (getWeight() < otherWeight) {
             return 1;
         }
 
