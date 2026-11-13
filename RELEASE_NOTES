@@ -1,3 +1,4 @@
+- Refactor: Improve Enrolment domain methods [#qubIT-Fenix-9581]
 - Refactor: Adds academic period order relation to academic calendar entries [#qubIT-Fenix-9811]
 
 64.5.0 (12-11-2026)
