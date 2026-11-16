@@ -18,6 +18,7 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -147,6 +148,14 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         return getAllowsMarksheets();
     }
 
+    public boolean isFirstSeason() {
+        return findPreviousSeason(true).isEmpty();
+    }
+
+    public boolean isLastSeason() {
+        return findNextSeason(true).isEmpty();
+    }
+
     @Override
     public void setCode(String code) {
         if (StringUtils.isNotBlank(code)) {
@@ -182,6 +191,23 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
 
     public static Integer getNextSeasonOrder() {
         return all().map(EvaluationSeason::getSeasonOrder).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1;
+    }
+
+    public Optional<EvaluationSeason> findPreviousSeason(boolean onlyActiveSeasons) {
+        return findByActive(onlyActiveSeasons).filter(season -> season != this).filter(this::isSameTypeAs)
+                .filter(season -> season.getSeasonOrder() <= getSeasonOrder())
+                .max(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
+    }
+
+    public Optional<EvaluationSeason> findNextSeason(boolean onlyActiveSeasons) {
+        return findByActive(onlyActiveSeasons).filter(season -> season != this).filter(this::isSameTypeAs)
+                .filter(season -> season.getSeasonOrder() >= getSeasonOrder())
+                .min(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
+    }
+
+    private boolean isSameTypeAs(final EvaluationSeason season) {
+        return isNormal() == season.isNormal() && isSpecial() == season.isSpecial() && isImprovement() == season.isImprovement()
+                && isSpecialAuthorization() == season.isSpecialAuthorization();
     }
 
     public static Stream<EvaluationSeason> readNormalSeasons() {

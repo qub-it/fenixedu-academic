@@ -55,10 +55,7 @@ public class EvaluationSeasonTest {
     public static EvaluationSeason createEvaluationSeason(final String code, boolean normal, boolean improvement,
             boolean special) {
         final LocalizedString label = getLocalizedString(ENUMERATION, code);
-        final EvaluationSeason result = new EvaluationSeason(label, label, normal, improvement, false, special);
-        result.setCode(code);
-
-        return result;
+        return EvaluationSeason.create(code, label, label, normal, improvement, special, false, false, false, true, false, true);
     }
 
 }
