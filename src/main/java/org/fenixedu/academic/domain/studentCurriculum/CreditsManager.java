@@ -67,23 +67,6 @@ public class CreditsManager {
 
     }
 
-    static public InternalSubstitution createInternalSubstitution(StudentCurricularPlan studentCurricularPlan,
-            CourseGroup courseGroup, CurriculumGroup curriculumGroup, Collection<SelectedCurricularCourse> dismissals,
-            Collection<IEnrolment> enrolments, Double givenCredits, ExecutionInterval executionInterval) {
-
-        if (courseGroup != null) {
-            return new InternalSubstitution(studentCurricularPlan, courseGroup, enrolments,
-                    buildNoEnrolCurricularCourses(dismissals), givenCredits, executionInterval);
-
-        } else if (curriculumGroup != null) {
-            return new InternalSubstitution(studentCurricularPlan, curriculumGroup, enrolments, givenCredits, executionInterval);
-
-        } else {
-            return new InternalSubstitution(studentCurricularPlan, dismissals, enrolments, executionInterval);
-        }
-
-    }
-
     static private Collection<CurricularCourse> buildNoEnrolCurricularCourses(Collection<SelectedCurricularCourse> dismissals) {
 
         if (dismissals == null || dismissals.isEmpty()) {
