@@ -156,7 +156,7 @@ public class Credits extends Credits_Base {
     private void addEnrolments(final Collection<IEnrolment> enrolments) {
         if (enrolments != null) {
             for (final IEnrolment enrolment : enrolments) {
-                EnrolmentWrapper.create(this, enrolment);
+                CreditsSource.create(this, enrolment);
             }
         }
     }
@@ -165,22 +165,22 @@ public class Credits extends Credits_Base {
         return year == null || enrolment.getExecutionYear() == null || enrolment.getExecutionYear().isBefore(year);
     }
 
-    protected Set<EnrolmentWrapper> getEnrolmentsSetBefore(final ExecutionYear executionYear) {
-        return getEnrolmentsSet().stream().filter(w -> w.getIEnrolment() != null && isBefore(w.getIEnrolment(), executionYear))
+    protected Set<CreditsSource> getCreditsSourcesBefore(final ExecutionYear executionYear) {
+        return getCreditsSources().stream().filter(s -> s.getIEnrolment() != null && isBefore(s.getIEnrolment(), executionYear))
                 .collect(Collectors.toSet());
     }
 
     final public Collection<IEnrolment> getIEnrolments() {
-        return getEnrolmentsSet().stream().map(EnrolmentWrapper::getIEnrolment).filter(Objects::nonNull)
+        return getCreditsSources().stream().map(CreditsSource::getIEnrolment).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
     final public boolean hasIEnrolments(final IEnrolment iEnrolment) {
-        return getEnrolmentsSet().stream().anyMatch(w -> w.getIEnrolment() == iEnrolment);
+        return getCreditsSources().stream().anyMatch(cs -> cs.getIEnrolment() == iEnrolment);
     }
 
-    public Collection<IEnrolment> getCreditsSources() {
-        return getIEnrolments();
+    public Set<CreditsSource> getCreditsSources() {
+        return getEnrolmentsSet().stream().map(CreditsSource.class::cast).collect(Collectors.toUnmodifiableSet());
     }
 
     public Set<Dismissal> getCreditsTargets() {

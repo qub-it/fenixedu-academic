@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -107,27 +106,28 @@ public class CreditsTest {
     }
 
     @Test
-    public void testCredits_getEnrolmentsSetBefore() {
+    public void testCredits_getCreditsSourcesBefore() {
         final Credits credits = newCredits(studentCurricularPlan, firstEnrolment, previousYearEnrolment);
 
         // a null year filters nothing (an enrolment without an execution year is always kept too)
-        assertEquals(Set.of(firstEnrolment, previousYearEnrolment), enrolmentOf(credits.getEnrolmentsSetBefore(null)));
+        assertEquals(Set.of(firstEnrolment, previousYearEnrolment), enrolmentOf(credits.getCreditsSourcesBefore(null)));
 
         // only the previous year enrolment is before the current execution year
-        assertEquals(Set.of(previousYearEnrolment), enrolmentOf(credits.getEnrolmentsSetBefore(executionYear)));
+        assertEquals(Set.of(previousYearEnrolment), enrolmentOf(credits.getCreditsSourcesBefore(executionYear)));
 
         // nothing is strictly before the previous year
-        assertTrue(credits.getEnrolmentsSetBefore(previousYear).isEmpty());
+        assertTrue(credits.getCreditsSourcesBefore(previousYear).isEmpty());
     }
 
     @Test
     public void testCredits_getCreditsSources() {
         final Credits credits = newCredits(studentCurricularPlan, firstEnrolment, firstEnrolment, secondEnrolment);
-        final Collection<IEnrolment> result = credits.getCreditsSources();
-        assertTrue(result instanceof Set);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(firstEnrolment));
-        assertTrue(result.contains(secondEnrolment));
+
+        // one source per added origin, even when the origin is repeated
+        assertEquals(3, credits.getCreditsSources().size());
+
+        // getIEnrolments removes repeated origins
+        assertEquals(Set.of(firstEnrolment, secondEnrolment), credits.getIEnrolments());
     }
 
     @Test
@@ -217,7 +217,7 @@ public class CreditsTest {
         credits.setStudentCurricularPlan(scp);
         credits.setExecutionPeriod(firstSemester);
         for (final IEnrolment enrolment : enrolments) {
-            EnrolmentWrapper.create(credits, enrolment);
+            CreditsSource.create(credits, enrolment);
         }
         return credits;
     }
@@ -228,8 +228,8 @@ public class CreditsTest {
                 firstSemester);
     }
 
-    private static Set<IEnrolment> enrolmentOf(final Set<EnrolmentWrapper> wrappers) {
-        return wrappers.stream().map(EnrolmentWrapper::getIEnrolment).collect(Collectors.toSet());
+    private static Set<IEnrolment> enrolmentOf(final Set<CreditsSource> sources) {
+        return sources.stream().map(CreditsSource::getIEnrolment).collect(Collectors.toSet());
     }
 
 }

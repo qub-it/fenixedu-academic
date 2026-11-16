@@ -23,6 +23,10 @@ public class CreditsSource extends CreditsSource_Base {
         }
     }
 
+    static CreditsSource create(final Credits credits, final IEnrolment source) {
+        return new CreditsSource(credits, source);
+    }
+
     @Override
     public IEnrolment getIEnrolment() {
         return getSourceEnrolment() != null ? getSourceEnrolment() : getSourceExternalEnrolment();

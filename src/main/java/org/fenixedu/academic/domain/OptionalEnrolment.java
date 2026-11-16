@@ -192,6 +192,7 @@ public class OptionalEnrolment extends OptionalEnrolment_Base {
 
         optionalEnrolment.getEvaluationsSet().addAll(enrolment.getEvaluationsSet());
         optionalEnrolment.getEnrolmentWrappersSet().addAll(enrolment.getEnrolmentWrappersSet());
+        optionalEnrolment.getCreditsSourcesSet().addAll(enrolment.getCreditsSourcesSet());
         changeAttends(enrolment, optionalEnrolment);
         optionalEnrolment.createCurriculumLineLog(EnrolmentActionType.ENROL);
 

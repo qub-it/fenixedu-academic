@@ -21,6 +21,7 @@ package org.fenixedu.academic.domain.studentCurriculum;
 import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 
+@Deprecated
 public class ExternalEnrolmentWrapper extends ExternalEnrolmentWrapper_Base {
 
     private ExternalEnrolmentWrapper() {
