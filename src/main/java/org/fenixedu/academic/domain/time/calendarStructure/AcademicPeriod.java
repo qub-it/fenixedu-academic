@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.fenixedu.academic.util.Bundle;
@@ -113,6 +114,17 @@ public abstract class AcademicPeriod implements Comparable<AcademicPeriod> {
 
     public static Set<AcademicPeriod> values() {
         return Collections.unmodifiableSet(new HashSet<AcademicPeriod>(academicPeriods.values()));
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        return object instanceof AcademicPeriod other && Objects.equals(getRepresentationInStringFormat(),
+                other.getRepresentationInStringFormat());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getRepresentationInStringFormat());
     }
 
     public boolean isSmaller(final AcademicPeriod input) {

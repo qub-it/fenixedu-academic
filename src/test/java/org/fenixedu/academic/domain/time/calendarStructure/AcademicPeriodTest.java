@@ -5,6 +5,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.FenixFrameworkRunner;
@@ -60,6 +63,40 @@ public class AcademicPeriodTest {
         assertEquals(-1, AcademicPeriod.SIX_YEAR.compareTo(AcademicPeriod.FIVE_YEAR));
         assertEquals(1, AcademicPeriod.FIVE_YEAR.compareTo(AcademicPeriod.SIX_YEAR));
     }
+
+    @Test
+    public void testAcademicPeriod_equals() {
+        assertTrue(AcademicPeriod.YEAR.equals(AcademicPeriod.YEAR));
+
+        AcademicYears twoYearsInstance = new AcademicYears(2, "TWO_YEAR", "2A");
+        assertTrue(twoYearsInstance.equals(AcademicPeriod.TWO_YEAR));
+        assertTrue(AcademicPeriod.TWO_YEAR.equals(twoYearsInstance));
+
+        AcademicSemesters oneSemesterInstance = new AcademicSemesters(1, "SEMESTER", "S");
+        assertTrue(oneSemesterInstance.equals(AcademicPeriod.SEMESTER));
+        assertTrue(AcademicPeriod.SEMESTER.equals(oneSemesterInstance));
+
+        assertFalse(AcademicPeriod.YEAR.equals(AcademicPeriod.SEMESTER));
+        assertFalse(AcademicPeriod.YEAR.equals(AcademicPeriod.TWO_YEAR));
+
+        assertFalse(AcademicPeriod.YEAR.equals(null));
+    }
+
+    @Test
+    public void testAcademicPeriod_hashCode() {
+        AcademicYears twoYearsInstance = new AcademicYears(2, "TWO_YEAR", "2A");
+        assertEquals(AcademicPeriod.TWO_YEAR.hashCode(), twoYearsInstance.hashCode());
+
+        AcademicSemesters oneSemesterInstance = new AcademicSemesters(1, "SEMESTER", "S");
+        assertEquals(AcademicPeriod.SEMESTER.hashCode(), oneSemesterInstance.hashCode());
+
+        Set<AcademicPeriod> periods = new HashSet<>();
+        periods.add(twoYearsInstance);
+        assertTrue(periods.contains(AcademicPeriod.TWO_YEAR));
+        assertTrue(periods.remove(AcademicPeriod.TWO_YEAR));
+        assertTrue(periods.isEmpty());
+    }
+
     @Test
     public void testAcademicPeriod_getPossibleChild() {
         assertEquals(AcademicPeriod.SEMESTER, AcademicPeriod.YEAR.getPossibleChild());
