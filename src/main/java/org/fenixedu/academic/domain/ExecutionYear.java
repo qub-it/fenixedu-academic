@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarEntry;
 import org.fenixedu.academic.domain.time.calendarStructure.AcademicCalendarRootEntry;
@@ -54,33 +53,13 @@ import org.joda.time.YearMonthDay;
  */
 public class ExecutionYear extends ExecutionYear_Base {
 
-//    static {
-//        getRelationExecutionPeriodExecutionYear().addListener(new ExecutionPeriodExecutionYearListener());
-//    }
+    static final public Comparator<ExecutionYear> COMPARATOR_BY_YEAR = Comparator.comparing(ExecutionYear::getYear);
 
-    static final public Comparator<ExecutionYear> COMPARATOR_BY_YEAR = new Comparator<ExecutionYear>() {
-        @Override
-        public int compare(ExecutionYear o1, ExecutionYear o2) {
-            return o1.getYear().compareTo(o2.getYear());
-        }
-    };
-
-    static final public Comparator<ExecutionYear> REVERSE_COMPARATOR_BY_YEAR = new Comparator<ExecutionYear>() {
-        @Override
-        public int compare(ExecutionYear o1, ExecutionYear o2) {
-            return -COMPARATOR_BY_YEAR.compare(o1, o2);
-        }
-    };
+    static final public Comparator<ExecutionYear> REVERSE_COMPARATOR_BY_YEAR = COMPARATOR_BY_YEAR.reversed();
 
     private ExecutionYear() {
         super();
         setRootDomainObjectForExecutionYear(Bennu.getInstance());
-    }
-
-    @Deprecated(forRemoval = true)
-    public ExecutionYear(AcademicCalendarEntry academicCalendarEntry, String year) {
-        this();
-        setAcademicCalendarEntry(academicCalendarEntry);
     }
 
     public ExecutionYear(AcademicCalendarEntry academicCalendarEntry) {
@@ -108,8 +87,6 @@ public class ExecutionYear extends ExecutionYear_Base {
     @Deprecated
     public ExecutionYear getNextExecutionYear() {
         return Optional.ofNullable(super.getNext()).map(ei -> (ExecutionYear) ei).orElse(null);
-//        AcademicYearCE year = getAcademicInterval().plusYear(1);
-//        return getExecutionYear(year);
     }
 
     /**
@@ -118,8 +95,6 @@ public class ExecutionYear extends ExecutionYear_Base {
     @Deprecated
     public ExecutionYear getPreviousExecutionYear() {
         return Optional.ofNullable(super.getPrevious()).map(ei -> (ExecutionYear) ei).orElse(null);
-//        AcademicYearCE year = getAcademicInterval().minusYear(1);
-//        return getExecutionYear(year);
     }
 
     @Deprecated
@@ -171,11 +146,6 @@ public class ExecutionYear extends ExecutionYear_Base {
         return new Interval(begin, end).contains(dateTime);
     }
 
-//    @Override
-//    public boolean isCurrent() {
-//        return this.getState().equals(PeriodState.CURRENT);
-//    }
-
     public boolean isOpen() {
         return getState().equals(PeriodState.OPEN);
     }
@@ -210,15 +180,6 @@ public class ExecutionYear extends ExecutionYear_Base {
         super.delete();
     }
 
-//    private static class ExecutionPeriodExecutionYearListener extends RelationAdapter<ExecutionYear, ExecutionSemester> {
-//        @Override
-//        public void beforeAdd(ExecutionYear executionYear, ExecutionSemester executionSemester) {
-//            if (executionYear != null && executionSemester != null && executionYear.getExecutionPeriodsSet().size() == 2) {
-//                throw new DomainException("error.ExecutionYear.exceeded.number.of.executionPeriods", executionYear.getYear());
-//            }
-//        }
-//    }
-
     // -------------------------------------------------------------
     // read static methods
     // -------------------------------------------------------------
@@ -230,12 +191,6 @@ public class ExecutionYear extends ExecutionYear_Base {
     @Deprecated
     static public ExecutionYear readCurrentExecutionYear() {
         return ExecutionYear.findCurrents().stream().findAny().orElse(null);
-//        ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
-//        if (semester != null) {
-//            return semester.getExecutionYear();
-//        } else {
-//            return null;
-//        }
     }
 
     public static Collection<ExecutionYear> findCurrents() {
@@ -257,13 +212,7 @@ public class ExecutionYear extends ExecutionYear_Base {
     }
 
     static public List<ExecutionYear> readNotClosedExecutionYears() {
-        final List<ExecutionYear> result = new ArrayList<ExecutionYear>();
-        for (final ExecutionYear executionYear : Bennu.getInstance().getExecutionYearsSet()) {
-            if (!executionYear.isClosed()) {
-                result.add(executionYear);
-            }
-        }
-        return result;
+        return Bennu.getInstance().getExecutionYearsSet().stream().filter(ey -> !ey.isClosed()).collect(Collectors.toList());
     }
 
     static public List<ExecutionYear> readExecutionYears(ExecutionYear startYear, ExecutionYear endYear) {
@@ -279,16 +228,11 @@ public class ExecutionYear extends ExecutionYear_Base {
     }
 
     static public ExecutionYear readExecutionYearByName(final String year) {
-        for (final ExecutionYear executionYear : Bennu.getInstance().getExecutionYearsSet()) {
-            if (executionYear.isFor(year)) {
-                return executionYear;
-            }
-        }
-        return null;
+        return Bennu.getInstance().getExecutionYearsSet().stream().filter(ey -> ey.isFor(year)).findFirst().orElse(null);
     }
 
     public static class ExecutionYearSearchCache {
-        private final Map<Integer, Set<ExecutionYear>> map = new HashMap<Integer, Set<ExecutionYear>>();
+        private final Map<Integer, Set<ExecutionYear>> map = new HashMap<>();
 
         private Set<ExecutionYear> updateIfNeeded(final Integer year) {
             Set<ExecutionYear> result = map.get(year);
@@ -361,21 +305,8 @@ public class ExecutionYear extends ExecutionYear_Base {
         return executionYearSearchCache.findByPartial(partial);
     }
 
-    public static ExecutionYear readBy(final YearMonthDay begin, YearMonthDay end) {
-        for (final ExecutionYear executionYear : Bennu.getInstance().getExecutionYearsSet()) {
-            if (executionYear.getBeginDateYearMonthDay().isEqual(begin) && executionYear.getEndDateYearMonthDay().isEqual(end)) {
-                return executionYear;
-            }
-        }
-        return null;
-    }
-
     static public ExecutionYear getExecutionYearByDate(final YearMonthDay date) {
         return readByDateTime(date.toDateTimeAtMidnight());
-    }
-
-    static public ExecutionYear readFirstExecutionYear() {
-        return Bennu.getInstance().getExecutionYearsSet().stream().min(Comparator.naturalOrder()).orElse(null);
     }
 
     static public ExecutionYear readLastExecutionYear() {
@@ -393,17 +324,6 @@ public class ExecutionYear extends ExecutionYear_Base {
     }
 
     public Set<ExecutionInterval> getChildIntervals() {
-        return getExecutionPeriodsSet().stream().collect(Collectors.toSet());
+        return new HashSet<>(getExecutionPeriodsSet());
     }
-
-//    @Override
-//    public ExecutionInterval getNext() {
-//        return getNextExecutionYear();
-//    }
-//
-//    @Override
-//    public ExecutionInterval getPrevious() {
-//        return getPreviousExecutionYear();
-//    }
-
 }
