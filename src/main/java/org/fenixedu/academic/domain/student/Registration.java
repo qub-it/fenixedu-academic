@@ -778,9 +778,12 @@ public class Registration extends Registration_Base {
         }
     }
 
+    /**
+     * @deprecated exists for backward compatibility, use {@link #findDataByExecutionYear(ExecutionYear)} instead
+     */
     @Deprecated(forRemoval = true)
     public Optional<RegistrationDataByExecutionYear> getDataByExecutionYear(final ExecutionYear year) {
-        return getRegistrationDataByExecutionYearSet().stream().filter(rd -> rd.getExecutionYear() == year).findAny();
+        return findDataByExecutionYear(year);
     }
 
     public Optional<RegistrationDataByExecutionYear> findDataByExecutionYear(ExecutionYear year) {
@@ -1025,7 +1028,7 @@ public class Registration extends Registration_Base {
     }
 
     public boolean hasReingression(final ExecutionYear executionYear) {
-        return getDataByExecutionYear(executionYear).stream().anyMatch(RegistrationDataByExecutionYear::isReingression);
+        return findDataByExecutionYear(executionYear).stream().anyMatch(RegistrationDataByExecutionYear::isReingression);
     }
 
     public Set<RegistrationDataByExecutionYear> getReingressions() {
@@ -1048,7 +1051,7 @@ public class Registration extends Registration_Base {
     public void updateEnrolmentDate(final ExecutionYear executionYear) {
         final Collection<Enrolment> enrolments = getEnrolments(executionYear);
 
-        if (enrolments.isEmpty() && getDataByExecutionYear(executionYear).isEmpty()) {
+        if (enrolments.isEmpty() && findDataByExecutionYear(executionYear).isEmpty()) {
             return;
         }
 

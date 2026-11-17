@@ -407,7 +407,7 @@ public class StudentGroup extends FenixGroup {
                 return true;
             }
             if (executionYear != null && cycle == null && firstTimeInDegree == null) {
-                if (registration.getDataByExecutionYear(executionYear).stream()
+                if (registration.findDataByExecutionYear(executionYear).stream()
                         .anyMatch(RegistrationDataByExecutionYear::getActive)) {
                     return true;
                 }
