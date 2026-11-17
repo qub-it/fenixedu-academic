@@ -1,3 +1,4 @@
+64.6.0 (17-11-2026)
 - Refactor: Add EvaluationSeason information fields and domain methods [#qubIT-Fenix-5018]
 - Refactor: Remove InternalSubstitution entity [#qubIT-Fenix-9840]
 - Refactor: Remove IngressionType deprecated fields [#qubIT-Fenix-9846]
