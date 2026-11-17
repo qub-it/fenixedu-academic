@@ -210,6 +210,30 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
                 && isSpecialAuthorization() == season.isSpecialAuthorization();
     }
 
+    public void orderUp() {
+        if (isFirstSeason()) {
+            return;
+        }
+
+        findPreviousSeason(false).ifPresent(neighbour -> {
+            final Integer temp = neighbour.getSeasonOrder();
+            neighbour.setSeasonOrder(getSeasonOrder());
+            setSeasonOrder(temp);
+        });
+    }
+
+    public void orderDown() {
+        if (isLastSeason()) {
+            return;
+        }
+
+        findNextSeason(false).ifPresent(neighbour -> {
+            final Integer temp = neighbour.getSeasonOrder();
+            neighbour.setSeasonOrder(getSeasonOrder());
+            setSeasonOrder(temp);
+        });
+    }
+
     public static Stream<EvaluationSeason> readNormalSeasons() {
         return all().filter(EvaluationSeason::isNormal);
     }
