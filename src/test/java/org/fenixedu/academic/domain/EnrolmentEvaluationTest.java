@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.joda.time.DateTime;
-import org.joda.time.YearMonthDay;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,7 +43,7 @@ public class EnrolmentEvaluationTest {
     private EnrolmentEvaluation createEvaluation() {
         // EnrolmentEvaluation enforces a unique enrolment+season pair, so each evaluation gets its own season.
         EvaluationSeason season =
-                EvaluationSeasonTest.createEvaluationSeason("TEST_SEASON_" + System.nanoTime(), false, false, false);
+                EvaluationSeasonTest.createEvaluationSeason("TEST_SEASON_" + System.nanoTime(), true, false, false);
         return new EnrolmentEvaluation(enrolment, season);
     }
 
