@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -117,6 +118,11 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
         setEctsCredits(ectsCredits);
     }
 
+    public Set<CreditsSource> getAllCreditsSources() {
+        return Stream.<CreditsSource> concat(getEnrolmentWrappersSet().stream(), getCreditsSourcesSet().stream())
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
     @Override
     public LocalizedString getName() {
         //External enrolments only have one name
@@ -152,7 +158,7 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
     }
 
     private void checkRulesToDelete() {
-        if (!getEnrolmentWrappersSet().isEmpty()) {
+        if (!getAllCreditsSources().isEmpty()) {
             throw new DomainException("error.Enrolment.is.origin.in.some.Equivalence");
         }
     }
@@ -205,8 +211,7 @@ public class ExternalEnrolment extends ExternalEnrolment_Base implements IEnrolm
 
     @Override
     public Set<CurriculumLine> getCurriculumLinesForCurriculum(final StudentCurricularPlan studentCurricularPlan) {
-        return studentCurricularPlan.getCreditsSet().stream()
-                .filter(c -> c.getEnrolmentsSet().stream().anyMatch(ew -> ew.getIEnrolment() == this))
+        return studentCurricularPlan.getCreditsSet().stream().filter(c -> c.hasIEnrolments(this))
                 .flatMap(c -> c.getCreditsTargets().stream()).collect(Collectors.toSet());
     }
 

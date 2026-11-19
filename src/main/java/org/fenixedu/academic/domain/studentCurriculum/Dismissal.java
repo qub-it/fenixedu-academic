@@ -157,9 +157,9 @@ public class Dismissal extends Dismissal_Base implements ICurriculumEntry {
 
     private String buildSourcesToPrint() {
         final StringBuilder result = new StringBuilder();
-        for (final EnrolmentWrapper wrapper : getCredits().getEnrolmentsSet()) {
-            result.append(wrapper.getIEnrolment().getCode()).append("(")
-                    .append(wrapper.getIEnrolment().getEctsCreditsForCurriculum().toPlainString()).append(")").append(", ");
+        for (final CreditsSource source : getCredits().getCreditsSources()) {
+            result.append(source.getIEnrolment().getCode()).append("(")
+                    .append(source.getIEnrolment().getEctsCreditsForCurriculum().toPlainString()).append(")").append(", ");
         }
 
         if (result.toString().endsWith(", ")) {

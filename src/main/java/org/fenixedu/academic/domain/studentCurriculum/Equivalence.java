@@ -129,7 +129,7 @@ public class Equivalence extends Equivalence_Base {
      */
     @Override
     protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
-        final boolean allBefore = getEnrolmentsSetBefore(executionYear).size() == getEnrolmentsSet().size();
+        final boolean allBefore = getCreditsSourcesBefore(executionYear).size() == getCreditsSources().size();
         return allBefore ? Collections.<ICurriculumEntry> singleton(dismissal) : Collections.<ICurriculumEntry> emptyList();
     }
 

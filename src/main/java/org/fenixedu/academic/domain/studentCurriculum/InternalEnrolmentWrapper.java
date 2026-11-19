@@ -22,6 +22,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 
+@Deprecated
 public class InternalEnrolmentWrapper extends InternalEnrolmentWrapper_Base {
 
     protected InternalEnrolmentWrapper() {

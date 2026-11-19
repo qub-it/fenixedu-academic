@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.studentCurriculum.CreditsSource;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.EctsAndWeightProviderRegistry;
@@ -201,7 +202,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
     }
 
     protected void checkRulesToDelete() {
-        if (!getEnrolmentWrappersSet().isEmpty()) {
+        if (!getAllCreditsSources().isEmpty()) {
             throw new DomainException("error.Enrolment.is.origin.in.some.Equivalence");
         }
     }
@@ -448,6 +449,20 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
         return EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this).orElse(null);
     }
 
+    public Optional<EnrolmentEvaluation> getFinalEnrolmentEvaluationBySeason(final EvaluationSeason season) {
+        return EvaluationConfiguration.getInstance().getFinalEnrolmentEvaluation(this, season);
+    }
+
+    private Optional<EnrolmentEvaluation> getTemporaryEvaluation(final EvaluationSeason season,
+            final ExecutionInterval interval) {
+        return getEnrolmentEvaluation(season, interval, Boolean.FALSE);
+    }
+
+    public Set<CreditsSource> getAllCreditsSources() {
+        return Stream.<CreditsSource> concat(getEnrolmentWrappersSet().stream(), getCreditsSourcesSet().stream())
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
     @Override
     final public List<Enrolment> getEnrolments() {
         return Collections.singletonList(this);
@@ -501,8 +516,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
     @Override
     public Set<CurriculumLine> getCurriculumLinesForCurriculum(final StudentCurricularPlan studentCurricularPlan) {
-        return studentCurricularPlan.getCreditsSet().stream()
-                .filter(c -> c.getEnrolmentsSet().stream().anyMatch(ew -> ew.getIEnrolment() == this))
+        return studentCurricularPlan.getCreditsSet().stream().filter(c -> c.hasIEnrolments(this))
                 .flatMap(c -> c.getCreditsTargets().stream()).collect(Collectors.toSet());
     }
 
@@ -671,6 +685,7 @@ public class Enrolment extends Enrolment_Base implements IEnrolment {
 
         enrolment.getEvaluationsSet().addAll(optionalEnrolment.getEvaluationsSet());
         enrolment.getEnrolmentWrappersSet().addAll(optionalEnrolment.getEnrolmentWrappersSet());
+        enrolment.getCreditsSourcesSet().addAll(optionalEnrolment.getCreditsSourcesSet());
         changeAttends(optionalEnrolment, enrolment);
         enrolment.createCurriculumLineLog(EnrolmentActionType.ENROL);
 

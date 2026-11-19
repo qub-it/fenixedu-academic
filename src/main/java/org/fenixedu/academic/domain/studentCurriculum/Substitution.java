@@ -114,7 +114,7 @@ public class Substitution extends Substitution_Base {
      */
     @Override
     protected Collection<ICurriculumEntry> getAverageEntries(final Dismissal dismissal, final ExecutionYear executionYear) {
-        return getEnrolmentsSetBefore(executionYear).stream().map(EnrolmentWrapper::getIEnrolment).collect(Collectors.toSet());
+        return getCreditsSourcesBefore(executionYear).stream().map(CreditsSource::getIEnrolment).collect(Collectors.toSet());
     }
 
 }
