@@ -33,7 +33,7 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
 
     public static final Comparator<EvaluationSeason> SEASON_ORDER_COMPARATOR =
             Comparator.comparing(EvaluationSeason::getEvaluationSeasonTypePrecedence)
-                    .thenComparing(EvaluationSeason::getSeasonOrder, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(EvaluationSeason::getSeasonOrder)
                     .thenComparing(EvaluationSeason::compareTo);
 
     public EvaluationSeason() {
@@ -195,7 +195,7 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
     public Optional<EvaluationSeason> findPreviousSeason(boolean onlyActiveSeasons) {
         final Stream<EvaluationSeason> evaluationSeasons = onlyActiveSeasons ? findByActive(true) : all();
 
-        return evaluationSeasons.filter(season -> season != this).filter(this::isSameTypeAs)
+        return evaluationSeasons.filter(season -> season != this).filter(this::hasSameSeasonTypeAs)
                 .filter(season -> season.getSeasonOrder() <= getSeasonOrder())
                 .max(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
     }
@@ -203,14 +203,13 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
     public Optional<EvaluationSeason> findNextSeason(boolean onlyActiveSeasons) {
         final Stream<EvaluationSeason> evaluationSeasons = onlyActiveSeasons ? findByActive(true) : all();
 
-        return evaluationSeasons.filter(season -> season != this).filter(this::isSameTypeAs)
+        return evaluationSeasons.filter(season -> season != this).filter(this::hasSameSeasonTypeAs)
                 .filter(season -> season.getSeasonOrder() >= getSeasonOrder())
                 .min(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
     }
 
-    private boolean isSameTypeAs(final EvaluationSeason season) {
-        return isNormal() == season.isNormal() && isSpecial() == season.isSpecial() && isImprovement() == season.isImprovement()
-                && isSpecialAuthorization() == season.isSpecialAuthorization();
+    private boolean hasSameSeasonTypeAs(final EvaluationSeason season) {
+        return getEvaluationSeasonType() == season.getEvaluationSeasonType();
     }
 
     public void moveUp() {
