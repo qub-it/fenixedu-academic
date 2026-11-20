@@ -1,3 +1,4 @@
+- Refactor: Add CreditsSource domain entity [#qubIT-Fenix-9840]
 - Refactor: Move Substitution under Credits [#qubIT-Fenix-9840]
 
 64.6.0 (17-11-2026)
