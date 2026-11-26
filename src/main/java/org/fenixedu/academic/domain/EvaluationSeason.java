@@ -18,15 +18,23 @@
  */
 package org.fenixedu.academic.domain;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class EvaluationSeason extends EvaluationSeason_Base implements Comparable<EvaluationSeason> {
+
+    public static final Comparator<EvaluationSeason> SEASON_ORDER_COMPARATOR =
+            Comparator.comparing(EvaluationSeason::getEvaluationSeasonTypePrecedence)
+                    .thenComparing(EvaluationSeason::getSeasonOrder)
+                    .thenComparing(EvaluationSeason::compareTo);
 
     public EvaluationSeason() {
         super();
@@ -184,6 +192,40 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         return all().map(EvaluationSeason::getSeasonOrder).filter(Objects::nonNull).max(Integer::compareTo).orElse(0) + 1;
     }
 
+    public Optional<EvaluationSeason> findPreviousSeason(boolean onlyActiveSeasons) {
+        final Stream<EvaluationSeason> evaluationSeasons = onlyActiveSeasons ? findByActive(true) : all();
+
+        return evaluationSeasons.filter(season -> season != this).filter(this::hasSameSeasonTypeAs)
+                .filter(season -> season.getSeasonOrder() <= getSeasonOrder())
+                .max(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
+    }
+
+    public Optional<EvaluationSeason> findNextSeason(boolean onlyActiveSeasons) {
+        final Stream<EvaluationSeason> evaluationSeasons = onlyActiveSeasons ? findByActive(true) : all();
+
+        return evaluationSeasons.filter(season -> season != this).filter(this::hasSameSeasonTypeAs)
+                .filter(season -> season.getSeasonOrder() >= getSeasonOrder())
+                .min(Comparator.comparingInt(EvaluationSeason::getSeasonOrder));
+    }
+
+    private boolean hasSameSeasonTypeAs(final EvaluationSeason season) {
+        return getEvaluationSeasonType() == season.getEvaluationSeasonType();
+    }
+
+    public void moveUp() {
+        findPreviousSeason(false).ifPresent(this::swapSeasonOrder);
+    }
+
+    public void moveDown() {
+        findNextSeason(false).ifPresent(this::swapSeasonOrder);
+    }
+
+    private void swapSeasonOrder(final EvaluationSeason neighbour) {
+        final Integer neighbourOrder = neighbour.getSeasonOrder();
+        neighbour.setSeasonOrder(getSeasonOrder());
+        setSeasonOrder(neighbourOrder);
+    }
+
     public static Stream<EvaluationSeason> readNormalSeasons() {
         return all().filter(EvaluationSeason::isNormal);
     }
@@ -217,4 +259,50 @@ public class EvaluationSeason extends EvaluationSeason_Base implements Comparabl
         return getExternalId().compareTo(o.getExternalId());
     }
 
+    protected enum EvaluationSeasonType {
+
+        NORMAL("label.EvaluationSeason.normal"),
+
+        SPECIAL_SEASON("label.EvaluationSeason.special"),
+
+        IMPROVEMENT("label.EvaluationSeason.improvement"),
+
+        SPECIAL_AUTHORIZATION("label.EvaluationSeason.specialAuthorization");
+
+        private final String descriptionKey;
+
+        EvaluationSeasonType(final String descriptionKey) {
+            this.descriptionKey = descriptionKey;
+        }
+
+        public LocalizedString getDescriptionI18N() {
+            return BundleUtil.getLocalizedString(Bundle.APPLICATION, descriptionKey);
+        }
+    }
+
+    protected EvaluationSeasonType getEvaluationSeasonType() {
+        if (isSpecialAuthorization()) {
+            return EvaluationSeasonType.SPECIAL_AUTHORIZATION;
+        } else if (isNormal()) {
+            return EvaluationSeasonType.NORMAL;
+        } else if (isSpecial()) {
+            return EvaluationSeasonType.SPECIAL_SEASON;
+        } else if (isImprovement()) {
+            return EvaluationSeasonType.IMPROVEMENT;
+        }
+
+        throw new DomainException("error.EvaluationSeason.missing.type");
+    }
+
+    public Integer getEvaluationSeasonTypePrecedence() {
+        return getEvaluationSeasonType().ordinal();
+    }
+
+    public LocalizedString getTypeDescriptionI18N() {
+        return getEvaluationSeasonType().getDescriptionI18N();
+    }
+
+    public LocalizedString getDescriptionI18N() {
+        return getName().builder().append(" [").append(getTypeDescriptionI18N()).append("]").build();
+    }
 }
